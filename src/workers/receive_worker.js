@@ -22,7 +22,7 @@ import {
   SystemConversationAction,
   ConversationCategory
 } from '@/utils/constants.js'
-import { downloadAttachment } from '@/utils/AttachmentDownloader.js'
+import { downloadAttachment } from '@/utils/attachment_util.js'
 
 class ReceiveWroker extends BaseWorker {
   async doWork() {

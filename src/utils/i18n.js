@@ -10,6 +10,7 @@ let transactions = {
     signal_no_content: 'Make sure your phone has an active Internet connection.',
     not_connected_title: 'Not connected',
     not_connected_content: 'Make sure has an active Internet connection.',
+    drag_file: 'Drag and drop images into the here',
     menu: {
       conversation: {
         0: 'Exit Group',
@@ -99,6 +100,7 @@ let transactions = {
     signal_no_content: '请确定手机有较好的网络讯号',
     not_connected_title: '未连接',
     not_connected_content: '请确定电脑的网络链接有效',
+    drag_file: '拖放图片到此处',
     menu: {
       conversation: {
         0: '退出群组',

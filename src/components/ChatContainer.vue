@@ -8,7 +8,16 @@
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
-    <ul class="messages" v-chat-scroll v-show="conversation" ref="messagesUl">
+    <ul
+      class="messages"
+      v-chat-scroll
+      v-show="conversation"
+      ref="messagesUl"
+      @dragenter="onDragEnter"
+      @drop="onDrop"
+      @dragover="onDragOver"
+      @dragleave="onDragLeave"
+    >
       <MessageItem
         v-for="(item, i) in messages"
         v-bind:key="item.id"
@@ -43,6 +52,16 @@
         <label>{{$t('chat.keep_des')}}</label>
       </span>
     </div>
+    <transition name="slide-bottom">
+      <FileContainer
+        class="media"
+        v-show="(dragging&&conversation) || file"
+        :file="file"
+        :dragging="dragging"
+        @onClose="onClose"
+        @sendFile="sendFile"
+      ></FileContainer>
+    </transition>
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
@@ -55,6 +74,7 @@ import { ConversationCategory, ConversationStatus, MessageStatus } from '@/utils
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
+import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import conversationDao from '@/dao/conversation_dao'
 import messageDao from '@/dao/message_dao.js'
@@ -71,7 +91,9 @@ export default {
       unreadMessageId: '',
       MessageStatus: MessageStatus,
       images: [],
-      inputFlag: false
+      inputFlag: false,
+      dragging: false,
+      file: null
     }
   },
   watch: {
@@ -126,7 +148,8 @@ export default {
     Dropdown,
     Avatar,
     Details,
-    MessageItem
+    MessageItem,
+    FileContainer
   },
   computed: {
     ...mapGetters({
@@ -145,7 +168,51 @@ export default {
       self.inputFlag = false
     })
   },
+  lastEnter: null,
   methods: {
+    onDragEnter(e) {
+      this.lastEnter = e.target
+      e.preventDefault()
+      this.dragging = true
+    },
+    onDragLeave(e) {
+      if (this.lastEnter === e.target) {
+        e.stopPropagation()
+        e.preventDefault()
+        this.dragging = false
+      }
+    },
+    onClose() {
+      this.file = null
+      this.dragging = false
+    },
+    sendFile() {
+      const category = this.user.app_id ? 'PLAIN_IMAGE' : 'SIGNAL_IMAGE'
+      const status = MessageStatus.SENDING
+      const message = {
+        conversationId: this.conversation.conversationId,
+        mediaUrl: this.file.path,
+        mediaMimeType: this.file.type,
+        category: category,
+        status: status
+      }
+      this.$store.dispatch('sendImageMessage', message)
+    },
+    onDragOver(e) {
+      e.preventDefault()
+    },
+    onDrop(e) {
+      e.preventDefault()
+      var fileList = e.dataTransfer.files
+      if (fileList.length > 0) {
+        this.file = fileList[0]
+      }
+      this.dragging = false
+    },
+    closeFile() {
+      this.dragging = false
+      this.file = null
+    },
     showDetails() {
       this.details = true
     },
@@ -336,6 +403,15 @@ export default {
     z-index: 10;
   }
 
+  .media {
+    position: absolute;
+    height: 100%;
+    left: 16rem;
+    border-left: 1px solid $border-color;
+    right: 0;
+    pointer-events: none;
+  }
+
   .slide-right-enter-active,
   .slide-right-leave-active {
     transition: all 0.3s;
@@ -343,6 +419,22 @@ export default {
   .slide-right-enter,
   .slide-right-leave-to {
     transform: translateX(100%);
+  }
+  .slide-bottom-enter-active,
+  .slide-bottom-leave-active {
+    transition: all 0.3s;
+  }
+  .slide-bottom-enter,
+  .slide-bottom-leave-to {
+    transform: translateY(200%);
+  }
+  .slide-bottom-enter-active,
+  .slide-bottom-leave-active {
+    transition: all 0.3s;
+  }
+  .slide-bottom-enter,
+  .slide-bottom-leave-to {
+    transform: translateY(200%);
   }
 }
 </style>

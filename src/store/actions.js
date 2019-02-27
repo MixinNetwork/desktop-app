@@ -143,6 +143,12 @@ export default {
     messageDao.insertTextMessage(payload)
     commit('refreshMessage', payload.conversationId)
   },
+  sendImageMessage: ({ commit }, payload) => {
+    // process image
+    markRead(payload.conversationId)
+    messageDao.insertImageMessage(payload)
+    commit('refreshMessage', payload.conversationId)
+  },
   init: ({ commit }) => {
     commit('init')
   },

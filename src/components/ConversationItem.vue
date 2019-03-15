@@ -1,0 +1,239 @@
+<template>
+  <li
+    class="conversation item"
+    @click="$emit('item-click',conversation,index)"
+    @mouseenter="enter"
+    @mouseleave="leave"
+    @contextmenu.prevent="$emit('item-more',conversation)"
+  >
+    <Avatar id="avatar" :conversation="conversation"/>
+    <div class="info">
+      <div class="title">
+        <div class="username">{{conversation.groupName?conversation.groupName:conversation.name}}</div>
+        <div class="time">{{timeAgo}}</div>
+      </div>
+      <div class="message">
+        <div v-if="conversation.contentType !== 'SYSTEM_CONVERSATION'">
+          <ICSending
+            v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING || conversation.messageStatus === MessageStatus.PENDING"
+            class="icon"
+          />
+          <ICSend
+            v-else-if="isSelf && conversation.messageStatus === MessageStatus.SENT"
+            class="icon"
+          />
+          <ICRead
+            v-else-if="isSelf && conversation.messageStatus === MessageStatus.DELIVERED"
+            class="icon wait"
+          />
+          <ICRead
+            v-else-if="isSelf && conversation.messageStatus === MessageStatus.READ"
+            class="icon"
+          />
+        </div>
+        <div class="last message">{{description}}</div>
+        <span
+          class="badge"
+          v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
+        >{{conversation.unseenMessageCount}}</span>
+        <ICPin v-if="conversation.pinTime"/>
+        <transition name="slide-right">
+          <a
+            @click="$emit('item-menu-click',conversation)"
+            @focus="onFocus"
+            @blur="onBlur"
+            href="javascript:void(0)"
+            v-show="show || fouse"
+          >
+            <font-awesome-icon class="down" icon="chevron-down"/>
+          </a>
+        </transition>
+      </div>
+    </div>
+  </li>
+</template>
+
+<script>
+import { timeAgo } from '@/utils/util.js'
+import { MessageStatus, SystemConversationAction } from '@/utils/constants.js'
+import Avatar from '@/components/Avatar.vue'
+import ICSend from '../assets/images/ic_status_send.svg'
+import ICRead from '../assets/images/ic_status_read.svg'
+import ICSending from '../assets/images/ic_status_clock.svg'
+import ICPin from '../assets/images/ic_pin_top.svg'
+
+export default {
+  name: 'ConversationItem',
+  props: ['conversation', 'index'],
+  components: {
+    Avatar,
+    ICSending,
+    ICSend,
+    ICRead,
+    ICPin
+  },
+  computed: {
+    timeAgo: function() {
+      return timeAgo(this.conversation.createdAt)
+    },
+    description: function() {
+      const { conversation } = this
+      const id = JSON.parse(localStorage.getItem('account')).user_id
+      if (conversation.contentType === 'SYSTEM_CONVERSATION') {
+        if (SystemConversationAction.CREATE === conversation.actionName) {
+          return this.$t('chat.chat_group_create', {
+            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
+            1: conversation.groupName
+          })
+        } else if (SystemConversationAction.ADD === conversation.actionName) {
+          return this.$t('chat.chat_group_add', {
+            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
+            1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
+          })
+        } else if (SystemConversationAction.REMOVE === conversation.actionName) {
+          return this.$t('chat.chat_group_remove', {
+            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
+            1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
+          })
+        } else if (SystemConversationAction.JOIN === conversation.actionName) {
+          return this.$t('chat.chat_group_join', {
+            0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
+          })
+        } else if (SystemConversationAction.EXIT === conversation.actionName) {
+          return this.$t('chat.chat_group_exit', {
+            0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
+          })
+        } else if (SystemConversationAction.ROLE === conversation.actionName) {
+          return this.$t('chat.chat_group_role')
+        } else {
+          return ''
+        }
+      } else if (conversation.contentType && conversation.contentType.endsWith('_IMAGE')) {
+        return this.$t('chat.chat_pic')
+      } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
+        return this.$t('chat.chat_sticker')
+      } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
+        return this.conversation.content
+      } else if (conversation.contentType !== null) {
+        return this.$t('chat.chat_no_support_title')
+      } else {
+        return ''
+      }
+    },
+    isSelf: function() {
+      return this.conversation.senderId === JSON.parse(localStorage.getItem('account')).user_id
+    }
+  },
+  data: function() {
+    return {
+      show: false,
+      fouse: false,
+      MessageStatus: MessageStatus
+    }
+  },
+  methods: {
+    enter: function() {
+      this.show = true
+    },
+    leave: function() {
+      this.show = false
+    },
+    onFocus: function() {
+      this.fouse = true
+    },
+    onBlur: function() {
+      this.fouse = false
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+$light-font-color: #aaa;
+li.conversation.item {
+  cursor: pointer;
+  border-bottom: 1px solid #f2f2f2;
+  display: flex;
+  align-items: stretch;
+  padding: 0.8rem 0.8rem;
+  &:hover,
+  &.current {
+    background: #f1f2f2;
+  }
+  #avatar {
+    width: 48px;
+    height: 48px;
+    margin-right: 0.8rem;
+  }
+  .info {
+    flex: 1;
+    overflow: hidden;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    .title {
+      display: flex;
+      flex-direction: row;
+      .username {
+        flex: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .time {
+        color: $light-font-color;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        margin: 0 0 0.2rem;
+      }
+    }
+
+    .message {
+      display: flex;
+      flex-flow: row nowrap;
+      min-height: 18px;
+      align-items: center;
+      .icon {
+        margin-right: 3px;
+      }
+      .last.message {
+        flex: 1;
+        color: $light-font-color;
+        font-size: 0.8rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .down {
+        color: #a7a7a7;
+        width: 16px;
+        height: 16px;
+      }
+
+      .badge {
+        background: #4b7ed2;
+        border-radius: 0.8rem;
+        box-sizing: border-box;
+        color: white;
+        font-size: 0.75rem;
+        margin-left: 8px;
+        padding: 0.25rem 0.5rem;
+      }
+      .wait {
+        path {
+          fill: #859479;
+        }
+      }
+    }
+  }
+}
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.15ss;
+}
+.slide-right-enter,
+.slide-right-leave-to {
+  transform: translateX(6px);
+}
+</style>

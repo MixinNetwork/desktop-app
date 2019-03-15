@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Mixin</title>
+    <script type="text/javascript" src="<%= BASE_URL %>wasm_exec.js"></script>
+    <script type="text/javascript" src="<%= BASE_URL %>libsignal-protocol.js"></script>
+    <script>
+      require('electron').webFrame.registerURLSchemeAsPrivileged('app')
+      const go = new Go()
+      let mod, inst
+      const wasmObject = WebAssembly.instantiateStreaming(fetch('libsignal.wasm'), go.importObject).then(result => {
+        mod = result.module
+        inst = result.instance
+        go.run(inst)
+      })
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

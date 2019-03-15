@@ -1,0 +1,371 @@
+<template>
+  <div class="navigation">
+    <div class="root">
+      <div class="header">
+        <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
+        <div id="edit" @click="showConveresation">
+          <ICEdit/>
+        </div>
+        <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile"/>
+      </div>
+      <div class="signal" v-show="linkStatus!=LinkStatus.CONNECTED">
+        <ICSignal class="signal_icon"></ICSignal>
+        <div class="content">
+          <label class="title">{{getLinkTitle()}}</label>
+          <label class="info">{{getLinkContent()}}</label>
+        </div>
+      </div>
+      <search class="nav" @input="onInput"></search>
+      <h5 v-if="Object.keys(conversations).length==0">{{$t('conversation.empty')}}</h5>
+      <ul class="conversations" v-show="conversations && !searchItems">
+        <ConversationItem
+          v-for="(conversation,key,index) in conversations"
+          :key="key"
+          :index="index"
+          :conversation="conversation"
+          :class="{active:currentConversationId === conversation.conversationId}"
+          @item-click="onConversationClick"
+          @item-more="openMenu"
+          @item-menu-click="openDownMenu"
+        />
+      </ul>
+      <ul class="conversations" v-show="searchItems">
+        <UserItem
+          v-for="(user,key) in searchItems"
+          :key="key"
+          :user="user"
+          @user-click="onClickUser"
+        ></UserItem>
+      </ul>
+    </div>
+    <transition name="slide-left">
+      <NewConversation
+        class="overlay"
+        v-if="conversationShow"
+        @conversation-back="hideConversation"
+        @user-click="onClickUser"
+        @newGroup="showGroup"
+      ></NewConversation>
+    </transition>
+    <transition name="slide-right">
+      <GroupContainer
+        class="overlay"
+        id="group"
+        v-if="groupShow"
+        @back="hideGroup"
+        @success="success"
+      ></GroupContainer>
+    </transition>
+    <transition name="slide-left">
+      <ProfileContainer class="overlay" id="profile" v-if="profileShow" @profile-back="hideProfile"></ProfileContainer>
+    </transition>
+    <transition name="slide-left">
+      <SettingContainer class="overlay" id="setting" v-if="settingShow" @setting-back="hideSetting"></SettingContainer>
+    </transition>
+  </div>
+</template>
+
+<script>
+import ConversationItem from '@/components/ConversationItem.vue'
+import Search from '@/components/Search.vue'
+import GroupContainer from '@/components/GroupContainer.vue'
+import ProfileContainer from '@/components/ProfileContainer.vue'
+import SettingContainer from '@/components/SettingContainer.vue'
+import NewConversation from '@/components/NewConversation.vue'
+import Dropdown from '@/components/menu/Dropdown.vue'
+import Avatar from '@/components/Avatar.vue'
+import UserItem from '@/components/UserItem.vue'
+import ICEdit from '../assets/images/ic_edit.svg'
+import ICSignal from '../assets/images/ic_signal.svg'
+import workerManager from '@/workers/worker_manager.js'
+import { clearDb } from '@/persistence/db_util.js'
+import accountAPI from '@/api/account.js'
+import { ConversationCategory, ConversationStatus, LinkStatus } from '@/utils/constants.js'
+import { mapGetters } from 'vuex'
+export default {
+  name: 'navigation',
+  data() {
+    return {
+      conversationShow: false,
+      groupShow: false,
+      profileShow: false,
+      settingShow: false,
+      menus: this.$t('menu.personal'),
+      LinkStatus: LinkStatus,
+      ConversationCategory: ConversationCategory
+    }
+  },
+  methods: {
+    onItemClick(index) {
+      if (index === 0) {
+        this.groupShow = true
+      } else if (index === 1) {
+        this.profileShow = true
+      } else if (index === 2) {
+        this.settingShow = true
+      } else if (index === 3) {
+        workerManager.stop(this.exit)
+      }
+    },
+    exit() {
+      accountAPI.logout().then(resp => {
+        this.$blaze.closeBlaze()
+        this.$router.push('/sign_in')
+        clearDb()
+      })
+    },
+    openMenu: function(conversation) {
+      const isContact = conversation.category === ConversationCategory.CONTACT
+      const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime)
+      this.$Menu.alert(event.clientX, event.clientY, menu, index => {
+        const option = menu[index]
+        const conversationMenu = this.$t('menu.conversation')
+        this.handlerMenu(
+          Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
+          isContact,
+          conversation.conversationId,
+          conversation.pinTime
+        )
+      })
+    },
+    openDownMenu: function(conversation, index) {
+      const isContact = conversation.category === ConversationCategory.CONTACT
+      const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime)
+      this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
+        const option = menu[index]
+        const conversationMenu = this.$t('menu.conversation')
+        this.handlerMenu(
+          Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
+          isContact,
+          conversation.conversationId,
+          conversation.pinTime
+        )
+      })
+    },
+    handlerMenu: function(index, isContact, conversationId, pinTime) {
+      let position = parseInt(index)
+      if (position === 0) {
+        this.$store.dispatch('exitGroup', conversationId)
+      } else if (position === 1 || position === 2) {
+        this.$store.dispatch('pinTop', {
+          conversationId: conversationId,
+          pinTime: pinTime
+        })
+      } else if (position === 3) {
+        this.$store.dispatch('conversationClear', conversationId)
+      }
+    },
+    getMenu: function(isContact, isExit, pinTime) {
+      const conversationMenu = this.$t('menu.conversation')
+      var menu = []
+      if (!isContact) {
+        if (!isExit) {
+          menu.push(conversationMenu[0])
+        }
+        if (!pinTime) {
+          menu.push(conversationMenu[1])
+        } else {
+          menu.push(conversationMenu[2])
+        }
+        menu.push(conversationMenu[3])
+      } else {
+        if (!pinTime) {
+          menu.push(conversationMenu[1])
+        } else {
+          menu.push(conversationMenu[2])
+        }
+        menu.push(conversationMenu[3])
+      }
+      return menu
+    },
+    showConveresation: function(event) {
+      this.conversationShow = true
+    },
+    hideConversation: function() {
+      this.conversationShow = false
+    },
+    showProfile: function() {
+      this.profileShow = true
+    },
+    hideProfile: function() {
+      this.profileShow = false
+    },
+    showGroup: function() {
+      this.groupShow = true
+    },
+    hideGroup: function() {
+      this.groupShow = false
+    },
+    hideSetting: function() {
+      this.settingShow = false
+    },
+    onInput: function(text) {
+      this.$store.dispatch('search', {
+        text
+      })
+    },
+    success: function() {
+      this.conversationShow = false
+      this.groupShow = false
+    },
+    onConversationClick: function(conversation, index) {
+      this.$store.dispatch('setCurrentConversation', conversation.conversationId)
+    },
+    onClickUser: function(user) {
+      this.conversationShow = false
+      this.$store.dispatch('searchClear')
+      this.$store.dispatch('createUserConversation', {
+        user
+      })
+    },
+    getLinkTitle() {
+      if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
+        return this.$t('not_connected_title')
+      } else {
+        return this.$t('signal_no_title')
+      }
+    },
+    getLinkContent() {
+      if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
+        return this.$t('not_connected_content')
+      } else {
+        return this.$t('signal_no_content')
+      }
+    }
+  },
+  components: {
+    ConversationItem,
+    Search,
+    GroupContainer,
+    NewConversation,
+    Dropdown,
+    ICEdit,
+    ICSignal,
+    Avatar,
+    ProfileContainer,
+    SettingContainer,
+    UserItem
+  },
+  computed: mapGetters({
+    currentConversationId: 'currentConversationId',
+    conversations: 'getConversations',
+    friends: 'findFriends',
+    me: 'me',
+    searchItems: 'search',
+    linkStatus: 'linkStatus'
+  })
+}
+</script>
+
+<style lang="scss" scoped>
+.navigation {
+  background: white;
+  border-right: 1px solid $border-color;
+  flex: 0 0 16rem;
+  display: flex;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+
+  .root {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    .conversations {
+      overflow: auto;
+      flex: 1 0 0;
+      .active {
+        background: #e9ebeb;
+      }
+    }
+    .header {
+      background: #ededed;
+      border-bottom: 1px solid #fbfbfb;
+      height: 3.6rem;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      #edit {
+        display: flex;
+        margin-right: 1rem;
+      }
+      #menu {
+        margin-right: 1rem;
+        cursor: pointer;
+      }
+      #edit {
+        cursor: pointer;
+      }
+      #avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        margin-right: 2rem;
+        cursor: pointer;
+      }
+    }
+    h5 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .signal {
+      width: 100%;
+      background: #f6d67d;
+      display: flex;
+      padding: 10px;
+      align-items: center;
+      .signal_icon {
+        flex-shrink: 0;
+      }
+      .content {
+        margin-left: 6px;
+        display: flex;
+        flex-direction: column;
+        .title {
+          font-size: 16px;
+          font-weight: 500;
+        }
+        .info {
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .overlay {
+    z-index: 10;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    left: 0;
+  }
+
+  .nav {
+    border-bottom: 1px solid $border-color;
+    padding: 0.45rem 0.75rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .slide-left-enter-active,
+  .slide-left-leave-active {
+    transition: all 0.3s;
+  }
+  .slide-left-enter,
+  .slide-left-leave-to {
+    transform: translateX(-100%);
+  }
+  .slide-right-enter-active,
+  .slide-right-leave-active {
+    transition: all 0.3s;
+  }
+  .slide-right-enter,
+  .slide-right-leave-to {
+    transform: translateX(200%);
+  }
+}
+</style>

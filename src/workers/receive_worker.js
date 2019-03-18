@@ -10,7 +10,10 @@ import BaseWorker from './base_worker'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
 import i18n from '@/utils/i18n.js'
+import moment from 'moment'
 import { sendNotification } from '@/utils/util.js'
+import { remote } from 'electron'
+
 import {
   MessageStatus,
   MediaStatus,
@@ -59,6 +62,8 @@ class ReceiveWroker extends BaseWorker {
     const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, 1, data.data, data.category)
     if (plaintext) {
       await this.processDecryptSuccess(data, plaintext)
+    } else {
+      console.log(data)
     }
   }
 
@@ -531,22 +536,34 @@ class ReceiveWroker extends BaseWorker {
     if (source === 'LIST_PENDING_SESSION_MESSAGES') {
       return
     }
-    // TODO is current chat
+    if (remote.getCurrentWindow().isFocused()) {
+      return
+    }
     const accountId = JSON.parse(localStorage.getItem('account')).user_id
     if (accountId === userId) {
       return
     }
 
-    const conversation = conversationDao.getConversationById(conversationId)
+    const conversation = conversationDao.getSimpleConversationItem(conversationId)
     if (!conversation) {
       return
     }
+    if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+      if (moment().isBefore(conversation.ownerMuteUntil)) {
+        return
+      }
+    }
+    if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+      if (moment().isBefore(conversation.muteUntil)) {
+        return
+      }
+    }
     if (conversation.category === ConversationCategory.GROUP) {
       const body = fullName + ': ' + content
-      sendNotification(conversation.name, body, conversationId)
-    } else if (conversation.category === ConversationCategory.CONTACT && conversation.owner_id !== userId) {
+      sendNotification(conversation.groupName, body, conversationId)
+    } else if (conversation.category === ConversationCategory.CONTACT && conversation.ownerId !== userId) {
       const body = fullName + ': ' + content
-      const user = userDao.findUserById(conversation.owner_id)
+      const user = userDao.findUserById(conversation.ownerId)
       sendNotification(user.full_name, body, conversationId)
     } else {
       sendNotification(fullName, content, conversationId)

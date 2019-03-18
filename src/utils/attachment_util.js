@@ -48,6 +48,12 @@ export async function downloadAttachment(message, callback) {
   }
 }
 
+export function processImage(imagePath, mimeType) {
+  const filePath = path.join(getImagePath(), generateName(mimeType))
+  fs.createReadStream(imagePath).pipe(fs.createWriteStream(filePath))
+  return filePath
+}
+
 function generateName(mimeType) {
   const date = new Date()
   const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}${date.getSeconds()}`

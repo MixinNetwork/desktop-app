@@ -197,6 +197,8 @@ export default {
         status: status
       }
       this.$store.dispatch('sendImageMessage', message)
+      this.file = null
+      this.dragging = false
     },
     onDragOver(e) {
       e.preventDefault()

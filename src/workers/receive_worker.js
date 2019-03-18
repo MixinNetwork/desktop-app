@@ -304,7 +304,6 @@ class ReceiveWroker extends BaseWorker {
       if (mediaData.width === null || mediaData.width === 0 || mediaData.height === null || mediaData.height === 0) {
         return
       }
-
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
@@ -336,11 +335,11 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
+      messageDao.insertMessage(message)
       await downloadAttachment(message, filePath => {
         messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
         store.dispatch('refreshMessage', data.conversation_id)
       })
-      messageDao.insertMessage(message)
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_VIDEO')) {

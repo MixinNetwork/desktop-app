@@ -27,7 +27,7 @@ export async function downloadAttachment(message, callback) {
         const mediaKey = base64ToUint8Array(message.media_key).buffer
         const mediaDigest = base64ToUint8Array(message.media_digest).buffer
         cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest).then(resp => {
-          const name = generateName(message.name, message.mime_type, message.category)
+          const name = generateName(message.name, message.media_mime_type, message.category)
           const filePath = path.join(dir, name)
           fs.writeFile(filePath, Buffer.from(resp), function(err) {
             if (err) {
@@ -42,7 +42,7 @@ export async function downloadAttachment(message, callback) {
       downloadPlain(
         response.data.data.view_url,
         dir,
-        generateName(message.name, message.mime_type, message.category),
+        generateName(message.name, message.media_mime_type, message.category),
         file => {
           callback(file.path)
         }

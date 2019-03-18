@@ -1,12 +1,17 @@
 <template>
   <div class="navigation">
     <div class="root">
-      <div class="header">
-        <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
-        <div id="edit" @click="showConveresation">
-          <ICEdit/>
-        </div>
+      <div
+        class="header"
+        v-bind:style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}"
+      >
         <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile"/>
+        <div class="action_bar">
+          <div id="edit" @click="showConveresation">
+            <ICEdit/>
+          </div>
+          <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
+        </div>
       </div>
       <div class="signal" v-show="linkStatus!=LinkStatus.CONNECTED">
         <ICSignal class="signal_icon"></ICSignal>
@@ -92,7 +97,8 @@ export default {
       settingShow: false,
       menus: this.$t('menu.personal'),
       LinkStatus: LinkStatus,
-      ConversationCategory: ConversationCategory
+      ConversationCategory: ConversationCategory,
+      isMacOS: platform.os.family === 'OS X'
     }
   },
   methods: {
@@ -261,7 +267,7 @@ export default {
 .navigation {
   background: white;
   border-right: 1px solid $border-color;
-  flex: 0 0 16rem;
+  flex: 0 0 18rem;
   display: flex;
   height: 100vh;
   position: relative;
@@ -283,24 +289,29 @@ export default {
       border-bottom: 1px solid #fbfbfb;
       height: 3.6rem;
       display: flex;
-      flex-direction: row-reverse;
+      flex-direction: row;
       align-items: center;
-      #edit {
-        display: flex;
-        margin-right: 1rem;
-      }
-      #menu {
-        margin-right: 1rem;
-        cursor: pointer;
-      }
-      #edit {
-        cursor: pointer;
-      }
+      padding-left: 1rem;
+      padding-right: 1rem;
+      justify-content: space-between;
+
       #avatar {
         width: 2.5rem;
         height: 2.5rem;
         margin-right: 2rem;
         cursor: pointer;
+      }
+      .action_bar {
+        display: flex;
+        flex-direction: row;
+        align-items: baseline;
+        #edit {
+          margin-right: 1rem;
+          cursor: pointer;
+        }
+        #menu {
+          cursor: pointer;
+        }
       }
     }
     h5 {

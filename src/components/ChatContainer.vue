@@ -329,7 +329,7 @@ export default {
 
   .overlay {
     position: absolute;
-    left: 16rem;
+    left: 18rem;
     right: 0;
     height: 100%;
     border-left: 1px solid $border-color;

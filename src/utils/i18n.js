@@ -86,7 +86,8 @@ let transactions = {
     notification: {
       sendPhoto: 'send a photo',
       sendVideo: 'send a video',
-      sendSticker: 'send a sticker'
+      sendSticker: 'send a sticker',
+      sendContact: 'shared a contact'
     }
   },
   zh: {
@@ -174,7 +175,8 @@ let transactions = {
     notification: {
       sendPhoto: '发送了一个图片',
       sendVideo: '发送了一个视频',
-      sendSticker: '发送了一个贴纸'
+      sendSticker: '发送了一个贴纸',
+      sendContact: '分享了一个联系人'
     }
   }
 }

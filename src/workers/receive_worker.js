@@ -531,6 +531,8 @@ class ReceiveWroker extends BaseWorker {
       }
       messageDao.insertMessage(message)
       await this.syncUser(contactData.user_id)
+      const body = i18n.t('notification.sendContact')
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
     store.dispatch('refreshMessage', data.conversation_id)

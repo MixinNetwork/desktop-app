@@ -136,6 +136,7 @@ export default {
             return item.user_id === this.me.user_id
           })
         }
+        menu.push(chatMenu[3])
         this.menus = menu
       }
     }
@@ -235,6 +236,25 @@ export default {
           this.$t('ok'),
           () => {
             this.$store.dispatch('conversationClear', this.conversation.conversationId)
+          },
+          this.$t('cancel'),
+          () => {
+            console.log('cancel')
+          }
+        )
+      } else if (key === 3) {
+        this.$Dialog.options(
+          this.$t('chat.mute_title'),
+          this.$t('chat.mute_menu'),
+          this.$t('ok'),
+          picked => {
+            if (picked === 0) {
+              this.$toast(this.$t('chat.mute_hours'))
+            } else if (picked === 1) {
+              this.$toast(this.$t('chat.mute_week'))
+            } else {
+              this.$toast(this.$t('chat.mute_year'))
+            }
           },
           this.$t('cancel'),
           () => {

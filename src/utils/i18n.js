@@ -16,12 +16,14 @@ let transactions = {
         0: 'Exit Group',
         1: 'Pin to top',
         2: 'Clear Pin',
-        3: 'Clear'
+        3: 'Clear',
+        4: 'Mute'
       },
       chat: {
         0: 'Contact info',
         1: 'Exit group',
-        2: 'Clear'
+        2: 'Clear',
+        3: 'Mute'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout']
     },
@@ -108,12 +110,14 @@ let transactions = {
         0: '退出群组',
         1: '置顶对话',
         2: '取消置顶',
-        3: '删除'
+        3: '删除',
+        4: '静音'
       },
       chat: {
         0: '联系人资料',
         1: '退出群组',
-        2: '清除消息'
+        2: '清除消息',
+        3: '静音'
       },
       personal: ['新建群组', '个人信息', '设置', '登出']
     },

@@ -85,7 +85,10 @@ import ICSignal from '../assets/images/ic_signal.svg'
 import workerManager from '@/workers/worker_manager.js'
 import { clearDb } from '@/persistence/db_util.js'
 import accountAPI from '@/api/account.js'
-import { ConversationCategory, ConversationStatus, LinkStatus } from '@/utils/constants.js'
+import conversationAPI from '@/api/conversation.js'
+import conversationDao from '@/dao/conversation_dao'
+import userDao from '@/dao/user_dao'
+import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
 export default {
   name: 'navigation',
@@ -130,7 +133,8 @@ export default {
           Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
           isContact,
           conversation.conversationId,
-          conversation.pinTime
+          conversation.pinTime,
+          conversation.ownerId
         )
       })
     },
@@ -144,11 +148,12 @@ export default {
           Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
           isContact,
           conversation.conversationId,
-          conversation.pinTime
+          conversation.pinTime,
+          conversation.ownerId
         )
       })
     },
-    handlerMenu: function(index, isContact, conversationId, pinTime) {
+    handlerMenu: function(index, isContact, conversationId, pinTime, ownerId) {
       let position = parseInt(index)
       if (position === 0) {
         this.$store.dispatch('exitGroup', conversationId)
@@ -159,6 +164,43 @@ export default {
         })
       } else if (position === 3) {
         this.$store.dispatch('conversationClear', conversationId)
+      } else if (position === 4) {
+        this.$Dialog.options(
+          this.$t('chat.mute_title'),
+          this.$t('chat.mute_menu'),
+          this.$t('ok'),
+          picked => {
+            let duration = MuteDuration.HOURS
+            if (picked === 0) {
+              duration = MuteDuration.HOURS
+            } else if (picked === 1) {
+              duration = MuteDuration.WEEK
+            } else {
+              duration = MuteDuration.YEAR
+            }
+            conversationAPI.mute(conversationId, duration).then(resp => {
+              if (resp.data.data) {
+                const c = resp.data.data
+                if (c.category === ConversationCategory.CONTACT) {
+                  userDao.updateMute(c.mute_until, ownerId)
+                } else if (c.category === ConversationCategory.GROUP) {
+                  conversationDao.updateMute(c.mute_until, c.conversation_id)
+                }
+                if (picked === 0) {
+                  this.$toast(this.$t('chat.mute_hours'))
+                } else if (picked === 1) {
+                  this.$toast(this.$t('chat.mute_week'))
+                } else {
+                  this.$toast(this.$t('chat.mute_year'))
+                }
+              }
+            })
+          },
+          this.$t('cancel'),
+          () => {
+            console.log('cancel')
+          }
+        )
       }
     },
     getMenu: function(isContact, isExit, pinTime) {
@@ -182,6 +224,7 @@ export default {
         }
         menu.push(conversationMenu[3])
       }
+      menu.push(conversationMenu[4])
       return menu
     },
     showConveresation: function(event) {

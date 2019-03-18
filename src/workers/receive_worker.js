@@ -530,6 +530,7 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       messageDao.insertMessage(message)
+      await this.syncUser(contactData.user_id)
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
     store.dispatch('refreshMessage', data.conversation_id)

@@ -39,7 +39,8 @@
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
-        <ICPin v-if="conversation.pinTime"/>
+        <ICMute v-if="this.isMute()" class="icon"/>
+        <ICPin v-if="conversation.pinTime" class="icon"/>
         <transition name="slide-right">
           <a
             @click="$emit('item-menu-click',conversation)"
@@ -58,7 +59,7 @@
 
 <script>
 import { timeAgo } from '@/utils/util.js'
-import { MessageStatus, SystemConversationAction } from '@/utils/constants.js'
+import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants.js'
 import Avatar from '@/components/Avatar.vue'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
@@ -66,6 +67,8 @@ import ICSending from '../assets/images/ic_status_clock.svg'
 import ICPin from '../assets/images/ic_pin_top.svg'
 import ICRobot from '../assets/images/ic_robot.svg'
 import ICVerify from '../assets/images/ic_verify.svg'
+import ICMute from '../assets/images/ic_mute.svg'
+import moment from 'moment'
 
 export default {
   name: 'ConversationItem',
@@ -77,7 +80,8 @@ export default {
     ICRead,
     ICPin,
     ICRobot,
-    ICVerify
+    ICVerify,
+    ICMute
   },
   computed: {
     timeAgo: function() {
@@ -152,6 +156,19 @@ export default {
     },
     onBlur: function() {
       this.fouse = false
+    },
+    isMute: function() {
+      if (this.conversation.category === ConversationCategory.CONTACT && this.conversation.ownerMuteUntil) {
+        if (moment().isBefore(this.conversation.ownerMuteUntil)) {
+          return true
+        }
+      }
+      if (this.conversation.category === ConversationCategory.GROUP && this.conversation.muteUntil) {
+        if (moment().isBefore(this.conversation.muteUntil)) {
+          return true
+        }
+      }
+      return false
     }
   }
 }

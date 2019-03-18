@@ -52,7 +52,6 @@ export default {
   },
   methods: {
     messageOwnership: function() {
-      let { message, me } = this
       return {
         send: this.message.userId === this.me.user_id,
         receive: this.message.userId !== this.me.user_id

@@ -28,5 +28,8 @@ export default {
   },
   exit(id) {
     return api.post('conversations/' + id + '/exit')
+  },
+  mute(id, duration) {
+    return api.post('conversations/' + id + '/mute', { duration })
   }
 }

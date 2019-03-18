@@ -5,6 +5,7 @@
 <style scoped>
 .wrap {
   position: fixed;
+  z-index: 99;
   left: 16px;
   bottom: 16px;
   background: rgba(0, 0, 0, 0.8);

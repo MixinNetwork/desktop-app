@@ -14,6 +14,7 @@ execa('electron-icon-maker', ['--input=./icon.png', '--output=./build'], {
     })
     fs.copyFileSync('./build/icons/win/icon.ico', './build/icons/icon.ico')
     fs.copyFileSync('./build/icons/mac/icon.icns', './build/icons/icon.icns')
+    fs.copyFileSync('./build/icons/mac/icon.icns', './build/icon.icns')
     fs.removeSync('./build/icons/win')
     fs.removeSync('./build/icons/mac')
     fs.removeSync('./build/icons/png')

@@ -9,7 +9,10 @@
     <Avatar id="avatar" :conversation="conversation"/>
     <div class="info">
       <div class="title">
-        <div class="username">{{conversation.groupName?conversation.groupName:conversation.name}}</div>
+        <div class="username">
+          {{conversation.groupName?conversation.groupName:conversation.name}}
+          <ICRobot v-if="conversation.appId"/>
+        </div>
         <div class="time">{{timeAgo}}</div>
       </div>
       <div class="message">
@@ -61,6 +64,8 @@ import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICPin from '../assets/images/ic_pin_top.svg'
+import ICRobot from '../assets/images/ic_robot.svg'
+import ICVerify from '../assets/images/ic_verify.svg'
 
 export default {
   name: 'ConversationItem',
@@ -70,7 +75,9 @@ export default {
     ICSending,
     ICSend,
     ICRead,
-    ICPin
+    ICPin,
+    ICRobot,
+    ICVerify
   },
   computed: {
     timeAgo: function() {

@@ -6,27 +6,29 @@
       </div>
       <div class="content">
         <span class="name">{{fileName}}</span>
-        <span class="number">{{fileSize}}</span>
+        <div class="bottom">
+          <span class="number">{{fileSize}}</span>
+          <span class="time">
+            {{message.lt}}
+            <ICSending
+              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+              class="icon"
+            />
+            <ICSend
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+              class="icon"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+              class="icon wait"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+              class="icon"
+            />
+          </span>
+        </div>
       </div>
-      <span class="time">
-        {{message.lt}}
-        <ICSending
-          v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
-          class="icon"
-        />
-        <ICSend
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-          class="icon"
-        />
-        <ICRead
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-          class="icon wait"
-        />
-        <ICRead
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-          class="icon"
-        />
-      </span>
     </div>
   </div>
 </template>
@@ -63,8 +65,8 @@ export default {
   computed: {
     fileName: function() {
       let name = this.message.mediaName
-      if (name.length > 15) {
-        return `${name.substring(0, 6)}...${name.substring(name.length - 7, name.length)}`
+      if (name.length > 18) {
+        return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
       } else {
         return name
       }
@@ -95,18 +97,16 @@ export default {
   padding-left: 0.8rem;
   padding-right: 0.8rem;
   .file {
-    overflow: hidden;
-    padding-left: 12px;
-    padding-right: 0.2rem;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding: 12px;
     background: white;
-    border-radius: 0.4rem;
-    flex-direction: row;
     display: flex;
+    flex-direction: row;
+    align-content: center;
+    width: 12rem;
+    border-radius: 0.4rem;
     box-shadow: 1px 1px 1px #33333333;
     .ic {
-      margin-right: 16px;
+      margin-right: 12px;
       background: #f2f2f6;
       border-radius: 20px;
       display: flex;
@@ -123,31 +123,41 @@ export default {
     }
     .content {
       display: flex;
-      width: 100px;
+      flex: 1;
       flex-direction: column;
-      margin-right: 16px;
       text-align: start;
-      justify-content: space-between;
-
+      overflow: hidden;
       .name {
+        font-size: 1rem;
+        overflow: hidden;
         white-space: nowrap;
+        text-overflow: ellipsis;
       }
-
-      .number {
-        color: #88888888;
-        font-size: 0.8rem;
-      }
-    }
-    .time {
-      color: #8799a5;
-      display: flex;
-      float: right;
-      font-size: 0.75rem;
-      bottom: 0.3rem;
-      right: 0.2rem;
-      align-items: flex-end;
-      .icon {
-        padding-left: 0.2rem;
+      .bottom {
+        display: flex;
+        justify-content: space-between;
+        .number {
+          color: #88888888;
+          font-size: 0.8rem;
+          margin-top: 6px;
+        }
+        .time {
+          color: #8799a5;
+          display: flex;
+          float: right;
+          font-size: 0.75rem;
+          bottom: 0.3rem;
+          right: 0.2rem;
+          align-items: flex-end;
+          .icon {
+            padding-left: 0.2rem;
+          }
+          .wait {
+            path {
+              fill: #859479;
+            }
+          }
+        }
       }
     }
   }

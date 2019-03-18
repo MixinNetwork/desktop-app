@@ -62,7 +62,7 @@ class UserDao {
   findUserById(userId) {
     return db.prepare('SELECT * FROM users WHERE user_id == ?').get(userId)
   }
-  updateUserMute(muteUntil, userId) {
+  updateMute(muteUntil, userId) {
     return db.prepare('UPDATE users SET mute_until = ? WHERE user_id = ?').run(muteUntil, userId)
   }
 }

@@ -55,7 +55,7 @@
     <transition name="slide-bottom">
       <FileContainer
         class="media"
-        v-show="(dragging&&conversation) || file"
+        v-if="false"
         :file="file"
         :dragging="dragging"
         @onClose="onClose"

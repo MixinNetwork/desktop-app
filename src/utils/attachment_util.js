@@ -27,7 +27,7 @@ export async function downloadAttachment(message, callback) {
         const mediaKey = base64ToUint8Array(message.media_key).buffer
         const mediaDigest = base64ToUint8Array(message.media_digest).buffer
         cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest).then(resp => {
-          const name = generateName(message.mime_type)
+          const name = generateName(message.name, message.mime_type, message.category)
           const filePath = path.join(dir, name)
           fs.writeFile(filePath, Buffer.from(resp), function(err) {
             if (err) {
@@ -39,18 +39,39 @@ export async function downloadAttachment(message, callback) {
         })
       })
     } else {
-      downloadPlain(response.data.data.view_url, dir, generateName(message.mime_type), file => {
-        callback(file.path)
-      })
+      downloadPlain(
+        response.data.data.view_url,
+        dir,
+        generateName(message.name, message.mime_type, message.category),
+        file => {
+          callback(file.path)
+        }
+      )
     }
   } else {
     // todo retry
   }
 }
 
-function generateName(mimeType) {
+export function processImage(imagePath, mimeType) {
+  const filePath = path.join(getImagePath(), generateName(mimeType))
+  fs.createReadStream(imagePath).pipe(fs.createWriteStream(filePath))
+  return filePath
+}
+
+function generateName(fileName, mimeType, category) {
   const date = new Date()
   const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}${date.getSeconds()}`
+  var header
+  if (category.endsWith('_IMAGE')) {
+    header = 'IMG'
+  } else if (category.endsWith('_VIDEO')) {
+    header = 'VID'
+  } else if (category.endsWith('_DATA')) {
+    header = 'FILE'
+  } else if (category.endsWith('_AUDIO')) {
+    header = 'AUDIO'
+  }
   var extension
   if (mimeType === MimeType.JPEG.name) {
     extension = MimeType.JPEG.extension
@@ -65,9 +86,9 @@ function generateName(mimeType) {
   } else if (mimeType === MimeType.WEBP.name) {
     extension = MimeType.WEBP.extension
   } else {
-    extension = MimeType.JPEG.extension
+    extension = fileName.split('.').pop()
   }
-  return `IMAGE_${name}.${extension}`
+  return `${header}_${name}.${extension}`
 }
 
 function downloadCipher(url, callbackData) {

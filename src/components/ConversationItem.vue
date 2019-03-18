@@ -123,6 +123,8 @@ export default {
         return this.conversation.content
       } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
         return this.$t('chat.chat_contact')
+      } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {
+        return this.$t('chat.chat_file')
       } else if (conversation.contentType !== null) {
         return this.$t('chat.chat_no_support_title')
       } else {

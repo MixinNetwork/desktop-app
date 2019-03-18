@@ -64,7 +64,8 @@ let transactions = {
       chat_create_group: 'Create group',
       chat_sticker: 'Sticker',
       chat_pic: 'Photo',
-      chat_contact: 'Contact'
+      chat_contact: 'Contact',
+      chat_file: 'File'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -88,7 +89,8 @@ let transactions = {
       sendPhoto: 'send a photo',
       sendVideo: 'send a video',
       sendSticker: 'send a sticker',
-      sendContact: 'shared a contact'
+      sendContact: 'shared a contact',
+      sendFile: 'send a file'
     }
   },
   zh: {
@@ -154,7 +156,8 @@ let transactions = {
       chat_create_group: '创建群组',
       chat_sticker: '贴纸',
       chat_pic: '照片',
-      chat_contact: '联系人'
+      chat_contact: '联系人',
+      chat_file: '文件'
     },
     loading: {
       initializing: '初始化中...'
@@ -178,7 +181,8 @@ let transactions = {
       sendPhoto: '发送了一个图片',
       sendVideo: '发送了一个视频',
       sendSticker: '发送了一个贴纸',
-      sendContact: '分享了一个联系人'
+      sendContact: '分享了一个联系人',
+      sendFile: '发送了一个文件'
     }
   }
 }

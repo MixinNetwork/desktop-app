@@ -13,6 +13,13 @@
       :coversation="conversation"
       @user-click="$emit('user-click',message.sharedUserId)"
     ></ContactItem>
+    <FileItem
+      v-else-if="message.type.endsWith('_DATA')"
+      :message="message"
+      :me="me"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.sharedUserId)"
+    ></FileItem>
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -76,6 +83,7 @@ import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
 import ReplyMessage from './ReplyMessageItem'
 import ContactItem from './ContactItem'
+import FileItem from './FileItem'
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread', 'images'],
@@ -84,7 +92,8 @@ export default {
     ICSend,
     ICRead,
     ReplyMessage,
-    ContactItem
+    ContactItem,
+    FileItem
   },
   data: function() {
     return {
@@ -138,12 +147,7 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
-      } else if (
-        type.endsWith('_VIDEO') ||
-        type.endsWith('_AUDIO') ||
-        type.endsWith('_DATA') ||
-        type.startsWith('_APP')
-      ) {
+      } else if (type.endsWith('_VIDEO') || type.endsWith('_AUDIO') || type.startsWith('_APP')) {
         return 'mobile'
       } else {
         return 'unknown'

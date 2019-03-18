@@ -1,0 +1,161 @@
+<template>
+  <div class="layout" v-bind:class="messageOwnership()">
+    <div class="file" @click="openFile">
+      <div class="ic">
+        <span class="text">FILE</span>
+      </div>
+      <div class="content">
+        <span class="name">{{fileName}}</span>
+        <span class="number">{{fileSize}}</span>
+      </div>
+      <span class="time">
+        {{message.lt}}
+        <ICSending
+          v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+          class="icon"
+        />
+        <ICSend
+          v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+          class="icon"
+        />
+        <ICRead
+          v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+          class="icon wait"
+        />
+        <ICRead
+          v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+          class="icon"
+        />
+      </span>
+    </div>
+  </div>
+</template>
+<script>
+import ICSending from '../assets/images/ic_status_clock.svg'
+import ICSend from '../assets/images/ic_status_send.svg'
+import ICRead from '../assets/images/ic_status_read.svg'
+import { MessageStatus } from '@/utils/constants.js'
+
+export default {
+  props: ['conversation', 'message', 'me'],
+  components: {
+    ICSending,
+    ICSend,
+    ICRead
+  },
+  data: function() {
+    return {
+      MessageStatus: MessageStatus
+    }
+  },
+  methods: {
+    openFile: function() {
+      //
+    },
+    messageOwnership: function() {
+      let { message, me } = this
+      return {
+        send: message.userId === me.user_id,
+        receive: message.userId !== me.user_id
+      }
+    }
+  },
+  computed: {
+    fileName: function() {
+      let name = this.message.mediaName
+      if (name.length > 15) {
+        return `${name.substring(0, 6)}...${name.substring(name.length - 7, name.length)}`
+      } else {
+        return name
+      }
+    },
+    fileSize: function() {
+      let num = parseFloat(this.message.mediaSize)
+      var count = 0
+      while (count > 3 || num > 1024) {
+        num /= 1024
+        count++
+      }
+      var unit = 'Byte'
+      if (count === 1) {
+        unit = 'KB'
+      } else if (count === 2) {
+        unit = 'MB'
+      } else if (count === 3) {
+        unit = 'GB'
+      }
+      return `${Math.round(num * 100) / 100} ${unit}`
+    }
+  }
+}
+</script>
+<style lang="scss" scoped>
+.layout {
+  display: flex;
+  padding-left: 0.8rem;
+  padding-right: 0.8rem;
+  .file {
+    overflow: hidden;
+    padding-left: 12px;
+    padding-right: 0.2rem;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    background: white;
+    border-radius: 0.4rem;
+    flex-direction: row;
+    display: flex;
+    box-shadow: 1px 1px 1px #33333333;
+    .ic {
+      margin-right: 16px;
+      background: #f2f2f6;
+      border-radius: 20px;
+      display: flex;
+      height: 40px;
+      justify-content: center;
+      align-items: center;
+      .text {
+        width: 40px;
+        color: #a5a5a4;
+        text-align: center;
+        font-size: 0.7rem;
+        font-weight: 500;
+      }
+    }
+    .content {
+      display: flex;
+      width: 100px;
+      flex-direction: column;
+      margin-right: 16px;
+      text-align: start;
+      justify-content: space-between;
+
+      .name {
+        white-space: nowrap;
+      }
+
+      .number {
+        color: #88888888;
+        font-size: 0.8rem;
+      }
+    }
+    .time {
+      color: #8799a5;
+      display: flex;
+      float: right;
+      font-size: 0.75rem;
+      bottom: 0.3rem;
+      right: 0.2rem;
+      align-items: flex-end;
+      .icon {
+        padding-left: 0.2rem;
+      }
+    }
+  }
+}
+.layout.send {
+  flex-direction: row-reverse;
+}
+.layout.receive {
+  flex-direction: row;
+}
+</style>

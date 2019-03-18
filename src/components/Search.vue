@@ -34,6 +34,7 @@ export default {
     onBlur: function() {
       this.focus = false
       this.$refs.box.value = ''
+      this.$emit('input', '')
     }
   },
   watch: {

@@ -11,6 +11,7 @@
       :message="message"
       :me="me"
       :coversation="conversation"
+      @user-click="$emit('user-click',message.sharedUserId)"
     ></ContactItem>
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>

@@ -1,6 +1,6 @@
 <template>
   <div class="layout" v-bind:class="messageOwnership()">
-    <div class="contact">
+    <div class="contact" @click="$emit('user-click')">
       <Avatar id="avatar" :user="user"/>
       <div class="content">
         <span class="name">{{message.sharedUserFullName}}</span>

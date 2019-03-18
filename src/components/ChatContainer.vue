@@ -18,6 +18,7 @@
         v-bind:conversation="conversation"
         v-bind:me="me"
         v-bind:images="images"
+        @user-click="onUserClick"
       />
     </ul>
     <div v-show="conversation" class="action">
@@ -57,6 +58,7 @@ import Details from '@/components/Details.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import conversationDao from '@/dao/conversation_dao'
 import messageDao from '@/dao/message_dao.js'
+import userDao from '@/dao/user_dao.js'
 export default {
   name: 'ChatContainer',
   data() {
@@ -171,6 +173,12 @@ export default {
           }
         )
       }
+    },
+    onUserClick(userId) {
+      let user = userDao.findUserById(userId)
+      this.$store.dispatch('createUserConversation', {
+        user
+      })
     },
     sendMessage(event) {
       if (this.inputFlag === true || event.shiftKey) {

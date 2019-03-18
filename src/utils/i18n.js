@@ -62,7 +62,8 @@ let transactions = {
       chat_no_support: 'Unsupported message type, please check on your phone',
       chat_create_group: 'Create group',
       chat_sticker: 'Sticker',
-      chat_pic: 'Photo'
+      chat_pic: 'Photo',
+      chat_contact: 'Contact'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -149,7 +150,8 @@ let transactions = {
       chat_no_support_title: '暂不支持消息类型',
       chat_create_group: '创建群组',
       chat_sticker: '贴纸',
-      chat_pic: '照片'
+      chat_pic: '照片',
+      chat_contact: '联系人'
     },
     loading: {
       initializing: '初始化中...'

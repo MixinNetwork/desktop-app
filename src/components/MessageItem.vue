@@ -6,7 +6,14 @@
     <div v-if="!prev || !equalDay(message, prev)" class="time-divide">
       <span>{{getTimeDivide(message)}}</span>
     </div>
-    <div v-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
+    <ContactItem
+      v-if="message.type.endsWith('_CONTACT')"
+      :message="message"
+      :me="me"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.sharedUserId)"
+    ></ContactItem>
+    <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-bind:class="messageOwnership(message, me)">
@@ -68,6 +75,7 @@ import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
 import ReplyMessage from './ReplyMessageItem'
+import ContactItem from './ContactItem'
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread', 'images'],
@@ -75,7 +83,8 @@ export default {
     ICSending,
     ICSend,
     ICRead,
-    ReplyMessage
+    ReplyMessage,
+    ContactItem
   },
   data: function() {
     return {
@@ -133,7 +142,6 @@ export default {
         type.endsWith('_VIDEO') ||
         type.endsWith('_AUDIO') ||
         type.endsWith('_DATA') ||
-        type.endsWith('_CONTACT') ||
         type.startsWith('_APP')
       ) {
         return 'mobile'

@@ -114,6 +114,8 @@ export default {
         return this.$t('chat.chat_sticker')
       } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
         return this.conversation.content
+      } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
+        return this.$t('chat.chat_contact')
       } else if (conversation.contentType !== null) {
         return this.$t('chat.chat_no_support_title')
       } else {

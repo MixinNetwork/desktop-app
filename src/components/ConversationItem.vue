@@ -31,7 +31,7 @@
             class="icon"
           />
         </div>
-        <div class="last message">{{description}}</div>
+        <div class="content">{{description}}</div>
         <span
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
@@ -197,7 +197,7 @@ li.conversation.item {
       .icon {
         margin-right: 3px;
       }
-      .last.message {
+      .content {
         flex: 1;
         color: $light-font-color;
         font-size: 0.8rem;

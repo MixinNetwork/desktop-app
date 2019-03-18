@@ -106,6 +106,11 @@ class ConversationDao {
     stmt.run(conversation.conversation_id, conversation)
   }
 
+  updateMute(muteUntil, conversationId) {
+    const stmt = db.prepare('UPDATE conversations SET mute_until = ? WHERE conversation_id = ?')
+    stmt.run(muteUntil, conversationId)
+  }
+
   updateConversationPinTimeById(conversationId, pinTime) {
     const stmt = db.prepare('UPDATE conversations SET pin_time = ? WHERE conversation_id = ?')
     stmt.run([pinTime, conversationId])

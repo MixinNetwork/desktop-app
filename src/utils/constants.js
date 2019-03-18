@@ -176,3 +176,9 @@ export const LinkStatus = {
   CONNECTED: 1,
   LOSE: 2
 }
+
+export const MuteDuration = {
+  HOURS: 8 * 60 * 60,
+  WEEK: 7 * 24 * 60 * 60,
+  YEAR: 365 * 24 * 60 * 60
+}

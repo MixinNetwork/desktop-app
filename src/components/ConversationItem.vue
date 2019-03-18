@@ -39,7 +39,7 @@
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
-        <ICMute v-if="this.isMute()" class="icon"/>
+        <ICMute v-if="this.isMute()" class="mute_icon"/>
         <ICPin v-if="conversation.pinTime" class="icon"/>
         <transition name="slide-right">
           <a
@@ -221,6 +221,9 @@ li.conversation.item {
       min-height: 18px;
       align-items: center;
       .icon {
+        margin-right: 3px;
+      }
+      .mute_icon {
         margin-right: 3px;
       }
       .content {

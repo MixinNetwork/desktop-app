@@ -124,7 +124,10 @@ class ReceiveWroker extends BaseWorker {
         full_name: '0',
         identity_number: 0,
         relationship: '',
-        avatar_url: null
+        avatar_url: null,
+        mute_until: null,
+        is_verified: 0,
+        created_at: null
       })
     }
     const message = {

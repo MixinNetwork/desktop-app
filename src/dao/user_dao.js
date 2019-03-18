@@ -7,9 +7,10 @@ class UserDao {
     } else {
       user.app_id = null
     }
+    user.is_verified = user.is_verified ? 1 : 0
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, relationship, app_id) VALUES' +
-        ' (@user_id, @full_name, @identity_number, @avatar_url, @relationship, @app_id) '
+      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
+        '(@user_id, @full_name, @identity_number, @avatar_url, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
     )
     const info = stmt.run(user)
     if (info.changes >= 1) {
@@ -19,8 +20,8 @@ class UserDao {
   }
   insertUsers(users) {
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, relationship, app_id) VALUES ' +
-        '(@user_id, @full_name, @identity_number, @avatar_url, @relationship, @app_id)'
+      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
+        '(@user_id, @full_name, @identity_number, @avatar_url, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
     )
     const insertMany = db.transaction(users => {
       for (let user of users) {
@@ -29,6 +30,7 @@ class UserDao {
         } else {
           user.app_id = null
         }
+        user.is_verified = user.is_verified ? 1 : 0
         stmt.run(user)
       }
     })

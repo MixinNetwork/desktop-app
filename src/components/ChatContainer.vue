@@ -227,10 +227,14 @@ export default {
         } else {
           category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
         }
+        let mimeType = this.file.type
+        if (!mimeType) {
+          mimeType = 'text/plain'
+        }
         const message = {
           conversationId: this.conversation.conversationId,
           mediaUrl: this.file.path,
-          mediaMimeType: this.file.type,
+          mediaMimeType: mimeType,
           category: category
         }
         this.$store.dispatch('sendAttachmentMessage', message)

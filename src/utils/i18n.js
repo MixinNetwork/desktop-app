@@ -17,13 +17,15 @@ let transactions = {
         1: 'Pin to top',
         2: 'Clear Pin',
         3: 'Clear',
-        4: 'Mute'
+        4: 'Mute',
+        5: 'Cancel Mute'
       },
       chat: {
         0: 'Contact info',
         1: 'Exit group',
         2: 'Clear',
-        3: 'Mute'
+        3: 'Mute',
+        4: 'Cancel Mute'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout']
     },
@@ -51,6 +53,8 @@ let transactions = {
       mute_hours: 'Mute 8 hours',
       mute_week: 'Mute 1 week',
       mute_year: 'Mute 1 year',
+      mute_cancel: 'Cancel mute',
+      chat_mute_cancel: 'Cancel mute?',
       chat_clear: 'Clear message ?',
       chat_group_create: '%{0} created group "{1}"',
       chat_group_add: '{0} added {1}',
@@ -111,13 +115,15 @@ let transactions = {
         1: '置顶对话',
         2: '取消置顶',
         3: '删除',
-        4: '静音'
+        4: '静音',
+        5: '取消静音'
       },
       chat: {
         0: '联系人资料',
         1: '退出群组',
         2: '清除消息',
-        3: '静音'
+        3: '静音',
+        4: '取消静音'
       },
       personal: ['新建群组', '个人信息', '设置', '登出']
     },
@@ -145,6 +151,8 @@ let transactions = {
       mute_hours: '静音 8 小时',
       mute_week: '静音 1 周',
       mute_year: '静音 1 年',
+      mute_cancel: '取消静音',
+      chat_mute_cancel: '确认取消静音？',
       chat_clear: '确认清除消息？',
       chat_group_create: '%{0}创建了群组"{1}"',
       chat_group_add: '{0} 添加了 {1}',

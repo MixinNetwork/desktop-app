@@ -154,7 +154,7 @@ export default {
   },
   sendImageMessage: ({ commit }, payload) => {
     // process image
-    const data = processImage(payload.mediaUrl, payload.mediaMimeType)
+    const data = processImage(payload.mediaUrl, payload.mediaMimeType, payload.category)
     console.log(data)
     commit('refreshMessage', payload.conversationId)
   },

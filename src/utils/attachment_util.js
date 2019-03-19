@@ -53,8 +53,9 @@ export async function downloadAttachment(message, callback) {
   }
 }
 
-export function processImage(imagePath, mimeType) {
-  const filePath = path.join(getImagePath(), generateName(mimeType))
+export function processImage(imagePath, mimeType, category) {
+  const fileName = path.parse(imagePath).base
+  const filePath = path.join(getImagePath(), generateName(fileName, mimeType, category))
   fs.createReadStream(imagePath).pipe(fs.createWriteStream(filePath))
   return filePath
 }

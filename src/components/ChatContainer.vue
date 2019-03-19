@@ -55,7 +55,7 @@
     <transition name="slide-bottom">
       <FileContainer
         class="media"
-        v-if="false"
+        v-show="(dragging&&conversation) || file"
         :file="file"
         :dragging="dragging"
         @onClose="onClose"
@@ -486,7 +486,7 @@ export default {
   .media {
     position: absolute;
     height: 100%;
-    left: 16rem;
+    left: 18rem;
     border-left: 1px solid $border-color;
     right: 0;
     pointer-events: none;

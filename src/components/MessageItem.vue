@@ -276,8 +276,10 @@ li {
 .username {
   display: inline-block;
   font-size: 0.85rem;
-  max-width: 10rem;
+  max-width: 100%;
   text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
   margin-bottom: 0.2rem;
 }
 .system {

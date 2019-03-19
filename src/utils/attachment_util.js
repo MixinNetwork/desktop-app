@@ -63,7 +63,14 @@ function processAttachment(imagePath, mimeType, category) {
   fs.copyFileSync(imagePath, destination)
   return { localPath: destination, name: fileName, type: type }
 }
-
+function toArrayBuffer(buf) {
+  var ab = new ArrayBuffer(buf.length)
+  var view = new Uint8Array(ab)
+  for (var i = 0; i < buf.length; ++i) {
+    view[i] = buf[i]
+  }
+  return ab
+}
 export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
   const { localPath, name, type } = processAttachment(imagePath, mimeType, category)
   var mediaWidth = null
@@ -83,6 +90,19 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
     mediaMimeType: type
   }
   processCallback(message)
+  if (category.startsWith('SIGNAL_')) {
+    // eslint-disable-next-line no-undef
+    const key = libsignal.crypto.getRandomBytes(64)
+    // eslint-disable-next-line no-undef
+    const iv = libsignal.crypto.getRandomBytes(16)
+    const buf = toArrayBuffer(buffer)
+    const encryptedResult = await cryptoAttachment.encryptAttachment(buf, key, iv).then(result => {
+      const ciphertext = result.ciphertext
+      const digest = result.digest
+      console.log(ciphertext)
+      console.log(digest)
+    })
+  }
   const result = await conversationAPI.requestAttachment()
   const url = result.data.data.upload_url
   const attachmentId = result.data.data.attachment_id

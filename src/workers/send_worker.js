@@ -39,14 +39,12 @@ class SendWorker extends BaseWorker {
   }
 
   async sendPlainMessage(message) {
+    let content = message.content
     if (message.category === MessageCategories.PLAIN_TEXT) {
-      const content = btoa(unescape(encodeURIComponent(message.content)))
-      const blazeMessage = this.createBlazeMessage(message, content)
-      await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    } else {
-      const blazeMessage = this.createBlazeMessage(message, message.content)
-      await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+      content = btoa(unescape(encodeURIComponent(message.content)))
     }
+    const blazeMessage = this.createBlazeMessage(message, content)
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
   }
 
   async sendSignalMessage(message) {

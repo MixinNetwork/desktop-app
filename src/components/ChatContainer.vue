@@ -70,7 +70,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { ConversationCategory, ConversationStatus, MessageStatus } from '@/utils/constants.js'
+import { ConversationCategory, ConversationStatus, MessageStatus, MuteDuration } from '@/utils/constants.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
@@ -79,6 +79,8 @@ import MessageItem from '@/components/MessageItem.vue'
 import conversationDao from '@/dao/conversation_dao'
 import messageDao from '@/dao/message_dao.js'
 import userDao from '@/dao/user_dao.js'
+import conversationAPI from '@/api/conversation.js'
+import moment from 'moment'
 export default {
   name: 'ChatContainer',
   data() {
@@ -136,7 +138,14 @@ export default {
             return item.user_id === this.me.user_id
           })
         }
-        menu.push(chatMenu[3])
+
+        if (newC.status !== ConversationStatus.QUIT) {
+          if (this.isMute(newC)) {
+            menu.push(chatMenu[4])
+          } else {
+            menu.push(chatMenu[3])
+          }
+        }
         this.menus = menu
       }
     }
@@ -171,6 +180,19 @@ export default {
   },
   lastEnter: null,
   methods: {
+    isMute: function(conversation) {
+      if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+        if (moment().isBefore(conversation.ownerMuteUntil)) {
+          return true
+        }
+      }
+      if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+        if (moment().isBefore(conversation.muteUntil)) {
+          return true
+        }
+      }
+      return false
+    },
     onDragEnter(e) {
       this.lastEnter = e.target
       e.preventDefault()
@@ -243,18 +265,54 @@ export default {
           }
         )
       } else if (key === 3) {
+        let self = this
+        let ownerId = this.conversation.ownerId
         this.$Dialog.options(
           this.$t('chat.mute_title'),
           this.$t('chat.mute_menu'),
           this.$t('ok'),
           picked => {
+            let duration = MuteDuration.HOURS
             if (picked === 0) {
-              this.$toast(this.$t('chat.mute_hours'))
+              duration = MuteDuration.HOURS
             } else if (picked === 1) {
-              this.$toast(this.$t('chat.mute_week'))
+              duration = MuteDuration.WEEK
             } else {
-              this.$toast(this.$t('chat.mute_year'))
+              duration = MuteDuration.YEAR
             }
+            conversationAPI.mute(self.conversation.conversationId, duration).then(resp => {
+              if (resp.data.data) {
+                const c = resp.data.data
+                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+                if (picked === 0) {
+                  this.$toast(this.$t('chat.mute_hours'))
+                } else if (picked === 1) {
+                  this.$toast(this.$t('chat.mute_week'))
+                } else {
+                  this.$toast(this.$t('chat.mute_year'))
+                }
+              }
+            })
+          },
+          this.$t('cancel'),
+          () => {
+            console.log('cancel')
+          }
+        )
+      } else if (key === 4) {
+        let self = this
+        let ownerId = this.conversation.ownerId
+        this.$Dialog.alert(
+          this.$t('chat.chat_mute_cancel'),
+          this.$t('ok'),
+          () => {
+            conversationAPI.mute(self.conversation.conversationId, 0).then(resp => {
+              if (resp.data.data) {
+                const c = resp.data.data
+                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+                this.$toast(this.$t('chat.mute_cancel'))
+              }
+            })
           },
           this.$t('cancel'),
           () => {

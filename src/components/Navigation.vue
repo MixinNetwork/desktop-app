@@ -90,6 +90,7 @@ import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 export default {
   name: 'navigation',
   data() {
@@ -125,7 +126,13 @@ export default {
     },
     openMenu: function(conversation) {
       const isContact = conversation.category === ConversationCategory.CONTACT
-      const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime)
+      const isMute = this.isMute(conversation)
+      const menu = this.getMenu(
+        isContact,
+        conversation.status === ConversationStatus.QUIT,
+        conversation.pinTime,
+        isMute
+      )
       this.$Menu.alert(event.clientX, event.clientY, menu, index => {
         const option = menu[index]
         const conversationMenu = this.$t('menu.conversation')
@@ -140,7 +147,13 @@ export default {
     },
     openDownMenu: function(conversation, index) {
       const isContact = conversation.category === ConversationCategory.CONTACT
-      const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime)
+      const isMute = this.isMute(conversation)
+      const menu = this.getMenu(
+        isContact,
+        conversation.status === ConversationStatus.QUIT,
+        conversation.pinTime,
+        isMute
+      )
       this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
         const option = menu[index]
         const conversationMenu = this.$t('menu.conversation')
@@ -165,6 +178,7 @@ export default {
       } else if (position === 3) {
         this.$store.dispatch('conversationClear', conversationId)
       } else if (position === 4) {
+        let self = this
         this.$Dialog.options(
           this.$t('chat.mute_title'),
           this.$t('chat.mute_menu'),
@@ -181,11 +195,7 @@ export default {
             conversationAPI.mute(conversationId, duration).then(resp => {
               if (resp.data.data) {
                 const c = resp.data.data
-                if (c.category === ConversationCategory.CONTACT) {
-                  userDao.updateMute(c.mute_until, ownerId)
-                } else if (c.category === ConversationCategory.GROUP) {
-                  conversationDao.updateMute(c.mute_until, c.conversation_id)
-                }
+                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
                 if (picked === 0) {
                   this.$toast(this.$t('chat.mute_hours'))
                 } else if (picked === 1) {
@@ -201,9 +211,41 @@ export default {
             console.log('cancel')
           }
         )
+      } else if (position === 5) {
+        let self = this
+        this.$Dialog.alert(
+          this.$t('chat.chat_mute_cancel'),
+          this.$t('ok'),
+          () => {
+            conversationAPI.mute(conversationId, 0).then(resp => {
+              if (resp.data.data) {
+                const c = resp.data.data
+                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+                this.$toast(this.$t('chat.mute_cancel'))
+              }
+            })
+          },
+          this.$t('cancel'),
+          () => {
+            console.log('cancel')
+          }
+        )
       }
     },
-    getMenu: function(isContact, isExit, pinTime) {
+    isMute: function(conversation) {
+      if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+        if (moment().isBefore(conversation.ownerMuteUntil)) {
+          return true
+        }
+      }
+      if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+        if (moment().isBefore(conversation.muteUntil)) {
+          return true
+        }
+      }
+      return false
+    },
+    getMenu: function(isContact, isExit, pinTime, isMute) {
       const conversationMenu = this.$t('menu.conversation')
       var menu = []
       if (!isContact) {
@@ -224,7 +266,13 @@ export default {
         }
         menu.push(conversationMenu[3])
       }
-      menu.push(conversationMenu[4])
+      if (!isExit) {
+        if (isMute) {
+          menu.push(conversationMenu[5])
+        } else {
+          menu.push(conversationMenu[4])
+        }
+      }
       return menu
     },
     showConveresation: function(event) {

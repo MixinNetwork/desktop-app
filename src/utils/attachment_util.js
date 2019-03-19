@@ -88,7 +88,11 @@ function generateName(fileName, mimeType, category) {
   } else {
     extension = fileName.split('.').pop()
   }
-  return `${header}_${name}.${extension}`
+  if (extension) {
+    return `${header}_${name}.${extension}`
+  } else {
+    return `${header}_${name}`
+  }
 }
 
 function downloadCipher(url, callbackData) {

@@ -128,6 +128,14 @@ export default {
     markRead(conversationId)
     commit('refreshConversations')
   },
+  updateConversationMute: ({ commit }, { conversation, ownerId }) => {
+    if (conversation.category === ConversationCategory.CONTACT) {
+      userDao.updateMute(conversation.mute_until, ownerId)
+    } else if (conversation.category === ConversationCategory.GROUP) {
+      conversationDao.updateMute(conversation.mute_until, conversation.conversation_id)
+    }
+    commit('refreshConversations')
+  },
   conversationClear: ({ commit }, conversationId) => {
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)

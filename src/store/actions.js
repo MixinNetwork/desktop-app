@@ -8,6 +8,7 @@ import { ConversationStatus, ConversationCategory, MessageStatus } from '@/utils
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
 import { processImage } from '@/utils/attachment_util.js'
+var sizeOf = require('image-size')
 
 function markRead(conversationId) {
   messageDao.findUnreadMessage(conversationId).forEach(function(item, index) {
@@ -153,9 +154,10 @@ export default {
     commit('refreshMessage', payload.conversationId)
   },
   sendImageMessage: ({ commit }, payload) => {
-    // process image
     const data = processImage(payload.mediaUrl, payload.mediaMimeType, payload.category)
     console.log(data)
+    var dimensions = sizeOf(data)
+    console.log(dimensions.width, dimensions.height)
     commit('refreshMessage', payload.conversationId)
   },
   init: ({ commit }) => {

@@ -4,7 +4,7 @@ import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao.js'
 import conversationApi from '@/api/conversation'
 import { generateConversationId } from '@/utils/util.js'
-import { ConversationStatus, ConversationCategory, MessageStatus } from '@/utils/constants.js'
+import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants.js'
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
 import { putAttachment } from '@/utils/attachment_util.js'
@@ -195,6 +195,7 @@ export default {
       transferAttachmentData => {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
+        messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
       }
     )

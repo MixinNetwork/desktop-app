@@ -18,10 +18,8 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
     >
-      <li v-show="!user.app_id" class='encryption tips'>
-        <div class='bubble'>
-          {{$t('encryption')}}
-        </div>
+      <li v-show="!user.app_id" class="encryption tips">
+        <div class="bubble">{{$t('encryption')}}</div>
       </li>
       <MessageItem
         v-for="(item, i) in messages"
@@ -31,7 +29,6 @@
         v-bind:unread="unreadMessageId"
         v-bind:conversation="conversation"
         v-bind:me="me"
-        v-bind:images="images"
         @user-click="onUserClick"
       />
     </ul>
@@ -104,7 +101,6 @@ export default {
       details: false,
       unreadMessageId: '',
       MessageStatus: MessageStatus,
-      images: [],
       inputFlag: false,
       dragging: false,
       file: null
@@ -122,7 +118,6 @@ export default {
         this.$store.dispatch('markRead', newC.conversationId)
       }
       if (newC) {
-        this.images = messageDao.findImages(newC.conversationId)
         if (newC !== oldC) {
           if (newC.groupName) {
             this.name = newC.groupName
@@ -425,12 +420,12 @@ export default {
   .encryption.tips {
     text-align: center;
     .bubble {
-      background: #FFF7AD;
-      border-radius: .5rem;
+      background: #fff7ad;
+      border-radius: 0.5rem;
       display: inline-block;
       font-size: 0.875rem;
-      padding: .3rem .8rem;
-      margin-bottom: .8rem;
+      padding: 0.3rem 0.8rem;
+      margin-bottom: 0.8rem;
     }
   }
 

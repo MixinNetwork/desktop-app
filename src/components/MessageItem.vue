@@ -23,7 +23,7 @@
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
-    <div v-bind:class="messageOwnership(message, me)">
+    <div v-bind:class="messageOwnership(message, me)" @click="preview">
       <div class="bubble" v-bind:class="messageType(message)">
         <div v-if="this.showUserName()">
           <span
@@ -48,7 +48,6 @@
           v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
           v-bind:class="borderSet(message)"
           v-bind:style="borderSetObject(message)"
-          @click="preview"
         >
         <span
           v-else-if="messageType(message) === 'mobile'"
@@ -84,9 +83,10 @@ import ICRead from '../assets/images/ic_status_read.svg'
 import ReplyMessage from './ReplyMessageItem'
 import ContactItem from './ContactItem'
 import FileItem from './FileItem'
+import messageDao from '@/dao/message_dao.js'
 export default {
   name: 'MessageItem',
-  props: ['conversation', 'message', 'me', 'prev', 'unread', 'images'],
+  props: ['conversation', 'message', 'me', 'prev', 'unread'],
   components: {
     ICSending,
     ICSend,
@@ -121,16 +121,19 @@ export default {
       )
     },
     preview() {
-      let position = 0
-      let images = this.images.map((item, index) => {
-        if (item.message_id === this.message.messageId) {
-          position = index
-        }
-        return { url: item.media_url }
-      })
-      this.$imageViewer.images(images)
-      this.$imageViewer.index(position)
-      this.$imageViewer.show()
+      if (this.message.type.endsWith('_IMAGE')) {
+        let position = 0
+        let local = messageDao.findImages(this.conversation.conversationId)
+        let images = local.map((item, index) => {
+          if (item.message_id === this.message.messageId) {
+            position = index
+          }
+          return { url: item.media_url }
+        })
+        this.$imageViewer.images(images)
+        this.$imageViewer.index(position)
+        this.$imageViewer.show()
+      }
     },
     messageOwnership: (message, me) => {
       return {

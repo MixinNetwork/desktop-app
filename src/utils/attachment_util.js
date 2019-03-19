@@ -4,8 +4,10 @@ import { MimeType } from '@/utils/constants'
 import fs from 'fs'
 import https from 'https'
 import path from 'path'
+import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
+import conversationAPI from '@/api/conversation.js'
 
 export async function downloadAttachment(message, callback) {
   const response = await attachmentApi.getAttachment(message.content)
@@ -53,11 +55,52 @@ export async function downloadAttachment(message, callback) {
   }
 }
 
-export function processImage(imagePath, mimeType, category) {
+function processAttachment(imagePath, mimeType, category) {
   const fileName = path.parse(imagePath).base
   const destination = path.join(getImagePath(), generateName(fileName, mimeType, category))
   fs.copyFileSync(imagePath, destination)
   return destination
+}
+
+export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
+  const localPath = processAttachment(imagePath, mimeType, category)
+  const dimensions = sizeOf(localPath)
+  const buffer = fs.readFileSync(localPath)
+  const message = {
+    mediaSize: buffer.byteLength,
+    mediaWidth: dimensions.width,
+    mediaHeight: dimensions.height,
+    mediaUrl: `file://${localPath}`
+  }
+  processCallback(message)
+  const result = await conversationAPI.requestAttachment()
+  const url = result.data.data.upload_url
+  const attachmentId = result.data.data.attachment_id
+  fetch(url, {
+    method: 'PUT',
+    body: buffer,
+    headers: {
+      'x-amz-acl': 'public-read',
+      Connection: 'close',
+      'Content-Length': buffer.byteLength,
+      'Content-Type': 'application/octet-stream'
+    }
+  }).then(
+    function(resp) {
+      if (resp.status === 200) {
+        sendCallback({
+          attachment_id: attachmentId,
+          mime_type: mimeType,
+          size: buffer.byteLength,
+          width: dimensions.width,
+          height: dimensions.height
+        })
+      }
+    },
+    error => {
+      console.log(error)
+    }
+  )
 }
 
 function generateName(fileName, mimeType, category) {

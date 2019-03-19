@@ -5,7 +5,7 @@ import uuidv4 from 'uuid/v4'
 import signalProtocol from '@/crypto/signal.js'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
-import { ConversationStatus, ConversationCategory, MessageStatus } from '@/utils/constants.js'
+import { ConversationStatus, ConversationCategory, MessageStatus, MessageCategories } from '@/utils/constants.js'
 
 class SendWorker extends BaseWorker {
   async doWork() {
@@ -39,9 +39,14 @@ class SendWorker extends BaseWorker {
   }
 
   async sendPlainMessage(message) {
-    const content = btoa(unescape(encodeURIComponent(message.content)))
-    const blazeMessage = this.createBlazeMessage(message, content)
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    if (message.category === MessageCategories.PLAIN_TEXT) {
+      const content = btoa(unescape(encodeURIComponent(message.content)))
+      const blazeMessage = this.createBlazeMessage(message, content)
+      await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    } else {
+      const blazeMessage = this.createBlazeMessage(message, message.content)
+      await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    }
   }
 
   async sendSignalMessage(message) {

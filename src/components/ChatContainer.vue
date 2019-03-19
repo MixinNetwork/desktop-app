@@ -216,15 +216,13 @@ export default {
     },
     sendFile() {
       const category = this.user.app_id ? 'PLAIN_IMAGE' : 'SIGNAL_IMAGE'
-      const status = MessageStatus.SENDING
       const message = {
         conversationId: this.conversation.conversationId,
         mediaUrl: this.file.path,
         mediaMimeType: this.file.type,
-        category: category,
-        status: status
+        category: category
       }
-      this.$store.dispatch('sendImageMessage', message)
+      this.$store.dispatch('sendAttachmentMessage', message)
       this.file = null
       this.dragging = false
     },

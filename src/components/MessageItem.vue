@@ -23,8 +23,8 @@
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
-    <div v-bind:class="messageOwnership(message, me)" @click="preview">
-      <div class="bubble" v-bind:class="messageType(message)">
+    <div v-bind:class="messageOwnership(message, me)">
+      <div class="bubble" v-bind:class="messageType(message)" @click="preview">
         <div v-if="this.showUserName()">
           <span
             class="username"

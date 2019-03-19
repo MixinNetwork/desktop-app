@@ -33,6 +33,7 @@
   </div>
 </template>
 <script>
+import fs from 'fs'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
@@ -52,7 +53,14 @@ export default {
   },
   methods: {
     openFile: function() {
-      //
+      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
+        defaultPath: this.message.mediaName
+      })
+      let sourcePath = this.message.mediaUrl
+      if (sourcePath.startsWith('file://')) {
+        sourcePath = sourcePath.replace('file://', '')
+      }
+      fs.copyFileSync(sourcePath, savePath)
     },
     messageOwnership: function() {
       let { message, me } = this

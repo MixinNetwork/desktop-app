@@ -4,8 +4,10 @@ import { MimeType } from '@/utils/constants'
 import fs from 'fs'
 import https from 'https'
 import path from 'path'
+import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
+import conversationAPI from '@/api/conversation.js'
 
 export async function downloadAttachment(message, callback) {
   const response = await attachmentApi.getAttachment(message.content)
@@ -53,11 +55,90 @@ export async function downloadAttachment(message, callback) {
   }
 }
 
-export function processImage(imagePath, mimeType, category) {
+function processAttachment(imagePath, mimeType, category) {
   const fileName = path.parse(imagePath).base
-  const destination = path.join(getImagePath(), generateName(fileName, mimeType, category))
+  let type = mimeType
+  if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
+  const destination = path.join(getImagePath(), generateName(fileName, type, category))
   fs.copyFileSync(imagePath, destination)
-  return destination
+  return { localPath: destination, name: fileName, type: type }
+}
+function toArrayBuffer(buf) {
+  var ab = new ArrayBuffer(buf.length)
+  var view = new Uint8Array(ab)
+  for (var i = 0; i < buf.length; ++i) {
+    view[i] = buf[i]
+  }
+  return ab
+}
+export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
+  const { localPath, name, type } = processAttachment(imagePath, mimeType, category)
+  var mediaWidth = null
+  var mediaHeight = null
+  var thumbImage = null
+  if (category.endsWith('_IMAGE')) {
+    const dimensions = sizeOf(localPath)
+    mediaWidth = dimensions.width
+    mediaHeight = dimensions.height
+    thumbImage =
+      'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
+  }
+  var buffer = fs.readFileSync(localPath)
+  var key
+  var digest
+  const message = {
+    name: name,
+    mediaSize: buffer.byteLength,
+    mediaWidth: mediaWidth,
+    mediaHeight: mediaHeight,
+    mediaUrl: `file://${localPath}`,
+    mediaMimeType: type,
+    thumbImage: thumbImage
+  }
+  if (category.startsWith('SIGNAL_')) {
+    // eslint-disable-next-line no-undef
+    key = libsignal.crypto.getRandomBytes(64)
+    // eslint-disable-next-line no-undef
+    const iv = libsignal.crypto.getRandomBytes(16)
+    const buf = toArrayBuffer(buffer)
+    await cryptoAttachment.encryptAttachment(buf, key, iv).then(result => {
+      buffer = result.ciphertext
+      digest = result.digest
+    })
+  }
+  processCallback(message)
+  const result = await conversationAPI.requestAttachment()
+  const url = result.data.data.upload_url
+  const attachmentId = result.data.data.attachment_id
+  fetch(url, {
+    method: 'PUT',
+    body: buffer,
+    headers: {
+      'x-amz-acl': 'public-read',
+      Connection: 'close',
+      'Content-Length': buffer.byteLength,
+      'Content-Type': 'application/octet-stream'
+    }
+  }).then(
+    function(resp) {
+      if (resp.status === 200) {
+        sendCallback({
+          attachment_id: attachmentId,
+          mime_type: mimeType,
+          size: buffer.byteLength,
+          width: mediaWidth,
+          height: mediaHeight,
+          name: name,
+          thumbnail: thumbImage,
+          digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
+          key: btoa(String.fromCharCode(...new Uint8Array(key)))
+        })
+      }
+    },
+    error => {
+      console.log(error)
+    }
+  )
 }
 
 function generateName(fileName, mimeType, category) {
@@ -93,6 +174,21 @@ function generateName(fileName, mimeType, category) {
     return `${header}_${name}.${extension}`
   } else {
     return `${header}_${name}`
+  }
+}
+
+export function isImage(mimeType) {
+  if (
+    mimeType === MimeType.JPEG.name ||
+    mimeType === MimeType.JPEG.name ||
+    mimeType === MimeType.PNG.name ||
+    mimeType === MimeType.GIF.name ||
+    mimeType === MimeType.BMP.name ||
+    mimeType === MimeType.WEBP.name
+  ) {
+    return true
+  } else {
+    return false
   }
 }
 

@@ -68,6 +68,9 @@ class MessageDao {
   updateMessageStatusById(status, messageId) {
     return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
   }
+  updateMessageContent(content, messageId) {
+    return db.prepare('UPDATE messages SET content = ? WHERE message_id = ?').run(content, messageId)
+  }
   getConversationIdById(messageId) {
     const message = db.prepare('SELECT conversation_id FROM messages WHERE message_id = ?').get(messageId)
     return message.conversation_id

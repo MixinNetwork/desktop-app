@@ -31,5 +31,8 @@ export default {
   },
   mute(id, duration) {
     return api.post('conversations/' + id + '/mute', { duration })
+  },
+  requestAttachment() {
+    return api.post('attachments')
   }
 }

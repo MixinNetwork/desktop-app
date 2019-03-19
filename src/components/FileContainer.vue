@@ -5,7 +5,11 @@
       <label>预览</label>
     </div>
     <div class="content">
-      <img class="image" v-bind:src="getPath()">
+      <img class="image" v-bind:src="getPath()" v-if="showImage">
+      <div class="file" v-else>
+        <ICFile></ICFile>
+        <span class="info">{{fileName}}</span>
+      </div>
     </div>
     <p v-show="dragging" class="cover">{{$t('drag_file')}}</p>
     <font-awesome-icon class="create" icon="arrow-right" @click="$emit('sendFile')"/>
@@ -14,11 +18,15 @@
 
 <script>
 import ICClose from '../assets/images/ic_close.svg'
+import ICFile from '../assets/images/ic_file.svg'
+import { isImage } from '@/utils/attachment_util.js'
+import path from 'path'
 export default {
   name: 'FileContainer',
   props: ['file', 'dragging'],
   components: {
-    ICClose
+    ICClose,
+    ICFile
   },
   methods: {
     getPath() {
@@ -27,6 +35,21 @@ export default {
       } else {
         return ''
       }
+    }
+  },
+  computed: {
+    showImage() {
+      if (this.file) {
+        return isImage(this.file.type)
+      } else {
+        return false
+      }
+    },
+    fileName() {
+      if (this.file) {
+        return path.parse(this.file.path).base
+      }
+      return ''
     }
   }
 }
@@ -48,6 +71,15 @@ export default {
     .image {
       max-width: 80%;
       max-height: 80%;
+    }
+    .file {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .info {
+        margin-top: 1rem;
+      }
     }
   }
   .cover {

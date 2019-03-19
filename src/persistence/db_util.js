@@ -19,6 +19,5 @@ export function clearDb() {
   window.localStorage.clear()
   store.dispatch('exit')
   clearSignal()
-  clearMixin()
   clearing = false
 }

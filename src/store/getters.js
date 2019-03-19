@@ -13,7 +13,8 @@ export default {
         return (
           item &&
           item.category &&
-          (item.category === ConversationCategory.CONTACT || item.category === ConversationCategory.GROUP)
+          (item.category === ConversationCategory.CONTACT || item.category === ConversationCategory.GROUP) &&
+          item.messageStatus
         )
       })
   },

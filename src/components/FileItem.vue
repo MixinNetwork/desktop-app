@@ -56,6 +56,9 @@ export default {
       const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
         defaultPath: this.message.mediaName
       })
+      if (!savePath) {
+        return
+      }
       let sourcePath = this.message.mediaUrl
       if (sourcePath.startsWith('file://')) {
         sourcePath = sourcePath.replace('file://', '')

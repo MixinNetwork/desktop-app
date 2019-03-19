@@ -18,6 +18,11 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
     >
+      <li v-show="!user.app_id" class='encryption tips'>
+        <div class='bubble'>
+          {{$t('encryption')}}
+        </div>
+      </li>
       <MessageItem
         v-for="(item, i) in messages"
         v-bind:key="item.id"
@@ -399,6 +404,18 @@ export default {
     overflow-x: hidden;
     padding: 0.8rem;
     box-sizing: border-box;
+  }
+
+  .encryption.tips {
+    text-align: center;
+    .bubble {
+      background: #FFF7AD;
+      border-radius: .5rem;
+      display: inline-block;
+      font-size: 0.875rem;
+      padding: .3rem .8rem;
+      margin-bottom: .8rem;
+    }
   }
 
   .action {

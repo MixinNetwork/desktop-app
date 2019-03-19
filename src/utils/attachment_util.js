@@ -75,10 +75,13 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
   const { localPath, name, type } = processAttachment(imagePath, mimeType, category)
   var mediaWidth = null
   var mediaHeight = null
+  var thumbImage = null
   if (category.endsWith('_IMAGE')) {
     const dimensions = sizeOf(localPath)
     mediaWidth = dimensions.width
     mediaHeight = dimensions.height
+    thumbImage =
+      'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
   }
   var buffer = fs.readFileSync(localPath)
   var key
@@ -90,8 +93,7 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
     mediaHeight: mediaHeight,
     mediaUrl: `file://${localPath}`,
     mediaMimeType: type,
-    digest: digest,
-    key: key
+    thumbImage: thumbImage
   }
   if (category.startsWith('SIGNAL_')) {
     // eslint-disable-next-line no-undef
@@ -126,7 +128,10 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
           size: buffer.byteLength,
           width: mediaWidth,
           height: mediaHeight,
-          name: name
+          name: name,
+          thumbnail: thumbImage,
+          digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
+          key: btoa(String.fromCharCode(...new Uint8Array(key)))
         })
       }
     },

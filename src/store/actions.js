@@ -172,7 +172,7 @@ export default {
           media_width: data.mediaWidth,
           media_height: data.mediaHeight,
           media_hash: null,
-          thumb_image: null,
+          thumb_image: data.thumbImage,
           media_key: null,
           media_digest: null,
           media_status: 'PENDING',

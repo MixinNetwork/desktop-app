@@ -100,6 +100,7 @@ export default {
       menus: this.$t('menu.personal'),
       LinkStatus: LinkStatus,
       ConversationCategory: ConversationCategory,
+      // eslint-disable-next-line no-undef
       isMacOS: platform.os.family === 'OS X'
     }
   },

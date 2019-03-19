@@ -66,7 +66,6 @@ import ICRead from '../assets/images/ic_status_read.svg'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICPin from '../assets/images/ic_pin_top.svg'
 import ICRobot from '../assets/images/ic_robot.svg'
-import ICVerify from '../assets/images/ic_verify.svg'
 import ICMute from '../assets/images/ic_mute.svg'
 import moment from 'moment'
 
@@ -80,7 +79,6 @@ export default {
     ICRead,
     ICPin,
     ICRobot,
-    ICVerify,
     ICMute
   },
   computed: {

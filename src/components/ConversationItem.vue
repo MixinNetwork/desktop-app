@@ -241,15 +241,14 @@ li.conversation.item {
         width: 16px;
         height: 16px;
       }
-
       .badge {
         background: #4b7ed2;
         border-radius: 0.8rem;
         box-sizing: border-box;
         color: white;
-        font-size: 0.75rem;
-        margin-left: 8px;
-        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+        padding: 0.23rem 0.45rem;
+        margin-right: 3px;
       }
       .wait {
         path {

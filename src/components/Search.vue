@@ -71,20 +71,21 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .box {
   margin-left: 8px;
   margin-right: 8px;
   border: none;
   flex-grow: 19;
+  font-size: 1rem;
 }
 
 .icon {
   justify-content: center;
   align-items: center;
   display: flex;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
 }
 
 #ic_arrow,

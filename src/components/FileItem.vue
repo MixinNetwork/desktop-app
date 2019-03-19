@@ -65,7 +65,7 @@ export default {
   computed: {
     fileName: function() {
       let name = this.message.mediaName
-      if (name.length > 18) {
+      if (name && name.length > 18) {
         return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
       } else {
         return name

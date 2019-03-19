@@ -75,7 +75,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { ConversationCategory, ConversationStatus, MessageStatus, MuteDuration } from '@/utils/constants.js'
+import {
+  ConversationCategory,
+  ConversationStatus,
+  MessageCategories,
+  MessageStatus,
+  MuteDuration
+} from '@/utils/constants.js'
+import { isImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
@@ -215,14 +222,25 @@ export default {
       this.dragging = false
     },
     sendFile() {
-      const category = this.user.app_id ? 'PLAIN_IMAGE' : 'SIGNAL_IMAGE'
-      const message = {
-        conversationId: this.conversation.conversationId,
-        mediaUrl: this.file.path,
-        mediaMimeType: this.file.type,
-        category: category
+      let size = this.file.size
+      if (size / 1000 > 30000) {
+        this.$toast(this.$t('chat.chat_file_invalid_size'))
+      } else {
+        let image = isImage(this.file.type)
+        var category
+        if (image) {
+          category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
+        } else {
+          category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
+        }
+        const message = {
+          conversationId: this.conversation.conversationId,
+          mediaUrl: this.file.path,
+          mediaMimeType: this.file.type,
+          category: category
+        }
+        this.$store.dispatch('sendAttachmentMessage', message)
       }
-      this.$store.dispatch('sendAttachmentMessage', message)
       this.file = null
       this.dragging = false
     },

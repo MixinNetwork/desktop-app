@@ -72,7 +72,8 @@ let transactions = {
       chat_sticker: 'Sticker',
       chat_pic: 'Photo',
       chat_contact: 'Contact',
-      chat_file: 'File'
+      chat_file: 'File',
+      chat_file_big: 'Requires file size less than 800MB'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -171,7 +172,8 @@ let transactions = {
       chat_sticker: '贴纸',
       chat_pic: '照片',
       chat_contact: '联系人',
-      chat_file: '文件'
+      chat_file: '文件',
+      chat_file_invalid_size: '不支持大于30MB的文件'
     },
     loading: {
       initializing: '初始化中...'

@@ -57,20 +57,30 @@ export async function downloadAttachment(message, callback) {
 
 function processAttachment(imagePath, mimeType, category) {
   const fileName = path.parse(imagePath).base
-  const destination = path.join(getImagePath(), generateName(fileName, mimeType, category))
+  let type = mimeType
+  if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
+  const destination = path.join(getImagePath(), generateName(fileName, type, category))
   fs.copyFileSync(imagePath, destination)
-  return destination
+  return { localPath: destination, name: fileName, type: type }
 }
 
 export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
-  const localPath = processAttachment(imagePath, mimeType, category)
-  const dimensions = sizeOf(localPath)
+  const { localPath, name, type } = processAttachment(imagePath, mimeType, category)
+  var mediaWidth = null
+  var mediaHeight = null
+  if (category.endsWith('_IMAGE')) {
+    const dimensions = sizeOf(localPath)
+    mediaWidth = dimensions.width
+    mediaHeight = dimensions.height
+  }
   const buffer = fs.readFileSync(localPath)
   const message = {
+    name: name,
     mediaSize: buffer.byteLength,
-    mediaWidth: dimensions.width,
-    mediaHeight: dimensions.height,
-    mediaUrl: `file://${localPath}`
+    mediaWidth: mediaWidth,
+    mediaHeight: mediaHeight,
+    mediaUrl: `file://${localPath}`,
+    mediaMimeType: type
   }
   processCallback(message)
   const result = await conversationAPI.requestAttachment()
@@ -92,8 +102,9 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
           attachment_id: attachmentId,
           mime_type: mimeType,
           size: buffer.byteLength,
-          width: dimensions.width,
-          height: dimensions.height
+          width: mediaWidth,
+          height: mediaHeight,
+          name: name
         })
       }
     },
@@ -136,6 +147,21 @@ function generateName(fileName, mimeType, category) {
     return `${header}_${name}.${extension}`
   } else {
     return `${header}_${name}`
+  }
+}
+
+export function isImage(mimeType) {
+  if (
+    mimeType === MimeType.JPEG.name ||
+    mimeType === MimeType.JPEG.name ||
+    mimeType === MimeType.PNG.name ||
+    mimeType === MimeType.GIF.name ||
+    mimeType === MimeType.BMP.name ||
+    mimeType === MimeType.WEBP.name
+  ) {
+    return true
+  } else {
+    return false
   }
 }
 

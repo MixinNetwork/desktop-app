@@ -70,6 +70,7 @@ export default class BaseWorker {
         mute_until: conversation.mute_until
       })
       await this.refreshParticipants(conversation.conversation_id, conversation.participants)
+      await this.syncUser(ownerId)
     }
   }
   async refreshParticipants(conversationId, participants) {

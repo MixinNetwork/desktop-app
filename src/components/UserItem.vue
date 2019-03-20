@@ -1,7 +1,7 @@
 <template>
   <li class="user_item_layout" @click="$emit('user-click',user)">
     <Avatar class="user_item_avatar" :user="user"/>
-    <p>{{user.full_name}}</p>
+    <p class="user_name">{{user.full_name}}</p>
   </li>
 </template>
 <script>
@@ -36,6 +36,12 @@ export default {
     width: 48px;
     height: 48px;
     margin-right: 16px;
+  }
+  .user_name {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 }
 </style>

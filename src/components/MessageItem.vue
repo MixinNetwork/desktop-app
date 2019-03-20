@@ -66,6 +66,7 @@
           <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
           <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
         </span>
+        <spinner class="loading" v-if="messageType(message) === 'image' && loading"></spinner>
       </div>
     </div>
   </li>
@@ -79,6 +80,7 @@ import {
   SystemConversationAction,
   MessageCategories
 } from '@/utils/constants.js'
+import spinner from '@/components/Spinner.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
@@ -86,10 +88,12 @@ import ReplyMessage from './ReplyMessageItem'
 import ContactItem from './ContactItem'
 import FileItem from './FileItem'
 import messageDao from '@/dao/message_dao.js'
+import { mapGetters } from 'vuex'
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread'],
   components: {
+    spinner,
     ICSending,
     ICSend,
     ICRead,
@@ -105,7 +109,14 @@ export default {
       MessageCategories: MessageCategories
     }
   },
-  computed: {},
+  computed: {
+    loading: function() {
+      return this.attachment.includes(this.message.messageId)
+    },
+    ...mapGetters({
+      attachment: 'attachment'
+    })
+  },
   methods: {
     showUserName() {
       if (
@@ -352,6 +363,7 @@ li {
     margin-right: 0.8rem;
     border-radius: 0.2rem;
     overflow: hidden;
+    position: relative;
     .time {
       width: 100%;
       box-sizing: border-box;
@@ -362,6 +374,15 @@ li {
       right: 0;
       color: white;
       padding: 1rem 0.3rem 0.2rem 1rem;
+    }
+    .loading {
+      width: 32px;
+      height: 32px;
+      left: 50%;
+      top: 50%;
+      z-index: 999;
+      position: absolute;
+      transform: translate(-50%, -50%);
     }
   }
   .width-set {

@@ -23,6 +23,9 @@ module.exports = {
         copyright: 'Copyright © 2019 Mixin Team',
         mac: {
           category: 'public.app-category.social-networking'
+        },
+        linux: {
+          executableName: 'mixin-desktop'
         }
       }
     }

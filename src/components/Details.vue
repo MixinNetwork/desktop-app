@@ -58,6 +58,14 @@ export default {
       conversation: 'currentConversation',
       user: 'currentUser'
     })
+  },
+  mounted: async function() {
+    if (this.conversation.category === ConversationCategory.CONTACT) {
+      this.$store.dispatch('refreshUser', {
+        userId: this.conversation.ownerId,
+        conversationId: this.conversation.conversationId
+      })
+    }
   }
 }
 </script>
@@ -90,8 +98,10 @@ export default {
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      height: 250px;
+      height: 280px;
       padding-bottom: 32px;
+      padding-left: 32px;
+      padding-right: 32px;
       #avatar {
         width: 160px;
         height: 160px;
@@ -99,8 +109,10 @@ export default {
         margin-bottom: 32px;
       }
       .name {
-        font-size: 19px;
         font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
       .id {
         font-size: 1rem;

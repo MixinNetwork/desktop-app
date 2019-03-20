@@ -146,6 +146,7 @@ export default {
             clearMixin()
           }
           localStorage.sessionToken = sessionKeyPair.private
+          localStorage.primaryPlatform = message.platform
           signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
           this.pushSignalKeys().then(resp => {
             const deviceId = signalProtocol.convertToDeviceId(account.session_id)

@@ -34,9 +34,19 @@ function createWindow() {
     win.loadURL('app://./index.html')
   }
 
+  win.on('close', async e => {
+    if (app.quitting) {
+      win = null
+    } else {
+      e.preventDefault()
+      win.hide()
+    }
+  })
+
   win.on('closed', () => {
     win = null
   })
+
   win.webContents.on('new-window', function(event, url) {
     event.preventDefault()
     shell.openExternal(url)
@@ -60,6 +70,8 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
     createWindow()
+  } else {
+    win.show()
   }
 })
 
@@ -77,6 +89,10 @@ app.on('ready', async () => {
   }
   createWindow()
   autoUpdater.checkForUpdatesAndNotify()
+})
+
+app.on('before-quit', () => {
+  app.quitting = true
 })
 
 // Exit cleanly on request from parent process in development mode.

@@ -1,7 +1,6 @@
-Mixin Desktop app
-=================
+# Mixin Desktop app
 
-Desktop application for [Mixin Messenger](https://mixin.one/messenger) available for macOS, Windows using [Electron](https://electronjs.org/) and [Vue.js](https://vuejs.org/).
+Desktop application for [Mixin Messenger](https://mixin.one/messenger) available for macOS, Windows, Linux using [Electron](https://electronjs.org/) and [Vue.js](https://vuejs.org/), it's use WebAssembly implements Signal Protocol.
 
 # Download
 

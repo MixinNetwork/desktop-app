@@ -18,10 +18,8 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
     >
-      <li v-show="!user.app_id" class='encryption tips'>
-        <div class='bubble'>
-          {{$t('encryption')}}
-        </div>
+      <li v-show="!user.app_id" class="encryption tips">
+        <div class="bubble">{{$t('encryption')}}</div>
       </li>
       <MessageItem
         v-for="(item, i) in messages"
@@ -31,7 +29,6 @@
         v-bind:unread="unreadMessageId"
         v-bind:conversation="conversation"
         v-bind:me="me"
-        v-bind:images="images"
         @user-click="onUserClick"
       />
     </ul>
@@ -75,14 +72,20 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { ConversationCategory, ConversationStatus, MessageStatus, MuteDuration } from '@/utils/constants.js'
+import {
+  ConversationCategory,
+  ConversationStatus,
+  MessageCategories,
+  MessageStatus,
+  MuteDuration
+} from '@/utils/constants.js'
+import { isImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import conversationDao from '@/dao/conversation_dao'
-import messageDao from '@/dao/message_dao.js'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
@@ -97,7 +100,6 @@ export default {
       details: false,
       unreadMessageId: '',
       MessageStatus: MessageStatus,
-      images: [],
       inputFlag: false,
       dragging: false,
       file: null
@@ -115,7 +117,6 @@ export default {
         this.$store.dispatch('markRead', newC.conversationId)
       }
       if (newC) {
-        this.images = messageDao.findImages(newC.conversationId)
         if (newC !== oldC) {
           if (newC.groupName) {
             this.name = newC.groupName
@@ -219,16 +220,29 @@ export default {
       this.dragging = false
     },
     sendFile() {
-      const category = this.user.app_id ? 'PLAIN_IMAGE' : 'SIGNAL_IMAGE'
-      const status = MessageStatus.SENDING
-      const message = {
-        conversationId: this.conversation.conversationId,
-        mediaUrl: this.file.path,
-        mediaMimeType: this.file.type,
-        category: category,
-        status: status
+      let size = this.file.size
+      if (size / 1000 > 30000) {
+        this.$toast(this.$t('chat.chat_file_invalid_size'))
+      } else {
+        let image = isImage(this.file.type)
+        var category
+        if (image) {
+          category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
+        } else {
+          category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
+        }
+        let mimeType = this.file.type
+        if (!mimeType) {
+          mimeType = 'text/plain'
+        }
+        const message = {
+          conversationId: this.conversation.conversationId,
+          mediaUrl: this.file.path,
+          mediaMimeType: mimeType,
+          category: category
+        }
+        this.$store.dispatch('sendAttachmentMessage', message)
       }
-      this.$store.dispatch('sendImageMessage', message)
       this.file = null
       this.dragging = false
     },
@@ -413,12 +427,12 @@ export default {
   .encryption.tips {
     text-align: center;
     .bubble {
-      background: #FFF7AD;
-      border-radius: .5rem;
+      background: #fff7ad;
+      border-radius: 0.5rem;
       display: inline-block;
       font-size: 0.875rem;
-      padding: .3rem .8rem;
-      margin-bottom: .8rem;
+      padding: 0.3rem 0.8rem;
+      margin-bottom: 0.8rem;
     }
   }
 

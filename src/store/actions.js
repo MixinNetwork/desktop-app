@@ -3,12 +3,12 @@ import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao.js'
 import conversationApi from '@/api/conversation'
+import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util.js'
-import { ConversationStatus, ConversationCategory, MessageStatus } from '@/utils/constants.js'
+import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants.js'
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
-import { processImage } from '@/utils/attachment_util.js'
-var sizeOf = require('image-size')
+import { putAttachment } from '@/utils/attachment_util.js'
 
 function markRead(conversationId) {
   messageDao.findUnreadMessage(conversationId).forEach(function(item, index) {
@@ -148,17 +148,76 @@ export default {
     )
     commit('refreshConversations')
   },
+  refreshUser: async ({ commit }, { userId, conversationId }) => {
+    const response = await userApi.getUserById(userId)
+    if (response.data.data) {
+      let user = userDao.findUserById(userId)
+      let u = response.data.data
+      if (!user) {
+        userDao.insertUser(u)
+      } else {
+        if (!u.mute_until) {
+          u.mute_until = user.mute_until
+        }
+        userDao.update(u)
+      }
+      if (conversationId) {
+        commit('refreshConversation', conversationId)
+      }
+    }
+  },
   sendMessage: ({ commit }, payload) => {
     markRead(payload.conversationId)
     messageDao.insertTextMessage(payload)
     commit('refreshMessage', payload.conversationId)
   },
-  sendImageMessage: ({ commit }, payload) => {
-    const data = processImage(payload.mediaUrl, payload.mediaMimeType, payload.category)
-    console.log(data)
-    var dimensions = sizeOf(data)
-    console.log(dimensions.width, dimensions.height)
-    commit('refreshMessage', payload.conversationId)
+  sendAttachmentMessage: ({ commit }, { conversationId, mediaUrl, mediaMimeType, category }) => {
+    const messageId = uuidv4().toLowerCase()
+    putAttachment(
+      mediaUrl,
+      mediaMimeType,
+      category,
+      data => {
+        messageDao.insertMessage({
+          message_id: messageId,
+          conversation_id: conversationId,
+          user_id: JSON.parse(localStorage.getItem('account')).user_id,
+          category: category,
+          content: null,
+          media_url: data.mediaUrl,
+          media_mime_type: data.mediaMimeType,
+          media_size: data.mediaSize,
+          media_duration: null,
+          media_width: data.mediaWidth,
+          media_height: data.mediaHeight,
+          media_hash: null,
+          thumb_image: data.thumbImage,
+          media_key: null,
+          media_digest: null,
+          media_status: 'PENDING',
+          status: MessageStatus.PENDING,
+          created_at: new Date().toISOString(),
+          action: null,
+          participant_id: null,
+          snapshot_id: null,
+          hyperlink: null,
+          name: data.name,
+          album_id: null,
+          sticker_id: null,
+          shared_user_id: null,
+          media_waveform: null,
+          quote_message_id: null,
+          quote_content: null
+        })
+        commit('refreshMessage', conversationId)
+      },
+      transferAttachmentData => {
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
+        messageDao.updateMessageContent(content, messageId)
+        messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
+        messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+      }
+    )
   },
   init: ({ commit }) => {
     commit('init')

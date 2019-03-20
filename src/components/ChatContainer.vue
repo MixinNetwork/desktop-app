@@ -182,6 +182,10 @@ export default {
     this.$refs.box.addEventListener('compositionend', function() {
       self.inputFlag = false
     })
+    this.$refs.messagesUl.addEventListener('new-window', (e) => {
+      console.log(e)
+      return
+    })
   },
   lastEnter: null,
   methods: {

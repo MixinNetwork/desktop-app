@@ -56,5 +56,8 @@ export default {
 
   linkStatus: state => {
     return state.linkStatus
+  },
+  attachment: state => {
+    return state.attachment
   }
 }

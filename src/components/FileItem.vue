@@ -7,7 +7,8 @@
         v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
       >{{message.userFullName}}</span>
       <div class="file" @click="openFile">
-        <div class="ic">
+        <spinner class="loading" v-if="loading"></spinner>
+        <div class="ic" v-else>
           <span class="text">FILE</span>
         </div>
         <div class="content">
@@ -41,14 +42,16 @@
 </template>
 <script>
 import fs from 'fs'
+import spinner from '@/components/Spinner.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
 import { MessageStatus, NameColors } from '@/utils/constants.js'
-
+import { mapGetters } from 'vuex'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
+    spinner,
     ICSending,
     ICSend,
     ICRead
@@ -61,6 +64,9 @@ export default {
   },
   methods: {
     openFile: function() {
+      if (!this.message.mediaUrl) {
+        return
+      }
       const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
         defaultPath: this.message.mediaName
       })
@@ -82,6 +88,9 @@ export default {
     }
   },
   computed: {
+    loading: function() {
+      return this.attachment.includes(this.message.messageId)
+    },
     fileName: function() {
       let name = this.message.mediaName
       if (name && name.length > 18) {
@@ -106,7 +115,10 @@ export default {
         unit = 'GB'
       }
       return `${Math.round(num * 100) / 100} ${unit}`
-    }
+    },
+    ...mapGetters({
+      attachment: 'attachment'
+    })
   }
 }
 </script>
@@ -133,6 +145,11 @@ export default {
     width: 12rem;
     border-radius: 0.4rem;
     box-shadow: 1px 1px 1px #33333333;
+    .loading {
+      width: 40px;
+      height: 40px;
+      margin-right: 12px;
+    }
     .ic {
       margin-right: 12px;
       background: #f2f2f6;

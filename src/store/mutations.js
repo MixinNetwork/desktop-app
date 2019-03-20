@@ -137,5 +137,14 @@ export default {
   },
   setLinkStatus(state, status) {
     state.linkStatus = status
+  },
+  startLoading(state, messageId) {
+    state.attachment.push(messageId)
+  },
+  stopLoading(state, messageId) {
+    let arr = state.attachment
+    state.attachment = arr.filter(item => {
+      return item !== messageId
+    })
   }
 }

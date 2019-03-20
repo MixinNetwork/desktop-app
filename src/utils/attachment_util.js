@@ -2,12 +2,12 @@ import attachmentApi from '@/api/attachment'
 import { remote } from 'electron'
 import { MimeType } from '@/utils/constants'
 import fs from 'fs'
-import https from 'https'
 import path from 'path'
 import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
 import conversationAPI from '@/api/conversation.js'
+import store from '@/store/store'
 
 export async function downloadAttachment(message, callback) {
   const response = await attachmentApi.getAttachment(message.content)
@@ -24,8 +24,9 @@ export async function downloadAttachment(message, callback) {
     } else {
       return
     }
+    store.dispatch('startLoading', message.message_id)
     if (message.category.startsWith('SIGNAL_')) {
-      downloadCipher(response.data.data.view_url, data => {
+      getAttachment(response.data.data.view_url, data => {
         const mediaKey = base64ToUint8Array(message.media_key).buffer
         const mediaDigest = base64ToUint8Array(message.media_digest).buffer
         cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest).then(resp => {
@@ -37,21 +38,27 @@ export async function downloadAttachment(message, callback) {
             } else {
               callback(filePath)
             }
+            store.dispatch('stopLoading', message.message_id)
           })
         })
       })
     } else {
-      downloadPlain(
-        response.data.data.view_url,
-        dir,
-        generateName(message.name, message.media_mime_type, message.category),
-        file => {
-          callback(file.path)
-        }
-      )
+      getAttachment(response.data.data.view_url, data => {
+        const name = generateName(message.name, message.media_mime_type, message.category)
+        const filePath = path.join(dir, name)
+        fs.writeFile(filePath, Buffer.from(data), function(err) {
+          if (err) {
+            // todo retry
+          } else {
+            callback(filePath)
+          }
+          store.dispatch('stopLoading', message.message_id)
+        })
+      })
     }
   } else {
     // todo retry
+    store.dispatch('stopLoading', message.message_id)
   }
 }
 
@@ -192,7 +199,7 @@ export function isImage(mimeType) {
   }
 }
 
-function downloadCipher(url, callbackData) {
+function getAttachment(url, callbackData) {
   fetch(url, {
     method: 'GET',
     headers: {
@@ -203,33 +210,13 @@ function downloadCipher(url, callbackData) {
       return resp.blob()
     })
     .then(function(blob) {
-      var arrayBuffer
-      var fileReader = new FileReader()
+      let fileReader = new FileReader()
       fileReader.onload = function(event) {
-        arrayBuffer = event.target.result
+        let arrayBuffer = event.target.result
         callbackData(arrayBuffer)
       }
       fileReader.readAsArrayBuffer(blob)
     })
-}
-
-function downloadPlain(url, dir, name, callback) {
-  const filePath = path.join(dir, name)
-  const file = fs.createWriteStream(filePath)
-  https
-    .get(url, function(response) {
-      response.pipe(file)
-      file.on('finish', function() {
-        file.close()
-        callback(file)
-      })
-    })
-    .on('error', e => {
-      console.error(e)
-    })
-  file.on('error', err => {
-    console.error(err)
-  })
 }
 
 function getImagePath() {

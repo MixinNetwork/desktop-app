@@ -62,6 +62,10 @@ textarea:focus,
 button:focus {
   outline: none;
 }
+a {
+  color: #5252de;
+  text-decoration: none;
+}
 #app {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

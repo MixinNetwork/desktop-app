@@ -16,6 +16,7 @@ const state = {
   messages: {},
   friends: [],
   currentUser: {},
+  attachment: [],
   search: null,
   showTime: false,
   linkStatus: LinkStatus.CONNECTED

@@ -209,6 +209,7 @@ export default {
           quote_message_id: null,
           quote_content: null
         })
+        commit('startLoading', messageId)
         commit('refreshMessage', conversationId)
       },
       transferAttachmentData => {
@@ -216,6 +217,7 @@ export default {
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+        commit('stopLoading', messageId)
       }
     )
   },
@@ -260,5 +262,11 @@ export default {
   },
   exitGroup: (_, conversationId) => {
     conversationApi.exit(conversationId)
+  },
+  startLoading: ({ commit }, messageId) => {
+    commit('startLoading', messageId)
+  },
+  stopLoading: ({ commit }, messageId) => {
+    commit('stopLoading', messageId)
   }
 }

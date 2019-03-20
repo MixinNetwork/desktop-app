@@ -5,6 +5,7 @@ import uuidv4 from 'uuid/v4'
 import signalProtocol from '@/crypto/signal.js'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
+import store from '@/store/store'
 import { ConversationStatus, ConversationCategory, MessageStatus, MessageCategories } from '@/utils/constants.js'
 
 class SendWorker extends BaseWorker {
@@ -24,7 +25,14 @@ class SendWorker extends BaseWorker {
         category: conversation.category,
         participants: [{ user_id: conversation.owner_id }]
       }
-      const result = await conversationApi.createContactConversation(body)
+      const result = await conversationApi.createContactConversation(body).catch(err => {
+        if (err.data.error) {
+          const messageId = message.message_id
+          const status = 'PENDING'
+          store.dispatch('makeMessageStatus', { messageId, status })
+        }
+      })
+
       if (result.data.data) {
         conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
       } else {

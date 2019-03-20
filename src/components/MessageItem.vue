@@ -167,6 +167,13 @@ export default {
           return tagsToReplace[tag]
         })
         .replace(/\r?\n/g, '<br />')
+        .replace(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm, tag => {
+          let l = tag
+          if (!tag.startsWith('http')) {
+            l = 'https://' + tag
+          }
+          return `<a href='${l}' target='_blank'>${tag}</a> `
+        })
     },
     borderSet: message => {
       if (1.5 * message.mediaWidth > message.mediaHeight) {

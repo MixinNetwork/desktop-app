@@ -1,7 +1,7 @@
 <template>
   <div class="search" v-bind:style="{ background: searchColor}">
     <div class="layout" v-bind:style="layoutStyle">
-      <div class="icon">
+      <div class="icon" @click="back">
         <transition name="fade-rote">
           <font-awesome-icon icon="arrow-left" id="ic_arrow" v-show="focus"/>
         </transition>
@@ -32,6 +32,11 @@ export default {
       this.focus = true
     },
     onBlur: function() {
+      if (this.$refs.box.value === '') {
+        this.focus = false
+      }
+    },
+    back: function() {
       this.focus = false
       this.$refs.box.value = ''
       this.$emit('input', '')

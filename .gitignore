@@ -1,6 +1,10 @@
 .DS_Store
 mixin.db
 signal.db
+mixin.db-shm
+mixin.db-wal
+signal.db-shm
+signal.db-wal
 node_modules
 /dist
 

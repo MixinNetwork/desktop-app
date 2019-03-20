@@ -26,12 +26,14 @@ import { downloadAttachment } from '@/utils/attachment_util.js'
 
 class ReceiveWroker extends BaseWorker {
   async doWork() {
-    const fm = floodMessageDao.findFloodMessage()
-    if (!fm) {
+    const fms = floodMessageDao.findFloodMessage()
+    if (!fms) {
       return
     }
-    await this.process(fm)
-    floodMessageDao.delete(fm.message_id)
+    for (const fm of fms) {
+      await this.process(fm)
+      floodMessageDao.delete(fm.message_id)
+    }
   }
 
   async process(floodMessage) {

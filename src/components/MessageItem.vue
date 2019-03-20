@@ -10,6 +10,7 @@
       v-if="message.type.endsWith('_CONTACT')"
       :message="message"
       :me="me"
+      :showName="this.showUserName()"
       :coversation="conversation"
       @user-click="$emit('user-click',message.sharedUserId)"
     ></ContactItem>
@@ -17,6 +18,7 @@
       v-else-if="message.type.endsWith('_DATA')"
       :message="message"
       :me="me"
+      :showName="this.showUserName()"
       :coversation="conversation"
       @user-click="$emit('user-click',message.sharedUserId)"
     ></FileItem>

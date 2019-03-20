@@ -1,30 +1,37 @@
 <template>
   <div class="layout" v-bind:class="messageOwnership()">
-    <div class="contact" @click="$emit('user-click')">
-      <Avatar id="avatar" :user="user"/>
-      <div class="content">
-        <span class="name">{{message.sharedUserFullName}}</span>
-        <div class="bottom">
-          <span class="number">{{message.sharedUserIdentityNumber}}</span>
-          <span class="time">
-            {{message.lt}}
-            <ICSending
-              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
-              class="icon"
-            />
-            <ICSend
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-              class="icon"
-            />
-            <ICRead
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-              class="icon wait"
-            />
-            <ICRead
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-              class="icon"
-            />
-          </span>
+    <div>
+      <span
+        class="username"
+        v-if="showName"
+        v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+      >{{message.userFullName}}</span>
+      <div class="contact" @click="$emit('user-click')">
+        <Avatar id="avatar" :user="user"/>
+        <div class="content">
+          <span class="name">{{message.sharedUserFullName}}</span>
+          <div class="bottom">
+            <span class="number">{{message.sharedUserIdentityNumber}}</span>
+            <span class="time">
+              {{message.lt}}
+              <ICSending
+                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+                class="icon"
+              />
+              <ICSend
+                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+                class="icon"
+              />
+              <ICRead
+                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+                class="icon wait"
+              />
+              <ICRead
+                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+                class="icon"
+              />
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -36,9 +43,9 @@ import userDao from '@/dao/user_dao.js'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
-import { MessageStatus } from '@/utils/constants.js'
+import { MessageStatus, NameColors } from '@/utils/constants.js'
 export default {
-  props: ['conversation', 'message', 'me'],
+  props: ['conversation', 'message', 'me', 'showName'],
   components: {
     Avatar,
     ICSending,
@@ -47,7 +54,8 @@ export default {
   },
   data: function() {
     return {
-      MessageStatus: MessageStatus
+      MessageStatus: MessageStatus,
+      Colors: NameColors
     }
   },
   methods: {
@@ -70,6 +78,15 @@ export default {
   display: flex;
   padding-left: 0.8rem;
   padding-right: 0.8rem;
+  .username {
+    display: inline-block;
+    font-size: 0.85rem;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-bottom: 0.2rem;
+  }
   .contact {
     padding: 12px;
     background: white;

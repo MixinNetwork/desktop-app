@@ -1,7 +1,6 @@
 import { remote } from 'electron'
 import path from 'path'
 import { clearAllTables as clearSignal } from './signal_db'
-import { clearAllTables as clearMixin } from './db'
 import store from '@/store/store'
 export function getDbPath() {
   const isDevelopment = process.env.NODE_ENV !== 'production'

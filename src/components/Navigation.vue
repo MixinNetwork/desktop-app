@@ -101,7 +101,8 @@ export default {
       LinkStatus: LinkStatus,
       ConversationCategory: ConversationCategory,
       // eslint-disable-next-line no-undef
-      isMacOS: platform.os.family === 'OS X'
+      isMacOS: platform.os.family === 'OS X',
+      primaryPlatform: localStorage.primaryPlatform
     }
   },
   methods: {

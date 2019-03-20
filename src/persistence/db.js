@@ -5,6 +5,7 @@ import { getDbPath } from './db_util'
 
 const mixinPath = path.join(getDbPath(), 'mixin.db')
 const mixinDb = new Database(mixinPath, { readonly: false })
+mixinDb.pragma('journal_mode = WAL')
 // eslint-disable-next-line no-undef
 const fileLocation = path.join(__static, 'mixin.sql')
 const createSQL = fs.readFileSync(fileLocation, 'utf8')

@@ -2,7 +2,7 @@
   <div class="file_layout">
     <div class="header" @click="$emit('onClose')">
       <ICClose></ICClose>
-      <label>预览</label>
+      <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
       <img class="image" v-bind:src="getPath()" v-if="showImage">

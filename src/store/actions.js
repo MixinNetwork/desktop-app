@@ -3,6 +3,7 @@ import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao.js'
 import conversationApi from '@/api/conversation'
+import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util.js'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants.js'
 import uuidv4 from 'uuid/v4'
@@ -146,6 +147,24 @@ export default {
       payload.pinTime ? null : new Date().toISOString()
     )
     commit('refreshConversations')
+  },
+  refreshUser: async ({ commit }, { userId, conversationId }) => {
+    const response = await userApi.getUserById(userId)
+    if (response.data.data) {
+      let user = userDao.findUserById(userId)
+      let u = response.data.data
+      if (!user) {
+        userDao.insertUser(u)
+      } else {
+        if (!u.mute_until) {
+          u.mute_until = user.mute_until
+        }
+        userDao.update(u)
+      }
+      if (conversationId) {
+        commit('refreshConversation', conversationId)
+      }
+    }
   },
   sendMessage: ({ commit }, payload) => {
     markRead(payload.conversationId)

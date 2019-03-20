@@ -65,6 +65,13 @@ class UserDao {
   updateMute(muteUntil, userId) {
     return db.prepare('UPDATE users SET mute_until = ? WHERE user_id = ?').run(muteUntil, userId)
   }
+  update(u) {
+    db.prepare(
+      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${
+        u.is_verified
+      }, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
+    ).run()
+  }
 }
 
 export default new UserDao()

@@ -28,8 +28,6 @@
 import UserItem from '@/components/UserItem.vue'
 import ICClose from '../assets/images/ic_close.svg'
 import Avatar from '@/components/Avatar.vue'
-import userApi from '@/api/user'
-import userDao from '@/dao/user_dao.js'
 import { mapGetters } from 'vuex'
 import { ConversationCategory } from '@/utils/constants.js'
 export default {
@@ -61,22 +59,12 @@ export default {
       user: 'currentUser'
     })
   },
-  mounted: function() {
+  mounted: async function() {
     if (this.conversation.category === ConversationCategory.CONTACT) {
-      this.syncUser(this.conversation.ownerId)
-    }
-  },
-  methods: {
-    async syncUser(userId) {
-      let user = userDao.findUserById(userId)
-      if (!user) {
-        const response = await userApi.getUserById(userId)
-        if (response.data.data) {
-          user = response.data.data
-          userDao.insertUser(user)
-        }
-      }
-      return user
+      this.$store.dispatch('refreshUser', {
+        userId: this.conversation.ownerId,
+        conversationId: this.conversation.conversationId
+      })
     }
   }
 }

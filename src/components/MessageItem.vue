@@ -22,6 +22,22 @@
       :coversation="conversation"
       @user-click="$emit('user-click',message.sharedUserId)"
     ></FileItem>
+    <AudioItem
+      v-else-if="message.type.endsWith('_AUDIO')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.sharedUserId)"
+    ></AudioItem>
+    <VideoItem
+      v-else-if="message.type.endsWith('_VIDEO')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.sharedUserId)"
+    ></VideoItem>
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -87,6 +103,8 @@ import ICRead from '../assets/images/ic_status_read.svg'
 import ReplyMessage from './ReplyMessageItem'
 import ContactItem from './ContactItem'
 import FileItem from './FileItem'
+import AudioItem from './AudioItem'
+import VideoItem from './VideoItem'
 import messageDao from '@/dao/message_dao.js'
 import { mapGetters } from 'vuex'
 export default {
@@ -99,7 +117,9 @@ export default {
     ICRead,
     ReplyMessage,
     ContactItem,
-    FileItem
+    FileItem,
+    AudioItem,
+    VideoItem
   },
   data: function() {
     return {
@@ -163,7 +183,7 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
-      } else if (type.endsWith('_VIDEO') || type.endsWith('_AUDIO') || type.startsWith('_APP')) {
+      } else if (type.startsWith('_APP')) {
         return 'mobile'
       } else {
         return 'unknown'
@@ -180,13 +200,16 @@ export default {
           return tagsToReplace[tag]
         })
         .replace(/\r?\n/g, '<br />')
-        .replace(/(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/igm, tag => {
-          let l = tag
-          if (!tag.startsWith('http')) {
-            l = 'https://' + tag
+        .replace(
+          /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim,
+          tag => {
+            let l = tag
+            if (!tag.startsWith('http')) {
+              l = 'https://' + tag
+            }
+            return `<a href='${l}' target='_blank'>${tag}</a> `
           }
-          return `<a href='${l}' target='_blank'>${tag}</a> `
-        })
+        )
     },
     borderSet: message => {
       if (1.5 * message.mediaWidth > message.mediaHeight) {

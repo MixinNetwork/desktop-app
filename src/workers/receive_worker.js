@@ -345,7 +345,7 @@ class ReceiveWroker extends BaseWorker {
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_VIDEO')) {
-      const decoded = window.atob(plaintext)
+      const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
       if (mediaData.width === null || mediaData.width === 0 || mediaData.height === null || mediaData.height === 0) {
         return
@@ -365,7 +365,7 @@ class ReceiveWroker extends BaseWorker {
         media_hash: null,
         thumb_image: mediaData.thumbnail,
         media_key: mediaData.key,
-        media_digest: mediaData.media_digest,
+        media_digest: mediaData.digest,
         media_status: 'CANCELED',
         status: status,
         created_at: data.created_at,
@@ -381,6 +381,10 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
+      await downloadAttachment(message, filePath => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+        store.dispatch('refreshMessage', data.conversation_id)
+      })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendVideo')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
@@ -426,7 +430,7 @@ class ReceiveWroker extends BaseWorker {
       const body = i18n.t('notification.sendFile')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_AUDIO')) {
-      const decoded = window.atob(plaintext)
+      const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
       const message = {
         message_id: data.message_id,
@@ -459,7 +463,13 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
+      await downloadAttachment(message, filePath => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+        store.dispatch('refreshMessage', data.conversation_id)
+      })
       messageDao.insertMessage(message)
+      const body = i18n.t('notification.sendAudio')
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_STICKER')) {
       const decoded = window.atob(plaintext)
       const stickerData = JSON.parse(decoded)

@@ -18,6 +18,7 @@ class Blaze {
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
     this.ping = false
+    this.pingCounter = 0
   }
 
   connect() {
@@ -142,11 +143,20 @@ class Blaze {
   }
 
   async sendPing() {
+    let self = this
     this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING_SESSION' }, function(resp) {
       const data = resp.data.data
       if (!data || data.length === 0) {
-        store.dispatch('setLinkStatus', LinkStatus.LOSE)
+        if (localStorage.getItem('primaryPlatform') === 'iOS') {
+          self.pingCounter++
+          if (self.pingCounter > 1) {
+            store.dispatch('setLinkStatus', LinkStatus.LOSE)
+          }
+        } else {
+          store.dispatch('setLinkStatus', LinkStatus.LOSE)
+        }
       } else {
+        self.pingCounter = 0
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       }
     })

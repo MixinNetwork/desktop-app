@@ -10,7 +10,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
-    "electron:generate-icon": "node ./generateIcons",
+    "electron:generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
@@ -36,7 +36,7 @@
     "robust-websocket": "1.0.0",
     "url-parse": "^1.4.4",
     "uuid": "^3.3.2",
-    "vue": "^2.6.8",
+    "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
     "vue-chat-scroll": "^1.3.4",
     "vue-electron": "^1.0.6",
@@ -53,6 +53,7 @@
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
     "electron": "^4.1.1",
+    "electron-icon-builder": "^1.0.0",
     "electron-icon-maker": "^0.0.4",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0-0",
@@ -63,7 +64,7 @@
     "sass-loader": "^7.0.1",
     "vue-cli-plugin-electron-builder": "^1.1.3",
     "vue-svg-loader": "^0.12.0",
-    "vue-template-compiler": "^2.6.8"
+    "vue-template-compiler": "^2.6.10"
   },
   "main": "background.js"
 }

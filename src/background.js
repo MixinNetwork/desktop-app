@@ -3,6 +3,7 @@
 import { app, protocol, shell, BrowserWindow } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
+import path from 'path'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -18,6 +19,8 @@ function createWindow() {
     height: 700,
     minWidth: 700,
     minHeight: 500,
+    // eslint-disable-next-line no-undef
+    icon: path.join(__static, 'icon.png'),
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       webSecurity: false

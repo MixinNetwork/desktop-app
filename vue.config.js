@@ -26,6 +26,14 @@ module.exports = {
         },
         linux: {
           executableName: 'mixin-desktop'
+        },
+        win: {
+          target: [
+            {
+              target: 'nsis',
+              arch: ['x64', 'ia32']
+            }
+          ]
         }
       }
     }

@@ -4,7 +4,9 @@ Desktop application for [Mixin Messenger](https://mixin.one/messenger) available
 
 # Download
 
-You can download the latest version from the [Releases](https://github.com/MixinNetwork/desktop-app/releases/latest) page.
+macOS and Windows download from the [Releases](https://github.com/MixinNetwork/desktop-app/releases/latest) page.
+
+Linux install using the command line `sudo snap install mixin-desktop`
 
 # Development
 

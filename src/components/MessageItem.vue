@@ -403,7 +403,6 @@ li {
       height: 32px;
       left: 50%;
       top: 50%;
-      z-index: 999;
       position: absolute;
       transform: translate(-50%, -50%);
     }

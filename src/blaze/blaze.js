@@ -136,7 +136,7 @@ class Blaze {
           await self.sendPing()
         }
       },
-      10000,
+      5000,
       { stopOnError: false }
     )
   }

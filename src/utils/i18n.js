@@ -73,6 +73,8 @@ let transactions = {
       chat_pic: 'Photo',
       chat_contact: 'Contact',
       chat_file: 'File',
+      chat_audio: 'Audio',
+      chat_video: 'Video',
       chat_file_big: 'Requires file size less than 30MB',
       preview: 'Preview'
     },
@@ -99,7 +101,8 @@ let transactions = {
       sendVideo: 'send a video',
       sendSticker: 'send a sticker',
       sendContact: 'shared a contact',
-      sendFile: 'send a file'
+      sendFile: 'send a file',
+      sendAudio: 'send a audio message'
     }
   },
   zh: {
@@ -174,6 +177,8 @@ let transactions = {
       chat_pic: '照片',
       chat_contact: '联系人',
       chat_file: '文件',
+      chat_audio: '语音',
+      chat_video: '视频',
       chat_file_invalid_size: '不支持大于30MB的文件',
       preview: '预览'
     },
@@ -200,7 +205,8 @@ let transactions = {
       sendVideo: '发送了一个视频',
       sendSticker: '发送了一个贴纸',
       sendContact: '分享了一个联系人',
-      sendFile: '发送了一个文件'
+      sendFile: '发送了一个文件',
+      sendAudio: '发送了一条语音'
     }
   }
 }

@@ -156,10 +156,12 @@ function generateName(fileName, mimeType, category) {
     header = 'IMG'
   } else if (category.endsWith('_VIDEO')) {
     header = 'VID'
+    return `${header}_${name}.mp4`
   } else if (category.endsWith('_DATA')) {
     header = 'FILE'
   } else if (category.endsWith('_AUDIO')) {
     header = 'AUDIO'
+    return `${header}_${name}.ogg`
   }
   var extension
   if (mimeType === MimeType.JPEG.name) {
@@ -175,7 +177,10 @@ function generateName(fileName, mimeType, category) {
   } else if (mimeType === MimeType.WEBP.name) {
     extension = MimeType.WEBP.extension
   } else {
-    extension = fileName.split('.').pop()
+    let fileArr = fileName.split('.')
+    if (fileArr) {
+      extension = fileArr.pop()
+    }
   }
   if (extension) {
     return `${header}_${name}.${extension}`

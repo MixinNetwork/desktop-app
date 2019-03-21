@@ -412,7 +412,6 @@ export default {
       transform: translate(-50%, -50%);
     }
     .signal {
-      width: 100%;
       background: #f6d67d;
       display: flex;
       padding: 10px;
@@ -421,15 +420,16 @@ export default {
         flex-shrink: 0;
       }
       .content {
-        margin-left: 6px;
+        margin-left: 10px;
         display: flex;
         flex-direction: column;
         .title {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 500;
         }
         .info {
           font-size: 14px;
+          max-lines: 2;
         }
       }
     }

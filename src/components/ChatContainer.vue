@@ -79,7 +79,7 @@ import {
   MessageStatus,
   MuteDuration
 } from '@/utils/constants.js'
-import { isImage } from '@/utils/attachment_util.js'
+import { isImage, base64ToImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
@@ -176,7 +176,7 @@ export default {
     })
   },
   mounted() {
-    var self = this
+    let self = this
     this.$refs.box.addEventListener('compositionstart', function() {
       self.inputFlag = true
     })
@@ -184,17 +184,21 @@ export default {
       self.inputFlag = false
     })
     document.onpaste = function(e) {
+      if (!self.conversation) return
       const items = (event.clipboardData || event.originalEvent.clipboardData).items
       let blob = null
+      let mimeType = null
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') === 0) {
+          mimeType = items[i].type
           blob = items[i].getAsFile()
+          break
         }
       }
       if (blob !== null) {
         let reader = new FileReader()
-        reader.onload = function(event) {
-          console.log(event.target.result)
+        reader.onload = async function(event) {
+          self.file = await base64ToImage(event.target.result, mimeType)
         }
         reader.readAsDataURL(blob)
       }

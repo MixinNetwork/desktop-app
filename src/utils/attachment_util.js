@@ -68,8 +68,17 @@ function processAttachment(imagePath, mimeType, category) {
   if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
   const destination = path.join(getImagePath(), generateName(fileName, type, category))
   fs.copyFileSync(imagePath, destination)
-  return { localPath: destination, name: fileName, type: type }
+  return { localPath: destination, name: fileName }
 }
+
+export async function base64ToImage(img, mimeType) {
+  var data = img.replace(/^data:image\/\w+;base64,/, '')
+  var buf = Buffer.from(data, 'base64')
+  const destination = path.join(getImagePath(), generateName(null, mimeType, '_IMAGE'))
+  await fs.writeFileSync(destination, buf)
+  return { path: destination, type: mimeType }
+}
+
 function toArrayBuffer(buf) {
   var ab = new ArrayBuffer(buf.length)
   var view = new Uint8Array(ab)
@@ -79,7 +88,7 @@ function toArrayBuffer(buf) {
   return ab
 }
 export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
-  const { localPath, name, type } = processAttachment(imagePath, mimeType, category)
+  const { localPath, name } = processAttachment(imagePath, mimeType, category)
   var mediaWidth = null
   var mediaHeight = null
   var thumbImage = null
@@ -99,7 +108,7 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
     mediaWidth: mediaWidth,
     mediaHeight: mediaHeight,
     mediaUrl: `file://${localPath}`,
-    mediaMimeType: type,
+    mediaMimeType: mimeType,
     thumbImage: thumbImage
   }
   if (category.startsWith('SIGNAL_')) {
@@ -165,8 +174,6 @@ function generateName(fileName, mimeType, category) {
   }
   var extension
   if (mimeType === MimeType.JPEG.name) {
-    extension = MimeType.JPEG.extension
-  } else if (mimeType === MimeType.JPEG.name) {
     extension = MimeType.JPEG.extension
   } else if (mimeType === MimeType.PNG.name) {
     extension = MimeType.PNG.extension

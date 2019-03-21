@@ -37,6 +37,7 @@ import Bot from 'bot-api-js-client'
 import signalDao from '@/crypto/signal_dao.js'
 import { base64ToUint8Array } from '@/utils/util.js'
 import { clearAllTables as clearMixin } from '@/persistence/db'
+import { clearAllTables as clearSignal } from '@/persistence/signal_db'
 import userDao from '@/dao/user_dao'
 export default {
   components: {
@@ -127,6 +128,7 @@ export default {
       const appVersion = this.$electron.remote.app.getVersion()
       const registrationId = signalProtocol.generateRegId()
       const sessionKeyPair = new Bot().generateSessionKeypair()
+      clearSignal()
       accountAPI
         .verifyProvisioning({
           code: code,

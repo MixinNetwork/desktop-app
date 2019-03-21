@@ -125,6 +125,7 @@ export default {
           }
           if (!oldC || newC.conversationId !== oldC.conversationId) {
             this.details = false
+            this.file = null
           }
         }
         const chatMenu = this.$t('menu.chat')

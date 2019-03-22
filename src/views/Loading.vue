@@ -8,9 +8,6 @@
 <script>
 import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account.js'
-import signalAPI from '@/api/signal.js'
-import signalProtocol from '@/crypto/signal.js'
-import signalDao from '@/crypto/signal_dao.js'
 import { clearDb } from '@/persistence/db_util.js'
 
 export default {

@@ -46,31 +46,6 @@ export default {
         this.$router.push('/home')
       }
     }
-  },
-  methods: {
-    pushSignalKeys: function() {
-      // eslint-disable-next-line no-undef
-      return wasmObject.then(result => {
-        const identityKeyPair = signalDao.getIdentityKeyPair()
-        const preKeys = signalProtocol.generatePreKeys()
-        const signedPreKey = signalProtocol.generateSignedPreKey()
-        let otpks = []
-        for (let i in preKeys) {
-          const p = JSON.parse(preKeys[i].record)
-          otpks.push({ key_id: p.ID, pub_key: p.PublicKey })
-        }
-        const body = {
-          identity_key: identityKeyPair.public_key,
-          signed_pre_key: {
-            key_id: signedPreKey.ID,
-            pub_key: signedPreKey.PublicKey,
-            signature: signedPreKey.Signature
-          },
-          one_time_pre_keys: otpks
-        }
-        return signalAPI.postSignalKeys(body)
-      })
-    }
   }
 }
 </script>

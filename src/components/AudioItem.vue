@@ -6,30 +6,28 @@
         v-if="showName"
         v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
       >{{message.userFullName}}</span>
-      <div class="audio">
-        <div class="content">
-          <audio class="media" :src="message.mediaUrl" controls="controls">不支持</audio>
-          <div class="bottom">
-            <span class="time">
-              {{message.lt}}
-              <ICSending
-                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
-                class="icon"
-              />
-              <ICSend
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                class="icon"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                class="icon"
-              />
-            </span>
-          </div>
+      <div class="content">
+        <audio class="media" :src="message.mediaUrl" controls="controls">不支持</audio>
+        <div class="bottom">
+          <span class="time">
+            {{message.lt}}
+            <ICSending
+              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+              class="icon"
+            />
+            <ICSend
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+              class="icon"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+              class="icon wait"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+              class="icon"
+            />
+          </span>
         </div>
       </div>
     </div>
@@ -87,47 +85,38 @@ export default {
     white-space: nowrap;
     margin-bottom: 0.2rem;
   }
-  .audio {
-    padding: 12px;
-    background: white;
+  .content {
     display: flex;
-    flex-direction: row;
-    align-content: center;
-    border-radius: 0.4rem;
-    box-shadow: 1px 1px 1px #33333333;
+    flex: 1;
+    flex-direction: column;
+    text-align: start;
+    overflow: hidden;
     .media {
       width: 280px;
     }
-    .content {
-      display: flex;
-      flex: 1;
-      flex-direction: column;
-      text-align: start;
+    .name {
+      font-size: 1rem;
       overflow: hidden;
-      .name {
-        font-size: 1rem;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-      .bottom {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .bottom {
+      display: flex;
+      justify-content: flex-end;
+      .time {
+        color: #8799a5;
         display: flex;
-        justify-content: flex-end;
-        .time {
-          color: #8799a5;
-          display: flex;
-          float: right;
-          font-size: 0.75rem;
-          bottom: 0.2rem;
-          right: 0.2rem;
-          align-items: flex-end;
-          .icon {
-            padding-left: 0.2rem;
-          }
-          .wait {
-            path {
-              fill: #859479;
-            }
+        float: right;
+        font-size: 0.75rem;
+        bottom: 0.2rem;
+        right: 0.2rem;
+        align-items: flex-end;
+        .icon {
+          padding-left: 0.2rem;
+        }
+        .wait {
+          path {
+            fill: #859479;
           }
         }
       }

@@ -75,7 +75,7 @@ let transactions = {
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
-      chat_file_big: 'Requires file size less than 30MB',
+      chat_file_invalid_size: 'Requires file size less than 30MB',
       preview: 'Preview'
     },
     loading: {

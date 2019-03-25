@@ -13,8 +13,7 @@
     "electron:generate-icons": "electron-icon-builder --input=./public/icon.png --output=build --flatten",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps",
-    "rebuild": "./node_modules/.bin/electron-rebuild -f -w better-sqlite3"
+    "postuninstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.8",

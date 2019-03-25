@@ -129,7 +129,7 @@ export default {
       flex-direction: column;
       .title {
         padding: 1rem;
-        color: #268b7d;
+        color: #3a7ee4;
         font-weight: 500;
       }
       .participant {

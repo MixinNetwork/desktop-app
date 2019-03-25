@@ -6,7 +6,7 @@ class FloodMessageDao {
     stmt.run(messageId, data, createdAt)
   }
   findFloodMessage() {
-    const stmt = db.prepare('SELECT * FROM flood_messages ORDER BY created_at ASC LIMIT 10')
+    const stmt = db.prepare('SELECT * FROM flood_messages ORDER BY created_at ASC LIMIT 20')
     return stmt.all()
   }
   delete(messageId) {

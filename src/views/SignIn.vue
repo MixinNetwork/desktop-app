@@ -221,7 +221,7 @@ h1 {
     width: 220px;
     height: 220px;
     border-radius: 130px;
-    background: #5bbaa6;
+    background: #3a7ee4;
     display: flex;
     flex-direction: column;
     align-items: center;

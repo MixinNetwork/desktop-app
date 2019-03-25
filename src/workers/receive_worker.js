@@ -70,12 +70,13 @@ class ReceiveWroker extends BaseWorker {
   }
 
   processAppButton(data) {
+    const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
       id: data.message_id,
       conversation_id: data.conversation_id,
       user_id: data.user_id,
       category: data.category,
-      content: window.atob(data.data),
+      content: decoded,
       created_at: data.created_at,
       status: MessageStatus.DELIVERED
     }
@@ -83,12 +84,13 @@ class ReceiveWroker extends BaseWorker {
   }
 
   processAppCard(data) {
+    const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
       id: data.message_id,
       conversation_id: data.conversation_id,
       user_id: data.user_id,
       category: data.category,
-      content: window.atob(data.data),
+      content: decoded,
       created_at: data.created_at,
       status: MessageStatus.DELIVERED
     }
@@ -513,7 +515,7 @@ class ReceiveWroker extends BaseWorker {
       const body = i18n.t('notification.sendSticker')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_CONTACT')) {
-      const decoded = window.atob(plaintext)
+      const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const contactData = JSON.parse(decoded)
       const message = {
         message_id: data.message_id,

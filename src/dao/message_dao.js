@@ -30,7 +30,7 @@ class MessageDao {
   }
   getMessages(conversationId) {
     const stmt = db.prepare(
-      'SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
+      'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
         'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
         'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
         'm.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
@@ -52,7 +52,7 @@ class MessageDao {
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
         'WHERE m.conversation_id = ? ' +
-        'ORDER BY m.created_at ASC'
+        'ORDER BY m.created_at DESC limit 150) ORDER BY createdAt ASC'
     )
     let data = stmt.all(conversationId)
     data.forEach(function(e) {

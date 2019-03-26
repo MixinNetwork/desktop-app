@@ -57,6 +57,7 @@ function createWindow() {
   if (process.platform === 'darwin') {
     require('./menu')
   }
+  app.setAppUserModelId('one.mixin.messenger')
 }
 
 // Quit when all windows are closed.

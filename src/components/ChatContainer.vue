@@ -10,7 +10,6 @@
     </header>
     <ul
       class="messages"
-      v-chat-scroll
       v-show="conversation"
       ref="messagesUl"
       @dragenter="onDragEnter"
@@ -21,11 +20,16 @@
       <li v-show="!user.app_id" class="encryption tips">
         <div class="bubble">{{$t('encryption')}}</div>
       </li>
+      <infinite-loading direction="top" @infinite="infiniteHandler" ref="infinite">
+        <div slot="spinner"></div>
+        <div slot="no-more"></div>
+        <div slot="no-results"></div>
+      </infinite-loading>
       <MessageItem
-        v-for="(item, i) in messages(conversation)"
-        v-bind:key="item.id"
+        v-for="(item, $index) in messages"
+        v-bind:key=" $index"
         v-bind:message="item"
-        v-bind:prev="messages(conversation)[i-1]"
+        v-bind:prev="messages[$index-1]"
         v-bind:unread="unreadMessageId"
         v-bind:conversation="conversation"
         v-bind:me="me"
@@ -89,6 +93,7 @@ import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
+import InfiniteLoading from 'vue-infinite-loading'
 import messageBox from '@/store/message_box.js'
 export default {
   name: 'ChatContainer',
@@ -103,23 +108,16 @@ export default {
       MessageStatus: MessageStatus,
       inputFlag: false,
       dragging: false,
-      file: null
+      file: null,
+      messages: []
     }
   },
   watch: {
     conversation: function(newC, oldC) {
       if (!!newC && (!oldC || newC.conversationId !== oldC.conversationId)) {
+        this.$refs.infinite.stateChanger.reset()
+        this.messages = messageBox.messages
         let unread = conversationDao.indexUnread(newC.conversationId)
-        if (unread > 0) {
-          let msg = this.messages(newC)[this.messages.length - unread]
-          if (msg) {
-            this.unreadMessageId = msg.messageId
-          } else {
-            this.unreadMessageId = ''
-          }
-        } else {
-          this.unreadMessageId = ''
-        }
         this.$store.dispatch('markRead', newC.conversationId)
       }
       if (newC) {
@@ -164,15 +162,16 @@ export default {
     }
   },
   updated() {
-    let scrollHeight = this.$refs.messagesUl.scrollHeight
-    this.$refs.messagesUl.scrollTop = scrollHeight
+    // let scrollHeight = this.$refs.messagesUl.scrollHeight
+    // this.$refs.messagesUl.scrollTop = scrollHeight
   },
   components: {
     Dropdown,
     Avatar,
     Details,
     MessageItem,
-    FileContainer
+    FileContainer,
+    InfiniteLoading
   },
   computed: {
     ...mapGetters({
@@ -209,12 +208,20 @@ export default {
         reader.readAsDataURL(blob)
       }
     }
+    messageBox.bindData(function(messages) {
+      self.messages = messages
+    })
   },
   lastEnter: null,
   methods: {
-    messages: function(conversation) {
-      if (!conversation) return []
-      return messageBox.messages || []
+    infiniteHandler($state) {
+      let messages = messageBox.nextPage()
+      if (messages) {
+        this.messages.unshift(...messages)
+        $state.loaded()
+      } else {
+        $state.complete()
+      }
     },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {

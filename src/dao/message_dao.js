@@ -28,7 +28,8 @@ class MessageDao {
     )
     stmt.run(message)
   }
-  getMessages(conversationId) {
+  getMessages(conversationId, page = 0) {
+    let offset = page * 150
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
         'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
@@ -52,9 +53,9 @@ class MessageDao {
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
         'WHERE m.conversation_id = ? ' +
-        'ORDER BY m.created_at DESC limit 150) ORDER BY createdAt ASC'
+        'ORDER BY m.created_at DESC LIMIT 150 OFFSET ?) ORDER BY createdAt ASC'
     )
-    let data = stmt.all(conversationId)
+    let data = stmt.all(conversationId, offset)
     data.forEach(function(e) {
       e.lt = moment(e.createdAt).format('HH:mm')
     })

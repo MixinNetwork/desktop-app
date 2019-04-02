@@ -13,7 +13,6 @@ const state = {
   currentConversationId: null,
   conversations: {},
   conversationKeys: [],
-  messages: {},
   friends: [],
   currentUser: {},
   attachment: [],

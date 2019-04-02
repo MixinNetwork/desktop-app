@@ -22,10 +22,10 @@
         <div class="bubble">{{$t('encryption')}}</div>
       </li>
       <MessageItem
-        v-for="(item, i) in messages"
+        v-for="(item, i) in messages(conversation)"
         v-bind:key="item.id"
         v-bind:message="item"
-        v-bind:prev="messages[i-1]"
+        v-bind:prev="messages(conversation)[i-1]"
         v-bind:unread="unreadMessageId"
         v-bind:conversation="conversation"
         v-bind:me="me"
@@ -89,6 +89,7 @@ import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
+import messageBox from '@/store/message_box.js'
 export default {
   name: 'ChatContainer',
   data() {
@@ -110,7 +111,12 @@ export default {
       if (!!newC && (!oldC || newC.conversationId !== oldC.conversationId)) {
         let unread = conversationDao.indexUnread(newC.conversationId)
         if (unread > 0) {
-          this.unreadMessageId = this.messages[this.messages.length - unread].messageId
+          let msg = this.messages(newC)[this.messages.length - unread]
+          if (msg) {
+            this.unreadMessageId = msg.messageId
+          } else {
+            this.unreadMessageId = ''
+          }
         } else {
           this.unreadMessageId = ''
         }
@@ -170,7 +176,6 @@ export default {
   },
   computed: {
     ...mapGetters({
-      messages: 'getMessages',
       conversation: 'currentConversation',
       user: 'currentUser',
       me: 'me'
@@ -207,6 +212,10 @@ export default {
   },
   lastEnter: null,
   methods: {
+    messages: function(conversation) {
+      if (!conversation) return []
+      return messageBox.messages || []
+    },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
         if (moment().isBefore(conversation.ownerMuteUntil)) {

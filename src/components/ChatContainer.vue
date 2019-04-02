@@ -114,11 +114,15 @@ export default {
   },
   watch: {
     conversation: function(newC, oldC) {
-      if (!!newC && (!oldC || newC.conversationId !== oldC.conversationId)) {
+      if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (!newC && oldC)) {
         this.$refs.infinite.stateChanger.reset()
         this.messages = messageBox.messages
-        let unread = conversationDao.indexUnread(newC.conversationId)
         this.$store.dispatch('markRead', newC.conversationId)
+        let self = this
+        setTimeout(function() {
+          let scrollHeight = self.$refs.messagesUl.scrollHeight
+          self.$refs.messagesUl.scrollTop = scrollHeight
+        }, 30)
       }
       if (newC) {
         if (newC !== oldC) {
@@ -160,10 +164,6 @@ export default {
         this.menus = menu
       }
     }
-  },
-  updated() {
-    // let scrollHeight = this.$refs.messagesUl.scrollHeight
-    // this.$refs.messagesUl.scrollTop = scrollHeight
   },
   components: {
     Dropdown,
@@ -208,9 +208,24 @@ export default {
         reader.readAsDataURL(blob)
       }
     }
-    messageBox.bindData(function(messages) {
-      self.messages = messages
-    })
+    messageBox.bindData(
+      function(messages) {
+        self.messages = messages
+      },
+      function() {
+        setTimeout(function() {
+          let scrollHeight = self.$refs.messagesUl.scrollHeight
+          console.log(scrollHeight)
+          self.$refs.messagesUl.scrollTop = scrollHeight
+        }, 30)
+      }
+    )
+    setTimeout(function() {
+      if (self.$refs.messagesUl) {
+        let scrollHeight = self.$refs.messagesUl.scrollHeight
+        self.$refs.messagesUl.scrollTop = scrollHeight
+      }
+    }, 30)
   },
   lastEnter: null,
   methods: {

@@ -61,6 +61,9 @@ class MessageDao {
     })
     return data
   }
+  getMessagesCount(conversationId) {
+    return db.prepare('SELECT count(m.message_id) FROM messages m WHERE m.conversation_id = ?').get(conversationId)
+  }
   getSendingMessages() {
     const stmt = db.prepare(`SELECT * FROM messages WHERE status='SENDING' ORDER BY created_at ASC LIMIT 1`)
     const data = stmt.get()

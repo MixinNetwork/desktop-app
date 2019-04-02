@@ -6,6 +6,7 @@ class MessageBox {
       this.page = 0
       this.conversationId = conversationId
       this.messages = messageDao.getMessages(conversationId, 0)
+      this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
     }
   }
   refreshMessage(conversationId) {
@@ -13,6 +14,11 @@ class MessageBox {
       this.page = 0
       this.messages = messageDao.getMessages(conversationId, 0)
       this.callback(this.messages)
+      let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
+      if (count >= this.count) {
+        this.scrollAction()
+      }
+      this.count = count
     }
   }
   nextPage() {
@@ -23,8 +29,9 @@ class MessageBox {
       return null
     }
   }
-  bindData(callback) {
+  bindData(callback, scrollAction) {
     this.callback = callback
+    this.scrollAction = scrollAction
   }
 }
 

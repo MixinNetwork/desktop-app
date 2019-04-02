@@ -114,7 +114,7 @@ export default {
   },
   watch: {
     conversation: function(newC, oldC) {
-      if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (!newC && oldC)) {
+      if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
         this.messages = messageBox.messages
         this.$store.dispatch('markRead', newC.conversationId)

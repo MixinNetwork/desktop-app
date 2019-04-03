@@ -22,12 +22,17 @@ class MessageBox {
     }
   }
   nextPage() {
-    let data = messageDao.getMessages(this.conversationId, ++this.page)
-    if (data.length > 0) {
-      return data
-    } else {
-      return null
-    }
+    let self = this
+    return new Promise(function(resolve) {
+      let data = messageDao.getMessages(self.conversationId, ++self.page)
+      if (data.length > 0) {
+        setTimeout(function() {
+          resolve(data)
+        }, 150)
+      } else {
+        resolve(null)
+      }
+    })
   }
   bindData(callback, scrollAction) {
     this.callback = callback

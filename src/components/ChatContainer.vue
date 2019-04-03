@@ -229,13 +229,15 @@ export default {
   lastEnter: null,
   methods: {
     infiniteHandler($state) {
-      let messages = messageBox.nextPage()
-      if (messages) {
-        this.messages.unshift(...messages)
-        $state.loaded()
-      } else {
-        $state.complete()
-      }
+      let self = this
+      messageBox.nextPage().then(function(messages) {
+        if (messages) {
+          self.messages.unshift(...messages)
+          $state.loaded()
+        } else {
+          $state.complete()
+        }
+      })
     },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {

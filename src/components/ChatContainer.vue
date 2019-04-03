@@ -89,7 +89,7 @@ import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
-import conversationDao from '@/dao/conversation_dao'
+import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
@@ -118,11 +118,11 @@ export default {
         this.$refs.infinite.stateChanger.reset()
         this.messages = messageBox.messages
         let self = this
-        let unread = conversationDao.indexUnread(newC.conversationId)
-        if (unread > 0 && this.messages && unread < this.messages.length) {
-          this.unreadMessageId = this.messages[this.messages.length - unread].messageId
-        } else {
-          this.unreadMessageId = ''
+        if (newC) {
+          let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
+          if (unreadMessage) {
+            this.unreadMessageId = unreadMessage.message_id
+          }
         }
         this.$store.dispatch('markRead', newC.conversationId)
         setTimeout(() => {

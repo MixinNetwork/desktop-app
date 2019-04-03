@@ -100,6 +100,14 @@ class MessageDao {
       )
       .all(conversationId)
   }
+  getUnreadMessage(conversationId) {
+    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    return db
+      .prepare(
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "DELIVERED"  AND user_id != '${userId}' ORDER BY created_at ASC`
+      )
+      .get(conversationId)
+  }
   markRead(conversationId) {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     db.prepare(

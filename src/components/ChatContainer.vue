@@ -10,7 +10,6 @@
     </header>
     <ul
       class="messages"
-      v-chat-scroll
       v-show="conversation"
       ref="messagesUl"
       @dragenter="onDragEnter"
@@ -18,14 +17,19 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
     >
+      <infinite-loading direction="top" @infinite="infiniteHandler" ref="infinite">
+        <div slot="spinner"></div>
+        <div slot="no-more"></div>
+        <div slot="no-results"></div>
+      </infinite-loading>
       <li v-show="!user.app_id" class="encryption tips">
         <div class="bubble">{{$t('encryption')}}</div>
       </li>
       <MessageItem
-        v-for="(item, i) in messages"
-        v-bind:key="item.id"
+        v-for="(item, $index) in messages"
+        v-bind:key=" $index"
         v-bind:message="item"
-        v-bind:prev="messages[i-1]"
+        v-bind:prev="messages[$index-1]"
         v-bind:unread="unreadMessageId"
         v-bind:conversation="conversation"
         v-bind:me="me"
@@ -85,10 +89,12 @@ import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
-import conversationDao from '@/dao/conversation_dao'
+import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
+import InfiniteLoading from 'vue-infinite-loading'
+import messageBox from '@/store/message_box.js'
 export default {
   name: 'ChatContainer',
   data() {
@@ -102,19 +108,27 @@ export default {
       MessageStatus: MessageStatus,
       inputFlag: false,
       dragging: false,
-      file: null
+      file: null,
+      messages: []
     }
   },
   watch: {
     conversation: function(newC, oldC) {
-      if (!!newC && (!oldC || newC.conversationId !== oldC.conversationId)) {
-        let unread = conversationDao.indexUnread(newC.conversationId)
-        if (unread > 0) {
-          this.unreadMessageId = this.messages[this.messages.length - unread].messageId
-        } else {
-          this.unreadMessageId = ''
+      if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+        this.$refs.infinite.stateChanger.reset()
+        this.messages = messageBox.messages
+        let self = this
+        if (newC) {
+          let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
+          if (unreadMessage) {
+            this.unreadMessageId = unreadMessage.message_id
+          }
         }
         this.$store.dispatch('markRead', newC.conversationId)
+        setTimeout(() => {
+          let scrollHeight = self.$refs.messagesUl.scrollHeight
+          self.$refs.messagesUl.scrollTop = scrollHeight
+        }, 5)
       }
       if (newC) {
         if (newC !== oldC) {
@@ -157,20 +171,16 @@ export default {
       }
     }
   },
-  updated() {
-    let scrollHeight = this.$refs.messagesUl.scrollHeight
-    this.$refs.messagesUl.scrollTop = scrollHeight
-  },
   components: {
     Dropdown,
     Avatar,
     Details,
     MessageItem,
-    FileContainer
+    FileContainer,
+    InfiniteLoading
   },
   computed: {
     ...mapGetters({
-      messages: 'getMessages',
       conversation: 'currentConversation',
       user: 'currentUser',
       me: 'me'
@@ -204,9 +214,31 @@ export default {
         reader.readAsDataURL(blob)
       }
     }
+    messageBox.bindData(
+      function(messages) {
+        self.messages = messages
+      },
+      function() {
+        setTimeout(function() {
+          let scrollHeight = self.$refs.messagesUl.scrollHeight
+          self.$refs.messagesUl.scrollTop = scrollHeight
+        }, 5)
+      }
+    )
   },
   lastEnter: null,
   methods: {
+    infiniteHandler($state) {
+      let self = this
+      messageBox.nextPage().then(function(messages) {
+        if (messages) {
+          self.messages.unshift(...messages)
+          $state.loaded()
+        } else {
+          $state.complete()
+        }
+      })
+    },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
         if (moment().isBefore(conversation.ownerMuteUntil)) {

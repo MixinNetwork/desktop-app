@@ -4,6 +4,7 @@ import { getToken } from '@/utils/util.js'
 import { clearDb } from '@/persistence/db_util.js'
 import store from '@/store/store'
 import router from '@/router'
+import Vue from 'vue'
 
 const url = 'https://api.mixin.one/'
 const axiosApi = axios.create({
@@ -55,6 +56,7 @@ axiosApi.interceptors.response.use(
     if (response.data.error) {
       switch (response.data.error.code) {
         case 401:
+          Vue.prototype.$blaze.closeBlaze()
           clearDb()
           router.push('/sign_in')
           break

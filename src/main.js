@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueElectron from 'vue-electron'
-import VueChatScroll from 'vue-chat-scroll'
 import App from './App.vue'
 import router from './router'
 import store from './store/store'
@@ -23,7 +22,6 @@ library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
 Vue.use(VueAxios, axios)
 Vue.use(VueLazyload)
 Vue.use(VueElectron)
-Vue.use(VueChatScroll)
 Vue.use(Dialog)
 Vue.use(Menu)
 Vue.use(Toast)

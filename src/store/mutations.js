@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import messageDao from '@/dao/message_dao'
+import messageBox from '@/store/message_box.js'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
@@ -37,7 +37,6 @@ export default {
     state.currentConversationId = null
     state.conversations = {}
     state.conversationKeys = []
-    state.messages = {}
     state.friends = []
     state.currentUser = {}
     state.search = null
@@ -53,8 +52,6 @@ export default {
       const participants = participantDao.getParticipantsByConversationId(conversationId)
       conversation.participants = participants
       Vue.set(state.conversations, conversationId, conversation)
-      const messages = messageDao.getMessages(conversationId)
-      Vue.set(state.messages, conversationId, messages)
     })
     const friends = userDao.findFriends()
     if (friends.length > 0) {
@@ -67,6 +64,7 @@ export default {
     state.me = user
   },
   setCurrentConversation(state, conversationId) {
+    messageBox.setConversationId(conversationId)
     if (
       !state.conversationKeys.some(item => {
         return item === conversationId
@@ -80,8 +78,7 @@ export default {
     state.currentUser = userDao.findUserByConversationId(conversationId)
   },
   refreshMessage(state, conversationId) {
-    const messages = messageDao.getMessages(conversationId)
-    Vue.set(state.messages, conversationId, messages)
+    messageBox.refreshMessage(conversationId)
     if (
       !state.conversationKeys.some(item => {
         return item === conversationId
@@ -104,7 +101,6 @@ export default {
       state.conversationKeys.splice(index, 1)
     }
     delete state.conversations[conversationId]
-    delete state.messages[conversationId]
     if (state.currentConversationId === conversationId) {
       state.currentConversationId = null
     }

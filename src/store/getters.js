@@ -32,12 +32,6 @@ export default {
     return state.currentUser
   },
 
-  getMessages: state => {
-    if (state.currentConversationId) {
-      return state.messages[state.currentConversationId]
-    }
-  },
-
   findFriends: state => {
     return state.friends
   },

@@ -117,12 +117,18 @@ export default {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
         this.messages = messageBox.messages
-        this.$store.dispatch('markRead', newC.conversationId)
         let self = this
-        setTimeout(function() {
+        let unread = conversationDao.indexUnread(newC.conversationId)
+        if (unread > 0 && this.messages && unread < this.messages.length) {
+          this.unreadMessageId = this.messages[this.messages.length - unread].messageId
+        } else {
+          this.unreadMessageId = ''
+        }
+        this.$store.dispatch('markRead', newC.conversationId)
+        setTimeout(() => {
           let scrollHeight = self.$refs.messagesUl.scrollHeight
           self.$refs.messagesUl.scrollTop = scrollHeight
-        }, 30)
+        }, 5)
       }
       if (newC) {
         if (newC !== oldC) {
@@ -215,17 +221,10 @@ export default {
       function() {
         setTimeout(function() {
           let scrollHeight = self.$refs.messagesUl.scrollHeight
-          console.log(scrollHeight)
           self.$refs.messagesUl.scrollTop = scrollHeight
-        }, 30)
+        }, 5)
       }
     )
-    setTimeout(function() {
-      if (self.$refs.messagesUl) {
-        let scrollHeight = self.$refs.messagesUl.scrollHeight
-        self.$refs.messagesUl.scrollTop = scrollHeight
-      }
-    }, 30)
   },
   lastEnter: null,
   methods: {

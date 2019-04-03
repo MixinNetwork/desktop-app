@@ -17,14 +17,14 @@
       @dragover="onDragOver"
       @dragleave="onDragLeave"
     >
-      <li v-show="!user.app_id" class="encryption tips">
-        <div class="bubble">{{$t('encryption')}}</div>
-      </li>
       <infinite-loading direction="top" @infinite="infiniteHandler" ref="infinite">
         <div slot="spinner"></div>
         <div slot="no-more"></div>
         <div slot="no-results"></div>
       </infinite-loading>
+      <li v-show="!user.app_id" class="encryption tips">
+        <div class="bubble">{{$t('encryption')}}</div>
+      </li>
       <MessageItem
         v-for="(item, $index) in messages"
         v-bind:key=" $index"

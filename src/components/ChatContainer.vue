@@ -122,6 +122,8 @@ export default {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
+          } else {
+            this.unreadMessageId = ''
           }
         }
         this.$store.dispatch('markRead', newC.conversationId)

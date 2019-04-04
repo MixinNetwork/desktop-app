@@ -198,9 +198,11 @@ export default {
     })
     document.onpaste = function(e) {
       if (!self.conversation) return
+      e.preventDefault()
       const items = (event.clipboardData || event.originalEvent.clipboardData).items
       let blob = null
       let mimeType = null
+
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') === 0) {
           mimeType = items[i].type
@@ -214,6 +216,11 @@ export default {
           self.file = await base64ToImage(event.target.result, mimeType)
         }
         reader.readAsDataURL(blob)
+        return
+      }
+      var text = (e.originalEvent || e).clipboardData.getData('text/plain')
+      if (text) {
+        document.execCommand('insertText', false, text)
       }
     }
     messageBox.bindData(

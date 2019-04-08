@@ -5,6 +5,7 @@
         class="username"
         v-if="showName"
         v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+        @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <div class="file" @click="openFile">
         <spinner class="loading" v-if="loading"></spinner>

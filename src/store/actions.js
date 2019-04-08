@@ -37,6 +37,9 @@ export default {
   createUserConversation: ({ commit, state }, payload) => {
     const { user } = payload
     const account = JSON.parse(localStorage.getItem('account'))
+    if (user.user_id === account.user_id) {
+      return
+    }
     var conversation = conversationDao.getConversationByUserId(user.user_id)
     if (conversation && state.conversations && state.conversations[conversation.conversation_id]) {
       commit('setCurrentConversation', conversation.conversation_id)

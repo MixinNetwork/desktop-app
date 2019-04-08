@@ -11,8 +11,9 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
+      @user-share-click="$emit('user-click',message.sharedUserId)"
+      @user-click="$emit('user-click',message.userId)"
       :coversation="conversation"
-      @user-click="$emit('user-click',message.sharedUserId)"
     ></ContactItem>
     <FileItem
       v-else-if="message.type.endsWith('_DATA')"
@@ -20,7 +21,7 @@
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-      @user-click="$emit('user-click',message.sharedUserId)"
+      @user-click="$emit('user-click',message.userId)"
     ></FileItem>
     <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
@@ -28,7 +29,7 @@
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-      @user-click="$emit('user-click',message.sharedUserId)"
+      @user-click="$emit('user-click',message.userId)"
     ></AudioItem>
     <VideoItem
       v-else-if="message.type.endsWith('_VIDEO')"
@@ -36,14 +37,14 @@
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-      @user-click="$emit('user-click',message.sharedUserId)"
+      @user-click="$emit('user-click',message.userId)"
     ></VideoItem>
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-bind:class="messageOwnership(message, me)">
       <div class="bubble" v-bind:class="messageType(message)" @click="preview">
-        <div v-if="this.showUserName()">
+        <div v-if="this.showUserName()" @click="$emit('user-click',message.userId)">
           <span
             class="username"
             v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"

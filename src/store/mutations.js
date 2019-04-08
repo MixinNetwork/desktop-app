@@ -3,7 +3,7 @@ import messageBox from '@/store/message_box.js'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
-import { LinkStatus } from '@/utils/constants.js'
+import { LinkStatus, ConversationCategory } from '@/utils/constants.js'
 
 function refreshConversations(state) {
   const conversations = conversationDao.getConversations()
@@ -117,14 +117,25 @@ export default {
   search(state, keyword) {
     if (keyword) {
       const account = state.me
-      const result = userDao.fuzzySearchUser(account.user_id, keyword)
-      state.search = result
+      const contact = userDao.fuzzySearchUser(account.user_id, keyword)
+      const group = state.conversationKeys
+        .map(item => {
+          return state.conversations[item]
+        })
+        .filter(item => {
+          return item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1
+        })
+
+      state.search = {
+        contact: contact,
+        group: group
+      }
     } else {
-      state.search = null
+      state.search = {}
     }
   },
   searchClear(state) {
-    state.search = null
+    state.search = {}
   },
   toggleTime(state, toggle) {
     if (state.showTime !== toggle) {

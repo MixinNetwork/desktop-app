@@ -1,7 +1,7 @@
 <template>
   <li
     class="conversation item"
-    @click="$emit('item-click',conversation,index)"
+    @click="$emit('item-click',conversation)"
     @mouseenter="enter"
     @mouseleave="leave"
     @contextmenu.prevent="$emit('item-more',conversation)"

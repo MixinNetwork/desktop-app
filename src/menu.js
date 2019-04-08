@@ -1,3 +1,4 @@
+import { checkForUpdates } from './updater'
 const { app, Menu } = require('electron')
 
 const template = [
@@ -31,17 +32,16 @@ const template = [
   },
   {
     role: 'window',
-    submenu: [
-      { role: 'minimize' },
-      { role: 'close' }
-    ]
+    submenu: [{ role: 'minimize' }, { role: 'close' }]
   },
   {
     role: 'help',
     submenu: [
       {
         label: 'Learn More',
-        click () { require('electron').shell.openExternal('https://mixin.one/messenger') }
+        click() {
+          require('electron').shell.openExternal('https://mixin.one/messenger')
+        }
       }
     ]
   }
@@ -52,6 +52,7 @@ if (process.platform === 'darwin') {
     label: app.getName(),
     submenu: [
       { role: 'about' },
+      { label: 'Check for Updates...', click: checkForUpdates },
       { type: 'separator' },
       { role: 'services' },
       { type: 'separator' },
@@ -68,10 +69,7 @@ if (process.platform === 'darwin') {
     { type: 'separator' },
     {
       label: 'Speech',
-      submenu: [
-        { role: 'startspeaking' },
-        { role: 'stopspeaking' }
-      ]
+      submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }]
     }
   )
 

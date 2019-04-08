@@ -49,9 +49,9 @@ class ReceiveWroker extends BaseWorker {
       await this.processPlainMessage(data)
     } else if (data.category.startsWith('SYSTEM_')) {
       await this.processSystemMessage(data)
-    } else if (data.category !== 'APP_BUTTON_GROUP') {
+    } else if (data.category === 'APP_BUTTON_GROUP') {
       await this.processAppButton(data)
-    } else if (data.category !== 'APP_CARD') {
+    } else if (data.category === 'APP_CARD') {
       await this.processAppCard(data)
     }
     this.updateRemoteMessageStatus(floodMessage.message_id, MessageStatus.DELIVERED)
@@ -72,29 +72,77 @@ class ReceiveWroker extends BaseWorker {
   processAppButton(data) {
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
-      id: data.message_id,
+      message_id: data.message_id,
       conversation_id: data.conversation_id,
-      user_id: data.user_id,
+      user_id: data.primitive_id,
       category: data.category,
       content: decoded,
+      media_url: null,
+      media_mime_type: null,
+      media_size: null,
+      media_duration: null,
+      media_width: null,
+      media_height: null,
+      media_hash: null,
+      thumb_image: null,
+      media_key: null,
+      media_digest: null,
+      media_status: null,
+      status: MessageStatus.READ,
       created_at: data.created_at,
-      status: MessageStatus.DELIVERED
+      action: null,
+      participant_id: null,
+      snapshot_id: null,
+      hyperlink: null,
+      name: null,
+      album_id: null,
+      sticker_id: null,
+      shared_user_id: null,
+      media_waveform: null,
+      quote_message_id: null,
+      quote_content: null
     }
-    messageDao.insert(message)
+    messageDao.insertMessage(message)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    store.dispatch('refreshMessage', data.conversation_id)
   }
 
   processAppCard(data) {
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
-      id: data.message_id,
+      message_id: data.message_id,
       conversation_id: data.conversation_id,
-      user_id: data.user_id,
+      user_id: data.primitive_id,
       category: data.category,
       content: decoded,
+      media_url: null,
+      media_mime_type: null,
+      media_size: null,
+      media_duration: null,
+      media_width: null,
+      media_height: null,
+      media_hash: null,
+      thumb_image: null,
+      media_key: null,
+      media_digest: null,
+      media_status: null,
+      status: MessageStatus.READ,
       created_at: data.created_at,
-      status: MessageStatus.DELIVERED
+      action: null,
+      participant_id: null,
+      snapshot_id: null,
+      hyperlink: null,
+      name: null,
+      album_id: null,
+      sticker_id: null,
+      shared_user_id: null,
+      media_waveform: null,
+      quote_message_id: null,
+      quote_content: null
     }
-    messageDao.insert(message)
+    messageDao.insertMessage(message)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    store.dispatch('refreshMessage', data.conversation_id)
   }
 
   async processSystemMessage(data) {

@@ -183,7 +183,7 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
-      } else if (type.startsWith('_APP')) {
+      } else if (type.startsWith('APP_') || type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
         return 'mobile'
       } else {
         return 'unknown'

@@ -26,11 +26,11 @@ export async function downloadAttachment(message, callback) {
     }
     store.dispatch('startLoading', message.message_id)
     if (message.category.startsWith('SIGNAL_')) {
-      getAttachment(response.data.data.view_url, data => {
-        const mediaKey = base64ToUint8Array(message.media_key).buffer
-        const mediaDigest = base64ToUint8Array(message.media_digest).buffer
+      getAttachment(response.data.data.view_url, message, (m, data) => {
+        const mediaKey = base64ToUint8Array(m.media_key).buffer
+        const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest).then(resp => {
-          const name = generateName(message.name, message.media_mime_type, message.category)
+          const name = generateName(m.name, m.media_mime_type, m.category)
           const filePath = path.join(dir, name)
           fs.writeFile(filePath, Buffer.from(resp), function(err) {
             if (err) {
@@ -38,13 +38,13 @@ export async function downloadAttachment(message, callback) {
             } else {
               callback(filePath)
             }
-            store.dispatch('stopLoading', message.message_id)
+            store.dispatch('stopLoading', m.message_id)
           })
         })
       })
     } else {
-      getAttachment(response.data.data.view_url, data => {
-        const name = generateName(message.name, message.media_mime_type, message.category)
+      getAttachment(response.data.data.view_url, message, (m, data) => {
+        const name = generateName(m.name, m.media_mime_type, m.category)
         const filePath = path.join(dir, name)
         fs.writeFile(filePath, Buffer.from(data), function(err) {
           if (err) {
@@ -52,7 +52,7 @@ export async function downloadAttachment(message, callback) {
           } else {
             callback(filePath)
           }
-          store.dispatch('stopLoading', message.message_id)
+          store.dispatch('stopLoading', m.message_id)
         })
       })
     }
@@ -211,7 +211,7 @@ export function isImage(mimeType) {
   }
 }
 
-function getAttachment(url, callbackData) {
+function getAttachment(url, message, callbackData) {
   fetch(url, {
     method: 'GET',
     headers: {
@@ -225,9 +225,13 @@ function getAttachment(url, callbackData) {
       let fileReader = new FileReader()
       fileReader.onload = function(event) {
         let arrayBuffer = event.target.result
-        callbackData(arrayBuffer)
+        callbackData(message, arrayBuffer)
       }
       fileReader.readAsArrayBuffer(blob)
+    })
+    .catch(err => {
+      // TODO retry?
+      console.log(err)
     })
 }
 

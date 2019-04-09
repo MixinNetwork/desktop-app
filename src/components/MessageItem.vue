@@ -75,6 +75,10 @@
           v-else-if="messageType(message) === 'app_button'"
           class="app_button"
         >{{$t('chat.chat_app_button') }}</span>
+        <span
+          v-else-if="messageType(message) === 'transfer'"
+          class="transfer"
+        >{{transferText(message)}}</span>
         <span class="time-place"></span>
         <span class="time">
           {{message.lt}}
@@ -193,8 +197,17 @@ export default {
         } else {
           return 'app_button'
         }
+      } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+        return 'transfer'
       } else {
         return 'unknown'
+      }
+    },
+    transferText: function(message) {
+      if (message.userId === this.me.user_id) {
+        return this.$t('chat.chat_transfer_send')
+      } else {
+        return this.$t('chat.chat_transfer_receive')
       }
     },
     textMessage: message => {
@@ -358,7 +371,8 @@ li {
 
   &.text,
   &.app_card,
-  &.app_button {
+  &.app_button,
+  &.transfer {
     border-radius: 0.2rem;
     text-align: left;
     word-break: break-all;
@@ -444,7 +458,8 @@ li {
   .bubble {
     &.text,
     &.app_card,
-    &.app_button {
+    &.app_button,
+    &.transfer {
       background: white;
       margin-left: 0.8rem;
       .time-place {
@@ -463,7 +478,8 @@ li {
       }
     }
     &.app_card,
-    &.app_button {
+    &.app_button,
+    &.transfer {
       background: #fbdda7;
       &:after {
         border-right: 0.6rem solid #fbdda7;
@@ -479,7 +495,8 @@ li {
   .bubble {
     &.text,
     &.app_card,
-    &.app_button {
+    &.app_button,
+    &.transfer {
       margin-right: 0.8rem;
       background: #c5edff;
 
@@ -496,7 +513,8 @@ li {
       }
     }
     &.app_card,
-    &.app_button {
+    &.app_button,
+    &.transfer {
       background: #fbdda7;
       &:after {
         border-left: 0.6rem solid #fbdda7;

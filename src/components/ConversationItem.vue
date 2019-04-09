@@ -137,6 +137,8 @@ export default {
         } else {
           return this.$t('chat.chat_app_button')
         }
+      } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+        return this.$t('chat.chat_transfer')
       } else {
         return ''
       }

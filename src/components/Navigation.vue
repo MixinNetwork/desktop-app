@@ -38,14 +38,20 @@
         />
       </ul>
       <ul class="conversations" v-show="searchResult.contact||searchResult.group">
-        <span class="listheader" v-show="searchResult.contact">{{$t('chat.chat_contact')}}</span>
+        <span
+          class="listheader"
+          v-show="searchResult.contact && searchResult.contact.length > 0"
+        >{{$t('chat.chat_contact')}}</span>
         <UserItem
           v-for="user in searchResult.contact"
           :key="user.user_id"
           :user="user"
           @user-click="onSearchUserClick"
         ></UserItem>
-        <span class="listheader" v-show="searchResult.group">{{$t('chat.chat_group')}}</span>
+        <span
+          class="listheader"
+          v-show="searchResult.group && searchResult.group.length > 0"
+        >{{$t('chat.chat_group')}}</span>
         <GroupItem
           v-for="group in searchResult.group"
           :key="group.conversationId"

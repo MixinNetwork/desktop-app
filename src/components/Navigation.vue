@@ -22,7 +22,10 @@
       </div>
       <search class="nav" @input="onInput"></search>
       <h5 v-if="Object.keys(conversations).length==0">{{$t('conversation.empty')}}</h5>
-      <ul class="conversations" v-show="conversations && !searchItems">
+      <ul
+        class="conversations"
+        v-show="conversations && !(searchResult.contact||searchResult.group)"
+      >
         <ConversationItem
           v-for="(conversation,key,index) in conversations"
           :key="key"
@@ -34,13 +37,21 @@
           @item-menu-click="openDownMenu"
         />
       </ul>
-      <ul class="conversations" v-show="searchItems">
+      <ul class="conversations" v-show="searchResult.contact||searchResult.group">
+        <span class="listheader" v-show="searchResult.contact">{{$t('chat.chat_contact')}}</span>
         <UserItem
-          v-for="(user,key) in searchItems"
-          :key="key"
+          v-for="user in searchResult.contact"
+          :key="user.user_id"
           :user="user"
-          @user-click="onClickUser"
+          @user-click="onSearchUserClick"
         ></UserItem>
+        <span class="listheader" v-show="searchResult.group">{{$t('chat.chat_group')}}</span>
+        <GroupItem
+          v-for="group in searchResult.group"
+          :key="group.conversationId"
+          :group="group"
+          @item-click="onSearchGroupClick"
+        ></GroupItem>
       </ul>
     </div>
     <transition name="slide-left">
@@ -80,6 +91,7 @@ import NewConversation from '@/components/NewConversation.vue'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import UserItem from '@/components/UserItem.vue'
+import GroupItem from '@/components/GroupItem.vue'
 import ICEdit from '../assets/images/ic_edit.svg'
 import ICSignal from '../assets/images/ic_signal.svg'
 import workerManager from '@/workers/worker_manager.js'
@@ -305,7 +317,9 @@ export default {
       this.conversationShow = false
       this.groupShow = false
     },
-    onConversationClick: function(conversation, index) {
+    onConversationClick: function(conversation) {
+      this.conversationShow = false
+      this.$store.dispatch('searchClear')
       this.$store.dispatch('setCurrentConversation', conversation.conversationId)
     },
     onClickUser: function(user) {
@@ -315,6 +329,17 @@ export default {
         user
       })
     },
+    onSearchGroupClick: function(conversation) {
+      this.conversationShow = false
+      this.$store.dispatch('setCurrentConversation', conversation.conversationId)
+    },
+    onSearchUserClick: function(user) {
+      this.conversationShow = false
+      this.$store.dispatch('createUserConversation', {
+        user
+      })
+    },
+
     getLinkTitle() {
       if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
         return this.$t('not_connected_title')
@@ -341,14 +366,15 @@ export default {
     Avatar,
     ProfileContainer,
     SettingContainer,
-    UserItem
+    UserItem,
+    GroupItem
   },
   computed: mapGetters({
     currentConversationId: 'currentConversationId',
     conversations: 'getConversations',
     friends: 'findFriends',
     me: 'me',
-    searchItems: 'search',
+    searchResult: 'search',
     linkStatus: 'linkStatus'
   })
 }
@@ -373,6 +399,15 @@ export default {
       flex: 1 0 0;
       .active {
         background: #e9ebeb;
+      }
+      .listheader {
+        display: block;
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 3px;
+        padding-bottom: 3px;
+        color: #8888;
+        background: #f5f5f5;
       }
     }
     .header {

@@ -76,6 +76,7 @@ let transactions = {
       chat_audio: 'Audio',
       chat_video: 'Video',
       chat_file_invalid_size: 'Requires file size less than 30MB',
+      chat_group: 'Group',
       preview: 'Preview'
     },
     loading: {
@@ -180,6 +181,7 @@ let transactions = {
       chat_audio: '语音',
       chat_video: '视频',
       chat_file_invalid_size: '不支持大于30MB的文件',
+      chat_group: '群组',
       preview: '预览'
     },
     loading: {

@@ -5,8 +5,9 @@
         class="username"
         v-if="showName"
         v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+        @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <div class="contact" @click="$emit('user-click')">
+      <div class="contact" @click="$emit('user-share-click')">
         <Avatar id="avatar" :user="user"/>
         <div class="content">
           <span class="name">{{message.sharedUserFullName}}</span>

@@ -5,6 +5,7 @@
         class="username"
         v-if="showName"
         v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+        @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <div class="content">
         <audio class="media" :src="message.mediaUrl" controls="controls">不支持</audio>

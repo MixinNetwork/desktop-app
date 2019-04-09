@@ -412,15 +412,12 @@ export default {
       if (this.inputFlag === true || event.shiftKey) {
         return
       }
-      const text = this.$refs.box.innerText
-      if (text.trim().length <= 0) {
-        event.stopPropagation()
-        event.preventDefault()
-        return
-      }
-      this.$refs.box.innerText = ''
       event.stopPropagation()
       event.preventDefault()
+      const text = this.$refs.box.innerText
+      if (text.trim().length <= 0) {
+        return
+      }
       const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
       const status = MessageStatus.SENDING
       const message = {
@@ -430,6 +427,7 @@ export default {
         status: status
       }
       this.$store.dispatch('sendMessage', message)
+      this.$refs.box.innerText = ''
     }
   }
 }

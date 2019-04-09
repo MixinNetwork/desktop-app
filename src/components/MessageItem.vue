@@ -67,11 +67,14 @@
           v-bind:class="borderSet(message)"
           v-bind:style="borderSetObject(message)"
         >
-        <span v-else-if="messageType(message) === 'mobile'" class="mobile">{{$t('chat.chat_app')}}</span>
         <span
-          v-else-if="messageType(message) === 'unknown'"
-          class="unknown"
-        >{{$t('chat.chat_group_unknown')}}</span>
+          v-else-if="messageType(message) === 'app_card'"
+          class="app_card"
+        >{{$t('chat.chat_app_card') }}</span>
+        <span
+          v-else-if="messageType(message) === 'app_button'"
+          class="app_button"
+        >{{$t('chat.chat_app_button') }}</span>
         <span class="time-place"></span>
         <span class="time">
           {{message.lt}}
@@ -185,7 +188,11 @@ export default {
       } else if (type.endsWith('_TEXT')) {
         return 'text'
       } else if (type.startsWith('APP_')) {
-        return 'mobile'
+        if (type === 'APP_CARD') {
+          return 'app_card'
+        } else {
+          return 'app_button'
+        }
       } else {
         return 'unknown'
       }
@@ -350,8 +357,8 @@ li {
   max-width: 80%;
 
   &.text,
-  &.unknown,
-  &.mobile {
+  &.app_card,
+  &.app_button {
     border-radius: 0.2rem;
     text-align: left;
     word-break: break-all;
@@ -436,9 +443,8 @@ li {
   text-align: left;
   .bubble {
     &.text,
-    &.unknown,
-    ,
-    &.mobile {
+    &.app_card,
+    &.app_button {
       background: white;
       margin-left: 0.8rem;
       .time-place {
@@ -456,9 +462,8 @@ li {
         bottom: 0.3rem;
       }
     }
-    &.unknown,
-    ,
-    &.mobile {
+    &.app_card,
+    &.app_button {
       background: #fbdda7;
       &:after {
         border-right: 0.6rem solid #fbdda7;
@@ -473,8 +478,8 @@ li {
   text-align: right;
   .bubble {
     &.text,
-    &.unknown,
-    &.mobile {
+    &.app_card,
+    &.app_button {
       margin-right: 0.8rem;
       background: #c5edff;
 
@@ -490,8 +495,8 @@ li {
         bottom: 0.3rem;
       }
     }
-    &.unknown,
-    &.mobile {
+    &.app_card,
+    &.app_button {
       background: #fbdda7;
       &:after {
         border-left: 0.6rem solid #fbdda7;

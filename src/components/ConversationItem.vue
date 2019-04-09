@@ -132,9 +132,11 @@ export default {
       } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
         return this.$t('chat.chat_video')
       } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
-        return this.$t('chat.chat_app')
-      } else if (conversation.contentType !== null) {
-        return this.$t('chat.chat_no_support_title')
+        if (conversation.contentType === 'APP_CARD') {
+          return this.$t('chat.chat_app_card')
+        } else {
+          return this.$t('chat.chat_app_button')
+        }
       } else {
         return ''
       }

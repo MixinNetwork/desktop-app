@@ -42,7 +42,7 @@
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
-    <div v-bind:class="messageOwnership(message, me)">
+    <div v-else v-bind:class="messageOwnership(message, me)">
       <div class="bubble" v-bind:class="messageType(message)" @click="preview">
         <div v-if="this.showUserName()" @click="$emit('user-click',message.userId)">
           <span
@@ -69,9 +69,17 @@
           v-bind:style="borderSetObject(message)"
         >
         <span
-          v-else-if="messageType(message) === 'mobile'"
-          class="mobile"
-        >{{$t('chat.chat_no_support')}}</span>
+          v-else-if="messageType(message) === 'app_card'"
+          class="app_card"
+        >{{$t('chat.chat_app_card') }}</span>
+        <span
+          v-else-if="messageType(message) === 'app_button'"
+          class="app_button"
+        >{{$t('chat.chat_app_button') }}</span>
+        <span
+          v-else-if="messageType(message) === 'transfer'"
+          class="transfer"
+        >{{transferText(message)}}</span>
         <span class="time-place"></span>
         <span class="time">
           {{message.lt}}
@@ -184,10 +192,23 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
-      } else if (type.startsWith('APP_') || type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-        return 'mobile'
+      } else if (type.startsWith('APP_')) {
+        if (type === 'APP_CARD') {
+          return 'app_card'
+        } else {
+          return 'app_button'
+        }
+      } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+        return 'transfer'
       } else {
         return 'unknown'
+      }
+    },
+    transferText: function(message) {
+      if (message.userId === this.me.user_id) {
+        return this.$t('chat.chat_transfer_send')
+      } else {
+        return this.$t('chat.chat_transfer_receive')
       }
     },
     textMessage: message => {
@@ -349,11 +370,10 @@ li {
   font-size: 0;
   max-width: 80%;
 
-  &.unknown {
-    display: none;
-  }
   &.text,
-  &.mobile {
+  &.app_card,
+  &.app_button,
+  &.transfer {
     border-radius: 0.2rem;
     text-align: left;
     word-break: break-all;
@@ -438,7 +458,9 @@ li {
   text-align: left;
   .bubble {
     &.text,
-    &.mobile {
+    &.app_card,
+    &.app_button,
+    &.transfer {
       background: white;
       margin-left: 0.8rem;
       .time-place {
@@ -456,7 +478,9 @@ li {
         bottom: 0.3rem;
       }
     }
-    &.mobile {
+    &.app_card,
+    &.app_button,
+    &.transfer {
       background: #fbdda7;
       &:after {
         border-right: 0.6rem solid #fbdda7;
@@ -471,7 +495,9 @@ li {
   text-align: right;
   .bubble {
     &.text,
-    &.mobile {
+    &.app_card,
+    &.app_button,
+    &.transfer {
       margin-right: 0.8rem;
       background: #c5edff;
 
@@ -487,7 +513,9 @@ li {
         bottom: 0.3rem;
       }
     }
-    &.mobile {
+    &.app_card,
+    &.app_button,
+    &.transfer {
       background: #fbdda7;
       &:after {
         border-left: 0.6rem solid #fbdda7;

@@ -131,8 +131,14 @@ export default {
         return this.$t('chat.chat_audio')
       } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
         return this.$t('chat.chat_video')
-      } else if (conversation.contentType !== null) {
-        return this.$t('chat.chat_no_support_title')
+      } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
+        if (conversation.contentType === 'APP_CARD') {
+          return this.$t('chat.chat_app_card')
+        } else {
+          return this.$t('chat.chat_app_button')
+        }
+      } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+        return this.$t('chat.chat_transfer')
       } else {
         return ''
       }

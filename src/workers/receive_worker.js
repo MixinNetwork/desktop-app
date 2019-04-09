@@ -49,10 +49,8 @@ class ReceiveWroker extends BaseWorker {
       await this.processPlainMessage(data)
     } else if (data.category.startsWith('SYSTEM_')) {
       await this.processSystemMessage(data)
-    } else if (data.category === 'APP_BUTTON_GROUP') {
-      await this.processAppButton(data)
-    } else if (data.category === 'APP_CARD') {
-      await this.processAppCard(data)
+    } else if (data.category === 'APP_BUTTON_GROUP' || data.category === 'APP_CARD') {
+      await this.processApp(data)
     }
     this.updateRemoteMessageStatus(floodMessage.message_id, MessageStatus.DELIVERED)
   }
@@ -68,58 +66,7 @@ class ReceiveWroker extends BaseWorker {
       console.log(data)
     }
   }
-
-  processAppButton(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
-    var status
-    if (store.state.currentConversationId === data.conversation_id) {
-      status = MessageStatus.READ
-    } else {
-      status = MessageStatus.DELIVERED
-    }
-    const decoded = decodeURIComponent(escape(window.atob(data.data)))
-    const message = {
-      message_id: data.message_id,
-      conversation_id: data.conversation_id,
-      user_id: data.primitive_id,
-      category: data.category,
-      content: decoded,
-      media_url: null,
-      media_mime_type: null,
-      media_size: null,
-      media_duration: null,
-      media_width: null,
-      media_height: null,
-      media_hash: null,
-      thumb_image: null,
-      media_key: null,
-      media_digest: null,
-      media_status: null,
-      status: status,
-      created_at: data.created_at,
-      action: null,
-      participant_id: null,
-      snapshot_id: null,
-      hyperlink: null,
-      name: null,
-      album_id: null,
-      sticker_id: null,
-      shared_user_id: null,
-      media_waveform: null,
-      quote_message_id: null,
-      quote_content: null
-    }
-    messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
-    store.dispatch('refreshMessage', data.conversation_id)
-  }
-
-  processAppCard(data) {
+  processApp(data) {
     if (data.primitive_id) {
       data.user_id = data.primitive_id
     }
@@ -175,55 +122,58 @@ class ReceiveWroker extends BaseWorker {
       const systemMessage = JSON.parse(json)
       await this.processSystemConversationMessage(data, systemMessage)
     } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-      if (data.primitive_id) {
-        data.user_id = data.primitive_id
-      }
-      if (data.primitive_message_id) {
-        data.message_id = data.primitive_message_id
-      }
-      var status
-      if (store.state.currentConversationId === data.conversation_id) {
-        status = MessageStatus.READ
-      } else {
-        status = MessageStatus.DELIVERED
-      }
-      const decoded = decodeURIComponent(escape(window.atob(data.data)))
-      const message = {
-        message_id: data.message_id,
-        conversation_id: data.conversation_id,
-        user_id: data.primitive_id,
-        category: data.category,
-        content: decoded,
-        media_url: null,
-        media_mime_type: null,
-        media_size: null,
-        media_duration: null,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
-        media_key: null,
-        media_digest: null,
-        media_status: null,
-        status: status,
-        created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null
-      }
-      messageDao.insertMessage(message)
-      this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
-      store.dispatch('refreshMessage', data.conversation_id)
+      this.processSystemSnapshotMessage(data)
     }
     store.dispatch('refreshMessage', data.conversation_id)
+  }
+
+  processSystemSnapshotMessage(data) {
+    if (data.primitive_id) {
+      data.user_id = data.primitive_id
+    }
+    if (data.primitive_message_id) {
+      data.message_id = data.primitive_message_id
+    }
+    var status
+    if (store.state.currentConversationId === data.conversation_id) {
+      status = MessageStatus.READ
+    } else {
+      status = MessageStatus.DELIVERED
+    }
+    const decoded = decodeURIComponent(escape(window.atob(data.data)))
+    const message = {
+      message_id: data.message_id,
+      conversation_id: data.conversation_id,
+      user_id: data.primitive_id,
+      category: data.category,
+      content: decoded,
+      media_url: null,
+      media_mime_type: null,
+      media_size: null,
+      media_duration: null,
+      media_width: null,
+      media_height: null,
+      media_hash: null,
+      thumb_image: null,
+      media_key: null,
+      media_digest: null,
+      media_status: null,
+      status: status,
+      created_at: data.created_at,
+      action: null,
+      participant_id: null,
+      snapshot_id: null,
+      hyperlink: null,
+      name: null,
+      album_id: null,
+      sticker_id: null,
+      shared_user_id: null,
+      media_waveform: null,
+      quote_message_id: null,
+      quote_content: null
+    }
+    messageDao.insertMessage(message)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
   }
 
   async processSystemConversationMessage(data, systemMessage) {

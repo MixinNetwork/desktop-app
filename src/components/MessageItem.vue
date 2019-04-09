@@ -41,7 +41,7 @@
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
-    <div v-bind:class="messageOwnership(message, me)">
+    <div v-else v-bind:class="messageOwnership(message, me)">
       <div class="bubble" v-bind:class="messageType(message)" @click="preview">
         <div v-if="this.showUserName()">
           <span
@@ -67,10 +67,11 @@
           v-bind:class="borderSet(message)"
           v-bind:style="borderSetObject(message)"
         >
+        <span v-else-if="messageType(message) === 'mobile'" class="mobile">{{$t('chat.chat_app')}}</span>
         <span
-          v-else-if="messageType(message) === 'mobile'"
-          class="mobile"
-        >{{$t('chat.chat_no_support')}}</span>
+          v-else-if="messageType(message) === 'unknown'"
+          class="unknown"
+        >{{$t('chat.chat_group_unknown')}}</span>
         <span class="time-place"></span>
         <span class="time">
           {{message.lt}}
@@ -183,7 +184,7 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
-      } else if (type.startsWith('APP_') || type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+      } else if (type.startsWith('APP_')) {
         return 'mobile'
       } else {
         return 'unknown'
@@ -348,10 +349,8 @@ li {
   font-size: 0;
   max-width: 80%;
 
-  &.unknown {
-    display: none;
-  }
   &.text,
+  &.unknown,
   &.mobile {
     border-radius: 0.2rem;
     text-align: left;
@@ -437,6 +436,8 @@ li {
   text-align: left;
   .bubble {
     &.text,
+    &.unknown,
+    ,
     &.mobile {
       background: white;
       margin-left: 0.8rem;
@@ -455,6 +456,8 @@ li {
         bottom: 0.3rem;
       }
     }
+    &.unknown,
+    ,
     &.mobile {
       background: #fbdda7;
       &:after {
@@ -470,6 +473,7 @@ li {
   text-align: right;
   .bubble {
     &.text,
+    &.unknown,
     &.mobile {
       margin-right: 0.8rem;
       background: #c5edff;
@@ -486,6 +490,7 @@ li {
         bottom: 0.3rem;
       }
     }
+    &.unknown,
     &.mobile {
       background: #fbdda7;
       &:after {

@@ -1,4 +1,4 @@
-import { checkForUpdates } from './updater'
+import { autoUpdater } from 'electron-updater'
 const { app, Menu } = require('electron')
 
 const template = [
@@ -52,7 +52,7 @@ if (process.platform === 'darwin') {
     label: app.getName(),
     submenu: [
       { role: 'about' },
-      { label: 'Check for Updates...', click: checkForUpdates },
+      { label: 'Check for Updates...', click: autoUpdater.checkForUpdatesAndNotify() },
       { type: 'separator' },
       { role: 'services' },
       { type: 'separator' },

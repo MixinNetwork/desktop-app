@@ -409,9 +409,9 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       messageDao.insertMessage(message)
-      await downloadAttachment(message, filePath => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
-        store.dispatch('refreshMessage', data.conversation_id)
+      await downloadAttachment(message, (m, filePath) => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('refreshMessage', m.conversation_id)
       })
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
@@ -452,9 +452,9 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
-      await downloadAttachment(message, filePath => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
-        store.dispatch('refreshMessage', data.conversation_id)
+      await downloadAttachment(message, (m, filePath) => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('refreshMessage', m.conversation_id)
       })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendVideo')
@@ -493,9 +493,9 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
-      await downloadAttachment(message, filePath => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
-        store.dispatch('refreshMessage', data.conversation_id)
+      await downloadAttachment(message, (m, filePath) => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('refreshMessage', m.conversation_id)
       })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendFile')
@@ -534,9 +534,9 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
-      await downloadAttachment(message, filePath => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
-        store.dispatch('refreshMessage', data.conversation_id)
+      await downloadAttachment(message, (m, filePath) => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('refreshMessage', m.conversation_id)
       })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendAudio')

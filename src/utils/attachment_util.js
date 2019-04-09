@@ -26,35 +26,24 @@ export async function downloadAttachment(message, callback) {
     }
     store.dispatch('startLoading', message.message_id)
     if (message.category.startsWith('SIGNAL_')) {
-      getAttachment(response.data.data.view_url, message, (m, data) => {
-        const mediaKey = base64ToUint8Array(m.media_key).buffer
-        const mediaDigest = base64ToUint8Array(m.media_digest).buffer
-        cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest).then(resp => {
-          const name = generateName(m.name, m.media_mime_type, m.category)
-          const filePath = path.join(dir, name)
-          fs.writeFile(filePath, Buffer.from(resp), function(err) {
-            if (err) {
-              // todo retry
-            } else {
-              callback(filePath)
-            }
-            store.dispatch('stopLoading', m.message_id)
-          })
-        })
-      })
+      const data = await getAttachment(response.data.data.view_url)
+      const m = message
+      const mediaKey = base64ToUint8Array(m.media_key).buffer
+      const mediaDigest = base64ToUint8Array(m.media_digest).buffer
+      const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
+      const name = generateName(m.name, m.media_mime_type, m.category)
+      const filePath = path.join(dir, name)
+      fs.writeFileSync(filePath, Buffer.from(resp))
+      callback(m, filePath)
+      store.dispatch('stopLoading', m.message_id)
     } else {
-      getAttachment(response.data.data.view_url, message, (m, data) => {
-        const name = generateName(m.name, m.media_mime_type, m.category)
-        const filePath = path.join(dir, name)
-        fs.writeFile(filePath, Buffer.from(data), function(err) {
-          if (err) {
-            // todo retry
-          } else {
-            callback(filePath)
-          }
-          store.dispatch('stopLoading', m.message_id)
-        })
-      })
+      const data = await getAttachment(response.data.data.view_url)
+      const m = message
+      const name = generateName(m.name, m.media_mime_type, m.category)
+      const filePath = path.join(dir, name)
+      fs.writeFileSync(filePath, Buffer.from(data))
+      callback(m, filePath)
+      store.dispatch('stopLoading', m.message_id)
     }
   } else {
     // todo retry
@@ -211,8 +200,22 @@ export function isImage(mimeType) {
   }
 }
 
-function getAttachment(url, message, callbackData) {
-  fetch(url, {
+function parseFile(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = function(event) {
+      const content = event.target.result
+      resolve(content)
+    }
+    reader.onerror = function(event) {
+      reject(event)
+    }
+    reader.readAsArrayBuffer(blob)
+  })
+}
+
+function getAttachment(url) {
+  return fetch(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/octet-stream'
@@ -222,16 +225,7 @@ function getAttachment(url, message, callbackData) {
       return resp.blob()
     })
     .then(function(blob) {
-      let fileReader = new FileReader()
-      fileReader.onload = function(event) {
-        let arrayBuffer = event.target.result
-        callbackData(message, arrayBuffer)
-      }
-      fileReader.readAsArrayBuffer(blob)
-    })
-    .catch(err => {
-      // TODO retry?
-      console.log(err)
+      return parseFile(blob)
     })
 }
 

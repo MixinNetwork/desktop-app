@@ -1,7 +1,7 @@
 <template>
-  <li class="user_item_layout" @click="$emit('item-click',group)">
-    <Avatar class="user_item_avatar" :conversation="group"/>
-    <p class="user_name">{{group.groupName}}</p>
+  <li class="user_item_layout" @click="$emit('item-click',chat)">
+    <Avatar class="user_item_avatar" :conversation="chat"/>
+    <p class="user_name">{{chat.groupName || chat.name}}</p>
   </li>
 </template>
 <script>
@@ -10,8 +10,8 @@ export default {
   components: {
     Avatar
   },
-  name: 'GroupItem',
-  props: ['group'],
+  name: 'ChatItem',
+  props: ['chat'],
   data: function() {
     return {}
   }

@@ -409,8 +409,10 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       messageDao.insertMessage(message)
+      store.dispatch('startLoading', message.message_id)
       await downloadAttachment(message, (m, filePath) => {
         messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('stopLoading', m.message_id)
         store.dispatch('refreshMessage', m.conversation_id)
       })
       const body = i18n.t('notification.sendPhoto')
@@ -452,9 +454,11 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
+      store.dispatch('startLoading', message.message_id)
       await downloadAttachment(message, (m, filePath) => {
         messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
         store.dispatch('refreshMessage', m.conversation_id)
+        store.dispatch('stopLoading', m.message_id)
       })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendVideo')
@@ -493,8 +497,10 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
+      store.dispatch('startLoading', message.message_id)
       await downloadAttachment(message, (m, filePath) => {
         messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('stopLoading', m.message_id)
         store.dispatch('refreshMessage', m.conversation_id)
       })
       messageDao.insertMessage(message)
@@ -534,8 +540,10 @@ class ReceiveWroker extends BaseWorker {
         quote_message_id: null,
         quote_content: null
       }
+      store.dispatch('startLoading', message.message_id)
       await downloadAttachment(message, (m, filePath) => {
         messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+        store.dispatch('stopLoading', m.message_id)
         store.dispatch('refreshMessage', m.conversation_id)
       })
       messageDao.insertMessage(message)

@@ -7,7 +7,6 @@ import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
 import conversationAPI from '@/api/conversation.js'
-import store from '@/store/store'
 
 export async function downloadAttachment(message, callback) {
   const response = await attachmentApi.getAttachment(message.content)
@@ -24,7 +23,6 @@ export async function downloadAttachment(message, callback) {
     } else {
       return
     }
-    store.dispatch('startLoading', message.message_id)
     if (message.category.startsWith('SIGNAL_')) {
       const data = await getAttachment(response.data.data.view_url)
       const m = message
@@ -35,7 +33,6 @@ export async function downloadAttachment(message, callback) {
       const filePath = path.join(dir, name)
       fs.writeFileSync(filePath, Buffer.from(resp))
       callback(m, filePath)
-      store.dispatch('stopLoading', m.message_id)
     } else {
       const data = await getAttachment(response.data.data.view_url)
       const m = message
@@ -43,11 +40,7 @@ export async function downloadAttachment(message, callback) {
       const filePath = path.join(dir, name)
       fs.writeFileSync(filePath, Buffer.from(data))
       callback(m, filePath)
-      store.dispatch('stopLoading', m.message_id)
     }
-  } else {
-    // todo retry
-    store.dispatch('stopLoading', message.message_id)
   }
 }
 

@@ -123,7 +123,7 @@ export default {
           return state.conversations[item]
         })
         .filter(item => {
-          return item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1
+          return item && item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1
         })
 
       state.search = {

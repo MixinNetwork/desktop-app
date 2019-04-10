@@ -117,18 +117,26 @@ export default {
   search(state, keyword) {
     if (keyword) {
       const account = state.me
-      const contact = userDao.fuzzySearchUser(account.user_id, keyword)
-      const group = state.conversationKeys
+      const chats = state.conversationKeys
         .map(item => {
           return state.conversations[item]
         })
         .filter(item => {
-          return item && item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1
+          return (
+            (item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1) ||
+            (item.category === ConversationCategory.CONTACT && item.name.indexOf(keyword) > -1)
+          )
         })
+
+      const contact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
+        return !chats.some(conversation => {
+          return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+        })
+      })
 
       state.search = {
         contact: contact,
-        group: group
+        chats: chats
       }
     } else {
       state.search = {}

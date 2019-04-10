@@ -37,7 +37,17 @@
           @item-menu-click="openDownMenu"
         />
       </ul>
-      <ul class="conversations" v-show="searchResult.contact||searchResult.group">
+      <ul class="conversations" v-show="searchResult.contact||searchResult.chats">
+        <span
+          class="listheader"
+          v-show="searchResult.chats && searchResult.chats.length > 0"
+        >{{$t('chat.chat_chats')}}</span>
+        <ChatItem
+          v-for="chat in searchResult.chats"
+          :key="chat.conversationId"
+          :chat="chat"
+          @item-click="onSearchGroupClick"
+        ></ChatItem>
         <span
           class="listheader"
           v-show="searchResult.contact && searchResult.contact.length > 0"
@@ -48,16 +58,6 @@
           :user="user"
           @user-click="onSearchUserClick"
         ></UserItem>
-        <span
-          class="listheader"
-          v-show="searchResult.group && searchResult.group.length > 0"
-        >{{$t('chat.chat_group')}}</span>
-        <GroupItem
-          v-for="group in searchResult.group"
-          :key="group.conversationId"
-          :group="group"
-          @item-click="onSearchGroupClick"
-        ></GroupItem>
       </ul>
     </div>
     <transition name="slide-left">
@@ -97,7 +97,7 @@ import NewConversation from '@/components/NewConversation.vue'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import UserItem from '@/components/UserItem.vue'
-import GroupItem from '@/components/GroupItem.vue'
+import ChatItem from '@/components/ChatItem.vue'
 import ICEdit from '../assets/images/ic_edit.svg'
 import ICSignal from '../assets/images/ic_signal.svg'
 import workerManager from '@/workers/worker_manager.js'
@@ -373,7 +373,7 @@ export default {
     ProfileContainer,
     SettingContainer,
     UserItem,
-    GroupItem
+    ChatItem
   },
   computed: mapGetters({
     currentConversationId: 'currentConversationId',

@@ -15,7 +15,7 @@ module.exports = {
   },
   pluginOptions: {
     electronBuilder: {
-      externals: ['better-sqlite3'],
+      externals: ['better-sqlite3', 'bytebuffer'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
       builderOptions: {
         productName: 'Mixin',

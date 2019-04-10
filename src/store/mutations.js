@@ -39,7 +39,10 @@ export default {
     state.conversationKeys = []
     state.friends = []
     state.currentUser = {}
-    state.search = null
+    state.search = {
+      contact: null,
+      chats: null
+    }
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
   },
@@ -139,11 +142,17 @@ export default {
         chats: chats
       }
     } else {
-      state.search = {}
+      state.search = {
+        contact: null,
+        chats: null
+      }
     }
   },
   searchClear(state) {
-    state.search = {}
+    state.search = {
+      contact: null,
+      chats: null
+    }
   },
   toggleTime(state, toggle) {
     if (state.showTime !== toggle) {

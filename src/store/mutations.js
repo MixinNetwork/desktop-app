@@ -118,8 +118,8 @@ export default {
     if (keyword) {
       const account = state.me
       const chats = state.conversationKeys
-        .map(item => {
-          return state.conversations[item]
+        .map(key => {
+          return state.conversations[key]
         })
         .filter(item => {
           return (

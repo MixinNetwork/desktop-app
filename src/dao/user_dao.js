@@ -55,7 +55,10 @@ class UserDao {
   fuzzySearchUser(id, name) {
     return db
       .prepare(
-        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND full_name LIKE '%${name}%'`
+        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND full_name LIKE '%${name.replace(
+          "'",
+          ''
+        )}%'`
       )
       .all()
   }

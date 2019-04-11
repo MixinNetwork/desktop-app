@@ -1,14 +1,19 @@
 <template>
   <li class="user_item_layout" @click="$emit('item-click',chat)">
     <Avatar class="user_item_avatar" :conversation="chat"/>
-    <p class="user_name">{{chat.groupName || chat.name}}</p>
+    <p class="user_name">
+      {{chat.groupName || chat.name}}
+      <ICRobot v-if="chat.appId"/>
+    </p>
   </li>
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
+import ICRobot from '../assets/images/ic_robot.svg'
 export default {
   components: {
-    Avatar
+    Avatar,
+    ICRobot
   },
   name: 'ChatItem',
   props: ['chat'],

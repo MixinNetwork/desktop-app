@@ -1,14 +1,19 @@
 <template>
   <li class="user_item_layout" @click="$emit('user-click',user)">
     <Avatar class="user_item_avatar" :user="user"/>
-    <p class="user_name">{{user.full_name}}</p>
+    <p class="user_name">
+      {{user.full_name}}
+      <ICRobot v-if="user.app_id"/>
+    </p>
   </li>
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
+import ICRobot from '../assets/images/ic_robot.svg'
 export default {
   components: {
-    Avatar
+    Avatar,
+    ICRobot
   },
   name: 'UserItem',
   props: ['user'],

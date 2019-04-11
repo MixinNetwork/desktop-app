@@ -58,7 +58,7 @@ export default {
     refresh: function() {
       this.showRetry = false
       // eslint-disable-next-line no-undef
-      wasmObject.then(result => {
+      wasmObject.then(() => {
         this.keyPair = signalProtocol.generateKeyPair()
         const pubKey = base64ToUint8Array(this.keyPair.pub)
         const base64PubKey = encodeURIComponent(btoa(String.fromCharCode(...pubKey)))
@@ -161,7 +161,7 @@ export default {
     },
     pushSignalKeys: function() {
       // eslint-disable-next-line no-undef
-      return wasmObject.then(result => {
+      return wasmObject.then(() => {
         const identityKeyPair = signalDao.getIdentityKeyPair()
         const preKeys = signalProtocol.generatePreKeys()
         const signedPreKey = signalProtocol.generateSignedPreKey()

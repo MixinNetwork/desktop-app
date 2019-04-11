@@ -217,21 +217,20 @@ export default {
         '<': '&lt;',
         '>': '&gt;'
       }
+      // eslint-disable-next-line
+      const expression = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)((?:\/[\+~%\/\.\w\-_]*)?\??(?:[\-\+=&;%@\.\w_]*)#?(?:[\.\!\/\\\w]*))?)/
       return message.content
         .replace(/[&<>]/g, tag => {
           return tagsToReplace[tag]
         })
         .replace(/\r?\n/g, '<br />')
-        .replace(
-          /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#/%=~_|$?!:,.]*\)|[A-Z0-9+&@#/%=~_|$])/gim,
-          tag => {
-            let l = tag
-            if (!tag.startsWith('http')) {
-              l = 'https://' + tag
-            }
-            return `<a href='${l}' target='_blank'>${tag}</a> `
+        .replace(expression, tag => {
+          let l = tag
+          if (!tag.startsWith('http')) {
+            l = 'https://' + tag
           }
-        )
+          return `<a href='${l}' target='_blank'>${tag}</a> `
+        })
     },
     borderSet: message => {
       if (1.5 * message.mediaWidth > message.mediaHeight) {

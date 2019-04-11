@@ -10,13 +10,35 @@
         :style="user.color"
       >
         <img v-show="user.has_avatar" v-bind:src="user.avatar_url">
-        <span v-show="!user.has_avatar" :style="font">{{user.identifier}}</span>
+        <span v-if="!user.has_avatar && user.emoji" class="emoji" :style="font">{{user.emoji}}</span>
+        <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier}}</span>
       </div>
     </div>
   </div>
 </template>
 <script>
 import { ConversationCategory, Colors } from '@/utils/constants.js'
+import signalProtocol from '@/crypto/signal.js'
+function getCodeById(id) {
+  return Math.abs(signalProtocol.convertToDeviceId(id)) % 24
+}
+
+const ranges = [
+  '\ud83c[\udf00-\udfff]', // U+1F300 to U+1F3FF
+  '\ud83d[\udc00-\ude4f]', // U+1F400 to U+1F64F
+  '\ud83d[\ude80-\udeff]' // U+1F680 to U+1F6FF
+].join('|')
+let reg = new RegExp(ranges, 'g')
+function emoji(u) {
+  let emojis = u.full_name.match(reg)
+  if (emojis && emojis.length > 0) {
+    u.emoji = emojis[0]
+    u.identifier = ''
+  } else {
+    u.emoji = null
+    u.identifier = u.full_name.charAt(0)
+  }
+}
 
 const scales = [1, 0.5, 0.4, 0.3, 0.25]
 export default {
@@ -67,29 +89,31 @@ export default {
       }
     },
     onChange() {
-      const { conversation, user } = this
-      let users = []
-      if (conversation && conversation.category === ConversationCategory.GROUP) {
-        users = conversation.participants
-      } else if (conversation) {
-        users = conversation.participants.filter(item => {
-          return item.user_id === conversation.ownerId
-        })
-      } else if (user) {
-        users = [user]
-      }
-      users = users.slice(0, 4)
-      users.map(u => {
-        u.has_avatar = false
-        u.color = { background: Colors[u.identity_number % 24] }
-        if (u.avatar_url && u.avatar_url.startsWith('http')) {
-          u.has_avatar = true
-          return u
+      wasmObject.then(() => {
+        const { conversation, user } = this
+        let users = []
+        if (conversation && conversation.category === ConversationCategory.GROUP) {
+          users = conversation.participants
+        } else if (conversation) {
+          users = conversation.participants.filter(item => {
+            return item.user_id === conversation.ownerId
+          })
+        } else if (user) {
+          users = [user]
         }
-        u.identifier = u.full_name.charAt(0)
-        return u
+        users = users.slice(0, 4)
+        users.map(u => {
+          u.has_avatar = false
+          u.color = { background: Colors[getCodeById(u.user_id)] }
+          emoji(u)
+          if (u.avatar_url && u.avatar_url.startsWith('http')) {
+            u.has_avatar = true
+            return u
+          }
+          return u
+        })
+        this.users = users
       })
-      this.users = users
     }
   }
 }
@@ -129,6 +153,9 @@ export default {
     justify-content: center;
     span {
       color: white;
+    }
+    .emoji {
+      margin-left: 5px;
     }
   }
   .avatar-group[data-group-size='2'] .avatar:first-child,

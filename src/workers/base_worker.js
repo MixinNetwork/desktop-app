@@ -1,6 +1,7 @@
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
+import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
 import accountApi from '@/api/account'
 import conversationApi from '@/api/conversation'
@@ -128,6 +129,7 @@ export default class BaseWorker {
       if (response.data.data) {
         user = response.data.data
         userDao.insertUser(user)
+        appDao.insert(user.app)
       }
     }
     return user

@@ -9,6 +9,7 @@ import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } 
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
 import { putAttachment } from '@/utils/attachment_util.js'
+import appDao from '@/dao/app_dao'
 
 function markRead(conversationId) {
   messageDao.findUnreadMessage(conversationId).forEach(function(item, index) {
@@ -164,6 +165,7 @@ export default {
         }
         userDao.update(u)
       }
+      appDao.insert(u.app)
       if (conversationId) {
         commit('refreshConversation', conversationId)
       }

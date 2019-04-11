@@ -12,6 +12,11 @@ let transactions = {
     not_connected_title: 'Not connected',
     not_connected_content: 'Make sure has an active Internet connection.',
     drag_file: 'Drag and drop file into the here',
+    version: 'Version',
+    check_update: 'Check of Updates',
+    privacy_policy: 'Privacy Policy',
+    terms_service: 'Terms of Service',
+    help_center: 'Help center',
     menu: {
       conversation: {
         0: 'Exit Group',
@@ -119,6 +124,11 @@ let transactions = {
     not_connected_title: '未连接',
     not_connected_content: '请确定电脑的网络链接有效',
     drag_file: '拖放文件到此处',
+    version: '版本',
+    check_update: '检测更新',
+    privacy_policy: '隐私政策',
+    terms_service: '服务条款',
+    help_center: '帮助中心',
     menu: {
       conversation: {
         0: '退出群组',

@@ -15,6 +15,15 @@ import blaze from '@/blaze/blaze'
 import i18n from '@/utils/i18n.js'
 import { faArrowLeft, faArrowRight, faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
+import { autoUpdater } from 'electron-updater'
+import { remote } from 'electron'
+let { ipcMain } = remote
+
+ipcMain.on('checkUp', (event, _) => {
+  autoUpdater.checkForUpdates().catch(e => {
+    console.log(e)
+  })
+})
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)

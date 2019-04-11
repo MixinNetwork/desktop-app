@@ -474,7 +474,11 @@ export default {
     }
     .bot {
       z-index: 1;
-      margin-right: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .username {
       width: 12rem;

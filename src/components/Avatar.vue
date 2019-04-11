@@ -107,7 +107,7 @@ export default {
           u.color = { background: Colors[getCodeById(u.user_id)] }
           emoji(u)
           if (u.avatar_url && u.avatar_url.startsWith('http')) {
-            u.has_avatar = false
+            u.has_avatar = true
             return u
           }
           return u

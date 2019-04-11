@@ -39,7 +39,7 @@ class UserDao {
     insertMany(users)
   }
   findFriends() {
-    return db.prepare("SELECT * FROM users WHERE relationship = 'FRIEND'").all()
+    return db.prepare("SELECT * FROM users WHERE relationship = 'FRIEND' ORDER BY full_name, user_id ASC").all()
   }
   isMe(userId) {
     let me = db.prepare("SELECT * FROM users WHERE relationship='ME'").get()

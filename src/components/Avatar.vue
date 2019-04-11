@@ -89,6 +89,7 @@ export default {
       }
     },
     onChange() {
+      // eslint-disable-next-line
       wasmObject.then(() => {
         const { conversation, user } = this
         let users = []

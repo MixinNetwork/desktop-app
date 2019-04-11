@@ -6,6 +6,9 @@
         <div class="username">{{name}}</div>
         <div class="identity number">{{identity}}</div>
       </div>
+      <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
+        <ICBot></ICBot>
+      </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
     <ul
@@ -48,7 +51,7 @@
             ref="box"
           ></div>
         </div>
-        <font-awesome-icon :icon="['far', 'paper-plane']" class="send" @click="sendMessage"/>
+        <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/>
       </div>
     </div>
     <div class="empty" v-if="!conversation">
@@ -95,6 +98,10 @@ import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
 import InfiniteLoading from 'vue-infinite-loading'
 import messageBox from '@/store/message_box.js'
+import ICBot from '../assets/images/ic_bot.svg'
+import browser from '@/utils/browser.js'
+import appDao from '@/dao/app_dao'
+import { constants } from 'fs'
 export default {
   name: 'ChatContainer',
   data() {
@@ -179,7 +186,8 @@ export default {
     Details,
     MessageItem,
     FileContainer,
-    InfiniteLoading
+    InfiniteLoading,
+    ICBot
   },
   computed: {
     ...mapGetters({
@@ -408,6 +416,12 @@ export default {
         user
       })
     },
+    openUrl: function() {
+      let app = appDao.findAppByUserId(this.user.app_id)
+      if (app) {
+        browser.loadURL(app.home_uri)
+      }
+    },
     sendMessage(event) {
       if (this.inputFlag === true || event.shiftKey) {
         return
@@ -457,6 +471,14 @@ export default {
       z-index: 1;
       text-align: left;
       padding-left: 0.8rem;
+    }
+    .bot {
+      z-index: 1;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .username {
       width: 12rem;

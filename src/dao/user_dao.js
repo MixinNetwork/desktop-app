@@ -1,4 +1,5 @@
 import db from '@/persistence/db'
+import appDao from './app_dao'
 
 class UserDao {
   insertUser(user) {
@@ -27,6 +28,7 @@ class UserDao {
       for (let user of users) {
         if (user.app) {
           user.app_id = user.app.app_id
+          appDao.insert(user.app)
         } else {
           user.app_id = null
         }

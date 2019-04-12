@@ -229,9 +229,24 @@ export default {
   init: ({ commit }) => {
     commit('init')
   },
-  refreshFriends: ({ commit }, payload) => {
-    userDao.insertUsers(payload)
-    commit('refreshFriends', payload)
+  refreshFriends: async ({ commit }, friends) => {
+    userDao.insertUsers(friends)
+    let f = friends.map(item => item.user_id)
+    let df = userDao
+      .findFriends()
+      .filter(item => {
+        return !f.some(id => {
+          return item.user_id === id
+        })
+      })
+      .map(item => {
+        return item.user_id
+      })
+    const resp = await userApi.getUsers(df)
+    if (resp.data.data) {
+      userDao.insertUsers(resp.data.data)
+    }
+    commit('refreshFriends', friends)
   },
   insertUser: (_, user) => {
     userDao.insertUser(user)

@@ -23,6 +23,7 @@
 import UserItem from '@/components/UserItem.vue'
 import Search from '@/components/Search.vue'
 import { mapGetters } from 'vuex'
+import accountApi from '@/api/account.js'
 export default {
   name: 'NewConversation',
   data: function() {
@@ -38,6 +39,19 @@ export default {
     onInput: function(text) {
       this.keyword = text
     }
+  },
+  mounted() {
+    accountApi.getFriends().then(
+      resp => {
+        const friends = resp.data.data
+        if (friends && friends.length > 0) {
+          this.$store.dispatch('refreshFriends', friends)
+        }
+      },
+      err => {
+        console.log(err.data)
+      }
+    )
   },
   computed: {
     currentFriends: function() {

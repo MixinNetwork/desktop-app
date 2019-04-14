@@ -8596,6 +8596,11 @@ send@0.16.2:
     range-parser "~1.2.0"
     statuses "~1.4.0"
 
+sequential-task-queue@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/sequential-task-queue/-/sequential-task-queue-1.2.1.tgz#eec0ef3c616c8f99b14eb6620ff7beef418984a4"
+  integrity sha512-w2g0QgV37MSsI/qnvn8Z3NUGNilQA6p+NfujkSWI99rvBu/eTx3E0Z1rTIzaRxQj+gT9+Mta2azxyefnw0C25Q==
+
 serialize-javascript@^1.4.0:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-1.6.1.tgz#4d1f697ec49429a847ca6f442a2a755126c4d879"

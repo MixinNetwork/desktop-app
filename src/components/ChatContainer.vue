@@ -101,7 +101,6 @@ import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
-import { constants } from 'fs'
 export default {
   name: 'ChatContainer',
   data() {

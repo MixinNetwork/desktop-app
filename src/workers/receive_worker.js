@@ -13,6 +13,8 @@ import i18n from '@/utils/i18n.js'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util.js'
 import { remote } from 'electron'
+import { SequentialTaskQueue } from 'sequential-task-queue'
+import { downloadAttachment } from '@/utils/attachment_util.js'
 
 import {
   MessageStatus,
@@ -22,8 +24,8 @@ import {
   SystemConversationAction,
   ConversationCategory
 } from '@/utils/constants.js'
-import { downloadAttachment } from '@/utils/attachment_util.js'
 
+let downloadQueue = new SequentialTaskQueue()
 class ReceiveWroker extends BaseWorker {
   async doWork() {
     const fms = floodMessageDao.findFloodMessage()
@@ -305,6 +307,14 @@ class ReceiveWroker extends BaseWorker {
     }
   }
 
+  async download(message) {
+    await downloadAttachment(message, (m, filePath) => {
+      messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+      store.dispatch('stopLoading', m.message_id)
+      store.dispatch('refreshMessage', m.conversation_id)
+    })
+  }
+
   async processDecryptSuccess(data, plaintext) {
     if (data.primitive_id) {
       data.user_id = data.primitive_id
@@ -410,11 +420,7 @@ class ReceiveWroker extends BaseWorker {
       }
       messageDao.insertMessage(message)
       store.dispatch('startLoading', message.message_id)
-      await downloadAttachment(message, (m, filePath) => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-        store.dispatch('stopLoading', m.message_id)
-        store.dispatch('refreshMessage', m.conversation_id)
-      })
+      downloadQueue.push(this.download, { args: message })
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_VIDEO')) {
@@ -455,11 +461,7 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       store.dispatch('startLoading', message.message_id)
-      await downloadAttachment(message, (m, filePath) => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-        store.dispatch('refreshMessage', m.conversation_id)
-        store.dispatch('stopLoading', m.message_id)
-      })
+      downloadQueue.push(this.download, { args: message })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendVideo')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
@@ -498,11 +500,7 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       store.dispatch('startLoading', message.message_id)
-      await downloadAttachment(message, (m, filePath) => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-        store.dispatch('stopLoading', m.message_id)
-        store.dispatch('refreshMessage', m.conversation_id)
-      })
+      downloadQueue.push(this.download, { args: message })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendFile')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
@@ -541,11 +539,7 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       store.dispatch('startLoading', message.message_id)
-      await downloadAttachment(message, (m, filePath) => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-        store.dispatch('stopLoading', m.message_id)
-        store.dispatch('refreshMessage', m.conversation_id)
-      })
+      downloadQueue.push(this.download, { args: message })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendAudio')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)

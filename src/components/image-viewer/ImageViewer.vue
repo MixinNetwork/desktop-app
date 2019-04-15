@@ -6,6 +6,7 @@
       </div>
       <div class="image-viewer-content" v-if="images.length">
         <img
+          v-img-orientation-changer
           :src="images[index].url"
           :alt="images[index].name?images[index].name:''"
           :width="imgStyle.width"
@@ -22,6 +23,7 @@
         <div class="image-viewer-nav-main">
           <div class="image-viewer-nav-thumb" ref="scroll">
             <img
+              v-img-orientation-changer
               id="thumb"
               v-for="(il,i) in images"
               :class="{active:i===index}"

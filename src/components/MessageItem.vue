@@ -62,6 +62,7 @@
           <img v-bind:src="message.assetUrl">
         </div>
         <img
+          v-img-orientation-changer
           v-else-if="messageType(message) === 'image'"
           v-bind:src="media(message)"
           v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"

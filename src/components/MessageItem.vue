@@ -47,7 +47,7 @@
         <div v-if="this.showUserName()" @click="$emit('user-click',message.userId)">
           <span
             class="username"
-            v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+            v-bind:style="{color: getColor(message.userId)}"
           >{{message.userFullName}}</span>
         </div>
         <ReplyMessage
@@ -99,7 +99,6 @@
 
 <script>
 import {
-  NameColors,
   ConversationCategory,
   MessageStatus,
   SystemConversationAction,
@@ -116,6 +115,7 @@ import AudioItem from './AudioItem'
 import VideoItem from './VideoItem'
 import messageDao from '@/dao/message_dao.js'
 import { mapGetters } from 'vuex'
+import { getColorById } from '@/utils/util.js'
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread'],
@@ -132,7 +132,6 @@ export default {
   },
   data: function() {
     return {
-      Colors: NameColors,
       ConversationCategory: ConversationCategory,
       MessageStatus: MessageStatus,
       MessageCategories: MessageCategories
@@ -306,6 +305,9 @@ export default {
         Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24) ===
         Math.floor(Date.parse(prev.createdAt) / 1000 / 3600 / 24)
       )
+    },
+    getColor: function(id) {
+      return getColorById(id)
     }
   }
 }

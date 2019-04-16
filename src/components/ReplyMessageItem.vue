@@ -14,56 +14,7 @@
   </div>
 </template>
 <script>
-const colors = [
-  '#AA4848',
-  '#B0665E',
-  '#EF8A44',
-  '#A09555',
-  '#727234',
-  '#9CAD23',
-  '#AA9100',
-  '#C49B4B',
-  '#A47758',
-  '#DF694C',
-  '#D65859',
-  '#C2405A',
-  '#A75C96',
-  '#BD637C',
-  '#8F7AC5',
-  '#7983C2',
-  '#728DB8',
-  '#5977C2',
-  '#5E6DA2',
-  '#3D98D0',
-  '#5E97A1',
-  '#4EABAA',
-  '#63A082',
-  '#877C9B',
-  '#AA66C3',
-  '#BB5334',
-  '#667355',
-  '#668899',
-  '#83BE44',
-  '#BBA600',
-  '#429AB6',
-  '#75856F',
-  '#88A299',
-  '#B3798E',
-  '#447899',
-  '#D79200',
-  '#728DB8',
-  '#DD637C',
-  '#887C66',
-  '#BE6C2C',
-  '#9B6D77',
-  '#B69370',
-  '#976236',
-  '#9D77A5',
-  '#8A660E',
-  '#5E935E',
-  '#9B8484',
-  '#92B288'
-]
+import { getColorById } from '@/utils/util.js'
 export default {
   props: ['message'],
   data() {
@@ -71,15 +22,15 @@ export default {
   },
   computed: {
     bg: function() {
-      let color = colors[parseInt(this.message.userIdentityNumber) % colors.length]
+      let color = getColorById(this.message.userId)
       return { background: color }
     },
     abg: function() {
-      let color = colors[parseInt(this.message.userIdentityNumber) % colors.length]
+      let color = getColorById(this.message.userId)
       return { background: color + '0D' }
     },
     font: function() {
-      let color = colors[parseInt(this.message.userIdentityNumber) % colors.length]
+      let color = getColorById(this.message.userId)
       return { color: color }
     },
     mediaUrl: function() {

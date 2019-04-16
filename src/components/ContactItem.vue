@@ -4,7 +4,7 @@
       <span
         class="username"
         v-if="showName"
-        v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+        v-bind:style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <div class="contact" @click="$emit('user-share-click')">
@@ -44,7 +44,8 @@ import userDao from '@/dao/user_dao.js'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
-import { MessageStatus, NameColors } from '@/utils/constants.js'
+import { MessageStatus } from '@/utils/constants.js'
+import { getColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
@@ -55,8 +56,7 @@ export default {
   },
   data: function() {
     return {
-      MessageStatus: MessageStatus,
-      Colors: NameColors
+      MessageStatus: MessageStatus
     }
   },
   methods: {
@@ -65,6 +65,9 @@ export default {
         send: this.message.userId === this.me.user_id,
         receive: this.message.userId !== this.me.user_id
       }
+    },
+    getColor: function(id) {
+      return getColorById(id)
     }
   },
   computed: {

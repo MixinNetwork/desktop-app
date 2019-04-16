@@ -4,7 +4,7 @@
       <span
         class="username"
         v-if="showName"
-        v-bind:style="{color: Colors[message.userIdentityNumber % Colors.length]}"
+        v-bind:style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <div class="file" @click="openFile">
@@ -47,8 +47,9 @@ import spinner from '@/components/Spinner.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
-import { MessageStatus, NameColors } from '@/utils/constants.js'
+import { MessageStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
+import { getColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
@@ -59,8 +60,7 @@ export default {
   },
   data: function() {
     return {
-      MessageStatus: MessageStatus,
-      Colors: NameColors
+      MessageStatus: MessageStatus
     }
   },
   methods: {
@@ -86,6 +86,9 @@ export default {
         send: message.userId === me.user_id,
         receive: message.userId !== me.user_id
       }
+    },
+    getColor: function(id) {
+      return getColorById(id)
     }
   },
   computed: {

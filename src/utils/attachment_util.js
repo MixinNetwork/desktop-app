@@ -4,6 +4,7 @@ import { MimeType } from '@/utils/constants'
 import fs from 'fs'
 import path from 'path'
 import sizeOf from 'image-size'
+import jo from 'jpeg-autorotate'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
 import conversationAPI from '@/api/conversation.js'
@@ -32,16 +33,31 @@ export async function downloadAttachment(message, callback) {
       const name = generateName(m.name, m.media_mime_type, m.category)
       const filePath = path.join(dir, name)
       fs.writeFileSync(filePath, Buffer.from(resp))
-      callback(m, filePath)
+      rotate(filePath, () => {
+        callback(m, filePath)
+      })
     } else {
       const data = await getAttachment(response.data.data.view_url)
       const m = message
       const name = generateName(m.name, m.media_mime_type, m.category)
       const filePath = path.join(dir, name)
       fs.writeFileSync(filePath, Buffer.from(data))
-      callback(m, filePath)
+      rotate(filePath, () => {
+        callback(m, filePath)
+      })
     }
   }
+}
+
+function rotate(path, callback) {
+  jo.rotate(path, {}, (error, buffer) => {
+    if (error) {
+      callback()
+      return
+    }
+    fs.writeFileSync(path, buffer)
+    callback()
+  })
 }
 
 function processAttachment(imagePath, mimeType, category) {

@@ -415,7 +415,7 @@ export default {
         user
       })
     },
-    openUrl: function() {
+    openUrl() {
       let app = appDao.findAppByUserId(this.user.app_id)
       if (app) {
         browser.loadURL(app.home_uri)
@@ -431,6 +431,7 @@ export default {
       if (text.trim().length <= 0) {
         return
       }
+      this.$refs.box.innerText = ''
       const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
       const status = MessageStatus.SENDING
       const message = {
@@ -440,7 +441,6 @@ export default {
         status: status
       }
       this.$store.dispatch('sendMessage', message)
-      this.$refs.box.innerText = ''
     }
   }
 }

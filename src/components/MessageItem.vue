@@ -44,10 +44,11 @@
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">
       <div class="bubble" v-bind:class="messageType(message)" @click="preview">
-        <div v-if="this.showUserName()" @click="$emit('user-click',message.userId)">
+        <div v-if="this.showUserName()">
           <span
             class="username"
             v-bind:style="{color: getColor(message.userId)}"
+            @click="$emit('user-click',message.userId)"
           >{{message.userFullName}}</span>
         </div>
         <ReplyMessage
@@ -98,12 +99,7 @@
 </template>
 
 <script>
-import {
-  ConversationCategory,
-  MessageStatus,
-  SystemConversationAction,
-  MessageCategories
-} from '@/utils/constants.js'
+import { ConversationCategory, MessageStatus, SystemConversationAction, MessageCategories } from '@/utils/constants.js'
 import spinner from '@/components/Spinner.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
@@ -350,6 +346,7 @@ li {
   overflow: hidden;
   white-space: nowrap;
   margin-bottom: 0.2rem;
+  cursor: pointer;
 }
 .system {
   text-align: center;

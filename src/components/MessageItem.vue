@@ -43,7 +43,7 @@
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">
-      <div class="bubble" v-bind:class="messageType(message)" @click="preview">
+      <div class="bubble" v-bind:class="messageType(message)">
         <div v-if="this.showUserName()">
           <span
             class="username"
@@ -68,6 +68,7 @@
           v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
           v-bind:class="borderSet(message)"
           v-bind:style="borderSetObject(message)"
+          @click="preview"
         >
         <span
           v-else-if="messageType(message) === 'app_card'"

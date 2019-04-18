@@ -5,18 +5,27 @@
       <h3>{{$t('setting.title')}}</h3>
     </div>
     <div class="layout">
-      <Avatar id="avatar" :user="me"/>
-      <div id="name">
-        <label>{{me.full_name}}</label>
-      </div>
+      <img src="../assets/ic_logo.webp" id="avatar">
+    </div>
+    <span class="version">{{version}}</span>
+    <div class="linear">
+      <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
+      <span
+        class="item"
+        @click="open('https://mixinmessenger.zendesk.com/hc/en-us')"
+      >{{$t('help_center')}}</span>
+      <span class="item" @click="open('https://mixin.one/pages/terms')">{{$t('terms_service')}}</span>
+      <span class="item" @click="open('https://mixin.one/pages/privacy')">{{$t('privacy_policy')}}</span>
     </div>
   </div>
 </template>
 <script>
-import Avatar from '@/components/Avatar.vue'
+import browser from '@/utils/browser.js'
 import { mapGetters } from 'vuex'
+import { remote } from 'electron'
+import { ipcRenderer } from 'electron'
 export default {
-  components: { Avatar },
+  components: {},
   data: function() {
     return {
       group: false,
@@ -24,9 +33,20 @@ export default {
     }
   },
   computed: {
+    version: function() {
+      let version = this.$t('version')
+      return `${version} ${remote.app.getVersion()}`
+    },
     ...mapGetters({ me: 'me' })
   },
-  methods: {}
+  methods: {
+    checkUpdate() {
+      ipcRenderer.send('checkUp')
+    },
+    open(url) {
+      browser.loadURL(url)
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -34,7 +54,7 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  background: white;
+  background: #f7f7f7;
   .bar {
     padding-top: 60px;
     width: 100%;
@@ -52,27 +72,37 @@ export default {
     }
   }
   .layout {
-    background: white;
-    flex: 1;
     display: flex;
     width: 100%;
     padding-top: 16px;
     padding-bottom: 16px;
+    justify-content: center;
     #avatar {
-      width: 80px;
-      height: 80px;
-      margin-left: 20px;
+      width: 225px;
+      height: 168px;
     }
-    #name {
-      display: flex;
-      flex-direction: column;
+  }
+  .linear {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    width: 100%;
+    margin-top: 20px;
 
-      label {
-        margin-top: 20px;
-        margin-left: 20px;
-        font-weight: 500;
+    .item {
+      font-weight: 500;
+      padding: 16px;
+      border-bottom: 1px solid #f2f2f2;
+      &:hover,
+      &.current {
+        background: #f1f2f2;
       }
     }
+  }
+  .version {
+    color: #99a5ab;
+    font-size: 0.92rem;
+    font-weight: 500;
   }
 }
 </style>

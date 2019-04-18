@@ -1,9 +1,15 @@
 'use strict'
 
-import { app, protocol, shell, BrowserWindow } from 'electron'
+import { app, protocol, ipcMain, shell, BrowserWindow } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
+
+ipcMain.on('checkUp', (event, _) => {
+  autoUpdater.checkForUpdates().catch(e => {
+    console.log(e)
+  })
+})
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will

@@ -22,7 +22,6 @@
 <script>
 import browser from '@/utils/browser.js'
 import { mapGetters } from 'vuex'
-import { remote } from 'electron'
 import { ipcRenderer } from 'electron'
 export default {
   components: {},
@@ -35,7 +34,7 @@ export default {
   computed: {
     version: function() {
       let version = this.$t('version')
-      return `${version} ${remote.app.getVersion()}`
+      return `${version} ${this.$electron.remote.app.getVersion()}`
     },
     ...mapGetters({ me: 'me' })
   },

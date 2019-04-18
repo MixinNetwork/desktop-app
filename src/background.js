@@ -6,9 +6,7 @@ import { autoUpdater } from 'electron-updater'
 import path from 'path'
 
 ipcMain.on('checkUp', (event, _) => {
-  autoUpdater.checkForUpdates().catch(e => {
-    console.log(e)
-  })
+  autoUpdater.checkForUpdatesAndNotify()
 })
 const isDevelopment = process.env.NODE_ENV !== 'production'
 

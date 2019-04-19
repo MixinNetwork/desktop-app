@@ -8,7 +8,7 @@ import { generateConversationId } from '@/utils/util.js'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants.js'
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
-import { putAttachment } from '@/utils/attachment_util.js'
+import { downloadAttachment, downloadQueue, putAttachment } from '@/utils/attachment_util.js'
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId) {
@@ -288,5 +288,28 @@ export default {
   },
   stopLoading: ({ commit }, messageId) => {
     commit('stopLoading', messageId)
+  },
+  download: ({ commit }, messageId) => {
+    commit('startLoading', messageId)
+    let message = messageDao.getMessageById(messageId)
+    downloadQueue.push(
+      message => {
+        downloadAttachment(message)
+          .then(([message, filePath]) => {
+            console.log(message)
+            messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+            commit('stopLoading', message.message_id)
+            commit('refreshMessage', message.conversation_id)
+          })
+          .catch(e => {
+            console.log(e)
+            messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
+            commit('stopLoading', message.message_id)
+            commit('refreshMessage', message.conversation_id)
+          })
+      },
+      { args: message }
+    )
+    commit('refreshMessage', message.conversation_id)
   }
 }

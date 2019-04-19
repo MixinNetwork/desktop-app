@@ -94,6 +94,7 @@
           <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
         </span>
         <spinner class="loading" v-if="messageType(message) === 'image' && loading"></spinner>
+        <AttachmentIcon class="loading" @mediaClick="mediaClick" :me="me" :message="message" v-else></AttachmentIcon>
       </div>
     </div>
   </li>
@@ -102,6 +103,7 @@
 <script>
 import { ConversationCategory, MessageStatus, SystemConversationAction, MessageCategories } from '@/utils/constants.js'
 import spinner from '@/components/Spinner.vue'
+import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
@@ -125,7 +127,8 @@ export default {
     ContactItem,
     FileItem,
     AudioItem,
-    VideoItem
+    VideoItem,
+    AttachmentIcon
   },
   data: function() {
     return {
@@ -143,6 +146,9 @@ export default {
     })
   },
   methods: {
+    mediaClick() {
+      this.$store.dispatch('download', this.message.messageId)
+    },
     showUserName() {
       if (
         this.conversation.category === ConversationCategory.CONTACT &&
@@ -425,6 +431,7 @@ li {
       top: 50%;
       position: absolute;
       transform: translate(-50%, -50%);
+      z-index: 3;
     }
   }
   .width-set {

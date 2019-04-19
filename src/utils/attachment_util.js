@@ -94,7 +94,7 @@ function toArrayBuffer(buf) {
   }
   return ab
 }
-export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
+export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback, errorCallback) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category)
   var mediaWidth = null
   var mediaHeight = null
@@ -131,6 +131,10 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
   }
   processCallback(message)
   const result = await conversationAPI.requestAttachment()
+  if (result.status !== 200) {
+    errorCallback(`Error ${result.status}`)
+    return
+  }
   const url = result.data.data.upload_url
   const attachmentId = result.data.data.attachment_id
   fetch(url, {
@@ -156,10 +160,61 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
           digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
           key: btoa(String.fromCharCode(...new Uint8Array(key)))
         })
+      } else {
+        errorCallback(resp.status)
       }
     },
     error => {
-      console.log(error)
+      errorCallback(error)
+    }
+  )
+}
+
+export async function uploadAttachment(localPath, category, sendCallback, errorCallback) {
+  var key
+  var digest
+  var buffer = fs.readFileSync(localPath)
+  if (category.startsWith('SIGNAL_')) {
+    // eslint-disable-next-line no-undef
+    key = libsignal.crypto.getRandomBytes(64)
+    // eslint-disable-next-line no-undef
+    const iv = libsignal.crypto.getRandomBytes(16)
+    const buf = toArrayBuffer(buffer)
+    await cryptoAttachment.encryptAttachment(buf, key, iv).then(result => {
+      buffer = result.ciphertext
+      digest = result.digest
+    })
+  }
+  const result = await conversationAPI.requestAttachment()
+  if (result.status !== 200) {
+    errorCallback(`Error ${result.status}`)
+    return
+  }
+  const url = result.data.data.upload_url
+  const attachmentId = result.data.data.attachment_id
+  fetch(url, {
+    method: 'PUT',
+    body: buffer,
+    headers: {
+      'x-amz-acl': 'public-read',
+      Connection: 'close',
+      'Content-Length': buffer.byteLength,
+      'Content-Type': 'application/octet-stream'
+    }
+  }).then(
+    function(resp) {
+      if (resp.status === 200) {
+        sendCallback(
+          attachmentId,
+          btoa(String.fromCharCode(...new Uint8Array(key))),
+          btoa(String.fromCharCode(...new Uint8Array(digest)))
+        )
+      } else {
+        errorCallback(resp.status)
+      }
+    },
+    error => {
+      errorCallback(error)
     }
   )
 }
@@ -241,7 +296,7 @@ function getAttachment(url) {
   })
     .then(function(resp) {
       let code = parseInt(resp.status)
-      if (code >= 300 || code < 200) {
+      if (code !== 200) {
         throw Error(code)
       }
       return resp.blob()

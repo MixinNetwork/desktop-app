@@ -154,12 +154,19 @@ export default {
   },
   methods: {
     mediaClick() {
-      if (this.mediaStatus !== MediaStatus.CANCELED) {
+      if (this.message.mediaStatus !== MediaStatus.CANCELED) {
         return
       }
-      this.$store.dispatch('download', this.message.messageId)
+      if (this.message.mediaUrl) {
+        this.$store.dispatch('upload', this.message)
+      } else {
+        this.$store.dispatch('download', this.message.messageId)
+      }
     },
     showUserName() {
+      if (!this.conversation) {
+        return false
+      }
       if (
         this.conversation.category === ConversationCategory.CONTACT &&
         this.message.userId !== this.conversation.ownerId &&

@@ -11,7 +11,6 @@
         <spinner class="loading" v-if="loading"></spinner>
         <AttachmentIcon
           v-else-if="message.mediaStatus === MediaStatus.CANCELED"
-          class="down"
           @mediaClick="$emit('mediaClick')"
           :me="me"
           :message="message"
@@ -76,7 +75,7 @@ export default {
 
   methods: {
     openFile: function() {
-      if (!this.message.mediaUrl) {
+      if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
         return
       }
       const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
@@ -164,17 +163,6 @@ export default {
       width: 40px;
       height: 40px;
       margin-right: 12px;
-    }
-    .down {
-      width: 40px;
-      height: 40px;
-      margin-right: 12px;
-      border-radius: 20px;
-      background: #f2f2f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 3;
     }
     .ic {
       margin-right: 12px;

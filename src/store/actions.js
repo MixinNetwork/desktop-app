@@ -8,7 +8,7 @@ import { generateConversationId } from '@/utils/util.js'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants.js'
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
-import { downloadAttachment, downloadQueue, putAttachment } from '@/utils/attachment_util.js'
+import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } from '@/utils/attachment_util.js'
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId) {
@@ -218,11 +218,50 @@ export default {
         commit('refreshMessage', conversationId)
       },
       transferAttachmentData => {
+        console.log(transferAttachmentData)
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
         commit('stopLoading', messageId)
+      },
+      e => {
+        console.log(e)
+        messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
+        commit('stopLoading', messageId)
+        commit('refreshMessage', conversationId)
+      }
+    )
+  },
+  upload: ({ commit }, message) => {
+    commit('startLoading', message.messageId)
+    uploadAttachment(
+      message.mediaUrl.replace('file://', ''),
+      message.type,
+      (attachmentId, key, digest) => {
+        let msg = {
+          attachment_id: attachmentId,
+          mime_type: message.mediaMimeType,
+          size: message.mediaSize,
+          width: message.mediaWidth,
+          height: message.mediaHeight,
+          name: message.mediaName,
+          thumbnail: message.thumbImage,
+          digest: digest,
+          key: key
+        }
+        console.log(msg)
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
+        messageDao.updateMessageContent(content, message.messageId)
+        messageDao.updateMediaStatus(MediaStatus.DONE, message.messageId)
+        messageDao.updateMessageStatusById(MessageStatus.SENDING, message.messageId)
+        commit('stopLoading', message.messageId)
+      },
+      e => {
+        console.log(e)
+        messageDao.updateMediaStatus(MediaStatus.CANCELED, message.messageId)
+        commit('stopLoading', message.messageId)
+        commit('refreshMessage', message.conversationId)
       }
     )
   },

@@ -125,6 +125,9 @@ export default {
           return state.conversations[key]
         })
         .filter(item => {
+          return item
+        })
+        .filter(item => {
           return (
             (item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1) ||
             (item.category === ConversationCategory.CONTACT && item.name.indexOf(keyword) > -1)

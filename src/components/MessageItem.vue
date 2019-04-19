@@ -21,6 +21,7 @@
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
+      @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
     ></FileItem>
     <AudioItem
@@ -101,7 +102,13 @@
 </template>
 
 <script>
-import { ConversationCategory, MessageStatus, SystemConversationAction, MessageCategories } from '@/utils/constants.js'
+import {
+  ConversationCategory,
+  MessageStatus,
+  SystemConversationAction,
+  MessageCategories,
+  MediaStatus
+} from '@/utils/constants.js'
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
@@ -147,6 +154,9 @@ export default {
   },
   methods: {
     mediaClick() {
+      if (this.mediaStatus !== MediaStatus.CANCELED) {
+        return
+      }
       this.$store.dispatch('download', this.message.messageId)
     },
     showUserName() {

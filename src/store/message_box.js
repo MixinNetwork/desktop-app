@@ -38,6 +38,13 @@ class MessageBox {
     this.callback = callback
     this.scrollAction = scrollAction
   }
+  clearData(conversationId) {
+    if (conversationId === this.conversationId && this.conversationId) {
+      this.page = 0
+      this.messages = []
+      this.count = 0
+    }
+  }
 }
 
 export default new MessageBox()

@@ -9,6 +9,12 @@
       >{{message.userFullName}}</span>
       <div class="file" @click="openFile">
         <spinner class="loading" v-if="loading"></spinner>
+        <AttachmentIcon
+          v-else-if="message.mediaStatus === MediaStatus.CANCELED"
+          @mediaClick="$emit('mediaClick')"
+          :me="me"
+          :message="message"
+        ></AttachmentIcon>
         <div class="ic" v-else>
           <span class="text">FILE</span>
         </div>
@@ -46,8 +52,9 @@ import fs from 'fs'
 import spinner from '@/components/Spinner.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
+import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICRead from '../assets/images/ic_status_read.svg'
-import { MessageStatus } from '@/utils/constants.js'
+import { MessageStatus, MediaStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
 import { getColorById } from '@/utils/util.js'
 export default {
@@ -56,16 +63,19 @@ export default {
     spinner,
     ICSending,
     ICSend,
-    ICRead
+    ICRead,
+    AttachmentIcon
   },
   data: function() {
     return {
-      MessageStatus: MessageStatus
+      MessageStatus: MessageStatus,
+      MediaStatus: MediaStatus
     }
   },
+
   methods: {
     openFile: function() {
-      if (!this.message.mediaUrl) {
+      if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
         return
       }
       const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {

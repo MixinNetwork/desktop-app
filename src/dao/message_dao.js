@@ -84,6 +84,9 @@ class MessageDao {
     const message = db.prepare('SELECT conversation_id FROM messages WHERE message_id = ?').get(messageId)
     return message.conversation_id
   }
+  getMessageById(messageId) {
+    return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
+  }
   findMessageStatusById(messageId) {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status

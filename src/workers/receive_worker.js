@@ -13,8 +13,8 @@ import i18n from '@/utils/i18n.js'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util.js'
 import { remote } from 'electron'
-import { SequentialTaskQueue } from 'sequential-task-queue'
-import { downloadAttachment } from '@/utils/attachment_util.js'
+
+import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
 
 import {
   MessageStatus,
@@ -24,8 +24,6 @@ import {
   SystemConversationAction,
   ConversationCategory
 } from '@/utils/constants.js'
-
-let downloadQueue = new SequentialTaskQueue()
 class ReceiveWroker extends BaseWorker {
   async doWork() {
     const fms = floodMessageDao.findFloodMessage()
@@ -308,11 +306,18 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async download(message) {
-    await downloadAttachment(message, (m, filePath) => {
-      messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-      store.dispatch('stopLoading', m.message_id)
-      store.dispatch('refreshMessage', m.conversation_id)
-    })
+    downloadAttachment(message)
+      .then(([message, filePath]) => {
+        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+        store.dispatch('stopLoading', message.message_id)
+        store.dispatch('refreshMessage', message.conversation_id)
+      })
+      .catch(e => {
+        console.log(e)
+        messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
+        store.dispatch('stopLoading', message.message_id)
+        store.dispatch('refreshMessage', message.conversation_id)
+      })
   }
 
   async processDecryptSuccess(data, plaintext) {
@@ -403,7 +408,7 @@ class ReceiveWroker extends BaseWorker {
         thumb_image: mediaData.thumbnail,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
-        media_status: 'PENDING',
+        media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
         action: null,
@@ -445,7 +450,7 @@ class ReceiveWroker extends BaseWorker {
         thumb_image: mediaData.thumbnail,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
-        media_status: 'CANCELED',
+        media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
         action: null,
@@ -484,7 +489,7 @@ class ReceiveWroker extends BaseWorker {
         thumb_image: null,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
-        media_status: 'CANCELED',
+        media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
         action: null,
@@ -523,7 +528,7 @@ class ReceiveWroker extends BaseWorker {
         thumb_image: null,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
-        media_status: 'PENDING',
+        media_status: MediaStatus.CANCELED,
         status: status,
         created_at: new Date().toISOString(),
         action: null,

@@ -9,44 +9,53 @@ import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
 import conversationAPI from '@/api/conversation.js'
 
-export async function downloadAttachment(message, callback) {
-  const response = await attachmentApi.getAttachment(message.content)
-  if (response.data.data) {
-    var dir
-    if (message.category.endsWith('_IMAGE')) {
-      dir = getImagePath()
-    } else if (message.category.endsWith('_VIDEO')) {
-      dir = getVideoPath()
-    } else if (message.category.endsWith('_DATA')) {
-      dir = getDocumentPath()
-    } else if (message.category.endsWith('_AUDIO')) {
-      dir = getAudioPath()
-    } else {
-      return
+import { SequentialTaskQueue } from 'sequential-task-queue'
+export let downloadQueue = new SequentialTaskQueue()
+
+export function downloadAttachment(message) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await attachmentApi.getAttachment(message.content)
+      if (response.data.data) {
+        var dir
+        if (message.category.endsWith('_IMAGE')) {
+          dir = getImagePath()
+        } else if (message.category.endsWith('_VIDEO')) {
+          dir = getVideoPath()
+        } else if (message.category.endsWith('_DATA')) {
+          dir = getDocumentPath()
+        } else if (message.category.endsWith('_AUDIO')) {
+          dir = getAudioPath()
+        } else {
+          return
+        }
+        if (message.category.startsWith('SIGNAL_')) {
+          const data = await getAttachment(response.data.data.view_url)
+          const m = message
+          const mediaKey = base64ToUint8Array(m.media_key).buffer
+          const mediaDigest = base64ToUint8Array(m.media_digest).buffer
+          const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
+          const name = generateName(m.name, m.media_mime_type, m.category)
+          const filePath = path.join(dir, name)
+          fs.writeFileSync(filePath, Buffer.from(resp))
+          rotate(filePath, () => {
+            resolve([m, filePath])
+          })
+        } else {
+          const data = await getAttachment(response.data.data.view_url)
+          const m = message
+          const name = generateName(m.name, m.media_mime_type, m.category)
+          const filePath = path.join(dir, name)
+          fs.writeFileSync(filePath, Buffer.from(data))
+          rotate(filePath, () => {
+            resolve([m, filePath])
+          })
+        }
+      }
+    } catch (e) {
+      reject(e)
     }
-    if (message.category.startsWith('SIGNAL_')) {
-      const data = await getAttachment(response.data.data.view_url)
-      const m = message
-      const mediaKey = base64ToUint8Array(m.media_key).buffer
-      const mediaDigest = base64ToUint8Array(m.media_digest).buffer
-      const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
-      const name = generateName(m.name, m.media_mime_type, m.category)
-      const filePath = path.join(dir, name)
-      fs.writeFileSync(filePath, Buffer.from(resp))
-      rotate(filePath, () => {
-        callback(m, filePath)
-      })
-    } else {
-      const data = await getAttachment(response.data.data.view_url)
-      const m = message
-      const name = generateName(m.name, m.media_mime_type, m.category)
-      const filePath = path.join(dir, name)
-      fs.writeFileSync(filePath, Buffer.from(data))
-      rotate(filePath, () => {
-        callback(m, filePath)
-      })
-    }
-  }
+  })
 }
 
 function rotate(path, callback) {
@@ -85,7 +94,7 @@ function toArrayBuffer(buf) {
   }
   return ab
 }
-export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback) {
+export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback, errorCallback) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category)
   var mediaWidth = null
   var mediaHeight = null
@@ -122,6 +131,10 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
   }
   processCallback(message)
   const result = await conversationAPI.requestAttachment()
+  if (result.status !== 200) {
+    errorCallback(`Error ${result.status}`)
+    return
+  }
   const url = result.data.data.upload_url
   const attachmentId = result.data.data.attachment_id
   fetch(url, {
@@ -147,10 +160,61 @@ export async function putAttachment(imagePath, mimeType, category, processCallba
           digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
           key: btoa(String.fromCharCode(...new Uint8Array(key)))
         })
+      } else {
+        errorCallback(resp.status)
       }
     },
     error => {
-      console.log(error)
+      errorCallback(error)
+    }
+  )
+}
+
+export async function uploadAttachment(localPath, category, sendCallback, errorCallback) {
+  var key
+  var digest
+  var buffer = fs.readFileSync(localPath)
+  if (category.startsWith('SIGNAL_')) {
+    // eslint-disable-next-line no-undef
+    key = libsignal.crypto.getRandomBytes(64)
+    // eslint-disable-next-line no-undef
+    const iv = libsignal.crypto.getRandomBytes(16)
+    const buf = toArrayBuffer(buffer)
+    await cryptoAttachment.encryptAttachment(buf, key, iv).then(result => {
+      buffer = result.ciphertext
+      digest = result.digest
+    })
+  }
+  const result = await conversationAPI.requestAttachment()
+  if (result.status !== 200) {
+    errorCallback(`Error ${result.status}`)
+    return
+  }
+  const url = result.data.data.upload_url
+  const attachmentId = result.data.data.attachment_id
+  fetch(url, {
+    method: 'PUT',
+    body: buffer,
+    headers: {
+      'x-amz-acl': 'public-read',
+      Connection: 'close',
+      'Content-Length': buffer.byteLength,
+      'Content-Type': 'application/octet-stream'
+    }
+  }).then(
+    function(resp) {
+      if (resp.status === 200) {
+        sendCallback(
+          attachmentId,
+          btoa(String.fromCharCode(...new Uint8Array(key))),
+          btoa(String.fromCharCode(...new Uint8Array(digest)))
+        )
+      } else {
+        errorCallback(resp.status)
+      }
+    },
+    error => {
+      errorCallback(error)
     }
   )
 }
@@ -231,9 +295,16 @@ function getAttachment(url) {
     }
   })
     .then(function(resp) {
+      let code = parseInt(resp.status)
+      if (code !== 200) {
+        throw Error(code)
+      }
       return resp.blob()
     })
     .then(function(blob) {
+      if (!blob) {
+        throw Error('Error data')
+      }
       return parseFile(blob)
     })
 }

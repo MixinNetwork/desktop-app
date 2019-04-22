@@ -176,6 +176,15 @@ export default {
       ) {
         return true
       }
+      if (
+        this.prev &&
+        ((this.prev.type === MessageCategories.SYSTEM_CONVERSATION ||
+          this.prev.type === MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT) &&
+          (this.message.type !== MessageCategories.SYSTEM_CONVERSATION &&
+            this.message.type !== MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT))
+      ) {
+        return true
+      }
       return (
         this.conversation.category === ConversationCategory.GROUP &&
         this.message.userId !== this.me.user_id &&

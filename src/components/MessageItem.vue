@@ -233,7 +233,11 @@ export default {
     },
     textMessage: message => {
       var result = URI.withinString(message.content, function(url) {
-        return `<a href='${url}' target='_blank'>${url}</a>`
+        let l = url
+        if (!url.startsWith('http')) {
+          l = 'https://' + url
+        }
+        return `<a href='${l}' target='_blank'>${url}</a>`
       })
       return result
     },

@@ -241,6 +241,7 @@ export default {
       }
     },
     textMessage: message => {
+      URI.findUri.end = /[\s\r\n]|[\uFF00-\uFFEF]|$/
       var result = URI.withinString(message.content, function(url) {
         let l = url
         if (!url.startsWith('http')) {

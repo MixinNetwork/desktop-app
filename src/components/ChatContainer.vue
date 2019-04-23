@@ -41,7 +41,7 @@
       />
     </ul>
     <transition name="slide-bottom">
-      <div class="floating" v-show="conversation && isBottom">
+      <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
         <ICChevronDown></ICChevronDown>
       </div>
     </transition>
@@ -124,7 +124,7 @@ export default {
       dragging: false,
       file: null,
       messages: [],
-      isBottom: false
+      isBottom: true
     }
   },
   watch: {
@@ -132,7 +132,6 @@ export default {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
         this.messages = messageBox.messages
-        let self = this
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
@@ -142,9 +141,9 @@ export default {
           }
         }
         this.$store.dispatch('markRead', newC.conversationId)
-        setTimeout(() => {
-          let scrollHeight = self.$refs.messagesUl.scrollHeight
-          self.$refs.messagesUl.scrollTop = scrollHeight
+        let goBottom = this.goBottom
+        setTimeout(function() {
+          goBottom()
         }, 5)
       }
       if (newC) {
@@ -240,15 +239,17 @@ export default {
         document.execCommand('insertText', false, text)
       }
     }
+    let goBottom = this.goBottom
     messageBox.bindData(
       function(messages) {
         self.messages = messages
       },
       function() {
-        setTimeout(function() {
-          let scrollHeight = self.$refs.messagesUl.scrollHeight
-          self.$refs.messagesUl.scrollTop = scrollHeight
-        }, 5)
+        if (self.isBottom) {
+          setTimeout(function() {
+            goBottom()
+          }, 5)
+        }
       }
     )
   },
@@ -256,7 +257,13 @@ export default {
   methods: {
     onScroll() {
       let list = this.$refs.messagesUl
-      this.isBottom = list.scrollHeight >= list.scrollTop + list.clientHeight + 400
+      this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
+    },
+    goBottom() {
+      let list = this.$refs.messagesUl
+      if (!list) return
+      let scrollHeight = list.scrollHeight
+      list.scrollTop = scrollHeight
     },
     infiniteHandler($state) {
       let self = this
@@ -454,6 +461,7 @@ export default {
         category: category,
         status: status
       }
+      this.isBottom = true
       this.$store.dispatch('sendMessage', message)
     }
   }

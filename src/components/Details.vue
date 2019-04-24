@@ -8,7 +8,9 @@
     </header>
     <div class="content">
       <header class="content_header">
-        <Avatar id="avatar" :user="user" :conversation="conversation"/>
+        <div>
+          <Avatar class="avatar" :user="user" :conversation="conversation"/>
+        </div>
         <span class="name">{{name}}</span>
         <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
       </header>
@@ -102,7 +104,7 @@ export default {
       padding-bottom: 32px;
       padding-left: 32px;
       padding-right: 32px;
-      #avatar {
+      .avatar {
         width: 160px;
         height: 160px;
         margin-top: 32px;

@@ -613,8 +613,8 @@ export default {
     align-items: center;
     justify-content: center;
     border-radius: 28px;
-    width: 56px;
-    height: 56px;
+    width: 40px;
+    height: 40px;
     background: #fafafa;
     right: 20px;
     position: absolute;

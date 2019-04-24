@@ -19,6 +19,7 @@
       @drop="onDrop"
       @dragover="onDragOver"
       @dragleave="onDragLeave"
+      @scroll="onScroll"
     >
       <infinite-loading direction="top" @infinite="infiniteHandler" ref="infinite">
         <div slot="spinner"></div>
@@ -39,6 +40,11 @@
         @user-click="onUserClick"
       />
     </ul>
+    <transition name="slide-bottom">
+      <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
+        <ICChevronDown></ICChevronDown>
+      </div>
+    </transition>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
@@ -54,6 +60,7 @@
         <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/>
       </div>
     </div>
+
     <div class="empty" v-if="!conversation">
       <span>
         <img src="../assets/empty.png">
@@ -101,6 +108,7 @@ import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
+import ICChevronDown from '@/assets/images/chevron-down.svg'
 export default {
   name: 'ChatContainer',
   data() {
@@ -115,7 +123,8 @@ export default {
       inputFlag: false,
       dragging: false,
       file: null,
-      messages: []
+      messages: [],
+      isBottom: true
     }
   },
   watch: {
@@ -123,7 +132,6 @@ export default {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
         this.messages = messageBox.messages
-        let self = this
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
@@ -133,9 +141,9 @@ export default {
           }
         }
         this.$store.dispatch('markRead', newC.conversationId)
-        setTimeout(() => {
-          let scrollHeight = self.$refs.messagesUl.scrollHeight
-          self.$refs.messagesUl.scrollTop = scrollHeight
+        let goBottom = this.goBottom
+        setTimeout(function() {
+          goBottom()
         }, 5)
       }
       if (newC) {
@@ -186,7 +194,8 @@ export default {
     MessageItem,
     FileContainer,
     InfiniteLoading,
-    ICBot
+    ICBot,
+    ICChevronDown
   },
   computed: {
     ...mapGetters({
@@ -230,20 +239,32 @@ export default {
         document.execCommand('insertText', false, text)
       }
     }
+    let goBottom = this.goBottom
     messageBox.bindData(
       function(messages) {
         self.messages = messages
       },
       function() {
-        setTimeout(function() {
-          let scrollHeight = self.$refs.messagesUl.scrollHeight
-          self.$refs.messagesUl.scrollTop = scrollHeight
-        }, 5)
+        if (self.isBottom) {
+          setTimeout(function() {
+            goBottom()
+          }, 5)
+        }
       }
     )
   },
   lastEnter: null,
   methods: {
+    onScroll() {
+      let list = this.$refs.messagesUl
+      this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
+    },
+    goBottom() {
+      let list = this.$refs.messagesUl
+      if (!list) return
+      let scrollHeight = list.scrollHeight
+      list.scrollTop = scrollHeight
+    },
     infiniteHandler($state) {
       let self = this
       messageBox.nextPage().then(function(messages) {
@@ -440,6 +461,7 @@ export default {
         category: category,
         status: status
       }
+      this.isBottom = true
       this.$store.dispatch('sendMessage', message)
     }
   }
@@ -516,6 +538,7 @@ export default {
   .action {
     font-size: 1.2rem;
     background: white;
+    z-index: 1;
     .removed {
       padding: 0.9rem 0.9rem;
       font-size: 0.95rem;
@@ -584,6 +607,19 @@ export default {
         height: 16rem;
       }
     }
+  }
+  .floating {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 28px;
+    width: 56px;
+    height: 56px;
+    background: #fafafa;
+    right: 20px;
+    position: absolute;
+    bottom: 72px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
   }
 
   .overlay {

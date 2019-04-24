@@ -15,7 +15,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let win
 
 // Standard scheme must be registered before the app is ready
-protocol.registerStandardSchemes(['app'], { secure: true })
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { bypassCSP: true } }])
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
@@ -27,6 +27,7 @@ function createWindow() {
     icon: path.join(__static, 'icon.png'),
     titleBarStyle: 'hiddenInset',
     webPreferences: {
+      nodeIntegration: true,
       webSecurity: false
     }
   })

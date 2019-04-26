@@ -178,6 +178,7 @@ export default {
       }
       if (
         this.prev &&
+        this.message.userId !== this.me.user_id &&
         ((this.prev.type === MessageCategories.SYSTEM_CONVERSATION ||
           this.prev.type === MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT) &&
           (this.message.type !== MessageCategories.SYSTEM_CONVERSATION &&

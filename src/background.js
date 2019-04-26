@@ -15,7 +15,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let win
 
 // Standard scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { bypassCSP: true, supportFetchAPI: true } }])
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', secure: true, privileges: { bypassCSP: true, supportFetchAPI: true } }])
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({

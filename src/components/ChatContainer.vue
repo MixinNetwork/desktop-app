@@ -57,7 +57,10 @@
             ref="box"
           ></div>
         </div>
-        <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/>
+        <!-- <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/> -->
+        <div @click="sendMessage">
+          <ICSend></ICSend>
+        </div>
       </div>
     </div>
 
@@ -106,6 +109,7 @@ import moment from 'moment'
 import InfiniteLoading from 'vue-infinite-loading'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
+import ICSend from '../assets/images/ic_send.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
@@ -195,7 +199,8 @@ export default {
     FileContainer,
     InfiniteLoading,
     ICBot,
-    ICChevronDown
+    ICChevronDown,
+    ICSend
   },
   computed: {
     ...mapGetters({

@@ -15,7 +15,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 let win
 
 // Standard scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{ scheme: 'app', secure: true, privileges: { bypassCSP: true, supportFetchAPI: true } }])
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', secure: true, privileges: { bypassCSP: true, supportFetchAPI: true } }
+])
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
@@ -43,11 +45,13 @@ function createWindow() {
   }
 
   win.on('close', async e => {
-    if (app.quitting) {
-      win = null
-    } else {
-      e.preventDefault()
-      win.hide()
+    if (process.platform === 'darwin') {
+      if (app.quitting) {
+        win = null
+      } else {
+        e.preventDefault()
+        win.hide()
+      }
     }
   })
 

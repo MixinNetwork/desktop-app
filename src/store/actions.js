@@ -18,6 +18,99 @@ function markRead(conversationId) {
   messageDao.markRead(conversationId)
 }
 
+async function refreshConversation(conversationId, callback) {
+  const c = await conversationApi.getConversation(conversationId)
+  if (c.data.data) {
+    const conversation = c.data.data
+    const me = JSON.parse(localStorage.getItem('account'))
+    const result = conversation.participants.some(function(item) {
+      return item.user_id === me.user_id
+    })
+
+    const status = result ? ConversationStatus.SUCCESS : ConversationStatus.QUIT
+    let ownerId = conversation.creator_id
+    if (conversation.category === ConversationCategory.CONTACT) {
+      conversation.participants.forEach(function(item) {
+        if (item.user_id !== me.user_id) {
+          ownerId = item.user_id
+        }
+      })
+    }
+    conversationDao.updateConversation({
+      conversation_id: conversation.conversation_id,
+      owner_id: ownerId,
+      category: conversation.category,
+      name: conversation.name,
+      announcement: conversation.announcement,
+      created_at: conversation.created_at,
+      status: status,
+      mute_until: conversation.mute_until
+    })
+    await refreshParticipants(conversation.conversation_id, conversation.participants, callback)
+    await syncUser(ownerId)
+  }
+}
+async function refreshParticipants(conversationId, participants, callback) {
+  const local = participantDao.getParticipants(conversationId)
+  const localIds = local.map(function(item) {
+    return item.user_id
+  })
+  var online = []
+  participants.forEach(function(item, index) {
+    online[index] = {
+      conversation_id: conversationId,
+      user_id: item.user_id,
+      role: item.role,
+      created_at: item.created_at
+    }
+  })
+
+  const add = online.filter(function(item) {
+    return !localIds.some(function(e) {
+      return item.user_id === e
+    })
+  })
+  const remove = localIds.filter(function(item) {
+    return !online.some(function(e) {
+      return item === e.user_id
+    })
+  })
+  if (add.length > 0) {
+    participantDao.insertAll(add)
+    const needFetchUsers = add.map(function(item) {
+      return item.user_id
+    })
+    fetchUsers(needFetchUsers)
+  }
+  if (remove.length > 0) {
+    participantDao.deleteAll(conversationId, remove)
+  }
+
+  if (add.length > 0 || remove.length > 0) {
+    callback()
+  }
+}
+
+async function syncUser(userId) {
+  let user = userDao.findUserById(userId)
+  if (!user) {
+    const response = await userApi.getUserById(userId)
+    if (response.data.data) {
+      user = response.data.data
+      userDao.insertUser(user)
+      appDao.insert(user.app)
+    }
+  }
+  return user
+}
+
+async function fetchUsers(users) {
+  const resp = await userApi.getUsers(users)
+  if (resp.data.data) {
+    userDao.insertUsers(resp.data.data)
+  }
+}
+
 function updateRemoteMessageStatus(messageId, status) {
   const blazeMessage = { message_id: messageId, status: status }
   jobDao.insert({
@@ -350,5 +443,10 @@ export default {
       { args: message }
     )
     commit('refreshMessage', message.conversation_id)
+  },
+  syncConversation: async ({commit},conversationId) => {
+    await refreshConversation(conversationId,function(){
+      commit('refreshConversation', conversationId)
+    })
   }
 }

@@ -453,7 +453,7 @@ export default {
       transform: translate(-50%, -50%);
     }
     .signal {
-      background: #f6d67d;
+      background: #fedd4a;
       display: flex;
       padding: 10px;
       align-items: center;

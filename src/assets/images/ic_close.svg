@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-<path opacity=".45" fill="#263238" d="M19.1 17.2l-5.3-5.3 5.3-5.3-1.8-1.8-5.3 5.4-5.3-5.3-1.8 1.7 5.3 5.3-5.3 5.3L6.7 19l5.3-5.3 5.3 5.3 1.8-1.8z">
-</path>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g transform="translate(13.353553, 12.646447) rotate(45.000000) translate(-13.353553, -12.646447) translate(5.353553, 4.146447)" stroke="#2F3032" stroke-width="2">
+            <path d="M7.79289322,16.2928932 L7.79289322,0.292893219"></path>
+            <path d="M5.68434189e-14,8.5 L16,8.5 L5.68434189e-14,8.5 Z"></path>
+        </g>
+    </g>
 </svg>

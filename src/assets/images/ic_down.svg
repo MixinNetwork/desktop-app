@@ -1,4 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" width="16" height="16">
-  <path fill="#535353" d="M4.8 6.1l5.7 5.7 5.7-5.7 1.6 1.6-7.3 7.2-7.3-7.2 1.6-1.6z">
-  </path>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g>
+            <rect fill-opacity="0" fill="#FFFFFF" x="0" y="0" width="16" height="16"></rect>
+            <polyline stroke="#2F3032" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(7.992641, 6.242641) scale(-1, 1) rotate(45.000000) translate(-7.992641, -6.242641) " points="10.9926407 3.24264069 10.9926407 9.24264069 4.99264069 9.24264069"></polyline>
+        </g>
+    </g>
 </svg>

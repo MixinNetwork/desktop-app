@@ -68,7 +68,7 @@ export default {
         conversationId: this.conversation.conversationId
       })
     } else {
-       this.$store.dispatch('syncConversation', this.conversation.conversationId)
+      this.$store.dispatch('syncConversation', this.conversation.conversationId)
     }
   }
 }

@@ -1,9 +1,6 @@
-import { autoUpdater } from 'electron-updater'
+import { checkForUpdates } from './updater'
 const { app, Menu } = require('electron')
 
-function checkForUpdates(event) {
-  autoUpdater.checkForUpdatesAndNotify()
-}
 const template = [
   {
     label: 'Edit',

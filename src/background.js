@@ -3,10 +3,11 @@
 import { app, protocol, ipcMain, shell, BrowserWindow } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
+import { setFocusWindow } from './updater'
 import path from 'path'
 
 ipcMain.on('checkUp', (event, _) => {
-  autoUpdater.checkForUpdatesAndNotify()
+  autoUpdater.checkForUpdates()
 })
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -63,6 +64,7 @@ function createWindow() {
     event.preventDefault()
     shell.openExternal(url)
   })
+  setFocusWindow(win)
   if (process.platform === 'darwin') {
     require('./menu')
   }
@@ -101,7 +103,6 @@ app.on('ready', async () => {
     }
   }
   createWindow()
-  autoUpdater.checkForUpdatesAndNotify()
 })
 
 app.on('before-quit', () => {

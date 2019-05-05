@@ -16,7 +16,7 @@ let win
 
 // Standard scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', secure: true, privileges: { bypassCSP: true, supportFetchAPI: true } }
+  { scheme: 'app', privileges: { bypassCSP: true, supportFetchAPI: true, secure: true } }
 ])
 function createWindow() {
   // Create the browser window.

@@ -9,7 +9,9 @@
     <script type="text/javascript" src="<%= BASE_URL %>libsignal-protocol.js"></script>
     <script>
       // let remote = require('electron').remote
-      // remote.protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { bypassCSP: true } }])
+      // remote.protocol.registerSchemesAsPrivileged([
+      //   { scheme: 'app', privileges: { bypassCSP: true, secure: true, supportFetchAPI: true } }
+      // ])
       const go = new Go()
       let mod, inst
       const wasmObject = WebAssembly.instantiateStreaming(fetch('libsignal.wasm'), go.importObject).then(result => {

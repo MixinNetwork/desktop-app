@@ -87,6 +87,16 @@ class MessageDao {
   getMessageById(messageId) {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
+
+  reCallMessage(messageId) {
+    db.prepare(
+      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
+    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
+    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
+    album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`
+    ).run(messageId)
+  }
+
   findMessageStatusById(messageId) {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status

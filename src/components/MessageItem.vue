@@ -24,6 +24,15 @@
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
     ></FileItem>
+    <ReCallItem
+      v-else-if="message.type==='MESSAGE_RECALL'"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @mediaClick="mediaClick"
+      @user-click="$emit('user-click',message.userId)"
+    ></ReCallItem>
     <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
       :message="message"
@@ -128,6 +137,7 @@ import FileItem from './chat-item/FileItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
 import StickerItem from './chat-item/StickerItem'
+import ReCallItem from './chat-item/ReCallItem'
 
 import messageDao from '@/dao/message_dao.js'
 
@@ -148,7 +158,8 @@ export default {
     FileItem,
     AudioItem,
     VideoItem,
-    StickerItem
+    StickerItem,
+    ReCallItem
   },
   data: function() {
     return {

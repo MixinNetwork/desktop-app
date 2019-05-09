@@ -139,6 +139,12 @@ export default {
         }
       } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
         return this.$t('chat.chat_transfer')
+      } else if (conversation.contentType && conversation.contentType === 'MESSAGE_RECALL') {
+        if (id === conversation.senderId) {
+          return this.$t('chat.chat_recall_me')
+        } else {
+          return this.$t('chat.chat_recall_other', { 0: conversation.senderFullName })
+        }
       } else {
         return ''
       }

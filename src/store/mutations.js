@@ -46,8 +46,10 @@ function search(state, keyword) {
       })
       .filter(item => {
         return (
-          (item.category === ConversationCategory.GROUP && item.groupName.indexOf(keyword) > -1) ||
-          (item.category === ConversationCategory.CONTACT && item.name.indexOf(keyword) > -1)
+          (item.category === ConversationCategory.GROUP &&
+            item.groupName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
+          (item.category === ConversationCategory.CONTACT &&
+            item.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
         )
       })
 

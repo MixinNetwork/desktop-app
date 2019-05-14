@@ -448,5 +448,21 @@ export default {
     await refreshConversation(conversationId, function() {
       commit('refreshConversation', conversationId)
     })
+  },
+  deleteMessages: ({ commit }, { messageIds, conversationId }) => {
+    messageDao.deleteMessagesById(messageIds)
+    commit('refreshConversation', conversationId)
+  },
+  reCallMessage: ({ commit }, { messageId, conversationId }) => {
+    console.log(messageId)
+    console.log(conversationId)
+    messageDao.reCallMessageAndSend(messageId)
+    // commit('refreshMessage', conversationId)
+  },
+  replyMessage: ({ commit }, payload) => {
+    console.log(payload)
+    // markRead(payload.conversationId)
+    // messageDao.insertTextMessage(payload)
+    // commit('refreshMessage', payload.conversationId)
   }
 }

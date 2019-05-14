@@ -28,6 +28,17 @@ class MessageDao {
     )
     stmt.run(message)
   }
+
+  deleteMessagesById(mIds) {
+    const stmt = db.prepare('DELETE FROM messages WHERE message_id = ?')
+    const insertMany = db.transaction(mIds => {
+      for (let mId of mIds) {
+        stmt.run(mId)
+      }
+    })
+    insertMany(mIds)
+  }
+
   getMessages(conversationId, page = 0) {
     let offset = page * 50
     const stmt = db.prepare(
@@ -91,6 +102,15 @@ class MessageDao {
   reCallMessage(messageId) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
+    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
+    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
+    album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`
+    ).run(messageId)
+  }
+
+  reCallMessageAndSend(messageId) {
+    db.prepare(
+      `UPDATE messages SET category = 'MESSAGE_RECALL', status = 'SENDING', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
     media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
     media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
     album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`

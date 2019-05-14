@@ -455,6 +455,26 @@ export default {
   },
   recallMessage: ({ commit }, { messageId, conversationId }) => {
     messageDao.recallMessageAndSend(messageId)
+    jobDao.insert({
+      job_id: uuidv4(),
+      action: 'RECALL_MESSAGE',
+      created_at: new Date().toISOString(),
+      order_id: null,
+      priority: 5,
+      user_id: null,
+      blaze_message: btoa(
+        unescape(
+          encodeURIComponent(
+            JSON.stringify({
+              message_id: messageId
+            })
+          )
+        )
+      ),
+      conversation_id: conversationId,
+      resend_message_id: null,
+      run_count: 0
+    })
     commit('refreshMessage', conversationId)
   },
   replyMessage: ({ commit }, payload) => {

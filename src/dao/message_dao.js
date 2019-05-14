@@ -81,9 +81,7 @@ class MessageDao {
     return data
   }
   updateMessageStatusById(status, messageId) {
-    return db
-      .prepare('UPDATE messages SET status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
-      .run(status, messageId)
+    return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
   }
   updateMessageContent(content, messageId) {
     return db
@@ -116,7 +114,7 @@ class MessageDao {
 
   recallMessageAndSend(messageId) {
     db.prepare(
-      `UPDATE messages SET category = 'MESSAGE_RECALL', status = 'SENDING', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
+      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
     media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
     media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
     album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`

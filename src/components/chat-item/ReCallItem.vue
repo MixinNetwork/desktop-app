@@ -16,7 +16,6 @@
   </div>
 </template>
 <script>
-import { MessageStatus, MediaStatus } from '@/utils/constants.js'
 import { getColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],

@@ -41,10 +41,8 @@ class SendWorker extends BaseWorker {
     }
     if (message.category.startsWith('PLAIN_')) {
       await this.sendPlainMessage(message)
-    } else if (message.category.startsWith('SIGNAL_')) {
+    } else {
       await this.sendSignalMessage(message)
-    } else if (message.category === 'MESSAGE_RECALL') {
-      await this.sendRecallMessage(message)
     }
   }
 
@@ -54,20 +52,6 @@ class SendWorker extends BaseWorker {
       content = btoa(unescape(encodeURIComponent(message.content)))
     }
     const blazeMessage = this.createBlazeMessage(message, content)
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-  }
-
-  async sendRecallMessage(message) {
-    let data = btoa(
-      unescape(
-        encodeURIComponent(
-          JSON.stringify({
-            message_id: message.message_id
-          })
-        )
-      )
-    )
-    const blazeMessage = this.createBlazeMessage(message, data)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
   }
 

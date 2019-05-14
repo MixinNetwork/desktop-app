@@ -81,14 +81,20 @@ class MessageDao {
     return data
   }
   updateMessageStatusById(status, messageId) {
-    return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
+    return db
+      .prepare('UPDATE messages SET status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .run(status, messageId)
   }
   updateMessageContent(content, messageId) {
-    return db.prepare('UPDATE messages SET content = ? WHERE message_id = ?').run(content, messageId)
+    return db
+      .prepare('UPDATE messages SET content = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .run(content, messageId)
   }
 
   updateMediaStatus(mediaStatus, messageId) {
-    return db.prepare('UPDATE messages SET media_status = ? WHERE message_id = ?').run(mediaStatus, messageId)
+    return db
+      .prepare('UPDATE messages SET media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .run(mediaStatus, messageId)
   }
 
   getConversationIdById(messageId) {
@@ -99,7 +105,7 @@ class MessageDao {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
 
-  reCallMessage(messageId) {
+  recallMessage(messageId) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
     media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
@@ -108,7 +114,7 @@ class MessageDao {
     ).run(messageId)
   }
 
-  reCallMessageAndSend(messageId) {
+  recallMessageAndSend(messageId) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', status = 'SENDING', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
     media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
@@ -153,7 +159,9 @@ class MessageDao {
     ).run([conversationId, userId, createdAt])
   }
   updateMediaMessage(path, status, id) {
-    db.prepare(`UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ?`).run([path, status, id])
+    db.prepare(
+      `UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
+    ).run([path, status, id])
   }
   findImages(conversationId) {
     return db

@@ -24,7 +24,7 @@
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
     ></FileItem>
-    <ReCallItem
+    <RecallItem
       v-else-if="message.type==='MESSAGE_RECALL'"
       :message="message"
       :me="me"
@@ -32,7 +32,7 @@
       :coversation="conversation"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
-    ></ReCallItem>
+    ></RecallItem>
     <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
       :message="message"
@@ -137,7 +137,7 @@ import FileItem from './chat-item/FileItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
 import StickerItem from './chat-item/StickerItem'
-import ReCallItem from './chat-item/ReCallItem'
+import RecallItem from './chat-item/RecallItem'
 
 import messageDao from '@/dao/message_dao.js'
 
@@ -159,7 +159,7 @@ export default {
     AudioItem,
     VideoItem,
     StickerItem,
-    ReCallItem
+    RecallItem
   },
   data: function() {
     return {

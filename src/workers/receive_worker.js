@@ -52,7 +52,7 @@ class ReceiveWroker extends BaseWorker {
     } else if (data.category === 'APP_BUTTON_GROUP' || data.category === 'APP_CARD') {
       await this.processApp(data)
     } else if (data.category === 'MESSAGE_RECALL') {
-      await this.processReCallMessage(data)
+      await this.processRecallMessage(data)
     }
     this.updateRemoteMessageStatus(floodMessage.message_id, MessageStatus.DELIVERED)
   }
@@ -118,17 +118,17 @@ class ReceiveWroker extends BaseWorker {
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
-  processReCallMessage(data) {
+  processRecallMessage(data) {
     if (data.primitive_id) {
       data.user_id = data.primitive_id
     }
     if (data.primitive_message_id) {
       data.message_id = data.primitive_message_id
     }
-    const reCallMassage = JSON.parse(decodeURIComponent(escape(window.atob(data.data))))
-    let message = messageDao.getMessageById(reCallMassage.message_id)
+    const recallMassage = JSON.parse(decodeURIComponent(escape(window.atob(data.data))))
+    let message = messageDao.getMessageById(recallMassage.message_id)
     if (message) {
-      messageDao.reCallMessage(reCallMassage.message_id)
+      messageDao.recallMessage(recallMassage.message_id)
     }
 
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)

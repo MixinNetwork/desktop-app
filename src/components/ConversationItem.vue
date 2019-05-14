@@ -16,7 +16,9 @@
         <div class="time">{{timeAgo}}</div>
       </div>
       <div class="message">
-        <div v-if="conversation.contentType !== 'SYSTEM_CONVERSATION'">
+        <div
+          v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
+        >
           <ICSending
             v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING || conversation.messageStatus === MessageStatus.PENDING"
             class="icon"

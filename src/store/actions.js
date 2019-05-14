@@ -453,8 +453,8 @@ export default {
     messageDao.deleteMessagesById(messageIds)
     commit('refreshMessage', conversationId)
   },
-  reCallMessage: ({ commit }, { messageId, conversationId }) => {
-    messageDao.reCallMessageAndSend(messageId)
+  recallMessage: ({ commit }, { messageId, conversationId }) => {
+    messageDao.recallMessageAndSend(messageId)
     commit('refreshMessage', conversationId)
   },
   replyMessage: ({ commit }, payload) => {

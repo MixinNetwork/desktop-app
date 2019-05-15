@@ -145,7 +145,7 @@ export default {
         if (id === conversation.senderId) {
           return this.$t('chat.chat_recall_me')
         } else {
-          return this.$t('chat.chat_recall_other', { 0: conversation.senderFullName })
+          return this.$t('chat.chat_recall_delete')
         }
       } else {
         return ''

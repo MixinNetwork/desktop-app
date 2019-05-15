@@ -8,7 +8,8 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <div class="recall">
-        <span>{{$t('chat.chat_recall_delete')}}</span>
+        <ICRecall></ICRecall>
+        <I class="text">{{getContent}}</I>
         <span class="time-place"></span>
         <span class="time">{{message.lt}}</span>
       </div>
@@ -16,9 +17,23 @@
   </div>
 </template>
 <script>
+import ICRecall from '@/assets/images/if_recall.svg'
 import { getColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
+  components: {
+    ICRecall
+  },
+  computed: {
+    getContent: function() {
+      let { message, me } = this
+      if (message.userId === me.user_id) {
+        return this.$t('chat.chat_recall_me')
+      } else {
+        return this.$t('chat.chat_recall_delete')
+      }
+    }
+  },
   methods: {
     messageOwnership: function() {
       let { message, me } = this
@@ -56,7 +71,9 @@ export default {
   user-select: text;
   font-size: 1rem;
   padding: 0.4rem 0.6rem;
-
+  .text {
+    margin-left: 0.3rem;
+  }
   .time-place {
     float: right;
     margin-left: 0.6rem;

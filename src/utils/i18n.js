@@ -82,9 +82,8 @@ let transactions = {
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
-      chat_recall_other: '%{0} deleted this message.',
-      chat_recall_delete: 'This message was deleted.',
-      chat_recall_me: 'Yod deleted this message.',
+      chat_recall_delete: 'This message was deleted',
+      chat_recall_me: 'Yod deleted this message',
       chat_file_invalid_size: 'Requires file size less than 30MB',
       chat_chats: 'Chats',
       preview: 'Preview'
@@ -197,9 +196,8 @@ let transactions = {
       chat_file: '文件',
       chat_audio: '语音',
       chat_video: '视频',
-      chat_recall_delete: '这条消息已经被删除。',
-      chat_recall_other: '%{0} 删除了这条消息',
-      chat_recall_me: '你删除了这条消息',
+      chat_recall_delete: '此消息已撤回',
+      chat_recall_me: '你撤回了一条消息',
       chat_file_invalid_size: '不支持大于30MB的文件',
       chat_chats: '会话',
       preview: '预览'

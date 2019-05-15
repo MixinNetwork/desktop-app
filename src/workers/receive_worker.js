@@ -129,6 +129,14 @@ class ReceiveWroker extends BaseWorker {
     let message = messageDao.getMessageById(recallMassage.message_id)
     if (message) {
       messageDao.recallMessage(recallMassage.message_id)
+      let quoteItem = messageDao.findMessageItemById(data.conversation_id, recallMassage.message_id)
+      if (quoteItem) {
+        messageDao.updateQuoteContentByQuoteId(
+          data.conversation_id,
+          recallMassage.message_id,
+          JSON.stringify(quoteItem)
+        )
+      }
     }
 
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)

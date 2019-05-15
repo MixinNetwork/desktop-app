@@ -186,6 +186,14 @@ class MessageDao {
       )
       .get([conversationId, messageId])
   }
+
+  updateQuoteContentByQuoteId(conversationId, messageId, content) {
+    db.prepare(`UPDATE messages SET quote_content = ? WHERE conversation_id = ? AND quote_message_id = ?`).run([
+      content,
+      conversationId,
+      messageId
+    ])
+  }
 }
 
 export default new MessageDao()

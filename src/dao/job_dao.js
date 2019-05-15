@@ -19,6 +19,9 @@ class JobDao {
       .prepare(`SELECT * FROM jobs WHERE action = 'CREATE_SESSION_MESSAGE' ORDER BY created_at ASC LIMIT 100`)
       .all()
   }
+  findRecallJob() {
+    return db.prepare(`SELECT * FROM jobs WHERE action = 'RECALL_MESSAGE'`).get()
+  }
   delete(jobs) {
     const stmt = db.prepare('DELETE FROM jobs WHERE job_id = ?')
     const deleteMany = db.transaction(jobs => {
@@ -27,6 +30,9 @@ class JobDao {
       }
     })
     deleteMany(jobs)
+  }
+  deleteById(jobId) {
+    db.prepare('DELETE FROM jobs WHERE job_id = ?').run(jobId)
   }
 }
 

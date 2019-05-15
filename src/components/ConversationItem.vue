@@ -16,7 +16,9 @@
         <div class="time">{{timeAgo}}</div>
       </div>
       <div class="message">
-        <div v-if="conversation.contentType !== 'SYSTEM_CONVERSATION'">
+        <div
+          v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
+        >
           <ICSending
             v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING || conversation.messageStatus === MessageStatus.PENDING"
             class="icon"
@@ -139,6 +141,12 @@ export default {
         }
       } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
         return this.$t('chat.chat_transfer')
+      } else if (conversation.contentType && conversation.contentType === 'MESSAGE_RECALL') {
+        if (id === conversation.senderId) {
+          return this.$t('chat.chat_recall_me')
+        } else {
+          return this.$t('chat.chat_recall_delete')
+        }
       } else {
         return ''
       }

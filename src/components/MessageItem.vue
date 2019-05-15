@@ -24,6 +24,15 @@
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
     ></FileItem>
+    <RecallItem
+      v-else-if="message.type==='MESSAGE_RECALL'"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @mediaClick="mediaClick"
+      @user-click="$emit('user-click',message.userId)"
+    ></RecallItem>
     <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
       :message="message"
@@ -40,6 +49,13 @@
       :coversation="conversation"
       @user-click="$emit('user-click',message.userId)"
     ></VideoItem>
+    <StickerItem
+      v-else-if="message.type.endsWith('_STICKER')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+    ></StickerItem>
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -52,11 +68,12 @@
             @click="$emit('user-click',message.userId)"
           >{{message.userFullName}}</span>
         </div>
-        <ReplyMessage
+        <ReplyMessageItem
           v-if="message.quoteContent"
           :message="JSON.parse(message.quoteContent)"
+          :me="me"
           class="reply"
-        ></ReplyMessage>
+        ></ReplyMessageItem>
         <span v-if="messageType(message) === 'text'" class="text">
           <span v-html="textMessage(message)"></span>
         </span>
@@ -114,12 +131,17 @@ import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
-import ReplyMessage from './ReplyMessageItem'
-import ContactItem from './ContactItem'
-import FileItem from './FileItem'
-import AudioItem from './AudioItem'
-import VideoItem from './VideoItem'
+
+import ReplyMessageItem from './chat-item/ReplyMessageItem'
+import ContactItem from './chat-item/ContactItem'
+import FileItem from './chat-item/FileItem'
+import AudioItem from './chat-item/AudioItem'
+import VideoItem from './chat-item/VideoItem'
+import StickerItem from './chat-item/StickerItem'
+import RecallItem from './chat-item/RecallItem'
+
 import messageDao from '@/dao/message_dao.js'
+
 import { mapGetters } from 'vuex'
 import { getColorById } from '@/utils/util.js'
 import URI from 'urijs'
@@ -131,12 +153,14 @@ export default {
     ICSending,
     ICSend,
     ICRead,
-    ReplyMessage,
+    AttachmentIcon,
+    ReplyMessageItem,
     ContactItem,
     FileItem,
     AudioItem,
     VideoItem,
-    AttachmentIcon
+    StickerItem,
+    RecallItem
   },
   data: function() {
     return {

@@ -3,7 +3,10 @@
     <div class="diver" :style="bg"></div>
     <div class="layout">
       <span class="name" :style="font">{{message.userFullName}}</span>
-      <span class="content">{{getContent}}</span>
+      <span class="content">
+        <ICRecall class="icon" v-if="message.type === 'MESSAGE_RECALL'"></ICRecall>
+        {{getContent}}
+      </span>
     </div>
     <img
       class="image"
@@ -14,11 +17,15 @@
   </div>
 </template>
 <script>
+import ICRecall from '@/assets/images/if_recall.svg'
 import { getColorById } from '@/utils/util.js'
 export default {
-  props: ['message'],
+  props: ['message', 'me'],
   data() {
     return {}
+  },
+  components: {
+    ICRecall
   },
   computed: {
     bg: function() {
@@ -48,6 +55,13 @@ export default {
         return this.$t('chat.chat_sticker')
       } else if (this.message.type.endsWith('_IMAGE')) {
         return this.$t('chat.chat_pic')
+      } else if (this.message.type === 'MESSAGE_RECALL') {
+        let { message, me } = this
+        if (message.userId === me.user_id) {
+          return this.$t('chat.chat_recall_me')
+        } else {
+          return this.$t('chat.chat_recall_delete')
+        }
       } else {
         return null
       }

@@ -28,6 +28,17 @@ class MessageDao {
     )
     stmt.run(message)
   }
+
+  deleteMessagesById(mIds) {
+    const stmt = db.prepare('DELETE FROM messages WHERE message_id = ?')
+    const insertMany = db.transaction(mIds => {
+      for (let mId of mIds) {
+        stmt.run(mId)
+      }
+    })
+    insertMany(mIds)
+  }
+
   getMessages(conversationId, page = 0) {
     let offset = page * 50
     const stmt = db.prepare(
@@ -73,11 +84,15 @@ class MessageDao {
     return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
   }
   updateMessageContent(content, messageId) {
-    return db.prepare('UPDATE messages SET content = ? WHERE message_id = ?').run(content, messageId)
+    return db
+      .prepare('UPDATE messages SET content = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .run(content, messageId)
   }
 
   updateMediaStatus(mediaStatus, messageId) {
-    return db.prepare('UPDATE messages SET media_status = ? WHERE message_id = ?').run(mediaStatus, messageId)
+    return db
+      .prepare('UPDATE messages SET media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .run(mediaStatus, messageId)
   }
 
   getConversationIdById(messageId) {
@@ -87,6 +102,25 @@ class MessageDao {
   getMessageById(messageId) {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
+
+  recallMessage(messageId) {
+    db.prepare(
+      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
+    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
+    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
+    album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`
+    ).run(messageId)
+  }
+
+  recallMessageAndSend(messageId) {
+    db.prepare(
+      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
+    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
+    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
+    album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`
+    ).run(messageId)
+  }
+
   findMessageStatusById(messageId) {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status
@@ -123,7 +157,9 @@ class MessageDao {
     ).run([conversationId, userId, createdAt])
   }
   updateMediaMessage(path, status, id) {
-    db.prepare(`UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ?`).run([path, status, id])
+    db.prepare(
+      `UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
+    ).run([path, status, id])
   }
   findImages(conversationId) {
     return db
@@ -149,6 +185,14 @@ class MessageDao {
         WHERE m.conversation_id = ? AND m.message_id = ? AND m.status != 'FAILED'`
       )
       .get([conversationId, messageId])
+  }
+
+  updateQuoteContentByQuoteId(conversationId, messageId, content) {
+    db.prepare(`UPDATE messages SET quote_content = ? WHERE conversation_id = ? AND quote_message_id = ?`).run([
+      content,
+      conversationId,
+      messageId
+    ])
   }
 }
 

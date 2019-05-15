@@ -7,21 +7,12 @@
         v-bind:style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <div class="file" @click="openFile">
-        <spinner class="loading" v-if="loading"></spinner>
-        <AttachmentIcon
-          v-else-if="message.mediaStatus === MediaStatus.CANCELED"
-          @mediaClick="$emit('mediaClick')"
-          :me="me"
-          :message="message"
-        ></AttachmentIcon>
-        <div class="ic" v-else>
-          <span class="text">FILE</span>
-        </div>
+      <div class="contact" @click="$emit('user-share-click')">
+        <Avatar id="avatar" :user="user"/>
         <div class="content">
-          <span class="name">{{fileName}}</span>
+          <span class="name">{{message.sharedUserFullName}}</span>
           <div class="bottom">
-            <span class="number">{{fileSize}}</span>
+            <span class="number">{{message.sharedUserIdentityNumber}}</span>
             <span class="time">
               {{message.lt}}
               <ICSending
@@ -48,53 +39,31 @@
   </div>
 </template>
 <script>
-import fs from 'fs'
-import spinner from '@/components/Spinner.vue'
-import ICSending from '../assets/images/ic_status_clock.svg'
-import ICSend from '../assets/images/ic_status_send.svg'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import ICRead from '../assets/images/ic_status_read.svg'
-import { MessageStatus, MediaStatus } from '@/utils/constants.js'
-import { mapGetters } from 'vuex'
+import Avatar from '@/components/Avatar'
+import userDao from '@/dao/user_dao.js'
+import ICSending from '@/assets/images/ic_status_clock.svg'
+import ICSend from '@/assets/images/ic_status_send.svg'
+import ICRead from '@/assets/images/ic_status_read.svg'
+import { MessageStatus } from '@/utils/constants.js'
 import { getColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    spinner,
+    Avatar,
     ICSending,
     ICSend,
-    ICRead,
-    AttachmentIcon
+    ICRead
   },
   data: function() {
     return {
-      MessageStatus: MessageStatus,
-      MediaStatus: MediaStatus
+      MessageStatus: MessageStatus
     }
   },
-
   methods: {
-    openFile: function() {
-      if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
-        return
-      }
-      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
-        defaultPath: this.message.mediaName
-      })
-      if (!savePath) {
-        return
-      }
-      let sourcePath = this.message.mediaUrl
-      if (sourcePath.startsWith('file://')) {
-        sourcePath = sourcePath.replace('file://', '')
-      }
-      fs.copyFileSync(sourcePath, savePath)
-    },
     messageOwnership: function() {
-      let { message, me } = this
       return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
+        send: this.message.userId === this.me.user_id,
+        receive: this.message.userId !== this.me.user_id
       }
     },
     getColor: function(id) {
@@ -102,37 +71,9 @@ export default {
     }
   },
   computed: {
-    loading: function() {
-      return this.attachment.includes(this.message.messageId)
-    },
-    fileName: function() {
-      let name = this.message.mediaName
-      if (name && name.length > 18) {
-        return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
-      } else {
-        return name
-      }
-    },
-    fileSize: function() {
-      let num = parseFloat(this.message.mediaSize)
-      var count = 0
-      while (count > 3 || num > 1024) {
-        num /= 1024
-        count++
-      }
-      var unit = 'Byte'
-      if (count === 1) {
-        unit = 'KB'
-      } else if (count === 2) {
-        unit = 'MB'
-      } else if (count === 3) {
-        unit = 'GB'
-      }
-      return `${Math.round(num * 100) / 100} ${unit}`
-    },
-    ...mapGetters({
-      attachment: 'attachment'
-    })
+    user: function() {
+      return userDao.findUserById(this.message.sharedUserId)
+    }
   }
 }
 </script>
@@ -150,7 +91,7 @@ export default {
     white-space: nowrap;
     margin-bottom: 0.2rem;
   }
-  .file {
+  .contact {
     padding: 12px;
     background: white;
     display: flex;
@@ -159,26 +100,10 @@ export default {
     width: 12rem;
     border-radius: 0.4rem;
     box-shadow: 1px 1px 1px #33333333;
-    .loading {
-      width: 40px;
-      height: 40px;
+    #avatar {
+      width: 42px;
+      height: 42px;
       margin-right: 12px;
-    }
-    .ic {
-      margin-right: 12px;
-      background: #f2f2f6;
-      border-radius: 20px;
-      display: flex;
-      height: 40px;
-      justify-content: center;
-      align-items: center;
-      .text {
-        width: 40px;
-        color: #a5a5a4;
-        text-align: center;
-        font-size: 0.7rem;
-        font-weight: 500;
-      }
     }
     .content {
       display: flex;

@@ -7,6 +7,7 @@ class AckWorker extends BaseWorker {
   async doWork() {
     await this.sendAckMessages()
     await this.sendSessionAckMessages()
+    await this.sendRecallMessages()
   }
 
   async sendAckMessages() {
@@ -26,6 +27,29 @@ class AckWorker extends BaseWorker {
     }
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
     jobDao.delete(jobs)
+  }
+
+  async sendRecallMessages() {
+    const job = jobDao.findRecallJob()
+    if (!job) {
+      return
+    }
+
+    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    const blazeMessage = {
+      id: uuidv4(),
+      action: 'CREATE_SESSION_MESSAGE',
+      params: {
+        category: 'MESSAGE_RECALL',
+        conversation_id: job.conversation_id,
+        data: job.blaze_message,
+        message_id: uuidv4(),
+        recipient_id: userId,
+        session_id: localStorage.primarySessionId
+      }
+    }
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    jobDao.deleteById(job.job_id)
   }
 
   async sendSessionAckMessages() {

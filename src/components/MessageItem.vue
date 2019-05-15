@@ -71,6 +71,7 @@
         <ReplyMessageItem
           v-if="message.quoteContent"
           :message="JSON.parse(message.quoteContent)"
+          :me="me"
           class="reply"
         ></ReplyMessageItem>
         <span v-if="messageType(message) === 'text'" class="text">

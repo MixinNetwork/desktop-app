@@ -264,10 +264,18 @@ export default {
       }
     }
   },
-  sendMessage: ({ commit }, payload) => {
-    markRead(payload.conversationId)
-    messageDao.insertTextMessage(payload)
-    commit('refreshMessage', payload.conversationId)
+  sendMessage: ({ commit }, { msg, quoteId }) => {
+    markRead(msg.conversationId)
+    if (quoteId) {
+      let quoteItem = messageDao.findMessageItemById(msg.conversationId, quoteId)
+      if (quoteItem) {
+        messageDao.insertRelyMessage(msg, quoteId, JSON.stringify(quoteItem))
+        commit('refreshMessage', msg.conversationId)
+        return
+      }
+    }
+    messageDao.insertTextMessage(msg)
+    commit('refreshMessage', msg.conversationId)
   },
   sendAttachmentMessage: ({ commit }, { conversationId, mediaUrl, mediaMimeType, category }) => {
     const messageId = uuidv4().toLowerCase()
@@ -476,9 +484,5 @@ export default {
       run_count: 0
     })
     commit('refreshMessage', conversationId)
-  },
-  replyMessage: ({ commit }, payload) => {
-    // markRead(payload.conversationId)
-    // commit('refreshMessage', payload.conversationId)
   }
 }

@@ -467,7 +467,10 @@ export default {
         status: status
       }
       this.isBottom = true
-      this.$store.dispatch('sendMessage', message)
+
+      this.$store.dispatch('sendMessage', {
+        msg: message
+      })
     }
   }
 }

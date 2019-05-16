@@ -40,7 +40,7 @@
         @user-click="onUserClick"
       />
     </ul>
-    <transition name="slide-bottom">
+    <transition name="fade">
       <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
         <ICChevronDown></ICChevronDown>
       </div>
@@ -648,6 +648,12 @@ export default {
     pointer-events: none;
   }
 
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .5s;
+  }
+  .fade-enter, .fade-leave-to  {
+    opacity: 0;
+  }
   .slide-right-enter-active,
   .slide-right-leave-active {
     transition: all 0.3s;

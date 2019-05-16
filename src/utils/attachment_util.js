@@ -38,34 +38,33 @@ export function downloadAttachment(message) {
           const name = generateName(m.name, m.media_mime_type, m.category)
           const filePath = path.join(dir, name)
           fs.writeFileSync(filePath, Buffer.from(resp))
-          rotate(filePath, () => {
-            resolve([m, filePath])
-          })
+          jo.rotate(filePath, {})
+            .then(({ buffer }) => {
+              fs.writeFileSync(filePath, buffer)
+              resolve([m, filePath])
+            })
+            .catch(_ => {
+              resolve([m, filePath])
+            })
         } else {
           const data = await getAttachment(response.data.data.view_url)
           const m = message
           const name = generateName(m.name, m.media_mime_type, m.category)
           const filePath = path.join(dir, name)
           fs.writeFileSync(filePath, Buffer.from(data))
-          rotate(filePath, () => {
-            resolve([m, filePath])
-          })
+          jo.rotate(filePath, {})
+            .then(({ buffer }) => {
+              fs.writeFileSync(filePath, buffer)
+              resolve([m, filePath])
+            })
+            .catch(_ => {
+              resolve([m, filePath])
+            })
         }
       }
     } catch (e) {
       reject(e)
     }
-  })
-}
-
-function rotate(path, callback) {
-  jo.rotate(path, {}, (error, buffer) => {
-    if (error) {
-      callback()
-      return
-    }
-    fs.writeFileSync(path, buffer)
-    callback()
   })
 }
 

@@ -426,6 +426,7 @@ li {
     user-select: text;
     font-size: 1rem;
     padding: 0.4rem 0.6rem;
+    white-space: pre-line;
   }
   &.sticker,
   &.image {

@@ -5,6 +5,6 @@ export default {
     return api.get('/users/' + id)
   },
   getUsers(body) {
-    return api.post('users/fetch', body)
+    return api.post('/users/fetch', body)
   }
 }

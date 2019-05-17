@@ -98,12 +98,12 @@ export default {
           })
         } else if (SystemConversationAction.ADD === conversation.actionName) {
           return this.$t('chat.chat_group_add', {
-            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
+            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
             1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
           })
         } else if (SystemConversationAction.REMOVE === conversation.actionName) {
           return this.$t('chat.chat_group_remove', {
-            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
+            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
             1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
           })
         } else if (SystemConversationAction.JOIN === conversation.actionName) {

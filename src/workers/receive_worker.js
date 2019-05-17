@@ -333,18 +333,16 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async download(message) {
-    downloadAttachment(message)
-      .then(([message, filePath]) => {
-        messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
-        store.dispatch('stopLoading', message.message_id)
-        store.dispatch('refreshMessage', message.conversation_id)
-      })
-      .catch(e => {
-        console.log(e)
-        messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
-        store.dispatch('stopLoading', message.message_id)
-        store.dispatch('refreshMessage', message.conversation_id)
-      })
+    try {
+      const [m, filePath] = await downloadAttachment(message)
+      messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+      store.dispatch('stopLoading', m.message_id)
+      store.dispatch('refreshMessage', m.conversation_id)
+    } catch (e) {
+      messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
+      store.dispatch('stopLoading', message.message_id)
+      store.dispatch('refreshMessage', message.conversation_id)
+    }
   }
 
   async processDecryptSuccess(data, plaintext) {

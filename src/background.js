@@ -67,6 +67,8 @@ function createWindow() {
   setFocusWindow(win)
   if (process.platform === 'darwin') {
     require('./menu')
+  } else {
+    win.removeMenu()
   }
   app.setAppUserModelId('one.mixin.messenger')
 }

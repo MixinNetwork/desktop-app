@@ -261,6 +261,7 @@ li.conversation.item {
         color: #a7a7a7;
         width: 16px;
         height: 16px;
+        margin-left: 3px;
       }
       .badge {
         background: #4b7ed2;

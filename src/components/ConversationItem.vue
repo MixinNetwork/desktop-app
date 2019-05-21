@@ -17,6 +17,7 @@
       </div>
       <div class="message">
         <div
+          class="layout"
           v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
         >
           <ICSending
@@ -238,8 +239,12 @@ li.conversation.item {
       flex-flow: row nowrap;
       min-height: 18px;
       align-items: center;
-      .icon {
-        margin-right: 3px;
+      .layout {
+        display: flex;
+        align-items: center;
+        .icon {
+          margin-right: 3px;
+        }
       }
       .mute_icon {
         margin-right: 3px;
@@ -256,6 +261,7 @@ li.conversation.item {
         color: #a7a7a7;
         width: 16px;
         height: 16px;
+        margin-left: 3px;
       }
       .badge {
         background: #4b7ed2;

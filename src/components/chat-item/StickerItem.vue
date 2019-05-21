@@ -69,7 +69,9 @@ export default {
   padding-right: 0.8rem;
 
   .root {
-    max-width: 6rem;
+    max-width: 18rem;
+    display: flex;
+    flex-direction: column;
     .username {
       display: inline-block;
       font-size: 0.85rem;
@@ -81,6 +83,7 @@ export default {
     }
     img {
       max-height: 6rem;
+      border-radius: 0.3rem;
     }
     .time {
       color: #8799a5;

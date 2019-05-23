@@ -53,7 +53,7 @@
     "@vue/cli-service": "^3.7.0",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.1",
-    "electron": "^v5.0.1",
+    "electron": "^v5.0.2",
     "electron-icon-builder": "https://github.com/safu9/electron-icon-builder.git#master",
     "electron-icon-maker": "^0.0.4",
     "eslint": "^5.16.0",

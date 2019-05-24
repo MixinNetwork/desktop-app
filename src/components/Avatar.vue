@@ -18,7 +18,7 @@
 </template>
 <script>
 import { ConversationCategory } from '@/utils/constants.js'
-import { getColorById } from '@/utils/util.js'
+import { getAvatarColorById } from '@/utils/util.js'
 
 const ranges = [
   '\ud83c[\udf00-\udfff]', // U+1F300 to U+1F3FF
@@ -102,7 +102,7 @@ export default {
         users = users.slice(0, 4)
         users.map(u => {
           u.has_avatar = false
-          u.color = { background: getColorById(u.user_id) }
+          u.color = { background: getAvatarColorById(u.user_id) }
           emoji(u)
           if (u.avatar_url && u.avatar_url.startsWith('http')) {
             u.has_avatar = true

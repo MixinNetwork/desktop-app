@@ -40,7 +40,7 @@ import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
 import { MessageStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
-import { getColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
@@ -62,7 +62,7 @@ export default {
       }
     },
     getColor: function(id) {
-      return getColorById(id)
+      return getNameColorById(id)
     }
   },
   computed: {

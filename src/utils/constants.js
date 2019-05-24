@@ -5,7 +5,7 @@ export const ConversationStatus = {
   QUIT: 3
 }
 
-export const Colors = [
+export const AvatarColors = [
   '#8ED4B6',
   '#91E07D',
   '#ADCA7A',

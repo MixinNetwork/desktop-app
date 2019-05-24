@@ -143,7 +143,7 @@ import RecallItem from './chat-item/RecallItem'
 import messageDao from '@/dao/message_dao.js'
 
 import { mapGetters } from 'vuex'
-import { getColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util.js'
 import URI from 'urijs'
 export default {
   name: 'MessageItem',
@@ -351,7 +351,7 @@ export default {
       )
     },
     getColor: function(id) {
-      return getColorById(id)
+      return getNameColorById(id)
     }
   }
 }

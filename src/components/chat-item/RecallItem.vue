@@ -18,7 +18,7 @@
 </template>
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
-import { getColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
@@ -43,7 +43,7 @@ export default {
       }
     },
     getColor: function(id) {
-      return getColorById(id)
+      return getNameColorById(id)
     }
   }
 }

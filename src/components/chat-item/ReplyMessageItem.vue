@@ -18,7 +18,7 @@
 </template>
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
-import { getColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util.js'
 export default {
   props: ['message', 'me'],
   data() {
@@ -29,15 +29,15 @@ export default {
   },
   computed: {
     bg: function() {
-      let color = getColorById(this.message.userId)
+      let color = getNameColorById(this.message.userId)
       return { background: color }
     },
     abg: function() {
-      let color = getColorById(this.message.userId)
+      let color = getNameColorById(this.message.userId)
       return { background: color + '0D' }
     },
     font: function() {
-      let color = getColorById(this.message.userId)
+      let color = getNameColorById(this.message.userId)
       return { color: color }
     },
     mediaUrl: function() {

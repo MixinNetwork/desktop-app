@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import Bot from 'bot-api-js-client'
 import moment from 'moment'
 import store from '@/store/store'
-import { Colors } from '@/utils/constants.js'
+import { Colors, NameColors } from '@/utils/constants.js'
 import signalProtocol from '@/crypto/signal.js'
 
 export function generateConversationId(userId, recipientId) {
@@ -125,4 +125,8 @@ export function sendNotification(title, body, conversationId) {
 
 export function getColorById(id) {
   return Colors[Math.abs(signalProtocol.convertToDeviceId(id)) % Colors.length]
+}
+
+export function getNameColorById(id) {
+  return NameColors[Math.abs(signalProtocol.convertToDeviceId(id)) % NameColors.length]
 }

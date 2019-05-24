@@ -56,7 +56,7 @@ import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICRead from '@/assets/images/ic_status_read.svg'
 import { MessageStatus, MediaStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
-import { getColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
@@ -98,7 +98,7 @@ export default {
       }
     },
     getColor: function(id) {
-      return getColorById(id)
+      return getNameColorById(id)
     }
   },
   computed: {

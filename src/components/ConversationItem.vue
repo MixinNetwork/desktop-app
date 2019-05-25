@@ -121,39 +121,39 @@ export default {
           return ''
         }
       } else if (conversation.contentType && conversation.contentType.endsWith('_IMAGE')) {
-        return this.$t('chat.chat_pic')
+        return this.getMessageName() + this.$t('chat.chat_pic')
       } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
-        return this.$t('chat.chat_sticker')
+        return this.getMessageName() + this.$t('chat.chat_sticker')
       } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
-        return this.conversation.content
+        return this.getMessageName() + this.conversation.content
       } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
-        return this.$t('chat.chat_contact')
+        return this.getMessageName() + this.$t('chat.chat_contact')
       } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {
-        return this.$t('chat.chat_file')
+        return this.getMessageName() + this.$t('chat.chat_file')
       } else if (conversation.contentType && conversation.contentType.endsWith('_AUDIO')) {
-        return this.$t('chat.chat_audio')
+        return this.getMessageName() + this.$t('chat.chat_audio')
       } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
-        return this.$t('chat.chat_video')
+        return this.getMessageName() + this.$t('chat.chat_video')
       } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
         if (conversation.contentType === 'APP_CARD') {
-          return this.$t('chat.chat_app_card')
+          return this.getMessageName() + this.$t('chat.chat_app_card')
         } else {
-          return this.$t('chat.chat_app_button')
+          return this.getMessageName() + this.$t('chat.chat_app_button')
         }
       } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
         return this.$t('chat.chat_transfer')
       } else if (conversation.contentType && conversation.contentType === 'MESSAGE_RECALL') {
         if (id === conversation.senderId) {
-          return this.$t('chat.chat_recall_me')
+          return this.getMessageName() + this.$t('chat.chat_recall_me')
         } else {
-          return this.$t('chat.chat_recall_delete')
+          return this.getMessageName() + this.$t('chat.chat_recall_delete')
         }
       } else {
         return ''
       }
     },
     isSelf: function() {
-      return this.conversation.senderId === JSON.parse(localStorage.getItem('account')).user_id
+      return this.conversation.senderId === this.getAccount().user_id
     }
   },
   data: function() {
@@ -164,6 +164,9 @@ export default {
     }
   },
   methods: {
+    getAccount: function() {
+      return JSON.parse(localStorage.getItem('account'))
+    },
     enter: function() {
       this.show = true
     },
@@ -188,6 +191,16 @@ export default {
         }
       }
       return false
+    },
+    getMessageName: function() {
+      if (
+        this.conversation.category === ConversationCategory.GROUP &&
+        this.conversation.senderId !== this.getAccount().user_id
+      ) {
+        return this.conversation.senderFullName + ': '
+      } else {
+        return ''
+      }
     }
   }
 }

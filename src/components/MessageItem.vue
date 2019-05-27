@@ -6,61 +6,162 @@
     <div v-if="!prev || !equalDay(message, prev)" class="time-divide">
       <span>{{getTimeDivide(message)}}</span>
     </div>
-    <ContactItem
+    <div
+      class="positionRel"
       v-if="message.type.endsWith('_CONTACT')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      @user-share-click="$emit('user-click',message.sharedUserId)"
-      @user-click="$emit('user-click',message.userId)"
-      :coversation="conversation"
-    ></ContactItem>
-    <FileItem
+      @mouseenter="enter"
+      @mouseleave="leave"
+    >
+      <div class="boxRight">
+        <a
+          class="downMenu"
+          :class="messageType(message)"
+          href="javascript:void(0)"
+          v-show="show || fouse"
+        >
+          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
+            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
+              <font-awesome-icon class="down" icon="chevron-down"/>
+            </a>
+          </transition>
+        </a>
+      </div>
+      <ContactItem
+        :message="message"
+        :me="me"
+        :showName="this.showUserName()"
+        @user-share-click="$emit('user-click',message.sharedUserId)"
+        @user-click="$emit('user-click',message.userId)"
+        :coversation="conversation"
+      ></ContactItem>
+    </div>
+    <div
+      class="positionRel"
       v-else-if="message.type.endsWith('_DATA')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @mediaClick="mediaClick"
-      @user-click="$emit('user-click',message.userId)"
-    ></FileItem>
-    <RecallItem
-      v-else-if="message.type==='MESSAGE_RECALL'"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @mediaClick="mediaClick"
-      @user-click="$emit('user-click',message.userId)"
-    ></RecallItem>
-    <AudioItem
+      @mouseenter="enter"
+      @mouseleave="leave"
+    >
+      <div class="boxRight">
+        <a
+          class="downMenu"
+          :class="messageType(message)"
+          href="javascript:void(0)"
+          v-show="show || fouse"
+        >
+          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
+            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
+              <font-awesome-icon class="down" icon="chevron-down"/>
+            </a>
+          </transition>
+        </a>
+      </div>
+      <FileItem
+        :message="message"
+        :me="me"
+        :showName="this.showUserName()"
+        :coversation="conversation"
+        @mediaClick="mediaClick"
+        @user-click="$emit('user-click',message.userId)"
+      ></FileItem>
+    </div>
+    <div
+      class="positionRel"
       v-else-if="message.type.endsWith('_AUDIO')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @user-click="$emit('user-click',message.userId)"
-    ></AudioItem>
-    <VideoItem
+      @mouseenter="enter"
+      @mouseleave="leave"
+    >
+      <div class="boxRight">
+        <a
+          class="downMenu"
+          :class="messageType(message)"
+          href="javascript:void(0)"
+          v-show="show || fouse"
+        >
+          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
+            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
+              <font-awesome-icon class="down" icon="chevron-down"/>
+            </a>
+          </transition>
+        </a>
+      </div>
+      <AudioItem
+        :message="message"
+        :me="me"
+        :showName="this.showUserName()"
+        :coversation="conversation"
+        @user-click="$emit('user-click',message.userId)"
+      ></AudioItem>
+    </div>
+    <div
+      class="positionRel"
       v-else-if="message.type.endsWith('_VIDEO')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @user-click="$emit('user-click',message.userId)"
-    ></VideoItem>
+      @mouseenter="enter"
+      @mouseleave="leave"
+    >
+      <div class="boxRight">
+        <a
+          class="downMenu"
+          :class="messageType(message)"
+          href="javascript:void(0)"
+          v-show="show || fouse"
+        >
+          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
+            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
+              <font-awesome-icon class="down" icon="chevron-down"/>
+            </a>
+          </transition>
+        </a>
+      </div>
+      <VideoItem
+        :message="message"
+        :me="me"
+        :showName="this.showUserName()"
+        :coversation="conversation"
+        @user-click="$emit('user-click',message.userId)"
+      ></VideoItem>
+    </div>
     <StickerItem
       v-else-if="message.type.endsWith('_STICKER')"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
     ></StickerItem>
-    <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
+
+    <RecallItem
+      v-else-if="message.type.endsWith('MESSAGE_RECALL')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+    ></RecallItem>
+    <div
+      v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION"
+      class="system positionRel"
+    >
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">
-      <div class="bubble" v-bind:class="messageType(message)">
+      <div
+        class="bubble"
+        v-bind:class="messageType(message)"
+        @mouseenter="enter"
+        @mouseleave="leave"
+      >
+        <a
+          class="downMenu"
+          :class="[messageOwnership(message, me),messageType(message)]"
+          href="javascript:void(0)"
+          v-show="show || fouse"
+        >
+          <transition name="slide-right" @click="onFocus" @onFocus="onFocus" @onBlur="onBlur">
+            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
+              <font-awesome-icon class="down" icon="chevron-down"/>
+            </a>
+          </transition>
+        </a>
         <div v-if="this.showUserName()">
           <span
             class="username"
@@ -77,14 +178,11 @@
         <span v-if="messageType(message) === 'text'" class="text">
           <span v-html="textMessage(message)"></span>
         </span>
-        <div v-else-if="messageType(message) === 'sticker'">
-          <img v-bind:src="message.assetUrl">
-        </div>
         <img
-          v-else-if="messageType(message) === 'image'"
+          v-else-if="messageType(message) === 'image' && message.thumbImage"
           v-bind:src="media(message)"
           v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-          v-bind:class="borderSet(message)"
+          v-bind:class="[borderSet(message),messageType(message),123]"
           v-bind:style="borderSetObject(message)"
           @click="preview"
         >
@@ -124,6 +222,7 @@ import {
   MessageStatus,
   SystemConversationAction,
   MessageCategories,
+  canReply,
   MediaStatus
 } from '@/utils/constants.js'
 import spinner from '@/components/Spinner.vue'
@@ -166,7 +265,10 @@ export default {
     return {
       ConversationCategory: ConversationCategory,
       MessageStatus: MessageStatus,
-      MessageCategories: MessageCategories
+      MessageCategories: MessageCategories,
+      fouse: false,
+      show: false,
+      menus: this.$t('menu.chat_operation')
     }
   },
   computed: {
@@ -246,6 +348,14 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
+      } else if (type.endsWith('_VIDEO')) {
+        return 'video'
+      } else if (type.endsWith('_AUDIO')) {
+        return 'audio'
+      } else if (type.endsWith('_DATA')) {
+        return 'file'
+      } else if (type.endsWith('_CONTACT')) {
+        return 'contact'
       } else if (type.startsWith('APP_')) {
         if (type === 'APP_CARD') {
           return 'app_card'
@@ -352,6 +462,86 @@ export default {
     },
     getColor: function(id) {
       return getNameColorById(id)
+    },
+    enter() {
+      this.show = true
+    },
+    leave() {
+      this.show = false
+    },
+    onFocus() {
+      this.fouse = true
+    },
+    onBlur() {
+      this.fouse = false
+    },
+    handleMenuClick() {
+      const dwidth = document.body.clientWidth
+      const dheihgt = document.body.clientHeight
+      let x = dwidth - event.clientX < 250 ? event.clientX - 180 : event.clientX - 20
+      let y = dheihgt - event.clientY < 200 ? event.clientY - this.menus.length * 30 : event.clientY + 8
+      let menu = this.$t('menu.chat_operation')
+      let messageMenu = []
+      if (canReply(this.message.type)) {
+        messageMenu.push(menu[0])
+      }
+      messageMenu.push(menu[2])
+      if (this.message.userId === this.me.user_id) {
+        messageMenu.push(menu[3])
+      }
+      this.$Menu.alert(x, y, messageMenu, index => {
+        const option = messageMenu[index]
+        switch (Object.keys(menu).find(key => menu[key] === option)) {
+          case '0':
+            this.handleReply()
+            break
+          case '1':
+            this.handleForward()
+            break
+          case '2':
+            this.handleRemove()
+            break
+          case '3':
+            this.handleRecall()
+            break
+          default:
+            break
+        }
+      })
+    },
+    handleReply() {
+      this.$emit('handle-item-click', {
+        type: 'Reply',
+        message: this.message
+      })
+    },
+    handleForward() {
+      this.$emit('handle-item-click', {
+        type: 'Forward',
+        message: this.message
+      })
+    },
+    handleRemove() {
+      let { message } = this
+      this.$Dialog.alert(
+        this.$t('confirm_remove'),
+        this.$t('ok'),
+        () => {
+          this.$emit('handle-item-click', {
+            type: 'Remove',
+            message: message
+          })
+        },
+        this.$t('cancel'),
+        () => {}
+      )
+    },
+    handleRecall() {
+      this.$emit('handle-item-click', {
+        type: 'Recall',
+        message: this.message,
+        owner: this.message
+      })
     }
   }
 }
@@ -363,6 +553,51 @@ img {
 }
 li {
   margin-bottom: 0.6rem;
+}
+.positionRel {
+  position: relative;
+}
+.boxRight {
+  position: absolute;
+  right: 0.7rem;
+  top: 0;
+  a {
+    // width: 14px;
+    // height: 14px;
+    color: #8799a5;
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  .receive {
+    background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, #ffffff 50%);
+  }
+  .text {
+    background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, #c5edff 50%);
+  }
+  .send {
+    background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, #c5edff 50%);
+  }
+  .reply,
+  .flie,
+  .sticker,
+  .image,
+  .text,
+  .app_card,
+  .app_button,
+  .transfer,
+  .unknown,
+  .image {
+    // background: linear-gradient(
+    //   20deg,
+    //   rgba(0, 0, 0, 0) 0%,
+    //   rgba(0, 0, 0, 0) 45%,
+    //   rgba(0, 0, 0, 0.12) 70%,
+    //   rgba(0, 0, 0, 0.33) 100%
+    // );
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
+  }
 }
 .unread-divide {
   background: white;
@@ -437,14 +672,14 @@ li {
   &.sticker {
     margin-left: 0.8rem;
     margin-right: 0.8rem;
-    position: inherit;
+    position: relative;
     display: inline-block;
     max-width: 6rem;
     img {
       max-height: 6rem;
     }
     .time {
-      position: inherit;
+      position: initial;
     }
   }
   &.image {
@@ -500,6 +735,83 @@ li {
   }
   .icon {
     padding-left: 0.2rem;
+  }
+}
+.downMenu {
+  position: absolute;
+  right: 0.1rem;
+  top: 0;
+  padding: 7px;
+  z-index: 99;
+  width: 80px;
+  max-width: 80%;
+  height: 16px;
+  text-align: right;
+  a {
+    width: 14px;
+    height: 14px;
+    color: #8799a5;
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  &.send {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #c5edff 50%);
+    &.text {
+      background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #c5edff 50%);
+    }
+    &.image,
+    &.sticker {
+      a {
+        color: #ffffff;
+      }
+    }
+  }
+  &.receive {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
+    &.text {
+      text-align: right;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
+    }
+  }
+  &.reply {
+    background: linear-gradient(
+      20deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 45%,
+      rgba(0, 0, 0, 0.12) 70%,
+      rgba(0, 0, 0, 0.33) 100%
+    ) !important;
+    a {
+      color: #ffffff;
+    }
+  }
+  &.flie,
+  &.sticker,
+  &.image,
+  &.app_card,
+  &.app_button,
+  &.transfer,
+  &.unknown,
+  &.image {
+    background: linear-gradient(
+      20deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 45%,
+      rgba(0, 0, 0, 0.12) 70%,
+      rgba(0, 0, 0, 0.33) 100%
+    );
+    // background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, transparent 50%);
+    // a {
+    //   color: #ffffff;
+    // }
+  }
+  &.unknown,
+  &.audio,
+  &.contact {
+    right: 1.2rem;
+    background: none;
   }
 }
 .receive {

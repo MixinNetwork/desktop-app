@@ -102,6 +102,26 @@ export const MessageStatus = {
   FAILED: 'FAILED'
 }
 
+export function canReply(type) {
+  return (
+    type === MessageCategories.SIGNAL_TEXT ||
+    type === MessageCategories.SIGNAL_IMAGE ||
+    type === MessageCategories.SIGNAL_TEXT ||
+    type === MessageCategories.SIGNAL_VIDEO ||
+    type === MessageCategories.SIGNAL_AUDIO ||
+    type === MessageCategories.SIGNAL_DATA ||
+    type === MessageCategories.SIGNAL_STICKER ||
+    type === MessageCategories.SIGNAL_CONTACT ||
+    type === MessageCategories.PLAIN_TEXT ||
+    type === MessageCategories.PLAIN_IMAGE ||
+    type === MessageCategories.PLAIN_VIDEO ||
+    type === MessageCategories.PLAIN_AUDIO ||
+    type === MessageCategories.PLAIN_DATA ||
+    type === MessageCategories.PLAIN_STICKER ||
+    type === MessageCategories.PLAIN_CONTACT
+  )
+}
+
 export const MessageCategories = {
   SIGNAL_KEY: 'SIGNAL_KEY',
   SIGNAL_TEXT: 'SIGNAL_TEXT',
@@ -114,10 +134,10 @@ export const MessageCategories = {
   PLAIN_TEXT: 'PLAIN_TEXT',
   PLAIN_IMAGE: 'PLAIN_IMAGE',
   PLAIN_VIDEO: 'PLAIN_VIDEO',
+  PLAIN_AUDIO: 'PLAIN_AUDIO',
   PLAIN_DATA: 'PLAIN_DATA',
   PLAIN_STICKER: 'PLAIN_STICKER',
   PLAIN_CONTACT: 'PLAIN_CONTACT',
-  PLAIN_AUDIO: 'PLAIN_AUDIO',
   PLAIN_JSON: 'PLAIN_JSON',
   SYSTEM_CONVERSATION: 'SYSTEM_CONVERSATION',
   SYSTEM_ACCOUNT_SNAPSHOT: 'SYSTEM_ACCOUNT_SNAPSHOT',

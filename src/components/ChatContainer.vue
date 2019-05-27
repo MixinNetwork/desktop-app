@@ -38,6 +38,7 @@
         v-bind:conversation="conversation"
         v-bind:me="me"
         @user-click="onUserClick"
+        @handle-item-click="handleItemClick"
       />
     </ul>
     <transition name="fade">
@@ -45,6 +46,12 @@
         <ICChevronDown></ICChevronDown>
       </div>
     </transition>
+    <div class="reply_box" v-if="boxMessage">
+      <ReplyMessageItem :message="boxMessage" class="reply"></ReplyMessageItem>
+      <span @click="hidenReplyBox">
+        <ICCose class="icon-close"/>
+      </span>
+    </div>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
@@ -84,6 +91,14 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
+    <transition name="slide-right">
+      <MessageReply
+        class="overlay-reply"
+        v-if="forwardList"
+        @show="handleShowMessageForward"
+        @close="handleHideMessageForward"
+      ></MessageReply>
+    </transition>
   </main>
 </template>
 
@@ -113,6 +128,9 @@ import ICSend from '../assets/images/ic_send.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
+import MessageReply from '@/components/MessageReply.vue'
+import ReplyMessageItem from '@/components/chat-item/ReplyMessageItem'
+import ICCose from '../assets/images/ic_close.svg'
 export default {
   name: 'ChatContainer',
   data() {
@@ -128,7 +146,10 @@ export default {
       dragging: false,
       file: null,
       messages: [],
-      isBottom: true
+      isBottom: true,
+      // 回复弹出
+      boxMessage: null,
+      forwardList: false
     }
   },
   watch: {
@@ -200,7 +221,10 @@ export default {
     InfiniteLoading,
     ICBot,
     ICChevronDown,
-    ICSend
+    ICSend,
+    MessageReply,
+    ICCose,
+    ReplyMessageItem
   },
   computed: {
     ...mapGetters({
@@ -467,10 +491,68 @@ export default {
         status: status
       }
       this.isBottom = true
-
-      this.$store.dispatch('sendMessage', {
-        msg: message
+      let msg = {}
+      if (this.boxMessage) {
+        console.log(this.boxMessage)
+        msg.quoteId = this.boxMessage.messageId
+        this.boxMessage = null
+      }
+      msg.msg = message
+      this.$store.dispatch('sendMessage', msg)
+    },
+    handleItemClick({ type, message }) {
+      switch (type) {
+        case 'Reply':
+          this.handleReply(message)
+          break
+        case 'Forward':
+          this.handleForward(message)
+          break
+        case 'Remove':
+          this.handleRemove(message)
+          break
+        case 'Recall':
+          this.handleRecall(message)
+          break
+        default:
+          break
+      }
+    },
+    // 回复
+    handleReply(message) {
+      console.log(message)
+      this.boxMessage = message
+    },
+    // 转发
+    handleForward(message) {
+      this.forwardList = true
+    },
+    handleRemove(message) {
+      this.$store.dispatch('deleteMessages', {
+        messageIds: [message.messageId],
+        conversationId: message.conversationId
       })
+    },
+    // 撤回
+    handleRecall(message) {
+      this.$store.dispatch('recallMessage', {
+        messageId: message.messageId,
+        conversationId: message.conversationId
+      })
+    },
+
+    // 取消回复
+    hidenReplyBox() {
+      this.boxMessage = null
+    },
+    // 隐藏转发列表
+    handleHideMessageForward(el) {
+      console.log(el)
+      this.forwardList = false
+    },
+    // 显示转发列表
+    handleShowMessageForward() {
+      this.forwardList = true
     }
   }
 }
@@ -587,6 +669,25 @@ export default {
       padding: 0 0.6rem;
     }
   }
+  .reply_box {
+    position: relative;
+    padding-right: 2rem;
+    span {
+      position: absolute;
+      width: 2rem;
+      height: 100%;
+      top: 0;
+      right: 0;
+      // background: rgb(102, 136, 153);
+      background: rgba(102, 136, 153, 0.05);
+      .icon-close {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+    }
+  }
   .empty {
     width: 100%;
     height: 100%;
@@ -638,6 +739,15 @@ export default {
     border-left: 1px solid $border-color;
     z-index: 10;
   }
+  .overlay-reply {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 100%;
+    border-left: 1px solid $border-color;
+    z-index: 10;
+  }
 
   .media {
     position: absolute;
@@ -648,10 +758,12 @@ export default {
     pointer-events: none;
   }
 
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
-  .fade-enter, .fade-leave-to  {
+  .fade-enter,
+  .fade-leave-to {
     opacity: 0;
   }
   .slide-right-enter-active,

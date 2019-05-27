@@ -7,6 +7,7 @@
     @contextmenu.prevent="$emit('item-more',conversation)"
   >
     <Avatar id="avatar" :conversation="conversation"/>
+    <slot name="check"></slot>
     <div class="info">
       <div class="title">
         <div class="username">
@@ -74,7 +75,7 @@ import moment from 'moment'
 
 export default {
   name: 'ConversationItem',
-  props: ['conversation', 'index'],
+  props: ['conversation', 'index', 'mouseEve'],
   components: {
     Avatar,
     ICSending,

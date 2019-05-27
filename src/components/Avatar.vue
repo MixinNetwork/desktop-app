@@ -102,11 +102,12 @@ export default {
         users = users.slice(0, 4)
         users.map(u => {
           u.has_avatar = false
-          u.color = { background: getAvatarColorById(u.user_id) }
+
           emoji(u)
           if (u.avatar_url && u.avatar_url.startsWith('http')) {
             u.has_avatar = true
-            return u
+          } else {
+            u.color = { background: getAvatarColorById(u.user_id) }
           }
           return u
         })

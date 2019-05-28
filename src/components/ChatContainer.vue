@@ -130,7 +130,6 @@ import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
 import MessageReply from '@/components/MessageReply.vue'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
-import ICCose from '../assets/images/ic_close.svg'
 export default {
   name: 'ChatContainer',
   data() {
@@ -223,7 +222,6 @@ export default {
     ICChevronDown,
     ICSend,
     MessageReply,
-    ICCose,
     ReplyMessageContainer
   },
   computed: {

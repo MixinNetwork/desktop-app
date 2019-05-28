@@ -74,8 +74,7 @@
 import ICClose from '../assets/images/ic_close.svg'
 import ICSendReply from '../assets/images/ic_send_reply.svg'
 import Search from '@/components/Search.vue'
-import UserItem from '@/components/UserItem.vue'
-import ChatItem from '@/components/ChatItem.vue'
+// import ChatItem from '@/components/ChatItem.vue'
 import ConversationItem from '@/components/ConversationItem.vue'
 import { mapGetters } from 'vuex'
 import userDao from '@/dao/user_dao'
@@ -95,8 +94,8 @@ export default {
     // ICVerify,
     ICSendReply,
     Search,
-    UserItem,
-    ChatItem,
+    // UserItem,
+    // ChatItem,
     ConversationItem
   },
   methods: {

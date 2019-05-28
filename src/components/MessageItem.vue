@@ -6,15 +6,28 @@
     <div v-if="!prev || !equalDay(message, prev)" class="time-divide">
       <span>{{getTimeDivide(message)}}</span>
     </div>
-    <ContactItem
-      v-if="message.type.endsWith('_CONTACT')"
+
+    <StickerItem
+      v-if="message.type.endsWith('_STICKER')"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
+      :coversation="conversation"
+      @handleMenuClick="handleMenuClick"
+      @user-click="$emit('user-click',message.userId)"
+    ></StickerItem>
+
+    <ContactItem
+      v-else-if="message.type.endsWith('_CONTACT')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
       @user-share-click="$emit('user-click',message.sharedUserId)"
       @user-click="$emit('user-click',message.userId)"
-      :coversation="conversation"
+      @handleMenuClick="handleMenuClick"
     ></ContactItem>
+
     <FileItem
       v-else-if="message.type.endsWith('_DATA')"
       :message="message"
@@ -23,15 +36,37 @@
       :coversation="conversation"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></FileItem>
+
+    <AudioItem
+      v-else-if="message.type.endsWith('_AUDIO')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></AudioItem>
+
+    <VideoItem
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      v-else-if="message.type.endsWith('_VIDEO')"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></VideoItem>
+
     <RecallItem
       v-else-if="message.type==='MESSAGE_RECALL'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-      @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></RecallItem>
     <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
@@ -40,7 +75,9 @@
       :showName="this.showUserName()"
       :coversation="conversation"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></AudioItem>
+
     <VideoItem
       v-else-if="message.type.endsWith('_VIDEO')"
       :message="message"
@@ -48,14 +85,9 @@
       :showName="this.showUserName()"
       :coversation="conversation"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></VideoItem>
-    <StickerItem
-      v-else-if="message.type.endsWith('_STICKER')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-    ></StickerItem>
+
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -139,6 +171,7 @@ import {
   SystemConversationAction,
   MessageCategories,
   canReply,
+  canRecall,
   MediaStatus
 } from '@/utils/constants.js'
 import spinner from '@/components/Spinner.vue'
@@ -402,7 +435,7 @@ export default {
         messageMenu.push(menu[0])
       }
       messageMenu.push(menu[2])
-      if (this.message.userId === this.me.user_id) {
+      if (canRecall(this.message, this.me.user_id)) {
         messageMenu.push(menu[3])
       }
       this.$Menu.alert(x, y, messageMenu, index => {
@@ -505,13 +538,6 @@ li {
   .transfer,
   .unknown,
   .image {
-    // background: linear-gradient(
-    //   20deg,
-    //   rgba(0, 0, 0, 0) 0%,
-    //   rgba(0, 0, 0, 0) 45%,
-    //   rgba(0, 0, 0, 0.12) 70%,
-    //   rgba(0, 0, 0, 0.33) 100%
-    // );
     background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
   }
 }
@@ -654,8 +680,10 @@ li {
   }
 }
 .downMenu {
+  // start
   position: absolute;
-  right: 0.1rem;
+  right: 0;
+  border-radius: 0.1rem;
   top: 0;
   padding: 7px;
   z-index: 99;
@@ -672,8 +700,8 @@ li {
       height: 14px;
     }
   }
+
   &.send {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #c5edff 50%);
     &.text {
       background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #c5edff 50%);
     }
@@ -685,7 +713,6 @@ li {
     }
   }
   &.receive {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
     &.text {
       text-align: right;
       background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
@@ -703,13 +730,14 @@ li {
       color: #ffffff;
     }
   }
-  &.flie,
-  &.sticker,
   &.image,
+  &.file,
   &.app_card,
   &.app_button,
   &.transfer,
   &.unknown,
+  &.video,
+  &.sticker,
   &.image {
     background: linear-gradient(
       20deg,
@@ -718,17 +746,17 @@ li {
       rgba(0, 0, 0, 0.12) 70%,
       rgba(0, 0, 0, 0.33) 100%
     );
-    // background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, transparent 50%);
-    // a {
-    //   color: #ffffff;
-    // }
   }
+  &.video,
   &.unknown,
   &.audio,
+  &.file,
   &.contact {
     right: 1.2rem;
     background: none;
   }
+
+  // ending
 }
 .receive {
   text-align: left;

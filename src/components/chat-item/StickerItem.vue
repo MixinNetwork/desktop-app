@@ -1,13 +1,15 @@
 <template>
-  <div class="layout" v-bind:class="messageOwnership()">
-    <div class="root">
+  <span class="layout">
+    <span class="root">
       <span
         class="username"
         v-if="showName"
         v-bind:style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <img v-bind:src="message.assetUrl">
+      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+        <img v-bind:src="message.assetUrl">
+      </BadgeItem>
       <span class="time">
         {{message.lt}}
         <ICSending
@@ -27,8 +29,8 @@
           class="icon"
         />
       </span>
-    </div>
-  </div>
+    </span>
+  </span>
 </template>
 <script>
 import { MessageStatus } from '@/utils/constants.js'
@@ -36,6 +38,7 @@ import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
 import { getNameColorById } from '@/utils/util.js'
+import BadgeItem from './BadgeItem'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   data: function() {
@@ -46,7 +49,8 @@ export default {
   components: {
     ICSending,
     ICSend,
-    ICRead
+    ICRead,
+    BadgeItem
   },
   methods: {
     messageOwnership: function() {
@@ -65,9 +69,6 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
-
   .root {
     max-width: 18rem;
     display: flex;

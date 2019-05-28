@@ -122,6 +122,10 @@ export function canReply(type) {
   )
 }
 
+export function canRecall(message, userId) {
+  return message.userId === userId && canReply(message) && message.status !== MessageStatus.SENDING
+}
+
 export const MessageCategories = {
   SIGNAL_KEY: 'SIGNAL_KEY',
   SIGNAL_TEXT: 'SIGNAL_TEXT',

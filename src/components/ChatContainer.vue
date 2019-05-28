@@ -46,12 +46,12 @@
         <ICChevronDown></ICChevronDown>
       </div>
     </transition>
-    <div class="reply_box" v-if="boxMessage">
-      <ReplyMessageItem :message="boxMessage" class="reply"></ReplyMessageItem>
-      <span @click="hidenReplyBox">
-        <ICCose class="icon-close"/>
-      </span>
-    </div>
+    <ReplyMessageContainer
+      v-if="boxMessage"
+      :message="boxMessage"
+      class="reply"
+      @hidenReplyBox="hidenReplyBox"
+    ></ReplyMessageContainer>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
@@ -129,7 +129,7 @@ import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
 import MessageReply from '@/components/MessageReply.vue'
-import ReplyMessageItem from '@/components/chat-item/ReplyMessageItem'
+import ReplyMessageContainer from '@/components/ReplyMessageContainer'
 import ICCose from '../assets/images/ic_close.svg'
 export default {
   name: 'ChatContainer',
@@ -224,7 +224,7 @@ export default {
     ICSend,
     MessageReply,
     ICCose,
-    ReplyMessageItem
+    ReplyMessageContainer
   },
   computed: {
     ...mapGetters({
@@ -671,22 +671,6 @@ export default {
   }
   .reply_box {
     position: relative;
-    padding-right: 2rem;
-    span {
-      position: absolute;
-      width: 2rem;
-      height: 100%;
-      top: 0;
-      right: 0;
-      // background: rgb(102, 136, 153);
-      background: rgba(102, 136, 153, 0.05);
-      .icon-close {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-    }
   }
   .empty {
     width: 100%;

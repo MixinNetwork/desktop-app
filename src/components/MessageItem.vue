@@ -6,141 +6,57 @@
     <div v-if="!prev || !equalDay(message, prev)" class="time-divide">
       <span>{{getTimeDivide(message)}}</span>
     </div>
-    <div
-      class="positionRel"
+    <ContactItem
       v-if="message.type.endsWith('_CONTACT')"
-      @mouseenter="enter"
-      @mouseleave="leave"
-    >
-      <div class="boxRight">
-        <a
-          class="downMenu"
-          :class="messageType(message)"
-          href="javascript:void(0)"
-          v-show="show || fouse"
-        >
-          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
-            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
-              <font-awesome-icon class="down" icon="chevron-down"/>
-            </a>
-          </transition>
-        </a>
-      </div>
-      <ContactItem
-        :message="message"
-        :me="me"
-        :showName="this.showUserName()"
-        @user-share-click="$emit('user-click',message.sharedUserId)"
-        @user-click="$emit('user-click',message.userId)"
-        :coversation="conversation"
-      ></ContactItem>
-    </div>
-    <div
-      class="positionRel"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      @user-share-click="$emit('user-click',message.sharedUserId)"
+      @user-click="$emit('user-click',message.userId)"
+      :coversation="conversation"
+    ></ContactItem>
+    <FileItem
       v-else-if="message.type.endsWith('_DATA')"
-      @mouseenter="enter"
-      @mouseleave="leave"
-    >
-      <div class="boxRight">
-        <a
-          class="downMenu"
-          :class="messageType(message)"
-          href="javascript:void(0)"
-          v-show="show || fouse"
-        >
-          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
-            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
-              <font-awesome-icon class="down" icon="chevron-down"/>
-            </a>
-          </transition>
-        </a>
-      </div>
-      <FileItem
-        :message="message"
-        :me="me"
-        :showName="this.showUserName()"
-        :coversation="conversation"
-        @mediaClick="mediaClick"
-        @user-click="$emit('user-click',message.userId)"
-      ></FileItem>
-    </div>
-    <div
-      class="positionRel"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @mediaClick="mediaClick"
+      @user-click="$emit('user-click',message.userId)"
+    ></FileItem>
+    <RecallItem
+      v-else-if="message.type==='MESSAGE_RECALL'"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @mediaClick="mediaClick"
+      @user-click="$emit('user-click',message.userId)"
+    ></RecallItem>
+    <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
-      @mouseenter="enter"
-      @mouseleave="leave"
-    >
-      <div class="boxRight">
-        <a
-          class="downMenu"
-          :class="messageType(message)"
-          href="javascript:void(0)"
-          v-show="show || fouse"
-        >
-          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
-            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
-              <font-awesome-icon class="down" icon="chevron-down"/>
-            </a>
-          </transition>
-        </a>
-      </div>
-      <AudioItem
-        :message="message"
-        :me="me"
-        :showName="this.showUserName()"
-        :coversation="conversation"
-        @user-click="$emit('user-click',message.userId)"
-      ></AudioItem>
-    </div>
-    <div
-      class="positionRel"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+    ></AudioItem>
+    <VideoItem
       v-else-if="message.type.endsWith('_VIDEO')"
-      @mouseenter="enter"
-      @mouseleave="leave"
-    >
-      <div class="boxRight">
-        <a
-          class="downMenu"
-          :class="messageType(message)"
-          href="javascript:void(0)"
-          v-show="show || fouse"
-        >
-          <transition name="slide-right" @onFocus="onFocus" @onBlur="onBlur">
-            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
-              <font-awesome-icon class="down" icon="chevron-down"/>
-            </a>
-          </transition>
-        </a>
-      </div>
-      <VideoItem
-        :message="message"
-        :me="me"
-        :showName="this.showUserName()"
-        :coversation="conversation"
-        @user-click="$emit('user-click',message.userId)"
-      ></VideoItem>
-    </div>
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+    ></VideoItem>
     <StickerItem
       v-else-if="message.type.endsWith('_STICKER')"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-      @user-click="$emit('user-click',message.userId)"
     ></StickerItem>
-
-    <RecallItem
-      v-else-if="message.type.endsWith('MESSAGE_RECALL')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @user-click="$emit('user-click',message.userId)"
-    ></RecallItem>
-    <div
-      v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION"
-      class="system positionRel"
-    >
+    <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">

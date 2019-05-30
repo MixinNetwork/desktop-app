@@ -123,7 +123,11 @@ export function canReply(type) {
 }
 
 export function canRecall(message, userId) {
-  return message.userId === userId && canReply(message) && message.status !== MessageStatus.SENDING
+  let offset = new Date().valueOf() - new Date(message.createdAt).valueOf()
+  if (offset > 3600000) {
+    return false
+  }
+  return message.userId === userId && canReply(message.type) && message.status !== MessageStatus.SENDING
 }
 
 export const MessageCategories = {

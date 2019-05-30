@@ -88,78 +88,61 @@
       @handleMenuClick="handleMenuClick"
     ></VideoItem>
 
+    <ImageItem
+      v-else-if="message.type.endsWith('_IMAGE')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+      @preview="preview"
+      @mediaClick="mediaClick"
+    ></ImageItem>
+
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">
-      <div
-        class="bubble"
-        v-bind:class="messageType(message)"
-        @mouseenter="enter"
-        @mouseleave="leave"
-      >
-        <a
-          class="downMenu"
-          :class="[messageOwnership(message, me),messageType(message)]"
-          href="javascript:void(0)"
-          v-show="show || fouse"
-        >
-          <transition name="slide-right" @click="onFocus" @onFocus="onFocus" @onBlur="onBlur">
-            <a @click="handleMenuClick" @focus="onFocus" @blur="onBlur" href="javascript:void(0)">
-              <font-awesome-icon class="down" icon="chevron-down"/>
-            </a>
-          </transition>
-        </a>
-        <div v-if="this.showUserName()">
-          <span
-            class="username"
-            v-bind:style="{color: getColor(message.userId)}"
-            @click="$emit('user-click',message.userId)"
-          >{{message.userFullName}}</span>
-        </div>
-        <ReplyMessageItem
-          v-if="message.quoteContent"
-          :message="JSON.parse(message.quoteContent)"
-          :me="me"
-          class="reply"
-        ></ReplyMessageItem>
-        <span v-if="messageType(message) === 'text'" class="text">
-          <span v-html="textMessage(message)"></span>
-        </span>
-        <img
-          v-else-if="messageType(message) === 'image' && message.thumbImage"
-          v-bind:src="media(message)"
-          v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-          v-bind:class="[borderSet(message),messageType(message),123]"
-          v-bind:style="borderSetObject(message)"
-          @click="preview"
-        >
+      <div v-if="this.showUserName()">
         <span
-          v-else-if="messageType(message) === 'app_card'"
-          class="app_card"
-        >{{$t('chat.chat_app_card') }}</span>
-        <span
-          v-else-if="messageType(message) === 'app_button'"
-          class="app_button"
-        >{{$t('chat.chat_app_button') }}</span>
-        <span
-          v-else-if="messageType(message) === 'transfer'"
-          class="transfer"
-        >{{transferText(message)}}</span>
-        <span class="time-place"></span>
-        <span class="time">
-          {{message.lt}}
-          <ICSending
-            v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
-            class="icon"
-          />
-          <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
-          <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
-          <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
-        </span>
-        <spinner class="loading" v-if="messageType(message) === 'image' && loading"></spinner>
-        <AttachmentIcon class="loading" @mediaClick="mediaClick" :me="me" :message="message" v-else></AttachmentIcon>
+          class="username"
+          v-bind:style="{color: getColor(message.userId)}"
+          @click="$emit('user-click',message.userId)"
+        >{{message.userFullName}}</span>
       </div>
+      <ReplyMessageItem
+        v-if="message.quoteContent"
+        :message="JSON.parse(message.quoteContent)"
+        :me="me"
+        class="reply"
+      ></ReplyMessageItem>
+      <span v-if="messageType(message) === 'text'" class="text">
+        <span v-html="textMessage(message)"></span>
+      </span>
+      <span
+        v-else-if="messageType(message) === 'app_card'"
+        class="app_card"
+      >{{$t('chat.chat_app_card') }}</span>
+      <span
+        v-else-if="messageType(message) === 'app_button'"
+        class="app_button"
+      >{{$t('chat.chat_app_button') }}</span>
+      <span
+        v-else-if="messageType(message) === 'transfer'"
+        class="transfer"
+      >{{transferText(message)}}</span>
+      <span class="time-place"></span>
+      <span class="time">
+        {{message.lt}}
+        <ICSending
+          v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
+          class="icon"
+        />
+        <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
+        <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
+        <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
+      </span>
     </div>
   </li>
 </template>
@@ -174,8 +157,7 @@ import {
   canRecall,
   MediaStatus
 } from '@/utils/constants.js'
-import spinner from '@/components/Spinner.vue'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
@@ -185,28 +167,27 @@ import ContactItem from './chat-item/ContactItem'
 import FileItem from './chat-item/FileItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
+import ImageItem from './chat-item/ImageItem'
 import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
 
 import messageDao from '@/dao/message_dao.js'
 
-import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util.js'
 import URI from 'urijs'
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread'],
   components: {
-    spinner,
     ICSending,
     ICSend,
     ICRead,
-    AttachmentIcon,
     ReplyMessageItem,
     ContactItem,
     FileItem,
     AudioItem,
     VideoItem,
+    ImageItem,
     StickerItem,
     RecallItem
   },
@@ -219,14 +200,6 @@ export default {
       show: false,
       menus: this.$t('menu.chat_operation')
     }
-  },
-  computed: {
-    loading: function() {
-      return this.attachment.includes(this.message.messageId)
-    },
-    ...mapGetters({
-      attachment: 'attachment'
-    })
   },
   methods: {
     mediaClick() {
@@ -334,30 +307,7 @@ export default {
       })
       return result
     },
-    borderSet: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return 'width-set'
-      }
-      if (3 * message.mediaWidth < message.mediaHeight) {
-        return 'width-set'
-      }
-      return 'height-set'
-    },
-    media: message => {
-      if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
-        return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
-      }
-      return message.mediaUrl
-    },
-    borderSetObject: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return { width: message.mediaWidth + 'px' }
-      }
-      if (3 * message.mediaWidth < message.mediaHeight) {
-        return { width: message.mediaWidth + 'px' }
-      }
-      return { height: message.mediaHeight + 'px' }
-    },
+
     getInfo(message, me) {
       const id = me.user_id
       if (SystemConversationAction.CREATE === message.actionName) {
@@ -503,44 +453,6 @@ img {
 li {
   margin-bottom: 0.6rem;
 }
-.positionRel {
-  position: relative;
-}
-.boxRight {
-  position: absolute;
-  right: 0.7rem;
-  top: 0;
-  a {
-    // width: 14px;
-    // height: 14px;
-    color: #8799a5;
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-  .receive {
-    background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, #ffffff 50%);
-  }
-  .text {
-    background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, #c5edff 50%);
-  }
-  .send {
-    background: linear-gradient(to right, rgba(220, 248, 198, 0) 0%, #c5edff 50%);
-  }
-  .reply,
-  .flie,
-  .sticker,
-  .image,
-  .text,
-  .app_card,
-  .app_button,
-  .transfer,
-  .unknown,
-  .image {
-    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
-  }
-}
 .unread-divide {
   background: white;
   color: #8799a5;
@@ -605,54 +517,7 @@ li {
     padding: 0.4rem 0.6rem;
     white-space: pre-line;
   }
-  &.sticker,
-  &.image {
-    .time-place {
-      display: none;
-    }
-  }
-  &.sticker {
-    margin-left: 0.8rem;
-    margin-right: 0.8rem;
-    position: relative;
-    display: inline-block;
-    max-width: 6rem;
-    img {
-      max-height: 6rem;
-    }
-    .time {
-      position: initial;
-    }
-  }
-  &.image {
-    max-width: 10rem;
-    max-height: 15rem;
-    margin-left: 0.8rem;
-    margin-right: 0.8rem;
-    border-radius: 0.2rem;
-    overflow: hidden;
-    position: relative;
-    .time {
-      width: 100%;
-      box-sizing: border-box;
-      display: block;
-      text-align: right;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.6) 100%);
-      bottom: 0;
-      right: 0;
-      color: white;
-      padding: 1rem 0.3rem 0.2rem 1rem;
-    }
-    .loading {
-      width: 32px;
-      height: 32px;
-      left: 50%;
-      top: 50%;
-      position: absolute;
-      transform: translate(-50%, -50%);
-      z-index: 3;
-    }
-  }
+
   .width-set {
     max-width: 10rem;
   }
@@ -678,85 +543,6 @@ li {
   .icon {
     padding-left: 0.2rem;
   }
-}
-.downMenu {
-  // start
-  position: absolute;
-  right: 0;
-  border-radius: 0.1rem;
-  top: 0;
-  padding: 7px;
-  z-index: 99;
-  width: 80px;
-  max-width: 80%;
-  height: 16px;
-  text-align: right;
-  a {
-    width: 14px;
-    height: 14px;
-    color: #8799a5;
-    svg {
-      width: 14px;
-      height: 14px;
-    }
-  }
-
-  &.send {
-    &.text {
-      background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #c5edff 50%);
-    }
-    &.image,
-    &.sticker {
-      a {
-        color: #ffffff;
-      }
-    }
-  }
-  &.receive {
-    &.text {
-      text-align: right;
-      background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, #ffffff 50%);
-    }
-  }
-  &.reply {
-    background: linear-gradient(
-      20deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 45%,
-      rgba(0, 0, 0, 0.12) 70%,
-      rgba(0, 0, 0, 0.33) 100%
-    ) !important;
-    a {
-      color: #ffffff;
-    }
-  }
-  &.image,
-  &.file,
-  &.app_card,
-  &.app_button,
-  &.transfer,
-  &.unknown,
-  &.video,
-  &.sticker,
-  &.image {
-    background: linear-gradient(
-      20deg,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 45%,
-      rgba(0, 0, 0, 0.12) 70%,
-      rgba(0, 0, 0, 0.33) 100%
-    );
-  }
-  &.video,
-  &.unknown,
-  &.audio,
-  &.file,
-  &.contact {
-    right: 1.2rem;
-    background: none;
-  }
-
-  // ending
 }
 .receive {
   text-align: left;
@@ -823,11 +609,6 @@ li {
       background: #fbdda7;
       &:after {
         border-left: 0.6rem solid #fbdda7;
-      }
-    }
-    &.image {
-      .icon {
-        float: right;
       }
     }
   }

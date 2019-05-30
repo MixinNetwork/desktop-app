@@ -30,24 +30,25 @@ export default {
   },
   computed: {
     shadowStyle() {
+      const style = {}
       if (this.type === 'MESSAGE_RECALL') {
         if (this.send) {
-          return {
-            width: '40px',
-            right: '0.8rem',
-            background: '#c5edff'
-          }
+          style.width = '40px'
+          style.right = '0.8rem'
+          style.background = '#c5edff'
         } else {
-          return {
-            width: '40px',
-            background: 'white'
-          }
+          style.width = '40px'
+          style.background = 'white'
         }
+      } else if (this.type.endsWith('_IMAGE')) {
+        style.right = '0.8rem'
+        style.width = '100px'
+        style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
+      } else {
+        style.width = '100px'
+        style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
       }
-      return {
-        width: '100px',
-        background: `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-      }
+      return style
     },
     style() {
       // {if (this.type.endsWith('_STICKER')) {

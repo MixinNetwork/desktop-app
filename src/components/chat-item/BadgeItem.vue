@@ -38,7 +38,7 @@ export default {
             style.width = '100px'
             style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
           } else {
-            style.width = '40px'
+            style.width = '48px'
             style.background = '#c5edff'
           }
         } else {
@@ -46,7 +46,7 @@ export default {
             style.width = '100px'
             style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
           } else {
-            style.width = '40px'
+            style.width = '48px'
             style.background = 'white'
           }
         }

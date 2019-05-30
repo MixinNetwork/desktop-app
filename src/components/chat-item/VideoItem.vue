@@ -102,6 +102,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     margin-bottom: 0.2rem;
+    margin-left: 0.4rem;
   }
   .content {
     display: flex;

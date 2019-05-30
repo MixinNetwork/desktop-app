@@ -104,45 +104,61 @@
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">
-      <div v-if="this.showUserName()">
+      <div v-if="this.showUserName()&&message.quoteContent">
         <span
-          class="username"
+          class="username reply"
           v-bind:style="{color: getColor(message.userId)}"
           @click="$emit('user-click',message.userId)"
         >{{message.userFullName}}</span>
       </div>
-      <ReplyMessageItem
-        v-if="message.quoteContent"
-        :message="JSON.parse(message.quoteContent)"
-        :me="me"
-        class="reply"
-      ></ReplyMessageItem>
-      <span v-if="messageType(message) === 'text'" class="text">
-        <span v-html="textMessage(message)"></span>
-      </span>
-      <span
-        v-else-if="messageType(message) === 'app_card'"
-        class="app_card"
-      >{{$t('chat.chat_app_card') }}</span>
-      <span
-        v-else-if="messageType(message) === 'app_button'"
-        class="app_button"
-      >{{$t('chat.chat_app_button') }}</span>
-      <span
-        v-else-if="messageType(message) === 'transfer'"
-        class="transfer"
-      >{{transferText(message)}}</span>
-      <span class="time-place"></span>
-      <span class="time">
-        {{message.lt}}
-        <ICSending
-          v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
-          class="icon"
-        />
-        <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
-        <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
-        <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
-      </span>
+      <BadgeItem
+        @handleMenuClick="handleMenuClick"
+        :type="message.type"
+        :send="message.userId === me.user_id"
+        :quote="message.quoteContent!==null"
+      >
+        <div class="bubble" v-bind:class="messageType(message)">
+          <div v-if="this.showUserName()&&!message.quoteContent">
+            <span
+              class="username"
+              v-bind:style="{color: getColor(message.userId)}"
+              @click="$emit('user-click',message.userId)"
+            >{{message.userFullName}}</span>
+          </div>
+          <ReplyMessageItem
+            v-if="message.quoteContent"
+            :message="JSON.parse(message.quoteContent)"
+            :me="me"
+            class="reply"
+          ></ReplyMessageItem>
+          <span v-if="messageType(message) === 'text'" class="text">
+            <span v-html="textMessage(message)"></span>
+          </span>
+          <span
+            v-else-if="messageType(message) === 'app_card'"
+            class="app_card"
+          >{{$t('chat.chat_app_card') }}</span>
+          <span
+            v-else-if="messageType(message) === 'app_button'"
+            class="app_button"
+          >{{$t('chat.chat_app_button') }}</span>
+          <span
+            v-else-if="messageType(message) === 'transfer'"
+            class="transfer"
+          >{{transferText(message)}}</span>
+          <span class="time-place"></span>
+          <span class="time">
+            {{message.lt}}
+            <ICSending
+              v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
+              class="icon"
+            />
+            <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
+            <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
+            <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
+          </span>
+        </div>
+      </BadgeItem>
     </div>
   </li>
 </template>
@@ -170,6 +186,7 @@ import VideoItem from './chat-item/VideoItem'
 import ImageItem from './chat-item/ImageItem'
 import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
+import BadgeItem from './chat-item/BadgeItem'
 
 import messageDao from '@/dao/message_dao.js'
 
@@ -189,7 +206,8 @@ export default {
     VideoItem,
     ImageItem,
     StickerItem,
-    RecallItem
+    RecallItem,
+    BadgeItem
   },
   data: function() {
     return {
@@ -375,10 +393,6 @@ export default {
       this.fouse = false
     },
     handleMenuClick() {
-      const dwidth = document.body.clientWidth
-      const dheihgt = document.body.clientHeight
-      let x = dwidth - event.clientX < 250 ? event.clientX - 180 : event.clientX - 20
-      let y = dheihgt - event.clientY < 200 ? event.clientY - this.menus.length * 30 : event.clientY + 8
       let menu = this.$t('menu.chat_operation')
       let messageMenu = []
       if (canReply(this.message.type)) {
@@ -388,6 +402,10 @@ export default {
       if (canRecall(this.message, this.me.user_id)) {
         messageMenu.push(menu[3])
       }
+      const dwidth = document.body.clientWidth
+      const dheihgt = document.body.clientHeight
+      let x = dwidth - event.clientX < 250 ? event.clientX - 180 : event.clientX - 20
+      let y = dheihgt - event.clientY < 200 ? event.clientY - messageMenu.length * 42 - 24 : event.clientY + 8
       this.$Menu.alert(x, y, messageMenu, index => {
         const option = messageMenu[index]
         switch (Object.keys(menu).find(key => menu[key] === option)) {
@@ -484,6 +502,9 @@ li {
   white-space: nowrap;
   margin-bottom: 0.2rem;
   cursor: pointer;
+  &.reply {
+    margin-left: 0.8rem;
+  }
 }
 .system {
   text-align: center;

@@ -82,9 +82,10 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .username {
+    margin-left: 0.4rem;
     display: inline-block;
     font-size: 0.85rem;
     max-width: 100%;

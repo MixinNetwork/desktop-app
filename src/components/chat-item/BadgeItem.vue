@@ -8,7 +8,7 @@
             @focus="onFocus"
             @blur="onBlur"
             href="javascript:void(0)"
-            :style="color"
+            :style="iconStyle"
           >
             <font-awesome-icon class="down" icon="chevron-down"/>
           </a>
@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  props: ['type', 'send'],
+  props: ['type', 'send', 'quote'],
   data: function() {
     return {
       focus: false,
@@ -31,14 +31,24 @@ export default {
   computed: {
     shadowStyle() {
       const style = {}
-      if (this.type === 'MESSAGE_RECALL') {
+      if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
         if (this.send) {
-          style.width = '40px'
           style.right = '0.8rem'
-          style.background = '#c5edff'
+          if (this.quote) {
+            style.width = '100px'
+            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
+          } else {
+            style.width = '40px'
+            style.background = '#c5edff'
+          }
         } else {
-          style.width = '40px'
-          style.background = 'white'
+          if (this.quote) {
+            style.width = '100px'
+            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
+          } else {
+            style.width = '40px'
+            style.background = 'white'
+          }
         }
       } else if (this.type.endsWith('_IMAGE')) {
         style.right = '0.8rem'
@@ -50,53 +60,25 @@ export default {
       }
       return style
     },
-    style() {
-      // {if (this.type.endsWith('_STICKER')) {
-      //   return {
-      //     top: '8px',
-      //     right: '8px'
-      //   }
-      // } else if (this.type.endsWith('_DATA') || this.type.endsWith('_CONTACT')) {
-      //   return {
-      //     top: '8px',
-      //     right: '12px'
-      //   }
-      // } else if (this.type.endsWith('_VIDEO')) {
-      //   return {
-      //     top: '8px',
-      //     right: '18px'
-      //   }
-      // } else if (this.type.endsWith('_AUDIO')) {
-      //   return {
-      //     top: '8px',
-      //     right: '30px'
-      //   }
-      // } else if (this.type === 'MESSAGE_RECALL') {
-      //   return {
-      //     top: '3px',
-      //     right: '3px'
-      //   }
-      // }}
-      return {}
-    },
-    color() {
-      if (this.type === 'MESSAGE_RECALL') {
+    iconStyle() {
+      const color = { color: 'white' }
+      if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
         if (this.send) {
-          return {
-            right: '0.8rem',
-            background: '#c5edff',
-            color: '#8799a5'
+          color.right = '0.8rem'
+          if (this.quote) {
+            color.color = 'white'
+          } else {
+            color.color = '#8799a5'
           }
         } else {
-          return {
-            background: 'white',
-            color: '#8799a5'
+          if (this.quote) {
+            color.color = 'white'
+          } else {
+            color.color = '#8799a5'
           }
         }
       }
-      return {
-        color: 'white'
-      }
+      return color
     }
   },
   methods: {

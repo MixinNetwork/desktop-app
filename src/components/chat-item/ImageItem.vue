@@ -129,7 +129,8 @@ export default {
   .username {
     display: inline-block;
     font-size: 0.85rem;
-    max-width: 100%;
+    max-width: 80%;
+    margin-left: 0.8rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;

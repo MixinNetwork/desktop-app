@@ -1,5 +1,5 @@
 <template>
-  <span class="layout">
+  <span class="layout" v-bind:class="messageOwnership()">
     <span class="root">
       <span
         class="username"
@@ -69,6 +69,8 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .root {
     max-width: 18rem;
     display: flex;

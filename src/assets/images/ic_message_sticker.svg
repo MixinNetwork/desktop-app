@@ -1,16 +1,10 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="14px" height="14px" viewBox="0 0 14 14" enable-background="new 0 0 24 24" xml:space="preserve">  <image id="image0" width="14" height="14" x="0" y="0"
-    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJN
-AAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAdVBMVEX///+/v8i8v8O8v8S8
-vsO8v8PExMS8v8S7vsO+wcS8v8S8v8S8v8O7wcS8w8m/v9W8vsW7vsS8v8S9xcW7wMS7vsS7v8TE
-xMS8wMS7vsS8wMT///+9wcW8vsS+wcS9xsa7vsW8v8PCws68wMS7v8S7vsP////24fkOAAAAJXRS
-TlMAHGu22fMam/xO8vqqWiYMbv2uI3W1tA095X0DPsFSG1PvFYHPc3xHWAAAAAFiS0dEAIgFHUgA
-AAAHdElNRQfjBRAENCPauTE6AAAAzUlEQVQoz3VS2QKCMAwrN45zgIqCcub/f1HGNkFweWqTrevS
-EklYtuN6nuvYFu3hByEUwsDf+AtDFCdplqVJHIFdNJ9zFKVOygI8V+c5r/Z1K87XOz7DD78oYOKd
-AAUdUCBY+gyj8iiUUWiRjZhOiGGTg+QsJHDIRbpE16vm1iiFSx4ykd6+gogyeEo44L4IstQBopTx
-cdlu/Xg2gmmej1q1Kz/YcrzeXfd+gbfqg8qSfpDjGHptiTZxnGbG5mncTDTabh6UebTmZfi3Ph+6
-0BKhB3UIoQAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAxOS0wNS0xNVQyMDo1MjozNSswODowMJqoPpkA
-AAAldEVYdGRhdGU6bW9kaWZ5ADIwMTktMDUtMTVUMjA6NTI6MzUrMDg6MDDr9YYlAAAAAElFTkSu
-QmCC" />
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="14px" height="12px" viewBox="0 0 14 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect stroke="#B8BDC7" x="1.5" y="0.5" width="11" height="11" rx="5.5"></rect>
+        <circle fill="#B8BDC7" fill-rule="nonzero" cx="4.5" cy="5.5" r="1"></circle>
+        <circle fill="#B8BDC7" fill-rule="nonzero" cx="9.5" cy="5.5" r="1"></circle>
+        <path d="M9.23610651,8 C8.68678595,8.61374936 7.88849981,9 7,9 C6.11150019,9 5.31321405,8.61374936 4.76389349,8" id="路径" stroke="#B8BDC7" stroke-linecap="round" fill-rule="nonzero"></path>
+    </g>
 </svg>

@@ -7,30 +7,32 @@
         v-bind:style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <div class="content">
-        <video class="media" :src="message.mediaUrl" controls="controls" :style="video"></video>
-        <div class="bottom">
-          <span class="time">
-            {{message.lt}}
-            <ICSending
-              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
-              class="icon"
-            />
-            <ICSend
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-              class="icon"
-            />
-            <ICRead
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-              class="icon wait"
-            />
-            <ICRead
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-              class="icon"
-            />
-          </span>
+      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+        <div class="content">
+          <video class="media" :src="message.mediaUrl" controls="controls" :style="video"></video>
+          <div class="bottom">
+            <span class="time">
+              {{message.lt}}
+              <ICSending
+                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+                class="icon"
+              />
+              <ICSend
+                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+                class="icon"
+              />
+              <ICRead
+                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+                class="icon wait"
+              />
+              <ICRead
+                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+                class="icon"
+              />
+            </span>
+          </div>
         </div>
-      </div>
+      </BadgeItem>
     </div>
   </div>
 </template>
@@ -38,6 +40,7 @@
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
+import BadgeItem from './BadgeItem'
 import { MessageStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util.js'
@@ -46,7 +49,8 @@ export default {
   components: {
     ICSending,
     ICSend,
-    ICRead
+    ICRead,
+    BadgeItem
   },
   data: function() {
     return {
@@ -88,8 +92,8 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .username {
     display: inline-block;
     font-size: 0.85rem;
@@ -98,6 +102,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     margin-bottom: 0.2rem;
+    margin-left: 0.4rem;
   }
   .content {
     display: flex;

@@ -6,15 +6,28 @@
     <div v-if="!prev || !equalDay(message, prev)" class="time-divide">
       <span>{{getTimeDivide(message)}}</span>
     </div>
-    <ContactItem
-      v-if="message.type.endsWith('_CONTACT')"
+
+    <StickerItem
+      v-if="message.type.endsWith('_STICKER')"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
+      :coversation="conversation"
+      @handleMenuClick="handleMenuClick"
+      @user-click="$emit('user-click',message.userId)"
+    ></StickerItem>
+
+    <ContactItem
+      v-else-if="message.type.endsWith('_CONTACT')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
       @user-share-click="$emit('user-click',message.sharedUserId)"
       @user-click="$emit('user-click',message.userId)"
-      :coversation="conversation"
+      @handleMenuClick="handleMenuClick"
     ></ContactItem>
+
     <FileItem
       v-else-if="message.type.endsWith('_DATA')"
       :message="message"
@@ -23,15 +36,37 @@
       :coversation="conversation"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></FileItem>
+
+    <AudioItem
+      v-else-if="message.type.endsWith('_AUDIO')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></AudioItem>
+
+    <VideoItem
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      v-else-if="message.type.endsWith('_VIDEO')"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></VideoItem>
+
     <RecallItem
       v-else-if="message.type==='MESSAGE_RECALL'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-      @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></RecallItem>
     <AudioItem
       v-else-if="message.type.endsWith('_AUDIO')"
@@ -40,7 +75,9 @@
       :showName="this.showUserName()"
       :coversation="conversation"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></AudioItem>
+
     <VideoItem
       v-else-if="message.type.endsWith('_VIDEO')"
       :message="message"
@@ -48,72 +85,80 @@
       :showName="this.showUserName()"
       :coversation="conversation"
       @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
     ></VideoItem>
-    <StickerItem
-      v-else-if="message.type.endsWith('_STICKER')"
+
+    <ImageItem
+      v-else-if="message.type.endsWith('_IMAGE')"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
-    ></StickerItem>
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+      @preview="preview"
+      @mediaClick="mediaClick"
+    ></ImageItem>
+
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else v-bind:class="messageOwnership(message, me)">
-      <div class="bubble" v-bind:class="messageType(message)">
-        <div v-if="this.showUserName()">
-          <span
-            class="username"
-            v-bind:style="{color: getColor(message.userId)}"
-            @click="$emit('user-click',message.userId)"
-          >{{message.userFullName}}</span>
-        </div>
-        <ReplyMessageItem
-          v-if="message.quoteContent"
-          :message="JSON.parse(message.quoteContent)"
-          :me="me"
-          class="reply"
-        ></ReplyMessageItem>
-        <span v-if="messageType(message) === 'text'" class="text">
-          <span v-html="textMessage(message)"></span>
-        </span>
-        <div v-else-if="messageType(message) === 'sticker'">
-          <img v-bind:src="message.assetUrl">
-        </div>
-        <img
-          v-else-if="messageType(message) === 'image'"
-          v-bind:src="media(message)"
-          v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-          v-bind:class="borderSet(message)"
-          v-bind:style="borderSetObject(message)"
-          @click="preview"
-        >
+      <div v-if="this.showUserName()&&message.quoteContent">
         <span
-          v-else-if="messageType(message) === 'app_card'"
-          class="app_card"
-        >{{$t('chat.chat_app_card') }}</span>
-        <span
-          v-else-if="messageType(message) === 'app_button'"
-          class="app_button"
-        >{{$t('chat.chat_app_button') }}</span>
-        <span
-          v-else-if="messageType(message) === 'transfer'"
-          class="transfer"
-        >{{transferText(message)}}</span>
-        <span class="time-place"></span>
-        <span class="time">
-          {{message.lt}}
-          <ICSending
-            v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
-            class="icon"
-          />
-          <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
-          <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
-          <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
-        </span>
-        <spinner class="loading" v-if="messageType(message) === 'image' && loading"></spinner>
-        <AttachmentIcon class="loading" @mediaClick="mediaClick" :me="me" :message="message" v-else></AttachmentIcon>
+          class="username reply"
+          v-bind:style="{color: getColor(message.userId)}"
+          @click="$emit('user-click',message.userId)"
+        >{{message.userFullName}}</span>
       </div>
+      <BadgeItem
+        @handleMenuClick="handleMenuClick"
+        :type="message.type"
+        :send="message.userId === me.user_id"
+        :quote="message.quoteContent!==null"
+      >
+        <div class="bubble" v-bind:class="messageType(message)">
+          <div v-if="this.showUserName()&&!message.quoteContent">
+            <span
+              class="username"
+              v-bind:style="{color: getColor(message.userId)}"
+              @click="$emit('user-click',message.userId)"
+            >{{message.userFullName}}</span>
+          </div>
+          <ReplyMessageItem
+            v-if="message.quoteContent"
+            :message="JSON.parse(message.quoteContent)"
+            :me="me"
+            class="reply"
+          ></ReplyMessageItem>
+          <span v-if="messageType(message) === 'text'" class="text">
+            <span v-html="textMessage(message)"></span>
+          </span>
+          <span
+            v-else-if="messageType(message) === 'app_card'"
+            class="app_card"
+          >{{$t('chat.chat_app_card') }}</span>
+          <span
+            v-else-if="messageType(message) === 'app_button'"
+            class="app_button"
+          >{{$t('chat.chat_app_button') }}</span>
+          <span
+            v-else-if="messageType(message) === 'transfer'"
+            class="transfer"
+          >{{transferText(message)}}</span>
+          <span class="time-place"></span>
+          <span class="time">
+            {{message.lt}}
+            <ICSending
+              v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
+              class="icon"
+            />
+            <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
+            <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
+            <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
+          </span>
+        </div>
+      </BadgeItem>
     </div>
   </li>
 </template>
@@ -124,10 +169,11 @@ import {
   MessageStatus,
   SystemConversationAction,
   MessageCategories,
+  canReply,
+  canRecall,
   MediaStatus
 } from '@/utils/constants.js'
-import spinner from '@/components/Spinner.vue'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+
 import ICSending from '../assets/images/ic_status_clock.svg'
 import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
@@ -137,45 +183,41 @@ import ContactItem from './chat-item/ContactItem'
 import FileItem from './chat-item/FileItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
+import ImageItem from './chat-item/ImageItem'
 import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
+import BadgeItem from './chat-item/BadgeItem'
 
 import messageDao from '@/dao/message_dao.js'
 
-import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util.js'
 import URI from 'urijs'
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread'],
   components: {
-    spinner,
     ICSending,
     ICSend,
     ICRead,
-    AttachmentIcon,
     ReplyMessageItem,
     ContactItem,
     FileItem,
     AudioItem,
     VideoItem,
+    ImageItem,
     StickerItem,
-    RecallItem
+    RecallItem,
+    BadgeItem
   },
   data: function() {
     return {
       ConversationCategory: ConversationCategory,
       MessageStatus: MessageStatus,
-      MessageCategories: MessageCategories
+      MessageCategories: MessageCategories,
+      fouse: false,
+      show: false,
+      menus: this.$t('menu.chat_operation')
     }
-  },
-  computed: {
-    loading: function() {
-      return this.attachment.includes(this.message.messageId)
-    },
-    ...mapGetters({
-      attachment: 'attachment'
-    })
   },
   methods: {
     mediaClick() {
@@ -246,6 +288,14 @@ export default {
         return 'image'
       } else if (type.endsWith('_TEXT')) {
         return 'text'
+      } else if (type.endsWith('_VIDEO')) {
+        return 'video'
+      } else if (type.endsWith('_AUDIO')) {
+        return 'audio'
+      } else if (type.endsWith('_DATA')) {
+        return 'file'
+      } else if (type.endsWith('_CONTACT')) {
+        return 'contact'
       } else if (type.startsWith('APP_')) {
         if (type === 'APP_CARD') {
           return 'app_card'
@@ -275,30 +325,7 @@ export default {
       })
       return result
     },
-    borderSet: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return 'width-set'
-      }
-      if (3 * message.mediaWidth < message.mediaHeight) {
-        return 'width-set'
-      }
-      return 'height-set'
-    },
-    media: message => {
-      if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
-        return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
-      }
-      return message.mediaUrl
-    },
-    borderSetObject: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return { width: message.mediaWidth + 'px' }
-      }
-      if (3 * message.mediaWidth < message.mediaHeight) {
-        return { width: message.mediaWidth + 'px' }
-      }
-      return { height: message.mediaHeight + 'px' }
-    },
+
     getInfo(message, me) {
       const id = me.user_id
       if (SystemConversationAction.CREATE === message.actionName) {
@@ -352,6 +379,86 @@ export default {
     },
     getColor: function(id) {
       return getNameColorById(id)
+    },
+    enter() {
+      this.show = true
+    },
+    leave() {
+      this.show = false
+    },
+    onFocus() {
+      this.fouse = true
+    },
+    onBlur() {
+      this.fouse = false
+    },
+    handleMenuClick() {
+      let menu = this.$t('menu.chat_operation')
+      let messageMenu = []
+      if (canReply(this.message.type)) {
+        messageMenu.push(menu[0])
+      }
+      messageMenu.push(menu[2])
+      if (canRecall(this.message, this.me.user_id)) {
+        messageMenu.push(menu[3])
+      }
+      const dwidth = document.body.clientWidth
+      const dheihgt = document.body.clientHeight
+      let x = dwidth - event.clientX < 250 ? event.clientX - 180 : event.clientX - 20
+      let y = dheihgt - event.clientY < 200 ? event.clientY - messageMenu.length * 42 - 24 : event.clientY + 8
+      this.$Menu.alert(x, y, messageMenu, index => {
+        const option = messageMenu[index]
+        switch (Object.keys(menu).find(key => menu[key] === option)) {
+          case '0':
+            this.handleReply()
+            break
+          case '1':
+            this.handleForward()
+            break
+          case '2':
+            this.handleRemove()
+            break
+          case '3':
+            this.handleRecall()
+            break
+          default:
+            break
+        }
+      })
+    },
+    handleReply() {
+      this.$emit('handle-item-click', {
+        type: 'Reply',
+        message: this.message
+      })
+    },
+    handleForward() {
+      this.$emit('handle-item-click', {
+        type: 'Forward',
+        message: this.message
+      })
+    },
+    handleRemove() {
+      let { message } = this
+      this.$Dialog.alert(
+        this.$t('confirm_remove'),
+        this.$t('ok'),
+        () => {
+          this.$emit('handle-item-click', {
+            type: 'Remove',
+            message: message
+          })
+        },
+        this.$t('cancel'),
+        () => {}
+      )
+    },
+    handleRecall() {
+      this.$emit('handle-item-click', {
+        type: 'Recall',
+        message: this.message,
+        owner: this.message
+      })
     }
   }
 }
@@ -395,6 +502,9 @@ li {
   white-space: nowrap;
   margin-bottom: 0.2rem;
   cursor: pointer;
+  &.reply {
+    margin-left: 0.8rem;
+  }
 }
 .system {
   text-align: center;
@@ -428,54 +538,7 @@ li {
     padding: 0.4rem 0.6rem;
     white-space: pre-line;
   }
-  &.sticker,
-  &.image {
-    .time-place {
-      display: none;
-    }
-  }
-  &.sticker {
-    margin-left: 0.8rem;
-    margin-right: 0.8rem;
-    position: inherit;
-    display: inline-block;
-    max-width: 6rem;
-    img {
-      max-height: 6rem;
-    }
-    .time {
-      position: inherit;
-    }
-  }
-  &.image {
-    max-width: 10rem;
-    max-height: 15rem;
-    margin-left: 0.8rem;
-    margin-right: 0.8rem;
-    border-radius: 0.2rem;
-    overflow: hidden;
-    position: relative;
-    .time {
-      width: 100%;
-      box-sizing: border-box;
-      display: block;
-      text-align: right;
-      background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.6) 100%);
-      bottom: 0;
-      right: 0;
-      color: white;
-      padding: 1rem 0.3rem 0.2rem 1rem;
-    }
-    .loading {
-      width: 32px;
-      height: 32px;
-      left: 50%;
-      top: 50%;
-      position: absolute;
-      transform: translate(-50%, -50%);
-      z-index: 3;
-    }
-  }
+
   .width-set {
     max-width: 10rem;
   }
@@ -567,11 +630,6 @@ li {
       background: #fbdda7;
       &:after {
         border-left: 0.6rem solid #fbdda7;
-      }
-    }
-    &.image {
-      .icon {
-        float: right;
       }
     }
   }

@@ -5,6 +5,7 @@ let transactions = {
     ok: 'OK',
     cancel: 'Cancel',
     continue: 'Continue',
+    confirm_remove: 'Are you sure that remove?',
     encryption: 'Messages to this conversation are encrypted end-to-end.',
     time_wrong: 'System time is unusual, please continue to use again after correction',
     signal_no_title: 'Phone not connected',
@@ -33,7 +34,13 @@ let transactions = {
         3: 'Mute',
         4: 'Cancel Mute'
       },
-      personal: ['New Group', 'Profile', 'Setting', 'Logout']
+      personal: ['New Group', 'Profile', 'Setting', 'Logout'],
+      chat_operation: {
+        0: 'Reply',
+        1: 'Forward',
+        2: 'Delete',
+        3: 'Recall'
+      }
     },
     home: {
       input: 'Say something ...',
@@ -86,7 +93,8 @@ let transactions = {
       chat_recall_me: 'You deleted this message',
       chat_file_invalid_size: 'Requires file size less than 30MB',
       chat_chats: 'Chats',
-      preview: 'Preview'
+      preview: 'Preview',
+      sendMessage: 'Send'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -119,6 +127,7 @@ let transactions = {
     ok: '确定',
     cancel: '取消',
     continue: '继续',
+    confirm_remove: '是否确认删除',
     encryption: '此对话中的消息使用端对端加密。',
     time_wrong: '检测到系统时间异常，请校正后再继续使用',
     signal_no_title: '手机未连接',
@@ -147,7 +156,13 @@ let transactions = {
         3: '静音',
         4: '取消静音'
       },
-      personal: ['新建群组', '个人信息', '设置', '登出']
+      personal: ['新建群组', '个人信息', '设置', '登出'],
+      chat_operation: {
+        0: '回复',
+        1: '转发',
+        2: '删除',
+        3: '撤回'
+      }
     },
     home: {
       input: '内容输入 ...',
@@ -200,7 +215,8 @@ let transactions = {
       chat_recall_me: '你撤回了一条消息',
       chat_file_invalid_size: '不支持大于30MB的文件',
       chat_chats: '会话',
-      preview: '预览'
+      preview: '预览',
+      sendMessage: '发送'
     },
     loading: {
       initializing: '初始化中...'

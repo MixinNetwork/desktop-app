@@ -1,5 +1,5 @@
 <template>
-  <div class="message" :style="abg">
+  <div class="message">
     <div class="diver" :style="bg"></div>
     <div class="layout">
       <span class="name" :style="font">{{message.userFullName}}</span>
@@ -43,10 +43,14 @@
       v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       v-bind:src="message.sharedUserAvatarUrl"
     >
+    <span class="icon-close" @click="$emit('hidenReplyBox')">
+      <ICCose/>
+    </span>
   </div>
 </template>
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
+import ICCose from '@/assets/images/ic_close.svg'
 import { getNameColorById } from '@/utils/util.js'
 import ICMessageAudio from '@/assets/images/ic_message_audio.svg'
 import ICMessagePhoto from '@/assets/images/ic_message_photo.svg'
@@ -68,17 +72,15 @@ export default {
     ICMessageFile,
     ICMessageContact,
     ICMessageTransfer,
-    ICMessageBotMenu
+    ICMessageBotMenu,
+    ICCose
   },
   computed: {
     bg: function() {
       let color = getNameColorById(this.message.userId)
       return { background: color }
     },
-    abg: function() {
-      let color = getNameColorById(this.message.userId)
-      return { background: color + '0D' }
-    },
+
     font: function() {
       let color = getNameColorById(this.message.userId)
       return { color: color }
@@ -178,11 +180,10 @@ export default {
 </script>
 <style lang="scss" scoped>
 .message {
-  border-radius: 0.2rem;
   overflow: hidden;
-  margin-bottom: 3px;
   display: flex;
   flex-direction: row;
+  background: white;
   justify-content: flex-start;
   .diver {
     width: 0.4rem;
@@ -195,17 +196,17 @@ export default {
     flex-direction: column;
 
     .name {
-      font-size: 0.7rem;
+      font-size: 1rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .content {
+      font-size: 1rem;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
       color: #9b9b9b;
-      font-size: 0.8rem;
     }
   }
   .image {
@@ -213,6 +214,9 @@ export default {
     height: 40px;
     margin-left: 0.4rem;
     object-fit: cover;
+  }
+  .icon-close {
+    align-self: center;
   }
   .replay_icon {
     height: 14px;

@@ -38,6 +38,7 @@
         v-bind:conversation="conversation"
         v-bind:me="me"
         @user-click="onUserClick"
+        @handle-item-click="handleItemClick"
       />
     </ul>
     <transition name="fade">
@@ -45,6 +46,12 @@
         <ICChevronDown></ICChevronDown>
       </div>
     </transition>
+    <ReplyMessageContainer
+      v-if="boxMessage"
+      :message="boxMessage"
+      class="reply"
+      @hidenReplyBox="hidenReplyBox"
+    ></ReplyMessageContainer>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
@@ -113,6 +120,7 @@ import ICSend from '../assets/images/ic_send.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
+import ReplyMessageContainer from '@/components/ReplyMessageContainer'
 export default {
   name: 'ChatContainer',
   data() {
@@ -128,7 +136,9 @@ export default {
       dragging: false,
       file: null,
       messages: [],
-      isBottom: true
+      isBottom: true,
+      boxMessage: null,
+      forwardList: false
     }
   },
   watch: {
@@ -200,7 +210,8 @@ export default {
     InfiniteLoading,
     ICBot,
     ICChevronDown,
-    ICSend
+    ICSend,
+    ReplyMessageContainer
   },
   computed: {
     ...mapGetters({
@@ -467,10 +478,58 @@ export default {
         status: status
       }
       this.isBottom = true
-
-      this.$store.dispatch('sendMessage', {
-        msg: message
+      let msg = {}
+      if (this.boxMessage) {
+        msg.quoteId = this.boxMessage.messageId
+        this.boxMessage = null
+      }
+      msg.msg = message
+      this.$store.dispatch('sendMessage', msg)
+    },
+    handleItemClick({ type, message }) {
+      switch (type) {
+        case 'Reply':
+          this.handleReply(message)
+          break
+        case 'Forward':
+          this.handleForward(message)
+          break
+        case 'Remove':
+          this.handleRemove(message)
+          break
+        case 'Recall':
+          this.handleRecall(message)
+          break
+        default:
+          break
+      }
+    },
+    handleReply(message) {
+      this.boxMessage = message
+    },
+    handleForward(message) {
+      this.forwardList = true
+    },
+    handleRemove(message) {
+      this.$store.dispatch('deleteMessages', {
+        messageIds: [message.messageId],
+        conversationId: message.conversationId
       })
+    },
+    handleRecall(message) {
+      this.$store.dispatch('recallMessage', {
+        messageId: message.messageId,
+        conversationId: message.conversationId
+      })
+    },
+    hidenReplyBox() {
+      this.boxMessage = null
+    },
+    handleHideMessageForward(el) {
+      this.forwardList = false
+    },
+    handleShowMessageForward() {
+      this.forwardList = true
     }
   }
 }
@@ -587,6 +646,9 @@ export default {
       padding: 0 0.6rem;
     }
   }
+  .reply_box {
+    position: relative;
+  }
   .empty {
     width: 100%;
     height: 100%;
@@ -638,6 +700,15 @@ export default {
     border-left: 1px solid $border-color;
     z-index: 10;
   }
+  .overlay-reply {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 100%;
+    border-left: 1px solid $border-color;
+    z-index: 10;
+  }
 
   .media {
     position: absolute;
@@ -648,10 +719,12 @@ export default {
     pointer-events: none;
   }
 
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity .5s;
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s;
   }
-  .fade-enter, .fade-leave-to  {
+  .fade-enter,
+  .fade-leave-to {
     opacity: 0;
   }
   .slide-right-enter-active,

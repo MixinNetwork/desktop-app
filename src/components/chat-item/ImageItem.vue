@@ -9,7 +9,22 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <audio class="media" :src="message.mediaUrl" controls="controls">不支持</audio>
+          <img
+            class="image"
+            v-bind:src="media(message)"
+            v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+            v-bind:class="[borderSet(message),123]"
+            v-bind:style="borderSetObject(message)"
+            @click="$emit('preview')"
+          >
+          <spinner class="loading" v-if="loading"></spinner>
+          <AttachmentIcon
+            v-else
+            class="loading"
+            :me="me"
+            :message="message"
+            @mediaClick="$emit('mediaClick')"
+          ></AttachmentIcon>
           <div class="bottom">
             <span class="time">
               {{message.lt}}
@@ -37,6 +52,8 @@
   </div>
 </template>
 <script>
+import spinner from '@/components/Spinner.vue'
+import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
@@ -50,7 +67,9 @@ export default {
     ICSending,
     ICSend,
     ICRead,
-    BadgeItem
+    BadgeItem,
+    spinner,
+    AttachmentIcon
   },
   data: function() {
     return {
@@ -67,6 +86,31 @@ export default {
     },
     getColor: function(id) {
       return getNameColorById(id)
+    },
+    media: message => {
+      if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
+        return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
+      }
+      return message.mediaUrl
+    },
+    borderSet: message => {
+      if (1.5 * message.mediaWidth > message.mediaHeight) {
+        return 'width-set'
+      }
+      if (3 * message.mediaWidth < message.mediaHeight) {
+        return 'width-set'
+      }
+      return 'height-set'
+    },
+
+    borderSetObject: message => {
+      if (1.5 * message.mediaWidth > message.mediaHeight) {
+        return { width: message.mediaWidth + 'px' }
+      }
+      if (3 * message.mediaWidth < message.mediaHeight) {
+        return { width: message.mediaWidth + 'px' }
+      }
+      return { height: message.mediaHeight + 'px' }
     }
   },
   computed: {
@@ -82,13 +126,11 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
   .username {
-    margin-left: 0.4rem;
     display: inline-block;
     font-size: 0.85rem;
-    max-width: 100%;
+    max-width: 80%;
+    margin-left: 0.8rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -97,21 +139,32 @@ export default {
   .content {
     display: flex;
     flex: 1;
+    position: relative;
     flex-direction: column;
     text-align: start;
     overflow: hidden;
-    .media {
-      width: 280px;
+    .loading {
+      width: 32px;
+      height: 32px;
+      left: 50%;
+      top: 50%;
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 3;
     }
-    .name {
-      font-size: 1rem;
+    .image {
+      max-width: 10rem;
+      max-height: 15rem;
+      margin-left: 0.8rem;
+      margin-right: 0.8rem;
+      border-radius: 0.2rem;
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      position: relative;
     }
     .bottom {
       display: flex;
       justify-content: flex-end;
+      margin-right: 0.8rem;
       .time {
         color: #8799a5;
         display: flex;

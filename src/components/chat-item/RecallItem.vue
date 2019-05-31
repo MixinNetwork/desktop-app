@@ -1,28 +1,36 @@
 <template>
   <div class="layout" v-bind:class="messageOwnership()">
-    <div class="bubble">
-      <span
-        class="username"
-        v-if="showName"
-        v-bind:style="{color: getColor(message.userId)}"
-        @click="$emit('user-click')"
-      >{{message.userFullName}}</span>
-      <div class="recall">
-        <ICRecall></ICRecall>
-        <I class="text">{{getContent}}</I>
-        <span class="time-place"></span>
-        <span class="time">{{message.lt}}</span>
+    <BadgeItem
+      @handleMenuClick="$emit('handleMenuClick')"
+      :type="message.type"
+      :send="message.userId === me.user_id"
+    >
+      <div class="bubble">
+        <span
+          class="username"
+          v-if="showName"
+          v-bind:style="{color: getColor(message.userId)}"
+          @click="$emit('user-click')"
+        >{{message.userFullName}}</span>
+        <div class="recall">
+          <ICRecall></ICRecall>
+          <I class="text">{{getContent}}</I>
+          <span class="time-place"></span>
+          <span class="time">{{message.lt}}</span>
+        </div>
       </div>
-    </div>
+    </BadgeItem>
   </div>
 </template>
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
+import BadgeItem from './BadgeItem'
 import { getNameColorById } from '@/utils/util.js'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICRecall
+    ICRecall,
+    BadgeItem
   },
   computed: {
     getContent: function() {
@@ -77,9 +85,10 @@ export default {
   .time-place {
     float: right;
     margin-left: 0.6rem;
-    width: 4.5rem;
+    width: 2rem;
     height: 1rem;
   }
+
   .time {
     color: #8799a5;
     display: flex;
@@ -114,9 +123,6 @@ export default {
   .bubble {
     background: white;
     margin-left: 0.8rem;
-    .time-place {
-      width: 3rem;
-    }
     &:after {
       content: '';
       border-top: 0.4rem solid transparent;

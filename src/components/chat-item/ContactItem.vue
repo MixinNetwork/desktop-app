@@ -7,34 +7,36 @@
         v-bind:style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <div class="contact" @click="$emit('user-share-click')">
-        <Avatar id="avatar" :user="user"/>
-        <div class="content">
-          <span class="name">{{message.sharedUserFullName}}</span>
-          <div class="bottom">
-            <span class="number">{{message.sharedUserIdentityNumber}}</span>
-            <span class="time">
-              {{message.lt}}
-              <ICSending
-                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
-                class="icon"
-              />
-              <ICSend
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                class="icon"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                class="icon"
-              />
-            </span>
+      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+        <div class="contact" @click="$emit('user-share-click')">
+          <Avatar id="avatar" :user="user"/>
+          <div class="content">
+            <span class="name">{{message.sharedUserFullName}}</span>
+            <div class="bottom">
+              <span class="number">{{message.sharedUserIdentityNumber}}</span>
+              <span class="time">
+                {{message.lt}}
+                <ICSending
+                  v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+                  class="icon"
+                />
+                <ICSend
+                  v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+                  class="icon"
+                />
+                <ICRead
+                  v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+                  class="icon wait"
+                />
+                <ICRead
+                  v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+                  class="icon"
+                />
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </BadgeItem>
     </div>
   </div>
 </template>
@@ -44,6 +46,8 @@ import userDao from '@/dao/user_dao.js'
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
+import BadgeItem from './BadgeItem'
+
 import { MessageStatus } from '@/utils/constants.js'
 import { getNameColorById } from '@/utils/util.js'
 export default {
@@ -52,7 +56,8 @@ export default {
     Avatar,
     ICSending,
     ICSend,
-    ICRead
+    ICRead,
+    BadgeItem
   },
   data: function() {
     return {
@@ -80,9 +85,10 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  padding-left: 0.8rem;
-  padding-right: 0.8rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .username {
+    margin-left: 0.4rem;
     display: inline-block;
     font-size: 0.85rem;
     max-width: 100%;

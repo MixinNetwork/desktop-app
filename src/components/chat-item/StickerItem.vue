@@ -83,6 +83,7 @@ export default {
       overflow: hidden;
       white-space: nowrap;
       margin-bottom: 0.2rem;
+      margin-left: 0.8rem;
     }
     img {
       max-height: 6rem;

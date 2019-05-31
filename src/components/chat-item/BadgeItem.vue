@@ -38,16 +38,16 @@ export default {
             style.width = '100px'
             style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
           } else {
-            style.width = '48px'
-            style.background = '#c5edff'
+            style.width = '56px'
+            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(197, 237, 255, 1) 50%,rgba(197, 237, 255, 1) 100%`
           }
         } else {
           if (this.quote) {
             style.width = '100px'
             style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
           } else {
-            style.width = '48px'
-            style.background = 'white'
+            style.width = '40px'
+            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(255, 255, 255, 1)  50%,rgba(255, 255, 255, 1) 100%`
           }
         }
       } else if (this.type.endsWith('_IMAGE')) {

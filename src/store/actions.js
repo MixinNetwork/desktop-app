@@ -436,7 +436,6 @@ export default {
       message => {
         downloadAttachment(message)
           .then(([message, filePath]) => {
-            console.log(message)
             messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
             commit('stopLoading', message.message_id)
             commit('refreshMessage', message.conversation_id)

@@ -91,14 +91,6 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
-    <transition name="slide-right">
-      <MessageReply
-        class="overlay-reply"
-        v-if="forwardList"
-        @show="handleShowMessageForward"
-        @close="handleHideMessageForward"
-      ></MessageReply>
-    </transition>
   </main>
 </template>
 
@@ -128,7 +120,6 @@ import ICSend from '../assets/images/ic_send.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
-import MessageReply from '@/components/MessageReply.vue'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
 export default {
   name: 'ChatContainer',
@@ -146,7 +137,6 @@ export default {
       file: null,
       messages: [],
       isBottom: true,
-      // 回复弹出
       boxMessage: null,
       forwardList: false
     }
@@ -221,7 +211,6 @@ export default {
     ICBot,
     ICChevronDown,
     ICSend,
-    MessageReply,
     ReplyMessageContainer
   },
   computed: {
@@ -491,7 +480,6 @@ export default {
       this.isBottom = true
       let msg = {}
       if (this.boxMessage) {
-        console.log(this.boxMessage)
         msg.quoteId = this.boxMessage.messageId
         this.boxMessage = null
       }
@@ -516,12 +504,9 @@ export default {
           break
       }
     },
-    // 回复
     handleReply(message) {
-      console.log(message)
       this.boxMessage = message
     },
-    // 转发
     handleForward(message) {
       this.forwardList = true
     },
@@ -531,24 +516,18 @@ export default {
         conversationId: message.conversationId
       })
     },
-    // 撤回
     handleRecall(message) {
       this.$store.dispatch('recallMessage', {
         messageId: message.messageId,
         conversationId: message.conversationId
       })
     },
-
-    // 取消回复
     hidenReplyBox() {
       this.boxMessage = null
     },
-    // 隐藏转发列表
     handleHideMessageForward(el) {
-      console.log(el)
       this.forwardList = false
     },
-    // 显示转发列表
     handleShowMessageForward() {
       this.forwardList = true
     }

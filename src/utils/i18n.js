@@ -39,7 +39,7 @@ let transactions = {
         0: 'Reply',
         1: 'Forward',
         2: 'Delete',
-        3: 'Withdraw'
+        3: 'Recall'
       }
     },
     home: {

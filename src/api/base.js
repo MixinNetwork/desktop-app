@@ -18,6 +18,7 @@ axiosApi.interceptors.request.use(
     const url = new Url(config.url)
     const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
     config.headers.common['Authorization'] = 'Bearer ' + token
+    config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage
     return config
   },
   error => {

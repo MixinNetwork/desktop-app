@@ -680,7 +680,7 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@fortawesome/fontawesome-common-types@^0.2.18", "@fortawesome/fontawesome-common-types@^0.2.19":
+"@fortawesome/fontawesome-common-types@^0.2.19":
   version "0.2.19"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.19.tgz#754a0f85e1290858152e1c05700ab502b11197f1"
   integrity sha512-nd2Ul/CUs8U9sjofQYAALzOGpgkVJQgEhIJnOHaoyVR/LeC3x2mVg4eB910a4kS6WgLPebAY0M2fApEI497raQ==
@@ -3970,7 +3970,6 @@ electron-download@^4.1.0:
 
 "electron-icon-builder@https://github.com/safu9/electron-icon-builder.git#master":
   version "1.0.0"
-  uid bbf79c36d0ee396ce33f00a115af339705363814
   resolved "https://github.com/safu9/electron-icon-builder.git#bbf79c36d0ee396ce33f00a115af339705363814"
   dependencies:
     args "^5.0.0"

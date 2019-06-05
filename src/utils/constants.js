@@ -127,7 +127,12 @@ export function canRecall(message, userId) {
   if (offset > 3600000) {
     return false
   }
-  return message.userId === userId && canReply(message.type) && message.status !== MessageStatus.SENDING
+  return (
+    message.userId === userId &&
+    canReply(message.type) &&
+    message.status !== MessageStatus.SENDING &&
+    message.status !== MessageStatus.PENDING
+  )
 }
 
 export const MessageCategories = {

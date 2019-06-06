@@ -12,60 +12,57 @@ import conversationAPI from '@/api/conversation.js'
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()
 
-export function downloadAttachment(message) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await attachmentApi.getAttachment(message.content)
-      if (response.data.data) {
-        var dir
-        if (message.category.endsWith('_IMAGE')) {
-          dir = getImagePath()
-        } else if (message.category.endsWith('_VIDEO')) {
-          dir = getVideoPath()
-        } else if (message.category.endsWith('_DATA')) {
-          dir = getDocumentPath()
-        } else if (message.category.endsWith('_AUDIO')) {
-          dir = getAudioPath()
-        } else {
-          return
+export async function downloadAttachment(message) {
+  try {
+    const response = await attachmentApi.getAttachment(message.content)
+    if (response.data.data) {
+      var dir
+      if (message.category.endsWith('_IMAGE')) {
+        dir = getImagePath()
+      } else if (message.category.endsWith('_VIDEO')) {
+        dir = getVideoPath()
+      } else if (message.category.endsWith('_DATA')) {
+        dir = getDocumentPath()
+      } else if (message.category.endsWith('_AUDIO')) {
+        dir = getAudioPath()
+      } else {
+        return null
+      }
+      if (message.category.startsWith('SIGNAL_')) {
+        const data = await getAttachment(response.data.data.view_url)
+        const m = message
+        const mediaKey = base64ToUint8Array(m.media_key).buffer
+        const mediaDigest = base64ToUint8Array(m.media_digest).buffer
+        const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
+        const name = generateName(m.name, m.media_mime_type, m.category)
+        const filePath = path.join(dir, name)
+        fs.writeFileSync(filePath, Buffer.from(resp))
+
+        try {
+          let { buffer } = await jo.rotate(filePath, {})
+          fs.writeFileSync(filePath, buffer)
+          return [m, filePath]
+        } catch (e) {
+          return [m, filePath]
         }
-        if (message.category.startsWith('SIGNAL_')) {
-          const data = await getAttachment(response.data.data.view_url)
-          const m = message
-          const mediaKey = base64ToUint8Array(m.media_key).buffer
-          const mediaDigest = base64ToUint8Array(m.media_digest).buffer
-          const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
-          const name = generateName(m.name, m.media_mime_type, m.category)
-          const filePath = path.join(dir, name)
-          fs.writeFileSync(filePath, Buffer.from(resp))
-          jo.rotate(filePath, {})
-            .then(({ buffer }) => {
-              fs.writeFileSync(filePath, buffer)
-              resolve([m, filePath])
-            })
-            .catch(_ => {
-              resolve([m, filePath])
-            })
-        } else {
-          const data = await getAttachment(response.data.data.view_url)
-          const m = message
-          const name = generateName(m.name, m.media_mime_type, m.category)
-          const filePath = path.join(dir, name)
-          fs.writeFileSync(filePath, Buffer.from(data))
-          jo.rotate(filePath, {})
-            .then(({ buffer }) => {
-              fs.writeFileSync(filePath, buffer)
-              resolve([m, filePath])
-            })
-            .catch(_ => {
-              resolve([m, filePath])
-            })
+      } else {
+        const data = await getAttachment(response.data.data.view_url)
+        const m = message
+        const name = generateName(m.name, m.media_mime_type, m.category)
+        const filePath = path.join(dir, name)
+        fs.writeFileSync(filePath, Buffer.from(data))
+        try {
+          let { buffer } = await jo.rotate(filePath, {})
+          fs.writeFileSync(filePath, buffer)
+          return [m, filePath]
+        } catch (e) {
+          return [m, filePath]
         }
       }
-    } catch (e) {
-      reject(e)
     }
-  })
+  } catch (e) {
+    return null
+  }
 }
 
 function processAttachment(imagePath, mimeType, category) {

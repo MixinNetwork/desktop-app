@@ -6198,10 +6198,10 @@ jimp@^0.6.0:
     "@jimp/types" "^0.6.4"
     core-js "^2.5.7"
 
-jpeg-autorotate@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/jpeg-autorotate/-/jpeg-autorotate-5.0.0.tgz#782f05ab0c24ad89d94e7da433695700ed4b7232"
-  integrity sha512-bJTx2nwjwsrSg+UciyjjWre1+a1/TUJz6f7DtcLauSSQYO48l+gCWhEdCdh3Ysuqr6yzr6q+JziJudozNyBeWw==
+jpeg-autorotate@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/jpeg-autorotate/-/jpeg-autorotate-5.0.1.tgz#4280d5b5dd520838e060e816554c62c2342e19f0"
+  integrity sha512-e1k0+7+sEcdgfRbdviTslWbMFRcJzGk0rps0j8cO2JnFOOYwO6+8l5yTaCdFQBrCq/j4Zojce+wTbpy5z/Tx6A==
   dependencies:
     colors "^1.3.3"
     glob "^7.1.2"

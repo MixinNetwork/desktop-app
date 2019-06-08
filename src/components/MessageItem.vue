@@ -261,7 +261,7 @@ export default {
     preview() {
       if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
         let position = 0
-        let local = messageDao.findImages(this.conversation.conversationId)
+        let local = messageDao.findImages(this.conversation.conversationId, this.message.messageId)
         let images = local.map((item, index) => {
           if (item.message_id === this.message.messageId) {
             position = index

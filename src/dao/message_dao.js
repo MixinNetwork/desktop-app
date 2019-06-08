@@ -123,18 +123,18 @@ class MessageDao {
 
   recallMessage(messageId) {
     db.prepare(
-      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
-    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
-    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
+      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,
+    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,
+    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,
     album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`
     ).run(messageId)
   }
 
   recallMessageAndSend(messageId) {
     db.prepare(
-      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,  
-    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,  
-    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,  
+      `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,
+    media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,
+    media_digest = NUll, media_status = NULL, action = NULL, participant_id = NULL, snapshot_id = NULL, hyperlink = NULL, name = NULL,
     album_id = NULL, sticker_id = NULL, shared_user_id = NULL, media_waveform = NULL, quote_message_id = NULL, quote_content = NULL WHERE message_id = ?`
     ).run(messageId)
   }
@@ -182,7 +182,7 @@ class MessageDao {
   findImages(conversationId) {
     return db
       .prepare(
-        `SELECT  m.message_id, m.media_url FROM messages m WHERE m.conversation_id = ? and (m.category = 'SIGNAL_IMAGE' OR m.category = 'PLAIN_IMAGE') AND m.media_status = 'DONE' ORDER BY m.created_at ASC`
+        `SELECT  m.message_id, m.media_url FROM messages m WHERE m.conversation_id = ? and (m.category = 'SIGNAL_IMAGE' OR m.category = 'PLAIN_IMAGE') AND m.media_status = 'DONE' ORDER BY m.created_at ASC LIMIT 20`
       )
       .all(conversationId)
   }

@@ -130,3 +130,7 @@ export function getAvatarColorById(id) {
 export function getNameColorById(id) {
   return NameColors[Math.abs(signalProtocol.convertToDeviceId(id)) % NameColors.length]
 }
+
+export function convertRemToPixels(rem) {
+  return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
+}

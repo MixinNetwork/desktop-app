@@ -9,14 +9,15 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <img
-            class="image"
-            v-bind:src="media(message)"
-            v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-            v-bind:class="[borderSet(message),123]"
-            v-bind:style="borderSetObject(message)"
-            @click="$emit('preview')"
-          >
+          <div class="set" v-bind:style="borderSet(message)">
+            <img
+              class="image"
+              v-bind:src="media(message)"
+              v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+              v-bind:style="borderSetObject(message)"
+              @click="$emit('preview')"
+            >
+          </div>
           <spinner class="loading" v-if="loading"></spinner>
           <AttachmentIcon
             v-else
@@ -60,7 +61,9 @@ import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
 import { MessageStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById, convertRemToPixels } from '@/utils/util.js'
+let maxWidth = convertRemToPixels(10)
+let maxHeight = convertRemToPixels(15)
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
@@ -105,12 +108,12 @@ export default {
 
     borderSetObject: message => {
       if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return { width: message.mediaWidth + 'px' }
+        return { width: Math.min(message.mediaWidth, maxWidth) + 'px' }
       }
       if (3 * message.mediaWidth < message.mediaHeight) {
-        return { width: message.mediaWidth + 'px' }
+        return { width: Math.min(message.mediaWidth, maxWidth) + 'px' }
       }
-      return { height: message.mediaHeight + 'px' }
+      return { height: Math.min(message.mediaHeight, maxHeight) + 'px' }
     }
   },
   computed: {
@@ -152,7 +155,7 @@ export default {
       transform: translate(-50%, -50%);
       z-index: 3;
     }
-    .image {
+    .set {
       max-width: 10rem;
       max-height: 15rem;
       margin-left: 0.8rem;

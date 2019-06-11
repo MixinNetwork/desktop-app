@@ -5,11 +5,12 @@
         <ICClose></ICClose>
       </div>
       <div class="image-viewer-content" v-if="images.length">
-        <div class="scorll">
+        <div class="scorll" :style="scorllStyle">
           <img
             :src="images[index].url"
             :alt="images[index].name?images[index].name:''"
             :style="imgSize"
+            @dblclick="zoom"
             v-show="imgVisible"
           >
         </div>
@@ -54,7 +55,9 @@ export default {
       imgVisible: false,
       imgSize: {},
       index: 0,
-      images: []
+      images: [],
+      scale: 1,
+      scrollStyle: {}
     }
   },
   watch: {
@@ -62,13 +65,16 @@ export default {
       if (this.images.length) {
         if (val) document.body.style.overflow = 'hidden'
         else document.body.style.overflow = ''
-        this.imgStyle(0)
+        this.scale = 1
+        this.imgStyle(this.index)
       } else {
         this.visible = false
       }
     },
     index(value) {
       this.imgVisible = false
+      this.index = value
+      this.scale = 1
       this.imgStyle(value)
       this.$nextTick(() => {
         const _img = document.querySelector('.image-viewer-content > div > img')
@@ -96,16 +102,50 @@ export default {
         this.index = action <= 0 ? 0 : action >= length ? length : action
       }
     },
-    imgStyle(position) {
-      let { images, config } = this
-      let item = images[position]
+    imgStyle() {
+      let { images, config, index, scale } = this
+      let item = images[index]
       let imgMaxWidth = config.imgMaxWidth
-      if (item.width > imgMaxWidth) {
-        this.imgSize = { width: imgMaxWidth + 'px', height: (imgMaxWidth / item.width) * item.height + 'px' }
+      let imgMaxHeight = config.imgMaxHeight
+      let size = {}
+      let ratio = item.width / item.height
+      if (ratio > 1) {
+        if (item.width > imgMaxWidth) {
+          size.width = imgMaxWidth
+          size.height = imgMaxWidth / ratio
+        } else {
+          size.width = item.width
+          size.height = item.height
+        }
       } else {
-        this.imgSize = { width: item.width + 'px', height: item.height + 'px' }
+        if (item.width > imgMaxWidth / 3) {
+          size.width = imgMaxWidth / 3
+          size.height = (imgMaxWidth / 3 / item.width) * item.height
+        } else {
+          size.width = item.width
+          size.height = item.height
+        }
+      }
+      this.imgSize = {
+        width: size.width * scale + 'px',
+        height: size.height * scale + 'px'
+      }
+      if (size.height < imgMaxHeight) {
+        this.scorllStyle = { 'align-items': 'center' }
+      } else {
+        this.scorllStyle = {}
       }
       this.imgVisible = true
+    },
+    zoom() {
+      if (this.scale === 1) {
+        this.scale = 2
+      } else if (this.scale === 2) {
+        this.scale = 3
+      } else {
+        this.scale = 1
+      }
+      this.imgStyle()
     },
     close() {
       this.visible = false

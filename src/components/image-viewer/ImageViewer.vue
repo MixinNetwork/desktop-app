@@ -90,6 +90,10 @@ export default {
     keyUp(event) {
       if (event.code === 'Escape') {
         this.close()
+      } else if (event.code === 'ArrowLeft') {
+        this.imgChange('prev')
+      } else if (event.code === 'ArrowRight') {
+        this.imgChange('next')
       }
     },
     imgChange(action) {
@@ -105,26 +109,19 @@ export default {
     imgStyle() {
       let { images, config, index, scale } = this
       let item = images[index]
+      let size = {}
       let imgMaxWidth = config.imgMaxWidth
       let imgMaxHeight = config.imgMaxHeight
-      let size = {}
       let ratio = item.width / item.height
-      if (ratio > 1) {
-        if (item.width > imgMaxWidth) {
-          size.width = imgMaxWidth
-          size.height = imgMaxWidth / ratio
-        } else {
-          size.width = item.width
-          size.height = item.height
-        }
-      } else {
-        if (item.width > imgMaxWidth / 3) {
-          size.width = imgMaxWidth / 3
-          size.height = (imgMaxWidth / 3 / item.width) * item.height
-        } else {
-          size.width = item.width
-          size.height = item.height
-        }
+
+      size.height = imgMaxHeight
+      size.width = imgMaxHeight * ratio
+      if (size.width > imgMaxWidth) {
+        size.width = imgMaxWidth
+        size.height = imgMaxWidth / ratio
+      } else if (size.width < imgMaxWidth / 2) {
+        size.width = imgMaxWidth / 2
+        size.height = imgMaxWidth / 2 / ratio
       }
       this.imgSize = {
         width: size.width * scale + 'px',

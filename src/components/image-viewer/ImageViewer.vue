@@ -5,13 +5,14 @@
         <ICClose></ICClose>
       </div>
       <div class="image-viewer-content" v-if="images.length">
-        <img
-          :src="images[index].url"
-          :alt="images[index].name?images[index].name:''"
-          :width="imgStyle.width"
-          :height="imgStyle.height"
-          v-show="imgVisible"
-        >
+        <div class="scorll">
+          <img
+            :src="images[index].url"
+            :alt="images[index].name?images[index].name:''"
+            :style="imgSize"
+            v-show="imgVisible"
+          >
+        </div>
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
         </div>
@@ -49,12 +50,9 @@ export default {
         imgMaxWidth: window.innerWidth * 0.8,
         imgMaxHeight: window.innerHeight * 0.8
       },
-      imgStyle: {
-        width: 'auto',
-        height: 'auto'
-      },
       visible: false,
       imgVisible: false,
+      imgSize: {},
       index: 0,
       images: []
     }
@@ -64,21 +62,16 @@ export default {
       if (this.images.length) {
         if (val) document.body.style.overflow = 'hidden'
         else document.body.style.overflow = ''
-
-        this.imgLoad(this.imgSize)
+        this.imgStyle(0)
       } else {
         this.visible = false
       }
     },
     index(value) {
-      this.imgStyle = {
-        width: 'auto',
-        height: 'auto'
-      }
       this.imgVisible = false
-      this.imgLoad(this.imgSize)
+      this.imgStyle(value)
       this.$nextTick(() => {
-        const _img = document.querySelector('.image-viewer-nav-thumb > img')
+        const _img = document.querySelector('.image-viewer-content > div > img')
         const _width = _img.width
         this.$refs.scroll.scrollLeft = _width * (value - 1)
       })
@@ -93,48 +86,6 @@ export default {
         this.close()
       }
     },
-    imgLoad(callback) {
-      setTimeout(() => {
-        const $img = document.querySelector('.image-viewer-content > img')
-        const timer = setInterval(() => {
-          if ($img.complete) {
-            callback()
-            clearInterval(timer)
-          }
-        }, 100)
-      })
-    },
-    imgSize(recursionWidth, recursionHeight) {
-      const _img = document.querySelector('.image-viewer-content > img')
-      const _width = recursionWidth || _img.width
-      const _height = recursionHeight || _img.height
-
-      let imgSizeAuto = this.imgSizeAuto(_width, _height)
-      if (imgSizeAuto.width - 10 > this.config.imgMaxWidth || imgSizeAuto.height - 10 > this.config.imgMaxHeight) {
-        this.imgSize(imgSizeAuto.width, imgSizeAuto.height)
-      } else {
-        this.imgStyle = imgSizeAuto
-        this.imgVisible = true
-      }
-    },
-    imgSizeAuto(width, height) {
-      let zoomSize = 0
-
-      if (width > this.config.imgMaxWidth || height > this.config.imgMaxHeight) {
-        zoomSize =
-          width - this.config.imgMaxWidth > height - this.config.imgMaxHeight
-            ? this.config.imgMaxWidth / width
-            : this.config.imgMaxHeight / height
-        return {
-          width: width * zoomSize,
-          height: height * zoomSize
-        }
-      }
-      return {
-        width,
-        height
-      }
-    },
     imgChange(action) {
       const length = this.images.length - 1
       if (action === 'prev') {
@@ -144,6 +95,17 @@ export default {
       } else if (!isNaN(action)) {
         this.index = action <= 0 ? 0 : action >= length ? length : action
       }
+    },
+    imgStyle(position) {
+      let { images, config } = this
+      let item = images[position]
+      let imgMaxWidth = config.imgMaxWidth
+      if (item.width > imgMaxWidth) {
+        this.imgSize = { width: imgMaxWidth + 'px', height: (imgMaxWidth / item.width) * item.height + 'px' }
+      } else {
+        this.imgSize = { width: item.width + 'px', height: item.height + 'px' }
+      }
+      this.imgVisible = true
     },
     close() {
       this.visible = false
@@ -160,6 +122,16 @@ export default {
 .image-viewer-fade-enter,
 .image-viewer-fade-leave-to {
   opacity: 0;
+}
+.scorll {
+  overflow: scroll;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  img {
+    flex: 0 0 auto;
+  }
 }
 .image-viewer {
   z-index: 1000;
@@ -218,7 +190,7 @@ export default {
   z-index: 1000;
   position: absolute;
   top: 0;
-  width: 50%;
+  width: 20%;
   height: 100%;
 }
 .image-viewer-content-prev {

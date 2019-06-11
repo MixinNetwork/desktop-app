@@ -266,7 +266,7 @@ export default {
           if (item.message_id === this.message.messageId) {
             position = index
           }
-          return { url: item.media_url }
+          return { url: item.media_url, width: item.media_width, height: item.media_height }
         })
         this.$imageViewer.images(images)
         this.$imageViewer.index(position)

@@ -576,12 +576,7 @@ class ReceiveWroker extends BaseWorker {
     } else if (data.category.endsWith('_STICKER')) {
       const decoded = window.atob(plaintext)
       const stickerData = JSON.parse(decoded)
-      var message = null
-      const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
-      if (!sticker) {
-        await this.refreshSticker(stickerData.sticker_id)
-      }
-      message = {
+      const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
         user_id: data.user_id,
@@ -613,6 +608,10 @@ class ReceiveWroker extends BaseWorker {
         quote_content: null
       }
       messageDao.insertMessage(message)
+      const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
+      if (!sticker) {
+        await this.refreshSticker(stickerData.sticker_id)
+      }
       const body = i18n.t('notification.sendSticker')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     } else if (data.category.endsWith('_CONTACT')) {

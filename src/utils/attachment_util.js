@@ -1,6 +1,7 @@
 import attachmentApi from '@/api/attachment'
 import { remote } from 'electron'
 import { MimeType } from '@/utils/constants'
+import uuidv4 from 'uuid/v4'
 import fs from 'fs'
 import path from 'path'
 import sizeOf from 'image-size'
@@ -8,6 +9,7 @@ import jo from 'jpeg-autorotate'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
 import conversationAPI from '@/api/conversation.js'
+import signalProtocol from '@/crypto/signal.js'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()
@@ -34,7 +36,7 @@ export async function downloadAttachment(message) {
         const mediaKey = base64ToUint8Array(m.media_key).buffer
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
-        const name = generateName(m.name, m.media_mime_type, m.category)
+        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
         const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(resp))
 
@@ -48,7 +50,7 @@ export async function downloadAttachment(message) {
       } else {
         const data = await getAttachment(response.data.data.view_url)
         const m = message
-        const name = generateName(m.name, m.media_mime_type, m.category)
+        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
         const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(data))
         try {
@@ -65,11 +67,11 @@ export async function downloadAttachment(message) {
   }
 }
 
-function processAttachment(imagePath, mimeType, category) {
+function processAttachment(imagePath, mimeType, category, id) {
   const fileName = path.parse(imagePath).base
   let type = mimeType
   if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
-  const destination = path.join(getImagePath(), generateName(fileName, type, category))
+  const destination = path.join(getImagePath(), generateName(fileName, type, category, id))
   fs.copyFileSync(imagePath, destination)
   return { localPath: destination, name: fileName }
 }
@@ -90,8 +92,8 @@ function toArrayBuffer(buf) {
   }
   return ab
 }
-export async function putAttachment(imagePath, mimeType, category, processCallback, sendCallback, errorCallback) {
-  const { localPath, name } = processAttachment(imagePath, mimeType, category)
+export async function putAttachment(imagePath, mimeType, category, id, processCallback, sendCallback, errorCallback) {
+  const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
   var mediaWidth = null
   var mediaHeight = null
   var thumbImage = null
@@ -215,9 +217,14 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
   )
 }
 
-function generateName(fileName, mimeType, category) {
+function generateName(fileName, mimeType, category, id) {
   const date = new Date()
-  const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}${date.getSeconds()}`
+  if (!id) {
+    id = uuidv4()
+  }
+  const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}_${Math.abs(
+    signalProtocol.convertToDeviceId(id)
+  )}`
   var header
   if (category.endsWith('_IMAGE')) {
     header = 'IMG'

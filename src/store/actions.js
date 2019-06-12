@@ -283,6 +283,7 @@ export default {
       mediaUrl,
       mediaMimeType,
       category,
+      messageId,
       data => {
         messageDao.insertMessage({
           message_id: messageId,

@@ -8,6 +8,7 @@ import jo from 'jpeg-autorotate'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util.js'
 import conversationAPI from '@/api/conversation.js'
+import signalProtocol from '@/crypto/signal.js'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()
@@ -34,7 +35,7 @@ export async function downloadAttachment(message) {
         const mediaKey = base64ToUint8Array(m.media_key).buffer
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
-        const name = generateName(m.name, m.media_mime_type, m.category)
+        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
         const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(resp))
 
@@ -215,9 +216,11 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
   )
 }
 
-function generateName(fileName, mimeType, category) {
+function generateName(fileName, mimeType, category, id) {
   const date = new Date()
-  const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}${date.getSeconds()}`
+  const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}_${Math.abs(
+    signalProtocol.convertToDeviceId(id)
+  )}`
   var header
   if (category.endsWith('_IMAGE')) {
     header = 'IMG'

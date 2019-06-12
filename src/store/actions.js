@@ -433,19 +433,18 @@ export default {
     commit('startLoading', messageId)
     let message = messageDao.getMessageById(messageId)
     downloadQueue.push(
-      message => {
-        downloadAttachment(message)
-          .then(([message, filePath]) => {
-            messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
-            commit('stopLoading', message.message_id)
-            commit('refreshMessage', message.conversation_id)
-          })
-          .catch(e => {
-            console.log(e)
-            messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
-            commit('stopLoading', message.message_id)
-            commit('refreshMessage', message.conversation_id)
-          })
+      async message => {
+        try {
+          const [m, filePath] = await downloadAttachment(message)
+          messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+          commit('stopLoading', m.message_id)
+          commit('refreshMessage', m.conversation_id)
+        } catch (e) {
+          console.log(e)
+          messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
+          commit('stopLoading', message.message_id)
+          commit('refreshMessage', message.conversation_id)
+        }
       },
       { args: message }
     )

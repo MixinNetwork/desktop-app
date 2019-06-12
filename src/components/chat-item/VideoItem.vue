@@ -103,6 +103,8 @@ export default {
     white-space: nowrap;
     margin-bottom: 0.2rem;
     margin-left: 0.4rem;
+    min-width: 2rem;
+    min-height: 0.85rem;
   }
   .content {
     display: flex;

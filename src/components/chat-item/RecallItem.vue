@@ -66,6 +66,8 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     margin-bottom: 0.2rem;
+    min-width: 2rem;
+    min-height: 0.85rem;
   }
 }
 .bubble {

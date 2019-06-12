@@ -68,25 +68,6 @@
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
     ></RecallItem>
-    <AudioItem
-      v-else-if="message.type.endsWith('_AUDIO')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @user-click="$emit('user-click',message.userId)"
-      @handleMenuClick="handleMenuClick"
-    ></AudioItem>
-
-    <VideoItem
-      v-else-if="message.type.endsWith('_VIDEO')"
-      :message="message"
-      :me="me"
-      :showName="this.showUserName()"
-      :coversation="conversation"
-      @user-click="$emit('user-click',message.userId)"
-      @handleMenuClick="handleMenuClick"
-    ></VideoItem>
 
     <ImageItem
       v-else-if="message.type.endsWith('_IMAGE')"
@@ -497,6 +478,8 @@ li {
   display: inline-block;
   font-size: 0.85rem;
   max-width: 100%;
+  min-width: 2rem;
+  min-height: 0.85rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

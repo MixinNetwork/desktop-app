@@ -3979,7 +3979,8 @@ electron-download@^4.1.0:
 
 "electron-icon-builder@https://github.com/safu9/electron-icon-builder.git#master":
   version "1.0.0"
-  resolved "https://github.com/safu9/electron-icon-builder.git#bbf79c36d0ee396ce33f00a115af339705363814"
+  uid bb3e60441ae178ddbb55ae6fd3f7f61467bb1ccc
+  resolved "https://github.com/safu9/electron-icon-builder.git#bb3e60441ae178ddbb55ae6fd3f7f61467bb1ccc"
   dependencies:
     args "^5.0.0"
     icon-gen "^2.0.0"

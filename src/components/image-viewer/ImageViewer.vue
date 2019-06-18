@@ -247,7 +247,7 @@ export default {
 .image-viewer-content-next {
   z-index: 1000;
   width: 20%;
-  height: 80%;
+  height: 60%;
   margin: auto;
   position: absolute;
   top: 0;

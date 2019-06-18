@@ -16,6 +16,7 @@
         </div>
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
+          <ICDownload @click="openFile(images[index])"></ICDownload>
         </div>
         <div class="image-viewer-content-prev" @click="imgChange('prev')"></div>
         <div class="image-viewer-content-next" @click="imgChange('next')"></div>
@@ -40,10 +41,12 @@
 
 <script>
 import ICClose from '../../assets/images/ic_close_white.svg'
+import ICDownload from '../../assets/images/download.svg'
 export default {
   name: 'imageViewer',
   components: {
-    ICClose
+    ICClose,
+    ICDownload
   },
   data() {
     return {
@@ -87,6 +90,22 @@ export default {
     window.addEventListener('keyup', this.keyUp)
   },
   methods: {
+    openFile: function(item) {
+      if (!item.url) {
+        return
+      }
+      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
+        defaultPath: item.name
+      })
+      if (!savePath) {
+        return
+      }
+      let sourcePath = item.url
+      if (sourcePath.startsWith('file://')) {
+        sourcePath = sourcePath.replace('file://', '')
+      }
+      fs.copyFileSync(sourcePath, savePath)
+    },
     keyUp(event) {
       if (event.code === 'Escape') {
         this.close()
@@ -246,6 +265,7 @@ export default {
   width: 100%;
   height: 40px;
   padding: 0 3% 10px;
+  display: flex;
   > *,
   .right > * {
     height: 100%;

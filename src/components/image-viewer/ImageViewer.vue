@@ -40,6 +40,8 @@
 </template>
 
 <script>
+import fs from 'fs'
+import path from 'path'
 import ICClose from '../../assets/images/ic_close_white.svg'
 import ICDownload from '../../assets/images/download.svg'
 export default {
@@ -94,15 +96,15 @@ export default {
       if (!item.url) {
         return
       }
-      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
-        defaultPath: item.name
-      })
-      if (!savePath) {
-        return
-      }
       let sourcePath = item.url
       if (sourcePath.startsWith('file://')) {
         sourcePath = sourcePath.replace('file://', '')
+      }
+      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
+        defaultPath: path.basename(sourcePath)
+      })
+      if (!savePath) {
+        return
       }
       fs.copyFileSync(sourcePath, savePath)
     },

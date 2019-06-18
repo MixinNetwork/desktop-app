@@ -268,6 +268,7 @@ export default {
   height: 40px;
   padding: 0 3% 10px;
   display: flex;
+  cursor: pointer;
   > *,
   .right > * {
     height: 100%;

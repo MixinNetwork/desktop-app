@@ -246,10 +246,12 @@ export default {
 .image-viewer-content-prev,
 .image-viewer-content-next {
   z-index: 1000;
+  width: 20%;
+  height: 80%;
+  margin: auto;
   position: absolute;
   top: 0;
-  width: 20%;
-  height: 100%;
+  bottom: 0;
 }
 .image-viewer-content-prev {
   left: 0;
@@ -359,14 +361,9 @@ export default {
 
 .image-viewer-close {
   z-index: 1001;
+  top: 20px;
+  right: 20px;
   position: absolute;
-  top: 40px;
-  right: 40px;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  font-size: 30px;
-  color: #fff;
   cursor: pointer;
 }
 .image-viewer-content-prev:hover > i,

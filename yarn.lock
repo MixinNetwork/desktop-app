@@ -3977,10 +3977,10 @@ electron-download@^4.1.0:
     semver "^5.4.1"
     sumchecker "^2.0.2"
 
-"electron-icon-builder@https://github.com/safu9/electron-icon-builder.git#master":
+electron-icon-builder@^1.0.1:
   version "1.0.1"
-  uid "06ef3fbc1a8ed3ed01dc6f4e859aafe7e9c92bb7"
-  resolved "https://github.com/safu9/electron-icon-builder.git#06ef3fbc1a8ed3ed01dc6f4e859aafe7e9c92bb7"
+  resolved "https://registry.yarnpkg.com/electron-icon-builder/-/electron-icon-builder-1.0.1.tgz#2a5e72e61e77b082dd115c3bd406f41703d77e79"
+  integrity sha512-WYaZ4WKrulJHYRU+pryi4rad7Se5k4KwiZLBYizNOWCGcvrwPp8OmZXFNIP0NP2/oI4l1DtDHRpVtD6dMhrTcA==
   dependencies:
     args "^5.0.0"
     icon-gen "^2.0.0"

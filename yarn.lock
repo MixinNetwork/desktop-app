@@ -3978,9 +3978,9 @@ electron-download@^4.1.0:
     sumchecker "^2.0.2"
 
 "electron-icon-builder@https://github.com/safu9/electron-icon-builder.git#master":
-  version "1.0.0"
-  uid bb3e60441ae178ddbb55ae6fd3f7f61467bb1ccc
-  resolved "https://github.com/safu9/electron-icon-builder.git#bb3e60441ae178ddbb55ae6fd3f7f61467bb1ccc"
+  version "1.0.1"
+  uid "06ef3fbc1a8ed3ed01dc6f4e859aafe7e9c92bb7"
+  resolved "https://github.com/safu9/electron-icon-builder.git#06ef3fbc1a8ed3ed01dc6f4e859aafe7e9c92bb7"
   dependencies:
     args "^5.0.0"
     icon-gen "^2.0.0"

@@ -58,7 +58,7 @@
     "electron-icon-builder": "^1.0.1",
     "electron-icon-maker": "^0.0.4",
     "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0-0",
+    "eslint-plugin-vue": "^5.2.3",
     "execa": "^1.0.0",
     "fs-extra": "^8.0.1",
     "node-loader": "^0.6.0",

@@ -9,9 +9,12 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="contact" @click="$emit('user-share-click')">
-          <Avatar id="avatar" :user="user"/>
+          <Avatar id="avatar" :user="user" />
           <div class="content">
-            <span class="name">{{message.sharedUserFullName}}</span>
+            <span class="name">
+              {{message.sharedUserFullName}}
+              <ICRobot v-if="message.sharedUserAppId" />
+            </span>
             <div class="bottom">
               <span class="number">{{message.sharedUserIdentityNumber}}</span>
               <span class="time">
@@ -46,6 +49,7 @@ import userDao from '@/dao/user_dao.js'
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
+import ICRobot from '@/assets/images/ic_robot.svg'
 import BadgeItem from './BadgeItem'
 
 import { MessageStatus } from '@/utils/constants.js'
@@ -57,6 +61,7 @@ export default {
     ICSending,
     ICSend,
     ICRead,
+    ICRobot,
     BadgeItem
   },
   data: function() {

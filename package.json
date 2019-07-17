@@ -54,7 +54,7 @@
     "@vue/cli-service": "^3.9.2",
     "@vue/eslint-config-standard": "^4.0.0",
     "babel-eslint": "^10.0.2",
-    "electron": "^v5.0.6",
+    "electron": "^v5.0.7",
     "electron-icon-builder": "^1.0.1",
     "electron-icon-maker": "^0.0.4",
     "eslint": "^5.16.0",

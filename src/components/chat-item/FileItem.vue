@@ -82,7 +82,7 @@ export default {
       if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
         return
       }
-      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
+      const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
         defaultPath: this.message.mediaName
       })
       if (!savePath) {

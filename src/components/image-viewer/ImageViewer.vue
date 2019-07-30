@@ -12,7 +12,7 @@
             :style="imgSize"
             @dblclick="zoom"
             v-show="imgVisible"
-          >
+          />
         </div>
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
@@ -31,7 +31,7 @@
               :key="i"
               :src="il.url"
               @click="imgChange(i)"
-            >
+            />
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default {
       if (sourcePath.startsWith('file://')) {
         sourcePath = sourcePath.replace('file://', '')
       }
-      const savePath = this.$electron.remote.dialog.showSaveDialog(this.$electron.remote.getCurrentWindow(), {
+      const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
         defaultPath: path.basename(sourcePath)
       })
       if (!savePath) {

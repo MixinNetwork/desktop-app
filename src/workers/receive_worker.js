@@ -111,7 +111,8 @@ class ReceiveWroker extends BaseWorker {
       shared_user_id: null,
       media_waveform: null,
       quote_message_id: null,
-      quote_content: null
+      quote_content: null,
+      thumb_url: null
     }
     messageDao.insertMessage(message)
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
@@ -197,7 +198,8 @@ class ReceiveWroker extends BaseWorker {
       shared_user_id: null,
       media_waveform: null,
       quote_message_id: null,
-      quote_content: null
+      quote_content: null,
+      thumb_url: null
     }
     messageDao.insertMessage(message)
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
@@ -259,7 +261,8 @@ class ReceiveWroker extends BaseWorker {
       shared_user_id: null,
       media_waveform: null,
       quote_message_id: null,
-      quote_content: null
+      quote_content: null,
+      thumb_url: null
     }
     const accountId = JSON.parse(localStorage.getItem('account')).user_id
     if (
@@ -407,7 +410,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: null,
         media_waveform: null,
         quote_message_id: data.quote_message_id,
-        quote_content: quoteContent
+        quote_content: quoteContent,
+        thumb_url: null
       }
       messageDao.insertMessage(message)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source)
@@ -446,7 +450,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: null,
         media_waveform: null,
         quote_message_id: null,
-        quote_content: null
+        quote_content: null,
+        thumb_url: null
       }
       messageDao.insertMessage(message)
       store.dispatch('startLoading', message.message_id)
@@ -488,7 +493,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: null,
         media_waveform: null,
         quote_message_id: null,
-        quote_content: null
+        quote_content: null,
+        thumb_url: null
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, { args: message })
@@ -527,7 +533,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: null,
         media_waveform: null,
         quote_message_id: null,
-        quote_content: null
+        quote_content: null,
+        thumb_url: null
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, { args: message })
@@ -566,7 +573,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: null,
         media_waveform: mediaData.waveform,
         quote_message_id: null,
-        quote_content: null
+        quote_content: null,
+        thumb_url: null
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, { args: message })
@@ -605,7 +613,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: null,
         media_waveform: null,
         quote_message_id: null,
-        quote_content: null
+        quote_content: null,
+        thumb_url: null
       }
       messageDao.insertMessage(message)
       const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
@@ -646,7 +655,8 @@ class ReceiveWroker extends BaseWorker {
         shared_user_id: contactData.user_id,
         media_waveform: null,
         quote_message_id: null,
-        quote_content: null
+        quote_content: null,
+        thumb_url: null
       }
       messageDao.insertMessage(message)
       await this.syncUser(contactData.user_id)
@@ -655,7 +665,39 @@ class ReceiveWroker extends BaseWorker {
     } else if (data.category.endsWith('_LIVE')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const liveData = JSON.parse(decoded)
-      console.log(liveData)
+      const message = {
+        message_id: data.message_id,
+        conversation_id: data.conversation_id,
+        user_id: data.user_id,
+        category: data.category,
+        content: plaintext,
+        media_url: liveData.url,
+        media_mime_type: null,
+        media_size: null,
+        media_duration: null,
+        media_width: liveData.width,
+        media_height: liveData.height,
+        media_hash: null,
+        thumb_image: null,
+        media_key: null,
+        media_digest: null,
+        media_status: null,
+        status: status,
+        created_at: data.created_at,
+        action: null,
+        participant_id: null,
+        snapshot_id: null,
+        hyperlink: null,
+        name: null,
+        album_id: null,
+        sticker_id: null,
+        shared_user_id: null,
+        media_waveform: null,
+        quote_message_id: null,
+        quote_content: null,
+        thumb_url: liveData.thumb_url
+      }
+      messageDao.insertMessage(message)
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
     store.dispatch('refreshMessage', data.conversation_id)

@@ -314,7 +314,8 @@ export default {
           shared_user_id: null,
           media_waveform: null,
           quote_message_id: null,
-          quote_content: null
+          quote_content: null,
+          thumb_url: null
         })
         commit('startLoading', messageId)
         commit('refreshMessage', conversationId)

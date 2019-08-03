@@ -124,6 +124,10 @@
             class="app_button"
           >{{$t('chat.chat_app_button') }}</span>
           <span
+            v-else-if="messageType(message) === 'unknown'"
+            class="unknown"
+          >{{$t('chat.chat_unknown') }}</span>
+          <span
             v-else-if="messageType(message) === 'transfer'"
             class="transfer"
           >{{transferText(message)}}</span>
@@ -134,9 +138,9 @@
               v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
               class="icon"
             />
-            <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon"/>
-            <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait"/>
-            <ICRead v-else-if="message.status === MessageStatus.READ" class="icon"/>
+            <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon" />
+            <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait" />
+            <ICRead v-else-if="message.status === MessageStatus.READ" class="icon" />
           </span>
         </div>
       </BadgeItem>
@@ -512,6 +516,7 @@ li {
   &.text,
   &.app_card,
   &.app_button,
+  &.unknown,
   &.transfer {
     border-radius: 0.2rem;
     text-align: left;
@@ -554,6 +559,7 @@ li {
     &.text,
     &.app_card,
     &.app_button,
+    &.unknown,
     &.transfer {
       background: white;
       margin-left: 0.8rem;
@@ -580,6 +586,12 @@ li {
         border-right: 0.6rem solid #fbdda7;
       }
     }
+    &.unknown {
+      background: #cbe9ca;
+      &:after {
+        border-right: 0.6rem solid #cbe9ca;
+      }
+    }
   }
   .icon {
     display: none;
@@ -591,6 +603,7 @@ li {
     &.text,
     &.app_card,
     &.app_button,
+    &.unknown,
     &.transfer {
       margin-right: 0.8rem;
       background: #c5edff;
@@ -613,6 +626,12 @@ li {
       background: #fbdda7;
       &:after {
         border-left: 0.6rem solid #fbdda7;
+      }
+    }
+    &.unknown {
+      background: #cbe9ca;
+      &:after {
+        border-left: 0.6rem solid #cbe9ca;
       }
     }
   }

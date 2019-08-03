@@ -6,13 +6,13 @@
     @mouseleave="leave"
     @contextmenu.prevent="$emit('item-more',conversation)"
   >
-    <Avatar id="avatar" :conversation="conversation"/>
+    <Avatar id="avatar" :conversation="conversation" />
     <slot name="check"></slot>
     <div class="info">
       <div class="title">
         <div class="username">
           {{conversation.groupName?conversation.groupName:conversation.name}}
-          <ICRobot v-if="conversation.appId"/>
+          <ICRobot v-if="conversation.appId" />
         </div>
         <div class="time">{{timeAgo}}</div>
       </div>
@@ -43,8 +43,8 @@
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
-        <ICMute v-if="this.isMute()" class="mute_icon"/>
-        <ICPin v-if="conversation.pinTime" class="icon"/>
+        <ICMute v-if="this.isMute()" class="mute_icon" />
+        <ICPin v-if="conversation.pinTime" class="icon" />
         <transition name="slide-right">
           <a
             @click="$emit('item-menu-click',conversation)"
@@ -53,7 +53,7 @@
             href="javascript:void(0)"
             v-show="show || fouse"
           >
-            <font-awesome-icon class="down" icon="chevron-down"/>
+            <font-awesome-icon class="down" icon="chevron-down" />
           </a>
         </transition>
       </div>
@@ -150,7 +150,7 @@ export default {
           return this.getMessageName() + this.$t('chat.chat_recall_delete')
         }
       } else {
-        return ''
+        return this.$t('chat.chat_unknown')
       }
     },
     isSelf: function() {

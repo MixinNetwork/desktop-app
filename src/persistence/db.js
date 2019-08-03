@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const MixinDataBaseVersion = 1
+const MixinDatabaseVersion = 1
 const mixinPath = path.join(getDbPath(), 'mixin.db')
 const mixinDb = new Database(mixinPath, { readonly: false })
 mixinDb.pragma('journal_mode = WAL')
@@ -12,9 +12,9 @@ const fileLocation = path.join(__static, 'mixin.sql')
 const createSQL = fs.readFileSync(fileLocation, 'utf8')
 mixinDb.exec(createSQL)
 const row = mixinDb.prepare('PRAGMA user_version').get()
-if (!!row && row.user_version < MixinDataBaseVersion) {
-  const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDataBaseVersion}`)
-  if (row.user_version === 0) {
+if (!!row && row.user_version < MixinDatabaseVersion) {
+  const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
+  if (row.user_version === 0 && MixinDatabaseVersion === 1) {
     MIGRATION_0_1()
   }
   stmt.run()

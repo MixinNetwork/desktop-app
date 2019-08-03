@@ -13,11 +13,11 @@ const createSQL = fs.readFileSync(fileLocation, 'utf8')
 mixinDb.exec(createSQL)
 const row = mixinDb.prepare('PRAGMA user_version').get()
 if (!!row && row.user_version < MixinDatabaseVersion) {
-  const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
   if (row.user_version === 0 && MixinDatabaseVersion === 1) {
+    const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
     MIGRATION_0_1()
+    stmt.run()
   }
-  stmt.run()
 }
 
 function MIGRATION_0_1() {

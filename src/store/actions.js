@@ -224,7 +224,7 @@ export default {
   },
   markRead: ({ commit }, conversationId) => {
     markRead(conversationId)
-    commit('refreshConversations')
+    commit('refreshConversation', conversationId)
   },
   updateConversationMute: ({ commit }, { conversation, ownerId }) => {
     if (conversation.category === ConversationCategory.CONTACT) {

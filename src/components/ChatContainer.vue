@@ -121,7 +121,6 @@ import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
-import { Promise } from 'q'
 export default {
   name: 'ChatContainer',
   data() {

@@ -169,11 +169,6 @@ class MessageDao {
       `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'DELIVERED'`
     ).run(conversationId)
   }
-  batchMarkRead(conversationId, userId, createdAt) {
-    db.prepare(
-      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != ? AND status = 'DELIVERED' AND created_at <= ?`
-    ).run([conversationId, userId, createdAt])
-  }
   updateMediaMessage(path, status, id) {
     db.prepare(
       `UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ? AND category != "MESSAGE_RECALL"`

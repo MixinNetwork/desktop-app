@@ -67,8 +67,11 @@ function createWindow() {
   setFocusWindow(win)
   if (process.platform === 'darwin') {
     require('./menu')
+  } else if (process.platform === 'linux') {
+    win.setMenuBarVisibility(false)
+    win.setAutoHideMenuBar(true)
   } else {
-    win.removeMenu()
+    win.setMenu(null)
   }
   app.setAppUserModelId('one.mixin.messenger')
 }

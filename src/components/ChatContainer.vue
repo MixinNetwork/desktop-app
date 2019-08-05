@@ -1,7 +1,7 @@
 <template>
   <main class="chat container">
     <header v-show="conversation">
-      <Avatar :conversation="conversation" @onAvatarClick="showDetails"/>
+      <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
       <div class="title" @click="showDetails">
         <div class="username">{{name}}</div>
         <div class="identity number">{{identity}}</div>
@@ -73,7 +73,7 @@
 
     <div class="empty" v-if="!conversation">
       <span>
-        <img src="../assets/empty.png">
+        <img src="../assets/empty.png" />
         <label id="title">{{$t('chat.keep_title')}}</label>
         <label>{{$t('chat.keep_des')}}</label>
       </span>
@@ -145,6 +145,7 @@ export default {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
+        messageBox.setConversationId(newC.conversationId)
         this.messages = messageBox.messages
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
@@ -154,7 +155,9 @@ export default {
             this.unreadMessageId = ''
           }
         }
-        this.$store.dispatch('markRead', newC.conversationId)
+        Promise.resolve().then(() => {
+          this.$store.dispatch('markRead', newC.conversationId)
+        })
         let goBottom = this.goBottom
         setTimeout(function() {
           goBottom()

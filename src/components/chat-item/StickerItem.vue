@@ -8,7 +8,7 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <img v-bind:src="message.assetUrl" lazyload="on" />
+        <img v-bind:src="message.assetUrl" loading="lazy" />
       </BadgeItem>
       <span class="time">
         {{message.lt}}

@@ -16,7 +16,7 @@
               v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
               v-bind:style="borderSetObject(message)"
               @click="$emit('preview')"
-            >
+            />
           </div>
           <spinner class="loading" v-if="loading"></spinner>
           <AttachmentIcon

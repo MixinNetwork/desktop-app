@@ -5,7 +5,6 @@ import router from './router'
 import store from './store/store'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import VueLazyload from 'vue-lazyload'
 import Dialog from '@/components/dialog/Dialog.js'
 import Menu from '@/components/menu/Menu.js'
 import ImageViewer from '@/components/image-viewer/ImageViewer.js'
@@ -20,7 +19,6 @@ const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
 
 Vue.use(VueAxios, axios)
-Vue.use(VueLazyload)
 Vue.use(VueElectron)
 Vue.use(Dialog)
 Vue.use(Menu)

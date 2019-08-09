@@ -322,7 +322,8 @@ class ReceiveWroker extends BaseWorker {
       data.category === 'PLAIN_DATA' ||
       data.category === 'PLAIN_AUDIO' ||
       data.category === 'PLAIN_STICKER' ||
-      data.category === 'PLAIN_CONTACT'
+      data.category === 'PLAIN_CONTACT' ||
+      data.category === 'PLAIN_LIVE'
     ) {
       await this.processDecryptSuccess(data, data.data)
     }

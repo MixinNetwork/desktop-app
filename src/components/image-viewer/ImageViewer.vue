@@ -130,30 +130,32 @@ export default {
     imgStyle() {
       let { images, config, index, scale } = this
       let item = images[index]
-      let size = {}
-      let imgMaxWidth = config.imgMaxWidth
-      let imgMaxHeight = config.imgMaxHeight
-      let ratio = item.width / item.height
+      if (item && item.width && item.height) {
+        let size = {}
+        let imgMaxWidth = config.imgMaxWidth
+        let imgMaxHeight = config.imgMaxHeight
+        let ratio = item.width / item.height
 
-      size.height = imgMaxHeight
-      size.width = imgMaxHeight * ratio
-      if (size.width > imgMaxWidth) {
-        size.width = imgMaxWidth
-        size.height = imgMaxWidth / ratio
-      } else if (size.width < imgMaxWidth / 2) {
-        size.width = imgMaxWidth / 2
-        size.height = imgMaxWidth / 2 / ratio
+        size.height = imgMaxHeight
+        size.width = imgMaxHeight * ratio
+        if (size.width > imgMaxWidth) {
+          size.width = imgMaxWidth
+          size.height = imgMaxWidth / ratio
+        } else if (size.width < imgMaxWidth / 2) {
+          size.width = imgMaxWidth / 2
+          size.height = imgMaxWidth / 2 / ratio
+        }
+        this.imgSize = {
+          width: size.width * scale + 'px',
+          height: size.height * scale + 'px'
+        }
+        if (size.height < imgMaxHeight) {
+          this.scorllStyle = { 'align-items': 'center' }
+        } else {
+          this.scorllStyle = {}
+        }
+        this.imgVisible = true
       }
-      this.imgSize = {
-        width: size.width * scale + 'px',
-        height: size.height * scale + 'px'
-      }
-      if (size.height < imgMaxHeight) {
-        this.scorllStyle = { 'align-items': 'center' }
-      } else {
-        this.scorllStyle = {}
-      }
-      this.imgVisible = true
     },
     zoom() {
       if (this.scale === 1) {

@@ -109,7 +109,9 @@ export default {
       fs.copyFileSync(sourcePath, savePath)
     },
     keyUp(event) {
-      if (event.code === 'Escape') {
+      if (!this.visible) {
+        return true
+      } else if (event.code === 'Escape') {
         this.close()
       } else if (event.code === 'ArrowLeft') {
         this.imgChange('prev')

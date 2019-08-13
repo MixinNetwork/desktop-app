@@ -217,6 +217,7 @@ export default {
   }
   .icon-close {
     align-self: center;
+    margin-right: 0.4rem;
   }
   .replay_icon {
     height: 14px;

@@ -89,8 +89,7 @@
       :coversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
-      @preview="preview"
-      @mediaClick="mediaClick"
+      @liveClick="liveClick"
     ></LiveItem>
 
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
@@ -189,6 +188,7 @@ import BadgeItem from './chat-item/BadgeItem'
 import messageDao from '@/dao/message_dao.js'
 
 import { getNameColorById } from '@/utils/util.js'
+import { ipcRenderer } from 'electron'
 import URI from 'urijs'
 export default {
   name: 'MessageItem',
@@ -271,6 +271,15 @@ export default {
         this.$imageViewer.index(position)
         this.$imageViewer.show()
       }
+    },
+    liveClick() {
+      let message = this.message
+      ipcRenderer.send('play', {
+        width: message.mediaWidth,
+        height: message.mediaHeight,
+        thumb: message.thumbUrl,
+        url: message.mediaUrl
+      })
     },
     messageOwnership: (message, me) => {
       return {

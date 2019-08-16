@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, shell, BrowserWindow } from 'electron'
+import { app, protocol, ipcMain, shell, screen, BrowserWindow } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
 import { setFocusWindow } from './updater'
@@ -128,3 +128,57 @@ if (isDevelopment) {
     })
   }
 }
+
+let playerWindow
+let currentURL
+function createPlayerWindow(w, h) {
+  let { width, height } = screen.getPrimaryDisplay().workArea
+  let ww, wh
+  if (w > h) {
+    ww = parseInt(width / 2)
+    wh = parseInt((ww * h) / w)
+  } else {
+    wh = parseInt(height / 2)
+    ww = parseInt((wh * w) / h)
+  }
+  playerWindow = new BrowserWindow({
+    width: ww,
+    height: wh,
+    minWidth: ww / 2,
+    minHeight: wh / 2,
+    // eslint-disable-next-line no-undef
+    icon: path.join(__static, 'icon.png'),
+    titleBarStyle: 'hidden',
+    webPreferences: {
+      nodeIntegration: true,
+      webSecurity: false
+    },
+    show: false,
+    frame: false
+  })
+  playerWindow.setAspectRatio(w / h)
+  playerWindow.on('closed', () => {
+    playerWindow = null
+  })
+}
+ipcMain.on('play', (event, args) => {
+  if (playerWindow == null) {
+    createPlayerWindow(args.width, args.height)
+  } else {
+    if (args.url !== currentURL) {
+      playerWindow.close()
+      createPlayerWindow(args.width, args.height)
+    } else {
+      playerWindow.show()
+      return
+    }
+  }
+  currentURL = args.url
+  let params = `#player?thumb=${args.thumb}&url=${args.url}`
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
+  } else {
+    playerWindow.loadURL('app://./index.html' + params)
+  }
+  playerWindow.show()
+})

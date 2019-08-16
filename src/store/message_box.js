@@ -7,6 +7,7 @@ class MessageBox {
       this.conversationId = conversationId
       this.messages = messageDao.getMessages(conversationId, 0)
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
+      this.scrollAction(true)
     }
   }
   refreshMessage(conversationId) {
@@ -16,7 +17,7 @@ class MessageBox {
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       if (count >= this.count) {
-        this.scrollAction()
+        this.scrollAction(false)
       }
       this.count = count
     }

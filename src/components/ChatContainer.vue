@@ -158,6 +158,10 @@ export default {
         Promise.resolve().then(() => {
           this.$store.dispatch('markRead', newC.conversationId)
         })
+        let goBottom = this.goBottom
+        setTimeout(function() {
+          goBottom()
+        }, 5)
       }
       if (newC) {
         if (newC !== oldC) {
@@ -259,8 +263,8 @@ export default {
       function(messages) {
         self.messages = messages
       },
-      function(force) {
-        if (force) {
+      function() {
+        if (self.isBottom) {
           setTimeout(function() {
             goBottom()
           }, 5)
@@ -476,6 +480,7 @@ export default {
         category: category,
         status: status
       }
+      this.isBottom = true
       let msg = {}
       if (this.boxMessage) {
         msg.quoteId = this.boxMessage.messageId

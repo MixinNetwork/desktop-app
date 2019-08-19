@@ -81,6 +81,18 @@
       @mediaClick="mediaClick"
     ></ImageItem>
 
+    <LiveItem
+      v-else-if="message.type.endsWith('_LIVE')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+      @preview="preview"
+      @mediaClick="mediaClick"
+    ></LiveItem>
+
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -169,6 +181,7 @@ import FileItem from './chat-item/FileItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
 import ImageItem from './chat-item/ImageItem'
+import LiveItem from './chat-item/LiveItem'
 import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
 import BadgeItem from './chat-item/BadgeItem'
@@ -192,7 +205,8 @@ export default {
     ImageItem,
     StickerItem,
     RecallItem,
-    BadgeItem
+    BadgeItem,
+    LiveItem
   },
   data: function() {
     return {

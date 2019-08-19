@@ -699,6 +699,8 @@ class ReceiveWroker extends BaseWorker {
         thumb_url: liveData.thumb_url
       }
       messageDao.insertMessage(message)
+      const body = i18n.t('notification.sendLive')
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
     store.dispatch('refreshMessage', data.conversation_id)

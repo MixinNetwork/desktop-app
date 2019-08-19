@@ -103,6 +103,7 @@ export const MessageStatus = {
 }
 
 export function canReply(type) {
+  console.log(type)
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||
@@ -112,13 +113,15 @@ export function canReply(type) {
     type === MessageCategories.SIGNAL_DATA ||
     type === MessageCategories.SIGNAL_STICKER ||
     type === MessageCategories.SIGNAL_CONTACT ||
+    type === MessageCategories.SIGNAL_LIVE ||
     type === MessageCategories.PLAIN_TEXT ||
     type === MessageCategories.PLAIN_IMAGE ||
     type === MessageCategories.PLAIN_VIDEO ||
     type === MessageCategories.PLAIN_AUDIO ||
     type === MessageCategories.PLAIN_DATA ||
     type === MessageCategories.PLAIN_STICKER ||
-    type === MessageCategories.PLAIN_CONTACT
+    type === MessageCategories.PLAIN_CONTACT ||
+    type === MessageCategories.PLAIN_LIVE
   )
 }
 
@@ -144,6 +147,7 @@ export const MessageCategories = {
   SIGNAL_DATA: 'SIGNAL_DATA',
   SIGNAL_STICKER: 'SIGNAL_STICKER',
   SIGNAL_CONTACT: 'SIGNAL_CONTACT',
+  SIGNAL_LIVE: 'SIGNAL_LIVE',
   PLAIN_TEXT: 'PLAIN_TEXT',
   PLAIN_IMAGE: 'PLAIN_IMAGE',
   PLAIN_VIDEO: 'PLAIN_VIDEO',
@@ -151,6 +155,7 @@ export const MessageCategories = {
   PLAIN_DATA: 'PLAIN_DATA',
   PLAIN_STICKER: 'PLAIN_STICKER',
   PLAIN_CONTACT: 'PLAIN_CONTACT',
+  PLAIN_LIVE: 'PLAIN_LIVE',
   PLAIN_JSON: 'PLAIN_JSON',
   SYSTEM_CONVERSATION: 'SYSTEM_CONVERSATION',
   SYSTEM_ACCOUNT_SNAPSHOT: 'SYSTEM_ACCOUNT_SNAPSHOT',

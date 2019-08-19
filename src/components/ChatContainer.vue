@@ -347,6 +347,10 @@ export default {
           category: category
         }
         this.$store.dispatch('sendAttachmentMessage', message)
+        let goBottom = this.goBottom
+        setTimeout(function() {
+          goBottom()
+        }, 5)
       }
       this.file = null
       this.dragging = false
@@ -488,6 +492,10 @@ export default {
       }
       msg.msg = message
       this.$store.dispatch('sendMessage', msg)
+      let goBottom = this.goBottom
+      setTimeout(function() {
+        goBottom()
+      }, 5)
     },
     handleItemClick({ type, message }) {
       switch (type) {

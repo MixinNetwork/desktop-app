@@ -1,10 +1,10 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
-    <div class="bar">
-      <ICClose class="icon" v-show="show" @click="close"></ICClose>
-      <ICDown class="icon" v-show="show" @click="minimize"></ICDown>
-      <ICUnPin class="icon" v-show="show&&pin" @click="toggle"></ICUnPin>
-      <ICPin class="icon" v-show="show&&!pin" @click="toggle"></ICPin>
+    <div class="bar" v-show="show">
+      <ICClose class="icon" @click="close"></ICClose>
+      <ICMinimize class="icon" @click="minimize"></ICMinimize>
+      <ICUnPin class="icon" v-show="pin" @click="toggle"></ICUnPin>
+      <ICPin class="icon" v-show="!pin" @click="toggle"></ICPin>
     </div>
   </div>
 </template>
@@ -14,8 +14,8 @@ import ChimeeKernelHls from 'chimee-kernel-hls'
 import { ipcRenderer } from 'electron'
 import ICPin from '@/assets/images/ic_pin.svg'
 import ICUnPin from '@/assets/images/ic_unpin.svg'
-import ICClose from '@/assets/images/close_a.svg'
-import ICDown from '@/assets/images/down_a.svg'
+import ICClose from '@/assets/images/ic_player_close.svg'
+import ICMinimize from '@/assets/images/ic_minimize.svg'
 export default {
   data: function() {
     return {
@@ -27,7 +27,7 @@ export default {
     ICPin,
     ICUnPin,
     ICClose,
-    ICDown
+    ICMinimize
   },
   methods: {
     toggle: function() {
@@ -68,8 +68,7 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped >
+<style lang="scss" scoped>
 .player {
   width: 100%;
   height: 100%;
@@ -92,4 +91,3 @@ export default {
   }
 }
 </style>
-

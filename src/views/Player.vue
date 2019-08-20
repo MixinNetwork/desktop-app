@@ -18,7 +18,8 @@ export default {
       crossOrigin: true,
       autoplay: true,
       autoload: false,
-      poster: args.thumb
+      poster: args.thumb,
+      controls: true
     })
     chimee.load(args.url)
     chimee.play()

@@ -164,14 +164,12 @@ function createPlayerWindow(w, h) {
 ipcMain.on('play', (event, args) => {
   if (playerWindow == null) {
     createPlayerWindow(args.width, args.height)
+  } else if (args.url !== currentURL) {
+    playerWindow.close()
+    createPlayerWindow(args.width, args.height)
   } else {
-    if (args.url !== currentURL) {
-      playerWindow.close()
-      createPlayerWindow(args.width, args.height)
-    } else {
-      playerWindow.show()
-      return
-    }
+    playerWindow.show()
+    return
   }
   currentURL = args.url
   let params = `#player?thumb=${args.thumb}&url=${args.url}`

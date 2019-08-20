@@ -149,7 +149,7 @@ function createPlayerWindow(w, h, pin) {
     minHeight: wh / 2,
     // eslint-disable-next-line no-undef
     icon: path.join(__static, 'icon.png'),
-    titleBarStyle: 'hidden',
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
@@ -173,6 +173,18 @@ ipcMain.on('pinToggle', (event, pin) => {
     } else {
       playerWindow.setAlwaysOnTop(false)
     }
+  }
+})
+
+ipcMain.on('closePlayer', (event, _) => {
+  if (playerWindow) {
+    playerWindow.close()
+    playerWindow = null
+  }
+})
+ipcMain.on('minimizePlayer', (event, _) => {
+  if (playerWindow) {
+    playerWindow.minimize()
   }
 })
 

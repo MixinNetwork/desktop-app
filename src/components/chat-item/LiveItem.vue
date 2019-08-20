@@ -17,6 +17,7 @@
               @click="$emit('liveClick')"
             />
           </div>
+          <span class="tag">LIVE</span>
           <div class="bottom">
             <span class="time">
               {{message.lt}}
@@ -130,6 +131,19 @@ export default {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
+    .tag {
+      position: absolute;
+      margin-left: 1rem;
+      margin-top: 0.2rem;
+      padding-left: 3px;
+      padding-right: 3px;
+      padding-top: 1px;
+      padding-bottom: 1px;
+      color: white;
+      background: #ec4f7d;
+      font-size: 0.6rem;
+      border-radius: 0.1rem;
+    }
     .loading {
       width: 32px;
       height: 32px;

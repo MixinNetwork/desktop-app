@@ -131,7 +131,8 @@ if (isDevelopment) {
 
 let playerWindow
 let currentURL
-function createPlayerWindow(w, h) {
+function createPlayerWindow(w, h, pin) {
+  playerWindow = null
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
   if (w > h) {
@@ -160,13 +161,28 @@ function createPlayerWindow(w, h) {
   playerWindow.on('closed', () => {
     playerWindow = null
   })
+  if (pin) {
+    playerWindow.setAlwaysOnTop(true, 'floating', 1)
+  }
 }
+
+ipcMain.on('pinToggle', (event, pin) => {
+  if (playerWindow) {
+    if (pin) {
+      playerWindow.setAlwaysOnTop(true, 'floating', 1)
+    } else {
+      playerWindow.setAlwaysOnTop(false)
+    }
+  }
+})
+
 ipcMain.on('play', (event, args) => {
   if (playerWindow == null) {
-    createPlayerWindow(args.width, args.height)
+    createPlayerWindow(args.width, args.height, args.pin)
   } else if (args.url !== currentURL) {
     playerWindow.close()
-    createPlayerWindow(args.width, args.height)
+    playerWindow = null
+    createPlayerWindow(args.width, args.height, args.pin)
   } else {
     playerWindow.show()
     return

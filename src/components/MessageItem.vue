@@ -278,7 +278,8 @@ export default {
         width: message.mediaWidth,
         height: message.mediaHeight,
         thumb: message.thumbUrl,
-        url: message.mediaUrl
+        url: message.mediaUrl,
+        pin: localStorage.pin
       })
     },
     messageOwnership: (message, me) => {

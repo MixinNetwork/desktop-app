@@ -2174,7 +2174,7 @@ babel-plugin-module-resolver@3.2.0:
     reselect "^3.0.1"
     resolve "^1.4.0"
 
-babel-runtime@^6.26.0:
+babel-runtime@^6.23.0, babel-runtime@^6.25.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   integrity sha1-llxwWGaOgrVde/4E/yM3vItWR/4=
@@ -2819,6 +2819,74 @@ check-types@^7.3.0:
   version "7.4.0"
   resolved "https://registry.yarnpkg.com/check-types/-/check-types-7.4.0.tgz#0378ec1b9616ec71f774931a3c6516fad8c152f4"
   integrity sha512-YbulWHdfP99UfZ73NcUDlNJhEIDgm9Doq9GhpyXbF+7Aegi3CVV7qqMCKTTqJxlvEvnQBp9IA+dxsGN6xK/nSg==
+
+chimee-helper-dom@^0.1.8:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/chimee-helper-dom/-/chimee-helper-dom-0.1.8.tgz#8d3fac173ea1cd3da2b51575772e6b082a22831f"
+  integrity sha512-V6yVko4Iy7cWZvQ1FmsFMeo4qriz0oYHfgKQqFW6XpykIYS+bxzjJ/9MbXoDUlfqE469KJQf9mq6qvONwn8IxQ==
+  dependencies:
+    babel-runtime "^6.26.0"
+    chimee-helper-events "^0.1.0"
+    chimee-helper-utils "^0.2.0"
+    toxic-predicate-functions "^0.1.5"
+
+chimee-helper-events@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/chimee-helper-events/-/chimee-helper-events-0.1.0.tgz#a8543e5897ee440665ae209b4b17a32b489e57b1"
+  integrity sha512-sdR2f0+QiT032BTcG/BS2IDY9/hxlv8dSenjwAXuiTzEsnTRRT6oC0tKXL3EdlhQgU35hULCBuEHEQetMCtIxw==
+  dependencies:
+    babel-runtime "^6.23.0"
+    toxic-predicate-functions "^0.1.2"
+
+chimee-helper-log@^0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/chimee-helper-log/-/chimee-helper-log-0.1.3.tgz#247c96d2694389686139745a90a1619f6e043550"
+  integrity sha512-CCaQf3IyFOU7k4a50emdBzhn/aJ5TbTNtf7E0VIHRRMP/3zmK+xNkadu9LB9fXM7z/aNmWrjPgeqxbHIN+2XPA==
+  dependencies:
+    babel-runtime "^6.23.0"
+    toxic-predicate-functions "^0.1.2"
+
+chimee-helper-utils@^0.2.0, chimee-helper-utils@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/chimee-helper-utils/-/chimee-helper-utils-0.2.1.tgz#aa8ae731da565e78c49d47a6a3a02cc8bec3e145"
+  integrity sha512-8h2ISQMC3qb9SiRdxgPerThwPjMK9hyLYWCININNbj6DYy/bwC7jkMsaWsXh4QIMw1czuWVNt8w28m2SJoNKyg==
+  dependencies:
+    babel-runtime "^6.23.0"
+    toxic-predicate-functions "^0.1.2"
+
+chimee-helper@^0.2.11:
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/chimee-helper/-/chimee-helper-0.2.11.tgz#3d2f0b1c6139639d44b1813b1b73a2a04da83923"
+  integrity sha512-mLA02w9P5wf1qncJGw/GwjHrnGmrAp5OEKeOaNGGR0A9ZZ4sFuBoBO9xXlpAiRcoJXgGdpNrZK28lJ14cn3kfA==
+  dependencies:
+    babel-runtime "^6.26.0"
+    chimee-helper-dom "^0.1.8"
+    chimee-helper-events "^0.1.0"
+    chimee-helper-log "^0.1.3"
+    chimee-helper-utils "^0.2.1"
+    toxic-predicate-functions "^0.1.5"
+    toxic-utils "^0.2.0"
+    ua-parser-js "^0.7.17"
+
+chimee-kernel-hls@^1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/chimee-kernel-hls/-/chimee-kernel-hls-1.3.2.tgz#c24a5616fc3105caf39f73088a7f2ba9077e7ccc"
+  integrity sha512-Johqdbaak4VJWuIP0NPYJTLHniy0sp/p77DDyotSt1o3yudoe5nYxOJt8EjYl2DLX/cvHvBmD+dNQhYk/Xkcqg==
+  dependencies:
+    babel-runtime "^6.26.0"
+    chimee-helper "^0.2.11"
+    hls.js "^0.9.1"
+    toxic-decorators "^0.3.8"
+
+chimee@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/chimee/-/chimee-0.11.0.tgz#38138a586f37e4e7b612a6c0bc8409e0591504bf"
+  integrity sha512-QITnKapshtfuGV+x7OmO+tTxn81nyoyTtPd1q2+BbwqLjYzZfhVDGEYRmchInACXtI7DTwfaE6uuPhlSYMXsAQ==
+  dependencies:
+    babel-runtime "^6.26.0"
+    chimee-helper "^0.2.11"
+    es-fullscreen "^0.3.0"
+    toxic-decorators "^0.3.8"
 
 chokidar@^2.0.2, chokidar@^2.1.6:
   version "2.1.6"
@@ -4203,6 +4271,15 @@ es-abstract@^1.12.0, es-abstract@^1.4.3, es-abstract@^1.5.0, es-abstract@^1.5.1,
     is-regex "^1.0.4"
     object-keys "^1.0.12"
 
+es-fullscreen@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/es-fullscreen/-/es-fullscreen-0.3.0.tgz#acdeb5b99d888703bb848d7faa7b60e6ff3def0d"
+  integrity sha512-6YscjrBLLTYZvi9SMERz7HYy6ONlbYRVoAilMpeuTazXxzztaFV313u57fECCf4WwSjRGQCEFuYC2F/dsgd5Jg==
+  dependencies:
+    babel-runtime "^6.26.0"
+    toxic-decorators "^0.3.8"
+    toxic-predicate-functions "^0.1.4"
+
 es-to-primitive@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/es-to-primitive/-/es-to-primitive-1.2.0.tgz#edf72478033456e8dda8ef09e00ad9650707f377"
@@ -5452,6 +5529,14 @@ highlight.js@^9.6.0:
   version "9.15.8"
   resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.15.8.tgz#f344fda123f36f1a65490e932cf90569e4999971"
   integrity sha512-RrapkKQWwE+wKdF73VsOa2RQdIoO3mxwJ4P8mhbI6KYJUraUHRKM5w5zQQKXNk0xNL4UVRdulV9SBJcmzJNzVA==
+
+hls.js@^0.9.1:
+  version "0.9.1"
+  resolved "https://registry.yarnpkg.com/hls.js/-/hls.js-0.9.1.tgz#36516d4fac3ab44108e5c127ef0f3e9cd06f6330"
+  integrity sha512-IklU+BgobPNIc6NMY+pyxElbwWKM7QmP2u0afB7KSK/1btAknTkDJmXasb4628EjgynjgDOVMmQ9sLg73S+lwQ==
+  dependencies:
+    string.prototype.endswith "^0.2.0"
+    url-toolkit "^2.1.2"
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
@@ -9830,6 +9915,11 @@ string-width@^3.0.0, string-width@^3.1.0:
     is-fullwidth-code-point "^2.0.0"
     strip-ansi "^5.1.0"
 
+string.prototype.endswith@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/string.prototype.endswith/-/string.prototype.endswith-0.2.0.tgz#a19c20dee51a98777e9a47e10f09be393b9bba75"
+  integrity sha1-oZwg3uUamHd+mkfhDwm+OTubunU=
+
 string.prototype.padend@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/string.prototype.padend/-/string.prototype.padend-3.0.0.tgz#f3aaef7c1719f170c5eab1c32bf780d96e21f2f0"
@@ -10338,6 +10428,38 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
+toxic-decorators@^0.3.8:
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/toxic-decorators/-/toxic-decorators-0.3.8.tgz#7c4bc31564bc4313d5cee86b2874dcefff99c8e1"
+  integrity sha1-fEvDFWS8QxPVzuhrKHTc7/+ZyOE=
+  dependencies:
+    babel-runtime "^6.25.0"
+    toxic-predicate-functions "^0.1.2"
+    toxic-utils "^0.1.5"
+
+toxic-predicate-functions@^0.1.2, toxic-predicate-functions@^0.1.4, toxic-predicate-functions@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/toxic-predicate-functions/-/toxic-predicate-functions-0.1.5.tgz#50f83378299aad684fe255feeebb8d6648cab64e"
+  integrity sha512-CEXK9vd69LC3VDfqK3Ntb8sPYmfzDXI/4w7FE8uVbufOtGy3vt+h33fKUx21eI/c+F6O6NTcdoeWr91GJWXwNA==
+  dependencies:
+    babel-runtime "^6.23.0"
+
+toxic-utils@^0.1.5:
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/toxic-utils/-/toxic-utils-0.1.6.tgz#164c3969d97e3258c4bc1e4ed25893415756e297"
+  integrity sha512-Jm6nvMUx7E6rb3Fyw0y4im8wrNI1bsaVpjKLCtisgpDgwyxOWZCTbhzJjAQdu2ccctNopKlPzh2UgMHxCJIlCw==
+  dependencies:
+    babel-runtime "^6.26.0"
+    toxic-predicate-functions "^0.1.4"
+
+toxic-utils@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/toxic-utils/-/toxic-utils-0.2.0.tgz#c2b487c206acb5038896eda3c2e4d426f4e56298"
+  integrity sha512-3AFj4RS6sSTolHcE2dKlihvghxeUKb58r3wltHJYRtz6oRhxgl39TGvqpxeSo2uvbYvK0r8qV9spC932uY+0wg==
+  dependencies:
+    babel-runtime "^6.26.0"
+    toxic-predicate-functions "^0.1.4"
+
 trim-newlines@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/trim-newlines/-/trim-newlines-1.0.0.tgz#5887966bb582a4503a41eb524f7d35011815a613"
@@ -10418,6 +10540,11 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
+
+ua-parser-js@^0.7.17:
+  version "0.7.20"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.20.tgz#7527178b82f6a62a0f243d1f94fd30e3e3c21098"
+  integrity sha512-8OaIKfzL5cpx8eCMAhhvTlft8GYF8b2eQr6JkCyVdrgjcytyOmPCXrqXFcUnhonRpLlh5yxEZVohm6mzaowUOw==
 
 uglify-js@3.4.x:
   version "3.4.10"
@@ -10598,6 +10725,11 @@ url-regex@^3.0.0:
   integrity sha1-260eDJ4p4QXdCx8J9oYvf9tIJyQ=
   dependencies:
     ip-regex "^1.0.1"
+
+url-toolkit@^2.1.2:
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/url-toolkit/-/url-toolkit-2.1.6.tgz#6d03246499e519aad224c44044a4ae20544154f2"
+  integrity sha512-UaZ2+50am4HwrV2crR/JAf63Q4VvPYphe63WGeoJxeu8gmOm0qxPt+KsukfakPNrX9aymGNEkkaoICwn+OuvBw==
 
 url@^0.11.0, url@~0.11.0:
   version "0.11.0"

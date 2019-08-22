@@ -90,6 +90,7 @@ let transactions = {
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
+      chat_live: 'Live',
       chat_recall_delete: 'This message was deleted',
       chat_recall_me: 'You deleted this message',
       chat_file_invalid_size: 'Requires file size less than 30MB',
@@ -121,7 +122,8 @@ let transactions = {
       sendSticker: 'send a sticker',
       sendContact: 'shared a contact',
       sendFile: 'send a file',
-      sendAudio: 'send a audio message'
+      sendAudio: 'send a audio message',
+      sendLive: 'send a live message'
     }
   },
   zh: {
@@ -213,6 +215,7 @@ let transactions = {
       chat_file: '文件',
       chat_audio: '语音',
       chat_video: '视频',
+      chat_live: '直播',
       chat_recall_delete: '此消息已撤回',
       chat_recall_me: '你撤回了一条消息',
       chat_file_invalid_size: '不支持大于30MB的文件',
@@ -244,7 +247,8 @@ let transactions = {
       sendSticker: '发送了一个贴纸',
       sendContact: '分享了一个联系人',
       sendFile: '发送了一个文件',
-      sendAudio: '发送了一条语音'
+      sendAudio: '发送了一条语音',
+      sendLive: '发送了一个直播'
     }
   }
 }

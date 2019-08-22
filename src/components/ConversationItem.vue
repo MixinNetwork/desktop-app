@@ -135,6 +135,8 @@ export default {
         return this.getMessageName() + this.$t('chat.chat_audio')
       } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
         return this.getMessageName() + this.$t('chat.chat_video')
+      } else if (conversation.contentType && conversation.contentType.endsWith('_LIVE')) {
+        return this.getMessageName() + this.$t('chat.chat_live')
       } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
         if (conversation.contentType === 'APP_CARD') {
           return this.getMessageName() + this.$t('chat.chat_app_card')

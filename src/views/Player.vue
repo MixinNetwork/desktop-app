@@ -29,10 +29,14 @@ export default {
     ICClose,
     ICMinimize
   },
+  watch: {
+    pin(newPin) {
+      localStorage.pinTop = newPin
+    }
+  },
   methods: {
     toggle: function() {
       this.pin = !this.pin
-      localStorage.pin = this.pin
       ipcRenderer.send('pinToggle', this.pin)
     },
     close: function() {
@@ -49,6 +53,7 @@ export default {
     }
   },
   mounted() {
+    this.pin = localStorage.pinTop === 'true'
     let args = this.$route.query
     let player = this.$refs.player
     let chimee = new Chimee({

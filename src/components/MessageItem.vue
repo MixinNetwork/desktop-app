@@ -279,7 +279,7 @@ export default {
         height: message.mediaHeight,
         thumb: message.thumbUrl,
         url: message.mediaUrl,
-        pin: localStorage.pin
+        pin: localStorage.pinTop
       })
     },
     messageOwnership: (message, me) => {

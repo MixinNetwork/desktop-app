@@ -45,8 +45,6 @@
   </div>
 </template>
 <script>
-import spinner from '@/components/Spinner.vue'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
@@ -62,9 +60,7 @@ export default {
     ICSending,
     ICSend,
     ICRead,
-    BadgeItem,
-    spinner,
-    AttachmentIcon
+    BadgeItem
   },
   data: function() {
     return {

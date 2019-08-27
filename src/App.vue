@@ -1,12 +1,12 @@
 <template>
   <div id="app">
-    <div class="drag-bar"/>
-    <router-view/>
+    <div class="drag-bar" />
+    <router-view />
     <div class="app_time" v-show="showTime">
-      <img src="./assets/ic_logo.webp" class="app_time_logo">
+      <img src="./assets/ic_logo.webp" class="app_time_logo" />
       <span class="app_time_info">{{$t('time_wrong')}}</span>
       <span class="app_time_continue" @click="ping" v-show="!isLoading">{{$t('continue')}}</span>
-      <spinner class="app_time_loding" v-if="isLoading"/>
+      <spinner class="app_time_loding" v-if="isLoading" />
     </div>
   </div>
 </template>
@@ -52,6 +52,7 @@ body {
   margin: 0;
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   user-select: none;
+  overflow: hidden;
 }
 button {
   -webkit-app-region: no-drag;

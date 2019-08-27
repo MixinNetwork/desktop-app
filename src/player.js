@@ -87,7 +87,7 @@ export function initPlayer(id) {
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
     } else {
-      playerWindow.loadURL('app://./index.html' + params)
+      playerWindow.loadURL('app://./index_player.html' + params)
     }
     playerWindow.show()
   })

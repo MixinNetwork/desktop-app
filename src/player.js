@@ -17,7 +17,7 @@ function createPlayerWindow(w, h, pin) {
     minHeight: parseInt(wh / 2),
     // eslint-disable-next-line no-undef
     icon: path.join(__static, 'icon.png'),
-    frame: false,
+    frame: process.platform !== 'darwin',
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
@@ -29,6 +29,11 @@ function createPlayerWindow(w, h, pin) {
     playerWindow.setAlwaysOnTop(true, 'floating', 1)
   } else {
     playerWindow.setAlwaysOnTop(false)
+  }
+  if (process.platform !== 'darwin') {
+    playerWindow.setMenuBarVisibility(false)
+    playerWindow.setAutoHideMenuBar(true)
+    playerWindow.setMenu(null)
   }
   return playerWindow
 }

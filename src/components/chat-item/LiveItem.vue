@@ -16,7 +16,7 @@
               v-bind:src="message.thumbUrl"
               @click="$emit('liveClick')"
             />
-            <ICPlay class="play"></ICPlay>
+            <ICPlay class="play" @click="$emit('liveClick')"></ICPlay>
           </div>
           <span class="tag">LIVE</span>
           <div class="bottom">

@@ -162,9 +162,11 @@ export default {
       max-height: 15rem;
       margin-left: 0.8rem;
       margin-right: 0.8rem;
-      border-radius: 0.2rem;
       overflow: hidden;
       position: relative;
+      .image{
+        border-radius: 0.2rem;
+      }
     }
     .bottom {
       display: flex;

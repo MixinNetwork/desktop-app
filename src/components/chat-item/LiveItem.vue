@@ -16,6 +16,7 @@
               v-bind:src="message.thumbUrl"
               @click="$emit('liveClick')"
             />
+            <ICPlay class="play"></ICPlay>
           </div>
           <span class="tag">LIVE</span>
           <div class="bottom">
@@ -48,6 +49,7 @@
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
+import ICPlay from '@/assets/images/ic_play.svg'
 import BadgeItem from './BadgeItem'
 import { MessageStatus } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
@@ -60,6 +62,7 @@ export default {
     ICSending,
     ICSend,
     ICRead,
+    ICPlay,
     BadgeItem
   },
   data: function() {
@@ -140,6 +143,17 @@ export default {
       font-size: 0.6rem;
       border-radius: 0.1rem;
     }
+    .play {
+      width: 30px;
+      height: 30px;
+      position: absolute;
+      margin: auto;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 10;
+    }
     .loading {
       width: 32px;
       height: 32px;
@@ -154,9 +168,11 @@ export default {
       max-height: 15rem;
       margin-left: 0.8rem;
       margin-right: 0.8rem;
-      border-radius: 0.2rem;
       overflow: hidden;
       position: relative;
+      .image {
+        border-radius: 0.2rem;
+      }
     }
     .bottom {
       display: flex;

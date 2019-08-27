@@ -1,9 +1,10 @@
 'use strict'
 
-import { app, protocol, ipcMain, shell, screen, BrowserWindow } from 'electron'
+import { app, protocol, ipcMain, shell, BrowserWindow } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
 import { setFocusWindow } from './updater'
+import { initPlayer } from './player'
 import path from 'path'
 
 ipcMain.on('checkUp', (event, _) => {
@@ -73,6 +74,7 @@ function createWindow() {
   } else {
     win.setMenu(null)
   }
+  initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
 }
 
@@ -128,83 +130,3 @@ if (isDevelopment) {
     })
   }
 }
-
-let playerWindow
-let currentURL
-function createPlayerWindow(w, h, pin) {
-  playerWindow = null
-  let { width, height } = screen.getPrimaryDisplay().workArea
-  let ww, wh
-  if (w > h) {
-    ww = parseInt(width / 2)
-    wh = parseInt((ww * h) / w)
-  } else {
-    wh = parseInt(height / 2)
-    ww = parseInt((wh * w) / h)
-  }
-  playerWindow = new BrowserWindow({
-    width: ww,
-    height: wh,
-    minWidth: ww / 2,
-    minHeight: wh / 2,
-    // eslint-disable-next-line no-undef
-    icon: path.join(__static, 'icon.png'),
-    frame: false,
-    webPreferences: {
-      nodeIntegration: true,
-      webSecurity: false
-    },
-    show: false,
-    frame: false
-  })
-  playerWindow.setAspectRatio(w / h)
-  playerWindow.on('closed', () => {
-    playerWindow = null
-  })
-  if (pin) {
-    playerWindow.setAlwaysOnTop(true, 'floating', 1)
-  }
-}
-
-ipcMain.on('pinToggle', (event, pin) => {
-  if (playerWindow) {
-    if (pin) {
-      playerWindow.setAlwaysOnTop(true, 'floating', 1)
-    } else {
-      playerWindow.setAlwaysOnTop(false)
-    }
-  }
-})
-
-ipcMain.on('closePlayer', (event, _) => {
-  if (playerWindow) {
-    playerWindow.close()
-    playerWindow = null
-  }
-})
-ipcMain.on('minimizePlayer', (event, _) => {
-  if (playerWindow) {
-    playerWindow.minimize()
-  }
-})
-
-ipcMain.on('play', (event, args) => {
-  if (playerWindow == null) {
-    createPlayerWindow(args.width, args.height, args.pin)
-  } else if (args.url !== currentURL) {
-    playerWindow.close()
-    playerWindow = null
-    createPlayerWindow(args.width, args.height, args.pin)
-  } else {
-    playerWindow.show()
-    return
-  }
-  currentURL = args.url
-  let params = `#player?thumb=${args.thumb}&url=${args.url}`
-  if (process.env.WEBPACK_DEV_SERVER_URL) {
-    playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
-  } else {
-    playerWindow.loadURL('app://./index.html' + params)
-  }
-  playerWindow.show()
-})

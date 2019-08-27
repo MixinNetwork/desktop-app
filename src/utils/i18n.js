@@ -90,7 +90,7 @@ let transactions = {
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
-      chat_live: 'Live',
+      chat_live: 'LIVE',
       chat_recall_delete: 'This message was deleted',
       chat_recall_me: 'You deleted this message',
       chat_file_invalid_size: 'Requires file size less than 30MB',

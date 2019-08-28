@@ -4,13 +4,14 @@
     <div class="layout">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
-        <ICRecall class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'"/>
-        <ICMessageAudio class="replay_icon" v-else-if="messageType() === 'audio'"/>
-        <ICMessagePhoto class="replay_icon" v-else-if="messageType() === 'image'"/>
-        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'video'"/>
-        <ICMessageFile class="replay_icon" v-else-if="messageType() === 'file'"/>
-        <ICMessageContact class="replay_icon" v-else-if="messageType() === 'contact'"/>
-        <ICMessageTransfer class="replay_icon" v-else-if="messageType() === 'transfer'"/>
+        <ICRecall class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
+        <ICMessageAudio class="replay_icon" v-else-if="messageType() === 'audio'" />
+        <ICMessagePhoto class="replay_icon" v-else-if="messageType() === 'image'" />
+        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'video'" />
+        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'live'" />
+        <ICMessageFile class="replay_icon" v-else-if="messageType() === 'file'" />
+        <ICMessageContact class="replay_icon" v-else-if="messageType() === 'contact'" />
+        <ICMessageTransfer class="replay_icon" v-else-if="messageType() === 'transfer'" />
         <ICMessageBotMenu
           class="replay_icon"
           v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
@@ -23,26 +24,31 @@
       v-if="message.type.endsWith('_IMAGE') && (message.mediaUrl || message.assetUrl)"
       v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       v-bind:src="mediaUrl"
-    >
+    />
     <img
       class="image"
       v-if="message.type.endsWith('_VIDEO') && (message.mediaUrl || message.assetUrl)"
       v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       v-bind:src="mediaUrl"
-    >
+    />
 
+    <img
+      class="image"
+      v-if="message.type.endsWith('_LIVE') && message.thumbUrl"
+      v-bind:src="message.thumbUrl"
+    />
     <img
       class="image"
       v-if="message.type.endsWith('_STICKER') && (message.mediaUrl || message.assetUrl)"
       v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       v-bind:src="mediaUrl"
-    >
+    />
     <img
       class="image"
       v-if="message.type.endsWith('_CONTACT')"
       v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       v-bind:src="message.sharedUserAvatarUrl"
-    >
+    />
   </div>
 </template>
 <script>
@@ -107,6 +113,8 @@ export default {
         }
       } else if (this.message.type.endsWith('_VIDEO')) {
         return this.$t('chat.chat_video')
+      } else if (this.message.type.endsWith('_LIVE')) {
+        return this.$t('chat.chat_live')
       } else if (this.message.type.endsWith('_AUDIO')) {
         return this.formatSeconds(this.message.mediaDuration)
       } else if (this.message.type.endsWith('_DATA')) {
@@ -155,6 +163,8 @@ export default {
         return 'text'
       } else if (type.endsWith('_VIDEO')) {
         return 'video'
+      } else if (type.endsWith('_LIVE')) {
+        return 'live'
       } else if (type.endsWith('_AUDIO')) {
         return 'audio'
       } else if (type.endsWith('_DATA')) {

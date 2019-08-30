@@ -415,7 +415,7 @@ class ReceiveWroker extends BaseWorker {
         thumb_url: null
       }
       messageDao.insertMessage(message)
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)
       var mediaData = JSON.parse(decoded)
@@ -458,7 +458,7 @@ class ReceiveWroker extends BaseWorker {
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, { args: message })
       const body = i18n.t('notification.sendPhoto')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_VIDEO')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
@@ -501,7 +501,7 @@ class ReceiveWroker extends BaseWorker {
       downloadQueue.push(this.download, { args: message })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendVideo')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_DATA')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
@@ -541,7 +541,7 @@ class ReceiveWroker extends BaseWorker {
       downloadQueue.push(this.download, { args: message })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendFile')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_AUDIO')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
@@ -581,7 +581,7 @@ class ReceiveWroker extends BaseWorker {
       downloadQueue.push(this.download, { args: message })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendAudio')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_STICKER')) {
       const decoded = window.atob(plaintext)
       const stickerData = JSON.parse(decoded)
@@ -623,7 +623,7 @@ class ReceiveWroker extends BaseWorker {
         await this.refreshSticker(stickerData.sticker_id)
       }
       const body = i18n.t('notification.sendSticker')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_CONTACT')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const contactData = JSON.parse(decoded)
@@ -662,7 +662,7 @@ class ReceiveWroker extends BaseWorker {
       messageDao.insertMessage(message)
       await this.syncUser(contactData.user_id)
       const body = i18n.t('notification.sendContact')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_LIVE')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const liveData = JSON.parse(decoded)
@@ -700,17 +700,24 @@ class ReceiveWroker extends BaseWorker {
       }
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendLive')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
-  showNotification(conversationId, userId, fullName, content, source) {
+  showNotification(conversationId, userId, fullName, content, source, createdAt) {
     if (source === 'LIST_PENDING_SESSION_MESSAGES') {
       return
     }
     if (remote.getCurrentWindow().isFocused()) {
+      return
+    }
+    if (
+      moment()
+        .subtract(1, 'minute')
+        .isAfter(createdAt)
+    ) {
       return
     }
     const accountId = JSON.parse(localStorage.getItem('account')).user_id

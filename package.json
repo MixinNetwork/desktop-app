@@ -68,5 +68,5 @@
     "vue-template-compiler": "^2.6.10"
   },
   "main": "background.js",
-  "repository": "github:mixinnetwork/desktop-app"
+  "repository": "github:MixinNetwork/desktop-app"
 }

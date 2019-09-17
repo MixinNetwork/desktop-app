@@ -325,7 +325,12 @@ export default {
       }
     },
     textMessage: message => {
-      var result = URI.withinString(message.content, function(url) {
+      var h = message.content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+      var result = URI.withinString(h, function(url) {
         let l = url
         if (!url.startsWith('http')) {
           l = 'https://' + url

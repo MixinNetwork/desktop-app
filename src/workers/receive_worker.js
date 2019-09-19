@@ -190,7 +190,7 @@ class ReceiveWroker extends BaseWorker {
       created_at: data.created_at,
       action: null,
       participant_id: null,
-      snapshot_id: null,
+      snapshot_id: decoded.snapshot_id,
       hyperlink: null,
       name: null,
       album_id: null,

@@ -1,6 +1,6 @@
 <template>
   <div class="loading">
-    <spinner v-if="isLoading"/>
+    <spinner v-if="isLoading" />
     <h4>{{$t('loading.initializing')}}</h4>
   </div>
 </template>
@@ -38,6 +38,7 @@ export default {
       }
       const user = account.data.data
       if (user) {
+        localStorage.account = JSON.stringify(user)
         this.$store.dispatch('insertUser', user)
         this.$blaze.connect()
         this.$router.push('/home')

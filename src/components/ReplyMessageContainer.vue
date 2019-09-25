@@ -28,8 +28,7 @@
     <img
       class="image"
       v-if="message.type.endsWith('_VIDEO') && (message.mediaUrl || message.assetUrl)"
-      v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-      v-bind:src="mediaUrl"
+      v-bind:src="'data:image/jpeg;base64,' + message.thumbImage"
     />
 
     <img

@@ -103,7 +103,6 @@ export const MessageStatus = {
 }
 
 export function canReply(type) {
-  console.log(type)
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||

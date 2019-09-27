@@ -2,10 +2,10 @@
   <main>
     <div class="group">
       <div class="bar">
-        <font-awesome-icon class="back" icon="arrow-left" @click="$emit('profile-back')"/>
+        <font-awesome-icon class="back" icon="arrow-left" @click="$emit('profile-back')" />
         <h3>{{$t('chat.personal_info')}}</h3>
       </div>
-      <Avatar id="avatar" :user="me"/>
+      <Avatar id="avatar" :user="me" />
       <div id="name">
         <a>{{$t('chat.user_name')}}</a>
         <label>{{me.full_name}}</label>
@@ -81,6 +81,7 @@ main {
         margin-top: 20px;
         margin-left: 20px;
         font-weight: bold;
+        user-select: text;
       }
     }
   }

@@ -2,14 +2,14 @@
   <div id="delails_root">
     <header class="title_bar">
       <div @click="$emit('close')">
-        <ICClose/>
+        <ICClose />
       </div>
       <div class="title_content">{{$t('profile.title')}}</div>
     </header>
     <div class="content">
       <header class="content_header">
         <div>
-          <Avatar class="avatar" :user="user" :conversation="conversation"/>
+          <Avatar class="avatar" :user="user" :conversation="conversation" />
         </div>
         <span class="name">{{name}}</span>
         <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
@@ -117,12 +117,14 @@ export default {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        user-select: text;
       }
       .id {
         font-size: 1rem;
         font-weight: 300;
         text-align: center;
         width: 100%;
+        user-select: text;
       }
     }
     .participants {

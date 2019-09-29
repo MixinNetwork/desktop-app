@@ -42,12 +42,7 @@
       v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       v-bind:src="mediaUrl"
     />
-    <img
-      class="image"
-      v-if="message.type.endsWith('_CONTACT')"
-      v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-      v-bind:src="message.sharedUserAvatarUrl"
-    />
+    <Avatar class="avatar" v-if="message.type.endsWith('_CONTACT')" id="avatar" :user="user" />
   </div>
 </template>
 <script>
@@ -60,6 +55,8 @@ import ICMessageFile from '@/assets/images/ic_message_file.svg'
 import ICMessageContact from '@/assets/images/ic_message_contact.svg'
 import ICMessageTransfer from '@/assets/images/ic_message_transfer.svg'
 import ICMessageBotMenu from '@/assets/images/ic_message_bot_menu.svg'
+import Avatar from '@/components/Avatar'
+import userDao from '@/dao/user_dao.js'
 export default {
   props: ['message', 'me'],
   data() {
@@ -73,7 +70,8 @@ export default {
     ICMessageFile,
     ICMessageContact,
     ICMessageTransfer,
-    ICMessageBotMenu
+    ICMessageBotMenu,
+    Avatar
   },
   computed: {
     bg: function() {
@@ -123,6 +121,9 @@ export default {
       } else {
         return null
       }
+    },
+    user: function() {
+      return userDao.findUserById(this.message.sharedUserId)
     }
   },
   methods: {
@@ -222,6 +223,12 @@ export default {
     height: 40px;
     margin-left: 0.4rem;
     object-fit: cover;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    margin: 4px;
+    margin-left: 0.4rem;
   }
   .replay_icon {
     height: 14px;

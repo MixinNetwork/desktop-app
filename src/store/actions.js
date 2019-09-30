@@ -321,7 +321,6 @@ export default {
         commit('refreshMessage', conversationId)
       },
       transferAttachmentData => {
-        console.log(transferAttachmentData)
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
@@ -353,7 +352,6 @@ export default {
           digest: digest,
           key: key
         }
-        console.log(msg)
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
         messageDao.updateMessageContent(content, message.messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, message.messageId)

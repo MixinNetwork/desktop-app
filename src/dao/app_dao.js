@@ -12,7 +12,6 @@ class AppDao {
 
   findAppByUserId(id) {
     if (!id) return null
-    console.log(id)
     return db.prepare('SELECT * FROM apps WHERE app_id = ?').get([id])
   }
 }

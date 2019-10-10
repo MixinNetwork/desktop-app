@@ -9,11 +9,8 @@
     <script type="text/javascript" src="<%= BASE_URL %>libsignal-protocol.js"></script>
     <script>
       const go = new Go()
-      let mod, inst
       const wasmObject = WebAssembly.instantiateStreaming(fetch('libsignal.wasm'), go.importObject).then(result => {
-        mod = result.module
-        inst = result.instance
-        go.run(inst)
+        go.run(result.instance)
       })
     </script>
   </head>

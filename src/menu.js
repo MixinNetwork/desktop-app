@@ -39,7 +39,7 @@ const template = [
     submenu: [
       {
         label: 'Learn More',
-        click () {
+        click() {
           require('electron').shell.openExternal('https://mixin.one/messenger')
         }
       }
@@ -49,7 +49,7 @@ const template = [
 
 if (process.platform === 'darwin') {
   template.unshift({
-    label: app.name,
+    label: app.getName(),
     submenu: [
       { role: 'about' },
       { label: 'Check for Updates...', click: checkForUpdates },

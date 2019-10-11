@@ -1271,7 +1271,7 @@
     webpack-dev-server "^3.4.1"
     webpack-merge "^4.2.1"
 
-"@vue/cli-shared-utils@^3.11.0", "@vue/cli-shared-utils@^3.12.0":
+"@vue/cli-shared-utils@^3.12.0":
   version "3.12.0"
   resolved "https://registry.yarnpkg.com/@vue/cli-shared-utils/-/cli-shared-utils-3.12.0.tgz#48fcd786129cf02278b9c91f2c3491199f777248"
   integrity sha512-8XEn4s0Cc+98eqdGSQJSrzSKIsf0FMDmfDvgXjT7I2qZWs9e0toOAm7RooypRSad2FhwxzY2bLPgCkNPDJN/jQ==
@@ -2192,7 +2192,6 @@ boolbase@^1.0.0, boolbase@~1.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  uid "3518d7f1c5e0fb893212db80e568f8b6fcdaacd2"
   resolved "https://github.com/MixinNetwork/bot-api-js-client.git#3518d7f1c5e0fb893212db80e568f8b6fcdaacd2"
   dependencies:
     crypto "^1.0.1"

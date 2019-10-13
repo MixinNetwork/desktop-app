@@ -14,7 +14,7 @@ import signalProtocol from '@/crypto/signal.js'
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()
 
-export async function downloadAttachment(message) {
+export async function downloadAttachment (message) {
   try {
     const response = await attachmentApi.getAttachment(message.content)
     if (response.data.data) {
@@ -67,7 +67,7 @@ export async function downloadAttachment(message) {
   }
 }
 
-function processAttachment(imagePath, mimeType, category, id) {
+function processAttachment (imagePath, mimeType, category, id) {
   const fileName = path.parse(imagePath).base
   let type = mimeType
   if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
@@ -76,7 +76,7 @@ function processAttachment(imagePath, mimeType, category, id) {
   return { localPath: destination, name: fileName }
 }
 
-export async function base64ToImage(img, mimeType) {
+export async function base64ToImage (img, mimeType) {
   var data = img.replace(/^data:image\/\w+;base64,/, '')
   var buf = Buffer.from(data, 'base64')
   const destination = path.join(getImagePath(), generateName(null, mimeType, '_IMAGE'))
@@ -84,7 +84,7 @@ export async function base64ToImage(img, mimeType) {
   return { path: destination, type: mimeType }
 }
 
-function toArrayBuffer(buf) {
+function toArrayBuffer (buf) {
   var ab = new ArrayBuffer(buf.length)
   var view = new Uint8Array(ab)
   for (var i = 0; i < buf.length; ++i) {
@@ -92,7 +92,7 @@ function toArrayBuffer(buf) {
   }
   return ab
 }
-export async function putAttachment(imagePath, mimeType, category, id, processCallback, sendCallback, errorCallback) {
+export async function putAttachment (imagePath, mimeType, category, id, processCallback, sendCallback, errorCallback) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
   var mediaWidth = null
   var mediaHeight = null
@@ -138,6 +138,7 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
   fetch(url, {
     method: 'PUT',
     body: buffer,
+    mode: 'no-cors',
     headers: {
       'x-amz-acl': 'public-read',
       Connection: 'close',
@@ -145,7 +146,7 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
       'Content-Type': 'application/octet-stream'
     }
   }).then(
-    function(resp) {
+    function (resp) {
       if (resp.status === 200) {
         sendCallback({
           attachment_id: attachmentId,
@@ -168,7 +169,7 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
   )
 }
 
-export async function uploadAttachment(localPath, category, sendCallback, errorCallback) {
+export async function uploadAttachment (localPath, category, sendCallback, errorCallback) {
   var key
   var digest
   var buffer = fs.readFileSync(localPath)
@@ -193,6 +194,7 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
   fetch(url, {
     method: 'PUT',
     body: buffer,
+    mode: 'no-cors',
     headers: {
       'x-amz-acl': 'public-read',
       Connection: 'close',
@@ -200,7 +202,7 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
       'Content-Type': 'application/octet-stream'
     }
   }).then(
-    function(resp) {
+    function (resp) {
       if (resp.status === 200) {
         sendCallback(
           attachmentId,
@@ -217,7 +219,7 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
   )
 }
 
-function generateName(fileName, mimeType, category, id) {
+function generateName (fileName, mimeType, category, id) {
   const date = new Date()
   if (!id) {
     id = uuidv4()
@@ -261,7 +263,7 @@ function generateName(fileName, mimeType, category, id) {
   }
 }
 
-export function isImage(mimeType) {
+export function isImage (mimeType) {
   if (
     mimeType === MimeType.JPEG.name ||
     mimeType === MimeType.JPEG.name ||
@@ -276,35 +278,36 @@ export function isImage(mimeType) {
   }
 }
 
-function parseFile(blob) {
+function parseFile (blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onloadend = function(event) {
+    reader.onloadend = function (event) {
       const content = event.target.result
       resolve(content)
     }
-    reader.onerror = function(event) {
+    reader.onerror = function (event) {
       reject(event)
     }
     reader.readAsArrayBuffer(blob)
   })
 }
 
-function getAttachment(url) {
+function getAttachment (url) {
   return fetch(url, {
     method: 'GET',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/octet-stream'
     }
   })
-    .then(function(resp) {
+    .then(function (resp) {
       let code = parseInt(resp.status)
       if (code !== 200) {
         throw Error(code)
       }
       return resp.blob()
     })
-    .then(function(blob) {
+    .then(function (blob) {
       if (!blob) {
         throw Error('Error data')
       }
@@ -312,7 +315,7 @@ function getAttachment(url) {
     })
 }
 
-function getImagePath() {
+function getImagePath () {
   const dir = path.join(getMediaPath(), 'Image')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -320,7 +323,7 @@ function getImagePath() {
   return dir
 }
 
-function getVideoPath() {
+function getVideoPath () {
   const dir = path.join(getMediaPath(), 'Video')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -328,7 +331,7 @@ function getVideoPath() {
   return dir
 }
 
-function getAudioPath() {
+function getAudioPath () {
   const dir = path.join(getMediaPath(), 'Audio')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -336,7 +339,7 @@ function getAudioPath() {
   return dir
 }
 
-function getDocumentPath() {
+function getDocumentPath () {
   const dir = path.join(getMediaPath(), 'Files')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -344,7 +347,7 @@ function getDocumentPath() {
   return dir
 }
 
-function getMediaPath() {
+function getMediaPath () {
   const dir = path.join(getAppPath(), 'media')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -352,7 +355,7 @@ function getMediaPath() {
   return dir
 }
 
-function getAppPath() {
+function getAppPath () {
   const dir = remote.app.getPath('userData')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)

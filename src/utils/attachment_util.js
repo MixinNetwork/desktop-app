@@ -138,7 +138,6 @@ export async function putAttachment (imagePath, mimeType, category, id, processC
   fetch(url, {
     method: 'PUT',
     body: buffer,
-    mode: 'no-cors',
     headers: {
       'x-amz-acl': 'public-read',
       Connection: 'close',
@@ -194,7 +193,6 @@ export async function uploadAttachment (localPath, category, sendCallback, error
   fetch(url, {
     method: 'PUT',
     body: buffer,
-    mode: 'no-cors',
     headers: {
       'x-amz-acl': 'public-read',
       Connection: 'close',
@@ -295,7 +293,6 @@ function parseFile (blob) {
 function getAttachment (url) {
   return fetch(url, {
     method: 'GET',
-    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/octet-stream'
     }

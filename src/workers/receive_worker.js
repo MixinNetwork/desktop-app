@@ -68,7 +68,7 @@ class ReceiveWroker extends BaseWorker {
       console.log(data)
     }
   }
-  processApp(data) {
+  async processApp(data) {
     if (data.primitive_id) {
       data.user_id = data.primitive_id
     }
@@ -119,7 +119,7 @@ class ReceiveWroker extends BaseWorker {
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
-  processRecallMessage(data) {
+  async processRecallMessage(data) {
     if (data.primitive_id) {
       data.user_id = data.primitive_id
     }

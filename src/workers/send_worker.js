@@ -57,7 +57,7 @@ class SendWorker extends BaseWorker {
 
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
-    await wasmObject.then(result => {})
+    await wasmObject.then(result => { })
     const primaryDeviceId = 1
     if (!signalProtocol.containsSession(message.user_id, primaryDeviceId)) {
       const blazeParam = {
@@ -80,7 +80,7 @@ class SendWorker extends BaseWorker {
     const content = signalProtocol.encryptSessionMessage(message.user_id, primaryDeviceId, message.content)
     const blazeMessage = this.createBlazeMessage(message, content)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      _ => {},
+      _ => { },
       error => {
         if (error.code === 403) {
           messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)

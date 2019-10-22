@@ -14,7 +14,7 @@ class SignalProtocol {
   }
   generatePreKeys() {
     const begin = localStorage.next_pre_key_id ? parseInt(localStorage.next_pre_key_id) : 1
-    const end = begin + 10
+    const end = begin + 500
     const preKeysStr = generatePreKeysFromGo(begin, end)
     localStorage.next_pre_key_id = end + 1
     const preKeys = preKeysStr.split(',')

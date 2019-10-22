@@ -4,7 +4,7 @@
     <div>{{$t('sign_in.desc')}}</div>
     <div class="qr_layout">
       <canvas id="qr" ref="qr"></canvas>
-      <img class="logo" v-if="!isLoading" src="../assets/logo.png">
+      <img class="logo" v-if="!isLoading" src="../assets/logo.png" />
       <spinner class="spinner" v-if="isLoading"></spinner>
       <div class="retry" v-if="showRetry" @click="refresh">
         <div class="button">
@@ -14,7 +14,7 @@
                 <path
                   d="M35.3 12.7C32.4 9.8 28.42 8 24 8 15.16 8 8.02 15.16 8.02 24S15.16 40 24 40c7.46 0 13.68-5.1 15.46-12H35.3c-1.64 4.66-6.08 8-11.3 8-6.62 0-12-5.38-12-12s5.38-12 12-12c3.32 0 6.28 1.38 8.44 3.56L26 22h14V8l-4.7 4.7z"
                   id="Shape"
-                ></path>
+                />
               </g>
             </g>
           </svg>

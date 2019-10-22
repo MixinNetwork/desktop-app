@@ -2192,7 +2192,8 @@ boolbase@^1.0.0, boolbase@~1.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#3518d7f1c5e0fb893212db80e568f8b6fcdaacd2"
+  uid aa9f6398609c82d858e4efdbab22ced7d224a45c
+  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#aa9f6398609c82d858e4efdbab22ced7d224a45c"
   dependencies:
     crypto "^1.0.1"
     int64-buffer "^0.99.1007"

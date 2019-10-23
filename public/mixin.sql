@@ -229,6 +229,22 @@ CREATE TABLE IF NOT EXISTS `ratchet_sender_keys` (
 	PRIMARY KEY(`group_id`, `sender_id`)
 );
 
+CREATE TABLE IF NOT EXISTS sessions (
+	`session_id` TEXT NOT NULL,
+	`user_id` TEXT NOT NULL, 
+	`platform` TEXT, 
+	PRIMARY KEY(`session_id`, `user_id`)
+);
+
+CREATE TABLE IF NOT EXISTS session_participants (
+	`conversation_id` TEXT NOT NULL, 
+	`user_id` TEXT NOT NULL, 
+	`session_id` TEXT NOT NULL, 
+	`sent_to_server` INTEGER, 
+	`created_at` TEXT, 
+	PRIMARY KEY(`conversation_id`, `user_id`, `session_id`)
+);
+
 CREATE INDEX IF NOT EXISTS index_sessions_user_id ON sessions (
 	'user_id'
 );

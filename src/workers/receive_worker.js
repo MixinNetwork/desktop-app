@@ -58,13 +58,11 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async processSignalMessage(data) {
-    if (data.session_id !== localStorage.primarySessionId) {
-      return
-    }
-    const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, 1, data.data, data.category)
+    const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, data.session_id, data.data, data.category)
     if (plaintext) {
       await this.processDecryptSuccess(data, plaintext)
     } else {
+      console.log('decrypt failed')
       console.log(data)
     }
   }
@@ -350,26 +348,8 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async processDecryptSuccess(data, plaintext) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
-    if (data.representative_id) {
-      data.user_id = data.representative_id
-    }
-    const accountId = JSON.parse(localStorage.getItem('account')).user_id
     const user = await this.syncUser(data.user_id)
 
-    var status = MessageStatus.PENDING
-    if (data.user_id !== accountId) {
-      if (store.state.currentConversationId === data.conversation_id) {
-        status = MessageStatus.READ
-      } else {
-        status = MessageStatus.DELIVERED
-      }
-    }
     if (data.category.endsWith('_TEXT')) {
       var plain = null
       if (data.category === 'PLAIN_TEXT') {

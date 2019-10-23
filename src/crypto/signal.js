@@ -94,8 +94,8 @@ class SignalProtocol {
   encryptSessionMessage(recipientId, deviceId, plaintext) {
     return encryptSessionMessageFromGo(recipientId, deviceId, plaintext)
   }
-  decryptMessage(groupId, senderId, senderDeviceId, data, category) {
-    return decryptEncodedMessageFromGo(groupId, senderId, senderDeviceId, data, category)
+  decryptMessage(groupId, senderId, sessionId, data, category) {
+    return decryptEncodedMessageFromGo(groupId, senderId, sessionId, data, category)
   }
   generateKeyPair() {
     return generateKeyPairFromGo()

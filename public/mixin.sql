@@ -213,12 +213,6 @@ CREATE TABLE IF NOT EXISTS `addresses` (
 	`dust`	TEXT,
 	PRIMARY KEY(`address_id`)
 );
-CREATE TABLE IF NOT EXISTS sessions (
-	session_id TEXT NOT NULL,
-	user_id TEXT NOT NULL,
-	device_id INTEGER,
-	PRIMARY KEY('session_id')
-);
 
 CREATE TABLE IF NOT EXISTS `ratchet_sender_keys` (
 	`group_id` TEXT NOT NULL, 
@@ -229,14 +223,14 @@ CREATE TABLE IF NOT EXISTS `ratchet_sender_keys` (
 	PRIMARY KEY(`group_id`, `sender_id`)
 );
 
-CREATE TABLE IF NOT EXISTS sessions (
+CREATE TABLE IF NOT EXISTS `sessions` (
 	`session_id` TEXT NOT NULL,
 	`user_id` TEXT NOT NULL, 
 	`platform` TEXT, 
 	PRIMARY KEY(`session_id`, `user_id`)
 );
 
-CREATE TABLE IF NOT EXISTS session_participants (
+CREATE TABLE IF NOT EXISTS `session_participants` (
 	`conversation_id` TEXT NOT NULL, 
 	`user_id` TEXT NOT NULL, 
 	`session_id` TEXT NOT NULL, 
@@ -245,9 +239,6 @@ CREATE TABLE IF NOT EXISTS session_participants (
 	PRIMARY KEY(`conversation_id`, `user_id`, `session_id`)
 );
 
-CREATE INDEX IF NOT EXISTS index_sessions_user_id ON sessions (
-	'user_id'
-);
 CREATE INDEX IF NOT EXISTS `index_users_full_name` ON `users` (
 	`full_name`
 );

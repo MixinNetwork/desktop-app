@@ -324,6 +324,7 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
+        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
         commit('stopLoading', messageId)
       },
@@ -355,6 +356,7 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
         messageDao.updateMessageContent(content, message.messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, message.messageId)
+        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, message.messageId)
         commit('stopLoading', message.messageId)
       },

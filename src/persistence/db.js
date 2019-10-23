@@ -28,6 +28,7 @@ export function clearAllTables() {
   mixinDb.transaction(() => {
     mixinDb.exec('DELETE FROM `users`')
     mixinDb.exec('DELETE FROM `sessions`')
+    mixinDb.exec('DELETE FROM `session_participants`')
     mixinDb.exec('DELETE FROM `conversations`')
     mixinDb.exec('DELETE FROM `messages`')
     mixinDb.exec('DELETE FROM `participants`')

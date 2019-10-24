@@ -154,6 +154,7 @@ export default {
             const deviceId = signalProtocol.convertToDeviceId(account.session_id)
             localStorage.deviceId = deviceId
             localStorage.primarySessionId = primarySessionId
+            localStorage.sessionId = account.session_id
             this.$store.dispatch('saveAccount', account)
             this.$router.push('/')
           })

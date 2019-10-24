@@ -92,7 +92,13 @@ class SendWorker extends BaseWorker {
       }
     }
 
-    const content = signalProtocol.encryptSessionMessage(message.user_id, primaryDeviceId, message.content)
+    this.checkSessionSenderKey(message.conversation_id)
+    const content = signalProtocol.encryptGroupMessage(
+      message.conversation_id,
+      message.user_id,
+      this.getDeviceId(),
+      message.content
+    )
     const blazeMessage = this.createBlazeMessage(message, content)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
       _ => {},
@@ -124,24 +130,8 @@ class SendWorker extends BaseWorker {
     return blazeMessage
   }
 
-  checkAndSendSenderKey(conversationId) {
-    this.checkAndSendSenderKey(conversationId)
-    const participants = sessionParticipantsDao.getNotSendSessionParticipants(
-      conversationId,
-      JSON.parse(localStorage.getItem('account')).user_id
-    )
-    // Todo
-    if (participants.length === 1) {
-      // sendSenderKey(conversationId, participants[0].user_id)
-    } else if (participants.length > 1) {
-      // sendBatchSenderKey(conversationId, participants)
-    }
-  }
   async checkSessionSenderKey(conversationId) {
-    const participants = sessionParticipantsDao.getNotSendSessionParticipants(
-      conversationId,
-      JSON.parse(localStorage.getItem('account')).user_id
-    )
+    const participants = sessionParticipantsDao.getNotSendSessionParticipants(conversationId, this.getAccountId())
     if (participants || participants.length === 0) {
       return
     }
@@ -151,7 +141,7 @@ class SendWorker extends BaseWorker {
       if (!signalProtocol.containsSession(participant.user_id, participant.session_id)) {
         requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
       } else {
-        let { cipherText, senderKeyId, err } = signalProtocol.encryptSenderKey(
+        let { cipherText, err } = signalProtocol.encryptSenderKey(
           conversationId,
           participant.userId,
           participant.sessionId
@@ -169,6 +159,7 @@ class SendWorker extends BaseWorker {
         }
       }
       if (requestSignalKeyUsers.length !== 0) {
+        // createConsumeSessionSignalKeys
         const blazeMessage = {
           id: uuidv4(),
           action: 'CONSUME_SESSION_SIGNAL_KEYS',
@@ -178,6 +169,7 @@ class SendWorker extends BaseWorker {
         }
 
         const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+        console.log(data)
         if (data) {
           const signalKeys = JSON.parse(data)
           const keys = []
@@ -185,9 +177,10 @@ class SendWorker extends BaseWorker {
             // No any group signal key from server
           }
           signalKeys.forEach(signalKey => {
+            // createPreKeyBundle
             const preKeyBundle = {
               registrationId: signalKey.registration_id,
-              deviceId: 1,
+              deviceId: this.convertToDeviceId(signalKey.session_id),
               preKeyId: signalKey.preKey_id,
               preKeyPublic: signalKey.preKey_public,
               signedPreKeyId: signalKey.signedPreKey_id,
@@ -195,9 +188,8 @@ class SendWorker extends BaseWorker {
               signedPreKeySignature: signalKey.signed_preKey_signature,
               identityKey: signalKey.identity_key
             }
-            // Todo device_id
-            signalProtocol.processSession(signalKey.user_id, null, preKeyBundle)
-            const { cipherText, sendKeyId } = signalProtocol.encryptSenderKey(
+            signalProtocol.processSession(signalKey.user_id, this.convertToDeviceId(signalKey.session_id), preKeyBundle)
+            const { cipherText } = signalProtocol.encryptSenderKey(
               conversationId,
               signalKey.user_id,
               signalKey.session_id
@@ -210,6 +202,7 @@ class SendWorker extends BaseWorker {
             })
             keys.push({ user_id: signalKey.user_id, session_id: signalKey.session_id })
           })
+
           const noKeyList = requestSignalKeyUsers.filter(signalKey => {
             return keys.some(key => key === signalKey)
           })
@@ -222,7 +215,7 @@ class SendWorker extends BaseWorker {
                 sent_to_server: 0
               }
             })
-            // Todo
+            // Todo updateList
             sessionParticipantsDao.updateList(sentSendKeys)
           }
         }
@@ -230,7 +223,7 @@ class SendWorker extends BaseWorker {
       if (signalKeyMessages.length === 0) {
         return
       }
-      // TODO
+      // createSignalKeyMessage
       const bm = {
         id: uuidv4(),
         action: 'CREATE_SIGNAL_KEY_MESSAGES',
@@ -238,7 +231,6 @@ class SendWorker extends BaseWorker {
       }
       const result = await Vue.prototype.$blaze.sendMessagePromise(bm)
       if (result) {
-        // TODO  update
         sessionParticipantsDao.updateList(
           signalKeyMessages.map(message => {
             return {

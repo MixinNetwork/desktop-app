@@ -67,12 +67,6 @@ class ReceiveWroker extends BaseWorker {
     }
   }
   async processApp(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
     var status
     if (store.state.currentConversationId === data.conversation_id) {
       status = MessageStatus.READ
@@ -154,12 +148,6 @@ class ReceiveWroker extends BaseWorker {
   }
 
   processSystemSnapshotMessage(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
     var status
     if (store.state.currentConversationId === data.conversation_id) {
       status = MessageStatus.READ
@@ -204,12 +192,6 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async processSystemConversationMessage(data, systemMessage) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
     let userId = data.user_id
     if (systemMessage.user_id) {
       userId = systemMessage.user_id

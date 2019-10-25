@@ -38,12 +38,11 @@ class Blaze {
     var self = this
     return new Promise((resolve, reject) => {
       this.ws.addEventListener('open', function(event) {
-        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_SESSION_MESSAGES' }, function(resp) {
+        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function(resp) {
           console.log(resp)
         })
         resolve()
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-        self.startPing()
       })
     })
   }
@@ -126,34 +125,6 @@ class Blaze {
         console.log(blazeMsg.error)
       }
     }
-  }
-
-  startPing() {
-    var self = this
-    self.ping = true
-    interval(
-      async (_, stop) => {
-        if (!self.ping) {
-          stop()
-        }
-        if (this.ws.readyState === WebSocket.OPEN) {
-          await self.sendPing()
-        }
-      },
-      5000,
-      { stopOnError: false }
-    )
-  }
-
-  async sendPing() {
-    this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING_SESSION' }, function(resp) {
-      const data = resp.data.data
-      if (!data || data.length === 0) {
-        store.dispatch('setLinkStatus', LinkStatus.LOSE)
-      } else {
-        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-      }
-    })
   }
 
   handleReceiveMessage(msg) {

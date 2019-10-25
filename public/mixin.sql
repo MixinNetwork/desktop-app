@@ -223,13 +223,6 @@ CREATE TABLE IF NOT EXISTS `ratchet_sender_keys` (
 	PRIMARY KEY(`group_id`, `sender_id`)
 );
 
-CREATE TABLE IF NOT EXISTS `sessions` (
-	`session_id` TEXT NOT NULL,
-	`user_id` TEXT NOT NULL, 
-	`platform` TEXT, 
-	PRIMARY KEY(`session_id`, `user_id`)
-);
-
 CREATE TABLE IF NOT EXISTS `session_participants` (
 	`conversation_id` TEXT NOT NULL, 
 	`user_id` TEXT NOT NULL, 

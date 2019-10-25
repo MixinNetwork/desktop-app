@@ -1,6 +1,6 @@
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
-import sessionParticipantsDao from '@/dao/session_participants_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 import conversationApi from '@/api/conversation'
 import uuidv4 from 'uuid/v4'
 import signalProtocol from '@/crypto/signal.js'
@@ -48,7 +48,7 @@ class SendWorker extends BaseWorker {
               created_at: new Date().toISOString()
             }
           })
-          sessionParticipantsDao.insertAll(participants)
+          participantSessionDao.insertAll(participants)
         }
       } else {
         return
@@ -131,7 +131,7 @@ class SendWorker extends BaseWorker {
   }
 
   async checkSessionSenderKey(conversationId) {
-    const participants = sessionParticipantsDao.getNotSendSessionParticipants(conversationId, this.getAccountId())
+    const participants = participantSessionDao.getNotSendSessionParticipants(conversationId, this.getAccountId())
     if (participants || participants.length === 0) {
       return
     }
@@ -216,7 +216,7 @@ class SendWorker extends BaseWorker {
               }
             })
             // Todo updateList
-            sessionParticipantsDao.updateList(sentSendKeys)
+            participantSessionDao.updateList(sentSendKeys)
           }
         }
       }
@@ -231,7 +231,7 @@ class SendWorker extends BaseWorker {
       }
       const result = await Vue.prototype.$blaze.sendMessagePromise(bm)
       if (result) {
-        sessionParticipantsDao.updateList(
+        participantSessionDao.updateList(
           signalKeyMessages.map(message => {
             return {
               conversation_id: conversationId,

@@ -58,7 +58,8 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async processSignalMessage(data) {
-    const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, data.session_id, data.data, data.category)
+    const deviceId = signalProtocol.convertToDeviceId(data.session_id)
+    const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, deviceId, data.data, data.category)
     if (plaintext) {
       await this.processDecryptSuccess(data, plaintext)
     } else {

@@ -147,7 +147,7 @@ export default class BaseWorker {
   }
 
   getDeviceId() {
-    return localStorage.deviceId
+    return parseInt(localStorage.deviceId)
   }
 
   getSessionId() {

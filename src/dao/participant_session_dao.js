@@ -18,10 +18,11 @@ class ParticipantSessionDao {
   }
 
   getNotSendSessionParticipants(conversationId, sessionId) {
-    const stmt = db.prepare(
-      'SELECT p.* FROM participant_session p WHERE p.conversation_id = ? AND p.session_id != ? AND p.sent_to_server is NULL'
-    )
-    return stmt.all(conversationId, sessionId)
+    return db
+      .prepare(
+        'SELECT * FROM participant_session WHERE conversation_id = ? AND session_id != ? AND sent_to_server is NULL'
+      )
+      .all(conversationId, sessionId)
   }
 
   updateList(sessionParticipants) {

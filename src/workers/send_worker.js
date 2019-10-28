@@ -35,7 +35,6 @@ class SendWorker extends BaseWorker {
       })
 
       if (result.data.data) {
-        console.log(result.data.data)
         conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
         const session = result.data.data.participant_sessions
         if (session) {
@@ -116,13 +115,15 @@ class SendWorker extends BaseWorker {
 
   async checkSessionSenderKey(conversationId) {
     const participants = participantSessionDao.getNotSendSessionParticipants(conversationId, this.getAccountId())
-    if (participants || participants.length === 0) {
+    if (!participants || participants.length === 0) {
       return
     }
     let requestSignalKeyUsers = []
     let signalKeyMessages = []
-    participants.forEach(async participant => {
-      if (!signalProtocol.containsSession(participant.user_id, participant.session_id)) {
+    participants.forEach(participant => {
+      if (
+        !signalProtocol.containsSession(participant.user_id, signalProtocol.convertToDeviceId(participant.session_id))
+      ) {
         requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
       } else {
         let { cipherText, err } = signalProtocol.encryptSenderKey(
@@ -142,91 +143,97 @@ class SendWorker extends BaseWorker {
           })
         }
       }
-      if (requestSignalKeyUsers.length !== 0) {
-        // createConsumeSessionSignalKeys
-        const blazeMessage = {
-          id: uuidv4(),
-          action: 'CONSUME_SESSION_SIGNAL_KEYS',
-          params: {
-            recipients: JSON.stringify(requestSignalKeyUsers)
-          }
-        }
+    })
 
-        const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-        console.log(data)
-        if (data) {
-          const signalKeys = JSON.parse(data)
-          const keys = []
-          if (signalKeys.length === 0) {
-            // No any group signal key from server
-          }
-          signalKeys.forEach(signalKey => {
-            // createPreKeyBundle
-            const preKeyBundle = {
-              registrationId: signalKey.registration_id,
-              deviceId: this.convertToDeviceId(signalKey.session_id),
-              preKeyId: signalKey.preKey_id,
-              preKeyPublic: signalKey.preKey_public,
-              signedPreKeyId: signalKey.signedPreKey_id,
-              signedPreKeyPublic: signalKey.signedPreKey_public,
-              signedPreKeySignature: signalKey.signed_preKey_signature,
-              identityKey: signalKey.identity_key
-            }
-            signalProtocol.processSession(signalKey.user_id, this.convertToDeviceId(signalKey.session_id), preKeyBundle)
-            const { cipherText } = signalProtocol.encryptSenderKey(
-              conversationId,
-              signalKey.user_id,
-              signalKey.session_id
-            )
-            signalKeyMessages.push({
-              message_id: uuidv4().toLowerCase(),
-              recipient_id: signalKey.user_id,
-              data: cipherText,
-              session_id: signalKey.session_id
-            })
-            keys.push({ user_id: signalKey.user_id, session_id: signalKey.session_id })
-          })
-
-          const noKeyList = requestSignalKeyUsers.filter(signalKey => {
-            return keys.some(key => key === signalKey)
-          })
-          if (noKeyList.length > 0) {
-            const sentSendKeys = noKeyList.map(key => {
-              return {
-                conversation_id: conversationId,
-                user_id: key.user_id,
-                session_id: key.session_id,
-                sent_to_server: 0
-              }
-            })
-            // Todo updateList
-            participantSessionDao.updateList(sentSendKeys)
-          }
-        }
-      }
-      if (signalKeyMessages.length === 0) {
-        return
-      }
-      // createSignalKeyMessage
-      const bm = {
+    if (requestSignalKeyUsers.length !== 0) {
+      // createConsumeSessionSignalKeys
+      const blazeMessage = {
         id: uuidv4(),
-        action: 'CREATE_SIGNAL_KEY_MESSAGES',
-        params: { conversation_id: conversationId, messages: JSON.stringify(signalKeyMessages) }
+        action: 'CONSUME_SESSION_SIGNAL_KEYS',
+        params: {
+          recipients: requestSignalKeyUsers
+        }
       }
-      const result = await Vue.prototype.$blaze.sendMessagePromise(bm)
-      if (result) {
-        participantSessionDao.updateList(
-          signalKeyMessages.map(message => {
+      const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+      if (data) {
+        const signalKeys = data
+        const keys = []
+        if (signalKeys.length === 0) {
+          // No any group signal key from server
+        }
+        signalKeys.forEach(signalKey => {
+          // createPreKeyBundle
+          const preKeyBundle = {
+            registrationId: signalKey.registration_id,
+            deviceId: signalProtocol.convertToDeviceId(signalKey.session_id),
+            preKeyId: signalKey.preKey_id,
+            preKeyPublic: signalKey.preKey_public,
+            signedPreKeyId: signalKey.signedPreKey_id,
+            signedPreKeyPublic: signalKey.signedPreKey_public,
+            signedPreKeySignature: signalKey.signed_preKey_signature,
+            identityKey: signalKey.identity_key
+          }
+          signalProtocol.processSession(
+            signalKey.user_id,
+            signalProtocol.convertToDeviceId(signalKey.session_id),
+            preKeyBundle
+          )
+          const { cipherText } = signalProtocol.encryptSenderKey(
+            conversationId,
+            signalKey.user_id,
+            signalKey.session_id,
+            this.getAccountId(),
+            this.getDeviceId()
+          )
+          signalKeyMessages.push({
+            message_id: uuidv4().toLowerCase(),
+            recipient_id: signalKey.user_id,
+            data: cipherText,
+            session_id: signalKey.session_id
+          })
+          keys.push({ user_id: signalKey.user_id, session_id: signalKey.session_id })
+        })
+
+        const noKeyList = requestSignalKeyUsers.filter(signalKey => {
+          return !keys.some(key => key === signalKey)
+        })
+        if (noKeyList.length > 0) {
+          const sentSendKeys = noKeyList.map(key => {
             return {
               conversation_id: conversationId,
-              user_id: message.recipient_id,
-              session_id: message.session_id,
-              sent_to_server: 1
+              user_id: key.user_id,
+              session_id: key.session_id,
+              sent_to_server: 0,
+              created_at: new Date().toISOString()
             }
           })
-        )
+          participantSessionDao.updateList(sentSendKeys)
+        }
       }
-    })
+    }
+    if (signalKeyMessages.length === 0) {
+      return
+    }
+    // createSignalKeyMessage
+    const bm = {
+      id: uuidv4(),
+      action: 'CREATE_SIGNAL_KEY_MESSAGES',
+      params: { conversation_id: conversationId, messages: JSON.stringify(signalKeyMessages) }
+    }
+    const result = await Vue.prototype.$blaze.sendMessagePromise(bm)
+    if (result) {
+      participantSessionDao.updateList(
+        signalKeyMessages.map(message => {
+          return {
+            conversation_id: conversationId,
+            user_id: message.recipient_id,
+            session_id: message.session_id,
+            sent_to_server: 1,
+            created_at: new Date().toISOString()
+          }
+        })
+      )
+    }
   }
 
   sendSenderKey(conversationId, recipientId, sessionId) {

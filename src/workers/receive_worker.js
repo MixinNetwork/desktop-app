@@ -59,7 +59,13 @@ class ReceiveWroker extends BaseWorker {
 
   async processSignalMessage(data) {
     const deviceId = signalProtocol.convertToDeviceId(data.session_id)
-    const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, deviceId, data.data, data.category)
+    const plaintext = signalProtocol.decryptMessage(
+      data.conversation_id,
+      data.user_id,
+      deviceId,
+      data.data,
+      data.category
+    )
     if (plaintext) {
       await this.processDecryptSuccess(data, plaintext)
     } else {
@@ -726,7 +732,7 @@ class ReceiveWroker extends BaseWorker {
     }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,
@@ -751,7 +757,7 @@ class ReceiveWroker extends BaseWorker {
     }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,

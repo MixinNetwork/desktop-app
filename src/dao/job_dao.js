@@ -9,15 +9,11 @@ class JobDao {
   }
   findAckJobs() {
     return db
-      .prepare(
-        `SELECT * FROM jobs WHERE action = 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS' ORDER BY created_at ASC LIMIT 100`
-      )
+      .prepare(`SELECT * FROM jobs WHERE action = 'ACKNOWLEDGE_MESSAGE_RECEIPTS' ORDER BY created_at ASC LIMIT 100`)
       .all()
   }
   findSessionAckJobs() {
-    return db
-      .prepare(`SELECT * FROM jobs WHERE action = 'CREATE_SESSION_MESSAGE' ORDER BY created_at ASC LIMIT 100`)
-      .all()
+    return db.prepare(`SELECT * FROM jobs WHERE action = 'CREATE_MESSAGE' ORDER BY created_at ASC LIMIT 100`).all()
   }
   findRecallJob() {
     return db.prepare(`SELECT * FROM jobs WHERE action = 'RECALL_MESSAGE'`).get()

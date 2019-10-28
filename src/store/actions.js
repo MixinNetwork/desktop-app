@@ -115,7 +115,7 @@ function updateRemoteMessageStatus(messageId, status) {
   const blazeMessage = { message_id: messageId, status: status }
   jobDao.insert({
     job_id: uuidv4(),
-    action: 'CREATE_SESSION_MESSAGE',
+    action: 'CREATE_MESSAGE',
     created_at: new Date().toISOString(),
     order_id: null,
     priority: 5,

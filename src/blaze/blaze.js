@@ -9,7 +9,6 @@ import messageDao from '@/dao/message_dao'
 import jobDao from '@/dao/job_dao'
 import floodMessageDao from '@/dao/flood_message_dao'
 import accountApi from '@/api/account.js'
-import interval from 'interval-promise'
 import router from '@/router'
 class Blaze {
   constructor() {
@@ -128,7 +127,7 @@ class Blaze {
   }
 
   handleReceiveMessage(msg) {
-    if (msg.action === 'CREATE_SESSION_MESSAGE') {
+    if (msg.action === 'CREATE_MESSAGE') {
       if (
         msg.data.user_id === this.account.user_id &&
         msg.data.session_id === this.account.session_id &&
@@ -138,7 +137,7 @@ class Blaze {
       } else {
         floodMessageDao.insert(msg.data.message_id, JSON.stringify(msg.data), msg.data.created_at)
       }
-    } else if (msg.action === 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS') {
+    } else if (msg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS') {
     } else if (msg.action === 'PING_SESSION') {
     } else {
       this.updateRemoteMessageStatus(msg.data.message_id, MessageStatus.DELIVERED)
@@ -188,7 +187,7 @@ class Blaze {
     const blazeMessage = { message_id: messageId, status: status }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,

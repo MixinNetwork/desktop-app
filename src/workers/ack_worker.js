@@ -20,7 +20,7 @@ class AckWorker extends BaseWorker {
     })
     const blazeMessage = {
       id: uuidv4(),
-      action: 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       params: {
         messages: messages
       }
@@ -38,7 +38,7 @@ class AckWorker extends BaseWorker {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     const blazeMessage = {
       id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       params: {
         category: 'MESSAGE_RECALL',
         conversation_id: job.conversation_id,
@@ -74,7 +74,7 @@ class AckWorker extends BaseWorker {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     const blazeMessage = {
       id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       params: {
         category: 'PLAIN_JSON',
         conversation_id: userId,

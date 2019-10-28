@@ -107,7 +107,7 @@ class SendWorker extends BaseWorker {
     }
     const blazeMessage = {
       id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       params: blazeParam
     }
     return blazeMessage
@@ -128,8 +128,10 @@ class SendWorker extends BaseWorker {
       } else {
         let { cipherText, err } = signalProtocol.encryptSenderKey(
           conversationId,
-          participant.userId,
-          participant.sessionId
+          participant.user_id,
+          signalProtocol.convertToDeviceId(participant.session_id),
+          this.getAccountId(),
+          this.getDeviceId()
         )
         if (err) {
           requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
@@ -163,25 +165,15 @@ class SendWorker extends BaseWorker {
         }
         signalKeys.forEach(signalKey => {
           // createPreKeyBundle
-          const preKeyBundle = {
-            registrationId: signalKey.registration_id,
-            deviceId: signalProtocol.convertToDeviceId(signalKey.session_id),
-            preKeyId: signalKey.preKey_id,
-            preKeyPublic: signalKey.preKey_public,
-            signedPreKeyId: signalKey.signedPreKey_id,
-            signedPreKeyPublic: signalKey.signedPreKey_public,
-            signedPreKeySignature: signalKey.signed_preKey_signature,
-            identityKey: signalKey.identity_key
-          }
           signalProtocol.processSession(
             signalKey.user_id,
             signalProtocol.convertToDeviceId(signalKey.session_id),
-            preKeyBundle
+            JSON.stringify(signalKey)
           )
           const { cipherText } = signalProtocol.encryptSenderKey(
             conversationId,
             signalKey.user_id,
-            signalKey.session_id,
+            signalProtocol.convertToDeviceId(signalKey.session_id),
             this.getAccountId(),
             this.getDeviceId()
           )

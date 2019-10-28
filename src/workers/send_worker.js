@@ -38,7 +38,7 @@ class SendWorker extends BaseWorker {
         conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
         const session = result.data.data.participant_sessions
         if (session) {
-          const participants = session.map(function(item) {
+          const participants = session.map(function (item) {
             return {
               conversation_id: item.conversation_id,
               user_id: item.user_id,
@@ -71,11 +71,12 @@ class SendWorker extends BaseWorker {
 
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
-    await wasmObject.then(result => {})
+    await wasmObject.then(result => { })
     if (!signalProtocol.isExistSenderKey(message.conversation_id, message.user_id, this.getDeviceId())) {
-      this.checkConversation(message.conversation_id)
+      await this.checkConversation(message.conversation_id)
     }
-    this.checkSessionSenderKey(message.conversation_id)
+
+    await this.checkSessionSenderKey(message.conversation_id)
     const content = signalProtocol.encryptGroupMessage(
       message.conversation_id,
       message.user_id,
@@ -84,7 +85,7 @@ class SendWorker extends BaseWorker {
     )
     const blazeMessage = this.createBlazeMessage(message, content)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      _ => {},
+      _ => { },
       error => {
         if (error.code === 403) {
           messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)
@@ -165,15 +166,16 @@ class SendWorker extends BaseWorker {
         }
         signalKeys.forEach(signalKey => {
           // createPreKeyBundle
+          const deviceId = signalProtocol.convertToDeviceId(signalKey.session_id)
           signalProtocol.processSession(
             signalKey.user_id,
-            signalProtocol.convertToDeviceId(signalKey.session_id),
+            deviceId,
             JSON.stringify(signalKey)
           )
-          const { cipherText } = signalProtocol.encryptSenderKey(
+          const cipherText = signalProtocol.encryptSenderKey(
             conversationId,
             signalKey.user_id,
-            signalProtocol.convertToDeviceId(signalKey.session_id),
+            deviceId,
             this.getAccountId(),
             this.getDeviceId()
           )
@@ -281,7 +283,7 @@ class SendWorker extends BaseWorker {
     }
   }
 
-  signalKeysChannel(blazeMessage) {}
+  signalKeysChannel(blazeMessage) { }
 }
 
 export default new SendWorker()

@@ -51,14 +51,14 @@ export default class BaseWorker {
     if (c.data.data) {
       const conversation = c.data.data
       const me = JSON.parse(localStorage.getItem('account'))
-      const result = conversation.participants.some(function(item) {
+      const result = conversation.participants.some(function (item) {
         return item.user_id === me.user_id
       })
 
       const status = result ? ConversationStatus.SUCCESS : ConversationStatus.QUIT
       let ownerId = conversation.creator_id
       if (conversation.category === ConversationCategory.CONTACT) {
-        conversation.participants.forEach(function(item) {
+        conversation.participants.forEach(function (item) {
           if (item.user_id !== me.user_id) {
             ownerId = item.user_id
           }
@@ -80,11 +80,11 @@ export default class BaseWorker {
   }
   async refreshParticipants(conversationId, participants) {
     const local = participantDao.getParticipants(conversationId)
-    const localIds = local.map(function(item) {
+    const localIds = local.map(function (item) {
       return item.user_id
     })
     var online = []
-    participants.forEach(function(item, index) {
+    participants.forEach(function (item, index) {
       online[index] = {
         conversation_id: conversationId,
         user_id: item.user_id,
@@ -93,19 +93,19 @@ export default class BaseWorker {
       }
     })
 
-    const add = online.filter(function(item) {
-      return !localIds.some(function(e) {
+    const add = online.filter(function (item) {
+      return !localIds.some(function (e) {
         return item.user_id === e
       })
     })
-    const remove = localIds.filter(function(item) {
-      return !online.some(function(e) {
+    const remove = localIds.filter(function (item) {
+      return !online.some(function (e) {
         return item === e.user_id
       })
     })
     if (add.length > 0) {
       participantDao.insertAll(add)
-      const needFetchUsers = add.map(function(item) {
+      const needFetchUsers = add.map(function (item) {
         return item.user_id
       })
       this.fetchUsers(needFetchUsers)
@@ -158,7 +158,7 @@ export default class BaseWorker {
     return JSON.parse(localStorage.getItem('account')).user_id
   }
 
-  checkConversation(conversationId) {
+  async checkConversation(conversationId) {
     const conversation = conversationDao.getConversationById(conversationId)
     if (!conversation) {
       return
@@ -166,7 +166,7 @@ export default class BaseWorker {
     if (conversation.category === 'GROUP') {
       this.syncConversation(conversation)
     } else {
-      this.checkConversationExist(conversation)
+      await this.checkConversationExist(conversation)
     }
   }
 

@@ -210,16 +210,16 @@ class SendWorker extends BaseWorker {
     const bm = {
       id: uuidv4(),
       action: 'CREATE_SIGNAL_KEY_MESSAGES',
-      params: { conversation_id: conversationId, messages: JSON.stringify(signalKeyMessages) }
+      params: { conversation_id: conversationId, messages: signalKeyMessages }
     }
     const result = await Vue.prototype.$blaze.sendMessagePromise(bm)
     if (result) {
       participantSessionDao.updateList(
-        signalKeyMessages.map(message => {
+        signalKeyMessages.map(key => {
           return {
             conversation_id: conversationId,
-            user_id: message.recipient_id,
-            session_id: message.session_id,
+            user_id: key.recipient_id,
+            session_id: key.session_id,
             sent_to_server: 1,
             created_at: new Date().toISOString()
           }

@@ -1,5 +1,6 @@
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
@@ -155,5 +156,41 @@ export default class BaseWorker {
 
   getAccountId() {
     return JSON.parse(localStorage.getItem('account')).user_id
+  }
+
+  checkConversation(conversationId) {
+    const conversation = conversationDao.getConversationById(conversationId)
+    if (!conversation) {
+      return
+    }
+    if (conversation.category === 'GROUP') {
+      this.syncConversation(conversation)
+    } else {
+      this.checkConversationExist(conversation)
+    }
+  }
+
+  async checkConversationExist(conversation) {
+    if (conversation.status !== 'SUCCESS') {
+      const request = {
+        conversation_id: conversation.conversation_id,
+        category: conversation.category,
+        participants: [{ user_id: conversation.owner_id, role: '' }]
+      }
+      const response = await conversationApi.createContactConversation(request)
+      if (response && !response.error && response.data) {
+        conversationDao.updateConversationStatusById(conversation.conversation_id, 'SUCCESS')
+
+        const participants = response.data.data.participant_sessions.map(item => {
+          return {
+            conversation_id: conversation.conversation_id,
+            user_id: item.user_id,
+            session_id: item.session_id,
+            created_at: new Date().toISOString()
+          }
+        })
+        participantSessionDao.replaceAll(conversation.conversation_id, participants)
+      }
+    }
   }
 }

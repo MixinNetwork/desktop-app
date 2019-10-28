@@ -73,25 +73,9 @@ class SendWorker extends BaseWorker {
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
     await wasmObject.then(result => {})
-    const primaryDeviceId = 1
-    if (!signalProtocol.containsSession(message.user_id, primaryDeviceId)) {
-      const blazeParam = {
-        recipients: [{ user_id: message.user_id, session_id: localStorage.primarySessionId }]
-      }
-      const blazeMessage = {
-        id: uuidv4(),
-        action: 'CONSUME_SESSION_SIGNAL_KEYS',
-        params: blazeParam
-      }
-      const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-      if (data && data.length > 0) {
-        signalProtocol.processSession(message.user_id, primaryDeviceId, JSON.stringify(data[0]))
-      } else {
-        console.log('----NO Signal Keys----')
-        return
-      }
+    if (!signalProtocol.isExistSenderKey(message.conversation_id, message.user_id, this.getDeviceId())) {
+      this.checkConversation(message.conversation_id)
     }
-
     this.checkSessionSenderKey(message.conversation_id)
     const content = signalProtocol.encryptGroupMessage(
       message.conversation_id,

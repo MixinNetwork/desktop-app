@@ -100,8 +100,6 @@ class SendWorker extends BaseWorker {
       conversation_id: message.conversation_id,
       message_id: message.message_id,
       category: message.category,
-      recipient_id: message.user_id,
-      session_id: localStorage.primarySessionId,
       data: data,
       quote_message_id: message.quote_message_id
     }

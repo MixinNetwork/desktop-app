@@ -38,7 +38,7 @@ class SendWorker extends BaseWorker {
         conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
         const session = result.data.data.participant_sessions
         if (session) {
-          const participants = session.map(function (item) {
+          const participants = session.map(function(item) {
             return {
               conversation_id: item.conversation_id,
               user_id: item.user_id,
@@ -71,11 +71,10 @@ class SendWorker extends BaseWorker {
 
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
-    await wasmObject.then(result => { })
+    await wasmObject.then(result => {})
     if (!signalProtocol.isExistSenderKey(message.conversation_id, message.user_id, this.getDeviceId())) {
       await this.checkConversation(message.conversation_id)
     }
-
     await this.checkSessionSenderKey(message.conversation_id)
     const content = signalProtocol.encryptGroupMessage(
       message.conversation_id,
@@ -85,7 +84,7 @@ class SendWorker extends BaseWorker {
     )
     const blazeMessage = this.createBlazeMessage(message, content)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      _ => { },
+      _ => {},
       error => {
         if (error.code === 403) {
           messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)
@@ -166,16 +165,15 @@ class SendWorker extends BaseWorker {
         }
         signalKeys.forEach(signalKey => {
           // createPreKeyBundle
-          const deviceId = signalProtocol.convertToDeviceId(signalKey.session_id)
           signalProtocol.processSession(
             signalKey.user_id,
-            deviceId,
+            signalProtocol.convertToDeviceId(signalKey.session_id),
             JSON.stringify(signalKey)
           )
           const cipherText = signalProtocol.encryptSenderKey(
             conversationId,
             signalKey.user_id,
-            deviceId,
+            signalProtocol.convertToDeviceId(signalKey.session_id),
             this.getAccountId(),
             this.getDeviceId()
           )
@@ -229,61 +227,6 @@ class SendWorker extends BaseWorker {
       )
     }
   }
-
-  sendSenderKey(conversationId, recipientId, sessionId) {
-    if (!signalProtocol.containsSession(recipientId)) {
-      const blazeMessage = {
-        id: uuidv4(),
-        action: 'CONSUME_SESSION_SIGNAL_KEYS',
-        params: {
-          recipients: [
-            {
-              user_id: recipientId,
-              session_id: sessionId
-            }
-          ]
-        }
-      }
-      const data = this.signalKeysChannel(blazeMessage)
-      const keys = JSON.parse(data)
-      if (keys.length > 0) {
-        const preKeyBundle = {
-          registrationId: keys[0].registration_id,
-          deviceId: 1,
-          preKeyId: keys[0].preKey_id,
-          preKeyPublic: keys[0].preKey_public,
-          signedPreKeyId: keys[0].signedPreKey_id,
-          signedPreKeyPublic: keys[0].signedPreKey_public,
-          signedPreKeySignature: keys[0].signed_preKey_signature,
-          identityKey: keys[0].identity_key
-        }
-        signalProtocol.processSession(recipientId, preKeyBundle)
-      } else {
-        // sentSenderKeyDao.insert
-        return false
-      }
-      const { cipherText, senderKeyId, err } = signalProtocol.encryptSenderKey(conversationId, recipientId)
-      if (err) {
-        return false
-      }
-      const param = {
-        conversation_id: conversationId,
-        recipient_id: recipientId,
-        message_id: uuidv4(),
-        category: 'SIGNAL_KEY',
-        data: cipherText,
-        status: 'SENT'
-      }
-      const bm = {
-        id: uuidv4(),
-        action: 'CREATE_MESSAGE',
-        params: param
-      }
-      // Todo send bm
-    }
-  }
-
-  signalKeysChannel(blazeMessage) { }
 }
 
 export default new SendWorker()

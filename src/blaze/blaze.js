@@ -50,6 +50,10 @@ class Blaze {
     try {
       const content = await readArrayBuffer(event.data)
       const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
+      console.log(JSON.parse(data))
+      if (data.error) {
+        return
+      }
       this.handleMessage(data)
     } catch (e) {
       console.warn(e.message)
@@ -128,12 +132,8 @@ class Blaze {
 
   handleReceiveMessage(msg) {
     if (msg.action === 'CREATE_MESSAGE') {
-      if (
-        msg.data.user_id === this.account.user_id &&
-        msg.data.session_id === this.account.session_id &&
-        msg.data.category === ''
-      ) {
-        this.makeMessageStatus('PENDING', msg.data.message_id)
+      if (msg.data.user_id === this.account.user_id && msg.data.category === '') {
+        this.makeMessageStatus(msg.data.status, msg.data.message_id)
       } else {
         floodMessageDao.insert(msg.data.message_id, JSON.stringify(msg.data), msg.data.created_at)
       }

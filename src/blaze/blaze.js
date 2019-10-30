@@ -105,7 +105,12 @@ class Blaze {
         transaction(blazeMsg)
         delete this.transactions[blazeMsg.id]
       }
-      if (blazeMsg.data) {
+      if (
+        blazeMsg.data &&
+        (blazeMsg.action === 'CREATE_MESSAGE' ||
+          blazeMsg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT' ||
+          blazeMsg.action === 'CREATE_CALL')
+      ) {
         this.handleReceiveMessage(blazeMsg)
       }
     } else {

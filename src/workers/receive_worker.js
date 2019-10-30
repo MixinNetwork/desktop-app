@@ -24,7 +24,7 @@ import {
   SystemConversationAction,
   ConversationCategory
 } from '@/utils/constants.js'
-class ReceiveWroker extends BaseWorker {
+class ReceiveWorker extends BaseWorker {
   async doWork() {
     const fms = floodMessageDao.findFloodMessage()
     if (!fms) {
@@ -114,7 +114,7 @@ class ReceiveWroker extends BaseWorker {
       thumb_url: null
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
@@ -139,7 +139,7 @@ class ReceiveWroker extends BaseWorker {
       }
     }
 
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
@@ -195,7 +195,7 @@ class ReceiveWroker extends BaseWorker {
       thumb_url: null
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 
   async processSystemConversationMessage(data, systemMessage) {
@@ -290,7 +290,7 @@ class ReceiveWroker extends BaseWorker {
       }
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 
   async processPlainMessage(data) {
@@ -341,6 +341,8 @@ class ReceiveWroker extends BaseWorker {
     let status = MessageStatus.DELIVERED
     if (data.user_id === this.accountId) {
       status = MessageStatus.PENDING
+    } else if (store.state.currentConversationId === data.conversation_id) {
+      status = MessageStatus.READ
     }
     if (data.category.endsWith('_TEXT')) {
       var plain = null
@@ -674,7 +676,7 @@ class ReceiveWroker extends BaseWorker {
       const body = i18n.t('notification.sendLive')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     }
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
@@ -760,7 +762,7 @@ class ReceiveWroker extends BaseWorker {
     }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'CREATE_MESSAGE',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,
@@ -773,4 +775,4 @@ class ReceiveWroker extends BaseWorker {
   }
 }
 
-export default new ReceiveWroker()
+export default new ReceiveWorker()

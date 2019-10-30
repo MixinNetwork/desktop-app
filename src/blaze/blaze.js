@@ -50,7 +50,6 @@ class Blaze {
     try {
       const content = await readArrayBuffer(event.data)
       const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
-      console.log(JSON.parse(data))
       if (data.error) {
         return
       }
@@ -135,9 +134,9 @@ class Blaze {
       if (msg.data.user_id === this.account.user_id && msg.data.category === '') {
         this.makeMessageStatus(msg.data.status, msg.data.message_id)
       } else {
-        floodMessageDao.insert(msg.data.message_id, JSON.stringify(msg.data), msg.data.created_at)
+        floodMessageDao.insert(msg.id, JSON.stringify(msg.data), msg.data.created_at)
       }
-    } else if (msg.action == 'ACKNOWLEDGE_MESSAGE_RECEIPT') {
+    } else if (msg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT') {
       this.makeMessageStatus(msg.data.status, msg.data.message_id)
     } else if (msg.action === 'PING_SESSION') {
     } else {

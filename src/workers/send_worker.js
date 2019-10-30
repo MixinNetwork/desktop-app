@@ -1,5 +1,6 @@
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
+import participantDao from '@/dao/participant_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import conversationApi from '@/api/conversation'
 import uuidv4 from 'uuid/v4'
@@ -36,6 +37,19 @@ class SendWorker extends BaseWorker {
 
       if (result.data.data) {
         conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
+        const participants = result.data.data.participants
+        if (participants) {
+          participantDao.insertAll(
+            participants.map(item => {
+              return {
+                conversation_id: conversation.conversation_id,
+                user_id: item.user_id,
+                role: item.role,
+                created_at: item.created_at
+              }
+            })
+          )
+        }
         const session = result.data.data.participant_sessions
         if (session) {
           const participants = session.map(function(item) {

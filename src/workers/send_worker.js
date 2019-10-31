@@ -86,17 +86,46 @@ class SendWorker extends BaseWorker {
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
     await wasmObject.then(result => {})
+
+    if (message.resend_status) {
+      if (message.resend_status === 1) {
+        if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
+          await this.deliver(message, this.encryptNormalMessage(message))
+        }
+      }
+      return
+    }
+
     if (!signalProtocol.isExistSenderKey(message.conversation_id, message.user_id, this.getDeviceId())) {
       await this.checkConversation(message.conversation_id)
     }
+
     await this.checkSessionSenderKey(message.conversation_id)
-    const content = signalProtocol.encryptGroupMessage(
-      message.conversation_id,
-      message.user_id,
-      this.getDeviceId(),
-      message.content
-    )
-    const blazeMessage = this.createBlazeMessage(message, content)
+    await this.deliver(message, this.encryptNormalMessage(message))
+  }
+
+  encryptNormalMessage(message) {
+    if (message.resend_status && message.resend_status === 1) {
+      const content = signalProtocol.encryptSessionMessage(
+        message.resend_user_id,
+        signalProtocol.convertToDeviceId(message.resend_session_id),
+        message.content
+      )
+      const blazeMessage = this.createBlazeMessage(message, content)
+      return blazeMessage
+    } else {
+      const content = signalProtocol.encryptGroupMessage(
+        message.conversation_id,
+        message.user_id,
+        this.getDeviceId(),
+        message.content
+      )
+      const blazeMessage = this.createBlazeMessage(message, content)
+      return blazeMessage
+    }
+  }
+
+  async deliver(message, blazeMessage) {
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
       _ => {},
       error => {
@@ -238,6 +267,31 @@ class SendWorker extends BaseWorker {
         })
       )
     }
+  }
+
+  async checkSignalSession(recipientId, sessionId) {
+    if (!signalProtocol.containsSession(recipientId, signalProtocol.convertToDeviceId(sessionId))) {
+      const blazeMessage = {
+        id: uuidv4(),
+        action: 'CONSUME_SESSION_SIGNAL_KEYS',
+        params: {
+          recipients: [{ user_id: recipientId, session_id: sessionId }]
+        }
+      }
+      const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+      // Todo Need check
+      if (data && data.length > 0) {
+        const key = data[0]
+        signalProtocol.processSession(
+          key.user_id,
+          signalProtocol.convertToDeviceId(key.session_id),
+          JSON.stringify(key)
+        )
+      } else {
+        return false
+      }
+    }
+    return true
   }
 }
 

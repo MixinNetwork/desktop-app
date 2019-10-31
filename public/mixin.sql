@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS `sent_session_sender_keys` (
 CREATE TABLE IF NOT EXISTS `resend_messages` (
 	`message_id`	TEXT NOT NULL,
 	`user_id`	TEXT NOT NULL,
+	`session_id`	TEXT NOT NULL,
 	`status`	INTEGER NOT NULL,
 	`created_at`	TEXT NOT NULL,
 	PRIMARY KEY(`message_id`,`user_id`)

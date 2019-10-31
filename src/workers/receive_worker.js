@@ -6,6 +6,7 @@ import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
 import jobDao from '@/dao/job_dao'
 import stickerDao from '@/dao/sticker_dao'
+import resendMessageDao from '@/dao/resend_message_dao'
 import BaseWorker from './base_worker'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
@@ -300,6 +301,20 @@ class ReceiveWorker extends BaseWorker {
       if (plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' && plainData.messages.length > 0) {
         plainData.messages.forEach(item => {
           this.makeMessageStatus(item.status, item.message_id)
+        })
+      } else if (plainData.action === 'RESEND_MESSAGES') {
+        plainData.messages.forEach(msg => {
+          const resendMessage = resendMessageDao.findResendMessage(data.user_id, msg.message_id)
+          if (!resendMessage) {
+            return
+          }
+          const needResendMessage = messageDao.findMessageById(msg.message_id)
+          if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
+            messageDao.updateMessageStatusById(MessageStatus.SENDING, msg.message_id)
+            resendMessageDao.insert(msg.message_id, data.user_id, data.session_id, 1)
+          } else {
+            resendMessageDao.insert(msg.message_id, data.user_id, data.session_id, 0)
+          }
         })
       }
     } else if (

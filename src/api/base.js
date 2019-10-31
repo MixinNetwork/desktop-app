@@ -6,7 +6,7 @@ import store from '@/store/store'
 import router from '@/router'
 import Vue from 'vue'
 
-const url = 'https://api.mixin.one/'
+const url = 'https://mixin-api.zeromesh.net/'
 const axiosApi = axios.create({
   baseURL: url,
   timeout: 8000,

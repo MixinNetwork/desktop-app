@@ -25,7 +25,7 @@ Vue.use(Menu)
 Vue.use(Toast)
 Vue.use(ImageViewer)
 
-Vue.axios.defaults.baseURL = 'https://api.mixin.one/'
+Vue.axios.defaults.baseURL = 'https://mixin-api.zeromesh.net/'
 Vue.axios.defaults.headers.post['Content-Type'] = 'application/json'
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

@@ -31,7 +31,7 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
-    this.ws = new RobustWebSocket('wss://blaze.mixin.one?access_token=' + token, 'Mixin-Blaze-1')
+    this.ws = new RobustWebSocket('wss://mixin-blaze.zeromesh.net?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)

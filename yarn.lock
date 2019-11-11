@@ -10654,10 +10654,10 @@ vue-class-component@^7.1.0:
   resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.1.0.tgz#b33efcb10e17236d684f70b1e96f1946ec793e87"
   integrity sha512-G9152NzUkz0i0xTfhk0Afc8vzdXxDR1pfN4dTwE72cskkgJtdXfrKBkMfGvDuxUh35U500g5Ve4xL8PEGdWeHg==
 
-vue-cli-plugin-electron-builder@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-1.4.0.tgz#212c82a8e1323a4e312cee22c250acf3d63caece"
-  integrity sha512-YkI4wVYB3rgDW6RrKIPxZisTwDFQeAWQoT8eK2RS1sA2XO/WkOBI3t2Y7X/gwDWPcp8Sfly4HZ+2REtAGuDt+w==
+vue-cli-plugin-electron-builder@^1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-1.4.1.tgz#7fb4e8d2d2a13cc025ef2d57feb9d807ddbedd6d"
+  integrity sha512-jlzhmL4O8bhXahV6uYLl9oYkAQyruBJTARVGtVY1YskVuOcONcsAqj0hT5cE3V6rlvoyfbJ1j70ZPv+xMaGSAg==
   dependencies:
     chokidar "^3.0.2"
     electron-builder "^21.2.0"
@@ -10677,7 +10677,7 @@ vue-cli-plugin-electron-builder@^1.4.0:
     unzip-crx "^0.2.0"
     webpack "^4.18.0"
     webpack-chain "^5.0.0"
-    yargs "^13.2.2"
+    yargs "^14.0.0"
 
 vue-electron@^1.0.6:
   version "1.0.6"
@@ -11233,7 +11233,7 @@ yargs@12.0.5:
     y18n "^3.2.1 || ^4.0.0"
     yargs-parser "^11.1.1"
 
-yargs@^13.0.0, yargs@^13.2.2, yargs@^13.3.0:
+yargs@^13.0.0, yargs@^13.3.0:
   version "13.3.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-13.3.0.tgz#4c657a55e07e5f2cf947f8a366567c04a0dedc83"
   integrity sha512-2eehun/8ALW8TLoIl7MVaRUrg+yCnenu8B4kBlRxj3GJGDKU1Og7sMXPNm1BYyM1DOJmTZ4YeN/Nwxv+8XJsUA==

@@ -64,7 +64,7 @@
     "node-sass": "^4.13.0",
     "sass-loader": "^7.3.1",
     "vue-cli-plugin-electron-builder": "^1.4.1",
-    "vue-svg-loader": "^0.12.0",
+    "vue-svg-loader": "^0.14.0",
     "vue-template-compiler": "^2.6.10"
   },
   "main": "background.js",

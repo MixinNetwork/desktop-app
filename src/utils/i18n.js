@@ -122,7 +122,7 @@ let transactions = {
       sendSticker: 'send a sticker',
       sendContact: 'shared a contact',
       sendFile: 'send a file',
-      sendAudio: 'send a audio message',
+      sendAudio: 'send an audio message',
       sendLive: 'send a live message'
     }
   },

@@ -63,7 +63,7 @@
     "node-loader": "^0.6.0",
     "node-sass": "^4.13.0",
     "sass-loader": "^7.3.1",
-    "vue-cli-plugin-electron-builder": "^1.4.1",
+    "vue-cli-plugin-electron-builder": "^1.4.2",
     "vue-svg-loader": "^0.15.0",
     "vue-template-compiler": "^2.6.10"
   },

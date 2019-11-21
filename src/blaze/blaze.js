@@ -1,6 +1,6 @@
 import RobustWebSocket from 'robust-websocket'
 import { getToken, readArrayBuffer } from '@/utils/util.js'
-import { MessageStatus, LinkStatus } from '@/utils/constants.js'
+import { MessageStatus, LinkStatus, API_URL } from '@/utils/constants.js'
 import { clearDb } from '@/persistence/db_util.js'
 import uuidv4 from 'uuid/v4'
 import pako from 'pako'
@@ -30,7 +30,7 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
-    this.ws = new RobustWebSocket('wss://mixin-blaze.zeromesh.net?access_token=' + token, 'Mixin-Blaze-1')
+    this.ws = new RobustWebSocket(API_URL.WS + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)

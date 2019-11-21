@@ -1,3 +1,8 @@
+export const API_URL = {
+  HTTP: 'https://api.mixin.one/',
+  WS: 'wss://blaze.mixin.one'
+}
+
 export const ConversationStatus = {
   START: 0,
   FAILURE: 1,

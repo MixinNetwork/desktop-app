@@ -71,7 +71,7 @@ class ParticipantSessionDao {
       'INSERT OR REPLACE INTO participant_session VALUES (@conversation_id, @user_id, @session_id, @sent_to_server, @created_at)'
     )
     const insertMany = db.transaction((sessions) => {
-      for (const item of del) {
+      for (const item of sessions) {
         stmt.run(item)
       }
     })

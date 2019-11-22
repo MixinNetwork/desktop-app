@@ -25,6 +25,14 @@ class ParticipantSessionDao {
       .all(conversationId, sessionId)
   }
 
+  getParticipantsSession(conversationId) {
+    return db
+      .prepare(
+        'SELECT * FROM participant_session WHERE conversation_id = ?'
+      )
+      .all(conversationId)
+  }
+
   updateList(sessionParticipants) {
     const stmt = db.prepare(
       'UPDATE participant_session SET sent_to_server = @sent_to_server, created_at = @created_at WHERE conversation_id = @conversation_id AND user_id = @user_id'
@@ -46,6 +54,28 @@ class ParticipantSessionDao {
       }
     })
     insertMany(conversationId, participantSessions)
+  }
+
+  deleteList(del) {
+    const deleteStmt = db.prepare('DELETE FROM participant_session WHERE conversation_id = ? AND user_id = ? AND session_id = ?')
+    const insertMany = db.transaction((del) => {
+      for (const item of del) {
+        deleteStmt.run(item.conversation_id, item.user_id, item.session_id)
+      }
+    })
+    insertMany(del)
+  }
+
+  insertList(sessions) {
+    const stmt = db.prepare(
+      'INSERT OR REPLACE INTO participant_session VALUES (@conversation_id, @user_id, @session_id, @sent_to_server, @created_at)'
+    )
+    const insertMany = db.transaction((sessions) => {
+      for (const item of del) {
+        stmt.run(item)
+      }
+    })
+    insertMany(sessions)
   }
 }
 

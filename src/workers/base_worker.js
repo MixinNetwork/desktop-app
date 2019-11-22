@@ -75,6 +75,7 @@ export default class BaseWorker {
         mute_until: conversation.mute_until
       })
       await this.refreshParticipants(conversation.conversation_id, conversation.participants)
+      await this.refreshParticipantsSession(conversation.conversation_id, conversation.participants_session)
       await this.syncUser(ownerId)
     }
   }
@@ -117,6 +118,42 @@ export default class BaseWorker {
     if (add.length > 0 || remove.length > 0) {
       store.dispatch('refreshParticipants', conversationId)
     }
+  }
+
+  async refreshParticipantsSession(conversationId, remote) {
+    if (!remote) return
+    const local = participantSessionDao.getParticipantsSession(conversationId)
+    const common = local.filter(function (item) {
+      return remote.some(function (e) {
+        return e.session_id === item.session_id &&
+          e.conversation_id === item.conversation_id &&
+          e.user_id === item.user_id
+      })
+    })
+    const del = local.filter(function (item) {
+      return !common.some(function (e) {
+        return e.session_id === item.session_id &&
+          e.conversation_id === item.conversation_id &&
+          e.user_id === item.user_id
+      })
+    })
+    const add = remote.filter(function (item) {
+      return !common.some(function (e) {
+        return e.session_id === item.session_id &&
+          e.conversation_id === item.conversation_id &&
+          e.user_id === item.user_id
+      })
+    }).map(function (item) {
+      return {
+        conversation_id: item.conversation_id,
+        user_id: item.user_id,
+        session_id: item.session_id,
+        sent_to_server: null,
+        created_at: new Date().toISOString()
+      }
+    })
+    participantSessionDao.deleteList(del)
+    participantSessionDao.insertList(add)
   }
 
   async fetchUsers(users) {

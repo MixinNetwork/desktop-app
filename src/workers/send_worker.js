@@ -177,7 +177,6 @@ class SendWorker extends BaseWorker {
         if (err) {
           requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
         } else {
-          // Todo senderKeyId
           signalKeyMessages.push({
             message_id: uuidv4().toLowerCase(),
             recipient_id: participant.userId,

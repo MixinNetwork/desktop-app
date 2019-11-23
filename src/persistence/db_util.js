@@ -1,6 +1,7 @@
 import { remote } from 'electron'
 import path from 'path'
 import { clearAllTables as clearSignal } from './signal_db'
+import { clearKeyTable } from './db'
 import store from '@/store/store'
 export function getDbPath() {
   const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -17,6 +18,7 @@ export function clearDb() {
   clearing = true
   window.localStorage.clear()
   store.dispatch('exit')
+  clearKeyTable()
   clearSignal()
   clearing = false
 }

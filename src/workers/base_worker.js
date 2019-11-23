@@ -123,7 +123,7 @@ export default class BaseWorker {
   async refreshParticipantsSession(conversationId, remote) {
     if (!remote) return
     const local = participantSessionDao.getParticipantsSession(conversationId)
-    if (!local || local.length == 0) {
+    if (!local || local.length === 0) {
       const add = remote.map(function (item) {
         return {
           conversation_id: conversationId,

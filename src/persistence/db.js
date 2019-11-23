@@ -27,7 +27,7 @@ function MIGRATION_0_1() {
 export function clearKeyTable() {
   mixinDb.transaction(() => {
     mixinDb.exec('UPDATE participant_session SET sent_to_server = NULL')
-  })
+  })()
 }
 
 export function clearAllTables() {

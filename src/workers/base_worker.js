@@ -8,6 +8,7 @@ import accountApi from '@/api/account'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/constants.js'
+import { generateConversationChecksum } from '@/utils/util.js'
 import store from '@/store/store'
 
 export default class BaseWorker {
@@ -222,6 +223,15 @@ export default class BaseWorker {
 
   getAccountId() {
     return JSON.parse(localStorage.getItem('account')).user_id
+  }
+
+  getCheckSum(conversationId) {
+    const sessions = participantSessionDao.getParticipantSessionsByConversationId(conversationId)
+    if (sessions.isNullOrEmpty()) {
+      return ''
+    } else {
+      return generateConversationChecksum(sessions)
+    }
   }
 
   async checkConversation(conversationId) {

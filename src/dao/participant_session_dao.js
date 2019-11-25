@@ -17,6 +17,14 @@ class ParticipantSessionDao {
     }
   }
 
+  getParticipantSessionsByConversationId(conversationId) {
+    return db
+      .prepare(
+        'SELECT * FROM participant_session WHERE conversation_id = ?'
+      )
+      .all(conversationId)
+  }
+
   getNotSendSessionParticipants(conversationId, sessionId) {
     return db
       .prepare(

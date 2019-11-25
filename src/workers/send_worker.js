@@ -155,7 +155,7 @@ class SendWorker extends BaseWorker {
   }
 
   async checkSessionSenderKey(conversationId) {
-    const participants = participantSessionDao.getNotSendSessionParticipants(conversationId, this.getAccountId())
+    const participants = participantSessionDao.getNotSendSessionParticipants(conversationId, this.getSessionId())
     if (!participants || participants.length === 0) {
       return
     }
@@ -179,9 +179,9 @@ class SendWorker extends BaseWorker {
         } else {
           signalKeyMessages.push({
             message_id: uuidv4().toLowerCase(),
-            recipient_id: participant.userId,
+            recipient_id: participant.user_id,
             data: cipherText,
-            session_id: participant.sessionId
+            session_id: participant.session_id
           })
         }
       }

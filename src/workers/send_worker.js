@@ -167,14 +167,15 @@ class SendWorker extends BaseWorker {
       ) {
         requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
       } else {
-        let { cipherText, err } = signalProtocol.encryptSenderKey(
+        let cipherText = signalProtocol.encryptSenderKey(
           conversationId,
           participant.user_id,
           signalProtocol.convertToDeviceId(participant.session_id),
           this.getAccountId(),
           this.getDeviceId()
         )
-        if (err) {
+
+        if (!cipherText) {
           requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
         } else {
           signalKeyMessages.push({

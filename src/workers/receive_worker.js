@@ -268,6 +268,7 @@ class ReceiveWorker extends BaseWorker {
       if (systemMessage.participant_id === accountId) {
         await this.refreshConversation(data.conversation_id)
       } else {
+        await this.syncSession(data.conversation_id, [systemMessage.participant_id])
         await this.syncUser(systemMessage.participant_id)
       }
     } else if (

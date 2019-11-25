@@ -189,6 +189,22 @@ export default class BaseWorker {
     return user
   }
 
+  async syncSession(conversationId, userIds) {
+    const resp = await userApi.getSessions(userIds)
+    if (resp.data.data) {
+      const add = resp.data.data.map(function (item) {
+        return {
+          conversation_id: conversationId,
+          user_id: item.user_id,
+          session_id: item.session_id,
+          sent_to_server: null,
+          created_at: new Date().toISOString()
+        }
+      })
+      participantSessionDao.insertList(add)
+    }
+  }
+
   async refreshSticker(stickerId) {
     const response = await accountApi.getStickerById(stickerId)
     if (response.data.data) {

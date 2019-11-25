@@ -6,5 +6,8 @@ export default {
   },
   getUsers(body) {
     return api.post('/users/fetch', body)
+  },
+  getSessions(body) {
+    return api.post('/sessions/fetch', body)
   }
 }

@@ -128,7 +128,7 @@ class SendWorker extends BaseWorker {
     const result = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
     if (result && result.error) {
       if (result.error.code === 20140) {
-        this.refreshConversation(message.conversation_id)
+        await this.refreshConversation(message.conversation_id)
       } else if (result.error.code === 403) {
         messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)
       } else {

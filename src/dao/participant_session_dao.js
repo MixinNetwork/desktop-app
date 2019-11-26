@@ -66,12 +66,24 @@ class ParticipantSessionDao {
 
   deleteList(del) {
     const deleteStmt = db.prepare('DELETE FROM participant_session WHERE conversation_id = ? AND user_id = ? AND session_id = ?')
-    const insertMany = db.transaction((del) => {
+    const deleteMany = db.transaction((del) => {
       for (const item of del) {
         deleteStmt.run(item.conversation_id, item.user_id, item.session_id)
       }
     })
-    insertMany(del)
+    deleteMany(del)
+  }
+
+  delete(conversationId, participantId) {
+    const stmt = db.prepare('DELETE FROM participant_session WHERE conversation_id = ? AND user_id = ?')
+    stmt.run(conversationId, participantId)
+  }
+
+  updateStatusByConversationId(conversationId) {
+    const stmt = db.prepare(
+      'UPDATE participant_session SET sent_to_server = NULL WHERE conversation_id = ?'
+    )
+    stmt.run(conversationId)
   }
 
   insertList(sessions) {

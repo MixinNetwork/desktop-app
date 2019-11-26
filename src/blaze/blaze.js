@@ -143,7 +143,6 @@ class Blaze {
       }
     } else if (msg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT') {
       this.makeMessageStatus(msg.data.status, msg.data.message_id)
-    } else if (msg.action === 'PING_SESSION') {
     } else {
       this.updateRemoteMessageStatus(msg.data.message_id, MessageStatus.DELIVERED)
     }

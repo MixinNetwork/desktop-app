@@ -125,16 +125,18 @@ class SendWorker extends BaseWorker {
   }
 
   async deliver(message, blazeMessage) {
-    const result = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    if (result && result.error) {
-      if (result.error.code === 20140) {
-        await this.refreshConversation(message.conversation_id)
-      } else if (result.error.code === 403) {
-        messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)
-      } else {
-        console.log(result.error)
-      }
-    }
+    const self = this
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
+      _ => { },
+      error => {
+        if (error.code === 20140) {
+          self.refreshConversation(message.conversation_id)
+        } else if (error.code === 403) {
+          messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
+        } else {
+          console.log(error)
+        }
+      })
   }
 
   createBlazeMessage(message, data) {
@@ -257,8 +259,8 @@ class SendWorker extends BaseWorker {
         conversation_checksum: this.getCheckSum(conversationId)
       }
     }
-    const result = await Vue.prototype.$blaze.sendMessagePromise(bm)
-    if (result) {
+    const self = this
+    await Vue.prototype.$blaze.sendMessagePromise(bm).then(_ => {
       participantSessionDao.updateList(
         signalKeyMessages.map(key => {
           return {
@@ -270,7 +272,13 @@ class SendWorker extends BaseWorker {
           }
         })
       )
-    }
+    }, error => {
+      if (error.code === 20140) {
+        self.refreshConversation(conversationId)
+      } else {
+        console.log(error)
+      }
+    })
   }
 
   async checkSignalSession(recipientId, sessionId) {

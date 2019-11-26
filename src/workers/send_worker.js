@@ -255,7 +255,8 @@ class SendWorker extends BaseWorker {
       id: uuidv4(),
       action: 'CREATE_SIGNAL_KEY_MESSAGES',
       params: {
-        conversation_id: conversationId, messages: signalKeyMessages,
+        conversation_id: conversationId,
+        messages: signalKeyMessages,
         conversation_checksum: this.getCheckSum(conversationId)
       }
     }

@@ -50,6 +50,7 @@ export default {
   },
   methods: {
     pushSignalKeys: function() {
+      // eslint-disable-next-line
       return wasmObject.then(() => {
         checkSignalKey()
       })

@@ -227,7 +227,7 @@ export default class BaseWorker {
 
   getCheckSum(conversationId) {
     const sessions = participantSessionDao.getParticipantSessionsByConversationId(conversationId)
-    if (sessions.isNullOrEmpty()) {
+    if (!sessions || sessions.length === 0) {
       return ''
     } else {
       return generateConversationChecksum(sessions)

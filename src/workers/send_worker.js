@@ -272,9 +272,9 @@ class SendWorker extends BaseWorker {
           }
         })
       )
-    }, error => {
+    }, async error => {
       if (error.code === 20140) {
-        self.refreshConversation(conversationId)
+        await self.refreshConversation(conversationId)
       } else {
         console.log(error)
       }

@@ -302,7 +302,7 @@ export default {
           media_key: null,
           media_digest: null,
           media_status: 'PENDING',
-          status: MessageStatus.PENDING,
+          status: MessageStatus.SENDING,
           created_at: new Date().toISOString(),
           action: null,
           participant_id: null,

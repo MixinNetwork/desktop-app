@@ -146,7 +146,7 @@
           <span class="time">
             {{message.lt}}
             <ICSending
-              v-if="message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING"
+              v-if="message.status === MessageStatus.SENDING"
               class="icon"
             />
             <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon" />

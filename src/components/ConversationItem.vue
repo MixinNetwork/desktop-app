@@ -22,7 +22,7 @@
           v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
         >
           <ICSending
-            v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING || conversation.messageStatus === MessageStatus.PENDING"
+            v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
             class="icon"
           />
           <ICSend

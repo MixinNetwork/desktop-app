@@ -30,7 +30,7 @@ class SendWorker extends BaseWorker {
       const result = await conversationApi.createContactConversation(body).catch(err => {
         if (err.data.error) {
           const messageId = message.message_id
-          const status = 'PENDING'
+          const status = MessageStatus.SENT
           store.dispatch('makeMessageStatus', { messageId, status })
         }
       })
@@ -132,7 +132,7 @@ class SendWorker extends BaseWorker {
         if (error.code === 20140) {
           this.refreshConversation(message.conversation_id)
         } else if (error.code === 403) {
-          messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)
+          messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
         } else {
           console.log(error)
         }

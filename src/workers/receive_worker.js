@@ -363,9 +363,7 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = MessageStatus.DELIVERED
-    if (data.user_id === this.accountId) {
-      status = MessageStatus.PENDING
-    } else if (store.state.currentConversationId === data.conversation_id) {
+    if (store.state.currentConversationId === data.conversation_id) {
       status = MessageStatus.READ
     }
     if (data.category.endsWith('_TEXT')) {

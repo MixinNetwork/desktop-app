@@ -9,7 +9,6 @@ import Vue from 'vue'
 import BaseWorker from './base_worker'
 import store from '@/store/store'
 import { ConversationStatus, ConversationCategory, MessageStatus, MessageCategories } from '@/utils/constants.js'
-
 class SendWorker extends BaseWorker {
   async doWork() {
     const message = messageDao.getSendingMessages()
@@ -52,7 +51,7 @@ class SendWorker extends BaseWorker {
         }
         const session = result.data.data.participant_sessions
         if (session) {
-          const participants = session.map(function(item) {
+          const participants = session.map(function (item) {
             return {
               conversation_id: item.conversation_id,
               user_id: item.user_id,
@@ -85,7 +84,7 @@ class SendWorker extends BaseWorker {
 
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
-    await wasmObject.then(result => {})
+    await wasmObject.then(result => { })
 
     if (message.resend_status) {
       if (message.resend_status === 1) {
@@ -126,18 +125,16 @@ class SendWorker extends BaseWorker {
   }
 
   async deliver(message, blazeMessage) {
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      _ => {},
-      error => {
-        if (error.code === 20140) {
-          this.refreshConversation(message.conversation_id)
-        } else if (error.code === 403) {
-          messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
-        } else {
-          console.log(error)
-        }
+    const result = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    if (result && result.error) {
+      if (result.error.code === 20140) {
+        this.refreshConversation(message.conversation_id)
+      } else if (result.error.code === 403) {
+        messageDao.updateMessageStatusById(MessageStatus.PENDING, message.message_id)
+      } else {
+        console.log(result.error)
       }
-    )
+    }
   }
 
   createBlazeMessage(message, data) {

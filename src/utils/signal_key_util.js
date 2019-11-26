@@ -19,7 +19,7 @@ export async function checkSignalKey() {
   }
 }
 
-export async function generateKeys() {
+function generateKeys() {
   const identityKeyPair = signalDao.getIdentityKeyPair()
   const preKeys = signalProtocol.generatePreKeys()
   const signedPreKey = signalProtocol.generateSignedPreKey()

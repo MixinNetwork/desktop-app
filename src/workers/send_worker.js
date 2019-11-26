@@ -283,7 +283,6 @@ class SendWorker extends BaseWorker {
         }
       }
       const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-      // Todo Need check
       if (data && data.length > 0) {
         const key = data[0]
         signalProtocol.processSession(

@@ -100,7 +100,6 @@ export const ParticipantRole = {
 
 export const MessageStatus = {
   SENDING: 'SENDING',
-  PENDING: 'PENDING',
   SENT: 'SENT',
   DELIVERED: 'DELIVERED',
   READ: 'READ',
@@ -137,8 +136,7 @@ export function canRecall(message, userId) {
   return (
     message.userId === userId &&
     canReply(message.type) &&
-    message.status !== MessageStatus.SENDING &&
-    message.status !== MessageStatus.PENDING
+    message.status !== MessageStatus.SENDING
   )
 }
 

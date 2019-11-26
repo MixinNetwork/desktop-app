@@ -139,7 +139,7 @@ class Blaze {
       if (msg.data.user_id === this.account.user_id && msg.data.category === '') {
         this.makeMessageStatus(msg.data.status, msg.data.message_id)
       } else {
-        floodMessageDao.insert(msg.id, JSON.stringify(msg.data), msg.data.created_at)
+        floodMessageDao.insert(msg.data.message_id, JSON.stringify(msg.data), msg.data.created_at)
       }
     } else if (msg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT') {
       this.makeMessageStatus(msg.data.status, msg.data.message_id)

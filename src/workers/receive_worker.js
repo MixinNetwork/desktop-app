@@ -4,7 +4,7 @@ import floodMessageDao from '@/dao/flood_message_dao'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
-import participantSessionDao from '@/data/participant_session_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 import jobDao from '@/dao/job_dao'
 import stickerDao from '@/dao/sticker_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
@@ -277,12 +277,10 @@ class ReceiveWorker extends BaseWorker {
       systemMessage.action === SystemConversationAction.EXIT
     ) {
       if (systemMessage.participant_id === accountId) {
-        participantDao.deleteAll(data.conversation_id, [accountId])
         conversationDao.updateConversationStatusById(data.conversation_id, ConversationStatus.QUIT)
-        store.dispatch('refreshParticipants', data.conversation_id)
-      } else {
-        participantDao.deleteAll(data.conversation_id, [accountId])
       }
+      participantDao.deleteAll(data.conversation_id, [systemMessage.participant_id])
+      store.dispatch('refreshParticipants', data.conversation_id)
       await this.syncUser(systemMessage.participant_id)
       participantSessionDao.delete(data.conversation_id, systemMessage.participant_id)
       participantSessionDao.updateStatusByConversationId(data.conversation_id)

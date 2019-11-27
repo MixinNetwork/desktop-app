@@ -9,7 +9,7 @@
 import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account.js'
 import { checkSignalKey } from '@/utils/signal_key_util.js'
-import { clearDb } from '@/persistence/db_util.js'
+import { clearDb, checkDb } from '@/persistence/db_util.js'
 
 export default {
   components: {
@@ -32,8 +32,6 @@ export default {
         if (account.data.error.code === 403) {
           clearDb()
           this.$router.push('/sign_in')
-        } else {
-          // ?
         }
         return
       }
@@ -44,6 +42,11 @@ export default {
           this.$store.dispatch('insertUser', user)
           this.$blaze.connect()
           this.$router.push('/home')
+        }
+      })
+      checkDb(version => {
+        if (version == 2) {
+          this.$router.push('/sign_in')
         }
       })
     }

@@ -36,6 +36,7 @@ import spinner from '@/components/Spinner.vue'
 import Bot from 'bot-api-js-client'
 import signalDao from '@/crypto/signal_dao.js'
 import { base64ToUint8Array } from '@/utils/util.js'
+import { checkDb } from '@/persistence/db_util.js'
 import { clearAllTables as clearMixin } from '@/persistence/db'
 import { clearAllTables as clearSignal } from '@/persistence/signal_db'
 import userDao from '@/dao/user_dao'
@@ -53,6 +54,9 @@ export default {
   },
   mounted: function() {
     this.refresh()
+  },
+  created: function() {
+    checkDb(_ => {})
   },
   methods: {
     refresh: function() {

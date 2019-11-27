@@ -16,10 +16,10 @@ export function clearDb() {
     return
   }
   clearing = true
-  window.localStorage.clear()
   store.dispatch('exit')
-  clearKeyTable()
+  clearKeyTable(localStorage.sessionId)
   clearSignal()
+  window.localStorage.clear()
   clearing = false
 }
 

@@ -40,6 +40,8 @@ import { checkDb } from '@/persistence/db_util.js'
 import { clearAllTables as clearMixin } from '@/persistence/db'
 import { clearAllTables as clearSignal } from '@/persistence/signal_db'
 import userDao from '@/dao/user_dao'
+import conversationDao from '@/dao/conversation_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 export default {
   components: {
     spinner
@@ -160,6 +162,7 @@ export default {
             localStorage.primarySessionId = primarySessionId
             localStorage.sessionId = account.session_id
             this.$store.dispatch('saveAccount', account)
+            this.updateParticipantSession(account.user_id, account.session_id)
             this.$router.push('/')
           })
         })
@@ -186,6 +189,19 @@ export default {
         }
         return signalAPI.postSignalKeys(body)
       })
+    },
+    updateParticipantSession: function(userId, sessionId) {
+      const s = conversationDao.getConversationsByUserId(userId)
+      participantSessionDao.insertAll(s.map(item => {
+        return {
+          conversation_id: item.conversation_id,
+          user_id: userId,
+          session_id: sessionId,
+          sent_to_server: 0,
+          created_at: new Date().toISOString()
+        }
+      })
+      )
     }
   }
 }

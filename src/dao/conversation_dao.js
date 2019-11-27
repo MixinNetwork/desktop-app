@@ -84,6 +84,14 @@ class ConversationDao {
     return db.prepare('SELECT * FROM conversations where conversation_id = ?').get(conversationId)
   }
 
+  getConversationsByUserId(userId) {
+    return db.prepare(
+      'select c.conversation_id from conversations c inner join users u on c.owner_id = u.user_id ' +
+      'left join participants p on p.conversation_id = c.conversation_id ' +
+      'where p.user_id = ? AND u.app_id IS NULL'
+    ).all(userId)
+  }
+
   updateConversationStatusById(conversationId, status) {
     return db.prepare('UPDATE conversations SET status = ? WHERE conversation_id = ?').run(status, conversationId)
   }
@@ -121,8 +129,7 @@ class ConversationDao {
   }
 
   indexUnread(conversationId) {
-    return db.prepare('SELECT unseen_message_count FROM conversations WHERE conversation_id = ?').get(conversationId)
-      .unseen_message_count
+    return db.prepare('SELECT unseen_message_count FROM conversations WHERE conversation_id = ?').get(conversationId).unseen_message_count
   }
 }
 

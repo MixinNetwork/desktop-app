@@ -35,9 +35,10 @@ export function checkDb(callback) {
   }
 }
 
-export function clearKeyTable() {
+export function clearKeyTable(sessionId) {
   mixinDb.transaction(() => {
     mixinDb.exec('UPDATE participant_session SET sent_to_server = NULL')
+    mixinDb.exec('DELETE FROM participant_session WHERE session_id = "' + sessionId + '"')
   })()
 }
 

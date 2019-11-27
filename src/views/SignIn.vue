@@ -192,6 +192,9 @@ export default {
     },
     updateParticipantSession: function(userId, sessionId) {
       const s = conversationDao.getConversationsByUserId(userId)
+      if (!s || s.length === 0) {
+        return
+      }
       participantSessionDao.insertAll(s.map(item => {
         return {
           conversation_id: item.conversation_id,

@@ -9,6 +9,7 @@ import Vue from 'vue'
 import BaseWorker from './base_worker'
 import store from '@/store/store'
 import { ConversationStatus, ConversationCategory, MessageStatus, MessageCategories } from '@/utils/constants.js'
+
 class SendWorker extends BaseWorker {
   async doWork() {
     const message = messageDao.getSendingMessages()
@@ -191,7 +192,6 @@ class SendWorker extends BaseWorker {
     })
 
     if (requestSignalKeyUsers.length !== 0) {
-      // createConsumeSessionSignalKeys
       const blazeMessage = {
         id: uuidv4(),
         action: 'CONSUME_SESSION_SIGNAL_KEYS',
@@ -201,36 +201,34 @@ class SendWorker extends BaseWorker {
       }
       const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
       if (data) {
-        const signalKeys = data
         const keys = []
-        if (signalKeys.length === 0) {
-          // No any group signal key from server
-        }
-        signalKeys.forEach(signalKey => {
-          // createPreKeyBundle
-          signalProtocol.processSession(
-            signalKey.user_id,
-            signalProtocol.convertToDeviceId(signalKey.session_id),
-            JSON.stringify(signalKey)
-          )
-          const cipherText = signalProtocol.encryptSenderKey(
-            conversationId,
-            signalKey.user_id,
-            signalProtocol.convertToDeviceId(signalKey.session_id),
-            this.getAccountId(),
-            this.getDeviceId()
-          )
-          signalKeyMessages.push({
-            message_id: uuidv4().toLowerCase(),
-            recipient_id: signalKey.user_id,
-            data: cipherText,
-            session_id: signalKey.session_id
+        if (data.length > 0) {
+          data.forEach(signalKey => {
+            // createPreKeyBundle
+            signalProtocol.processSession(
+              signalKey.user_id,
+              signalProtocol.convertToDeviceId(signalKey.session_id),
+              JSON.stringify(signalKey)
+            )
+            const cipherText = signalProtocol.encryptSenderKey(
+              conversationId,
+              signalKey.user_id,
+              signalProtocol.convertToDeviceId(signalKey.session_id),
+              this.getAccountId(),
+              this.getDeviceId()
+            )
+            signalKeyMessages.push({
+              message_id: uuidv4().toLowerCase(),
+              recipient_id: signalKey.user_id,
+              data: cipherText,
+              session_id: signalKey.session_id
+            })
+            keys.push({ user_id: signalKey.user_id, session_id: signalKey.session_id })
           })
-          keys.push({ user_id: signalKey.user_id, session_id: signalKey.session_id })
-        })
+        }
 
         const noKeyList = requestSignalKeyUsers.filter(signalKey => {
-          return !keys.some(key => key === signalKey)
+          return !keys.some(key => key.session_id === signalKey.session_id)
         })
         if (noKeyList.length > 0) {
           const sentSendKeys = noKeyList.map(key => {
@@ -242,7 +240,7 @@ class SendWorker extends BaseWorker {
               created_at: new Date().toISOString()
             }
           })
-          participantSessionDao.updateList(sentSendKeys)
+          participantSessionDao.insertAll(sentSendKeys)
         }
       }
     }
@@ -275,6 +273,7 @@ class SendWorker extends BaseWorker {
     }, async error => {
       if (error.code === 20140) {
         await self.refreshConversation(conversationId)
+        await self.checkSessionSenderKey(conversationId)
       } else {
         console.log(error)
       }

@@ -70,7 +70,7 @@ export default {
           .getProvisioningId(platformInfo.os.toString())
           .then(response => {
             const deviceId = response.data.data.device_id
-            const qrcodeUrl = 'mixin://device/auth?uuid=' + deviceId + '&pub_key=' + base64PubKey
+            const qrcodeUrl = 'mixin://device/auth?id=' + deviceId + '&pub_key=' + base64PubKey
             this.generateQrcode(qrcodeUrl)
             this.getSecret(deviceId)
             this.isLoading = false

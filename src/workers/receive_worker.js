@@ -302,8 +302,8 @@ class ReceiveWorker extends BaseWorker {
     if (data.category === 'PLAIN_JSON') {
       const plain = window.atob(data.data)
       const plainData = JSON.parse(plain)
-      if (plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' && plainData.messages.length > 0) {
-        plainData.messages.forEach(item => {
+      if (plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' && plainData.ack_messages.length > 0) {
+        plainData.ack_messages.forEach(item => {
           this.makeMessageStatus(item.status, item.message_id)
         })
       } else if (plainData.action === 'RESEND_MESSAGES') {

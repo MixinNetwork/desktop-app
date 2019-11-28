@@ -795,6 +795,19 @@ class ReceiveWorker extends BaseWorker {
       resend_message_id: null,
       run_count: 0
     })
+
+    jobDao.insert({
+      job_id: uuidv4(),
+      action: 'CREATE_MESSAGE',
+      created_at: new Date().toISOString(),
+      order_id: null,
+      priority: 5,
+      user_id: null,
+      blaze_message: JSON.stringify(blazeMessage),
+      conversation_id: conversationId,
+      resend_message_id: null,
+      run_count: 0
+    })
   }
 }
 

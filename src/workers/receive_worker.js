@@ -704,7 +704,7 @@ class ReceiveWorker extends BaseWorker {
   }
 
   showNotification(conversationId, userId, fullName, content, source, createdAt) {
-    if (source === 'LIST_PENDING_SESSION_MESSAGES') {
+    if (source === 'LIST_PENDING_MESSAGES') {
       return
     }
     if (remote.getCurrentWindow().isFocused()) {

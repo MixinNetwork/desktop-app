@@ -78,11 +78,9 @@ class ReceiveWorker extends BaseWorker {
     }
   }
   async processApp(data) {
-    var status
+    let status = MessageStatus.DELIVERED
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
-    } else {
-      status = MessageStatus.DELIVERED
     }
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
@@ -368,11 +366,9 @@ class ReceiveWorker extends BaseWorker {
       status = MessageStatus.READ
     }
     if (data.category.endsWith('_TEXT')) {
-      var plain = null
+      let plain = plaintext
       if (data.category === 'PLAIN_TEXT') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
-      } else {
-        plain = plaintext
       }
       let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
       let quoteContent = null
@@ -773,29 +769,20 @@ class ReceiveWorker extends BaseWorker {
   }
 
   makeMessageRead(conversationId, messageId, userId, status) {
-    if (store.state.currentConversationId !== conversationId || status !== MessageStatus.READ) {
+    if (store.state.currentConversationId !== conversationId) {
       return
     }
     if (userId === JSON.parse(localStorage.getItem('account')).user_id) {
+      return
+    }
+    this.updateRemoteMessageStatus(messageId, status)
+    if (status !== MessageStatus.READ) {
       return
     }
     const blazeMessage = {
       message_id: messageId,
       status: status
     }
-    jobDao.insert({
-      job_id: uuidv4(),
-      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
-      created_at: new Date().toISOString(),
-      order_id: null,
-      priority: 5,
-      user_id: null,
-      blaze_message: JSON.stringify(blazeMessage),
-      conversation_id: null,
-      resend_message_id: null,
-      run_count: 0
-    })
-
     jobDao.insert({
       job_id: uuidv4(),
       action: 'CREATE_MESSAGE',

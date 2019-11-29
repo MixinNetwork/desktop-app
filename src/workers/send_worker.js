@@ -1,71 +1,17 @@
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
-import participantDao from '@/dao/participant_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
-import conversationApi from '@/api/conversation'
 import uuidv4 from 'uuid/v4'
 import signalProtocol from '@/crypto/signal.js'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
-import store from '@/store/store'
-import { ConversationStatus, ConversationCategory, MessageStatus, MessageCategories } from '@/utils/constants.js'
+import { MessageStatus, MessageCategories } from '@/utils/constants.js'
 
 class SendWorker extends BaseWorker {
   async doWork() {
     const message = messageDao.getSendingMessages()
     if (!message) {
       return
-    }
-    const conversation = conversationDao.getConversationById(message.conversation_id)
-    if (
-      conversation &&
-      conversation.category === ConversationCategory.CONTACT &&
-      conversation.status === ConversationStatus.START
-    ) {
-      const body = {
-        conversation_id: conversation.conversation_id,
-        category: conversation.category,
-        participants: [{ user_id: conversation.owner_id }]
-      }
-      const result = await conversationApi.createContactConversation(body).catch(err => {
-        if (err.data.error) {
-          const messageId = message.message_id
-          const status = MessageStatus.SENT
-          store.dispatch('makeMessageStatus', { messageId, status })
-        }
-      })
-
-      if (result.data.data) {
-        conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
-        const participants = result.data.data.participants
-        if (participants) {
-          participantDao.insertAll(
-            participants.map(item => {
-              return {
-                conversation_id: conversation.conversation_id,
-                user_id: item.user_id,
-                role: item.role,
-                created_at: item.created_at
-              }
-            })
-          )
-        }
-        const session = result.data.data.participant_sessions
-        if (session) {
-          const participants = session.map(function (item) {
-            return {
-              conversation_id: item.conversation_id,
-              user_id: item.user_id,
-              session_id: item.session_id,
-              sent_to_server: null,
-              created_at: new Date().toISOString()
-            }
-          })
-          participantSessionDao.insertAll(participants)
-        }
-      } else {
-        return
-      }
     }
     if (message.category.startsWith('PLAIN_')) {
       await this.sendPlainMessage(message)
@@ -75,6 +21,8 @@ class SendWorker extends BaseWorker {
   }
 
   async sendPlainMessage(message) {
+    let conversation = conversationDao.getConversationById(message.conversation_id)
+    await this.checkConversationExist(conversation)
     let content = message.content
     if (message.category === MessageCategories.PLAIN_TEXT) {
       content = btoa(unescape(encodeURIComponent(message.content)))

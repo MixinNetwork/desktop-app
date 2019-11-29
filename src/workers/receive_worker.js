@@ -79,7 +79,7 @@ class ReceiveWorker extends BaseWorker {
   }
   async processApp(data) {
     var status
-    if (store.state.currentConversationId === data.conversation_id) {
+    if (store.state.currentConversationId === data.conversation_id && data.user_id != this.getAccountId()) {
       status = MessageStatus.READ
     } else {
       status = MessageStatus.DELIVERED

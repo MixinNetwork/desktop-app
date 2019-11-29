@@ -45,7 +45,7 @@ export default {
         }
       })
       checkDb(version => {
-        if (version == 2) {
+        if (version === 2) {
           this.$router.push('/sign_in')
         }
       })

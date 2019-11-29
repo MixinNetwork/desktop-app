@@ -43,8 +43,6 @@ class AckWorker extends BaseWorker {
     if (!job) {
       return
     }
-
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
     const blazeMessage = {
       id: uuidv4(),
       action: 'CREATE_MESSAGE',
@@ -52,18 +50,16 @@ class AckWorker extends BaseWorker {
         category: 'MESSAGE_RECALL',
         conversation_id: job.conversation_id,
         data: job.blaze_message,
-        message_id: uuidv4(),
-        recipient_id: userId,
-        session_id: localStorage.primarySessionId
+        message_id: uuidv4()
       }
     }
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
       async _ => {
-        await jobDao.delete(jobs)
+        await jobDao.deleteById(job.job_id)
       },
       async error => {
         if (error.code === 403) {
-          await jobDao.delete(jobs)
+          await jobDao.deleteById(job.job_id)
         } else {
           console.log(error)
         }
@@ -75,7 +71,7 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const conversation_id = jobs[0].conversation_id
+    const conversationId = jobs[0].conversation_id
     const messages = jobs.map(function (item) {
       return JSON.parse(item.blaze_message)
     })
@@ -96,7 +92,7 @@ class AckWorker extends BaseWorker {
       action: 'CREATE_MESSAGE',
       params: {
         category: 'PLAIN_JSON',
-        conversation_id: conversation_id,
+        conversation_id: conversationId,
         data: plainText,
         message_id: uuidv4(),
         recipient_id: userId,

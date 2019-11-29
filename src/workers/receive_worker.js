@@ -79,7 +79,7 @@ class ReceiveWorker extends BaseWorker {
   }
   async processApp(data) {
     var status
-    if (store.state.currentConversationId === data.conversation_id && data.user_id != this.getAccountId()) {
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     } else {
       status = MessageStatus.DELIVERED
@@ -160,7 +160,7 @@ class ReceiveWorker extends BaseWorker {
 
   processSystemSnapshotMessage(data) {
     var status
-    if (store.state.currentConversationId === data.conversation_id) {
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     } else {
       status = MessageStatus.DELIVERED
@@ -208,7 +208,7 @@ class ReceiveWorker extends BaseWorker {
       userId = systemMessage.user_id
     }
     let status = MessageStatus.DELIVERED
-    if (store.state.currentConversationId === data.conversation_id) {
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
     if (userId === SystemUser) {
@@ -364,7 +364,7 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = MessageStatus.DELIVERED
-    if (store.state.currentConversationId === data.conversation_id) {
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
     if (data.category.endsWith('_TEXT')) {

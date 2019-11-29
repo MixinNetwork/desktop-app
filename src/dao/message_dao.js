@@ -95,13 +95,13 @@ class MessageDao {
   }
   getSendingMessages() {
     const stmt = db.prepare(`
-      SELECT m.message_id, m.conversation_id, m.user_id, m.category, m.content, m.media_url, m.media_mime_type, 
-      m.media_size, m.media_duration, m.media_width, m.media_height, m.media_hash, m.thumb_image, m.media_key, 
-      m.media_digest, m.media_status, m.status, m.created_at, m.action, m.participant_id, m.snapshot_id, m.hyperlink, 
-      m.name, m.album_id, m.sticker_id, m.shared_user_id, m.media_waveform, m.quote_message_id, m.quote_content, 
-      rm.status as resend_status, rm.user_id as resend_user_id, rm.session_id as resend_session_id 
-      FROM messages m LEFT JOIN resend_messages rm on m.message_id=rm.message_id 
-      WHERE m.status='SENDING' ORDER BY m.created_at ASC LIMIT 1`)
+      SELECT m.message_id, m.conversation_id, m.user_id, m.category, m.content, m.media_url, m.media_mime_type,
+      m.media_size, m.media_duration, m.media_width, m.media_height, m.media_hash, m.thumb_image, m.media_key,
+      m.media_digest, m.media_status, m.status, m.created_at, m.action, m.participant_id, m.snapshot_id, m.hyperlink,
+      m.name, m.album_id, m.sticker_id, m.shared_user_id, m.media_waveform, m.quote_message_id, m.quote_content,
+      rm.status as resend_status, rm.user_id as resend_user_id, rm.session_id as resend_session_id
+      FROM messages m LEFT JOIN resend_messages rm on m.message_id=rm.message_id
+      WHERE m.status='SENDING' AND m.content IS NOT NULL ORDER BY m.created_at ASC LIMIT 1`)
     const data = stmt.get()
     return data
   }

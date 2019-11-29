@@ -397,9 +397,11 @@ export default {
       .map(item => {
         return item.user_id
       })
-    const resp = await userApi.getUsers(df)
-    if (resp.data.data) {
-      userDao.insertUsers(resp.data.data)
+    if (df.length > 0) {
+      const resp = await userApi.getUsers(df)
+      if (resp.data.data) {
+        userDao.insertUsers(resp.data.data)
+      }
     }
     commit('refreshFriends', friends)
   },

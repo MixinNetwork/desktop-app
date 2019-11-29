@@ -21,7 +21,7 @@ class SendWorker extends BaseWorker {
   }
 
   async sendPlainMessage(message) {
-    let conversation = conversationDao.getConversationById(message.conversation_id)
+    const conversation = conversationDao.getConversationById(message.conversation_id)
     await this.checkConversationExist(conversation)
     let content = message.content
     if (message.category === MessageCategories.PLAIN_TEXT) {

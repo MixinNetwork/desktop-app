@@ -11,7 +11,7 @@ async function refresh() {
 export async function checkSignalKey() {
   const response = await signalAPI.getSignalKeyCount()
   if (response != null && response.error == null && response.data != null) {
-    const availableKeyCount = response.data.one_time_pre_keys_count
+    const availableKeyCount = response.data.data.one_time_pre_keys_count
     if (availableKeyCount >= 500) {
       return
     }

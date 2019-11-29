@@ -254,7 +254,7 @@ export default class BaseWorker {
         participants: [{ user_id: conversation.owner_id, role: '' }]
       }
       const response = await conversationApi.createContactConversation(request)
-      if (response && !response.error && response.data) {
+      if (response && !response.error && response.data.data) {
         conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
         const participants = response.data.data.participant_sessions.map(item => {
           return {

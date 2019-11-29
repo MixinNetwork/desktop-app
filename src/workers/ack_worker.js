@@ -25,8 +25,17 @@ class AckWorker extends BaseWorker {
         messages: messages
       }
     }
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    jobDao.delete(jobs)
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
+      async _ => {
+        await jobDao.delete(jobs)
+      },
+      async error => {
+        if (error.code === 403) {
+          await jobDao.delete(jobs)
+        } else {
+          console.log(error)
+        }
+      })
   }
 
   async sendRecallMessages() {
@@ -48,8 +57,17 @@ class AckWorker extends BaseWorker {
         session_id: localStorage.primarySessionId
       }
     }
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    jobDao.deleteById(job.job_id)
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
+      async _ => {
+        await jobDao.delete(jobs)
+      },
+      async error => {
+        if (error.code === 403) {
+          await jobDao.delete(jobs)
+        } else {
+          console.log(error)
+        }
+      })
   }
 
   async sendSessionAckMessages() {
@@ -86,7 +104,17 @@ class AckWorker extends BaseWorker {
       }
     }
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    jobDao.delete(jobs)
+      .then(
+        async _ => {
+          await jobDao.delete(jobs)
+        },
+        async error => {
+          if (error.code === 403) {
+            await jobDao.delete(jobs)
+          } else {
+            console.log(error)
+          }
+        })
   }
 }
 

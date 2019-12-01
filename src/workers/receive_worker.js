@@ -361,7 +361,7 @@ class ReceiveWorker extends BaseWorker {
 
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
-    let status = MessageStatus.DELIVERED
+    let status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }

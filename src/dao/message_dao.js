@@ -158,7 +158,7 @@ class MessageDao {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "DELIVERED"  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .all(conversationId)
   }
@@ -166,19 +166,19 @@ class MessageDao {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "DELIVERED"  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .get(conversationId)
   }
   markRead(conversationId) {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     db.prepare(
-      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'DELIVERED'`
+      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
     ).run(conversationId)
   }
   updateMediaMessage(path, status, id) {
     db.prepare(
-      `UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
+      `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
     ).run([path, status, id])
   }
   findImages(conversationId, messageId) {

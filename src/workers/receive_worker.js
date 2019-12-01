@@ -78,7 +78,7 @@ class ReceiveWorker extends BaseWorker {
     }
   }
   async processApp(data) {
-    let status = MessageStatus.DELIVERED
+    let status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
@@ -157,11 +157,9 @@ class ReceiveWorker extends BaseWorker {
   }
 
   processSystemSnapshotMessage(data) {
-    var status
+    var status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
-    } else {
-      status = MessageStatus.DELIVERED
     }
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
@@ -205,7 +203,7 @@ class ReceiveWorker extends BaseWorker {
     if (systemMessage.user_id) {
       userId = systemMessage.user_id
     }
-    let status = MessageStatus.DELIVERED
+    let status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }

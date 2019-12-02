@@ -36,8 +36,8 @@ class Blaze {
     this.ws.onclose = this._onClose.bind(this)
     var self = this
     return new Promise((resolve, reject) => {
-      this.ws.addEventListener('open', function(event) {
-        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function(resp) {
+      this.ws.addEventListener('open', function (event) {
+        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function (resp) {
           console.log(resp)
         })
         resolve()
@@ -105,12 +105,7 @@ class Blaze {
         transaction(blazeMsg)
         delete this.transactions[blazeMsg.id]
       }
-      if (
-        blazeMsg.data &&
-        (blazeMsg.action === 'CREATE_MESSAGE' ||
-          blazeMsg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT' ||
-          blazeMsg.action === 'CREATE_CALL')
-      ) {
+      if (blazeMsg.data) {
         this.handleReceiveMessage(blazeMsg)
       }
     } else {
@@ -150,7 +145,7 @@ class Blaze {
 
   sendMessage(message) {
     if (this.ws) {
-      this._sendGzip(message, function(resp) {})
+      this._sendGzip(message, function (resp) { })
     }
   }
 
@@ -160,7 +155,7 @@ class Blaze {
       return new Promise((resolve, reject) => {
         let timer
         let timeout = this.TIMEOUT
-        this._sendGzip(message, function(resp) {
+        this._sendGzip(message, function (resp) {
           if (resp.data) {
             resolve(resp.data)
           } else if (resp.error) {
@@ -170,7 +165,7 @@ class Blaze {
           }
           clearTimeout(timer)
         })
-        timer = setTimeout(function() {
+        timer = setTimeout(function () {
           self.reconnectBlaze()
           reject(timeout)
         }, 5000)

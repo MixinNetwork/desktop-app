@@ -748,6 +748,9 @@ class ReceiveWorker extends BaseWorker {
   }
 
   updateRemoteMessageStatus(messageId, status) {
+    if (status !== MessageStatus.DELIVERED && status !== MessageStatus.READ) {
+      return
+    }
     const blazeMessage = {
       message_id: messageId,
       status: status

@@ -1,7 +1,7 @@
 import { remote } from 'electron'
 import path from 'path'
 import { clearAllTables as clearSignal } from './signal_db'
-import { checkDb as checkMixinDb, clearKeyTable } from './db'
+import { clearKeyTable } from './db'
 import store from '@/store/store'
 export function getDbPath() {
   const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -21,11 +21,4 @@ export function clearDb() {
   clearSignal()
   window.localStorage.clear()
   clearing = false
-}
-
-export function checkDb(callback) {
-  checkMixinDb(version => {
-    clearDb()
-    callback(version)
-  })
 }

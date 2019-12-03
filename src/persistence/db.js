@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const MixinDatabaseVersion = 2
+const MixinDatabaseVersion = 1
 const mixinPath = path.join(getDbPath(), 'mixin.db')
 const mixinDb = new Database(mixinPath, { readonly: false })
 mixinDb.pragma('journal_mode = WAL')
@@ -11,28 +11,17 @@ mixinDb.pragma('journal_mode = WAL')
 const fileLocation = path.join(__static, 'mixin.sql')
 const createSQL = fs.readFileSync(fileLocation, 'utf8')
 mixinDb.exec(createSQL)
-
-function MIGRATION_0_1_2() {
-  const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
-  // eslint-disable-next-line no-undef
-  const dropLocation = path.join(__static, 'mixin_drop.sql')
-  const dropSQL = fs.readFileSync(dropLocation, 'utf8')
-  // eslint-disable-next-line no-undef
-  const createLocation = path.join(__static, 'mixin.sql')
-  const createSQL = fs.readFileSync(createLocation, 'utf8')
-  mixinDb.exec(dropSQL)
-  mixinDb.exec(createSQL)
-  mixinDb.exec('ALTER TABLE messages ADD COLUMN thumb_url TEXT')
-  stmt.run()
+const row = mixinDb.prepare('PRAGMA user_version').get()
+if (!!row && row.user_version < MixinDatabaseVersion) {
+  if (row.user_version === 0 && MixinDatabaseVersion === 1) {
+    const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
+    MIGRATION_0_1()
+    stmt.run()
+  }
 }
 
-export function checkDb(callback) {
-  const row = mixinDb.prepare('PRAGMA user_version').get()
-  if (row.user_version <= 1 && MixinDatabaseVersion === 2) {
-    MIGRATION_0_1_2()
-    const version = 2
-    callback(version)
-  }
+function MIGRATION_0_1() {
+  mixinDb.exec('ALTER TABLE messages ADD COLUMN thumb_url TEXT')
 }
 
 export function clearKeyTable(sessionId) {

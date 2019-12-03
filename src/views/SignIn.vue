@@ -216,6 +216,7 @@ h1 {
 }
 
 .sign_in {
+  background: white;
   display: flex;
   flex-direction: column;
   justify-content: center;

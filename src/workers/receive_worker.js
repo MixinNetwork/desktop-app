@@ -86,7 +86,7 @@ class ReceiveWorker extends BaseWorker {
     const message = {
       message_id: data.message_id,
       conversation_id: data.conversation_id,
-      user_id: data.primitive_id,
+      user_id: data.user_id,
       category: data.category,
       content: decoded,
       media_url: null,
@@ -121,12 +121,6 @@ class ReceiveWorker extends BaseWorker {
   }
 
   async processRecallMessage(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
     const recallMassage = JSON.parse(decodeURIComponent(escape(window.atob(data.data))))
     let message = messageDao.getMessageById(recallMassage.message_id)
     if (message) {
@@ -165,7 +159,7 @@ class ReceiveWorker extends BaseWorker {
     const message = {
       message_id: data.message_id,
       conversation_id: data.conversation_id,
-      user_id: data.primitive_id,
+      user_id: data.user_id,
       category: data.category,
       content: decoded,
       media_url: null,

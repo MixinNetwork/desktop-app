@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	`media_key`	    TEXT,
 	`media_digest`	TEXT,
 	`media_status`	TEXT,
+	`thumb_url`     TEXT,
 	`status`	TEXT NOT NULL,
 	`created_at`	TEXT NOT NULL,
 	`action`	TEXT,

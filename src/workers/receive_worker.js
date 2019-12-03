@@ -55,8 +55,6 @@ class ReceiveWorker extends BaseWorker {
       await this.processApp(data)
     } else if (data.category === 'MESSAGE_RECALL') {
       await this.processRecallMessage(data)
-    } else if (data.category === 'SESSION_SYNC') {
-      await this.processSessionSyncMessage(data)
     }
     this.updateRemoteMessageStatus(floodMessage.message_id, MessageStatus.DELIVERED)
   }
@@ -322,12 +320,6 @@ class ReceiveWorker extends BaseWorker {
       data.category === 'PLAIN_LIVE'
     ) {
       await this.processDecryptSuccess(data, data.data)
-    }
-  }
-
-  async processSessionSyncMessage(data) {
-    if (data.category === 'SESSION_SYNC') {
-      await this.refreshConversation(data.conversation_id)
     }
   }
 

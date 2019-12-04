@@ -157,6 +157,7 @@ export default {
             localStorage.deviceId = deviceId
             localStorage.primarySessionId = primarySessionId
             localStorage.sessionId = account.session_id
+            localStorage.newVersion = true
             this.$store.dispatch('saveAccount', account)
             this.updateParticipantSession(account.user_id, account.session_id)
             this.$router.push('/')
@@ -191,15 +192,16 @@ export default {
       if (!s || s.length === 0) {
         return
       }
-      participantSessionDao.insertAll(s.map(item => {
-        return {
-          conversation_id: item.conversation_id,
-          user_id: userId,
-          session_id: sessionId,
-          sent_to_server: 0,
-          created_at: new Date().toISOString()
-        }
-      })
+      participantSessionDao.insertAll(
+        s.map(item => {
+          return {
+            conversation_id: item.conversation_id,
+            user_id: userId,
+            session_id: sessionId,
+            sent_to_server: 0,
+            created_at: new Date().toISOString()
+          }
+        })
       )
     }
   }

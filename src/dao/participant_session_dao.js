@@ -43,7 +43,7 @@ class ParticipantSessionDao {
 
   updateList(sessionParticipants) {
     const stmt = db.prepare(
-      'UPDATE participant_session SET sent_to_server = @sent_to_server, created_at = @created_at WHERE conversation_id = @conversation_id AND user_id = @user_id'
+      'UPDATE participant_session SET sent_to_server = @sent_to_server, created_at = @created_at WHERE conversation_id = @conversation_id AND user_id = @user_id AND session_id = @session_id'
     )
     for (const participant of sessionParticipants) {
       stmt.run(participant)

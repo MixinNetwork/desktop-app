@@ -107,7 +107,6 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	`media_key`	    TEXT,
 	`media_digest`	TEXT,
 	`media_status`	TEXT,
-	`thumb_url`     TEXT,
 	`status`	TEXT NOT NULL,
 	`created_at`	TEXT NOT NULL,
 	`action`	TEXT,
@@ -121,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	`media_waveform`	TEXT,
 	`quote_message_id`	TEXT,
 	`quote_content`	TEXT,
+	`thumb_url`     TEXT,
 	PRIMARY KEY(`message_id`),
 	FOREIGN KEY(`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON UPDATE NO ACTION ON DELETE CASCADE
 );

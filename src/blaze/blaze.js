@@ -1,6 +1,6 @@
 import RobustWebSocket from 'robust-websocket'
 import { getToken, readArrayBuffer } from '@/utils/util.js'
-import { MessageStatus, LinkStatus } from '@/utils/constants.js'
+import { MessageStatus, LinkStatus, API_URL } from '@/utils/constants.js'
 import { clearDb } from '@/persistence/db_util.js'
 import uuidv4 from 'uuid/v4'
 import pako from 'pako'
@@ -9,7 +9,6 @@ import messageDao from '@/dao/message_dao'
 import jobDao from '@/dao/job_dao'
 import floodMessageDao from '@/dao/flood_message_dao'
 import accountApi from '@/api/account.js'
-import interval from 'interval-promise'
 import router from '@/router'
 class Blaze {
   constructor() {
@@ -31,19 +30,18 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
-    this.ws = new RobustWebSocket('wss://mixin-blaze.zeromesh.net?access_token=' + token, 'Mixin-Blaze-1')
+    this.ws = new RobustWebSocket(API_URL.WS + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
     var self = this
     return new Promise((resolve, reject) => {
-      this.ws.addEventListener('open', function(event) {
-        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_SESSION_MESSAGES' }, function(resp) {
+      this.ws.addEventListener('open', function (event) {
+        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function (resp) {
           console.log(resp)
         })
         resolve()
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-        self.startPing()
       })
     })
   }
@@ -52,6 +50,9 @@ class Blaze {
     try {
       const content = await readArrayBuffer(event.data)
       const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
+      if (data.error) {
+        return
+      }
       this.handleMessage(data)
     } catch (e) {
       console.warn(e.message)
@@ -104,7 +105,12 @@ class Blaze {
         transaction(blazeMsg)
         delete this.transactions[blazeMsg.id]
       }
-      if (blazeMsg.data) {
+      if (
+        blazeMsg.data &&
+        (blazeMsg.action === 'CREATE_MESSAGE' ||
+          blazeMsg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT' ||
+          blazeMsg.action === 'CREATE_CALL')
+      ) {
         this.handleReceiveMessage(blazeMsg)
       }
     } else {
@@ -128,47 +134,15 @@ class Blaze {
     }
   }
 
-  startPing() {
-    var self = this
-    self.ping = true
-    interval(
-      async (_, stop) => {
-        if (!self.ping) {
-          stop()
-        }
-        if (this.ws.readyState === WebSocket.OPEN) {
-          await self.sendPing()
-        }
-      },
-      5000,
-      { stopOnError: false }
-    )
-  }
-
-  async sendPing() {
-    this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING_SESSION' }, function(resp) {
-      const data = resp.data.data
-      if (!data || data.length === 0) {
-        store.dispatch('setLinkStatus', LinkStatus.LOSE)
-      } else {
-        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-      }
-    })
-  }
-
   handleReceiveMessage(msg) {
-    if (msg.action === 'CREATE_SESSION_MESSAGE') {
-      if (
-        msg.data.user_id === this.account.user_id &&
-        msg.data.session_id === this.account.session_id &&
-        msg.data.category === ''
-      ) {
-        this.makeMessageStatus('PENDING', msg.data.message_id)
+    if (msg.action === 'CREATE_MESSAGE') {
+      if (msg.data.user_id === this.account.user_id && msg.data.category === '') {
+        this.makeMessageStatus(msg.data.status, msg.data.message_id)
       } else {
         floodMessageDao.insert(msg.data.message_id, JSON.stringify(msg.data), msg.data.created_at)
       }
-    } else if (msg.action === 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS') {
-    } else if (msg.action === 'PING_SESSION') {
+    } else if (msg.action === 'ACKNOWLEDGE_MESSAGE_RECEIPT') {
+      this.makeMessageStatus(msg.data.status, msg.data.message_id)
     } else {
       this.updateRemoteMessageStatus(msg.data.message_id, MessageStatus.DELIVERED)
     }
@@ -176,7 +150,7 @@ class Blaze {
 
   sendMessage(message) {
     if (this.ws) {
-      this._sendGzip(message, function(resp) {})
+      this._sendGzip(message, function (resp) { })
     }
   }
 
@@ -186,7 +160,7 @@ class Blaze {
       return new Promise((resolve, reject) => {
         let timer
         let timeout = this.TIMEOUT
-        this._sendGzip(message, function(resp) {
+        this._sendGzip(message, function (resp) {
           if (resp.data) {
             resolve(resp.data)
           } else if (resp.error) {
@@ -196,7 +170,7 @@ class Blaze {
           }
           clearTimeout(timer)
         })
-        timer = setTimeout(function() {
+        timer = setTimeout(function () {
           self.reconnectBlaze()
           reject(timeout)
         }, 5000)
@@ -217,7 +191,7 @@ class Blaze {
     const blazeMessage = { message_id: messageId, status: status }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,

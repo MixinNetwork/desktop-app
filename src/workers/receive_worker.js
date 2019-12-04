@@ -4,8 +4,10 @@ import floodMessageDao from '@/dao/flood_message_dao'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 import jobDao from '@/dao/job_dao'
 import stickerDao from '@/dao/sticker_dao'
+import resendMessageDao from '@/dao/resend_message_dao'
 import BaseWorker from './base_worker'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
@@ -24,7 +26,7 @@ import {
   SystemConversationAction,
   ConversationCategory
 } from '@/utils/constants.js'
-class ReceiveWroker extends BaseWorker {
+class ReceiveWorker extends BaseWorker {
   async doWork() {
     const fms = floodMessageDao.findFloodMessage()
     if (!fms) {
@@ -58,34 +60,31 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async processSignalMessage(data) {
-    if (data.session_id !== localStorage.primarySessionId) {
-      return
-    }
-    const plaintext = signalProtocol.decryptMessage(data.conversation_id, data.user_id, 1, data.data, data.category)
+    const deviceId = signalProtocol.convertToDeviceId(data.session_id)
+    const plaintext = signalProtocol.decryptMessage(
+      data.conversation_id,
+      data.user_id,
+      deviceId,
+      data.data,
+      data.category
+    )
     if (plaintext) {
       await this.processDecryptSuccess(data, plaintext)
     } else {
+      console.log('decrypt failed')
       console.log(data)
     }
   }
   async processApp(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
-    var status
-    if (store.state.currentConversationId === data.conversation_id) {
+    let status = data.status
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
-    } else {
-      status = MessageStatus.DELIVERED
     }
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
       message_id: data.message_id,
       conversation_id: data.conversation_id,
-      user_id: data.primitive_id,
+      user_id: data.user_id,
       category: data.category,
       content: decoded,
       media_url: null,
@@ -115,17 +114,11 @@ class ReceiveWroker extends BaseWorker {
       thumb_url: null
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
   async processRecallMessage(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
     const recallMassage = JSON.parse(decodeURIComponent(escape(window.atob(data.data))))
     let message = messageDao.getMessageById(recallMassage.message_id)
     if (message) {
@@ -140,7 +133,7 @@ class ReceiveWroker extends BaseWorker {
       }
     }
 
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
@@ -156,23 +149,15 @@ class ReceiveWroker extends BaseWorker {
   }
 
   processSystemSnapshotMessage(data) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
-    var status
-    if (store.state.currentConversationId === data.conversation_id) {
+    var status = data.status
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
-    } else {
-      status = MessageStatus.DELIVERED
     }
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
       message_id: data.message_id,
       conversation_id: data.conversation_id,
-      user_id: data.primitive_id,
+      user_id: data.user_id,
       category: data.category,
       content: decoded,
       media_url: null,
@@ -202,22 +187,16 @@ class ReceiveWroker extends BaseWorker {
       thumb_url: null
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 
   async processSystemConversationMessage(data, systemMessage) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
     let userId = data.user_id
     if (systemMessage.user_id) {
       userId = systemMessage.user_id
     }
-    let status = MessageStatus.DELIVERED
-    if (store.state.currentConversationId === data.conversation_id) {
+    let status = data.status
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
     if (userId === SystemUser) {
@@ -278,6 +257,7 @@ class ReceiveWroker extends BaseWorker {
       if (systemMessage.participant_id === accountId) {
         await this.refreshConversation(data.conversation_id)
       } else {
+        await this.syncSession(data.conversation_id, [systemMessage.participant_id])
         await this.syncUser(systemMessage.participant_id)
       }
     } else if (
@@ -285,13 +265,13 @@ class ReceiveWroker extends BaseWorker {
       systemMessage.action === SystemConversationAction.EXIT
     ) {
       if (systemMessage.participant_id === accountId) {
-        participantDao.deleteAll(data.conversation_id, [accountId])
         conversationDao.updateConversationStatusById(data.conversation_id, ConversationStatus.QUIT)
-        store.dispatch('refreshParticipants', data.conversation_id)
-      } else {
-        await this.refreshConversation(data.conversation_id)
       }
+      participantDao.deleteAll(data.conversation_id, [systemMessage.participant_id])
+      store.dispatch('refreshParticipants', data.conversation_id)
       await this.syncUser(systemMessage.participant_id)
+      participantSessionDao.delete(data.conversation_id, systemMessage.participant_id)
+      participantSessionDao.updateStatusByConversationId(data.conversation_id)
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
       await this.refreshConversation(data.conversation_id)
@@ -303,16 +283,30 @@ class ReceiveWroker extends BaseWorker {
       }
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 
   async processPlainMessage(data) {
     if (data.category === 'PLAIN_JSON') {
       const plain = window.atob(data.data)
       const plainData = JSON.parse(plain)
-      if (plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' && plainData.messages.length > 0) {
-        plainData.messages.forEach(item => {
+      if (plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' && plainData.ack_messages && plainData.ack_messages.length > 0) {
+        plainData.ack_messages.forEach(item => {
           this.makeMessageStatus(item.status, item.message_id)
+        })
+      } else if (plainData.action === 'RESEND_MESSAGES') {
+        plainData.messages.forEach(msg => {
+          const resendMessage = resendMessageDao.findResendMessage(data.user_id, msg.message_id)
+          if (!resendMessage) {
+            return
+          }
+          const needResendMessage = messageDao.findMessageById(msg.message_id)
+          if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
+            messageDao.updateMessageStatusById(MessageStatus.SENDING, msg.message_id)
+            resendMessageDao.insert(msg.message_id, data.user_id, data.session_id, 1)
+          } else {
+            resendMessageDao.insert(msg.message_id, data.user_id, data.session_id, 0)
+          }
         })
       }
     } else if (
@@ -350,32 +344,15 @@ class ReceiveWroker extends BaseWorker {
   }
 
   async processDecryptSuccess(data, plaintext) {
-    if (data.primitive_id) {
-      data.user_id = data.primitive_id
-    }
-    if (data.primitive_message_id) {
-      data.message_id = data.primitive_message_id
-    }
-    if (data.representative_id) {
-      data.user_id = data.representative_id
-    }
-    const accountId = JSON.parse(localStorage.getItem('account')).user_id
     const user = await this.syncUser(data.user_id)
-
-    var status = MessageStatus.PENDING
-    if (data.user_id !== accountId) {
-      if (store.state.currentConversationId === data.conversation_id) {
-        status = MessageStatus.READ
-      } else {
-        status = MessageStatus.DELIVERED
-      }
+    let status = data.status
+    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
+      status = MessageStatus.READ
     }
     if (data.category.endsWith('_TEXT')) {
-      var plain = null
+      let plain = plaintext
       if (data.category === 'PLAIN_TEXT') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
-      } else {
-        plain = plaintext
       }
       let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
       let quoteContent = null
@@ -702,12 +679,12 @@ class ReceiveWroker extends BaseWorker {
       const body = i18n.t('notification.sendLive')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     }
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, MessageStatus.READ)
+    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
   showNotification(conversationId, userId, fullName, content, source, createdAt) {
-    if (source === 'LIST_PENDING_SESSION_MESSAGES') {
+    if (source === 'LIST_PENDING_MESSAGES') {
       return
     }
     if (remote.getCurrentWindow().isFocused()) {
@@ -757,13 +734,16 @@ class ReceiveWroker extends BaseWorker {
   }
 
   updateRemoteMessageStatus(messageId, status) {
+    if (status !== MessageStatus.DELIVERED && status !== MessageStatus.READ) {
+      return
+    }
     const blazeMessage = {
       message_id: messageId,
       status: status
     }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,
@@ -776,10 +756,14 @@ class ReceiveWroker extends BaseWorker {
   }
 
   makeMessageRead(conversationId, messageId, userId, status) {
-    if (store.state.currentConversationId !== conversationId || status !== MessageStatus.READ) {
+    if (store.state.currentConversationId !== conversationId) {
       return
     }
     if (userId === JSON.parse(localStorage.getItem('account')).user_id) {
+      return
+    }
+    this.updateRemoteMessageStatus(messageId, status)
+    if (status !== MessageStatus.READ) {
       return
     }
     const blazeMessage = {
@@ -788,17 +772,17 @@ class ReceiveWroker extends BaseWorker {
     }
     jobDao.insert({
       job_id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       created_at: new Date().toISOString(),
       order_id: null,
       priority: 5,
       user_id: null,
       blaze_message: JSON.stringify(blazeMessage),
-      conversation_id: null,
+      conversation_id: conversationId,
       resend_message_id: null,
       run_count: 0
     })
   }
 }
 
-export default new ReceiveWroker()
+export default new ReceiveWorker()

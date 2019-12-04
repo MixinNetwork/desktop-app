@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS `sent_session_sender_keys` (
 CREATE TABLE IF NOT EXISTS `resend_messages` (
 	`message_id`	TEXT NOT NULL,
 	`user_id`	TEXT NOT NULL,
+	`session_id`	TEXT NOT NULL,
 	`status`	INTEGER NOT NULL,
 	`created_at`	TEXT NOT NULL,
 	PRIMARY KEY(`message_id`,`user_id`)
@@ -119,6 +120,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	`media_waveform`	TEXT,
 	`quote_message_id`	TEXT,
 	`quote_content`	TEXT,
+	`thumb_url`     TEXT,
 	PRIMARY KEY(`message_id`),
 	FOREIGN KEY(`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON UPDATE NO ACTION ON DELETE CASCADE
 );
@@ -213,12 +215,6 @@ CREATE TABLE IF NOT EXISTS `addresses` (
 	`dust`	TEXT,
 	PRIMARY KEY(`address_id`)
 );
-CREATE TABLE IF NOT EXISTS sessions (
-	session_id TEXT NOT NULL,
-	user_id TEXT NOT NULL,
-	device_id INTEGER,
-	PRIMARY KEY('session_id')
-);
 
 CREATE TABLE IF NOT EXISTS `ratchet_sender_keys` (
 	`group_id` TEXT NOT NULL, 
@@ -229,9 +225,15 @@ CREATE TABLE IF NOT EXISTS `ratchet_sender_keys` (
 	PRIMARY KEY(`group_id`, `sender_id`)
 );
 
-CREATE INDEX IF NOT EXISTS index_sessions_user_id ON sessions (
-	'user_id'
+CREATE TABLE IF NOT EXISTS `participant_session` (
+	`conversation_id` TEXT NOT NULL, 
+	`user_id` TEXT NOT NULL, 
+	`session_id` TEXT NOT NULL, 
+	`sent_to_server` INTEGER, 
+	`created_at` TEXT, 
+	PRIMARY KEY(`conversation_id`, `user_id`, `session_id`)
 );
+
 CREATE INDEX IF NOT EXISTS `index_users_full_name` ON `users` (
 	`full_name`
 );
@@ -260,8 +262,8 @@ CREATE INDEX IF NOT EXISTS `index_conversations_created_at` ON `conversations` (
 CREATE UNIQUE INDEX IF NOT EXISTS `index_conversations_conversation_id` ON `conversations` (
 	`conversation_id`
 );
-CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_update AFTER UPDATE ON messages BEGIN UPDATE conversations SET unseen_message_count = (SELECT count(m.message_id) FROM messages m, users u WHERE m.user_id = u.user_id AND u.relationship != 'ME' AND m.status = 'DELIVERED' AND conversation_id = new.conversation_id) where conversation_id = new.conversation_id; END;
-CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_insert AFTER INSERT ON messages BEGIN UPDATE conversations SET unseen_message_count = (SELECT count(m.message_id) FROM messages m, users u WHERE m.user_id = u.user_id AND u.relationship != 'ME' AND m.status = 'DELIVERED' AND conversation_id = new.conversation_id) where conversation_id = new.conversation_id; END;
+CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_update AFTER UPDATE ON messages BEGIN UPDATE conversations SET unseen_message_count = (SELECT count(m.message_id) FROM messages m, users u WHERE m.user_id = u.user_id AND u.relationship != 'ME' AND m.status = 'SENT' AND conversation_id = new.conversation_id) where conversation_id = new.conversation_id; END;
+CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_insert AFTER INSERT ON messages BEGIN UPDATE conversations SET unseen_message_count = (SELECT count(m.message_id) FROM messages m, users u WHERE m.user_id = u.user_id AND u.relationship != 'ME' AND m.status = 'SENT' AND conversation_id = new.conversation_id) where conversation_id = new.conversation_id; END;
 CREATE TRIGGER IF NOT EXISTS conversation_last_message_update AFTER INSERT ON messages BEGIN UPDATE conversations SET last_message_id = new.message_id WHERE conversation_id = new.conversation_id; END;
 CREATE TRIGGER IF NOT EXISTS conversation_last_message_delete AFTER DELETE ON messages BEGIN UPDATE conversations SET last_message_id = (select message_id from messages where conversation_id = old.conversation_id order by created_at DESC limit 1) WHERE conversation_id = old.conversation_id; END;
 COMMIT;

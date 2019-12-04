@@ -1,5 +1,6 @@
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
@@ -7,11 +8,15 @@ import accountApi from '@/api/account'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/constants.js'
+import { generateConversationChecksum } from '@/utils/util.js'
 import store from '@/store/store'
 
 export default class BaseWorker {
   async syncConversation(data) {
-    if (data.conversation_id === SystemUser || data.conversation_id === JSON.parse(localStorage.getItem('account')).user_id) {
+    if (
+      data.conversation_id === SystemUser ||
+      data.conversation_id === JSON.parse(localStorage.getItem('account')).user_id
+    ) {
       return
     }
     let conversation = conversationDao.getConversationById(data.conversation_id)
@@ -71,6 +76,7 @@ export default class BaseWorker {
         mute_until: conversation.mute_until
       })
       await this.refreshParticipants(conversation.conversation_id, conversation.participants)
+      await this.refreshParticipantsSession(conversation.conversation_id, conversation.participant_sessions)
       await this.syncUser(ownerId)
     }
   }
@@ -115,6 +121,55 @@ export default class BaseWorker {
     }
   }
 
+  async refreshParticipantsSession(conversationId, remote) {
+    if (!remote) return
+    const local = participantSessionDao.getParticipantsSession(conversationId)
+    if (!local || local.length === 0) {
+      const add = remote.map(function (item) {
+        return {
+          conversation_id: conversationId,
+          user_id: item.user_id,
+          session_id: item.session_id,
+          sent_to_server: null,
+          created_at: new Date().toISOString()
+        }
+      })
+
+      participantSessionDao.insertList(add)
+      return
+    }
+    const common = local.filter(function (item) {
+      return remote.some(function (e) {
+        return e.session_id === item.session_id &&
+          e.user_id === item.user_id
+      })
+    })
+
+    const del = local.filter(function (item) {
+      return !common.some(function (e) {
+        return e.session_id === item.session_id &&
+          e.user_id === item.user_id
+      })
+    })
+    const add = remote.filter(function (item) {
+      return !common.some(function (e) {
+        return e.session_id === item.session_id &&
+          e.user_id === item.user_id
+      })
+    }).map(function (item) {
+      return {
+        conversation_id: conversationId,
+        user_id: item.user_id,
+        session_id: item.session_id,
+        sent_to_server: null,
+        created_at: new Date().toISOString()
+      }
+    })
+
+    participantSessionDao.deleteList(del)
+    participantSessionDao.insertList(add)
+  }
+
   async fetchUsers(users) {
     const resp = await userApi.getUsers(users)
     if (resp.data.data) {
@@ -135,10 +190,82 @@ export default class BaseWorker {
     return user
   }
 
+  async syncSession(conversationId, userIds) {
+    const resp = await userApi.getSessions(userIds)
+    if (resp.data.data) {
+      const add = resp.data.data.map(function (item) {
+        return {
+          conversation_id: conversationId,
+          user_id: item.user_id,
+          session_id: item.session_id,
+          sent_to_server: null,
+          created_at: new Date().toISOString()
+        }
+      })
+      participantSessionDao.insertList(add)
+    }
+  }
+
   async refreshSticker(stickerId) {
     const response = await accountApi.getStickerById(stickerId)
     if (response.data.data) {
       stickerDao.insertUpdate(response.data.data)
+    }
+  }
+
+  getDeviceId() {
+    return parseInt(localStorage.deviceId)
+  }
+
+  getSessionId() {
+    return localStorage.sessionId
+  }
+
+  getAccountId() {
+    return JSON.parse(localStorage.getItem('account')).user_id
+  }
+
+  getCheckSum(conversationId) {
+    const sessions = participantSessionDao.getParticipantSessionsByConversationId(conversationId)
+    if (!sessions || sessions.length === 0) {
+      return ''
+    } else {
+      return generateConversationChecksum(sessions)
+    }
+  }
+
+  async checkConversation(conversationId) {
+    const conversation = conversationDao.getConversationById(conversationId)
+    if (!conversation) {
+      return
+    }
+    if (conversation.category === 'GROUP') {
+      this.syncConversation(conversation)
+    } else {
+      await this.checkConversationExist(conversation)
+    }
+  }
+
+  async checkConversationExist(conversation) {
+    if (conversation.status !== ConversationStatus.SUCCESS) {
+      const request = {
+        conversation_id: conversation.conversation_id,
+        category: conversation.category,
+        participants: [{ user_id: conversation.owner_id, role: '' }]
+      }
+      const response = await conversationApi.createContactConversation(request)
+      if (response && !response.error && response.data.data) {
+        conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
+        const participants = response.data.data.participant_sessions.map(item => {
+          return {
+            conversation_id: conversation.conversation_id,
+            user_id: item.user_id,
+            session_id: item.session_id,
+            created_at: new Date().toISOString()
+          }
+        })
+        participantSessionDao.replaceAll(conversation.conversation_id, participants)
+      }
     }
   }
 }

@@ -12,8 +12,8 @@ import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } fr
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId) {
-  messageDao.findUnreadMessage(conversationId).forEach(function(item, index) {
-    updateRemoteMessageStatus(item.message_id, MessageStatus.READ)
+  messageDao.findUnreadMessage(conversationId).forEach(function (item, index) {
+    updateRemoteMessageStatus(conversationId, item.message_id, MessageStatus.READ)
   })
   messageDao.markRead(conversationId)
 }
@@ -23,14 +23,14 @@ async function refreshConversation(conversationId, callback) {
   if (c.data.data) {
     const conversation = c.data.data
     const me = JSON.parse(localStorage.getItem('account'))
-    const result = conversation.participants.some(function(item) {
+    const result = conversation.participants.some(function (item) {
       return item.user_id === me.user_id
     })
 
     const status = result ? ConversationStatus.SUCCESS : ConversationStatus.QUIT
     let ownerId = conversation.creator_id
     if (conversation.category === ConversationCategory.CONTACT) {
-      conversation.participants.forEach(function(item) {
+      conversation.participants.forEach(function (item) {
         if (item.user_id !== me.user_id) {
           ownerId = item.user_id
         }
@@ -52,11 +52,11 @@ async function refreshConversation(conversationId, callback) {
 }
 async function refreshParticipants(conversationId, participants, callback) {
   const local = participantDao.getParticipants(conversationId)
-  const localIds = local.map(function(item) {
+  const localIds = local.map(function (item) {
     return item.user_id
   })
   var online = []
-  participants.forEach(function(item, index) {
+  participants.forEach(function (item, index) {
     online[index] = {
       conversation_id: conversationId,
       user_id: item.user_id,
@@ -65,19 +65,19 @@ async function refreshParticipants(conversationId, participants, callback) {
     }
   })
 
-  const add = online.filter(function(item) {
-    return !localIds.some(function(e) {
+  const add = online.filter(function (item) {
+    return !localIds.some(function (e) {
       return item.user_id === e
     })
   })
-  const remove = localIds.filter(function(item) {
-    return !online.some(function(e) {
+  const remove = localIds.filter(function (item) {
+    return !online.some(function (e) {
       return item === e.user_id
     })
   })
   if (add.length > 0) {
     participantDao.insertAll(add)
-    const needFetchUsers = add.map(function(item) {
+    const needFetchUsers = add.map(function (item) {
       return item.user_id
     })
     fetchUsers(needFetchUsers)
@@ -111,17 +111,30 @@ async function fetchUsers(users) {
   }
 }
 
-function updateRemoteMessageStatus(messageId, status) {
+function updateRemoteMessageStatus(conversationId, messageId, status) {
   const blazeMessage = { message_id: messageId, status: status }
   jobDao.insert({
     job_id: uuidv4(),
-    action: 'CREATE_SESSION_MESSAGE',
+    action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
     created_at: new Date().toISOString(),
     order_id: null,
     priority: 5,
     user_id: null,
     blaze_message: JSON.stringify(blazeMessage),
     conversation_id: null,
+    resend_message_id: null,
+    run_count: 0
+  })
+
+  jobDao.insert({
+    job_id: uuidv4(),
+    action: 'CREATE_MESSAGE',
+    created_at: new Date().toISOString(),
+    order_id: null,
+    priority: 5,
+    user_id: null,
+    blaze_message: JSON.stringify(blazeMessage),
+    conversation_id: conversationId,
     resend_message_id: null,
     run_count: 0
   })
@@ -302,7 +315,7 @@ export default {
           media_key: null,
           media_digest: null,
           media_status: 'PENDING',
-          status: MessageStatus.PENDING,
+          status: MessageStatus.SENDING,
           created_at: new Date().toISOString(),
           action: null,
           participant_id: null,
@@ -324,6 +337,7 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
+        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
         commit('stopLoading', messageId)
       },
@@ -355,6 +369,7 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
         messageDao.updateMessageContent(content, message.messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, message.messageId)
+        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, message.messageId)
         commit('stopLoading', message.messageId)
       },
@@ -382,9 +397,11 @@ export default {
       .map(item => {
         return item.user_id
       })
-    const resp = await userApi.getUsers(df)
-    if (resp.data.data) {
-      userDao.insertUsers(resp.data.data)
+    if (df.length > 0) {
+      const resp = await userApi.getUsers(df)
+      if (resp.data.data) {
+        userDao.insertUsers(resp.data.data)
+      }
     }
     commit('refreshFriends', friends)
   },
@@ -451,7 +468,7 @@ export default {
     commit('refreshMessage', message.conversation_id)
   },
   syncConversation: async ({ commit }, conversationId) => {
-    await refreshConversation(conversationId, function() {
+    await refreshConversation(conversationId, function () {
       commit('refreshConversation', conversationId)
     })
   },

@@ -4,6 +4,7 @@ import moment from 'moment'
 import store from '@/store/store'
 import { AvatarColors, NameColors } from '@/utils/constants.js'
 import signalProtocol from '@/crypto/signal.js'
+import md5 from 'md5'
 
 export function generateConversationId(userId, recipientId) {
   userId = userId.toString()
@@ -133,4 +134,12 @@ export function getNameColorById(id) {
 
 export function convertRemToPixels(rem) {
   return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
+}
+
+export function generateConversationChecksum(sessions) {
+  const sorted = sessions.map(session => {
+    return session.session_id
+  }).sort()
+  const d = sorted.join('')
+  return md5(d)
 }

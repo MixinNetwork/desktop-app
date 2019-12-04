@@ -3,31 +3,25 @@ import fs from 'fs'
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const MixinDatabaseVersion = 1
-const mixinPath = path.join(getDbPath(), 'mixin.db')
+const mixinPath = path.join(getDbPath(), 'mixin.db3')
 const mixinDb = new Database(mixinPath, { readonly: false })
 mixinDb.pragma('journal_mode = WAL')
 // eslint-disable-next-line no-undef
 const fileLocation = path.join(__static, 'mixin.sql')
 const createSQL = fs.readFileSync(fileLocation, 'utf8')
 mixinDb.exec(createSQL)
-const row = mixinDb.prepare('PRAGMA user_version').get()
-if (!!row && row.user_version < MixinDatabaseVersion) {
-  if (row.user_version === 0 && MixinDatabaseVersion === 1) {
-    const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
-    MIGRATION_0_1()
-    stmt.run()
-  }
-}
 
-function MIGRATION_0_1() {
-  mixinDb.exec('ALTER TABLE messages ADD COLUMN thumb_url TEXT')
+export function clearKeyTable(sessionId) {
+  mixinDb.transaction(() => {
+    mixinDb.exec('UPDATE participant_session SET sent_to_server = NULL')
+    mixinDb.exec('DELETE FROM participant_session WHERE session_id = "' + sessionId + '"')
+  })()
 }
 
 export function clearAllTables() {
   mixinDb.transaction(() => {
     mixinDb.exec('DELETE FROM `users`')
-    mixinDb.exec('DELETE FROM `sessions`')
+    mixinDb.exec('DELETE FROM `participant_session`')
     mixinDb.exec('DELETE FROM `conversations`')
     mixinDb.exec('DELETE FROM `messages`')
     mixinDb.exec('DELETE FROM `participants`')

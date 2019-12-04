@@ -39,6 +39,8 @@ import { base64ToUint8Array } from '@/utils/util.js'
 import { clearAllTables as clearMixin } from '@/persistence/db'
 import { clearAllTables as clearSignal } from '@/persistence/signal_db'
 import userDao from '@/dao/user_dao'
+import conversationDao from '@/dao/conversation_dao'
+import participantSessionDao from '@/dao/participant_session_dao'
 export default {
   components: {
     spinner
@@ -66,7 +68,7 @@ export default {
           .getProvisioningId(platformInfo.os.toString())
           .then(response => {
             const deviceId = response.data.data.device_id
-            const qrcodeUrl = 'mixin://device/auth?uuid=' + deviceId + '&pub_key=' + base64PubKey
+            const qrcodeUrl = 'mixin://device/auth?id=' + deviceId + '&pub_key=' + base64PubKey
             this.generateQrcode(qrcodeUrl)
             this.getSecret(deviceId)
             this.isLoading = false
@@ -154,7 +156,9 @@ export default {
             const deviceId = signalProtocol.convertToDeviceId(account.session_id)
             localStorage.deviceId = deviceId
             localStorage.primarySessionId = primarySessionId
+            localStorage.sessionId = account.session_id
             this.$store.dispatch('saveAccount', account)
+            this.updateParticipantSession(account.user_id, account.session_id)
             this.$router.push('/')
           })
         })
@@ -181,6 +185,22 @@ export default {
         }
         return signalAPI.postSignalKeys(body)
       })
+    },
+    updateParticipantSession: function(userId, sessionId) {
+      const s = conversationDao.getConversationsByUserId(userId)
+      if (!s || s.length === 0) {
+        return
+      }
+      participantSessionDao.insertAll(s.map(item => {
+        return {
+          conversation_id: item.conversation_id,
+          user_id: userId,
+          session_id: sessionId,
+          sent_to_server: 0,
+          created_at: new Date().toISOString()
+        }
+      })
+      )
     }
   }
 }
@@ -192,6 +212,7 @@ h1 {
 }
 
 .sign_in {
+  background: white;
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const signalPath = path.join(getDbPath(), 'signal.db')
+const signalPath = path.join(getDbPath(), 'signal.db3')
 const signalDb = new Database(signalPath, { readonly: false })
 signalDb.pragma('journal_mode = WAL')
 // eslint-disable-next-line no-undef

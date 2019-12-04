@@ -2,13 +2,13 @@ import axios from 'axios'
 import Url from 'url-parse'
 import { getToken } from '@/utils/util.js'
 import { clearDb } from '@/persistence/db_util.js'
+import { API_URL } from '@/utils/constants.js'
 import store from '@/store/store'
 import router from '@/router'
 import Vue from 'vue'
 
-const url = 'https://mixin-api.zeromesh.net/'
 const axiosApi = axios.create({
-  baseURL: url,
+  baseURL: API_URL.HTTP,
   timeout: 8000,
   retry: 2 ** 31
 })

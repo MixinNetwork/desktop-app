@@ -15,18 +15,27 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const messages = jobs.map(function(item) {
+    const messages = jobs.map(function (item) {
       return JSON.parse(item.blaze_message)
     })
     const blazeMessage = {
       id: uuidv4(),
-      action: 'ACKNOWLEDGE_SESSION_MESSAGE_RECEIPTS',
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
       params: {
         messages: messages
       }
     }
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    jobDao.delete(jobs)
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
+      async _ => {
+        await jobDao.delete(jobs)
+      },
+      async error => {
+        if (error.code === 403) {
+          await jobDao.delete(jobs)
+        } else {
+          console.log(error)
+        }
+      })
   }
 
   async sendRecallMessages() {
@@ -34,22 +43,27 @@ class AckWorker extends BaseWorker {
     if (!job) {
       return
     }
-
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
     const blazeMessage = {
       id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       params: {
         category: 'MESSAGE_RECALL',
         conversation_id: job.conversation_id,
         data: job.blaze_message,
-        message_id: uuidv4(),
-        recipient_id: userId,
-        session_id: localStorage.primarySessionId
+        message_id: uuidv4()
       }
     }
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    jobDao.deleteById(job.job_id)
+    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
+      async _ => {
+        await jobDao.deleteById(job.job_id)
+      },
+      async error => {
+        if (error.code === 403) {
+          await jobDao.deleteById(job.job_id)
+        } else {
+          console.log(error)
+        }
+      })
   }
 
   async sendSessionAckMessages() {
@@ -57,7 +71,8 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const messages = jobs.map(function(item) {
+    const conversationId = jobs[0].conversation_id
+    const messages = jobs.map(function (item) {
       return JSON.parse(item.blaze_message)
     })
 
@@ -66,7 +81,7 @@ class AckWorker extends BaseWorker {
         encodeURIComponent(
           JSON.stringify({
             action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
-            messages: messages
+            ack_messages: messages
           })
         )
       )
@@ -74,10 +89,10 @@ class AckWorker extends BaseWorker {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     const blazeMessage = {
       id: uuidv4(),
-      action: 'CREATE_SESSION_MESSAGE',
+      action: 'CREATE_MESSAGE',
       params: {
         category: 'PLAIN_JSON',
-        conversation_id: userId,
+        conversation_id: conversationId,
         data: plainText,
         message_id: uuidv4(),
         recipient_id: userId,
@@ -85,7 +100,17 @@ class AckWorker extends BaseWorker {
       }
     }
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    jobDao.delete(jobs)
+      .then(
+        async _ => {
+          await jobDao.delete(jobs)
+        },
+        async error => {
+          if (error.code === 403) {
+            await jobDao.delete(jobs)
+          } else {
+            console.log(error)
+          }
+        })
   }
 }
 

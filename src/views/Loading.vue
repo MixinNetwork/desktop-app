@@ -8,6 +8,7 @@
 <script>
 import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account.js'
+import { checkSignalKey } from '@/utils/signal_key_util.js'
 import { clearDb } from '@/persistence/db_util.js'
 
 export default {
@@ -36,13 +37,23 @@ export default {
         }
         return
       }
-      const user = account.data.data
-      if (user) {
-        localStorage.account = JSON.stringify(user)
-        this.$store.dispatch('insertUser', user)
-        this.$blaze.connect()
-        this.$router.push('/home')
-      }
+      this.pushSignalKeys().then(() => {
+        const user = account.data.data
+        if (user) {
+          localStorage.account = JSON.stringify(user)
+          this.$store.dispatch('insertUser', user)
+          this.$blaze.connect()
+          this.$router.push('/home')
+        }
+      })
+    }
+  },
+  methods: {
+    pushSignalKeys: function() {
+      // eslint-disable-next-line
+      return wasmObject.then(() => {
+        checkSignalKey()
+      })
     }
   }
 }

@@ -1,3 +1,8 @@
+export const API_URL = {
+  HTTP: 'https://api.mixin.one/',
+  WS: 'wss://blaze.mixin.one'
+}
+
 export const ConversationStatus = {
   START: 0,
   FAILURE: 1,
@@ -95,7 +100,6 @@ export const ParticipantRole = {
 
 export const MessageStatus = {
   SENDING: 'SENDING',
-  PENDING: 'PENDING',
   SENT: 'SENT',
   DELIVERED: 'DELIVERED',
   READ: 'READ',
@@ -132,8 +136,7 @@ export function canRecall(message, userId) {
   return (
     message.userId === userId &&
     canReply(message.type) &&
-    message.status !== MessageStatus.SENDING &&
-    message.status !== MessageStatus.PENDING
+    message.status !== MessageStatus.SENDING
   )
 }
 

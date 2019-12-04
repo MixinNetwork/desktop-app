@@ -14,6 +14,7 @@ import blaze from '@/blaze/blaze'
 import i18n from '@/utils/i18n.js'
 import { faArrowLeft, faArrowRight, faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
+import { API_URL } from '@/utils/constants.js'
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
@@ -25,7 +26,7 @@ Vue.use(Menu)
 Vue.use(Toast)
 Vue.use(ImageViewer)
 
-Vue.axios.defaults.baseURL = 'https://mixin-api.zeromesh.net/'
+Vue.axios.defaults.baseURL = API_URL.HTTP
 Vue.axios.defaults.headers.post['Content-Type'] = 'application/json'
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

@@ -94,7 +94,14 @@ class MessageDao {
     return db.prepare('SELECT count(m.message_id) FROM messages m WHERE m.conversation_id = ?').get(conversationId)
   }
   getSendingMessages() {
-    const stmt = db.prepare(`SELECT * FROM messages WHERE status='SENDING' ORDER BY created_at ASC LIMIT 1`)
+    const stmt = db.prepare(`
+      SELECT m.message_id, m.conversation_id, m.user_id, m.category, m.content, m.media_url, m.media_mime_type,
+      m.media_size, m.media_duration, m.media_width, m.media_height, m.media_hash, m.thumb_image, m.media_key,
+      m.media_digest, m.media_status, m.status, m.created_at, m.action, m.participant_id, m.snapshot_id, m.hyperlink,
+      m.name, m.album_id, m.sticker_id, m.shared_user_id, m.media_waveform, m.quote_message_id, m.quote_content,
+      rm.status as resend_status, rm.user_id as resend_user_id, rm.session_id as resend_session_id
+      FROM messages m LEFT JOIN resend_messages rm on m.message_id=rm.message_id
+      WHERE m.status='SENDING' AND m.content IS NOT NULL ORDER BY m.created_at ASC LIMIT 1`)
     const data = stmt.get()
     return data
   }
@@ -151,7 +158,7 @@ class MessageDao {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "DELIVERED"  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .all(conversationId)
   }
@@ -159,19 +166,19 @@ class MessageDao {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "DELIVERED"  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .get(conversationId)
   }
   markRead(conversationId) {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     db.prepare(
-      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'DELIVERED'`
+      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
     ).run(conversationId)
   }
   updateMediaMessage(path, status, id) {
     db.prepare(
-      `UPDATE messages SET media_url = ?,media_status =? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
+      `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
     ).run([path, status, id])
   }
   findImages(conversationId, messageId) {

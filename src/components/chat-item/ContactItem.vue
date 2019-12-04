@@ -20,7 +20,7 @@
               <span class="time">
                 {{message.lt}}
                 <ICSending
-                  v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING || message.status === MessageStatus.PENDING)"
+                  v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                   class="icon"
                 />
                 <ICSend

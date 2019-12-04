@@ -25,6 +25,11 @@ export default {
       const account = await accountAPI.getMe().catch(function(err) {
         console.log(err)
       })
+      if (!localStorage.newVersion) {
+        clearDb()
+        this.$router.push('/sign_in')
+        return
+      }
       if (!account) {
         return
       }

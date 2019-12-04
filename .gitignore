@@ -1,10 +1,10 @@
 .DS_Store
-mixin.db
-signal.db
-mixin.db-shm
-mixin.db-wal
-signal.db-shm
-signal.db-wal
+mixin.db3
+signal.db3
+mixin.db3-shm
+mixin.db3-wal
+signal.db3-shm
+signal.db3-wal
 node_modules
 /dist
 

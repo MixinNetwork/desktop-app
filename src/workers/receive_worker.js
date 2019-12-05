@@ -319,6 +319,9 @@ class ReceiveWorker extends BaseWorker {
       data.category === 'PLAIN_CONTACT' ||
       data.category === 'PLAIN_LIVE'
     ) {
+      if (data.representative_id) {
+        data.user_id = data.representative_id
+      }
       await this.processDecryptSuccess(data, data.data)
     }
   }

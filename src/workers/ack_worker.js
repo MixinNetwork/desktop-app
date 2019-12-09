@@ -21,11 +21,9 @@ class AckWorker extends BaseWorker {
     })
     await messageApi.acknowledgements(messages).then(
       async resp => {
-        console.log(resp)
         await jobDao.delete(jobs)
       },
       async error => {
-        console.log(error)
         if (error.data.error.code === 403) {
           await jobDao.delete(jobs)
         } else {

@@ -10,6 +10,9 @@ import userApi from '@/api/user'
 import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/constants.js'
 import { generateConversationChecksum } from '@/utils/util.js'
 import store from '@/store/store'
+import signalProtocol from '@/crypto/signal.js'
+import uuidv4 from 'uuid/v4'
+import Vue from 'vue'
 
 export default class BaseWorker {
   async syncConversation(data) {
@@ -80,6 +83,7 @@ export default class BaseWorker {
       await this.syncUser(ownerId)
     }
   }
+
   async refreshParticipants(conversationId, participants) {
     const local = participantDao.getParticipants(conversationId)
     const localIds = local.map(function (item) {
@@ -266,6 +270,52 @@ export default class BaseWorker {
         })
         participantSessionDao.replaceAll(conversation.conversation_id, participants)
       }
+    }
+  }
+
+  async sendSenderKey(conversationId, recipientId, sessionId) {
+    const blazeMessage = {
+      id: uuidv4(),
+      action: 'CONSUME_SESSION_SIGNAL_KEYS',
+      params: {
+        recipients: [{ user_id: recipientId, session_id: sessionId }]
+      }
+    }
+    const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    if (data && data.length > 0) {
+      const key = data[0]
+      signalProtocol.processSession(
+        key.user_id,
+        signalProtocol.convertToDeviceId(key.session_id),
+        JSON.stringify(key)
+      )
+    } else {
+      return
+    }
+    let cipherText = signalProtocol.encryptSenderKey(
+      conversationId,
+      recipientId,
+      signalProtocol.convertToDeviceId(sessionId),
+      this.getAccountId(),
+      this.getDeviceId()
+    )
+
+    if (cipherText) {
+      const bm = {
+        id: uuidv4(),
+        action: 'CREATE_SIGNAL_KEY_MESSAGES',
+        params: {
+          conversation_id: conversationId,
+          messages: [{
+            message_id: uuidv4().toLowerCase(),
+            recipient_id: recipientId,
+            data: cipherText,
+            session_id: sessionId
+          }],
+          conversation_checksum: this.getCheckSum(conversationId)
+        }
+      }
+      await Vue.prototype.$blaze.sendMessage(bm)
     }
   }
 }

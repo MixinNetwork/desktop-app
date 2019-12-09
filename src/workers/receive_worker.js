@@ -308,6 +308,8 @@ class ReceiveWorker extends BaseWorker {
             resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 0)
           }
         })
+      } else if (plainData.action === 'RESEND_KEY') {
+        this.sendSenderKey(data.conversation_id, data.message_id, data.session_id)
       }
     } else if (
       data.category === 'PLAIN_TEXT' ||

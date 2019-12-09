@@ -315,7 +315,17 @@ export default class BaseWorker {
           conversation_checksum: this.getCheckSum(conversationId)
         }
       }
-      await Vue.prototype.$blaze.sendMessage(bm)
+      await Vue.prototype.$blaze.sendMessage(bm).then(
+        _ => { },
+        async error => {
+          if (error.code === 20140) {
+            await self.refreshConversation(conversationId)
+            await self.sendSenderKey(conversationId, recipientId, sessionId)
+          } else if (error.code === 403) {
+          } else {
+            console.log(error)
+          }
+        })
     }
   }
 }

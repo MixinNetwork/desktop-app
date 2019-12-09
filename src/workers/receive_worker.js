@@ -309,7 +309,7 @@ class ReceiveWorker extends BaseWorker {
           }
         })
       } else if (plainData.action === 'RESEND_KEY') {
-        this.sendSenderKey(data.conversation_id, data.message_id, data.session_id)
+        await this.sendSenderKey(data.conversation_id, data.message_id, data.session_id)
       }
     } else if (
       data.category === 'PLAIN_TEXT' ||

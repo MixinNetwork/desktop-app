@@ -1,6 +1,7 @@
 import uuidv4 from 'uuid/v4'
 import BaseWorker from './base_worker'
 import jobDao from '@/dao/job_dao'
+import messageApi from '@/api/message'
 import Vue from 'vue'
 
 class AckWorker extends BaseWorker {
@@ -18,19 +19,14 @@ class AckWorker extends BaseWorker {
     const messages = jobs.map(function (item) {
       return JSON.parse(item.blaze_message)
     })
-    const blazeMessage = {
-      id: uuidv4(),
-      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
-      params: {
-        messages: messages
-      }
-    }
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      async _ => {
+    await messageApi.acknowledgements(messages).then(
+      async resp => {
+        console.log(resp)
         await jobDao.delete(jobs)
       },
       async error => {
-        if (error.code === 403) {
+        console.log(error)
+        if (error.data.error.code === 403) {
           await jobDao.delete(jobs)
         } else {
           console.log(error)

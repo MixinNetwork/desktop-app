@@ -82,6 +82,10 @@ class SignalProtocol {
     const result = containsSessionFromGo(recipientId, deviceId)
     return result
   }
+  containsUserSession(recipientId) {
+    const result = signalDao.getUserSession(recipientId)
+    return result && result.length > 0
+  }
   processSession(recipientId, deviceId, bundle) {
     return processSessionFromGo(recipientId, deviceId, bundle)
   }

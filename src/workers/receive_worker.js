@@ -303,11 +303,15 @@ class ReceiveWorker extends BaseWorker {
           const needResendMessage = messageDao.findMessageById(msg.message_id)
           if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
             messageDao.updateMessageStatusById(MessageStatus.SENDING, msg.message_id)
-            resendMessageDao.insert(msg.message_id, data.user_id, data.session_id, 1)
+            resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 1)
           } else {
-            resendMessageDao.insert(msg.message_id, data.user_id, data.session_id, 0)
+            resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 0)
           }
         })
+      } else if (plainData.action === 'RESEND_KEY') {
+        if (signalProtocol.containsUserSession(data.user_id)) {
+          await this.sendSenderKey(data.conversation_id, data.user_id, data.session_id)
+        }
       }
     } else if (
       data.category === 'PLAIN_TEXT' ||

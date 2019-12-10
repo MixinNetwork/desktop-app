@@ -151,7 +151,7 @@ export default {
           this.goUnreadPos()
         })
       } else {
-        this.currentUnreadNum++
+        this.currentUnreadNum += newM.length - oldM.length
       }
     },
     conversation: function(newC, oldC) {

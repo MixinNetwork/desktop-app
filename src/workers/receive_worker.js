@@ -309,7 +309,9 @@ class ReceiveWorker extends BaseWorker {
           }
         })
       } else if (plainData.action === 'RESEND_KEY') {
-        await this.sendSenderKey(data.conversation_id, data.message_id, data.session_id)
+        if (signalProtocol.containsUserSession(data.user_id)) {
+          await this.sendSenderKey(data.conversation_id, data.user_id, data.session_id)
+        }
       }
     } else if (
       data.category === 'PLAIN_TEXT' ||

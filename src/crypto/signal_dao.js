@@ -31,6 +31,11 @@ class SignalDao {
     const result = stmt.get(recipientId, deviceId)
     return result
   }
+  getUserSession(recipientId) {
+    const stmt = signalDb.prepare('SELECT record FROM sessions WHERE address = ?')
+    const result = stmt.all(recipientId)
+    return result
+  }
   saveSession(name, deviceId, record) {
     const stmt = signalDb.prepare('SELECT record FROM sessions WHERE address = ? AND device = ?')
     const result = stmt.get(name, deviceId)

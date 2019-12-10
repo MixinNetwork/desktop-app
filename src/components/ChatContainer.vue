@@ -43,7 +43,8 @@
     </ul>
     <transition name="fade">
       <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
-        <ICChevronDown></ICChevronDown>
+        <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
+        <ICChevronDown />
       </div>
     </transition>
     <ReplyMessageContainer
@@ -138,10 +139,21 @@ export default {
       messages: [],
       isBottom: true,
       boxMessage: null,
-      forwardList: false
+      forwardList: false,
+      currentUnreadNum: 0
     }
   },
   watch: {
+    messages(newM, oldM) {
+      if (this.isBottom) {
+        setTimeout(() => {
+          this.goBottom()
+          this.goUnreadPos()
+        })
+      } else {
+        this.currentUnreadNum++
+      }
+    },
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
@@ -275,6 +287,9 @@ export default {
     onScroll() {
       let list = this.$refs.messagesUl
       this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
+      if (this.isBottom) {
+        this.currentUnreadNum = 0
+      }
     },
     goUnreadPos() {
       const divideDom = document.querySelector('.unread-divide')
@@ -284,6 +299,7 @@ export default {
       }
     },
     goBottom() {
+      this.currentUnreadNum = 0
       let list = this.$refs.messagesUl
       if (!list) return
       let scrollHeight = list.scrollHeight
@@ -705,6 +721,16 @@ export default {
     position: absolute;
     bottom: 72px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    .badge {
+      position: absolute;
+      top: -6px;
+      background: #4b7ed2;
+      border-radius: 20px;
+      box-sizing: border-box;
+      color: #fff;
+      font-size: 13px;
+      padding: 1px 5px;
+    }
   }
 
   .overlay {
@@ -736,7 +762,7 @@ export default {
 
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 0.5s;
+    transition: opacity 0.3s;
   }
   .fade-enter,
   .fade-leave-to {

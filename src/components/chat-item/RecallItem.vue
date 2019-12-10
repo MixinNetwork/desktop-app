@@ -1,5 +1,5 @@
 <template>
-  <div class="layout" v-bind:class="messageOwnership()">
+  <div class="layout" :class="messageOwnership()">
     <BadgeItem
       @handleMenuClick="$emit('handleMenuClick')"
       :type="message.type"
@@ -9,7 +9,7 @@
         <span
           class="username"
           v-if="showName"
-          v-bind:style="{color: getColor(message.userId)}"
+          :style="{color: getColor(message.userId)}"
           @click="$emit('user-click')"
         >{{message.userFullName}}</span>
         <div class="recall">

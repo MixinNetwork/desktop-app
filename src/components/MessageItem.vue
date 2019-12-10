@@ -95,11 +95,11 @@
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
-    <div v-else v-bind:class="messageOwnership(message, me)">
+    <div v-else :class="messageOwnership(message, me)">
       <div v-if="this.showUserName()&&message.quoteContent">
         <span
           class="username reply"
-          v-bind:style="{color: getColor(message.userId)}"
+          :style="{color: getColor(message.userId)}"
           @click="$emit('user-click',message.userId)"
         >{{message.userFullName}}</span>
       </div>
@@ -109,11 +109,11 @@
         :send="message.userId === me.user_id"
         :quote="message.quoteContent!==null"
       >
-        <div class="bubble" v-bind:class="messageType(message)">
+        <div class="bubble" :class="messageType(message)">
           <div v-if="this.showUserName()&&!message.quoteContent">
             <span
               class="username"
-              v-bind:style="{color: getColor(message.userId)}"
+              :style="{color: getColor(message.userId)}"
               @click="$emit('user-click',message.userId)"
             >{{message.userFullName}}</span>
           </div>

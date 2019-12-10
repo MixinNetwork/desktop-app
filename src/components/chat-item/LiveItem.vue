@@ -1,19 +1,19 @@
 <template>
-  <div class="layout" v-bind:class="messageOwnership()">
+  <div class="layout" :class="messageOwnership()">
     <div>
       <span
         class="username"
         v-if="showName"
-        v-bind:style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <div class="set" v-bind:style="borderSet(message)">
+          <div class="set" :style="borderSet(message)">
             <img
               class="image"
-              v-bind:style="borderSetObject(message)"
-              v-bind:src="message.thumbUrl"
+              :style="borderSetObject(message)"
+              :src="message.thumbUrl"
               @click="$emit('liveClick')"
             />
             <ICPlay class="play" @click="$emit('liveClick')"></ICPlay>

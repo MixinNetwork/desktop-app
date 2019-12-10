@@ -3,7 +3,7 @@
     <div class="root">
       <div
         class="header"
-        v-bind:style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}"
+        :style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}"
       >
         <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile"/>
         <div class="action_bar">

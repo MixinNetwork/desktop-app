@@ -1,15 +1,15 @@
 <template>
   <div class="root" @click="$emit('onAvatarClick')" ref="root">
-    <div class="avatar-group" v-bind:data-group-size="users.length">
+    <div class="avatar-group" :data-group-size="users.length">
       <div class="empty" v-if="users.length<=0"></div>
       <div
         v-else
         v-for="user in users"
-        v-bind:key="user.user_id"
+        :key="user.user_id"
         class="avatar"
         :style="user.color"
       >
-        <img v-show="user.has_avatar" v-bind:src="user.avatar_url">
+        <img v-show="user.has_avatar" :src="user.avatar_url">
         <span v-if="!user.has_avatar && user.emoji" class="emoji" :style="font">{{user.emoji}}</span>
         <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier}}</span>
       </div>

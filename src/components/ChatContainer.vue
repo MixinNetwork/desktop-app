@@ -31,12 +31,12 @@
       </li>
       <MessageItem
         v-for="(item, $index) in messages"
-        v-bind:key=" $index"
-        v-bind:message="item"
-        v-bind:prev="messages[$index-1]"
-        v-bind:unread="unreadMessageId"
-        v-bind:conversation="conversation"
-        v-bind:me="me"
+        :key=" $index"
+        :message="item"
+        :prev="messages[$index-1]"
+        :unread="unreadMessageId"
+        :conversation="conversation"
+        :me="me"
         @user-click="onUserClick"
         @handle-item-click="handleItemClick"
       />

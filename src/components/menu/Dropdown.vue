@@ -4,7 +4,7 @@
       href="javascript:void(0)"
       class="dropdown-toggle"
       ref="search"
-      v-bind:style="{ background: searchColor}"
+      :style="{ background: searchColor}"
       @focus="onFocus"
       @blur="onBlur"
     >

@@ -255,6 +255,7 @@ export default {
       }
     }
     let goBottom = this.goBottom
+    let goUnreadPos = this.goUnreadPos
     messageBox.bindData(
       function(messages) {
         self.messages = messages
@@ -263,6 +264,7 @@ export default {
         if (force) {
           setTimeout(function() {
             goBottom()
+            goUnreadPos()
           }, 5)
         }
       }
@@ -273,6 +275,13 @@ export default {
     onScroll() {
       let list = this.$refs.messagesUl
       this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
+    },
+    goUnreadPos() {
+      const divideDom = document.querySelector('.unread-divide')
+      if (divideDom) {
+        let list = this.$refs.messagesUl
+        list.scrollTop = divideDom.offsetTop - 60
+      }
     },
     goBottom() {
       let list = this.$refs.messagesUl

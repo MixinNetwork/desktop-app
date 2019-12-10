@@ -1,20 +1,20 @@
 <template>
-  <div class="layout" v-bind:class="messageOwnership()">
+  <div class="layout" :class="messageOwnership()">
     <div>
       <span
         class="username"
         v-if="showName"
-        v-bind:style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <div class="set" v-bind:style="borderSet(message)">
+          <div class="set" :style="borderSet(message)">
             <img
               class="image"
-              v-bind:src="media(message)"
-              v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-              v-bind:style="borderSetObject(message)"
+              :src="media(message)"
+              :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+              :style="borderSetObject(message)"
               @click="$emit('preview')"
             />
           </div>

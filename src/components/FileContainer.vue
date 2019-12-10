@@ -5,7 +5,7 @@
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
-      <img class="image" v-bind:src="getPath()" v-if="showImage">
+      <img class="image" :src="getPath()" v-if="showImage">
       <div class="file" v-else>
         <ICFile></ICFile>
         <span class="info">{{fileName}}</span>

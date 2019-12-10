@@ -22,25 +22,25 @@
     <img
       class="image"
       v-if="message.type.endsWith('_IMAGE') && (message.mediaUrl || message.assetUrl)"
-      v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-      v-bind:src="mediaUrl"
+      :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+      :src="mediaUrl"
     />
     <img
       class="image"
       v-if="message.type.endsWith('_VIDEO') && (message.mediaUrl || message.assetUrl)"
-      v-bind:src="'data:image/jpeg;base64,' + message.thumbImage"
+      :src="'data:image/jpeg;base64,' + message.thumbImage"
     />
 
     <img
       class="image"
       v-if="message.type.endsWith('_LIVE') && message.thumbUrl"
-      v-bind:src="message.thumbUrl"
+      :src="message.thumbUrl"
     />
     <img
       class="image"
       v-if="message.type.endsWith('_STICKER') && (message.mediaUrl || message.assetUrl)"
-      v-bind:loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-      v-bind:src="mediaUrl"
+      :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+      :src="mediaUrl"
     />
     <Avatar class="avatar" v-if="message.type.endsWith('_CONTACT')" id="avatar" :user="user" />
   </div>

@@ -1,6 +1,6 @@
 <template>
-  <div class="search" v-bind:style="{ background: searchColor}">
-    <div class="layout" v-bind:style="layoutStyle">
+  <div class="search" :style="{ background: searchColor}">
+    <div class="layout" :style="layoutStyle">
       <div class="icon" @click="back">
         <transition name="fade-rote">
           <font-awesome-icon icon="arrow-left" id="ic_arrow" v-show="focus"/>

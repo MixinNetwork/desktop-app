@@ -1,14 +1,14 @@
 <template>
-  <span class="layout" v-bind:class="messageOwnership()">
+  <span class="layout" :class="messageOwnership()">
     <span class="root">
       <span
         class="username"
         v-if="showName"
-        v-bind:style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <img v-bind:src="message.assetUrl" loading="lazy" />
+        <img :src="message.assetUrl" loading="lazy" />
       </BadgeItem>
       <span class="time">
         {{message.lt}}

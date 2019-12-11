@@ -112,7 +112,7 @@ export default {
     align-content: center;
     width: 12rem;
     border-radius: 0.4rem;
-    box-shadow: 1px 1px 1px #33333333;
+    box-shadow: 0px 1px 1px #77777733;
     #avatar {
       width: 42px;
       height: 42px;
@@ -134,7 +134,7 @@ export default {
         display: flex;
         justify-content: space-between;
         .number {
-          color: #88888888;
+          color: #888888cc;
           font-size: 0.8rem;
           margin-top: 6px;
         }

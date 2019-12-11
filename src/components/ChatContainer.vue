@@ -151,7 +151,7 @@ export default {
           this.goUnreadPos()
         })
       } else {
-        this.currentUnreadNum++
+        this.currentUnreadNum += newM.length - oldM.length
       }
     },
     conversation: function(newC, oldC) {
@@ -286,6 +286,7 @@ export default {
   methods: {
     onScroll() {
       let list = this.$refs.messagesUl
+      if (!list) return
       this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
       if (this.isBottom) {
         this.currentUnreadNum = 0

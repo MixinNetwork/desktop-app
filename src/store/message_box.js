@@ -13,7 +13,16 @@ class MessageBox {
   refreshMessage(conversationId) {
     if (conversationId === this.conversationId && this.conversationId) {
       this.page = 0
-      this.messages = messageDao.getMessages(conversationId, 0)
+      const lastMessages = messageDao.getMessages(conversationId, 0)
+      const newMessages = []
+      for (let i = lastMessages.length - 1; i >= 0; i--) {
+        const temp = lastMessages[i]
+        if (temp.messageId === this.messages[this.messages.length - 1].messageId) {
+          break
+        }
+        newMessages.unshift(temp)
+      }
+      this.messages = this.messages.concat(newMessages)
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       if (count >= this.count) {
@@ -24,10 +33,10 @@ class MessageBox {
   }
   nextPage() {
     let self = this
-    return new Promise(function(resolve) {
+    return new Promise(function (resolve) {
       let data = messageDao.getMessages(self.conversationId, ++self.page)
       if (data.length > 0) {
-        setTimeout(function() {
+        setTimeout(function () {
           resolve(data)
         }, 150)
       } else {

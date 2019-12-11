@@ -4,14 +4,14 @@
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="transfer" @click="$emit('user-share-click')">
           <MessageItemIcon
-            :url="assetInfoMap[content.snapshot_id] && assetInfoMap[content.snapshot_id].icon_url"
+            :url="content.icon_url"
           />
           <div class="content bubble">
             <span class="amount">{{content.amount}}</span>
             <div class="bottom">
               <span
                 class="symbol"
-              >{{assetInfoMap[content.snapshot_id] && assetInfoMap[content.snapshot_id].symbol}}</span>
+              >{{content.symbol}}</span>
               <span class="time">{{message.lt}}</span>
             </div>
           </div>
@@ -24,7 +24,6 @@
 <script>
 import MessageItemIcon from '@/components/MessageItemIcon'
 import userDao from '@/dao/user_dao.js'
-import messageApi from '@/api/message.js'
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
@@ -48,18 +47,6 @@ export default {
       MessageStatus: MessageStatus
     }
   },
-  created() {
-    const id = this.content.snapshot_id
-    if (!this.assetInfoMap[id]) {
-      messageApi.snapshots(id).then(resp => {
-        if (resp.data.data) {
-          this.assetInfoMap[id] = resp.data.data.asset
-          localStorage.setItem('assetInfoMap', JSON.stringify(this.assetInfoMap))
-          this.$forceUpdate()
-        }
-      })
-    }
-  },
   methods: {
     transferText(message) {
       if (message.userId === this.me.user_id) {
@@ -76,10 +63,6 @@ export default {
     }
   },
   computed: {
-    assetInfoMap() {
-      const mapStr = localStorage.getItem('assetInfoMap') || '{}'
-      return JSON.parse(mapStr)
-    },
     content() {
       return JSON.parse(this.message.content)
     }

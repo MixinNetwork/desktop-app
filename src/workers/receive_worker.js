@@ -15,6 +15,7 @@ import i18n from '@/utils/i18n.js'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util.js'
 import { remote } from 'electron'
+import messageApi from '@/api/message'
 
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
 
@@ -148,18 +149,29 @@ class ReceiveWorker extends BaseWorker {
     store.dispatch('refreshMessage', data.conversation_id)
   }
 
-  processSystemSnapshotMessage(data) {
+  async processSystemSnapshotMessage(data) {
     var status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
+    const decodedData = JSON.parse(decoded)
+    if (decodedData.snapshot_id) {
+      const resp = await messageApi.snapshots(decodedData.snapshot_id)
+      if (resp.data.data) {
+        const asset = resp.data.data.asset
+        Object.keys(asset).forEach(key => {
+          decodedData[key] = asset[key]
+        })
+      }
+    }
+
     const message = {
       message_id: data.message_id,
       conversation_id: data.conversation_id,
       user_id: data.user_id,
       category: data.category,
-      content: decoded,
+      content: JSON.stringify(decodedData),
       media_url: null,
       media_mime_type: null,
       media_size: null,
@@ -175,7 +187,7 @@ class ReceiveWorker extends BaseWorker {
       created_at: data.created_at,
       action: null,
       participant_id: null,
-      snapshot_id: decoded.snapshot_id,
+      snapshot_id: decodedData.snapshot_id,
       hyperlink: null,
       name: null,
       album_id: null,

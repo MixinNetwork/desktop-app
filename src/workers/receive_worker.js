@@ -6,6 +6,7 @@ import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import jobDao from '@/dao/job_dao'
+import assetDao from '@/dao/asset_dao'
 import stickerDao from '@/dao/sticker_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
 import BaseWorker from './base_worker'
@@ -13,11 +14,18 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
 import i18n from '@/utils/i18n.js'
 import moment from 'moment'
-import { sendNotification } from '@/utils/util.js'
-import { remote } from 'electron'
+import {
+  sendNotification
+} from '@/utils/util.js'
+import {
+  remote
+} from 'electron'
 import messageApi from '@/api/message'
 
-import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
+import {
+  downloadAttachment,
+  downloadQueue
+} from '@/utils/attachment_util.js'
 
 import {
   MessageStatus,
@@ -156,13 +164,31 @@ class ReceiveWorker extends BaseWorker {
     }
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const decodedData = JSON.parse(decoded)
-    if (decodedData.snapshot_id) {
+
+    const asset = assetDao.getAssetById(decodedData.asset_id)
+    if (!asset[0] && decodedData.snapshot_id) {
       const resp = await messageApi.snapshots(decodedData.snapshot_id)
       if (resp.data.data) {
-        const asset = resp.data.data.asset
-        Object.keys(asset).forEach(key => {
-          decodedData[key] = asset[key]
-        })
+        const asset = {
+          asset_id: '',
+          symbol: '',
+          name: '',
+          icon_url: '',
+          balance: '',
+          public_key: '',
+          price_btc: '',
+          price_usd: '',
+          chain_id: '',
+          change_usd: '',
+          change_btc: '',
+          hidden: 0,
+          confirmations: 0,
+          account_name: '',
+          account_tag: ''
+        }
+        Object.assign(asset, resp.data.data.asset)
+
+        assetDao.insert(asset)
       }
     }
 
@@ -171,7 +197,7 @@ class ReceiveWorker extends BaseWorker {
       conversation_id: data.conversation_id,
       user_id: data.user_id,
       category: data.category,
-      content: JSON.stringify(decodedData),
+      content: decoded,
       media_url: null,
       media_mime_type: null,
       media_size: null,
@@ -284,8 +310,7 @@ class ReceiveWorker extends BaseWorker {
       await this.syncUser(systemMessage.participant_id)
       participantSessionDao.delete(data.conversation_id, systemMessage.participant_id)
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
-    } else if (systemMessage.action === SystemConversationAction.CREATE) {
-    } else if (systemMessage.action === SystemConversationAction.UPDATE) {
+    } else if (systemMessage.action === SystemConversationAction.CREATE) {} else if (systemMessage.action === SystemConversationAction.UPDATE) {
       await this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
@@ -344,7 +369,10 @@ class ReceiveWorker extends BaseWorker {
   makeMessageStatus(status, messageId) {
     const currentStatus = messageDao.findMessageStatusById(messageId)
     if (currentStatus && currentStatus !== MessageStatus.READ) {
-      store.dispatch('makeMessageStatus', { messageId, status })
+      store.dispatch('makeMessageStatus', {
+        messageId,
+        status
+      })
     }
   }
 
@@ -451,7 +479,9 @@ class ReceiveWorker extends BaseWorker {
       }
       messageDao.insertMessage(message)
       store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, { args: message })
+      downloadQueue.push(this.download, {
+        args: message
+      })
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_VIDEO')) {
@@ -493,7 +523,9 @@ class ReceiveWorker extends BaseWorker {
         thumb_url: null
       }
       store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, { args: message })
+      downloadQueue.push(this.download, {
+        args: message
+      })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendVideo')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
@@ -533,7 +565,9 @@ class ReceiveWorker extends BaseWorker {
         thumb_url: null
       }
       store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, { args: message })
+      downloadQueue.push(this.download, {
+        args: message
+      })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendFile')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
@@ -573,7 +607,9 @@ class ReceiveWorker extends BaseWorker {
         thumb_url: null
       }
       store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, { args: message })
+      downloadQueue.push(this.download, {
+        args: message
+      })
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendAudio')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)

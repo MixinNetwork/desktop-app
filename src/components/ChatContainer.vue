@@ -104,6 +104,7 @@ import {
   MessageStatus,
   MuteDuration
 } from '@/utils/constants.js'
+import messageUtil from '@/utils/message_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
@@ -161,7 +162,6 @@ export default {
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
-            this.unreadJump = false
             setTimeout(() => {
               this.goUnreadPos()
             }, 5)
@@ -496,7 +496,7 @@ export default {
       }
       event.stopPropagation()
       event.preventDefault()
-      const text = this.$refs.box.innerText
+      const text = messageUtil.messageFilteredText(this.$refs.box)
       if (text.trim().length <= 0) {
         return
       }

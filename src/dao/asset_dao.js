@@ -11,8 +11,7 @@ class AssetDao {
     return db.prepare('SELECT * FROM assets').all()
   }
   getAssetById(assetId) {
-    return db.prepare(`SELECT symbol, icon_url
-        FROM assets WHERE asset_id = ?`).all(assetId)
+    return db.prepare(`SELECT * FROM assets WHERE asset_id = ?`).get(assetId)
   }
 }
 

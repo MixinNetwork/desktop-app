@@ -62,7 +62,7 @@ export default {
     content() {
       const content = JSON.parse(this.message.content)
       const asset = assetDao.getAssetById(content.asset_id)
-      Object.assign(content, asset[0])
+      Object.assign(content, asset)
       return content
     }
   }

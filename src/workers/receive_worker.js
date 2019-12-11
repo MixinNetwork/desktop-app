@@ -7,6 +7,7 @@ import participantDao from '@/dao/participant_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import jobDao from '@/dao/job_dao'
 import assetDao from '@/dao/asset_dao'
+import snapshotDao from '@/dao/snapshot_dao'
 import stickerDao from '@/dao/sticker_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
 import BaseWorker from './base_worker'
@@ -165,8 +166,7 @@ class ReceiveWorker extends BaseWorker {
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const decodedData = JSON.parse(decoded)
 
-    const asset = assetDao.getAssetById(decodedData.asset_id)
-    if (!asset[0] && decodedData.snapshot_id) {
+    if (decodedData.snapshot_id) {
       const resp = await messageApi.snapshots(decodedData.snapshot_id)
       if (resp.data.data) {
         const asset = {
@@ -187,8 +187,24 @@ class ReceiveWorker extends BaseWorker {
           account_tag: ''
         }
         Object.assign(asset, resp.data.data.asset)
-
         assetDao.insert(asset)
+
+        const snapshot = {
+          snapshot_id: '',
+          type: '',
+          asset_id: asset.asset_id,
+          amount: '',
+          created_at: '',
+          opponent_id: '',
+          counter_user_id: '',
+          transaction_hash: '',
+          sender: '',
+          receiver: '',
+          memo: '',
+          confirmations: 0
+        }
+        Object.assign(snapshot, resp.data.data)
+        snapshotDao.insert(snapshot)
       }
     }
 
@@ -745,9 +761,7 @@ class ReceiveWorker extends BaseWorker {
       return
     }
     if (
-      moment()
-        .subtract(1, 'minute')
-        .isAfter(createdAt)
+      moment().subtract(1, 'minute').isAfter(createdAt)
     ) {
       return
     }

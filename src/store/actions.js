@@ -149,7 +149,7 @@ export default {
     }
     var conversation = conversationDao.getConversationByUserId(user.user_id)
     if (conversation && state.conversations && state.conversations[conversation.conversation_id]) {
-      commit('setCurrentConversation', conversation.conversation_id)
+      commit('setCurrentConversation', conversation)
     } else {
       const senderId = account.user_id
       const conversationId = generateConversationId(senderId, user.user_id)
@@ -187,7 +187,7 @@ export default {
           created_at: new Date().toISOString()
         }
       ])
-      commit('setCurrentConversation', conversation.conversation_id)
+      commit('setCurrentConversation', conversation)
     }
   },
   createGroupConversation: async ({ commit }, payload) => {
@@ -225,15 +225,15 @@ export default {
         )
         commit('refreshParticipants', conversation.conversation_id)
       }
-      commit('setCurrentConversation', conversation.conversation_id)
+      commit('setCurrentConversation', conversation)
     }
   },
   saveAccount: ({ commit }, user) => {
     userDao.insertUser(user)
     commit('saveAccount', user)
   },
-  setCurrentConversation: async ({ commit }, conversationId) => {
-    commit('setCurrentConversation', conversationId)
+  setCurrentConversation: async ({ commit }, conversation) => {
+    commit('setCurrentConversation', conversation)
   },
   markRead: ({ commit }, conversationId) => {
     markRead(conversationId)

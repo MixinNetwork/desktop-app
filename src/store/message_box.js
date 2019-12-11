@@ -1,11 +1,23 @@
 import messageDao from '@/dao/message_dao.js'
 
 class MessageBox {
-  setConversationId(conversationId) {
+  setConversationId(conversationId, unseenMessageCount) {
     if (conversationId && this.conversationId !== conversationId) {
-      this.page = 0
       this.conversationId = conversationId
-      this.messages = messageDao.getMessages(conversationId, 0)
+      const prePageMessageCount = 5
+      let page = 0
+      if (unseenMessageCount > prePageMessageCount) {
+        page = Math.ceil(unseenMessageCount / prePageMessageCount)
+      }
+      let currPage = page
+      let messages = []
+      while (currPage > 0) {
+        currPage--
+        messages = messages.concat(messageDao.getMessages(conversationId, currPage))
+      }
+      this.messages = messages
+      this.page = page
+
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       this.scrollAction(true)
     }

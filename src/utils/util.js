@@ -115,12 +115,12 @@ export function base64ToUint8Array(base64) {
   return bytes
 }
 
-export function sendNotification(title, body, conversationId) {
+export function sendNotification(title, body, conversation) {
   let newNotification = new Notification(title, {
     body: body
   })
   newNotification.onclick = () => {
-    store.dispatch('setCurrentConversation', conversationId)
+    store.dispatch('setCurrentConversation', conversation)
   }
 }
 

@@ -157,15 +157,15 @@ export default {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
-        messageBox.setConversationId(newC.conversationId)
+        messageBox.setConversationId(newC.conversationId, this.conversation.unseenMessageCount)
         this.messages = messageBox.messages
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
+            this.unreadMessageId = unreadMessage.message_id
             setTimeout(() => {
               this.goUnreadPos()
             }, 5)
-            this.unreadMessageId = unreadMessage.message_id
           } else {
             this.unreadMessageId = ''
           }

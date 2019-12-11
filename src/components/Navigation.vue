@@ -326,7 +326,7 @@ export default {
     onConversationClick: function(conversation) {
       this.conversationShow = false
       this.$store.dispatch('searchClear')
-      this.$store.dispatch('setCurrentConversation', conversation.conversationId)
+      this.$store.dispatch('setCurrentConversation', conversation)
     },
     onClickUser: function(user) {
       this.conversationShow = false
@@ -337,7 +337,7 @@ export default {
     },
     onSearchGroupClick: function(conversation) {
       this.conversationShow = false
-      this.$store.dispatch('setCurrentConversation', conversation.conversationId)
+      this.$store.dispatch('setCurrentConversation', conversation)
     },
     onSearchUserClick: function(user) {
       this.conversationShow = false

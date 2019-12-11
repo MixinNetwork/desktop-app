@@ -12,9 +12,10 @@ class MessageBox {
       let currPage = page
       let messages = []
       while (currPage > 0) {
-        currPage--
         messages = messages.concat(messageDao.getMessages(conversationId, currPage))
+        currPage--
       }
+      messages = messages.concat(messageDao.getMessages(conversationId, 0))
       this.messages = messages
       this.page = page
 

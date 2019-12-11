@@ -5,6 +5,6 @@ export default {
     return api.post('/acknowledgements', body)
   },
   snapshots(id) {
-    return api.get(`/snapshots/${id}`)
+    return api.get(`/network/snapshots/${id}`)
   }
 }

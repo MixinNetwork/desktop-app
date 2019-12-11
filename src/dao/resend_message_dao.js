@@ -2,10 +2,10 @@ import db from '@/persistence/db'
 
 class ResendMessagesDao {
   insertMessage(messageId, userId, sessionId, status) {
-    db.prepare(
+    const stmt = db.prepare(
       'INSERT OR REPLACE INTO resend_messages VALUES (@message_id, @user_id, @sessionId, @status, @created_at)'
     )
-    db.run({
+    stmt.run({
       message_id: messageId,
       user_id: userId,
       session_id: sessionId,

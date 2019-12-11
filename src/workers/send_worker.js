@@ -38,7 +38,9 @@ class SendWorker extends BaseWorker {
     if (message.resend_status) {
       if (message.resend_status === 1) {
         if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
-          await this.deliver(message, this.encryptNormalMessage(message))
+          const result = await this.deliver(message, this.encryptNormalMessage(message))
+          if (result) {
+          }
         }
       }
       return
@@ -75,8 +77,11 @@ class SendWorker extends BaseWorker {
 
   async deliver(message, blazeMessage) {
     const self = this
+    let result = false
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      _ => { },
+      _ => {
+        result = true
+      },
       async error => {
         if (error.code === 20140) {
           await self.refreshConversation(message.conversation_id)
@@ -86,6 +91,7 @@ class SendWorker extends BaseWorker {
           console.log(error)
         }
       })
+    return result
   }
 
   createBlazeMessage(message, data) {

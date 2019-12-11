@@ -302,7 +302,6 @@ class ReceiveWorker extends BaseWorker {
           }
           const needResendMessage = messageDao.findMessageById(msg.message_id)
           if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
-            messageDao.updateMessageStatusById(MessageStatus.SENDING, msg.message_id)
             resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 1)
           } else {
             resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 0)

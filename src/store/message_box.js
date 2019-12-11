@@ -15,7 +15,8 @@ class MessageBox {
       this.page = 0
       const lastMessages = messageDao.getMessages(conversationId, 0)
       const newMessages = []
-      for (let i = lastMessages.length - 1; i >= 0; i--) {
+      const lastMsgLen = lastMessages.length
+      for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
         if (temp.messageId === this.messages[this.messages.length - 1].messageId) {
           break
@@ -23,6 +24,9 @@ class MessageBox {
         newMessages.unshift(temp)
       }
       this.messages = this.messages.concat(newMessages)
+      for (let i = 1; i <= lastMsgLen; i++) {
+        this.messages[this.messages.length - i].status = lastMessages[lastMsgLen - i].status
+      }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       if (count >= this.count) {

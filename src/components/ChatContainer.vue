@@ -148,7 +148,6 @@ export default {
       if (this.isBottom) {
         setTimeout(() => {
           this.goBottom()
-          this.goUnreadPos()
         })
       } else {
         this.currentUnreadNum += newM.length - oldM.length
@@ -162,6 +161,10 @@ export default {
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
+            this.unreadJump = false
+            setTimeout(() => {
+              this.goUnreadPos()
+            }, 5)
             this.unreadMessageId = unreadMessage.message_id
           } else {
             this.unreadMessageId = ''

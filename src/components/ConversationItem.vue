@@ -75,7 +75,7 @@ import moment from 'moment'
 
 export default {
   name: 'ConversationItem',
-  props: ['conversation', 'index', 'mouseEve'],
+  props: ['conversation', 'mouseEve'],
   components: {
     Avatar,
     ICSending,

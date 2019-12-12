@@ -30,10 +30,10 @@
         <div class="bubble">{{$t('encryption')}}</div>
       </li>
       <MessageItem
-        v-for="(item, $index) in messages"
-        :key=" $index"
+        v-for="(item, index) in messages"
+        :key="item.messageId"
         :message="item"
-        :prev="messages[$index-1]"
+        :prev="messages[index-1]"
         :unread="unreadMessageId"
         :conversation="conversation"
         :me="me"

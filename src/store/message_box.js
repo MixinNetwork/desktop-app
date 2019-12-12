@@ -31,10 +31,13 @@ class MessageBox {
       const lastMsgLen = lastMessages.length
       for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
-        if (temp.messageId === this.messages[this.messages.length - 1].messageId) {
-          break
+        const currMessage = this.messages[this.messages.length - 1]
+        if (temp && currMessage) {
+          if (temp.messageId === currMessage.messageId) {
+            break
+          }
+          newMessages.unshift(temp)
         }
-        newMessages.unshift(temp)
       }
       this.messages = this.messages.concat(newMessages)
       for (let i = 1; i <= lastMsgLen; i++) {

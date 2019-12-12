@@ -239,7 +239,7 @@ class ReceiveWorker extends BaseWorker {
       thumb_url: null
     }
     messageDao.insertMessage(message)
-    await this.processDecryptSuccess(data, data.data)
+    store.dispatch('refreshMessage', data.conversation_id)
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 

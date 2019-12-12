@@ -472,10 +472,6 @@ export default {
       commit('refreshConversation', conversationId)
     })
   },
-  deleteMessages: ({ commit }, { messageIds, conversationId }) => {
-    messageDao.deleteMessagesById(messageIds)
-    commit('refreshMessage', conversationId)
-  },
   recallMessage: ({ commit }, { messageId, conversationId }) => {
     messageDao.recallMessageAndSend(messageId)
     jobDao.insert({

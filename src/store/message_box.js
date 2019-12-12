@@ -48,6 +48,15 @@ class MessageBox {
       this.count = count
     }
   }
+  deleteMessages(messageIds) {
+    messageDao.deleteMessagesById(messageIds)
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      if (messageIds[0] === this.messages[i].messageId) {
+        this.messages.splice(i, 1)
+        break
+      }
+    }
+  }
   nextPage() {
     let self = this
     return new Promise(function (resolve) {

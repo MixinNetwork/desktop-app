@@ -196,7 +196,6 @@ class ReceiveWorker extends BaseWorker {
           amount: '',
           created_at: '',
           opponent_id: '',
-          counter_user_id: '',
           transaction_hash: '',
           sender: '',
           receiver: '',

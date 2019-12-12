@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `snapshots` (
 	`amount`	TEXT NOT NULL,
 	`created_at`	TEXT NOT NULL,
 	`opponent_id`	TEXT,
+	`counter_user_id`	TEXT,
 	`transaction_hash`	TEXT,
 	`sender`	TEXT,
 	`receiver`	TEXT,

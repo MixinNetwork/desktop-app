@@ -175,16 +175,15 @@ class ReceiveWorker extends BaseWorker {
           name: '',
           icon_url: '',
           balance: '',
-          public_key: '',
+          destination: '',
+          tag: '',
           price_btc: '',
           price_usd: '',
           chain_id: '',
           change_usd: '',
           change_btc: '',
-          hidden: 0,
           confirmations: 0,
-          account_name: '',
-          account_tag: ''
+          asset_key: ''
         }
         Object.assign(asset, resp.data.data.asset)
         assetDao.insert(asset)
@@ -196,7 +195,6 @@ class ReceiveWorker extends BaseWorker {
           amount: '',
           created_at: '',
           opponent_id: '',
-          counter_user_id: '',
           transaction_hash: '',
           sender: '',
           receiver: '',
@@ -241,6 +239,7 @@ class ReceiveWorker extends BaseWorker {
       thumb_url: null
     }
     messageDao.insertMessage(message)
+    store.dispatch('refreshMessage', data.conversation_id)
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 

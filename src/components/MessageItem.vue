@@ -17,6 +17,15 @@
       @user-click="$emit('user-click',message.userId)"
     ></StickerItem>
 
+    <TransferItem
+      v-else-if="message.type === 'SYSTEM_ACCOUNT_SNAPSHOT'"
+      :message="message"
+      :me="me"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></TransferItem>
+
     <ContactItem
       v-else-if="message.type.endsWith('_CONTACT')"
       :message="message"
@@ -138,10 +147,6 @@
             v-else-if="messageType(message) === 'unknown'"
             class="unknown"
           >{{$t('chat.chat_unknown') }}</span>
-          <span
-            v-else-if="messageType(message) === 'transfer'"
-            class="transfer"
-          >{{transferText(message)}}</span>
           <span class="time-place"></span>
           <span class="time">
             {{message.lt}}
@@ -175,6 +180,7 @@ import ICSend from '../assets/images/ic_status_send.svg'
 import ICRead from '../assets/images/ic_status_read.svg'
 
 import ReplyMessageItem from './chat-item/ReplyMessageItem'
+import TransferItem from './chat-item/TransferItem'
 import ContactItem from './chat-item/ContactItem'
 import FileItem from './chat-item/FileItem'
 import AudioItem from './chat-item/AudioItem'
@@ -198,6 +204,7 @@ export default {
     ICSend,
     ICRead,
     ReplyMessageItem,
+    TransferItem,
     ContactItem,
     FileItem,
     AudioItem,
@@ -311,17 +318,8 @@ export default {
         } else {
           return 'app_button'
         }
-      } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-        return 'transfer'
       } else {
         return 'unknown'
-      }
-    },
-    transferText: function(message) {
-      if (message.userId === this.me.user_id) {
-        return this.$t('chat.chat_transfer_send')
-      } else {
-        return this.$t('chat.chat_transfer_receive')
       }
     },
     textMessage: message => {
@@ -541,6 +539,7 @@ li {
   display: inline-block;
   font-size: 0;
   max-width: 80%;
+  box-shadow: 0px 1px 1px #aaaaaa33;
 
   &.text,
   &.app_card,

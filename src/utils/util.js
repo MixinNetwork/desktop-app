@@ -2,7 +2,10 @@ import crypto from 'crypto'
 import Bot from 'bot-api-js-client'
 import moment from 'moment'
 import store from '@/store/store'
-import { AvatarColors, NameColors } from '@/utils/constants.js'
+import {
+  AvatarColors,
+  NameColors
+} from '@/utils/constants.js'
 import signalProtocol from '@/crypto/signal.js'
 import md5 from 'md5'
 
@@ -12,7 +15,7 @@ export function generateConversationId(userId, recipientId) {
 
   let [minId, maxId] = [userId, recipientId]
   if (minId > maxId) {
-    ;[minId, maxId] = [recipientId, userId]
+    [minId, maxId] = [recipientId, userId]
   }
 
   const hash = crypto.createHash('md5')

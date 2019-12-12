@@ -65,7 +65,7 @@ class MessageBox {
       if (data.length > 0) {
         setTimeout(function () {
           resolve(data)
-        }, 150)
+        })
       } else {
         resolve(null)
       }

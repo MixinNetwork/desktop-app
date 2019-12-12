@@ -141,6 +141,7 @@ export default {
       isBottom: true,
       boxMessage: null,
       forwardList: false,
+      turnPageLock: false,
       currentUnreadNum: 0,
       oldMsgLen: 0
     }
@@ -272,7 +273,7 @@ export default {
           setTimeout(function() {
             goBottom()
             goUnreadPos()
-          }, 5)
+          })
         }
         setTimeout(() => {
           const newMsgLen = self.messages.length
@@ -296,6 +297,9 @@ export default {
       if (this.isBottom) {
         this.currentUnreadNum = 0
       }
+      if (list.scrollTop < 200) {
+        this.infiniteHandler()
+      }
     },
     goUnreadPos() {
       const divideDom = document.querySelector('.unread-divide')
@@ -312,12 +316,18 @@ export default {
       list.scrollTop = scrollHeight
     },
     infiniteHandler($state) {
-      let self = this
-      messageBox.nextPage().then(function(messages) {
+      if (this.turnPageLock) return
+      this.turnPageLock = true
+      setTimeout(() => {
+        this.turnPageLock = false
+      }, 350)
+      messageBox.nextPage().then(messages => {
         if (messages) {
-          self.messages.unshift(...messages)
+          this.messages.unshift(...messages)
+          if (!$state) return
           $state.loaded()
         } else {
+          if (!$state) return
           $state.complete()
         }
       })

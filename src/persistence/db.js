@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const MixinDatabaseVersion = 3
+const MixinDatabaseVersion = 1
 const mixinPath = path.join(getDbPath(), 'mixin.db3')
 const mixinDb = new Database(mixinPath, { readonly: false })
 mixinDb.pragma('journal_mode = WAL')

@@ -104,6 +104,7 @@ import {
   MessageStatus,
   MuteDuration
 } from '@/utils/constants.js'
+import messageUtil from '@/utils/message_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
@@ -148,7 +149,6 @@ export default {
       if (this.isBottom) {
         setTimeout(() => {
           this.goBottom()
-          this.goUnreadPos()
         })
       } else {
         this.currentUnreadNum += newM.length - oldM.length
@@ -157,12 +157,15 @@ export default {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
-        messageBox.setConversationId(newC.conversationId)
+        messageBox.setConversationId(newC.conversationId, this.conversation.unseenMessageCount)
         this.messages = messageBox.messages
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
+            setTimeout(() => {
+              this.goUnreadPos()
+            }, 5)
           } else {
             this.unreadMessageId = ''
           }
@@ -493,7 +496,7 @@ export default {
       }
       event.stopPropagation()
       event.preventDefault()
-      const text = this.$refs.box.innerText
+      const text = messageUtil.messageFilteredText(this.$refs.box)
       if (text.trim().length <= 0) {
         return
       }

@@ -786,13 +786,13 @@ class ReceiveWorker extends BaseWorker {
     }
     if (conversation.category === ConversationCategory.GROUP) {
       const body = fullName + ': ' + content
-      sendNotification(conversation.groupName, body, conversationId)
+      sendNotification(conversation.groupName, body, conversation)
     } else if (conversation.category === ConversationCategory.CONTACT && conversation.ownerId !== userId) {
       const body = fullName + ': ' + content
       const user = userDao.findUserById(conversation.ownerId)
-      sendNotification(user.full_name, body, conversationId)
+      sendNotification(user.full_name, body, conversation)
     } else {
-      sendNotification(fullName, content, conversationId)
+      sendNotification(fullName, content, conversation)
     }
   }
 

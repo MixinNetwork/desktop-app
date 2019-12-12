@@ -1,11 +1,24 @@
 import messageDao from '@/dao/message_dao.js'
 
 class MessageBox {
-  setConversationId(conversationId) {
+  setConversationId(conversationId, unseenMessageCount) {
     if (conversationId && this.conversationId !== conversationId) {
-      this.page = 0
       this.conversationId = conversationId
-      this.messages = messageDao.getMessages(conversationId, 0)
+      const prePageMessageCount = 5
+      let page = 0
+      if (unseenMessageCount > prePageMessageCount) {
+        page = Math.ceil(unseenMessageCount / prePageMessageCount)
+      }
+      let currPage = page
+      let messages = []
+      while (currPage > 0) {
+        messages = messages.concat(messageDao.getMessages(conversationId, currPage))
+        currPage--
+      }
+      messages = messages.concat(messageDao.getMessages(conversationId, 0))
+      this.messages = messages
+      this.page = page
+
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       this.scrollAction(true)
     }
@@ -15,7 +28,8 @@ class MessageBox {
       this.page = 0
       const lastMessages = messageDao.getMessages(conversationId, 0)
       const newMessages = []
-      for (let i = lastMessages.length - 1; i >= 0; i--) {
+      const lastMsgLen = lastMessages.length
+      for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
         if (temp.messageId === this.messages[this.messages.length - 1].messageId) {
           break
@@ -23,6 +37,9 @@ class MessageBox {
         newMessages.unshift(temp)
       }
       this.messages = this.messages.concat(newMessages)
+      for (let i = 1; i <= lastMsgLen; i++) {
+        this.messages[this.messages.length - i].status = lastMessages[lastMsgLen - i].status
+      }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       if (count >= this.count) {

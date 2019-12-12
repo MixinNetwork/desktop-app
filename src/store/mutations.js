@@ -107,8 +107,10 @@ export default {
   saveAccount(state, user) {
     state.me = user
   },
-  setCurrentConversation(state, conversationId) {
-    messageBox.setConversationId(conversationId)
+  setCurrentConversation(state, conversation) {
+    const { unseenMessageCount } = conversation
+    let conversationId = conversation.conversationId || conversation.conversation_id
+    messageBox.setConversationId(conversationId, unseenMessageCount)
     if (
       !state.conversationKeys.some(item => {
         return item === conversationId

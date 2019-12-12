@@ -141,19 +141,11 @@ export default {
       isBottom: true,
       boxMessage: null,
       forwardList: false,
-      currentUnreadNum: 0
+      currentUnreadNum: 0,
+      oldMsgLen: 0
     }
   },
   watch: {
-    messages(newM, oldM) {
-      if (this.isBottom) {
-        setTimeout(() => {
-          this.goBottom()
-        })
-      } else {
-        this.currentUnreadNum += newM.length - oldM.length
-      }
-    },
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
@@ -269,8 +261,8 @@ export default {
         document.execCommand('insertText', false, text)
       }
     }
-    let goBottom = this.goBottom
-    let goUnreadPos = this.goUnreadPos
+    const goBottom = this.goBottom
+    const goUnreadPos = this.goUnreadPos
     messageBox.bindData(
       function(messages) {
         self.messages = messages
@@ -282,6 +274,16 @@ export default {
             goUnreadPos()
           }, 5)
         }
+        setTimeout(() => {
+          const newMsgLen = self.messages.length
+          if (!self.oldMsgLen) {
+            self.oldMsgLen = newMsgLen
+          }
+          if (!self.isBottom) {
+            self.currentUnreadNum += newMsgLen - self.oldMsgLen
+          }
+          self.oldMsgLen = newMsgLen
+        })
       }
     )
   },

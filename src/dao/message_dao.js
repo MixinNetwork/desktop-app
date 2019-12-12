@@ -58,7 +58,7 @@ class MessageDao {
   }
 
   getMessages(conversationId, page = 0) {
-    const prePageCount = 50
+    const prePageCount = 20
     const offset = page * prePageCount
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +

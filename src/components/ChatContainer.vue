@@ -546,10 +546,7 @@ export default {
       this.forwardList = true
     },
     handleRemove(message) {
-      this.$store.dispatch('deleteMessages', {
-        messageIds: [message.messageId],
-        conversationId: message.conversationId
-      })
+      messageBox.deleteMessages([message.messageId])
     },
     handleRecall(message) {
       this.$store.dispatch('recallMessage', {

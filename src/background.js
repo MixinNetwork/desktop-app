@@ -52,6 +52,9 @@ function createWindow() {
         win = null
       } else {
         e.preventDefault()
+        if (win.isFullScreen()) {
+          win.setFullScreen(false)
+        }
         win.hide()
       }
     }

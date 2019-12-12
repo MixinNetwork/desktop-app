@@ -48,7 +48,6 @@ CREATE TABLE IF NOT EXISTS `snapshots` (
 	`amount`	TEXT NOT NULL,
 	`created_at`	TEXT NOT NULL,
 	`opponent_id`	TEXT,
-	`counter_user_id`	TEXT,
 	`transaction_hash`	TEXT,
 	`sender`	TEXT,
 	`receiver`	TEXT,
@@ -176,16 +175,15 @@ CREATE TABLE IF NOT EXISTS `assets` (
 	`name`	TEXT NOT NULL,
 	`icon_url`	TEXT NOT NULL,
 	`balance`	TEXT NOT NULL,
-	`public_key`	TEXT,
+	`destination`	TEXT NOT NULL,
+	`tag`	TEXT,
 	`price_btc`	TEXT NOT NULL,
 	`price_usd`	TEXT NOT NULL,
 	`chain_id`	TEXT NOT NULL,
 	`change_usd`	TEXT NOT NULL,
 	`change_btc`	TEXT NOT NULL,
-	`hidden`	INTEGER,
 	`confirmations`	INTEGER NOT NULL,
-	`account_name`	TEXT,
-	`account_tag`	TEXT,
+	`asset_key`	TEXT,
 	PRIMARY KEY(`asset_id`)
 );
 CREATE TABLE IF NOT EXISTS `apps` (

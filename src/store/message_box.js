@@ -31,17 +31,15 @@ class MessageBox {
       const lastMsgLen = lastMessages.length
       for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
-        const currMessage = this.messages[this.messages.length - 1]
-        if (temp && currMessage) {
-          if (temp.messageId === currMessage.messageId) {
-            break
-          }
-          newMessages.unshift(temp)
+        const msgLen = this.messages.length
+        if (temp && msgLen > 0 && temp.messageId === this.messages[msgLen - 1].messageId) {
+          break
         }
+        newMessages.unshift(temp)
       }
       this.messages = this.messages.concat(newMessages)
       for (let i = 1; i <= lastMsgLen; i++) {
-        this.messages[this.messages.length - i].status = lastMessages[lastMsgLen - i].status
+        this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
       }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']

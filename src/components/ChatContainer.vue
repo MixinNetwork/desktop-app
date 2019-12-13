@@ -278,7 +278,6 @@ export default {
           goBottom()
         }
         if (force) {
-          goBottom()
           goUnreadPos()
         }
         setTimeout(() => {
@@ -309,13 +308,25 @@ export default {
       }
     },
     goUnreadPos() {
-      setTimeout(() => {
-        const divideDom = document.querySelector('.unread-divide')
-        if (divideDom) {
+      let goDone = false
+      let beforeScrollTop = 0
+      const action = beforeScrollTop => {
+        setTimeout(() => {
+          const divideDom = document.querySelector('.unread-divide')
           let list = this.$refs.messagesUl
-          list.scrollTop = divideDom.offsetTop - 60
-        }
-      }, 100)
+          if (!divideDom || !list) {
+            return action(beforeScrollTop)
+          }
+          if (!goDone && beforeScrollTop !== list.scrollTop) {
+            beforeScrollTop = list.scrollTop
+            action(beforeScrollTop)
+          } else {
+            goDone = true
+            list.scrollTop = divideDom.offsetTop - 60
+          }
+        }, 50)
+      }
+      action(beforeScrollTop)
     },
     goBottom() {
       setTimeout(() => {
@@ -327,7 +338,7 @@ export default {
       })
     },
     goBottomClick() {
-      if (this.beforeUnseenMessageCount > PerPageMessageCount) {
+      if (this.beforeUnseenMessageCount > PerPageMessageCount || this.messages.length > 300) {
         messageBox.refreshConversation(this.conversation.conversationId)
       }
       this.beforeUnseenMessageCount = 0

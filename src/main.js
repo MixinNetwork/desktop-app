@@ -28,7 +28,7 @@ Vue.use(Toast)
 Vue.use(ImageViewer)
 Vue.use(InfiniteLoading, {
   system: {
-    throttleLimit: 150
+    throttleLimit: 30
   }
 })
 

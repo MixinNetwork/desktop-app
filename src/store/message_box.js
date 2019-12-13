@@ -1,31 +1,36 @@
 import messageDao from '@/dao/message_dao.js'
+import {
+  PerPageMessageCount
+} from '@/utils/constants.js'
 
 class MessageBox {
   setConversationId(conversationId, unseenMessageCount) {
     if (conversationId && this.conversationId !== conversationId) {
       this.conversationId = conversationId
-      const prePageMessageCount = 20
+      const perPageCount = PerPageMessageCount
       let page = 0
-      if (unseenMessageCount > prePageMessageCount) {
-        page = Math.ceil(unseenMessageCount / prePageMessageCount)
+      if (unseenMessageCount > perPageCount) {
+        page = Math.ceil(unseenMessageCount / perPageCount)
       }
-      let currPage = page
-      let messages = []
-      while (currPage > 0) {
-        messages = messages.concat(messageDao.getMessages(conversationId, currPage))
-        currPage--
-      }
-      messages = messages.concat(messageDao.getMessages(conversationId, 0))
-      this.messages = messages
+      this.messages = messageDao.getMessages(conversationId, page)
       this.page = page
+      this.pageDown = page
+      this.tempCount = 0
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       this.scrollAction(true)
     }
   }
+  refreshConversation(conversationId) {
+    const page = 0
+    this.page = page
+    this.pageDown = page
+    this.tempCount = 0
+    this.messages = messageDao.getMessages(conversationId, page)
+    this.callback(this.messages)
+  }
   refreshMessage(conversationId) {
     if (conversationId === this.conversationId && this.conversationId) {
-      this.page = 0
       const lastMessages = messageDao.getMessages(conversationId, 0)
       const newMessages = []
       const lastMsgLen = lastMessages.length
@@ -38,6 +43,7 @@ class MessageBox {
         newMessages.unshift(temp)
       }
       this.messages = this.messages.concat(newMessages)
+      this.tempCount += newMessages.length
       for (let i = 1; i <= lastMsgLen; i++) {
         this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
       }
@@ -58,12 +64,18 @@ class MessageBox {
       }
     }
   }
-  nextPage() {
-    let self = this
-    return new Promise(function (resolve) {
-      let data = messageDao.getMessages(self.conversationId, ++self.page)
+  nextPage(direction) {
+    return new Promise((resolve) => {
+      let data = []
+      if (direction === 'down') {
+        if (this.pageDown > 0) {
+          data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
+        }
+      } else {
+        data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+      }
       if (data.length > 0) {
-        setTimeout(function () {
+        setTimeout(() => {
           resolve(data)
         })
       } else {

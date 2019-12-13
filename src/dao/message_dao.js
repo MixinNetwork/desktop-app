@@ -1,6 +1,7 @@
 import moment from 'moment'
 import uuidv4 from 'uuid/v4'
 import db from '@/persistence/db'
+import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageDao {
   me() {
@@ -57,9 +58,9 @@ class MessageDao {
     insertMany(mIds)
   }
 
-  getMessages(conversationId, page = 0) {
-    const prePageCount = 20
-    const offset = page * prePageCount
+  getMessages(conversationId, page = 0, tempCount = 0) {
+    const perPageCount = PerPageMessageCount
+    const offset = page * perPageCount + tempCount
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
         'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
@@ -83,7 +84,7 @@ class MessageDao {
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
         'WHERE m.conversation_id = ? ' +
-        'ORDER BY m.created_at DESC LIMIT ' + prePageCount + ' OFFSET ?) ORDER BY createdAt ASC'
+        'ORDER BY m.created_at DESC LIMIT ' + perPageCount + ' OFFSET ?) ORDER BY createdAt ASC'
     )
     let data = stmt.all(conversationId, offset)
     data.forEach(function(e) {

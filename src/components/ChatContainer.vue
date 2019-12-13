@@ -21,7 +21,7 @@
       @dragleave="onDragLeave"
       @scroll="onScroll"
     >
-      <infinite-loading direction="top" @infinite="infiniteHandler" ref="infinite">
+      <infinite-loading direction="top" @infinite="infiniteUp" ref="infiniteUp">
         <div slot="spinner"></div>
         <div slot="no-more"></div>
         <div slot="no-results"></div>
@@ -40,9 +40,14 @@
         @user-click="onUserClick"
         @handle-item-click="handleItemClick"
       />
+      <infinite-loading direction="down" @infinite="infiniteDown" ref="infiniteDown">
+        <div slot="spinner"></div>
+        <div slot="no-more"></div>
+        <div slot="no-results"></div>
+      </infinite-loading>
     </ul>
     <transition name="fade">
-      <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
+      <div class="floating" v-show="conversation && !isBottom" @click="goBottomClick">
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <ICChevronDown />
       </div>
@@ -102,7 +107,8 @@ import {
   ConversationStatus,
   MessageCategories,
   MessageStatus,
-  MuteDuration
+  MuteDuration,
+  PerPageMessageCount
 } from '@/utils/constants.js'
 import messageUtil from '@/utils/message_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
@@ -115,7 +121,6 @@ import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
-import InfiniteLoading from 'vue-infinite-loading'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
 import ICSend from '../assets/images/ic_send.svg'
@@ -123,6 +128,7 @@ import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
+
 export default {
   name: 'ChatContainer',
   data() {
@@ -141,24 +147,24 @@ export default {
       isBottom: true,
       boxMessage: null,
       forwardList: false,
-      turnPageLock: false,
       currentUnreadNum: 0,
+      beforeUnseenMessageCount: 0,
       oldMsgLen: 0
     }
   },
   watch: {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-        this.$refs.infinite.stateChanger.reset()
+        this.$refs.infiniteUp.stateChanger.reset()
+        this.$refs.infiniteDown.stateChanger.reset()
+        this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         messageBox.setConversationId(newC.conversationId, this.conversation.unseenMessageCount)
         this.messages = messageBox.messages
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
-            setTimeout(() => {
-              this.goUnreadPos()
-            }, 5)
+            this.goUnreadPos()
           } else {
             this.unreadMessageId = ''
           }
@@ -214,7 +220,6 @@ export default {
     Details,
     MessageItem,
     FileContainer,
-    InfiniteLoading,
     ICBot,
     ICChevronDown,
     ICSend,
@@ -269,11 +274,12 @@ export default {
         self.messages = messages
       },
       function(force) {
+        if (self.isBottom) {
+          goBottom()
+        }
         if (force) {
-          setTimeout(function() {
-            goBottom()
-            goUnreadPos()
-          })
+          goBottom()
+          goUnreadPos()
         }
         setTimeout(() => {
           const newMsgLen = self.messages.length
@@ -296,34 +302,66 @@ export default {
       this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
       if (this.isBottom) {
         this.currentUnreadNum = 0
+        this.infiniteDown()
       }
-      if (list.scrollTop < 200) {
-        this.infiniteHandler()
+      if (list.scrollTop < 400) {
+        this.infiniteUp()
       }
     },
     goUnreadPos() {
-      const divideDom = document.querySelector('.unread-divide')
-      if (divideDom) {
-        let list = this.$refs.messagesUl
-        list.scrollTop = divideDom.offsetTop - 60
+      let goDone = false
+      let beforeScrollTop = 0
+      const action = beforeScrollTop => {
+        setTimeout(() => {
+          const divideDom = document.querySelector('.unread-divide')
+          let list = this.$refs.messagesUl
+          if (!divideDom || !list) {
+            return action(beforeScrollTop)
+          }
+          if (!goDone && beforeScrollTop !== list.scrollTop) {
+            beforeScrollTop = list.scrollTop
+            action(beforeScrollTop)
+          } else {
+            goDone = true
+            list.scrollTop = divideDom.offsetTop - 60
+          }
+        }, 50)
       }
+      action(beforeScrollTop)
     },
     goBottom() {
-      this.currentUnreadNum = 0
-      let list = this.$refs.messagesUl
-      if (!list) return
-      let scrollHeight = list.scrollHeight
-      list.scrollTop = scrollHeight
-    },
-    infiniteHandler($state) {
-      if (this.turnPageLock) return
-      this.turnPageLock = true
       setTimeout(() => {
-        this.turnPageLock = false
-      }, 350)
-      messageBox.nextPage().then(messages => {
+        this.currentUnreadNum = 0
+        let list = this.$refs.messagesUl
+        if (!list) return
+        let scrollHeight = list.scrollHeight
+        list.scrollTop = scrollHeight
+      })
+    },
+    goBottomClick() {
+      if (this.beforeUnseenMessageCount > PerPageMessageCount || this.messages.length > 300) {
+        messageBox.refreshConversation(this.conversation.conversationId)
+      }
+      this.beforeUnseenMessageCount = 0
+      this.goBottom()
+    },
+    infiniteUp($state) {
+      messageBox.nextPage('up').then(messages => {
         if (messages) {
           this.messages.unshift(...messages)
+          this.oldMsgLen += messages.length
+          if (!$state) return
+          $state.loaded()
+        } else {
+          if (!$state) return
+          $state.complete()
+        }
+      })
+    },
+    infiniteDown($state) {
+      messageBox.nextPage('down').then(messages => {
+        if (messages) {
+          this.messages.push(...messages)
           if (!$state) return
           $state.loaded()
         } else {
@@ -384,10 +422,7 @@ export default {
           category: category
         }
         this.$store.dispatch('sendAttachmentMessage', message)
-        let goBottom = this.goBottom
-        setTimeout(function() {
-          goBottom()
-        }, 5)
+        this.goBottom()
       }
       this.file = null
       this.dragging = false
@@ -528,10 +563,7 @@ export default {
       }
       msg.msg = message
       this.$store.dispatch('sendMessage', msg)
-      let goBottom = this.goBottom
-      setTimeout(function() {
-        goBottom()
-      }, 5)
+      this.goBottom()
     },
     handleItemClick({ type, message }) {
       switch (type) {

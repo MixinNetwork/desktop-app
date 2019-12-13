@@ -27,9 +27,8 @@
         v-show="conversations && !(searchResult.contact||searchResult.group)"
       >
         <ConversationItem
-          v-for="(conversation,key,index) in conversations"
-          :key="key"
-          :index="index"
+          v-for="conversation in conversations"
+          :key="conversation.conversationId"
           :conversation="conversation"
           :class="{active:currentConversationId === conversation.conversationId}"
           @item-click="onConversationClick"

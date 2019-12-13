@@ -121,4 +121,7 @@ ul {
   padding: 0;
   margin: 0;
 }
+audio, video {
+  outline: none;
+}
 </style>

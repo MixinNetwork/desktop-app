@@ -30,10 +30,10 @@
         <div class="bubble">{{$t('encryption')}}</div>
       </li>
       <MessageItem
-        v-for="(item, $index) in messages"
-        :key=" $index"
+        v-for="(item, index) in messages"
+        :key="item.messageId"
         :message="item"
-        :prev="messages[$index-1]"
+        :prev="messages[index-1]"
         :unread="unreadMessageId"
         :conversation="conversation"
         :me="me"
@@ -141,19 +141,12 @@ export default {
       isBottom: true,
       boxMessage: null,
       forwardList: false,
-      currentUnreadNum: 0
+      turnPageLock: false,
+      currentUnreadNum: 0,
+      oldMsgLen: 0
     }
   },
   watch: {
-    messages(newM, oldM) {
-      if (this.isBottom) {
-        setTimeout(() => {
-          this.goBottom()
-        })
-      } else {
-        this.currentUnreadNum += newM.length - oldM.length
-      }
-    },
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infinite.stateChanger.reset()
@@ -269,8 +262,8 @@ export default {
         document.execCommand('insertText', false, text)
       }
     }
-    let goBottom = this.goBottom
-    let goUnreadPos = this.goUnreadPos
+    const goBottom = this.goBottom
+    const goUnreadPos = this.goUnreadPos
     messageBox.bindData(
       function(messages) {
         self.messages = messages
@@ -280,8 +273,18 @@ export default {
           setTimeout(function() {
             goBottom()
             goUnreadPos()
-          }, 5)
+          })
         }
+        setTimeout(() => {
+          const newMsgLen = self.messages.length
+          if (!self.oldMsgLen) {
+            self.oldMsgLen = newMsgLen
+          }
+          if (!self.isBottom) {
+            self.currentUnreadNum += newMsgLen - self.oldMsgLen
+          }
+          self.oldMsgLen = newMsgLen
+        })
       }
     )
   },
@@ -293,6 +296,9 @@ export default {
       this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
       if (this.isBottom) {
         this.currentUnreadNum = 0
+      }
+      if (list.scrollTop < 200) {
+        this.infiniteHandler()
       }
     },
     goUnreadPos() {
@@ -310,12 +316,18 @@ export default {
       list.scrollTop = scrollHeight
     },
     infiniteHandler($state) {
-      let self = this
-      messageBox.nextPage().then(function(messages) {
+      if (this.turnPageLock) return
+      this.turnPageLock = true
+      setTimeout(() => {
+        this.turnPageLock = false
+      }, 350)
+      messageBox.nextPage().then(messages => {
         if (messages) {
-          self.messages.unshift(...messages)
+          this.messages.unshift(...messages)
+          if (!$state) return
           $state.loaded()
         } else {
+          if (!$state) return
           $state.complete()
         }
       })

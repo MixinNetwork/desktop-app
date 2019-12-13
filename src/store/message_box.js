@@ -4,7 +4,7 @@ class MessageBox {
   setConversationId(conversationId, unseenMessageCount) {
     if (conversationId && this.conversationId !== conversationId) {
       this.conversationId = conversationId
-      const prePageMessageCount = 5
+      const prePageMessageCount = 20
       let page = 0
       if (unseenMessageCount > prePageMessageCount) {
         page = Math.ceil(unseenMessageCount / prePageMessageCount)
@@ -65,7 +65,7 @@ class MessageBox {
       if (data.length > 0) {
         setTimeout(function () {
           resolve(data)
-        }, 150)
+        })
       } else {
         resolve(null)
       }

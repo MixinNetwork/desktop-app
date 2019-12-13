@@ -26,6 +26,7 @@
     "bytebuffer": "^5.0.1",
     "chimee": "^0.11.0",
     "chimee-kernel-hls": "^1.3.2",
+    "core-js": "2",
     "electron-updater": "^4.2.0",
     "image-size": "^0.8.3",
     "interval-promise": "^1.3.0",

@@ -2205,7 +2205,6 @@ boolbase@^1.0.0, boolbase@~1.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  uid "131aa1ab1c21d85d62fd32941dacf58e4c28df0c"
   resolved "https://github.com/MixinNetwork/bot-api-js-client.git#131aa1ab1c21d85d62fd32941dacf58e4c28df0c"
   dependencies:
     crypto "^1.0.1"
@@ -3206,6 +3205,11 @@ copy-webpack-plugin@^4.6.0:
     minimatch "^3.0.4"
     p-limit "^1.0.0"
     serialize-javascript "^1.4.0"
+
+core-js@2:
+  version "2.6.11"
+  resolved "https://registry.yarnpkg.com/core-js/-/core-js-2.6.11.tgz#38831469f9922bded8ee21c9dc46985e0399308c"
+  integrity sha512-5wjnpaT/3dV+XB4borEsnAYQchn00XSgTAWKDkEqv+K8KevjbzmofK6hfJ9TZIlpj2N0xQpazy7PiRQiWHqzWg==
 
 core-js@^2.4.0, core-js@^2.6.5:
   version "2.6.10"

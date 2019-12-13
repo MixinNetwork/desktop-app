@@ -17,7 +17,7 @@ import i18n from '@/utils/i18n.js'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util.js'
 import { remote } from 'electron'
-import transferApi from '@/api/transfer'
+import snapshotApi from '@/api/snapshot'
 
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
 
@@ -160,7 +160,7 @@ class ReceiveWorker extends BaseWorker {
     const decodedData = JSON.parse(decoded)
 
     if (decodedData.snapshot_id) {
-      const snapshotResp = await transferApi.getSnapshots(decodedData.snapshot_id)
+      const snapshotResp = await snapshotApi.getSnapshots(decodedData.snapshot_id)
       const snapshotData = snapshotResp.data.data
       if (snapshotData) {
         const snapshot = {
@@ -181,7 +181,7 @@ class ReceiveWorker extends BaseWorker {
 
         const findAsset = assetDao.getAssetById(snapshot.asset_id)
         if (!findAsset) {
-          const assetResp = await transferApi.getAssets(snapshot.asset_id)
+          const assetResp = await snapshotApi.getAssets(snapshot.asset_id)
           const assetData = assetResp.data.data
           if (assetData) {
             const asset = {

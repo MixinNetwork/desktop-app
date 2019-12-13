@@ -58,9 +58,9 @@ class MessageDao {
     insertMany(mIds)
   }
 
-  getMessages(conversationId, page = 0) {
+  getMessages(conversationId, page = 0, tempCount = 0) {
     const perPageCount = PerPageMessageCount
-    const offset = page * perPageCount
+    const offset = page * perPageCount + tempCount
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
         'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +

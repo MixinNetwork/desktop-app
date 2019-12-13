@@ -47,7 +47,7 @@
       </infinite-loading>
     </ul>
     <transition name="fade">
-      <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
+      <div class="floating" v-show="conversation && !isBottom" @click="goBottomClick">
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <ICChevronDown />
       </div>
@@ -107,7 +107,8 @@ import {
   ConversationStatus,
   MessageCategories,
   MessageStatus,
-  MuteDuration
+  MuteDuration,
+  PerPageMessageCount
 } from '@/utils/constants.js'
 import messageUtil from '@/utils/message_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
@@ -147,6 +148,7 @@ export default {
       boxMessage: null,
       forwardList: false,
       currentUnreadNum: 0,
+      beforeUnseenMessageCount: 0,
       oldMsgLen: 0
     }
   },
@@ -155,15 +157,14 @@ export default {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.infiniteUp.stateChanger.reset()
         this.$refs.infiniteDown.stateChanger.reset()
+        this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         messageBox.setConversationId(newC.conversationId, this.conversation.unseenMessageCount)
         this.messages = messageBox.messages
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
-            setTimeout(() => {
-              this.goUnreadPos()
-            }, 100)
+            this.goUnreadPos()
           } else {
             this.unreadMessageId = ''
           }
@@ -273,11 +274,12 @@ export default {
         self.messages = messages
       },
       function(force) {
+        if (self.isBottom) {
+          goBottom()
+        }
         if (force) {
-          setTimeout(function() {
-            goBottom()
-            goUnreadPos()
-          })
+          goBottom()
+          goUnreadPos()
         }
         setTimeout(() => {
           const newMsgLen = self.messages.length
@@ -300,28 +302,46 @@ export default {
       this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
       if (this.isBottom) {
         this.currentUnreadNum = 0
+        this.infiniteDown()
+      }
+      if (list.scrollTop < 400) {
+        this.infiniteUp()
       }
     },
     goUnreadPos() {
-      const divideDom = document.querySelector('.unread-divide')
-      if (divideDom) {
-        let list = this.$refs.messagesUl
-        list.scrollTop = divideDom.offsetTop - 60
-      }
+      setTimeout(() => {
+        const divideDom = document.querySelector('.unread-divide')
+        if (divideDom) {
+          let list = this.$refs.messagesUl
+          list.scrollTop = divideDom.offsetTop - 60
+        }
+      }, 100)
     },
     goBottom() {
-      this.currentUnreadNum = 0
-      let list = this.$refs.messagesUl
-      if (!list) return
-      let scrollHeight = list.scrollHeight
-      list.scrollTop = scrollHeight
+      setTimeout(() => {
+        this.currentUnreadNum = 0
+        let list = this.$refs.messagesUl
+        if (!list) return
+        let scrollHeight = list.scrollHeight
+        list.scrollTop = scrollHeight
+      })
+    },
+    goBottomClick() {
+      if (this.beforeUnseenMessageCount > PerPageMessageCount) {
+        messageBox.refreshConversation(this.conversation.conversationId)
+      }
+      this.beforeUnseenMessageCount = 0
+      this.goBottom()
     },
     infiniteUp($state) {
       messageBox.nextPage('up').then(messages => {
         if (messages) {
           this.messages.unshift(...messages)
+          this.oldMsgLen += messages.length
+          if (!$state) return
           $state.loaded()
         } else {
+          if (!$state) return
           $state.complete()
         }
       })
@@ -330,8 +350,10 @@ export default {
       messageBox.nextPage('down').then(messages => {
         if (messages) {
           this.messages.push(...messages)
+          if (!$state) return
           $state.loaded()
         } else {
+          if (!$state) return
           $state.complete()
         }
       })
@@ -388,10 +410,7 @@ export default {
           category: category
         }
         this.$store.dispatch('sendAttachmentMessage', message)
-        let goBottom = this.goBottom
-        setTimeout(function() {
-          goBottom()
-        }, 5)
+        this.goBottom()
       }
       this.file = null
       this.dragging = false
@@ -532,10 +551,7 @@ export default {
       }
       msg.msg = message
       this.$store.dispatch('sendMessage', msg)
-      let goBottom = this.goBottom
-      setTimeout(function() {
-        goBottom()
-      }, 5)
+      this.goBottom()
     },
     handleItemClick({ type, message }) {
       switch (type) {

@@ -12,18 +12,25 @@ class MessageBox {
       if (unseenMessageCount > perPageCount) {
         page = Math.ceil(unseenMessageCount / perPageCount)
       }
-      let currPage = page
-      this.messages = messageDao.getMessages(conversationId, currPage)
+      this.messages = messageDao.getMessages(conversationId, page)
       this.page = page
       this.pageDown = page
+      this.tempCount = 0
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       this.scrollAction(true)
     }
   }
+  refreshConversation(conversationId) {
+    const page = 0
+    this.page = page
+    this.pageDown = page
+    this.tempCount = 0
+    this.messages = messageDao.getMessages(conversationId, page)
+    this.callback(this.messages)
+  }
   refreshMessage(conversationId) {
     if (conversationId === this.conversationId && this.conversationId) {
-      this.page = 0
       const lastMessages = messageDao.getMessages(conversationId, 0)
       const newMessages = []
       const lastMsgLen = lastMessages.length
@@ -36,6 +43,7 @@ class MessageBox {
         newMessages.unshift(temp)
       }
       this.messages = this.messages.concat(newMessages)
+      this.tempCount += newMessages.length
       for (let i = 1; i <= lastMsgLen; i++) {
         this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
       }
@@ -61,10 +69,10 @@ class MessageBox {
       let data = []
       if (direction === 'down') {
         if (this.pageDown > 0) {
-          data = messageDao.getMessages(this.conversationId, --this.pageDown)
+          data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
         }
       } else {
-        data = messageDao.getMessages(this.conversationId, ++this.page)
+        data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
       }
       if (data.length > 0) {
         setTimeout(() => {

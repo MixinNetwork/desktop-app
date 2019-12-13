@@ -21,7 +21,7 @@
       @dragleave="onDragLeave"
       @scroll="onScroll"
     >
-      <infinite-loading direction="top" @infinite="infiniteHandler" ref="infinite">
+      <infinite-loading direction="top" @infinite="infiniteUp" ref="infiniteUp">
         <div slot="spinner"></div>
         <div slot="no-more"></div>
         <div slot="no-results"></div>
@@ -40,6 +40,11 @@
         @user-click="onUserClick"
         @handle-item-click="handleItemClick"
       />
+      <infinite-loading direction="down" @infinite="infiniteDown" ref="infiniteDown">
+        <div slot="spinner"></div>
+        <div slot="no-more"></div>
+        <div slot="no-results"></div>
+      </infinite-loading>
     </ul>
     <transition name="fade">
       <div class="floating" v-show="conversation && !isBottom" @click="goBottom">
@@ -115,7 +120,6 @@ import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
-import InfiniteLoading from 'vue-infinite-loading'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
 import ICSend from '../assets/images/ic_send.svg'
@@ -123,6 +127,7 @@ import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
+
 export default {
   name: 'ChatContainer',
   data() {
@@ -141,7 +146,6 @@ export default {
       isBottom: true,
       boxMessage: null,
       forwardList: false,
-      turnPageLock: false,
       currentUnreadNum: 0,
       oldMsgLen: 0
     }
@@ -149,7 +153,8 @@ export default {
   watch: {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-        this.$refs.infinite.stateChanger.reset()
+        this.$refs.infiniteUp.stateChanger.reset()
+        this.$refs.infiniteDown.stateChanger.reset()
         messageBox.setConversationId(newC.conversationId, this.conversation.unseenMessageCount)
         this.messages = messageBox.messages
         if (newC) {
@@ -158,7 +163,7 @@ export default {
             this.unreadMessageId = unreadMessage.message_id
             setTimeout(() => {
               this.goUnreadPos()
-            }, 5)
+            }, 100)
           } else {
             this.unreadMessageId = ''
           }
@@ -214,7 +219,6 @@ export default {
     Details,
     MessageItem,
     FileContainer,
-    InfiniteLoading,
     ICBot,
     ICChevronDown,
     ICSend,
@@ -297,9 +301,6 @@ export default {
       if (this.isBottom) {
         this.currentUnreadNum = 0
       }
-      if (list.scrollTop < 200) {
-        this.infiniteHandler()
-      }
     },
     goUnreadPos() {
       const divideDom = document.querySelector('.unread-divide')
@@ -315,19 +316,22 @@ export default {
       let scrollHeight = list.scrollHeight
       list.scrollTop = scrollHeight
     },
-    infiniteHandler($state) {
-      if (this.turnPageLock) return
-      this.turnPageLock = true
-      setTimeout(() => {
-        this.turnPageLock = false
-      }, 350)
-      messageBox.nextPage().then(messages => {
+    infiniteUp($state) {
+      messageBox.nextPage('up').then(messages => {
         if (messages) {
           this.messages.unshift(...messages)
-          if (!$state) return
           $state.loaded()
         } else {
-          if (!$state) return
+          $state.complete()
+        }
+      })
+    },
+    infiniteDown($state) {
+      messageBox.nextPage('down').then(messages => {
+        if (messages) {
+          this.messages.push(...messages)
+          $state.loaded()
+        } else {
           $state.complete()
         }
       })

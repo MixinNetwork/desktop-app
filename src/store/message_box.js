@@ -1,23 +1,21 @@
 import messageDao from '@/dao/message_dao.js'
+import {
+  PrePageMessageCount
+} from '@/utils/constants.js'
 
 class MessageBox {
   setConversationId(conversationId, unseenMessageCount) {
     if (conversationId && this.conversationId !== conversationId) {
       this.conversationId = conversationId
-      const prePageMessageCount = 20
+      const prePageCount = PrePageMessageCount
       let page = 0
-      if (unseenMessageCount > prePageMessageCount) {
-        page = Math.ceil(unseenMessageCount / prePageMessageCount)
+      if (unseenMessageCount > prePageCount) {
+        page = Math.ceil(unseenMessageCount / prePageCount)
       }
       let currPage = page
-      let messages = []
-      while (currPage > 0) {
-        messages = messages.concat(messageDao.getMessages(conversationId, currPage))
-        currPage--
-      }
-      messages = messages.concat(messageDao.getMessages(conversationId, 0))
-      this.messages = messages
+      this.messages = messageDao.getMessages(conversationId, currPage)
       this.page = page
+      this.pageDown = page
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
       this.scrollAction(true)
@@ -58,12 +56,18 @@ class MessageBox {
       }
     }
   }
-  nextPage() {
-    let self = this
-    return new Promise(function (resolve) {
-      let data = messageDao.getMessages(self.conversationId, ++self.page)
+  nextPage(direction) {
+    return new Promise((resolve) => {
+      let data = []
+      if (direction === 'down') {
+        if (this.pageDown > 0) {
+          data = messageDao.getMessages(this.conversationId, --this.pageDown)
+        }
+      } else {
+        data = messageDao.getMessages(this.conversationId, ++this.page)
+      }
       if (data.length > 0) {
-        setTimeout(function () {
+        setTimeout(() => {
           resolve(data)
         })
       } else {

@@ -1,6 +1,7 @@
 import moment from 'moment'
 import uuidv4 from 'uuid/v4'
 import db from '@/persistence/db'
+import { PrePageMessageCount } from '@/utils/constants.js'
 
 class MessageDao {
   me() {
@@ -58,7 +59,7 @@ class MessageDao {
   }
 
   getMessages(conversationId, page = 0) {
-    const prePageCount = 20
+    const prePageCount = PrePageMessageCount
     const offset = page * prePageCount
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +

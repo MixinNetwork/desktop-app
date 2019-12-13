@@ -1,16 +1,16 @@
 import messageDao from '@/dao/message_dao.js'
 import {
-  PrePageMessageCount
+  PerPageMessageCount
 } from '@/utils/constants.js'
 
 class MessageBox {
   setConversationId(conversationId, unseenMessageCount) {
     if (conversationId && this.conversationId !== conversationId) {
       this.conversationId = conversationId
-      const prePageCount = PrePageMessageCount
+      const perPageCount = PerPageMessageCount
       let page = 0
-      if (unseenMessageCount > prePageCount) {
-        page = Math.ceil(unseenMessageCount / prePageCount)
+      if (unseenMessageCount > perPageCount) {
+        page = Math.ceil(unseenMessageCount / perPageCount)
       }
       let currPage = page
       this.messages = messageDao.getMessages(conversationId, currPage)

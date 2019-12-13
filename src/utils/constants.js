@@ -3,7 +3,7 @@ export const API_URL = {
   WS: 'wss://mixin-blaze.zeromesh.net'
 }
 
-export const PrePageMessageCount = 20
+export const PerPageMessageCount = 20
 
 export const ConversationStatus = {
   START: 0,

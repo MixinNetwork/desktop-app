@@ -278,6 +278,7 @@ export default {
           goBottom()
         }
         if (force) {
+          goBottom()
           goUnreadPos()
         }
         setTimeout(() => {

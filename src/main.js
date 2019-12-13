@@ -27,9 +27,7 @@ Vue.use(Menu)
 Vue.use(Toast)
 Vue.use(ImageViewer)
 Vue.use(InfiniteLoading, {
-  system: {
-    throttleLimit: 30
-  }
+  system: { throttleLimit: 30 }
 })
 
 Vue.axios.defaults.baseURL = API_URL.HTTP

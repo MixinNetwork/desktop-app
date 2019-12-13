@@ -84,7 +84,9 @@ class MessageDao {
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
         'WHERE m.conversation_id = ? ' +
-        'ORDER BY m.created_at DESC LIMIT ' + perPageCount + ' OFFSET ?) ORDER BY createdAt ASC'
+        'ORDER BY m.created_at DESC LIMIT ' +
+        perPageCount +
+        ' OFFSET ?) ORDER BY createdAt ASC'
     )
     let data = stmt.all(conversationId, offset)
     data.forEach(function(e) {

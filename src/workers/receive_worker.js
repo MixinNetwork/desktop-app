@@ -15,18 +15,11 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
 import i18n from '@/utils/i18n.js'
 import moment from 'moment'
-import {
-  sendNotification
-} from '@/utils/util.js'
-import {
-  remote
-} from 'electron'
-import messageApi from '@/api/message'
+import { sendNotification } from '@/utils/util.js'
+import { remote } from 'electron'
+import snapshotApi from '@/api/snapshot'
 
-import {
-  downloadAttachment,
-  downloadQueue
-} from '@/utils/attachment_util.js'
+import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
 
 import {
   MessageStatus,
@@ -167,31 +160,13 @@ class ReceiveWorker extends BaseWorker {
     const decodedData = JSON.parse(decoded)
 
     if (decodedData.snapshot_id) {
-      const resp = await messageApi.snapshots(decodedData.snapshot_id)
-      if (resp.data.data) {
-        const asset = {
-          asset_id: '',
-          symbol: '',
-          name: '',
-          icon_url: '',
-          balance: '',
-          destination: '',
-          tag: '',
-          price_btc: '',
-          price_usd: '',
-          chain_id: '',
-          change_usd: '',
-          change_btc: '',
-          confirmations: 0,
-          asset_key: ''
-        }
-        Object.assign(asset, resp.data.data.asset)
-        assetDao.insert(asset)
-
+      const snapshotResp = await snapshotApi.getSnapshots(decodedData.snapshot_id)
+      const snapshotData = snapshotResp.data.data
+      if (snapshotData) {
         const snapshot = {
           snapshot_id: '',
           type: '',
-          asset_id: asset.asset_id,
+          asset_id: '',
           amount: '',
           created_at: '',
           opponent_id: '',
@@ -201,8 +176,34 @@ class ReceiveWorker extends BaseWorker {
           memo: '',
           confirmations: 0
         }
-        Object.assign(snapshot, resp.data.data)
+        Object.assign(snapshot, snapshotData)
         snapshotDao.insert(snapshot)
+
+        const findAsset = assetDao.getAssetById(snapshot.asset_id)
+        if (!findAsset) {
+          const assetResp = await snapshotApi.getAssets(snapshot.asset_id)
+          const assetData = assetResp.data.data
+          if (assetData) {
+            const asset = {
+              asset_id: '',
+              symbol: '',
+              name: '',
+              icon_url: '',
+              balance: '',
+              destination: '',
+              tag: '',
+              price_btc: '',
+              price_usd: '',
+              chain_id: '',
+              change_usd: '',
+              change_btc: '',
+              confirmations: 0,
+              asset_key: ''
+            }
+            Object.assign(asset, assetData)
+            assetDao.insert(asset)
+          }
+        }
       }
     }
 
@@ -325,7 +326,8 @@ class ReceiveWorker extends BaseWorker {
       await this.syncUser(systemMessage.participant_id)
       participantSessionDao.delete(data.conversation_id, systemMessage.participant_id)
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
-    } else if (systemMessage.action === SystemConversationAction.CREATE) {} else if (systemMessage.action === SystemConversationAction.UPDATE) {
+    } else if (systemMessage.action === SystemConversationAction.CREATE) {
+    } else if (systemMessage.action === SystemConversationAction.UPDATE) {
       await this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
@@ -342,7 +344,11 @@ class ReceiveWorker extends BaseWorker {
     if (data.category === 'PLAIN_JSON') {
       const plain = window.atob(data.data)
       const plainData = JSON.parse(plain)
-      if (plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' && plainData.ack_messages && plainData.ack_messages.length > 0) {
+      if (
+        plainData.action === 'ACKNOWLEDGE_MESSAGE_RECEIPTS' &&
+        plainData.ack_messages &&
+        plainData.ack_messages.length > 0
+      ) {
         plainData.ack_messages.forEach(item => {
           this.makeMessageStatus(item.status, item.message_id)
         })
@@ -760,7 +766,9 @@ class ReceiveWorker extends BaseWorker {
       return
     }
     if (
-      moment().subtract(1, 'minute').isAfter(createdAt)
+      moment()
+        .subtract(1, 'minute')
+        .isAfter(createdAt)
     ) {
       return
     }

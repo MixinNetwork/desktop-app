@@ -7,7 +7,10 @@ module.exports = {
   rules: {
     'no-console': 'off',
     'no-debugger': 'off',
-    'space-before-function-paren': 0
+    'generator-star-spacing': 'off',
+    'space-before-function-paren': 'off',
+    'eol-last': 'off',
+    'object-curly-newline': ['error', { ExportDeclaration: { multiline: true, minProperties: 3 } }]
   },
   parserOptions: {
     parser: 'babel-eslint'

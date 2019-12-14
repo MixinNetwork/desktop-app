@@ -326,7 +326,7 @@ export default {
             goDone = true
             list.scrollTop = divideDom.offsetTop - 60
           }
-        }, 50)
+        }, 10)
       }
       action(beforeScrollTop)
     },

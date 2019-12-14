@@ -15,6 +15,7 @@
       class="messages"
       v-show="conversation"
       ref="messagesUl"
+      :style="showMessages ? '' : 'opacity: 0'"
       @dragenter="onDragEnter"
       @drop="onDrop"
       @dragover="onDragOver"
@@ -149,12 +150,14 @@ export default {
       forwardList: false,
       currentUnreadNum: 0,
       beforeUnseenMessageCount: 0,
-      oldMsgLen: 0
+      oldMsgLen: 0,
+      showMessages: true
     }
   },
   watch: {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+        this.showMessages = false
         this.$refs.infiniteUp.stateChanger.reset()
         this.$refs.infiniteDown.stateChanger.reset()
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
@@ -266,19 +269,17 @@ export default {
         document.execCommand('insertText', false, text)
       }
     }
-    const goBottom = this.goBottom
-    const goUnreadPos = this.goUnreadPos
     messageBox.bindData(
       function(messages) {
         self.messages = messages
       },
       function(force) {
         if (self.isBottom) {
-          goBottom()
+          self.goBottom()
         }
         if (force) {
-          goBottom()
-          goUnreadPos()
+          self.goBottom()
+          self.goUnreadPos()
         }
         setTimeout(() => {
           const newMsgLen = self.messages.length
@@ -289,6 +290,7 @@ export default {
             self.currentUnreadNum += newMsgLen - self.oldMsgLen
           }
           self.oldMsgLen = newMsgLen
+          self.showMessages = true
         })
       }
     )

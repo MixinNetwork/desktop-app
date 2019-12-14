@@ -158,7 +158,6 @@ export default {
         this.$refs.infiniteUp.stateChanger.reset()
         this.$refs.infiniteDown.stateChanger.reset()
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-        messageBox.setConversationId(newC.conversationId, this.conversation.unseenMessageCount)
         this.messages = messageBox.messages
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)

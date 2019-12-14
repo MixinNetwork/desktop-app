@@ -1,7 +1,5 @@
 import messageDao from '@/dao/message_dao.js'
-import {
-  PerPageMessageCount
-} from '@/utils/constants.js'
+import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageBox {
   setConversationId(conversationId, unseenMessageCount) {
@@ -65,7 +63,7 @@ class MessageBox {
     }
   }
   nextPage(direction) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       let data = []
       if (direction === 'down') {
         if (this.pageDown > 0) {

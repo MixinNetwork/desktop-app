@@ -246,30 +246,34 @@ export default class BaseWorker {
     if (conversation.category === 'GROUP') {
       this.syncConversation(conversation)
     } else {
-      await this.checkConversationExist(conversation)
+      await this.createConversation(conversation)
     }
   }
 
   async checkConversationExist(conversation) {
     if (conversation.status !== ConversationStatus.SUCCESS) {
-      const request = {
-        conversation_id: conversation.conversation_id,
-        category: conversation.category,
-        participants: [{ user_id: conversation.owner_id, role: '' }]
-      }
-      const response = await conversationApi.createContactConversation(request)
-      if (response && !response.error && response.data.data) {
-        conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
-        const participants = response.data.data.participant_sessions.map(item => {
-          return {
-            conversation_id: conversation.conversation_id,
-            user_id: item.user_id,
-            session_id: item.session_id,
-            created_at: new Date().toISOString()
-          }
-        })
-        participantSessionDao.replaceAll(conversation.conversation_id, participants)
-      }
+      await this.createConversation(conversation)
+    }
+  }
+
+  async createConversation(conversation) {
+    const request = {
+      conversation_id: conversation.conversation_id,
+      category: conversation.category,
+      participants: [{ user_id: conversation.owner_id, role: '' }]
+    }
+    const response = await conversationApi.createContactConversation(request)
+    if (response && !response.error && response.data.data) {
+      conversationDao.updateConversationStatusById(conversation.conversation_id, ConversationStatus.SUCCESS)
+      const participants = response.data.data.participant_sessions.map(item => {
+        return {
+          conversation_id: conversation.conversation_id,
+          user_id: item.user_id,
+          session_id: item.session_id,
+          created_at: new Date().toISOString()
+        }
+      })
+      participantSessionDao.replaceAll(conversation.conversation_id, participants)
     }
   }
 

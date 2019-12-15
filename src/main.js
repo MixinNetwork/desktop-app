@@ -8,6 +8,7 @@ import VueAxios from 'vue-axios'
 import Dialog from '@/components/dialog/Dialog.js'
 import Menu from '@/components/menu/Menu.js'
 import ImageViewer from '@/components/image-viewer/ImageViewer.js'
+import Scrollbar from '@/components/scrollbar/Scrollbar'
 import InfiniteLoading from 'vue-infinite-loading'
 import Toast from '@/components/toast/Toast.js'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -29,6 +30,7 @@ Vue.use(ImageViewer)
 Vue.use(InfiniteLoading, {
   system: { throttleLimit: 30 }
 })
+Vue.use(Scrollbar)
 
 Vue.axios.defaults.baseURL = API_URL.HTTP
 Vue.axios.defaults.headers.post['Content-Type'] = 'application/json'

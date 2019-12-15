@@ -53,6 +53,7 @@ body {
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   user-select: none;
   overflow: hidden;
+  font-size: 16px;
 }
 button {
   -webkit-app-region: no-drag;
@@ -121,7 +122,8 @@ ul {
   padding: 0;
   margin: 0;
 }
-audio, video {
+audio,
+video {
   outline: none;
 }
 </style>

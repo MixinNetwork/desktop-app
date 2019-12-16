@@ -46,7 +46,8 @@ export default {
     return {
       scrollBox: null,
       scrollThumb: null,
-      timeoutListener: null,
+      goBottomTimeout: null,
+      thumbShowTimeout: null,
       thumbTop: 0,
       thumbHeight: 25,
       thumbShow: false,
@@ -64,7 +65,8 @@ export default {
       this.thumbShowForce = false
       this.thumbShow = false
       this.thumbShowLock = true
-      setTimeout(() => {
+      clearTimeout(this.goBottomTimeout)
+      this.goBottomTimeout = setTimeout(() => {
         this.thumbShowForce = true
         this.thumbShowLock = false
       }, 500)
@@ -78,8 +80,8 @@ export default {
           this.thumbShow = true
         }
         if (this.thumbShow) {
-          clearTimeout(this.timeoutListener)
-          this.timeoutListener = setTimeout(() => {
+          clearTimeout(this.thumbShowTimeout)
+          this.thumbShowTimeout = setTimeout(() => {
             if (!this.thumbShowLock) {
               this.thumbShow = false
             }
@@ -91,7 +93,7 @@ export default {
         if (this.thumbHeight < 25) {
           this.thumbTop -= 25 - this.thumbHeight
         }
-        if (this.thumbTop < 0) {
+        if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
           this.thumbTop = 0
         }
       }

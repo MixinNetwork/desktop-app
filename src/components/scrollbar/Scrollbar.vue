@@ -87,9 +87,6 @@ export default {
         }
         this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
         let maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
-        if (maxScrollTop > 30000) {
-          maxScrollTop = 30000
-        }
         this.thumbTop = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
         if (this.thumbHeight < 25) {
           this.thumbTop -= 25 - this.thumbHeight

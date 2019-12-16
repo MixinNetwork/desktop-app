@@ -16,12 +16,16 @@
       </header>
       <div class="participants" v-if="!isContact">
         <span class="title">{{participantTitle}}</span>
-        <UserItem
-          class="participant"
-          v-for="user in conversation.participants"
-          :key="user.user_id"
-          :user="user"
-        ></UserItem>
+        <mixin-scrollbar>
+          <div class="ul">
+            <UserItem
+              class="participant"
+              v-for="user in conversation.participants"
+              :key="user.user_id"
+              :user="user"
+            ></UserItem>
+          </div>
+        </mixin-scrollbar>
       </div>
     </div>
   </div>

@@ -2,7 +2,7 @@
   <main>
     <div class="group">
       <div class="bar">
-        <font-awesome-icon class="back" icon="arrow-left" @click="$emit('back')"/>
+        <font-awesome-icon class="back" icon="arrow-left" @click="$emit('back')" />
         <h3>{{$t('group.group_add')}}</h3>
       </div>
       <div class="select_layout" v-if="slected && slected.length>0">
@@ -15,9 +15,16 @@
         ></UserSelectItem>
       </div>
       <search class="nav" @input="onInput"></search>
-      <ul class="list">
-        <UserItem v-for="(user,key) in unSlected" :key="key" :user="user" @user-click="onClickUser"></UserItem>
-      </ul>
+      <mixin-scrollbar>
+        <ul class="list">
+          <UserItem
+            v-for="(user,key) in unSlected"
+            :key="key"
+            :user="user"
+            @user-click="onClickUser"
+          ></UserItem>
+        </ul>
+      </mixin-scrollbar>
       <font-awesome-icon
         class="create"
         icon="arrow-right"
@@ -28,11 +35,11 @@
     <transition name="slide-right">
       <div class="overlay" id="group" v-if="groupShow">
         <div class="bar">
-          <font-awesome-icon class="back" icon="arrow-left" @click="hideGroup"/>
+          <font-awesome-icon class="back" icon="arrow-left" @click="hideGroup" />
           <h3>{{$t('group.group_new_title')}}</h3>
         </div>
         <div class="inputbox">
-          <input type="text" v-model="title" required>
+          <input type="text" v-model="title" required />
           <label>{{$t('group.group_new_name')}}</label>
         </div>
         <font-awesome-icon

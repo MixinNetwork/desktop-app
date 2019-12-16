@@ -1,14 +1,11 @@
 <template>
   <div class="navigation">
     <div class="root">
-      <div
-        class="header"
-        :style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}"
-      >
-        <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile"/>
+      <div class="header" :style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}">
+        <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile" />
         <div class="action_bar">
           <div id="edit" @click="showConveresation">
-            <ICEdit/>
+            <ICEdit />
           </div>
           <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
         </div>
@@ -22,42 +19,45 @@
       </div>
       <search class="nav" @input="onInput"></search>
       <h5 v-if="Object.keys(conversations).length==0">{{$t('conversation.empty')}}</h5>
-      <ul
-        class="conversations"
-        v-show="conversations && !(searchResult.contact||searchResult.group)"
-      >
-        <ConversationItem
-          v-for="conversation in conversations"
-          :key="conversation.conversationId"
-          :conversation="conversation"
-          :class="{active:currentConversationId === conversation.conversationId}"
-          @item-click="onConversationClick"
-          @item-more="openMenu"
-          @item-menu-click="openDownMenu"
-        />
-      </ul>
-      <ul class="conversations" v-show="searchResult.contact||searchResult.chats">
-        <span
-          class="listheader"
-          v-show="searchResult.chats && searchResult.chats.length > 0"
-        >{{$t('chat.chat_chats')}}</span>
-        <ChatItem
-          v-for="chat in searchResult.chats"
-          :key="chat.conversationId"
-          :chat="chat"
-          @item-click="onSearchGroupClick"
-        ></ChatItem>
-        <span
-          class="listheader"
-          v-show="searchResult.contact && searchResult.contact.length > 0"
-        >{{$t('chat.chat_contact')}}</span>
-        <UserItem
-          v-for="user in searchResult.contact"
-          :key="user.user_id"
-          :user="user"
-          @user-click="onSearchUserClick"
-        ></UserItem>
-      </ul>
+
+      <mixin-scrollbar>
+        <ul
+          class="conversations"
+          v-show="conversations && !(searchResult.contact||searchResult.group)"
+        >
+          <ConversationItem
+            v-for="conversation in conversations"
+            :key="conversation.conversationId"
+            :conversation="conversation"
+            :class="{active:currentConversationId === conversation.conversationId}"
+            @item-click="onConversationClick"
+            @item-more="openMenu"
+            @item-menu-click="openDownMenu"
+          />
+        </ul>
+        <ul class="conversations" v-show="searchResult.contact||searchResult.chats">
+          <span
+            class="listheader"
+            v-show="searchResult.chats && searchResult.chats.length > 0"
+          >{{$t('chat.chat_chats')}}</span>
+          <ChatItem
+            v-for="chat in searchResult.chats"
+            :key="chat.conversationId"
+            :chat="chat"
+            @item-click="onSearchGroupClick"
+          ></ChatItem>
+          <span
+            class="listheader"
+            v-show="searchResult.contact && searchResult.contact.length > 0"
+          >{{$t('chat.chat_contact')}}</span>
+          <UserItem
+            v-for="user in searchResult.contact"
+            :key="user.user_id"
+            :user="user"
+            @user-click="onSearchUserClick"
+          ></UserItem>
+        </ul>
+      </mixin-scrollbar>
     </div>
     <transition name="slide-left">
       <NewConversation
@@ -400,8 +400,9 @@ export default {
     display: flex;
     flex-direction: column;
     .conversations {
-      overflow: auto;
-      flex: 1 0 0;
+      flex: 1;
+      height: 100%;
+      overflow-x: hidden;
       .active {
         background: #e9ebeb;
       }

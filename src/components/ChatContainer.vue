@@ -354,7 +354,11 @@ export default {
     infiniteScroll($state, direction) {
       messageBox.nextPage(direction).then(messages => {
         if (messages) {
-          this.messages.unshift(...messages)
+          if (direction === 'down') {
+            this.messages.push(...messages)
+          } else {
+            this.messages.unshift(...messages)
+          }
           this.oldMsgLen += messages.length
           if (!$state) return
           $state.loaded()

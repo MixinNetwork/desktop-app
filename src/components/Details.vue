@@ -79,11 +79,11 @@ export default {
 </script>
 <style lang="scss" scoped>
 #delails_root {
-  background: #f6f6f6;
+  background: #f5f7fa;
   display: flex;
   flex-flow: column nowrap;
   .title_bar {
-    background: #ededed;
+    background: #ffffff;
     height: 3.6rem;
     display: flex;
     align-items: center;

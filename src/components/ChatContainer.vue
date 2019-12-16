@@ -629,13 +629,13 @@ export default {
 
   header {
     background: white;
-    border-bottom: 1px solid #d7d0cb;
+    border-bottom: 1px solid $border-color;
     padding: 0rem 1rem;
     display: flex;
     height: 3.6rem;
     box-sizing: border-box;
     align-items: center;
-    background: #ededed;
+    background: #ffffff;
     .title {
       box-sizing: border-box;
       flex: 1;

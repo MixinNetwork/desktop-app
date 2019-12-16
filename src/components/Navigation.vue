@@ -388,7 +388,7 @@ export default {
 <style lang="scss" scoped>
 .navigation {
   background: white;
-  border-right: 1px solid $border-color;
+  border-right: 1px solid #dee2e9;
   flex: 0 0 18rem;
   display: flex;
   height: 100vh;
@@ -403,9 +403,6 @@ export default {
       flex: 1;
       height: 100%;
       overflow-x: hidden;
-      .active {
-        background: #e9ebeb;
-      }
       .listheader {
         display: block;
         padding-left: 16px;
@@ -417,8 +414,7 @@ export default {
       }
     }
     .header {
-      background: #ededed;
-      border-bottom: 1px solid #fbfbfb;
+      background: #ffffff;
       height: 3.6rem;
       display: flex;
       flex-direction: row;

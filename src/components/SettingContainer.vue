@@ -1,11 +1,11 @@
 <template>
   <div class="group">
     <div class="bar">
-      <font-awesome-icon class="back" icon="arrow-left" @click="$emit('setting-back')"/>
+      <font-awesome-icon class="back" icon="arrow-left" @click="$emit('setting-back')" />
       <h3>{{$t('setting.title')}}</h3>
     </div>
     <div class="layout">
-      <img src="../assets/ic_logo.webp" id="avatar">
+      <img src="../assets/ic_logo.webp" id="avatar" />
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
@@ -53,14 +53,13 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  background: #f7f7f7;
+  background: #f5f7fa;
   .bar {
     padding-top: 60px;
     width: 100%;
     display: flex;
     height: 60px;
-    color: white;
-    background: #2cbda5;
+    background: #ffffff;
     align-items: center;
     flex-flow: row nowrap;
     .back {
@@ -91,7 +90,7 @@ export default {
     .item {
       font-weight: 500;
       padding: 16px;
-      border-bottom: 1px solid #f2f2f2;
+      border-bottom: 1px solid $border-color;
       &:hover,
       &.current {
         background: #f1f2f2;

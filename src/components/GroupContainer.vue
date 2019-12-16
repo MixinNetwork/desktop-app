@@ -118,7 +118,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 main {
-  background: #f7f7f7;
+  background: #f5f7fa;
   .group {
     display: flex;
     flex-flow: column nowrap;
@@ -127,9 +127,8 @@ main {
       padding-top: 60px;
       width: 100%;
       display: flex;
-      background: #2cbda5;
+      background: #ffffff;
       height: 60px;
-      color: white;
       align-items: center;
       flex-flow: row nowrap;
       .back {
@@ -140,7 +139,7 @@ main {
       }
     }
     .nav {
-      border-bottom: 1px solid #f2f2f2;
+      border-bottom: 1px solid $border-color;
       padding: 0.45rem 0.75rem;
       display: flex;
       align-items: center;
@@ -159,7 +158,7 @@ main {
     .create {
       width: 28px;
       height: 28px;
-      background: #35e27e;
+      background: #397ee4;
       color: white;
       padding: 12px;
       border-radius: 28px;
@@ -216,7 +215,7 @@ main {
     .create {
       width: 28px;
       height: 28px;
-      background: #35e27e;
+      background: #397ee4;
       color: white;
       padding: 12px;
       border-radius: 28px;
@@ -233,12 +232,12 @@ main {
     height: 100%;
     display: flex;
     flex-flow: column nowrap;
-    background: #f7f7f7;
+    background: #f5f7fa;
     .bar {
       padding-top: 60px;
       width: 100%;
       display: flex;
-      background: #2cbda5;
+      background: #ffffff;
       height: 60px;
       color: white;
       align-items: center;

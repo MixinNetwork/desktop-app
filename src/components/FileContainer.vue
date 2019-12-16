@@ -5,14 +5,14 @@
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
-      <img class="image" :src="getPath()" v-if="showImage">
+      <img class="image" :src="getPath()" v-if="showImage" />
       <div class="file" v-else>
         <ICFile></ICFile>
         <span class="info">{{fileName}}</span>
       </div>
     </div>
     <p v-show="dragging" class="cover">{{$t('drag_file')}}</p>
-    <font-awesome-icon class="create" icon="arrow-right" @click="$emit('sendFile')"/>
+    <font-awesome-icon class="create" icon="arrow-right" @click="$emit('sendFile')" />
   </div>
 </template>
 
@@ -103,11 +103,10 @@ export default {
 
   .header {
     padding: 16px;
-    background: #2cbda5;
+    background: #ffffff;
     display: flex;
     pointer-events: all;
     label {
-      color: white;
       font-weight: 600;
       font-size: 18px;
       margin-left: 16px;
@@ -117,7 +116,7 @@ export default {
   .create {
     width: 28px;
     height: 28px;
-    background: #35e27e;
+    background: #397ee4;
     color: white;
     padding: 12px;
     border-radius: 28px;

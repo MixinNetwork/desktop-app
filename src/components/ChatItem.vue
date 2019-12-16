@@ -1,10 +1,10 @@
 <template>
   <li class="user_item_layout" @click="$emit('item-click',chat)">
-    <Avatar class="user_item_avatar" :conversation="chat"/>
+    <Avatar class="user_item_avatar" :conversation="chat" />
     <slot name="check"></slot>
     <p class="user_name">
       {{chat.groupName || chat.name}}
-      <ICRobot v-if="chat.appId"/>
+      <ICRobot v-if="chat.appId" />
     </p>
   </li>
 </template>
@@ -34,7 +34,7 @@ export default {
     background: #f1f2f2;
   }
   border: none;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid $border-color;
 
   background: white;
 

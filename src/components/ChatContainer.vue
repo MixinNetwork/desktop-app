@@ -63,6 +63,9 @@
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
+        <div @click="dragging = true">
+          <ICAttach style="margin-top: 4px" />
+        </div>
         <div class="editable">
           <div
             class="box"
@@ -74,7 +77,7 @@
         </div>
         <!-- <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/> -->
         <div @click="sendMessage">
-          <ICSend></ICSend>
+          <ICSend />
         </div>
       </div>
     </div>
@@ -126,6 +129,7 @@ import moment from 'moment'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
 import ICSend from '../assets/images/ic_send.svg'
+import ICAttach from '../assets/images/ic_attach.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
@@ -228,6 +232,7 @@ export default {
     ICBot,
     ICChevronDown,
     ICSend,
+    ICAttach,
     ReplyMessageContainer
   },
   computed: {
@@ -404,6 +409,7 @@ export default {
       this.dragging = false
     },
     sendFile() {
+      if (!this.file) return
       let size = this.file.size
       if (size / 1000 > 30000) {
         this.$toast(this.$t('chat.chat_file_invalid_size'))
@@ -425,6 +431,7 @@ export default {
           mediaMimeType: mimeType,
           category: category
         }
+        console.log(message, message.thumbImage)
         this.$store.dispatch('sendAttachmentMessage', message)
         this.goBottom()
       }
@@ -709,6 +716,7 @@ export default {
         padding: 0.45rem 0.6rem;
         font-size: 1rem;
         min-height: 1.4rem;
+        line-height: 1.3rem;
         color: black;
         border: none;
         outline: none;
@@ -805,10 +813,11 @@ export default {
 
   .media {
     position: absolute;
-    height: 100%;
+    height: calc(100% - 3.6rem);
     left: 18rem;
     border-left: 1px solid $border-color;
     right: 0;
+    bottom: 0;
     pointer-events: none;
   }
 

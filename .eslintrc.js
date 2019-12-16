@@ -8,7 +8,7 @@ module.exports = {
     'no-console': 'off',
     'no-debugger': 'off',
     'generator-star-spacing': 'off',
-    'space-before-function-paren': 'off',
+    'space-before-function-paren': ['error', 'always'],
     'eol-last': 'off',
     'object-curly-newline': ['error', { ExportDeclaration: { multiline: true, minProperties: 3 } }]
   },

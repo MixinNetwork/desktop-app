@@ -15,9 +15,16 @@
         ></UserSelectItem>
       </div>
       <search class="nav" @input="onInput"></search>
-      <ul class="list">
-        <UserItem v-for="(user,key) in unSlected" :key="key" :user="user" @user-click="onClickUser"></UserItem>
-      </ul>
+      <mixin-scrollbar>
+        <ul class="list">
+          <UserItem
+            v-for="(user,key) in unSlected"
+            :key="key"
+            :user="user"
+            @user-click="onClickUser"
+          ></UserItem>
+        </ul>
+      </mixin-scrollbar>
       <font-awesome-icon
         class="create"
         icon="arrow-right"

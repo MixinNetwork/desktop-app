@@ -10,7 +10,7 @@
       v-show="thumbShowForce"
       :style="{
         opacity: thumbShow ? 1 : 0,
-        top: thumbTop + 'px',
+        transform: `translate3d(0, ${thumbTop}px, 0)`,
         height: thumbHeight + 'px'
       }"
     ></div>
@@ -48,7 +48,7 @@ export default {
       scrollThumb: null,
       timeoutListener: null,
       thumbTop: 0,
-      thumbHeight: 80,
+      thumbHeight: 25,
       thumbShow: false,
       thumbShowForce: true,
       thumbShowLock: false,
@@ -132,6 +132,9 @@ export default {
   },
   mounted() {
     this.scrollBox = this.$refs.scroll.querySelector('ul')
+    if (!this.scrollBox) {
+      this.scrollBox = this.$refs.scroll.querySelector('.ul')
+    }
     this.scrollThumb = this.$refs.scroll.querySelector('.scrollbar-thumb')
 
     this.scroll()
@@ -153,19 +156,26 @@ export default {
 
   overflow: auto;
   flex: 1 0 0;
+  & > ul,
+  & > .ul {
+    height: 100%;
+    overflow-x: hidden;
+  }
   &::-webkit-scrollbar,
-  ul::-webkit-scrollbar {
+  & > ul::-webkit-scrollbar,
+  & > .ul::-webkit-scrollbar {
     width: 0;
   }
   .scrollbar-thumb {
     position: absolute;
+    z-index: 9999;
     top: 0;
     right: 0;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     min-height: 25px;
     width: 6px;
-    transition: top 0.06s ease-out, width 0.15s, opacity 0.5s, height 0.75s;
+    transition: transform 0.05s ease-out, width 0.15s, opacity 0.5s, height 0.55s;
     &.dragging,
     &:hover {
       border-radius: 8px;

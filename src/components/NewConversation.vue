@@ -1,22 +1,24 @@
 <template>
   <div id="create">
     <div class="bar">
-      <font-awesome-icon class="back" icon="arrow-left" @click="$emit('conversation-back')"/>
+      <font-awesome-icon class="back" icon="arrow-left" @click="$emit('conversation-back')" />
       <h3>{{$t('chat.new_conversation')}}</h3>
     </div>
-    <Search class="nav" @input="onInput"/>
+    <Search class="nav" @input="onInput" />
     <div class="create" @click="$emit('newGroup')">
-      <img src="../assets/logo.png" class="avatar">
+      <img src="../assets/logo.png" class="avatar" />
       <h3>{{$t('group.group_new_title')}}</h3>
     </div>
-    <ul class="list">
-      <UserItem
-        v-for="user in currentFriends"
-        :key="user.user_id"
-        :user="user"
-        @user-click="$emit('user-click',user)"
-      />
-    </ul>
+    <mixin-scrollbar>
+      <ul class="list">
+        <UserItem
+          v-for="user in currentFriends"
+          :key="user.user_id"
+          :user="user"
+          @user-click="$emit('user-click',user)"
+        />
+      </ul>
+    </mixin-scrollbar>
   </div>
 </template>
 <script>

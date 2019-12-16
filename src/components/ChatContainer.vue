@@ -63,15 +63,17 @@
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div class="editable">
-          <div
-            class="box"
-            contenteditable="true"
-            :placeholder="$t('home.input')"
-            @keydown.enter="sendMessage"
-            ref="box"
-          ></div>
-        </div>
+        <mixin-scrollbar style="margin-right: .2rem">
+          <div class="ul editable">
+            <div
+              class="box"
+              contenteditable="true"
+              :placeholder="$t('home.input')"
+              @keydown.enter="sendMessage"
+              ref="box"
+            ></div>
+          </div>
+        </mixin-scrollbar>
         <!-- <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/> -->
         <div @click="sendMessage">
           <ICSend></ICSend>

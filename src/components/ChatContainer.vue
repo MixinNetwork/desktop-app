@@ -11,10 +11,9 @@
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
-    <mixin-scrollbar v-show="conversation" :goBottom="!showMessages">
+    <mixin-scrollbar v-if="conversation" :goBottom="!showMessages">
       <ul
         class="messages"
-        v-show="conversation"
         ref="messagesUl"
         :style="showMessages ? '' : 'opacity: 0'"
         @dragenter="onDragEnter"
@@ -160,8 +159,10 @@ export default {
     conversation: function(newC, oldC) {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.showMessages = false
-        this.$refs.infiniteUp.stateChanger.reset()
-        this.$refs.infiniteDown.stateChanger.reset()
+        if (this.$refs.infiniteUp) {
+          this.$refs.infiniteUp.stateChanger.reset()
+          this.$refs.infiniteDown.stateChanger.reset()
+        }
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         this.messages = messageBox.messages
         if (newC) {
@@ -307,7 +308,7 @@ export default {
         this.currentUnreadNum = 0
         this.infiniteDown()
       }
-      if (list.scrollTop < 400) {
+      if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
       }
     },

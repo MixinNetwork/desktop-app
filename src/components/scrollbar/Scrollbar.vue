@@ -74,20 +74,25 @@ export default {
     scroll() {
       const scrollBox = this.scrollBox
       scrollBox.onscroll = e => {
-        if (!this.thumbShowLock) {
+        if (!this.thumbShowLock && !this.thumbShow) {
           this.thumbShow = true
         }
-        clearTimeout(this.timeoutListener)
-        this.timeoutListener = setTimeout(() => {
-          if (!this.thumbShowLock) {
-            this.thumbShow = false
-          }
-        }, 1000)
+        if (this.thumbShow) {
+          clearTimeout(this.timeoutListener)
+          this.timeoutListener = setTimeout(() => {
+            if (!this.thumbShowLock) {
+              this.thumbShow = false
+            }
+          }, 1000)
+        }
         this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
-        const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
-        this.thumbTop = parseInt((scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop)
-        if (this.thumbHeight < 20) {
-          this.thumbTop -= 20 - this.thumbHeight
+        let maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
+        if (maxScrollTop > 30000) {
+          maxScrollTop = 30000
+        }
+        this.thumbTop = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
+        if (this.thumbHeight < 25) {
+          this.thumbTop -= 25 - this.thumbHeight
         }
         if (this.thumbTop < 0) {
           this.thumbTop = 0
@@ -158,7 +163,7 @@ export default {
     right: 0;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 5px;
-    min-height: 20px;
+    min-height: 25px;
     width: 6px;
     transition: top 0.06s ease-out, width 0.15s, opacity 0.5s, height 0.75s;
     &.dragging,

@@ -112,6 +112,10 @@ export default {
     justify-content: flex-start;
     align-items: center;
     padding-right: 8px;
+    pointer-events: none;
+  }
+  .badge {
+    pointer-events: auto;
   }
 }
 </style>

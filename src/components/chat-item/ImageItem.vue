@@ -126,6 +126,7 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
+  cursor: zoom-in;
   .username {
     display: inline-block;
     font-size: 0.85rem;

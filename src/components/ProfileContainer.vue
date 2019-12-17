@@ -46,7 +46,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 main {
-  background: #f7f7f7;
+  background: #f5f7fa;
   .group {
     display: flex;
     flex-flow: column nowrap;
@@ -56,9 +56,8 @@ main {
       padding-top: 60px;
       width: 100%;
       display: flex;
-      background: #2cbda5;
+      background: #ffffff;
       height: 60px;
-      color: white;
       align-items: center;
       flex-flow: row nowrap;
       .back {
@@ -84,7 +83,7 @@ main {
       display: flex;
       flex-direction: column;
       a {
-        color: #268b7d;
+        color: #333;
         margin-left: 20px;
         margin-right: 20px;
         font-weight: bold;
@@ -92,7 +91,6 @@ main {
       label {
         margin-top: 10px;
         margin-left: 20px;
-        font-weight: bold;
         user-select: text;
       }
     }

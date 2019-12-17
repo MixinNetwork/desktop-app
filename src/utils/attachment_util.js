@@ -1,5 +1,5 @@
 import attachmentApi from '@/api/attachment'
-import { remote } from 'electron'
+import { remote, nativeImage } from 'electron'
 import { MimeType } from '@/utils/constants'
 import uuidv4 from 'uuid/v4'
 import fs from 'fs'
@@ -92,6 +92,17 @@ function toArrayBuffer (buf) {
   }
   return ab
 }
+function base64Thumbnail (url, width, height) {
+  let image = nativeImage.createFromPath(url)
+  if (width > height) {
+    image = image.resize({ width: 48, height: height / (width / 48), quality: 'good' })
+  } else {
+    image = image.resize({ width: width / (height / 48), height: 48, quality: 'good' })
+  }
+  let base64str = image.toPNG().toString('base64')
+
+  return base64str
+}
 export async function putAttachment (imagePath, mimeType, category, id, processCallback, sendCallback, errorCallback) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
   var mediaWidth = null
@@ -101,8 +112,9 @@ export async function putAttachment (imagePath, mimeType, category, id, processC
     const dimensions = sizeOf(localPath)
     mediaWidth = dimensions.width
     mediaHeight = dimensions.height
-    thumbImage =
-      'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
+    thumbImage = base64Thumbnail(localPath, mediaWidth, mediaHeight)
+    // thumbImage =
+    //   'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
   }
   var buffer = fs.readFileSync(localPath)
   var key

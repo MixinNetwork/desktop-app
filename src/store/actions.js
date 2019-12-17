@@ -11,14 +11,14 @@ import jobDao from '@/dao/job_dao'
 import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } from '@/utils/attachment_util.js'
 import appDao from '@/dao/app_dao'
 
-function markRead(conversationId) {
+function markRead (conversationId) {
   messageDao.findUnreadMessage(conversationId).forEach(function (item, index) {
     updateRemoteMessageStatus(conversationId, item.message_id, MessageStatus.READ)
   })
   messageDao.markRead(conversationId)
 }
 
-async function refreshConversation(conversationId, callback) {
+async function refreshConversation (conversationId, callback) {
   const c = await conversationApi.getConversation(conversationId)
   if (c.data.data) {
     const conversation = c.data.data
@@ -50,7 +50,7 @@ async function refreshConversation(conversationId, callback) {
     await syncUser(ownerId)
   }
 }
-async function refreshParticipants(conversationId, participants, callback) {
+async function refreshParticipants (conversationId, participants, callback) {
   const local = participantDao.getParticipants(conversationId)
   const localIds = local.map(function (item) {
     return item.user_id
@@ -91,7 +91,7 @@ async function refreshParticipants(conversationId, participants, callback) {
   }
 }
 
-async function syncUser(userId) {
+async function syncUser (userId) {
   let user = userDao.findUserById(userId)
   if (!user) {
     const response = await userApi.getUserById(userId)
@@ -104,14 +104,14 @@ async function syncUser(userId) {
   return user
 }
 
-async function fetchUsers(users) {
+async function fetchUsers (users) {
   const resp = await userApi.getUsers(users)
   if (resp.data.data) {
     userDao.insertUsers(resp.data.data)
   }
 }
 
-function updateRemoteMessageStatus(conversationId, messageId, status) {
+function updateRemoteMessageStatus (conversationId, messageId, status) {
   const blazeMessage = { message_id: messageId, status: status }
   jobDao.insert({
     job_id: uuidv4(),

@@ -213,12 +213,14 @@ export default {
 $light-font-color: #aaa;
 li.conversation.item {
   cursor: pointer;
-  border-bottom: 1px solid #f2f2f2;
   display: flex;
   align-items: stretch;
   padding: 0.8rem 0.8rem;
   &:hover,
   &.current {
+    background: #f7f7f7;
+  }
+  &.active {
     background: #f1f2f2;
   }
   #avatar {

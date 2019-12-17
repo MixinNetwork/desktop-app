@@ -1,9 +1,9 @@
 <template>
   <li class="user_item_layout" @click="$emit('user-click',user)">
-    <Avatar class="user_item_avatar" :user="user"/>
+    <Avatar class="user_item_avatar" :user="user" />
     <p class="user_name">
       {{user.full_name}}
-      <ICRobot v-if="user.app_id"/>
+      <ICRobot v-if="user.app_id" />
     </p>
   </li>
 </template>
@@ -33,7 +33,7 @@ export default {
     background: #f1f2f2;
   }
   border: none;
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid $border-color;
 
   background: white;
 

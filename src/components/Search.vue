@@ -1,12 +1,12 @@
 <template>
-  <div class="search" :style="{ background: searchColor}">
+  <div class="search">
     <div class="layout" :style="layoutStyle">
       <div class="icon" @click="back">
         <transition name="fade-rote">
-          <font-awesome-icon icon="arrow-left" id="ic_arrow" v-show="focus"/>
+          <font-awesome-icon icon="arrow-left" id="ic_arrow" v-show="focus" />
         </transition>
         <transition name="fade">
-          <font-awesome-icon icon="search" id="ic_search" v-show="!focus"/>
+          <font-awesome-icon icon="search" id="ic_search" v-show="!focus" />
         </transition>
       </div>
       <keep-alive>
@@ -18,7 +18,7 @@
           @focus="onFocus"
           @blur="onBlur"
           @input="$emit('input', $event.target.value)"
-        >
+        />
       </keep-alive>
     </div>
   </div>
@@ -46,30 +46,27 @@ export default {
     focus: function(newFocus, oldFocus) {
       if (newFocus) {
         this.searchColor = '#FFFFFF'
-        this.layoutStyle['border-color'] = '#FFFFFF'
+        this.layoutStyle['border-color'] = '#cccccc'
       } else {
         this.searchColor = '#FBFBFB'
-        this.layoutStyle['border-color'] = '#F6F6F6'
+        this.layoutStyle['border-color'] = '#f5f7fa'
       }
     }
   },
   data() {
     return {
       focus: false,
-      searchColor: '#FBFBFB',
       layoutStyle: {
         width: '100%',
         display: 'flex',
+        background: '#f5f7fa',
         'align-items': 'center',
         'padding-left': '16px',
         'padding-right': '16px',
         'padding-top': '8px',
         'padding-bottom': '8px',
-        border: '2px solid',
-        'border-color': '#F6F6F6',
         'border-width': '1px',
-        'border-radius': '4px',
-        background: 'white'
+        'border-radius': '20px'
       }
     }
   }
@@ -83,6 +80,9 @@ export default {
   border: none;
   flex-grow: 19;
   font-size: 1rem;
+  &::-webkit-input-placeholder {
+    color: #bbbec3;
+  }
 }
 
 .icon {
@@ -92,10 +92,16 @@ export default {
   width: 18px;
   height: 18px;
 }
+.layout {
+  input {
+    background: transparent;
+  }
+}
 
 #ic_arrow,
 #ic_search {
   position: absolute;
+  color: #bbbec3;
 }
 .fade-rote-enter-active,
 .fade-rote-leave-active {

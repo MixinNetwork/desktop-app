@@ -1,18 +1,23 @@
 <template>
   <div class="file_layout">
     <div class="header" @click="$emit('onClose')">
-      <ICClose></ICClose>
+      <ICClose />
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
-      <img class="image" :src="getPath()" v-if="showImage">
+      <img class="image" :src="getPath()" v-if="showImage" />
       <div class="file" v-else>
-        <ICFile></ICFile>
+        <ICFile />
         <span class="info">{{fileName}}</span>
       </div>
     </div>
     <p v-show="dragging" class="cover">{{$t('drag_file')}}</p>
-    <font-awesome-icon class="create" icon="arrow-right" @click="$emit('sendFile')"/>
+    <font-awesome-icon
+      class="create"
+      :class="{disabled: dragging}"
+      icon="arrow-right"
+      @click="$emit('sendFile')"
+    />
   </div>
 </template>
 
@@ -57,7 +62,7 @@ export default {
 
 <style lang="scss" scoped>
 .file_layout {
-  background: #e5e5e5;
+  background: #fff;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -83,51 +88,50 @@ export default {
     }
   }
   .cover {
-    border: black;
-    width: 60vw;
-    height: 60vw;
+    margin: 0;
     position: absolute;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 60vw;
-    margin-top: auto;
-    margin-bottom: auto;
-    text-align: center;
-    left: 0;
-    font-size: 1.6rem;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    border-style: dashed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    top: 3.6rem;
+    left: 16px;
+    right: 16px;
+    bottom: 96px;
+    font-size: 20px;
+    background: #f5f7fa;
+    border-radius: 10px;
+    border: 1px dashed #c0cfe6;
   }
-
   .header {
     padding: 16px;
-    background: #2cbda5;
     display: flex;
     pointer-events: all;
     label {
-      color: white;
       font-weight: 600;
       font-size: 18px;
-      margin-left: 16px;
+      margin-left: 6px;
     }
   }
 
   .create {
     width: 28px;
     height: 28px;
-    background: #35e27e;
+    background: #397ee4;
     color: white;
     padding: 12px;
     border-radius: 28px;
     position: absolute;
-    bottom: 48px;
+    bottom: 24px;
     left: 0;
     right: 0;
     margin: auto;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     pointer-events: all;
+    &.disabled {
+      background: #e5e7ec;
+      box-shadow: none;
+    }
   }
 }
 </style>

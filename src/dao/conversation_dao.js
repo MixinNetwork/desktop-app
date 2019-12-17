@@ -47,7 +47,7 @@ class ConversationDao {
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
           'c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
-          'c.unseen_message_count AS unseenMessageCount, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
+          'c.unseen_message_count AS unseenMessageCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId, ' +
           'm.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl, ' +
@@ -85,11 +85,13 @@ class ConversationDao {
   }
 
   getConversationsByUserId(userId) {
-    return db.prepare(
-      'select c.conversation_id from conversations c inner join users u on c.owner_id = u.user_id ' +
-      'left join participants p on p.conversation_id = c.conversation_id ' +
-      'where p.user_id = ? AND u.app_id IS NULL'
-    ).all(userId)
+    return db
+      .prepare(
+        'select c.conversation_id from conversations c inner join users u on c.owner_id = u.user_id ' +
+          'left join participants p on p.conversation_id = c.conversation_id ' +
+          'where p.user_id = ? AND u.app_id IS NULL'
+      )
+      .all(userId)
   }
 
   updateConversationStatusById(conversationId, status) {
@@ -129,7 +131,8 @@ class ConversationDao {
   }
 
   indexUnread(conversationId) {
-    return db.prepare('SELECT unseen_message_count FROM conversations WHERE conversation_id = ?').get(conversationId).unseen_message_count
+    return db.prepare('SELECT unseen_message_count FROM conversations WHERE conversation_id = ?').get(conversationId)
+      .unseen_message_count
   }
 }
 

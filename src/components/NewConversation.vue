@@ -73,7 +73,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 #create {
-  background: #f6f6f6;
+  background: #f5f7fa;
   display: flex;
   flex-direction: column;
   .list {
@@ -83,8 +83,7 @@ export default {
 }
 
 .bar {
-  background: #2cbda5;
-  color: white;
+  background: #ffffff;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -100,7 +99,7 @@ export default {
 }
 
 .nav {
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid $border-color;
   padding: 0.45rem 0.75rem;
   display: flex;
   align-items: center;
@@ -121,6 +120,6 @@ export default {
   &.current {
     background: #f1f2f2;
   }
-  border-bottom: 1px solid #f2f2f2;
+  border-bottom: 1px solid $border-color;
 }
 </style>

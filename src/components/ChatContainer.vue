@@ -63,9 +63,9 @@
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div class="attachment">
+        <div class="attachment" @click="chooseAttachment">
+          <input type="file" ref="attachmentInput" @change="chooseAttachmentDone" />
           <ICAttach style="margin-top: 3px" />
-          <input type="file" @change="chooseAttachment" />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -324,7 +324,10 @@ export default {
         this.infiniteUp()
       }
     },
-    chooseAttachment(event) {
+    chooseAttachment() {
+      this.$refs.attachmentInput.click()
+    },
+    chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
     goUnreadPos() {
@@ -722,12 +725,9 @@ export default {
       .attachment {
         position: relative;
         input {
-          opacity: 0;
           position: absolute;
-          left: 0;
-          padding: 0;
-          width: 20px;
-          height: 24px;
+          opacity: 0;
+          z-index: -1;
         }
       }
     }

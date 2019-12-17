@@ -14,14 +14,8 @@
           </div>
           <span class="name">{{name}}</span>
           <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
-          <div
-            v-if="conversation.announcement"
-            class="announcement"
-          >{{$t('profile.announcement')}}: {{conversation.announcement}}</div>
-          <div
-            v-if="conversation.biography"
-            class="biography"
-          >{{$t('profile.user_biography')}}: {{conversation.biography}}</div>
+          <div v-if="conversation.announcement" class="announcement">{{conversation.announcement}}</div>
+          <div v-if="conversation.biography" class="biography">{{conversation.biography}}</div>
         </header>
         <div class="participants" v-if="!isContact">
           <span class="title">{{participantTitle}}</span>

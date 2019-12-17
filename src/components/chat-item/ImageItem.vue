@@ -145,6 +145,7 @@ export default {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
+    cursor: zoom-in;
     .loading {
       width: 32px;
       height: 32px;

@@ -103,7 +103,8 @@ class SendWorker extends BaseWorker {
       category: message.category,
       data: data,
       quote_message_id: message.quote_message_id,
-      conversation_checksum: this.getCheckSum(message.conversation_id)
+      conversation_checksum: this.getCheckSum(message.conversation_id),
+      session_id: message.resend_session_id
     }
     const blazeMessage = {
       id: uuidv4(),

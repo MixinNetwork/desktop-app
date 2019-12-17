@@ -63,8 +63,9 @@
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div @click="dragging = true">
+        <div class="attachment">
           <ICAttach style="margin-top: 3px" />
+          <input type="file" @change="chooseAttachment" />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -322,6 +323,9 @@ export default {
       if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
       }
+    },
+    chooseAttachment(event) {
+      this.file = event.target.files[0]
     },
     goUnreadPos() {
       let goDone = false
@@ -715,6 +719,17 @@ export default {
       display: flex;
       align-items: center;
       padding: 0.4rem 0.6rem;
+      .attachment {
+        position: relative;
+        input {
+          opacity: 0;
+          position: absolute;
+          left: 0;
+          padding: 0;
+          width: 20px;
+          height: 24px;
+        }
+      }
     }
     .editable {
       max-height: 150px;
@@ -821,7 +836,7 @@ export default {
 
   .media {
     position: absolute;
-    height: calc(100% - 3.6rem);
+    height: 100%;
     left: 18rem;
     border-left: 1px solid $border-color;
     right: 0;

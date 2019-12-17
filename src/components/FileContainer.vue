@@ -73,9 +73,11 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    height: 100%;
     .image {
       max-width: 80%;
       max-height: 80%;
+      margin-bottom: 10%;
     }
     .file {
       display: flex;

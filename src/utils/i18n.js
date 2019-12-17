@@ -110,7 +110,9 @@ let transactions = {
       title: 'Setting'
     },
     profile: {
-      title: 'Info'
+      title: 'Info',
+      announcement: 'Ann',
+      user_biography: 'Biography'
     },
     unread_message: 'Unread messages',
     today: 'Today',
@@ -235,7 +237,9 @@ let transactions = {
       title: '设置'
     },
     profile: {
-      title: '联系人资料'
+      title: '联系人资料',
+      announcement: '公告',
+      user_biography: '个人简介'
     },
     unread_message: '未读消息',
     today: '今天',

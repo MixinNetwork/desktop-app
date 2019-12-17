@@ -18,6 +18,10 @@
             v-if="conversation.announcement"
             class="announcement"
           >{{$t('profile.announcement')}}: {{conversation.announcement}}</div>
+          <div
+            v-if="conversation.biography"
+            class="biography"
+          >{{$t('profile.user_biography')}}: {{conversation.biography}}</div>
         </header>
         <div class="participants" v-if="!isContact">
           <span class="title">{{participantTitle}}</span>
@@ -116,6 +120,7 @@ export default {
         height: 160px;
         margin-top: 32px;
         margin-bottom: 32px;
+        font-size: 32px;
       }
       .name {
         font-weight: 500;

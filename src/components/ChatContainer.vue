@@ -64,7 +64,7 @@
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
         <div @click="dragging = true">
-          <ICAttach style="margin-top: 4px" />
+          <ICAttach style="margin-top: 3px" />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -347,7 +347,6 @@ export default {
       action(beforeScrollTop)
     },
     goBottom() {
-      this.showMessages = false
       setTimeout(() => {
         this.showMessages = true
         this.currentUnreadNum = 0
@@ -359,6 +358,7 @@ export default {
     },
     goBottomClick() {
       if (this.beforeUnseenMessageCount > PerPageMessageCount || this.messages.length > 300) {
+        this.showMessages = false
         messageBox.refreshConversation(this.conversation.conversationId)
       }
       this.beforeUnseenMessageCount = 0
@@ -440,7 +440,6 @@ export default {
           mediaMimeType: mimeType,
           category: category
         }
-        console.log(message, message.thumbImage)
         this.$store.dispatch('sendAttachmentMessage', message)
         this.goBottom()
       }

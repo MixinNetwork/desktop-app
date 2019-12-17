@@ -74,6 +74,8 @@
               contenteditable="true"
               :placeholder="$t('home.input')"
               @keydown.enter="sendMessage"
+              @compositionstart="inputFlag = true"
+              @compositionend="inputFlag = false"
               ref="box"
             ></div>
           </div>
@@ -251,12 +253,6 @@ export default {
   },
   mounted() {
     let self = this
-    this.$refs.box.addEventListener('compositionstart', function() {
-      self.inputFlag = true
-    })
-    this.$refs.box.addEventListener('compositionend', function() {
-      self.inputFlag = false
-    })
     document.onpaste = function(e) {
       if (!self.conversation) return
       e.preventDefault()

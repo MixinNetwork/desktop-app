@@ -63,7 +63,8 @@
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div @click="dragging = true">
+        <div class="attachment" @click="chooseAttachment">
+          <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
           <ICAttach style="margin-top: 3px" />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
@@ -73,6 +74,8 @@
               contenteditable="true"
               :placeholder="$t('home.input')"
               @keydown.enter="sendMessage"
+              @compositionstart="inputFlag = true"
+              @compositionend="inputFlag = false"
               ref="box"
             ></div>
           </div>
@@ -250,12 +253,6 @@ export default {
   },
   mounted() {
     let self = this
-    this.$refs.box.addEventListener('compositionstart', function() {
-      self.inputFlag = true
-    })
-    this.$refs.box.addEventListener('compositionend', function() {
-      self.inputFlag = false
-    })
     document.onpaste = function(e) {
       if (!self.conversation) return
       e.preventDefault()
@@ -322,6 +319,13 @@ export default {
       if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
       }
+    },
+    chooseAttachment() {
+      this.file = null
+      this.$refs.attachmentInput.click()
+    },
+    chooseAttachmentDone(event) {
+      this.file = event.target.files[0]
     },
     goUnreadPos() {
       let goDone = false
@@ -715,6 +719,14 @@ export default {
       display: flex;
       align-items: center;
       padding: 0.4rem 0.6rem;
+      .attachment {
+        position: relative;
+        input {
+          position: absolute;
+          opacity: 0;
+          z-index: -1;
+        }
+      }
     }
     .editable {
       max-height: 150px;
@@ -821,7 +833,7 @@ export default {
 
   .media {
     position: absolute;
-    height: calc(100% - 3.6rem);
+    height: 100%;
     left: 18rem;
     border-left: 1px solid $border-color;
     right: 0;

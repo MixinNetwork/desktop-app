@@ -120,7 +120,7 @@ import {
   MuteDuration,
   PerPageMessageCount
 } from '@/utils/constants.js'
-import messageUtil from '@/utils/message_util.js'
+import contentUtil from '@/utils/content_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
@@ -566,7 +566,7 @@ export default {
       }
       event.stopPropagation()
       event.preventDefault()
-      const text = messageUtil.messageFilteredText(this.$refs.box)
+      const text = contentUtil.messageFilteredText(this.$refs.box)
       if (text.trim().length <= 0) {
         return
       }

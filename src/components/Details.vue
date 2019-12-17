@@ -14,7 +14,11 @@
           </div>
           <span class="name">{{name}}</span>
           <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
-          <div v-if="conversation.announcement" class="announcement">{{conversation.announcement}}</div>
+          <div
+            v-if="conversation.announcement"
+            class="announcement"
+            v-html="renderUrl(conversation.announcement)"
+          ></div>
           <div v-if="conversation.biography" class="biography">{{conversation.biography}}</div>
         </header>
         <div class="participants" v-if="!isContact">
@@ -34,6 +38,7 @@
 import UserItem from '@/components/UserItem.vue'
 import ICClose from '../assets/images/ic_close.svg'
 import Avatar from '@/components/Avatar.vue'
+import contentUtil from '@/utils/content_util.js'
 import { mapGetters } from 'vuex'
 import { ConversationCategory } from '@/utils/constants.js'
 export default {
@@ -41,6 +46,11 @@ export default {
     ICClose,
     Avatar,
     UserItem
+  },
+  methods: {
+    renderUrl(content) {
+      return contentUtil.renderUrl(content)
+    }
   },
   computed: {
     participantTitle: function() {
@@ -135,7 +145,8 @@ export default {
       word-break: break-all;
       margin-top: 1rem;
       font-weight: 400;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
+      user-select: text;
     }
     .participants {
       margin-top: 1rem;

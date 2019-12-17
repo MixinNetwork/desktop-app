@@ -192,7 +192,8 @@ import messageDao from '@/dao/message_dao.js'
 
 import { getNameColorById } from '@/utils/util.js'
 import { ipcRenderer } from 'electron'
-import URI from 'urijs'
+import contentUtil from '@/utils/content_util.js'
+
 export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread'],
@@ -320,19 +321,7 @@ export default {
       }
     },
     textMessage: message => {
-      var h = message.content
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-      var result = URI.withinString(h, function(url) {
-        let l = url
-        if (!url.startsWith('http')) {
-          l = 'https://' + url
-        }
-        return `<a href='${l}' target='_blank'>${url}</a>`
-      })
-      return result
+      return contentUtil.renderUrl(message.content)
     },
 
     getInfo(message, me) {

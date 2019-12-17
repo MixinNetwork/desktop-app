@@ -82,23 +82,20 @@ export default {
       return getNameColorById(id)
     },
     borderSet: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return 'width-set'
-      }
-      if (3 * message.mediaWidth < message.mediaHeight) {
+      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
         return 'width-set'
       }
       return 'height-set'
     },
 
     borderSetObject: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight) {
-        return { width: Math.min(message.mediaWidth, maxWidth) + 'px' }
+      const width = Math.min(message.mediaWidth, maxWidth)
+      const scale = message.mediaWidth / message.mediaHeight
+      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+        return { width: `${width}px`, height: `${width / scale}px` }
       }
-      if (3 * message.mediaWidth < message.mediaHeight) {
-        return { width: Math.min(message.mediaWidth, maxWidth) + 'px' }
-      }
-      return { height: Math.min(message.mediaHeight, maxHeight) + 'px' }
+      const height = Math.min(message.mediaHeight, maxHeight)
+      return { width: `${height * scale}px`, height: `${height}px` }
     }
   },
   computed: {

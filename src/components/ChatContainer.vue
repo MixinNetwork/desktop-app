@@ -66,15 +66,17 @@
         <div @click="dragging = true">
           <ICAttach style="margin-top: 4px" />
         </div>
-        <div class="editable">
-          <div
-            class="box"
-            contenteditable="true"
-            :placeholder="$t('home.input')"
-            @keydown.enter="sendMessage"
-            ref="box"
-          ></div>
-        </div>
+        <mixin-scrollbar style="margin-right: .2rem">
+          <div class="ul editable">
+            <div
+              class="box"
+              contenteditable="true"
+              :placeholder="$t('home.input')"
+              @keydown.enter="sendMessage"
+              ref="box"
+            ></div>
+          </div>
+        </mixin-scrollbar>
         <!-- <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/> -->
         <div @click="sendMessage">
           <ICSend />
@@ -156,15 +158,19 @@ export default {
       currentUnreadNum: 0,
       beforeUnseenMessageCount: 0,
       oldMsgLen: 0,
-      showMessages: true
+      showMessages: true,
+      infiniteDownLock: true
     }
   },
   watch: {
     conversation: function(newC, oldC) {
+      this.infiniteDownLock = true
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.showMessages = false
         if (this.$refs.infiniteUp) {
           this.$refs.infiniteUp.stateChanger.reset()
+        }
+        if (this.$refs.infiniteDown) {
           this.$refs.infiniteDown.stateChanger.reset()
         }
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
@@ -320,6 +326,7 @@ export default {
     goUnreadPos() {
       let goDone = false
       let beforeScrollTop = 0
+      this.infiniteScroll(null, 'down')
       const action = beforeScrollTop => {
         setTimeout(() => {
           const divideDom = document.querySelector('.unread-divide')
@@ -327,6 +334,7 @@ export default {
           if (!divideDom || !list) {
             return action(beforeScrollTop)
           }
+          this.infiniteDownLock = false
           if (!goDone && beforeScrollTop !== list.scrollTop) {
             beforeScrollTop = list.scrollTop
             action(beforeScrollTop)
@@ -377,6 +385,7 @@ export default {
       this.infiniteScroll($state, 'up')
     },
     infiniteDown($state) {
+      if (this.infiniteDownLock) return
       this.infiniteScroll($state, 'down')
     },
     isMute: function(conversation) {

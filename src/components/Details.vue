@@ -6,28 +6,30 @@
       </div>
       <div class="title_content">{{$t('profile.title')}}</div>
     </header>
-    <div class="content">
-      <header class="content_header">
-        <div>
-          <Avatar class="avatar" :user="user" :conversation="conversation" />
-        </div>
-        <span class="name">{{name}}</span>
-        <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
-      </header>
-      <div class="participants" v-if="!isContact">
-        <span class="title">{{participantTitle}}</span>
-        <mixin-scrollbar>
-          <div class="ul">
-            <UserItem
-              class="participant"
-              v-for="user in conversation.participants"
-              :key="user.user_id"
-              :user="user"
-            ></UserItem>
+    <mixin-scrollbar>
+      <div class="ul content">
+        <header class="content_header">
+          <div>
+            <Avatar class="avatar" :user="user" :conversation="conversation" />
           </div>
-        </mixin-scrollbar>
+          <span class="name">{{name}}</span>
+          <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
+          <div
+            v-if="conversation.announcement"
+            class="announcement"
+          >{{$t('profile.announcement')}}: {{conversation.announcement}}</div>
+        </header>
+        <div class="participants" v-if="!isContact">
+          <span class="title">{{participantTitle}}</span>
+          <UserItem
+            class="participant"
+            v-for="user in conversation.participants"
+            :key="user.user_id"
+            :user="user"
+          ></UserItem>
+        </div>
       </div>
-    </div>
+    </mixin-scrollbar>
   </div>
 </template>
 <script>
@@ -106,7 +108,6 @@ export default {
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      height: 280px;
       padding-bottom: 32px;
       padding-left: 32px;
       padding-right: 32px;
@@ -130,6 +131,12 @@ export default {
         width: 100%;
         user-select: text;
       }
+    }
+    .announcement {
+      word-break: break-all;
+      margin-top: 1rem;
+      font-weight: 400;
+      font-size: 0.85rem;
     }
     .participants {
       margin-top: 1rem;

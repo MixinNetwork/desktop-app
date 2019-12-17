@@ -1,6 +1,7 @@
 <template>
   <div ref="scroll" class="mixin-scrollbar">
     <slot />
+    <div class="scrollbar-track" @mouseover="trackHover(true)" @mouseout="trackHover(false)"></div>
     <div
       class="scrollbar-thumb"
       :class="{dragging}"
@@ -127,6 +128,10 @@ export default {
         this.dragging = false
         this.thumbMouseOut()
       }
+    },
+    trackHover(flag) {
+      if (this.dragging) return
+      this.thumbShow = flag
     }
   },
   mounted() {
@@ -165,9 +170,15 @@ export default {
   & > .ul::-webkit-scrollbar {
     width: 0;
   }
+  .scrollbar-track {
+    width: 9px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+  }
   .scrollbar-thumb {
     position: absolute;
-    z-index: 9999;
     top: 0;
     right: 0;
     background: rgba(0, 0, 0, 0.3);

@@ -150,10 +150,7 @@
           <span class="time-place"></span>
           <span class="time">
             {{message.lt}}
-            <ICSending
-              v-if="message.status === MessageStatus.SENDING"
-              class="icon"
-            />
+            <ICSending v-if="message.status === MessageStatus.SENDING" class="icon" />
             <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon" />
             <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait" />
             <ICRead v-else-if="message.status === MessageStatus.READ" class="icon" />

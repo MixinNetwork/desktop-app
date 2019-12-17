@@ -64,7 +64,7 @@
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
         <div class="attachment" @click="chooseAttachment">
-          <input type="file" ref="attachmentInput" @change="chooseAttachmentDone" />
+          <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
           <ICAttach style="margin-top: 3px" />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
@@ -325,6 +325,7 @@ export default {
       }
     },
     chooseAttachment() {
+      this.file = null
       this.$refs.attachmentInput.click()
     },
     chooseAttachmentDone(event) {

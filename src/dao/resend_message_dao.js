@@ -3,7 +3,7 @@ import db from '@/persistence/db'
 class ResendMessagesDao {
   insertMessage(messageId, userId, sessionId, status) {
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO resend_messages VALUES (@message_id, @user_id, @sessionId, @status, @created_at)'
+      'INSERT OR REPLACE INTO resend_session_messages VALUES (@message_id, @user_id, @sessionId, @status, @created_at)'
     )
     stmt.run({
       message_id: messageId,
@@ -15,7 +15,11 @@ class ResendMessagesDao {
   }
 
   findResendMessage(userId, messageId) {
-    db.prepare('SELECT * FROM resend_messages WHERE user_id = ? AND message_id = ?').get([userId, messageId])
+    db.prepare('SELECT * FROM resend_session_messages WHERE user_id = ? AND message_id = ?').get([userId, messageId])
+  }
+
+  deleteResendMessageByMessageId(messageId) {
+    db.prepare('DELETE FROM resend_session_messages WHERE message_id = ?').run([messageId])
   }
 }
 

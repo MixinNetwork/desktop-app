@@ -1,6 +1,7 @@
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
+import resendMessageDao from '@/dao/resend_message_dao'
 import uuidv4 from 'uuid/v4'
 import signalProtocol from '@/crypto/signal.js'
 import Vue from 'vue'
@@ -40,6 +41,7 @@ class SendWorker extends BaseWorker {
         if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
           const result = await this.deliver(message, this.encryptNormalMessage(message))
           if (result) {
+            resendMessageDao.deleteResendMessageByMessageId(message.message_id)
           }
         }
       }

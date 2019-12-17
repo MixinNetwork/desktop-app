@@ -104,7 +104,7 @@ class MessageDao {
       m.media_digest, m.media_status, m.status, m.created_at, m.action, m.participant_id, m.snapshot_id, m.hyperlink,
       m.name, m.album_id, m.sticker_id, m.shared_user_id, m.media_waveform, m.quote_message_id, m.quote_content,
       rm.status as resend_status, rm.user_id as resend_user_id, rm.session_id as resend_session_id
-      FROM messages m LEFT JOIN resend_messages rm on m.message_id = rm.message_id
+      FROM messages m LEFT JOIN resend_session_messages rm on m.message_id = rm.message_id
       WHERE (m.status = 'SENDING' OR rm.status = 1) AND m.content IS NOT NULL ORDER BY m.created_at ASC LIMIT 1`)
     const data = stmt.get()
     return data

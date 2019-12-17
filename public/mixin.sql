@@ -64,13 +64,13 @@ CREATE TABLE IF NOT EXISTS `sent_session_sender_keys` (
 	`created_at`	TEXT,
 	PRIMARY KEY(`conversation_id`,`user_id`, `session_id`)
 );
-CREATE TABLE IF NOT EXISTS `resend_messages` (
-	`message_id`	TEXT NOT NULL,
-	`user_id`	TEXT NOT NULL,
-	`session_id`	TEXT NOT NULL,
-	`status`	INTEGER NOT NULL,
-	`created_at`	TEXT NOT NULL,
-	PRIMARY KEY(`message_id`,`user_id`)
+CREATE TABLE IF NOT EXISTS `resend_session_messages` (
+	`message_id` TEXT NOT NULL, 
+	`user_id` TEXT NOT NULL, 
+	`session_id` TEXT NOT NULL, 
+	`status` INTEGER NOT NULL, 
+	`created_at` TEXT NOT NULL, 
+	PRIMARY KEY(`message_id`, `user_id`, `session_id`)
 );
 CREATE TABLE IF NOT EXISTS `participants` (
 	`conversation_id`	TEXT NOT NULL,

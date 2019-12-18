@@ -6,8 +6,11 @@
         <div class="username">{{name}}</div>
         <div class="identity number">{{identity}}</div>
       </div>
+      <div class="search" v-if="user&&user.app_id!=null" @click="chatSearch">
+        <ICSearch />
+      </div>
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
-        <ICBot></ICBot>
+        <ICBot />
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
@@ -133,6 +136,7 @@ import conversationAPI from '@/api/conversation.js'
 import moment from 'moment'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
+import ICSearch from '../assets/images/ic_search.svg'
 import ICSend from '../assets/images/ic_send.svg'
 import ICAttach from '../assets/images/ic_attach.svg'
 import browser from '@/utils/browser.js'
@@ -239,6 +243,7 @@ export default {
     MessageItem,
     FileContainer,
     ICBot,
+    ICSearch,
     ICChevronDown,
     ICSend,
     ICAttach,
@@ -555,6 +560,7 @@ export default {
         user
       })
     },
+    chatSearch() {},
     openUrl() {
       let app = appDao.findAppByUserId(this.user.app_id)
       if (app) {
@@ -663,7 +669,8 @@ export default {
       text-align: left;
       padding-left: 0.8rem;
     }
-    .bot {
+    .bot,
+    .search {
       z-index: 1;
       width: 32px;
       height: 32px;

@@ -394,11 +394,11 @@ export default {
       let menu = this.$t('menu.chat_operation')
       let messageMenu = []
       if (canReply(this.message.type)) {
-        messageMenu.push(menu[0])
+        messageMenu.push(menu.reply)
       }
-      messageMenu.push(menu[2])
+      messageMenu.push(menu.delete)
       if (canRecall(this.message, this.me.user_id)) {
-        messageMenu.push(menu[3])
+        messageMenu.push(menu.recal)
       }
       const dwidth = document.body.clientWidth
       const dheihgt = document.body.clientHeight
@@ -407,16 +407,16 @@ export default {
       this.$Menu.alert(x, y, messageMenu, index => {
         const option = messageMenu[index]
         switch (Object.keys(menu).find(key => menu[key] === option)) {
-          case '0':
+          case 'reply':
             this.handleReply()
             break
-          case '1':
+          case 'forward':
             this.handleForward()
             break
-          case '2':
+          case 'delete':
             this.handleRemove()
             break
-          case '3':
+          case 'recal':
             this.handleRecall()
             break
           default:

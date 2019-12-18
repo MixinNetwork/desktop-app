@@ -84,13 +84,11 @@ main {
       flex-direction: column;
       a {
         color: #333;
-        margin-left: 20px;
-        margin-right: 20px;
+        margin: 0 20px;
         font-weight: bold;
       }
       label {
-        margin-top: 10px;
-        margin-left: 20px;
+        margin: 10px 20px 0;
         user-select: text;
       }
     }

@@ -183,18 +183,17 @@ export default {
         )
       })
     },
-    handlerMenu: function(index, isContact, conversationId, pinTime, ownerId) {
-      let position = parseInt(index)
-      if (position === 0) {
+    handlerMenu: function(position, isContact, conversationId, pinTime, ownerId) {
+      if (position === 'exit_group') {
         this.$store.dispatch('exitGroup', conversationId)
-      } else if (position === 1 || position === 2) {
+      } else if (position === 'pin_to_top' || position === 'clear_pin') {
         this.$store.dispatch('pinTop', {
           conversationId: conversationId,
           pinTime: pinTime
         })
-      } else if (position === 3) {
+      } else if (position === 'clear') {
         this.$store.dispatch('conversationClear', conversationId)
-      } else if (position === 4) {
+      } else if (position === 'mute') {
         let self = this
         this.$Dialog.options(
           this.$t('chat.mute_title'),
@@ -228,7 +227,7 @@ export default {
             console.log('cancel')
           }
         )
-      } else if (position === 5) {
+      } else if (position === 'cancel_mute') {
         let self = this
         this.$Dialog.alert(
           this.$t('chat.chat_mute_cancel'),
@@ -267,27 +266,27 @@ export default {
       var menu = []
       if (!isContact) {
         if (!isExit) {
-          menu.push(conversationMenu[0])
+          menu.push(conversationMenu.exit_group)
         }
         if (!pinTime) {
-          menu.push(conversationMenu[1])
+          menu.push(conversationMenu.pin_to_top)
         } else {
-          menu.push(conversationMenu[2])
+          menu.push(conversationMenu.clear_pin)
         }
-        menu.push(conversationMenu[3])
+        menu.push(conversationMenu.clear)
       } else {
         if (!pinTime) {
-          menu.push(conversationMenu[1])
+          menu.push(conversationMenu.pin_to_top)
         } else {
-          menu.push(conversationMenu[2])
+          menu.push(conversationMenu.clear_pin)
         }
-        menu.push(conversationMenu[3])
+        menu.push(conversationMenu.clear)
       }
       if (!isExit) {
         if (isMute) {
-          menu.push(conversationMenu[5])
+          menu.push(conversationMenu.cancel_mute)
         } else {
-          menu.push(conversationMenu[4])
+          menu.push(conversationMenu.mute)
         }
       }
       return menu
@@ -484,7 +483,6 @@ export default {
   }
 
   .nav {
-    border-bottom: 1px solid $border-color;
     padding: 0.45rem 0.75rem;
     display: flex;
     align-items: center;

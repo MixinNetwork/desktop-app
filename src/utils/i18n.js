@@ -20,26 +20,27 @@ let transactions = {
     help_center: 'Help center',
     menu: {
       conversation: {
-        0: 'Exit Group',
-        1: 'Pin to top',
-        2: 'Clear Pin',
-        3: 'Clear',
-        4: 'Mute',
-        5: 'Cancel Mute'
+        exit_group: 'Exit Group',
+        pin_to_top: 'Pin to top',
+        clear_pin: 'Clear Pin',
+        clear: 'Clear',
+        mute: 'Mute',
+        cancel_mute: 'Cancel Mute'
       },
       chat: {
-        0: 'Contact info',
-        1: 'Exit group',
-        2: 'Clear',
-        3: 'Mute',
-        4: 'Cancel Mute'
+        contact_info: 'Contact info',
+        exit_group: 'Exit group',
+        clear: 'Clear',
+        mute: 'Mute',
+        cancel_mute: 'Cancel Mute',
+        search: 'Search'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
-        0: 'Reply',
-        1: 'Forward',
-        2: 'Delete',
-        3: 'Recall'
+        reply: 'Reply',
+        forward: 'Forward',
+        delete: 'Delete',
+        recal: 'Recall'
       }
     },
     home: {
@@ -147,26 +148,27 @@ let transactions = {
     help_center: '帮助中心',
     menu: {
       conversation: {
-        0: '退出群组',
-        1: '置顶对话',
-        2: '取消置顶',
-        3: '删除',
-        4: '静音',
-        5: '取消静音'
+        exit_group: '退出群组',
+        pin_to_top: '置顶对话',
+        clear_pin: '取消置顶',
+        clear: '删除',
+        mute: '静音',
+        cancel_mute: '取消静音'
       },
       chat: {
-        0: '联系人资料',
-        1: '退出群组',
-        2: '清除消息',
-        3: '静音',
-        4: '取消静音'
+        contact_info: '联系人资料',
+        exit_group: '退出群组',
+        clear: '清空聊天记录',
+        mute: '静音',
+        cancel_mute: '取消静音',
+        search: '搜索聊天记录'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {
-        0: '回复',
-        1: '转发',
-        2: '删除',
-        3: '撤回'
+        reply: '回复',
+        forward: '转发',
+        delete: '删除',
+        recal: '撤回'
       }
     },
     home: {

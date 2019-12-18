@@ -206,15 +206,15 @@ export default {
         const chatMenu = this.$t('menu.chat')
         var menu = []
         if (newC.category === ConversationCategory.CONTACT) {
-          menu.push(chatMenu[0])
-          menu.push(chatMenu[2])
+          menu.push(chatMenu.contact_info)
+          menu.push(chatMenu.clear)
           this.identity = newC.ownerIdentityNumber
           this.participant = true
         } else {
           if (newC.status !== ConversationStatus.QUIT) {
-            menu.push(chatMenu[1])
+            menu.push(chatMenu.exit_group)
           }
-          menu.push(chatMenu[2])
+          menu.push(chatMenu.clear)
           this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
           this.participant = newC.participants.some(item => {
             return item.user_id === this.me.user_id
@@ -223,9 +223,9 @@ export default {
 
         if (newC.status !== ConversationStatus.QUIT) {
           if (this.isMute(newC)) {
-            menu.push(chatMenu[4])
+            menu.push(chatMenu.cancel_mute)
           } else {
-            menu.push(chatMenu[3])
+            menu.push(chatMenu.mute)
           }
         }
         this.menus = menu
@@ -474,12 +474,13 @@ export default {
     onItemClick(index) {
       const chatMenu = this.$t('menu.chat')
       const option = this.menus[index]
-      const key = parseInt(Object.keys(chatMenu).find(key => chatMenu[key] === option))
-      if (key === 0) {
+      const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
+
+      if (key === 'contact_info') {
         this.details = true
-      } else if (key === 1) {
+      } else if (key === 'exit_group') {
         this.$store.dispatch('exitGroup', this.conversation.conversationId)
-      } else if (key === 2) {
+      } else if (key === 'clear') {
         this.$Dialog.alert(
           this.$t('chat.chat_clear'),
           this.$t('ok'),
@@ -491,7 +492,7 @@ export default {
             console.log('cancel')
           }
         )
-      } else if (key === 3) {
+      } else if (key === 'mute') {
         let self = this
         let ownerId = this.conversation.ownerId
         this.$Dialog.options(
@@ -526,7 +527,7 @@ export default {
             console.log('cancel')
           }
         )
-      } else if (key === 4) {
+      } else if (key === 'cancel_mute') {
         let self = this
         let ownerId = this.conversation.ownerId
         this.$Dialog.alert(

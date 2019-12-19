@@ -72,7 +72,7 @@ export default {
       }
     },
     onSearchClick(item) {
-      this.$emit('search-click', item)
+      this.$emit('search', item)
       this.searching = false
     }
   },

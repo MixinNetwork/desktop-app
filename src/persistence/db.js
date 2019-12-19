@@ -15,8 +15,6 @@ mixinDb.exec(createSQL)
 const row = mixinDb.prepare('PRAGMA user_version').get()
 if (!!row && row.user_version < MixinDatabaseVersion) {
   const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
-  mixinDb.exec('DROP TABLE IF EXISTS snapshots')
-  mixinDb.exec('DROP TABLE IF EXISTS assets')
   mixinDb.exec('DROP TABLE IF EXISTS resend_messages')
   mixinDb.exec('DROP TABLE IF EXISTS messages_fts')
   mixinDb.exec(createSQL)

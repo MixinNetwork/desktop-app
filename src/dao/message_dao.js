@@ -60,14 +60,18 @@ class MessageDao {
 
   ftsMessageLoad(conversationId) {
     db.prepare('DELETE FROM messages_fts WHERE conversation_id = ?').run(conversationId)
-    const messages = db.prepare('SELECT * FROM messages m WHERE m.conversation_id = ?').all(conversationId)
+    const messages = db
+      .prepare('SELECT * FROM messages m WHERE m.conversation_id = ? ORDER BY created_at ASC')
+      .all(conversationId)
     const insert = db.prepare(
-      'INSERT OR REPLACE INTO messages_fts (message_id, conversation_id, content, created_at) VALUES (@message_id, @conversation_id, @content, @created_at)'
+      'INSERT OR REPLACE INTO messages_fts (message_index, message_id, conversation_id, content, created_at) VALUES (@message_index, @message_id, @conversation_id, @content, @created_at)'
     )
     const insertMany = db.transaction(messages => {
-      for (const message of messages) {
+      const mLen = messages.length
+      messages.forEach((message, index) => {
+        message.message_index = mLen - index - 1
         insert.run(message)
-      }
+      })
     })
     insertMany(messages)
   }

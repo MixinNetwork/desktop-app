@@ -3,7 +3,7 @@ import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageBox {
   setConversationId(conversationId, unseenMessageCount) {
-    if (conversationId && this.conversationId !== conversationId) {
+    if (conversationId) {
       this.conversationId = conversationId
       const perPageCount = PerPageMessageCount
       let page = 0

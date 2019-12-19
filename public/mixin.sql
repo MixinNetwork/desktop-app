@@ -125,7 +125,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
 );
 
 CREATE VIRTUAL TABLE  IF NOT EXISTS `messages_fts`
-USING FTS5(message_id, conversation_id, content, created_at UNINDEXED);
+USING FTS5(message_id, conversation_id, content, created_at UNINDEXED, message_index UNINDEXED);
 
 CREATE TABLE IF NOT EXISTS `jobs` (
 	`job_id`	TEXT NOT NULL,

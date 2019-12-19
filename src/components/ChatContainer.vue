@@ -111,7 +111,7 @@
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
     <transition name="slide-right">
-      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search-click="goMessagePos"></ChatSearch>
+      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
     </transition>
   </main>
 </template>
@@ -341,9 +341,11 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
-    goMessagePos(item) {
+    goSearchMessagePos(item) {
       this.hideSearch()
-      console.log(item.message_id)
+      this.messages = []
+      messageBox.setConversationId(this.conversation.conversationId, item.message_index)
+      this.infiniteDownLock = false
     },
     goUnreadPos() {
       let goDone = false

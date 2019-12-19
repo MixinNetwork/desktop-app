@@ -32,8 +32,7 @@ let transactions = {
         exit_group: 'Exit group',
         clear: 'Clear',
         mute: 'Mute',
-        cancel_mute: 'Cancel Mute',
-        search: 'Search'
+        cancel_mute: 'Cancel Mute'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
@@ -97,7 +96,8 @@ let transactions = {
       chat_file_invalid_size: 'Requires file size less than 30MB',
       chat_chats: 'Chats',
       preview: 'Preview',
-      sendMessage: 'Send'
+      sendMessage: 'Send',
+      search: 'Search'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -160,8 +160,7 @@ let transactions = {
         exit_group: '退出群组',
         clear: '清空聊天记录',
         mute: '静音',
-        cancel_mute: '取消静音',
-        search: '搜索聊天记录'
+        cancel_mute: '取消静音'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {
@@ -225,7 +224,8 @@ let transactions = {
       chat_file_invalid_size: '不支持大于30MB的文件',
       chat_chats: '会话',
       preview: '预览',
-      sendMessage: '发送'
+      sendMessage: '发送',
+      search: '搜索聊天记录'
     },
     loading: {
       initializing: '初始化中...'

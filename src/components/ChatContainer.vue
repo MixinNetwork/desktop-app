@@ -6,7 +6,7 @@
         <div class="username">{{name}}</div>
         <div class="identity number">{{identity}}</div>
       </div>
-      <div class="search" v-if="user&&user.app_id!=null" @click="chatSearch">
+      <div class="search" @click="chatSearch">
         <ICSearch />
       </div>
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
@@ -110,6 +110,9 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
+    <transition name="slide-right">
+      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search-click="goMessagePos"></ChatSearch>
+    </transition>
   </main>
 </template>
 
@@ -128,6 +131,7 @@ import { isImage, base64ToImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
+import ChatSearch from '@/components/ChatSearch.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
@@ -153,6 +157,7 @@ export default {
       participant: true,
       menus: [],
       details: false,
+      searching: false,
       unreadMessageId: '',
       MessageStatus: MessageStatus,
       inputFlag: false,
@@ -204,6 +209,7 @@ export default {
           }
           if (!oldC || newC.conversationId !== oldC.conversationId) {
             this.details = false
+            this.searching = false
             this.file = null
           }
         }
@@ -240,6 +246,7 @@ export default {
     Dropdown,
     Avatar,
     Details,
+    ChatSearch,
     MessageItem,
     FileContainer,
     ICBot,
@@ -331,6 +338,10 @@ export default {
     },
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
+    },
+    goMessagePos(item) {
+      this.hideSearch()
+      console.log(item.message_id)
     },
     goUnreadPos() {
       let goDone = false
@@ -560,7 +571,12 @@ export default {
         user
       })
     },
-    chatSearch() {},
+    chatSearch() {
+      this.searching = true
+    },
+    hideSearch() {
+      this.searching = false
+    },
     openUrl() {
       let app = appDao.findAppByUserId(this.user.app_id)
       if (app) {

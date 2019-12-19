@@ -58,6 +58,29 @@ class MessageDao {
     insertMany(mIds)
   }
 
+  ftsMessageLoad(conversationId) {
+    db.prepare('DELETE FROM messages_fts WHERE conversation_id = ?').run(conversationId)
+    const messages = db.prepare('SELECT * FROM messages m WHERE m.conversation_id = ?').all(conversationId)
+    const insert = db.prepare(
+      'INSERT OR REPLACE INTO messages_fts (message_id, conversation_id, content, created_at) VALUES (@message_id, @conversation_id, @content, @created_at)'
+    )
+    const insertMany = db.transaction(messages => {
+      for (const message of messages) {
+        insert.run(message)
+      }
+    })
+    insertMany(messages)
+  }
+
+  ftsMessageQuery(conversationId, keyword) {
+    keyword = keyword.trim().replace(/ /g, '')
+    return db
+      .prepare(
+        'SELECT * FROM messages_fts WHERE conversation_id = ? AND content MATCH "' + keyword + '*" ORDER BY rank'
+      )
+      .all(conversationId)
+  }
+
   getMessages(conversationId, page = 0, tempCount = 0) {
     const perPageCount = PerPageMessageCount
     const offset = page * perPageCount + tempCount

@@ -24,6 +24,7 @@ module.exports = {
         mac: {
           category: 'public.app-category.social-networking'
         },
+        afterSign: 'scripts/notarize.js',
         linux: {
           executableName: 'mixin-desktop'
         },

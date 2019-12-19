@@ -305,6 +305,9 @@ export default {
           self.goUnreadPos()
         }
         setTimeout(() => {
+          if (!force) {
+            self.showMessages = true
+          }
           const newMsgLen = self.messages.length
           if (!self.oldMsgLen) {
             self.oldMsgLen = newMsgLen
@@ -313,7 +316,6 @@ export default {
             self.currentUnreadNum += newMsgLen - self.oldMsgLen
           }
           self.oldMsgLen = newMsgLen
-          self.showMessages = true
         })
       }
     )
@@ -350,6 +352,9 @@ export default {
       const action = beforeScrollTop => {
         setTimeout(() => {
           const divideDom = document.querySelector('.unread-divide')
+          if (!divideDom) {
+            return (this.showMessages = true)
+          }
           let list = this.$refs.messagesUl
           if (!divideDom || !list) {
             return action(beforeScrollTop)
@@ -361,6 +366,7 @@ export default {
           } else {
             goDone = true
             list.scrollTop = divideDom.offsetTop
+            this.showMessages = true
           }
         }, 10)
       }
@@ -368,7 +374,6 @@ export default {
     },
     goBottom() {
       setTimeout(() => {
-        this.showMessages = true
         this.currentUnreadNum = 0
         let list = this.$refs.messagesUl
         if (!list) return
@@ -383,6 +388,9 @@ export default {
       }
       this.beforeUnseenMessageCount = 0
       this.goBottom()
+      setTimeout(() => {
+        this.showMessages = true
+      }, 10)
     },
     infiniteScroll($state, direction) {
       messageBox.nextPage(direction).then(messages => {

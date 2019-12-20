@@ -124,8 +124,7 @@ import {
   ConversationStatus,
   MessageCategories,
   MessageStatus,
-  MuteDuration,
-  PerPageMessageCount
+  MuteDuration
 } from '@/utils/constants.js'
 import contentUtil from '@/utils/content_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
@@ -296,8 +295,16 @@ export default {
       }
     }
     messageBox.bindData(
-      function(messages) {
-        self.messages = messages
+      function(messages, unreadNum) {
+        if (messages) {
+          self.messages = messages
+        }
+        if (unreadNum) {
+          self.currentUnreadNum = unreadNum
+          setTimeout(() => {
+            self.infiniteDownLock = false
+          })
+        }
       },
       function(force, message) {
         if (self.isBottom) {
@@ -312,10 +319,10 @@ export default {
             self.showMessages = true
           }
           const newMsgLen = self.messages.length
-          if (!self.oldMsgLen) {
-            self.oldMsgLen = newMsgLen
+          if (message) {
+            self.oldMsgLen = 0
           }
-          if (!self.isBottom) {
+          if (!self.isBottom && self.oldMsgLen) {
             self.currentUnreadNum += newMsgLen - self.oldMsgLen
           }
           self.oldMsgLen = newMsgLen

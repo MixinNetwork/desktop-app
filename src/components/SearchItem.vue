@@ -29,7 +29,7 @@ export default {
 .search-item {
   display: flex;
   flex-direction: column;
-  padding: 0.8rem 0.8rem;
+  padding: 10px 16px;
   cursor: pointer;
   &:hover,
   &.current {

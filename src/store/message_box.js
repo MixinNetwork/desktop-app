@@ -2,21 +2,26 @@ import messageDao from '@/dao/message_dao.js'
 import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageBox {
-  setConversationId(conversationId, unseenMessageCount) {
+  setConversationId(conversationId, messagePositionIndex) {
     if (conversationId) {
       this.conversationId = conversationId
       const perPageCount = PerPageMessageCount
       let page = 0
-      if (unseenMessageCount > perPageCount) {
-        page = Math.ceil(unseenMessageCount / perPageCount)
+      if (messagePositionIndex > perPageCount) {
+        page = parseInt(messagePositionIndex / perPageCount)
       }
       this.messages = messageDao.getMessages(conversationId, page)
       this.page = page
       this.pageDown = page
       this.tempCount = 0
+      let posMessage = null
+      if (messagePositionIndex > 0) {
+        posMessage = this.messages[this.messages.length - (messagePositionIndex % perPageCount) - 1]
+      }
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
-      this.scrollAction(true)
+      this.callback(this.messages)
+      this.scrollAction(true, posMessage)
     }
   }
   refreshConversation(conversationId) {

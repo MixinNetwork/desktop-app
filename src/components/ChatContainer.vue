@@ -171,6 +171,7 @@ export default {
       beforeUnseenMessageCount: 0,
       oldMsgLen: 0,
       showMessages: true,
+      infiniteUpLock: false,
       infiniteDownLock: true
     }
   },
@@ -191,7 +192,7 @@ export default {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
-            this.goUnreadPos()
+            this.goMessagePos()
           } else {
             this.unreadMessageId = ''
           }
@@ -296,13 +297,13 @@ export default {
       function(messages) {
         self.messages = messages
       },
-      function(force) {
+      function(force, message) {
         if (self.isBottom) {
           self.goBottom()
         }
         if (force) {
           self.goBottom()
-          self.goUnreadPos()
+          self.goMessagePos(message)
         }
         setTimeout(() => {
           if (!force) {
@@ -343,22 +344,24 @@ export default {
     },
     goSearchMessagePos(item) {
       this.hideSearch()
-      this.messages = []
       messageBox.setConversationId(this.conversation.conversationId, item.message_index)
-      this.infiniteDownLock = false
     },
-    goUnreadPos() {
+    goMessagePos(posMessage) {
       let goDone = false
       let beforeScrollTop = 0
       this.infiniteScroll(null, 'down')
+      this.infiniteDownLock = false
       const action = beforeScrollTop => {
         setTimeout(() => {
-          const divideDom = document.querySelector('.unread-divide')
-          if (!divideDom) {
+          let targetDom = document.querySelector('.unread-divide')
+          if (!targetDom && posMessage) {
+            targetDom = document.getElementById(`m-${posMessage.messageId}`)
+          }
+          if (!targetDom) {
             return (this.showMessages = true)
           }
           let list = this.$refs.messagesUl
-          if (!divideDom || !list) {
+          if (!targetDom || !list) {
             return action(beforeScrollTop)
           }
           this.infiniteDownLock = false
@@ -367,7 +370,7 @@ export default {
             action(beforeScrollTop)
           } else {
             goDone = true
-            list.scrollTop = divideDom.offsetTop
+            list.scrollTop = targetDom.offsetTop
             this.showMessages = true
           }
         }, 10)
@@ -412,6 +415,7 @@ export default {
       })
     },
     infiniteUp($state) {
+      if (this.infiniteUpLock) return
       this.infiniteScroll($state, 'up')
     },
     infiniteDown($state) {

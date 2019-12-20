@@ -124,8 +124,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	FOREIGN KEY(`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-CREATE VIRTUAL TABLE  IF NOT EXISTS `messages_fts`
-USING FTS5(message_id, conversation_id, content, created_at UNINDEXED, message_index UNINDEXED);
+CREATE VIRTUAL TABLE IF NOT EXISTS `messages_fts` USING FTS4(message_id, conversation_id, content, created_at UNINDEXED, message_index UNINDEXED, tokenize='unicode61');
 
 CREATE TABLE IF NOT EXISTS `jobs` (
 	`job_id`	TEXT NOT NULL,

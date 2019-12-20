@@ -64,7 +64,7 @@ class MessageDao {
       .prepare('SELECT * FROM messages m WHERE m.conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
     const insert = db.prepare(
-      'INSERT OR REPLACE INTO messages_fts (message_index, message_id, conversation_id, content, created_at) VALUES (@message_index, @message_id, @conversation_id, @content, @created_at)'
+      'INSERT OR REPLACE INTO messages_fts (message_id, conversation_id, content, created_at, message_index) VALUES (@message_id, @conversation_id, @content, @created_at, @message_index)'
     )
     const insertMany = db.transaction(messages => {
       const mLen = messages.length
@@ -77,12 +77,11 @@ class MessageDao {
   }
 
   ftsMessageQuery(conversationId, keyword) {
-    keyword = keyword.trim().replace(/ /g, '')
     return db
       .prepare(
-        'SELECT * FROM messages_fts WHERE conversation_id = ? AND content MATCH "' + keyword + '*" ORDER BY rank'
+        `SELECT message_id,conversation_id,content,created_at,message_index as highlight from messages_fts WHERE messages_fts.conversation_id = ? AND content MATCH ? ORDER BY created_at DESC LIMIT 100`
       )
-      .all(conversationId)
+      .all(conversationId, `${keyword}*`)
   }
 
   getMessages(conversationId, page = 0, tempCount = 0) {

@@ -16,6 +16,7 @@
             v-for="item in resultList"
             :key="item.message_id"
             :item="item"
+            :keyword="keyword"
             @search-click="onSearchClick"
           ></SearchItem>
         </div>

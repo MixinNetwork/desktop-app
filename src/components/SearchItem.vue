@@ -15,20 +15,16 @@ export default {
     return {}
   },
   methods: {
-    highlight(text) {
-      const keys = []
-      for (let i = 0; i < this.keyword.length; i++) {
-        keys.push(this.keyword.substr(i, 1))
-      }
-      let result = ''
-      for (let j = 0; j < text.length; j++) {
-        const temp = text.substr(j, 1)
-        if (keys.indexOf(temp) > -1) {
-          result += `<b>${temp}</b>`
-        } else {
-          result += temp
+    highlight(content) {
+      const segment = this.keyword.split(' ')
+      let result = content
+      segment.forEach(keyword => {
+        if (keyword.trim()) {
+          keyword = keyword.replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+          const regx = new RegExp('(' + keyword + ')', 'ig')
+          result = result.replace(regx, `<b>$1</b>`)
         }
-      }
+      })
       return result
     }
   }

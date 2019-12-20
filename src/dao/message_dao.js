@@ -79,7 +79,7 @@ class MessageDao {
   ftsMessageQuery(conversationId, keyword) {
     return db
       .prepare(
-        `SELECT message_id,conversation_id,content,created_at,message_index as highlight from messages_fts WHERE messages_fts.conversation_id = ? AND content MATCH ? ORDER BY created_at DESC LIMIT 100`
+        `SELECT message_id,conversation_id,content,created_at,message_index from messages_fts WHERE messages_fts.conversation_id = ? AND content MATCH ? ORDER BY created_at DESC LIMIT 100`
       )
       .all(conversationId, `${keyword}*`)
   }

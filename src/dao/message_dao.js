@@ -70,7 +70,9 @@ class MessageDao {
       const mLen = messages.length
       messages.forEach((message, index) => {
         message.message_index = mLen - index - 1
-        insert.run(message)
+        if (['SIGNAL_TEXT', 'PLAIN_TEXT'].indexOf(message.category) > -1) {
+          insert.run(message)
+        }
       })
     })
     insertMany(messages)

@@ -14,6 +14,7 @@ import Toast from '@/components/toast/Toast.js'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import blaze from '@/blaze/blaze'
 import i18n from '@/utils/i18n.js'
+import moment from 'moment'
 import { faArrowLeft, faArrowRight, faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import { API_URL } from '@/utils/constants.js'
@@ -37,6 +38,8 @@ Vue.axios.defaults.headers.post['Content-Type'] = 'application/json'
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false
 Vue.prototype.$blaze = blaze
+moment.locale(navigator.language)
+Vue.prototype.$moment = moment
 
 new Vue({
   i18n,

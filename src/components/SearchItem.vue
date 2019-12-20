@@ -1,6 +1,8 @@
 <template>
   <li class="search-item" @click="$emit('search-click',item)">
-    <div class="time">{{item.created_at}}</div>
+    <div
+      class="time"
+    >{{$moment(item.created_at).format('YYYY-MM-DD HH:mm')}}（{{$moment(item.created_at).fromNow().replace(/\s/, '')}}）</div>
     <div class="content">
       <div v-html="highlight(item.content)"></div>
     </div>

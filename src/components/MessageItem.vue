@@ -196,7 +196,7 @@ import contentUtil from '@/utils/content_util.js'
 
 export default {
   name: 'MessageItem',
-  props: ['conversation', 'message', 'me', 'prev', 'unread'],
+  props: ['conversation', 'message', 'me', 'prev', 'unread', 'searchKeyword'],
   components: {
     ICSending,
     ICSend,
@@ -320,8 +320,12 @@ export default {
         return 'unknown'
       }
     },
-    textMessage: message => {
-      return contentUtil.renderUrl(message.content)
+    textMessage(message) {
+      let content = contentUtil.renderUrl(message.content)
+      if (this.searchKeyword) {
+        content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
+      }
+      return content
     },
 
     getInfo(message, me) {

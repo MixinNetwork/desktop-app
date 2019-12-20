@@ -41,6 +41,7 @@
           :unread="unreadMessageId"
           :conversation="conversation"
           :me="me"
+          :searchKeyword="searchKeyword"
           @user-click="onUserClick"
           @handle-item-click="handleItemClick"
         />
@@ -172,7 +173,8 @@ export default {
       oldMsgLen: 0,
       showMessages: true,
       infiniteUpLock: false,
-      infiniteDownLock: true
+      infiniteDownLock: true,
+      searchKeyword: ''
     }
   },
   watch: {
@@ -342,9 +344,12 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
-    goSearchMessagePos(item) {
+    goSearchMessagePos(item, keyword) {
       this.hideSearch()
       messageBox.setConversationId(this.conversation.conversationId, item.message_index)
+      setTimeout(() => {
+        this.searchKeyword = keyword
+      })
     },
     goMessagePos(posMessage) {
       let goDone = false
@@ -384,13 +389,12 @@ export default {
         if (!list) return
         let scrollHeight = list.scrollHeight
         list.scrollTop = scrollHeight
+        this.searchKeyword = ''
       })
     },
     goBottomClick() {
-      if (this.beforeUnseenMessageCount > PerPageMessageCount || this.messages.length > 300) {
-        this.showMessages = false
-        messageBox.refreshConversation(this.conversation.conversationId)
-      }
+      this.showMessages = false
+      messageBox.refreshConversation(this.conversation.conversationId)
       this.beforeUnseenMessageCount = 0
       this.goBottom()
       setTimeout(() => {

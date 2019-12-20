@@ -20,5 +20,18 @@ export default {
       return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
     })
     return result
+  },
+  highlight(content, keyword, highlight) {
+    const segment = keyword.split(' ')
+    let result = content
+    highlight = highlight || 'default'
+    segment.forEach(str => {
+      if (str.trim()) {
+        str = str.replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+        const regx = new RegExp('(' + str + ')', 'ig')
+        result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
+      }
+    })
+    return result
   }
 }

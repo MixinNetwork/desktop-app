@@ -9,6 +9,8 @@
   </li>
 </template>
 <script>
+import contentUtil from '@/utils/content_util.js'
+
 export default {
   components: {},
   name: 'SearchItem',
@@ -18,21 +20,12 @@ export default {
   },
   methods: {
     highlight(content) {
-      const segment = this.keyword.split(' ')
-      let result = content
-      segment.forEach(keyword => {
-        if (keyword.trim()) {
-          keyword = keyword.replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
-          const regx = new RegExp('(' + keyword + ')', 'ig')
-          result = result.replace(regx, `<b>$1</b>`)
-        }
-      })
-      return result
+      return contentUtil.highlight(content, this.keyword)
     }
   }
 }
 </script>
-<style lang="scss" >
+<style lang="scss" scoped>
 .search-item {
   display: flex;
   flex-direction: column;
@@ -58,10 +51,6 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
     font-size: 1rem;
-    b {
-      font-weight: normal;
-      color: #3d75e3;
-    }
   }
 }
 </style>

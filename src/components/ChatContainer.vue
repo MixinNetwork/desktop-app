@@ -177,7 +177,12 @@ export default {
     }
   },
   watch: {
-    conversation: function(newC, oldC) {
+    currentUnreadNum(val) {
+      if (val === 0) {
+        messageBox.clearMessagePositionIndex(0)
+      }
+    },
+    conversation(newC, oldC) {
       this.infiniteDownLock = true
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.showMessages = false

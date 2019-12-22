@@ -25,6 +25,9 @@ class MessageBox {
       this.scrollAction(true, posMessage)
     }
   }
+  clearMessagePositionIndex(index) {
+    this.messagePositionIndex = index
+  }
   refreshConversation(conversationId) {
     const page = 0
     this.page = page

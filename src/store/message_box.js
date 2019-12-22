@@ -45,6 +45,11 @@ class MessageBox {
           }
           newCount++
         }
+        if (newCount) {
+          this.pageDown = Math.ceil(newCount / PerPageMessageCount)
+          this.tempCount += newCount % PerPageMessageCount
+        }
+
         return this.callback(null, newCount)
       }
       const newMessages = []

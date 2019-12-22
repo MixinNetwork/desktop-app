@@ -412,7 +412,16 @@ export default {
       messageBox.nextPage(direction).then(messages => {
         if (messages) {
           if (direction === 'down') {
-            this.messages.push(...messages)
+            const newMessages = []
+            const lastMessageId = this.messages[this.messages.length - 1].messageId
+            for (let i = messages.length - 1; i >= 0; i--) {
+              const temp = messages[i]
+              if (temp.messageId === lastMessageId) {
+                break
+              }
+              newMessages.unshift(temp)
+            }
+            this.messages.push(...newMessages)
           } else {
             this.messages.unshift(...messages)
           }

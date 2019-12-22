@@ -2,14 +2,8 @@
   <div class="root" @click="$emit('onAvatarClick')" ref="root">
     <div class="avatar-group" :data-group-size="users.length">
       <div class="empty" v-if="users.length<=0"></div>
-      <div
-        v-else
-        v-for="user in users"
-        :key="user.user_id"
-        class="avatar"
-        :style="user.color"
-      >
-        <img v-show="user.has_avatar" :src="user.avatar_url">
+      <div v-else v-for="user in users" :key="user.user_id" class="avatar" :style="user.color">
+        <img v-show="user.has_avatar" :src="user.avatar_url" />
         <span v-if="!user.has_avatar && user.emoji" class="emoji" :style="font">{{user.emoji}}</span>
         <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier}}</span>
       </div>

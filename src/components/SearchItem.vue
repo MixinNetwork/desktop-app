@@ -1,18 +1,25 @@
 <template>
   <li class="search-item" @click="$emit('search-click',item)">
-    <div
-      class="time"
-    >{{$moment(item.created_at).format('YYYY-MM-DD HH:mm')}}（{{$moment(item.created_at).fromNow().replace(/\s/, '')}}）</div>
-    <div class="content">
-      <div v-html="highlight(item.content)"></div>
+    <Avatar class="avatar" :user="item" :conversation="null" />
+    <div class="box">
+      <div class="meta">
+        <div>{{item.full_name}}</div>
+        <div class="time">{{$moment(item.created_at).fromNow().replace(/\s/, '')}}</div>
+      </div>
+      <div class="content">
+        <div v-html="highlight(item.content)"></div>
+      </div>
     </div>
   </li>
 </template>
 <script>
 import contentUtil from '@/utils/content_util.js'
+import Avatar from '@/components/Avatar.vue'
 
 export default {
-  components: {},
+  components: {
+    Avatar
+  },
   name: 'SearchItem',
   props: ['item', 'keyword'],
   data: function() {
@@ -28,7 +35,6 @@ export default {
 <style lang="scss" scoped>
 .search-item {
   display: flex;
-  flex-direction: column;
   padding: 10px 16px;
   cursor: pointer;
   &:hover,
@@ -39,18 +45,34 @@ export default {
 
   background: white;
 
-  .time {
+  .box {
+    display: flex;
+    flex-direction: column;
     flex: 1;
-    font-size: 0.85rem;
-    padding-bottom: 0.25rem;
-    color: #777;
+    overflow: hidden;
   }
-  .content {
-    flex: 1;
+  .avatar {
+    margin-right: 0.8rem;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    .name {
+      flex: 1;
+    }
+    .time {
+      font-size: 0.85rem;
+      padding-bottom: 0.25rem;
+      color: #999;
+    }
+  }
+  .content > div {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    color: #777;
   }
 }
 </style>

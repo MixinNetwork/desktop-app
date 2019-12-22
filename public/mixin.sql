@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	FOREIGN KEY(`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON UPDATE NO ACTION ON DELETE CASCADE
 );
 
-CREATE VIRTUAL TABLE IF NOT EXISTS `messages_fts` USING FTS4(message_id UNINDEXED, conversation_id UNINDEXED, content, created_at UNINDEXED, message_index UNINDEXED, tokenize='unicode61');
+CREATE VIRTUAL TABLE IF NOT EXISTS `messages_fts` USING FTS4(`content`, `message_id` UNINDEXED, `conversation_id` UNINDEXED, `created_at` UNINDEXED, `full_name` UNINDEXED, `user_id` UNINDEXED, `avatar_url` UNINDEXED, `message_index` UNINDEXED, tokenize='unicode61');
 
 CREATE TABLE IF NOT EXISTS `jobs` (
 	`job_id`	TEXT NOT NULL,
@@ -268,3 +268,8 @@ CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_insert AFTER INSE
 CREATE TRIGGER IF NOT EXISTS conversation_last_message_update AFTER INSERT ON messages BEGIN UPDATE conversations SET last_message_id = new.message_id WHERE conversation_id = new.conversation_id; END;
 CREATE TRIGGER IF NOT EXISTS conversation_last_message_delete AFTER DELETE ON messages BEGIN UPDATE conversations SET last_message_id = (select message_id from messages where conversation_id = old.conversation_id order by created_at DESC limit 1) WHERE conversation_id = old.conversation_id; END;
 COMMIT;
+
+-- CREATE TRIGGER IF NOT EXISTS messages_fts_BEFORE_UPDATE BEFORE UPDATE ON `messages` BEGIN DELETE FROM `messages_fts` WHERE `docid`=OLD.`rowid`; END;
+-- CREATE TRIGGER IF NOT EXISTS messages_fts_BEFORE_DELETE BEFORE DELETE ON `messages` BEGIN DELETE FROM `messages_fts` WHERE `docid`=OLD.`rowid`; END;
+-- CREATE TRIGGER IF NOT EXISTS messages_fts_AFTER_UPDATE AFTER UPDATE ON `messages` BEGIN INSERT INTO `messages_fts`(`docid`, `content`, `name`) VALUES (NEW.`rowid`, NEW.`content`, NEW.`name`); END;
+-- CREATE TRIGGER IF NOT EXISTS messages_fts_AFTER_INSERT AFTER INSERT ON `messages` BEGIN INSERT INTO `messages_fts`(`docid`, `content`, `name`) VALUES (NEW.`rowid`, NEW.`content`, NEW.`name`); END;

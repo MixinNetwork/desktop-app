@@ -21,6 +21,34 @@ export default {
     })
     return result
   },
+  fts5KeywordFilter(text) {
+    text = text.trim()
+    text = text.replace(/[' ']+/g, '.')
+    let keyword = ''
+    const preventList = [
+      [33, 47],
+      [58, 64],
+      [91, 96],
+      [123, 126]
+    ]
+    for (let i = 0; i < text.length; i++) {
+      const code = text.charCodeAt(i)
+      let temp = text[i]
+      for (let j = 0; j < preventList.length; j++) {
+        if (preventList[j][0] <= code && code <= preventList[j][1]) {
+          temp = '* '
+          break
+        }
+      }
+      keyword = keyword + temp
+    }
+    keyword = keyword.trim()
+    if (keyword[keyword.length - 1] !== '*') {
+      keyword += '*'
+    }
+    keyword = keyword.replace(/['* ']+/g, '* ').replace(/^\* /, '')
+    return keyword
+  },
   highlight(content, keyword, highlight) {
     if (!keyword) return ''
     let result = content

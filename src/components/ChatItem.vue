@@ -52,15 +52,13 @@ export default {
     width: 48px;
     height: 48px;
     margin-right: 16px;
+    flex: none;
   }
   .content {
     display: flex;
     flex-direction: column;
-    .title {
-      justify-content: space-between;
-    }
+    overflow: hidden;
     .name {
-      overflow: hidden;
       display: flex;
       justify-content: flex-start;
       flex: 1;
@@ -72,7 +70,7 @@ export default {
       svg {
         width: 24px;
         vertical-align: top;
-        margin: 3px 0 0 0;
+        margin: 3px 0 0 1px;
       }
     }
   }

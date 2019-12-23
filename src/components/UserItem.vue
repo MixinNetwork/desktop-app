@@ -47,6 +47,7 @@ export default {
     width: 48px;
     height: 48px;
     margin-right: 16px;
+    flex: none;
   }
   .user_name {
     overflow: hidden;

@@ -53,7 +53,10 @@
           </div>
           <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
             {{$t('chat.chat_chats')}}
-            <a @click="showMoreList('chats')">{{$t('chat.chat_more')}}</a>
+            <a
+              v-if="searchResult.chatsAll && searchResult.chatsAll.length > 3"
+              @click="showMoreList('chats')"
+            >{{$t('chat.chat_more')}}</a>
           </span>
           <div
             class="listbox"
@@ -69,7 +72,10 @@
           </div>
           <span class="listheader" v-show="searchResult.contact && searchResult.contact.length > 0">
             {{$t('chat.chat_contact')}}
-            <a @click="showMoreList('contact')">{{$t('chat.chat_more')}}</a>
+            <a
+              v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
+              @click="showMoreList('contact')"
+            >{{$t('chat.chat_more')}}</a>
           </span>
           <div class="listbox">
             <UserItem
@@ -473,7 +479,7 @@ export default {
       .listheader {
         display: flex;
         justify-content: space-between;
-        padding: 1rem 1rem 0.6rem;
+        padding: 1rem 1.6rem 0.6rem;
         font-family: Helvetica;
         font-weight: 500;
         a {
@@ -495,7 +501,7 @@ export default {
       font-weight: 500;
       cursor: pointer;
       svg {
-        margin: 0.25rem 0.25rem 0 0.5rem;
+        margin: 0.25rem 0.7rem 0 1.1rem;
         vertical-align: top;
       }
     }

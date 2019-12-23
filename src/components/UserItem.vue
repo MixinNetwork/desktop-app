@@ -34,7 +34,7 @@ export default {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: 0.4rem 0.8rem;
+  padding: 0.4rem 1.4rem;
   &:hover,
   &.current {
     background: #f7f7f7;
@@ -49,10 +49,20 @@ export default {
     margin-right: 16px;
   }
   .user_name {
-    flex: 1;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    display: flex;
+    justify-content: flex-start;
+    flex: 1;
+    span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    svg {
+      width: 24px;
+      vertical-align: top;
+      margin: 3px 0 0 1px;
+    }
   }
 }
 </style>

@@ -65,6 +65,7 @@ function search(state, payload) {
 
     if (!type || type === 'contact') {
       const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
+        if (!chats) return []
         return !chats.some(conversation => {
           return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
         })

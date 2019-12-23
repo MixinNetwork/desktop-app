@@ -78,9 +78,7 @@ class MessageDao {
     const insertMany = db.transaction(messages => {
       messages.forEach((message, index) => {
         message.message_index = index
-        if (['SIGNAL_TEXT', 'PLAIN_TEXT'].indexOf(message.category) > -1) {
-          insert.run(message)
-        }
+        insert.run(message)
       })
     })
     insertMany(messages)
@@ -93,7 +91,7 @@ class MessageDao {
           'FROM messages_fts m_fts ' +
           'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
           'LEFT JOIN users u ON m.user_id = u.user_id ' +
-          'WHERE m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
+          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT") AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
       )
       .all(conversationId, `${keyword}*`)
   }

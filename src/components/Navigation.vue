@@ -44,6 +44,7 @@
             v-for="chat in searchResult.chats"
             :key="chat.conversationId"
             :chat="chat"
+            :keyword="searchKeyword"
             @item-click="onSearchGroupClick"
           ></ChatItem>
           <span
@@ -54,6 +55,7 @@
             v-for="user in searchResult.contact"
             :key="user.user_id"
             :user="user"
+            :keyword="searchKeyword"
             @user-click="onSearchUserClick"
           ></UserItem>
         </ul>
@@ -115,6 +117,7 @@ export default {
       profileShow: false,
       settingShow: false,
       menus: this.$t('menu.personal'),
+      searchKeyword: '',
       LinkStatus: LinkStatus,
       ConversationCategory: ConversationCategory,
       // eslint-disable-next-line no-undef
@@ -313,6 +316,7 @@ export default {
       this.settingShow = false
     },
     onInput: function(text) {
+      this.searchKeyword = text
       this.$store.dispatch('search', {
         text
       })

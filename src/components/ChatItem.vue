@@ -3,7 +3,7 @@
     <Avatar class="user_item_avatar" :conversation="chat" />
     <slot name="check"></slot>
     <p class="user_name">
-      {{chat.groupName || chat.name}}
+      <span v-html="highlight(chat.groupName || chat.name)"></span>
       <ICRobot v-if="chat.appId" />
     </p>
   </li>
@@ -11,15 +11,21 @@
 <script>
 import Avatar from '@/components/Avatar.vue'
 import ICRobot from '../assets/images/ic_robot.svg'
+import contentUtil from '@/utils/content_util.js'
 export default {
   components: {
     Avatar,
     ICRobot
   },
   name: 'ChatItem',
-  props: ['chat'],
+  props: ['chat', 'keyword'],
   data: function() {
     return {}
+  },
+  methods: {
+    highlight(content) {
+      return contentUtil.highlight(content, this.keyword)
+    }
   }
 }
 </script>

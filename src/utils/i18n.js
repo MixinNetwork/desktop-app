@@ -97,7 +97,8 @@ let transactions = {
       chat_chats: 'Chats',
       preview: 'Preview',
       sendMessage: 'Send',
-      search: 'Search'
+      search: 'Search',
+      search_id_or_phone: 'Search Mixin ID or Phone number:'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -225,7 +226,8 @@ let transactions = {
       chat_chats: '会话',
       preview: '预览',
       sendMessage: '发送',
-      search: '搜索聊天记录'
+      search: '搜索聊天记录',
+      search_id_or_phone: '搜索 Mixin ID 或手机号码：'
     },
     loading: {
       initializing: '初始化中...'

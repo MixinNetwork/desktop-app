@@ -34,13 +34,12 @@ export default {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: 0.8rem 0.8rem;
+  padding: 0.4rem 0.8rem;
   &:hover,
   &.current {
-    background: #f1f2f2;
+    background: #f7f7f7;
   }
   border: none;
-  border-bottom: 1px solid $border-color;
 
   background: white;
 

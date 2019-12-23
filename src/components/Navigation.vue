@@ -36,28 +36,43 @@
           />
         </ul>
         <ul class="conversations" v-show="searchResult.contact||searchResult.chats">
-          <span
-            class="listheader"
-            v-show="searchResult.chats && searchResult.chats.length > 0"
-          >{{$t('chat.chat_chats')}}</span>
-          <ChatItem
-            v-for="chat in searchResult.chats"
-            :key="chat.conversationId"
-            :chat="chat"
-            :keyword="searchKeyword"
-            @item-click="onSearchGroupClick"
-          ></ChatItem>
-          <span
-            class="listheader"
-            v-show="searchResult.contact && searchResult.contact.length > 0"
-          >{{$t('chat.chat_contact')}}</span>
-          <UserItem
-            v-for="user in searchResult.contact"
-            :key="user.user_id"
-            :user="user"
-            :keyword="searchKeyword"
-            @user-click="onSearchUserClick"
-          ></UserItem>
+          <div class="search-id-or-phone" v-if="showIdOrPhoneSearch">
+            <div>
+              {{$t('chat.search_id_or_phone')}}
+              <div>
+                <button class="search-button">{{searchKeyword}}</button>
+              </div>
+            </div>
+          </div>
+          <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
+            {{$t('chat.chat_chats')}}
+            <a>more</a>
+          </span>
+          <div
+            class="listbox"
+            :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
+          >
+            <ChatItem
+              v-for="chat in searchResult.chats"
+              :key="chat.conversationId"
+              :chat="chat"
+              :keyword="searchKeyword"
+              @item-click="onSearchGroupClick"
+            ></ChatItem>
+          </div>
+          <span class="listheader" v-show="searchResult.contact && searchResult.contact.length > 0">
+            {{$t('chat.chat_contact')}}
+            <a>more</a>
+          </span>
+          <div class="listbox">
+            <UserItem
+              v-for="user in searchResult.contact"
+              :key="user.user_id"
+              :user="user"
+              :keyword="searchKeyword"
+              @user-click="onSearchUserClick"
+            ></UserItem>
+          </div>
         </ul>
       </mixin-scrollbar>
     </div>
@@ -377,14 +392,19 @@ export default {
     UserItem,
     ChatItem
   },
-  computed: mapGetters({
-    currentConversationId: 'currentConversationId',
-    conversations: 'getConversations',
-    friends: 'findFriends',
-    me: 'me',
-    searchResult: 'search',
-    linkStatus: 'linkStatus'
-  })
+  computed: {
+    showIdOrPhoneSearch() {
+      return /^\d{5,15}$/.test(this.searchKeyword)
+    },
+    ...mapGetters({
+      currentConversationId: 'currentConversationId',
+      conversations: 'getConversations',
+      friends: 'findFriends',
+      me: 'me',
+      searchResult: 'search',
+      linkStatus: 'linkStatus'
+    })
+  }
 }
 </script>
 
@@ -407,13 +427,42 @@ export default {
       height: 100%;
       overflow-x: hidden;
       .listheader {
-        display: block;
-        padding-left: 16px;
-        padding-right: 16px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        color: #8888;
-        background: #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1rem 0.6rem;
+        font-family: Helvetica;
+        font-weight: 500;
+        a {
+          color: #3d75e3;
+          cursor: pointer;
+        }
+      }
+      .listbox {
+        padding-bottom: 0.8rem;
+        &.divide {
+          border-bottom: 0.5rem solid #f2f3f6;
+        }
+      }
+    }
+    .search-id-or-phone {
+      text-align: center;
+      background: #f2f3f6;
+      padding-bottom: 0.5rem;
+      & > div {
+        padding: 0.75rem 0.75rem 1.25rem;
+        background: #ffffff;
+        box-shadow: 0 2px 10px 0 rgba(195, 195, 195, 0.2);
+      }
+      .search-button {
+        background: #3d75e3;
+        color: #ffffff;
+        border: none;
+        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+        margin-top: 0.5rem;
+        cursor: pointer;
+        box-shadow: 0 0.5rem 0.7rem 0 rgba(61, 117, 227, 0.3);
+        border-radius: 0.8rem;
       }
     }
     .header {

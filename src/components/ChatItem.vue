@@ -31,6 +31,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .user_item_layout {
+  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;

@@ -91,6 +91,7 @@ export default {
   width: 100%;
   .back {
     padding: 1rem;
+    cursor: pointer;
   }
   h3 {
     padding: 0;

@@ -103,6 +103,9 @@ export default {
   position: absolute;
   color: #bbbec3;
 }
+#ic_arrow {
+  cursor: pointer;
+}
 .fade-rote-enter-active,
 .fade-rote-leave-active {
   transition: all 0.5s;

@@ -22,6 +22,7 @@ export default {
     return result
   },
   highlight(content, keyword, highlight) {
+    if (!keyword) return ''
     const segment = keyword.split(' ')
     let result = content
     highlight = highlight || 'default'

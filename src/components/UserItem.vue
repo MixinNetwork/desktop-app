@@ -33,6 +33,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
+  cursor: pointer;
   padding: 0.8rem 0.8rem;
   &:hover,
   &.current {

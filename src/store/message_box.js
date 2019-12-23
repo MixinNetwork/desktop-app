@@ -2,7 +2,7 @@ import messageDao from '@/dao/message_dao.js'
 import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageBox {
-  setConversationId(conversationId, messagePositionIndex) {
+  setConversationId(conversationId, messagePositionIndex, keyword) {
     if (conversationId) {
       this.conversationId = conversationId
       this.messagePositionIndex = messagePositionIndex
@@ -21,7 +21,7 @@ class MessageBox {
       }
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
-      this.callback(this.messages)
+      this.callback(this.messages, keyword)
       this.scrollAction(true, posMessage)
     }
   }

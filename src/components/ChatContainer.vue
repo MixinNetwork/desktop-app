@@ -300,15 +300,21 @@ export default {
       }
     }
     messageBox.bindData(
-      function(messages, unreadNum) {
+      function(messages, data) {
         if (messages) {
           self.messages = messages
         }
-        if (unreadNum) {
-          self.currentUnreadNum = unreadNum
-          setTimeout(() => {
-            self.infiniteDownLock = false
-          })
+        if (data) {
+          if (!messages) {
+            self.currentUnreadNum = data
+            setTimeout(() => {
+              self.infiniteDownLock = false
+            })
+          } else {
+            setTimeout(() => {
+              self.searchKeyword = data
+            }, 100)
+          }
         }
       },
       function(force, message) {

@@ -58,10 +58,20 @@ class MessageDao {
     insertMany(mIds)
   }
 
-  ftsMessageCount(conversationId) {
+  ftsMessageCount(conversationId, keyword) {
     if (conversationId) {
-      const data = db.prepare('SELECT count(message_id) FROM messages WHERE conversation_id = ?').get(conversationId)
-      return data['count(message_id)']
+      if (!keyword) {
+        const data = db.prepare('SELECT count(message_id) FROM messages WHERE conversation_id = ?').get(conversationId)
+        return data['count(message_id)']
+      }
+      const data = db
+        .prepare(
+          'SELECT count(m.message_id) FROM messages_fts m_fts ' +
+            'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
+            'WHERE m.conversation_id = ? AND m_fts.content MATCH ?'
+        )
+        .get(conversationId, `${keyword}*`)
+      return data['count(m.message_id)']
     }
     const data = db.prepare('SELECT count(message_id) FROM messages_fts').get()
     return data['count(message_id)']

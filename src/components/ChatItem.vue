@@ -1,11 +1,15 @@
 <template>
-  <li class="user_item_layout" @click="$emit('item-click',chat)">
-    <Avatar class="user_item_avatar" :conversation="chat" />
-    <slot name="check"></slot>
-    <p class="user_name">
-      <span v-html="highlight(chat.groupName || chat.name)"></span>
-      <ICRobot v-if="chat.appId" />
-    </p>
+  <li class="item_layout" @click="$emit('item-click',chat)">
+    <Avatar class="item_avatar" :conversation="chat" />
+    <div class="content">
+      <div class="title">
+        <div class="name">
+          <span>{{chat.groupName || chat.name}}</span>
+          <ICRobot v-if="chat.appId" />
+        </div>
+      </div>
+      <div class="record">{{chat.records}} {{$t('chat.chat_records')}}</div>
+    </div>
   </li>
 </template>
 <script>
@@ -30,12 +34,12 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.user_item_layout {
+.item_layout {
   cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0.4rem 1.4rem;
+  padding: 0.6rem 1.4rem;
   &:hover,
   &.current {
     background: #f7f7f7;
@@ -44,26 +48,39 @@ export default {
 
   background: white;
 
-  .user_item_avatar {
+  .item_avatar {
     width: 48px;
     height: 48px;
     margin-right: 16px;
   }
-  .user_name {
-    overflow: hidden;
+  .content {
     display: flex;
-    justify-content: flex-start;
-    flex: 1;
-    span {
+    flex-direction: column;
+    .title {
+      justify-content: space-between;
+    }
+    .name {
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      display: flex;
+      justify-content: flex-start;
+      flex: 1;
+      span {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      svg {
+        width: 24px;
+        vertical-align: top;
+        margin: 3px 0 0 0;
+      }
     }
-    svg {
-      width: 24px;
-      vertical-align: top;
-      margin: 3px 0 0 0;
-    }
+  }
+  .record {
+    display: flex;
+    flex: 1;
+    font-size: 0.8rem;
+    color: #bbbec3;
   }
 }
 </style>

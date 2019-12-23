@@ -67,7 +67,7 @@
               :key="chat.conversationId"
               :chat="chat"
               :keyword="searchKeyword"
-              @item-click="onSearchGroupClick"
+              @item-click="onSearchChatClick"
             ></ChatItem>
           </div>
           <span class="listheader" v-show="searchResult.contact && searchResult.contact.length > 0">
@@ -95,7 +95,7 @@
               :key="chat.conversationId"
               :chat="chat"
               :keyword="searchKeyword"
-              @item-click="onSearchGroupClick"
+              @item-click="onSearchChatClick"
             ></ChatItem>
           </div>
         </ul>
@@ -153,6 +153,8 @@ import ChatItem from '@/components/ChatItem.vue'
 import ICEdit from '@/assets/images/ic_edit.svg'
 import ICBack from '@/assets/images/ic_back.svg'
 import ICSignal from '@/assets/images/ic_signal.svg'
+import messageBox from '@/store/message_box.js'
+import messageDao from '@/dao/message_dao.js'
 import workerManager from '@/workers/worker_manager.js'
 import { clearDb } from '@/persistence/db_util.js'
 import accountAPI from '@/api/account.js'
@@ -400,9 +402,12 @@ export default {
         user
       })
     },
-    onSearchGroupClick(conversation) {
+    onSearchChatClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
+      const list = messageDao.ftsMessageQuery(conversation.conversationId, this.searchKeyword)
+      const count = messageDao.ftsMessageCount(conversation.conversationId)
+      messageBox.setConversationId(conversation.conversationId, count - list[0].message_index - 1, this.searchKeyword)
     },
     onSearchUserClick(user) {
       this.conversationShow = false

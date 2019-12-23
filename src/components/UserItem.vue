@@ -1,10 +1,10 @@
 <template>
   <li class="user_item_layout" @click="$emit('user-click',user)">
     <Avatar class="user_item_avatar" :user="user" />
-    <p class="user_name">
+    <div class="user_name">
       <span v-html="highlight(user.full_name)"></span>
       <ICRobot v-if="user.app_id" />
-    </p>
+    </div>
   </li>
 </template>
 <script>
@@ -34,7 +34,7 @@ export default {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: 0.4rem 1.4rem;
+  padding: 0.6rem 1.4rem;
   &:hover,
   &.current {
     background: #f7f7f7;

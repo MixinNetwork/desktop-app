@@ -3,6 +3,7 @@ import messageBox from '@/store/message_box.js'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
+import messageDao from '@/dao/message_dao'
 import { LinkStatus, ConversationCategory } from '@/utils/constants.js'
 
 function refreshConversations(state) {
@@ -43,21 +44,21 @@ function search(state, payload) {
     let { chats, chatsAll, contact, contactAll } = state.search
 
     if (!type || type === 'chats') {
-      const findChats = state.conversationKeys
-        .map(key => {
-          return state.conversations[key]
-        })
-        .filter(item => {
-          return item
-        })
-        .filter(item => {
-          return (
-            (item.category === ConversationCategory.GROUP &&
-              item.groupName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
-            (item.category === ConversationCategory.CONTACT &&
-              item.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
-          )
-        })
+      const conversations = conversationDao.getConversations()
+      const countMap = {}
+      conversations.forEach(conversation => {
+        const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+        countMap[conversation.conversationId] = count
+      })
+
+      const findChats = []
+      Object.keys(countMap).forEach(key => {
+        if (countMap[key] > 0) {
+          const temp = state.conversations[key]
+          temp.records = countMap[key]
+          findChats.push(temp)
+        }
+      })
 
       chatsAll = [...findChats]
       chats = findChats.splice(0, 3)

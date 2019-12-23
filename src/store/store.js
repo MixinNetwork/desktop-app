@@ -18,7 +18,9 @@ const state = {
   attachment: [],
   search: {
     contact: null,
-    chats: null
+    chats: null,
+    contactAll: null,
+    chatsAll: null
   },
 
   showTime: false,

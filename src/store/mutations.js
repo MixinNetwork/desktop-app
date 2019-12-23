@@ -33,41 +33,59 @@ function refreshConversation(state, conversationId) {
 
 let keywordCache = null
 
-function search(state, keyword) {
+function search(state, payload) {
+  const { keyword, type } = payload
+
   if (keyword) {
     keywordCache = keyword
     const account = state.me
-    const chats = state.conversationKeys
-      .map(key => {
-        return state.conversations[key]
-      })
-      .filter(item => {
-        return item
-      })
-      .filter(item => {
-        return (
-          (item.category === ConversationCategory.GROUP &&
-            item.groupName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
-          (item.category === ConversationCategory.CONTACT &&
-            item.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
-        )
-      })
 
-    const contact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
-      return !chats.some(conversation => {
-        return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+    let { chats, chatsAll, contact, contactAll } = state.search
+
+    if (!type || type === 'chats') {
+      const findChats = state.conversationKeys
+        .map(key => {
+          return state.conversations[key]
+        })
+        .filter(item => {
+          return item
+        })
+        .filter(item => {
+          return (
+            (item.category === ConversationCategory.GROUP &&
+              item.groupName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
+            (item.category === ConversationCategory.CONTACT &&
+              item.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+          )
+        })
+
+      chatsAll = [...findChats]
+      chats = findChats.splice(0, 3)
+    }
+
+    if (!type || type === 'contact') {
+      const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
+        return !chats.some(conversation => {
+          return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+        })
       })
-    })
+      contactAll = [...findContact]
+      contact = findContact.splice(0, 3)
+    }
 
     state.search = {
-      contact: contact,
-      chats: chats
+      contact,
+      chats,
+      contactAll,
+      chatsAll
     }
   } else {
     keywordCache = null
     state.search = {
       contact: null,
-      chats: null
+      chats: null,
+      contactAll: null,
+      chatsAll: null
     }
   }
 }
@@ -82,7 +100,9 @@ export default {
     state.currentUser = {}
     state.search = {
       contact: null,
-      chats: null
+      chats: null,
+      contactAll: null,
+      chatsAll: null
     }
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
@@ -171,7 +191,9 @@ export default {
     keywordCache = null
     state.search = {
       contact: null,
-      chats: null
+      chats: null,
+      contactAll: null,
+      chatsAll: null
     }
   },
   toggleTime(state, toggle) {

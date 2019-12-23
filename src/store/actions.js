@@ -414,7 +414,7 @@ export default {
     commit('refreshMessage', conversationId)
   },
   search: ({ commit }, payload) => {
-    commit('search', payload.text)
+    commit('search', payload)
   },
   searchClear: ({ commit }) => {
     commit('searchClear')

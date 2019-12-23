@@ -3,7 +3,7 @@
     <Avatar class="avatar" :user="item" :conversation="null" />
     <div class="box">
       <div class="meta">
-        <div>{{item.full_name}}</div>
+        <div v-html="highlight(item.full_name)"></div>
         <div class="time">{{$moment(item.created_at).fromNow().replace(/\s/, '')}}</div>
       </div>
       <div class="content">

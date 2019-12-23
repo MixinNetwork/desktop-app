@@ -23,16 +23,16 @@ export default {
   },
   highlight(content, keyword, highlight) {
     if (!keyword) return ''
-    const segment = keyword.split(' ')
     let result = content
     highlight = highlight || 'default'
-    segment.forEach(str => {
-      if (str.trim()) {
-        str = str.replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
-        const regx = new RegExp('(' + str + ')', 'ig')
+    keyword = keyword.trim()
+    if (keyword) {
+      keyword = keyword.replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+      const regx = new RegExp('(' + keyword + ')', 'ig')
+      if (result) {
         result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
       }
-    })
+    }
     return result
   }
 }

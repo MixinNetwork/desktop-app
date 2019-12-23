@@ -52,9 +52,6 @@ export default {
       this.onInput()
     }
   },
-  created() {
-    messageDao.ftsMessageLoad(this.conversation.conversationId)
-  },
   methods: {
     onInput() {
       if (this.keyword.length > 0) {
@@ -66,7 +63,7 @@ export default {
           if (data) {
             this.resultList = data
           }
-        }, 200)
+        }, 500)
       } else {
         this.resultList = []
         this.searching = false

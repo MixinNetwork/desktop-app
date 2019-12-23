@@ -358,7 +358,8 @@ export default {
     },
     goSearchMessagePos(item, keyword) {
       this.hideSearch()
-      messageBox.setConversationId(this.conversation.conversationId, item.message_index)
+      const count = messageDao.ftsMessageCount(this.conversation.conversationId)
+      messageBox.setConversationId(this.conversation.conversationId, count - item.message_index - 1)
       setTimeout(() => {
         this.searchKeyword = keyword
       })

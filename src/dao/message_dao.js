@@ -58,22 +58,26 @@ class MessageDao {
     insertMany(mIds)
   }
 
+  ftsMessageCount(conversationId) {
+    if (conversationId) {
+      const data = db.prepare('SELECT count(message_id) FROM messages WHERE conversation_id = ?').get(conversationId)
+      return data['count(message_id)']
+    }
+    const data = db.prepare('SELECT count(message_id) FROM messages_fts').get()
+    return data['count(message_id)']
+  }
+
   ftsMessageLoad(conversationId) {
-    db.prepare('DELETE FROM messages_fts WHERE conversation_id = ?').run(conversationId)
     const messages = db
-      .prepare(
-        'SELECT message_id,conversation_id,m.category As category,m.content As content,m.created_at As created_at,full_name, m.user_id As user_id, avatar_url ' +
-          'FROM messages m INNER JOIN users u ON m.user_id = u.user_id WHERE m.conversation_id = ? ORDER BY created_at ASC'
-      )
+      .prepare('SELECT message_id,category,content FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
     const insert = db.prepare(
-      'INSERT OR REPLACE INTO messages_fts (content, message_id, conversation_id, full_name, user_id, avatar_url, created_at, message_index) ' +
-        'VALUES (@content, @message_id, @conversation_id, @full_name, @user_id, @avatar_url, @created_at, @message_index)'
+      'INSERT OR REPLACE INTO messages_fts (message_id, content, message_index) ' +
+        'VALUES (@message_id, @content, @message_index)'
     )
     const insertMany = db.transaction(messages => {
-      const mLen = messages.length
       messages.forEach((message, index) => {
-        message.message_index = mLen - index - 1
+        message.message_index = index
         if (['SIGNAL_TEXT', 'PLAIN_TEXT'].indexOf(message.category) > -1) {
           insert.run(message)
         }
@@ -85,7 +89,11 @@ class MessageDao {
   ftsMessageQuery(conversationId, keyword) {
     return db
       .prepare(
-        `SELECT * from messages_fts WHERE messages_fts.conversation_id = ? AND content MATCH ? ORDER BY created_at DESC LIMIT 100`
+        'SELECT m.message_id,m.conversation_id,m.content,m.created_at,u.full_name,m.user_id,u.avatar_url,m_fts.message_index ' +
+          'FROM messages_fts m_fts ' +
+          'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
+          'LEFT JOIN users u ON m.user_id = u.user_id ' +
+          'WHERE m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
       )
       .all(conversationId, `${keyword}*`)
   }

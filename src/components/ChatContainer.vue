@@ -37,6 +37,12 @@
         <li v-show="!user.app_id" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
+        <TimeDivide
+          v-if="messages[0] && showMessages"
+          :messageTime="contentUtil.renderTime(messages[0].createdAt)"
+          :scrollTop="scrollTop"
+          :isBottom="isBottom"
+        />
         <MessageItem
           v-for="(item, index) in messages"
           :key="item.messageId"
@@ -137,6 +143,7 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
+import TimeDivide from '@/components/TimeDivide.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
@@ -178,7 +185,9 @@ export default {
       showMessages: true,
       infiniteUpLock: false,
       infiniteDownLock: true,
-      searchKeyword: ''
+      searchKeyword: '',
+      scrollTop: 0,
+      contentUtil
     }
   },
   watch: {
@@ -260,6 +269,7 @@ export default {
     Avatar,
     Details,
     ChatSearch,
+    TimeDivide,
     MessageItem,
     FileContainer,
     ICBot,
@@ -360,6 +370,7 @@ export default {
       if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
       }
+      this.scrollTop = list.scrollTop
     },
     chooseAttachment() {
       this.file = null

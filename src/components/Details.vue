@@ -17,7 +17,7 @@
           <div
             v-if="conversation.announcement"
             class="announcement"
-            v-html="renderUrl(conversation.announcement)"
+            v-html="contentUtil.renderUrl(conversation.announcement)"
           ></div>
           <div v-if="conversation.biography" class="biography">{{conversation.biography}}</div>
         </header>
@@ -47,9 +47,9 @@ export default {
     Avatar,
     UserItem
   },
-  methods: {
-    renderUrl(content) {
-      return contentUtil.renderUrl(content)
+  data() {
+    return {
+      contentUtil
     }
   },
   computed: {

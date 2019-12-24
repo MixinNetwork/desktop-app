@@ -1,10 +1,14 @@
 <template>
   <main class="chat container">
     <header v-show="conversation">
-      <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
-      <div class="title" @click="showDetails">
-        <div class="username">{{name}}</div>
-        <div class="identity number">{{identity}}</div>
+      <div>
+        <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
+      </div>
+      <div class="title">
+        <div @click="showDetails">
+          <div class="username">{{name}}</div>
+          <div class="identity number">{{identity}}</div>
+        </div>
       </div>
       <div class="search" @click="chatSearch">
         <ICSearch />
@@ -728,7 +732,15 @@ export default {
       flex: 1;
       z-index: 1;
       text-align: left;
-      padding-left: 0.8rem;
+      cursor: pointer;
+      & > div {
+        max-width: 12rem;
+        padding: 0 0.8rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        display: inline-flex;
+      }
     }
     .bot,
     .search {
@@ -739,9 +751,9 @@ export default {
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      flex-shrink: 0;
     }
     .username {
-      width: 12rem;
       max-width: 100%;
       overflow: hidden;
       white-space: nowrap;

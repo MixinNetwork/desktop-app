@@ -111,7 +111,7 @@ export default {
     flex-direction: row;
     align-content: center;
     min-width: 12rem;
-    max-width: 16rem;
+    max-width: 14rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     #avatar {

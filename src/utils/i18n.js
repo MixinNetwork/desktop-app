@@ -119,8 +119,10 @@ let transactions = {
       user_biography: 'Biography'
     },
     unread_message: 'Unread messages',
+    date: ['/', '/', ''],
     today: 'Today',
     yesterday: 'Yesterday',
+    week_prefix: ['', ''],
     week: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     notification: {
       sendPhoto: 'send a photo',
@@ -253,7 +255,8 @@ let transactions = {
     date: ['年', '月', '日'],
     today: '今天',
     yesterday: '昨天',
-    week: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+    week_prefix: ['星期', '周'],
+    week: ['日', '一', '二', '三', '四', '五', '六'],
     notification: {
       sendPhoto: '发送了一个图片',
       sendVideo: '发送了一个视频',

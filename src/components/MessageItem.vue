@@ -360,38 +360,30 @@ export default {
       }
     },
     getTimeDivide(message) {
-      const t = Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24)
-      const current = Math.floor(new Date().getTime() / 1000 / 3600 / 24)
-      const d = new Date(message.createdAt)
-      const n = new Date()
-      if (t === current) {
+      const t = this.$moment(message.createdAt)
+      const td = t.format('YYYY-MM-DD')
+      const n = this.$moment()
+      const nd = n.format('YYYY-MM-DD')
+      const daySeconds = 86400000
+      if (nd === td) {
         return this.$t('today')
-      } else if (current - t === 1) {
-        return this.$t('yesterday')
-      } else if (current - t <= n.getDay()) {
-        return this.$t('week')[d.getDay()]
+      } else if (this.$moment(nd).diff(this.$moment(td)) <= n.get('day') * daySeconds) {
+        return `${this.$t('week_prefix')[0]}${this.$t('week')[t.get('day')]}`
       } else {
-        let yearStr = '/'
-        let monthStr = '/'
-        let dayStr = ''
-        if (this.$i18n.locale === 'zh') {
-          ;[yearStr, monthStr, dayStr] = this.$t('date')
-        }
-        if (n.getFullYear() === d.getFullYear()) {
+        let [yearStr, monthStr, dayStr] = this.$t('date')
+        if (n.get('year') === t.get('year')) {
           yearStr = ''
         } else {
-          yearStr = d.getFullYear() + yearStr
+          yearStr = t.get('year') + yearStr
         }
-        const dateStr =
-          yearStr + ('0' + (d.getMonth() + 1)).slice(-2) + monthStr + ('0' + d.getDate()).slice(-2) + dayStr
-        return `${dateStr} ${this.$t('week')[d.getDay()]}`
+        const dateStr = `${yearStr}${t.format('MM')}${monthStr}${t.format('DD')}${dayStr}`
+        return `${dateStr} ${this.$t('week_prefix')[1]}${this.$t('week')[t.get('day')]}`
       }
     },
     equalDay(message, prev) {
-      return (
-        Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24) ===
-        Math.floor(Date.parse(prev.createdAt) / 1000 / 3600 / 24)
-      )
+      const td = this.$moment(message.createdAt).format('YYYY-MM-DD')
+      const pd = this.$moment(prev.createdAt).format('YYYY-MM-DD')
+      return !this.$moment(pd).diff(this.$moment(td))
     },
     getColor: function(id) {
       return getNameColorById(id)
@@ -498,15 +490,16 @@ li {
   margin-right: -3rem;
 }
 .time-divide {
-  color: #555;
+  color: #333;
   font-size: 0.75rem;
   text-align: center;
   margin-bottom: 0.6rem;
   span {
+    min-width: 5rem;
     background: #d5d3f3;
     border-radius: 0.8rem;
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 0.1rem 0.6rem;
   }
 }
 .username {

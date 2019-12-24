@@ -137,7 +137,6 @@ import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
-import moment from 'moment'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
 import ICSearch from '../assets/images/ic_search.svg'
@@ -456,12 +455,12 @@ export default {
     },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-        if (moment().isBefore(conversation.ownerMuteUntil)) {
+        if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
           return true
         }
       }
       if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-        if (moment().isBefore(conversation.muteUntil)) {
+        if (this.$moment().isBefore(conversation.muteUntil)) {
           return true
         }
       }

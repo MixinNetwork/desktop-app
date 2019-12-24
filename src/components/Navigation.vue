@@ -161,7 +161,7 @@ import accountAPI from '@/api/account.js'
 import conversationAPI from '@/api/conversation.js'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
-import moment from 'moment'
+
 export default {
   name: 'navigation',
   data() {
@@ -317,12 +317,12 @@ export default {
     },
     isMute(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-        if (moment().isBefore(conversation.ownerMuteUntil)) {
+        if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
           return true
         }
       }
       if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-        if (moment().isBefore(conversation.muteUntil)) {
+        if (this.$moment().isBefore(conversation.muteUntil)) {
           return true
         }
       }

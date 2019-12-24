@@ -360,17 +360,31 @@ export default {
       }
     },
     getTimeDivide(message) {
-      let t = Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24)
-      let current = Math.floor(new Date().getTime() / 1000 / 3600 / 24)
-      let d = new Date(message.createdAt)
+      const t = Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24)
+      const current = Math.floor(new Date().getTime() / 1000 / 3600 / 24)
+      const d = new Date(message.createdAt)
+      const n = new Date()
       if (t === current) {
         return this.$t('today')
       } else if (current - t === 1) {
         return this.$t('yesterday')
-      } else if (current - t < 7) {
+      } else if (current - t <= n.getDay()) {
         return this.$t('week')[d.getDay()]
       } else {
-        return ('0' + (d.getMonth() + 1)).slice(-2) + '/' + ('0' + d.getDate()).slice(-2)
+        let yearStr = '/'
+        let monthStr = '/'
+        let dayStr = ''
+        if (this.$i18n.locale === 'zh') {
+          ;[yearStr, monthStr, dayStr] = this.$t('date')
+        }
+        if (n.getFullYear() === d.getFullYear()) {
+          yearStr = ''
+        } else {
+          yearStr = d.getFullYear() + yearStr
+        }
+        const dateStr =
+          yearStr + ('0' + (d.getMonth() + 1)).slice(-2) + monthStr + ('0' + d.getDate()).slice(-2) + dayStr
+        return `${dateStr} ${this.$t('week')[d.getDay()]}`
       }
     },
     equalDay(message, prev) {
@@ -484,13 +498,13 @@ li {
   margin-right: -3rem;
 }
 .time-divide {
-  color: #8799a5;
+  color: #555;
   font-size: 0.75rem;
   text-align: center;
   margin-bottom: 0.6rem;
   span {
     background: #d5d3f3;
-    border-radius: 0.2rem;
+    border-radius: 0.8rem;
     display: inline-block;
     padding: 0.2rem 0.6rem;
   }

@@ -250,6 +250,7 @@ let transactions = {
       user_biography: '个人简介'
     },
     unread_message: '未读消息',
+    date: ['年', '月', '日'],
     today: '今天',
     yesterday: '昨天',
     week: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],

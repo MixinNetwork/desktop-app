@@ -46,7 +46,7 @@ class ConversationDao {
     return db
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
-          'c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
+          'c.draft AS draft, c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
           'c.unseen_message_count AS unseenMessageCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId, ' +
@@ -69,7 +69,7 @@ class ConversationDao {
     return db
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
-          'c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
+          'c.draft AS draft, c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
           'c.unseen_message_count AS unseenMessageCount, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil ' +
@@ -96,6 +96,10 @@ class ConversationDao {
 
   updateConversationStatusById(conversationId, status) {
     return db.prepare('UPDATE conversations SET status = ? WHERE conversation_id = ?').run(status, conversationId)
+  }
+
+  updateConversationDraftById(conversationId, draft) {
+    return db.prepare('UPDATE conversations SET draft = ? WHERE conversation_id = ?').run(draft, conversationId)
   }
 
   insertConversation(conversation) {

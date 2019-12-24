@@ -81,6 +81,7 @@
               class="box"
               contenteditable="true"
               :placeholder="$t('home.input')"
+              @input="saveMessageDraft"
               @keydown.enter="sendMessage"
               @compositionstart="inputFlag = true"
               @compositionend="inputFlag = false"
@@ -139,6 +140,7 @@ import ChatSearch from '@/components/ChatSearch.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
+import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import messageBox from '@/store/message_box.js'
@@ -188,6 +190,7 @@ export default {
     conversation(newC, oldC) {
       this.infiniteDownLock = true
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+        this.$refs.box.innerText = this.conversation.draft || ''
         this.showMessages = false
         if (this.$refs.infiniteUp) {
           this.$refs.infiniteUp.stateChanger.reset()
@@ -364,6 +367,11 @@ export default {
     },
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
+    },
+    saveMessageDraft() {
+      const conversationId = this.conversation.conversationId
+      const draft = this.$refs.box.innerText
+      conversationDao.updateConversationDraftById(conversationId, draft)
     },
     goSearchMessagePos(item, keyword) {
       this.hideSearch()
@@ -642,6 +650,7 @@ export default {
       if (text.trim().length <= 0) {
         return
       }
+      conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
       this.$refs.box.innerText = ''
       const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
       const status = MessageStatus.SENDING

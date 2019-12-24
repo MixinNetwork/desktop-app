@@ -29,7 +29,7 @@ Vue.use(Menu)
 Vue.use(Toast)
 Vue.use(ImageViewer)
 Vue.use(InfiniteLoading, {
-  system: { throttleLimit: 30 }
+  system: { throttleLimit: 100 }
 })
 Vue.use(Scrollbar)
 

@@ -38,10 +38,9 @@
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
         <TimeDivide
-          v-if="messages[0] && showMessages"
+          ref="timeDivide"
+          v-if="messages[0] && showMessages && timeDivideShow"
           :messageTime="contentUtil.renderTime(messages[0].createdAt)"
-          :scrollTop="scrollTop"
-          :isBottom="isBottom"
         />
         <MessageItem
           v-for="(item, index) in messages"
@@ -186,7 +185,7 @@ export default {
       infiniteUpLock: false,
       infiniteDownLock: true,
       searchKeyword: '',
-      scrollTop: 0,
+      timeDivideShow: false,
       contentUtil
     }
   },
@@ -370,7 +369,16 @@ export default {
       if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
       }
-      this.scrollTop = list.scrollTop
+      if (!this.isBottom && list.scrollTop > 130) {
+        this.timeDivideShow = true
+      } else {
+        this.timeDivideShow = false
+      }
+      setTimeout(() => {
+        const timeDivide = this.$refs.timeDivide
+        if (!timeDivide) return
+        timeDivide.action()
+      }, 10)
     },
     chooseAttachment() {
       this.file = null

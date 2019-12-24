@@ -14,6 +14,7 @@ export default {
       timeDivideShow: false,
       timeDivideCurrentIndex: 0,
       scrollTimeout: null,
+      actionTimeout: null,
       scrolling: false
     }
   },
@@ -25,27 +26,33 @@ export default {
       this.scrollTimeout = setTimeout(() => {
         this.scrolling = false
       }, 500)
-      if (!this.isBottom && this.scrollTop > 130) {
-        this.timeDivideShow = true
-        const divideList = document.querySelectorAll('.time-divide.inner')
-        this.timeDivide = this.messageTime
-        if (divideList.length) {
-          let index = divideList.length - 1 - this.timeDivideCurrentIndex
-          const currentDivide = divideList[index]
-          const nextDivide = divideList[index + 1]
-          if (currentDivide) {
-            if (this.timeDivideCurrentIndex < divideList.length - 1 && currentDivide.getBoundingClientRect().top > 65) {
-              this.timeDivideCurrentIndex += 1
+      clearTimeout(this.actionTimeout)
+      this.actionTimeout = setTimeout(() => {
+        if (!this.isBottom && this.scrollTop > 130) {
+          this.timeDivideShow = true
+          const divideList = document.querySelectorAll('.time-divide.inner')
+          this.timeDivide = this.messageTime
+          if (divideList.length) {
+            let index = divideList.length - 1 - this.timeDivideCurrentIndex
+            const currentDivide = divideList[index]
+            const nextDivide = divideList[index + 1]
+            if (currentDivide) {
+              if (
+                this.timeDivideCurrentIndex < divideList.length - 1 &&
+                currentDivide.getBoundingClientRect().top > 65
+              ) {
+                this.timeDivideCurrentIndex += 1
+              }
+              if (nextDivide && nextDivide.getBoundingClientRect().top < 66) {
+                this.timeDivideCurrentIndex -= 1
+              }
+              this.timeDivide = currentDivide.innerText
             }
-            if (nextDivide && nextDivide.getBoundingClientRect().top < 66) {
-              this.timeDivideCurrentIndex -= 1
-            }
-            this.timeDivide = currentDivide.innerText
           }
+        } else {
+          this.timeDivideShow = false
         }
-      } else {
-        this.timeDivideShow = false
-      }
+      }, 10)
     }
   }
 }

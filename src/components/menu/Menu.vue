@@ -85,6 +85,7 @@ export default {
   background-clip: padding-box;
 }
 .dropdown-menu > li > a {
+  cursor: pointer;
   padding: 10px 30px;
   display: block;
   clear: both;

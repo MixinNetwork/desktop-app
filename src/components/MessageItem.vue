@@ -1,5 +1,5 @@
 <template>
-  <li>
+  <li :id="`m-${message.messageId}`">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -196,7 +196,7 @@ import contentUtil from '@/utils/content_util.js'
 
 export default {
   name: 'MessageItem',
-  props: ['conversation', 'message', 'me', 'prev', 'unread'],
+  props: ['conversation', 'message', 'me', 'prev', 'unread', 'searchKeyword'],
   components: {
     ICSending,
     ICSend,
@@ -320,8 +320,12 @@ export default {
         return 'unknown'
       }
     },
-    textMessage: message => {
-      return contentUtil.renderUrl(message.content)
+    textMessage(message) {
+      let content = contentUtil.renderUrl(message.content)
+      if (this.searchKeyword) {
+        content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
+      }
+      return content
     },
 
     getInfo(message, me) {
@@ -356,24 +360,12 @@ export default {
       }
     },
     getTimeDivide(message) {
-      let t = Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24)
-      let current = Math.floor(new Date().getTime() / 1000 / 3600 / 24)
-      let d = new Date(message.createdAt)
-      if (t === current) {
-        return this.$t('today')
-      } else if (current - t === 1) {
-        return this.$t('yesterday')
-      } else if (current - t < 7) {
-        return this.$t('week')[d.getDay()]
-      } else {
-        return ('0' + (d.getMonth() + 1)).slice(-2) + '/' + ('0' + d.getDate()).slice(-2)
-      }
+      return contentUtil.renderTime(message.createdAt)
     },
     equalDay(message, prev) {
-      return (
-        Math.floor(Date.parse(message.createdAt) / 1000 / 3600 / 24) ===
-        Math.floor(Date.parse(prev.createdAt) / 1000 / 3600 / 24)
-      )
+      const td = this.$moment(message.createdAt).format('YYYY-MM-DD')
+      const pd = this.$moment(prev.createdAt).format('YYYY-MM-DD')
+      return !this.$moment(pd).diff(this.$moment(td))
     },
     getColor: function(id) {
       return getNameColorById(id)
@@ -394,11 +386,11 @@ export default {
       let menu = this.$t('menu.chat_operation')
       let messageMenu = []
       if (canReply(this.message.type)) {
-        messageMenu.push(menu[0])
+        messageMenu.push(menu.reply)
       }
-      messageMenu.push(menu[2])
+      messageMenu.push(menu.delete)
       if (canRecall(this.message, this.me.user_id)) {
-        messageMenu.push(menu[3])
+        messageMenu.push(menu.recal)
       }
       const dwidth = document.body.clientWidth
       const dheihgt = document.body.clientHeight
@@ -407,16 +399,16 @@ export default {
       this.$Menu.alert(x, y, messageMenu, index => {
         const option = messageMenu[index]
         switch (Object.keys(menu).find(key => menu[key] === option)) {
-          case '0':
+          case 'reply':
             this.handleReply()
             break
-          case '1':
+          case 'forward':
             this.handleForward()
             break
-          case '2':
+          case 'delete':
             this.handleRemove()
             break
-          case '3':
+          case 'recal':
             this.handleRecall()
             break
           default:
@@ -480,15 +472,16 @@ li {
   margin-right: -3rem;
 }
 .time-divide {
-  color: #8799a5;
+  color: #333;
   font-size: 0.75rem;
   text-align: center;
   margin-bottom: 0.6rem;
   span {
+    min-width: 5rem;
     background: #d5d3f3;
-    border-radius: 0.2rem;
+    border-radius: 0.8rem;
     display: inline-block;
-    padding: 0.2rem 0.6rem;
+    padding: 0.1rem 0.6rem;
   }
 }
 .username {

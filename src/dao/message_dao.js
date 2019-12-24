@@ -1,6 +1,7 @@
 import moment from 'moment'
 import uuidv4 from 'uuid/v4'
 import db from '@/persistence/db'
+import contentUtil from '@/utils/content_util.js'
 import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageDao {
@@ -56,6 +57,58 @@ class MessageDao {
       }
     })
     insertMany(mIds)
+  }
+
+  ftsMessageCount(conversationId, keyword) {
+    if (conversationId) {
+      if (!keyword) {
+        const data = db.prepare('SELECT count(message_id) FROM messages WHERE conversation_id = ?').get(conversationId)
+        return data['count(message_id)']
+      }
+      const keywordFinal = contentUtil.fts5KeywordFilter(keyword)
+      if (!keywordFinal) return 0
+      const data = db
+        .prepare(
+          'SELECT count(m.message_id) FROM messages_fts m_fts ' +
+            'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
+            'WHERE m.conversation_id = ? AND m_fts.content MATCH ?'
+        )
+        .get(conversationId, keywordFinal)
+      return data['count(m.message_id)']
+    }
+    const data = db.prepare('SELECT count(message_id) FROM messages_fts').get()
+    return data['count(message_id)']
+  }
+
+  ftsMessageLoad(conversationId) {
+    const messages = db
+      .prepare('SELECT message_id,category,content FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
+      .all(conversationId)
+    const insert = db.prepare(
+      'INSERT OR REPLACE INTO messages_fts (message_id, content, message_index) ' +
+        'VALUES (@message_id, @content, @message_index)'
+    )
+    const insertMany = db.transaction(messages => {
+      messages.forEach((message, index) => {
+        message.message_index = index
+        insert.run(message)
+      })
+    })
+    insertMany(messages)
+  }
+
+  ftsMessageQuery(conversationId, keyword) {
+    const keywordFinal = contentUtil.fts5KeywordFilter(keyword)
+    if (!keywordFinal) return []
+    return db
+      .prepare(
+        'SELECT m.message_id,m.conversation_id,m.content,m.created_at,u.full_name,m.user_id,u.avatar_url,m_fts.message_index ' +
+          'FROM messages_fts m_fts ' +
+          'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
+          'LEFT JOIN users u ON m.user_id = u.user_id ' +
+          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT") AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
+      )
+      .all(conversationId, keywordFinal)
   }
 
   getMessages(conversationId, page = 0, tempCount = 0) {

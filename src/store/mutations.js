@@ -3,6 +3,7 @@ import messageBox from '@/store/message_box.js'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
+import messageDao from '@/dao/message_dao'
 import { LinkStatus, ConversationCategory } from '@/utils/constants.js'
 
 function refreshConversations(state) {
@@ -33,41 +34,60 @@ function refreshConversation(state, conversationId) {
 
 let keywordCache = null
 
-function search(state, keyword) {
+function search(state, payload) {
+  const { keyword, type } = payload
+
   if (keyword) {
     keywordCache = keyword
     const account = state.me
-    const chats = state.conversationKeys
-      .map(key => {
-        return state.conversations[key]
-      })
-      .filter(item => {
-        return item
-      })
-      .filter(item => {
-        return (
-          (item.category === ConversationCategory.GROUP &&
-            item.groupName.toLowerCase().indexOf(keyword.toLowerCase()) > -1) ||
-          (item.category === ConversationCategory.CONTACT &&
-            item.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
-        )
+
+    let { chats, chatsAll, contact, contactAll } = state.search
+
+    if (!type || type === 'chats') {
+      const conversations = conversationDao.getConversations()
+      const countMap = {}
+      conversations.forEach(conversation => {
+        const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+        countMap[conversation.conversationId] = count
       })
 
-    const contact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
-      return !chats.some(conversation => {
-        return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+      const findChats = []
+      Object.keys(countMap).forEach(key => {
+        if (countMap[key] > 0) {
+          const temp = state.conversations[key]
+          temp.records = countMap[key]
+          findChats.push(temp)
+        }
       })
-    })
+
+      chatsAll = [...findChats]
+      chats = findChats.splice(0, 3)
+    }
+
+    if (!type || type === 'contact') {
+      const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
+        if (!chats) return []
+        return !chats.some(conversation => {
+          return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+        })
+      })
+      contactAll = [...findContact]
+      contact = findContact.splice(0, 3)
+    }
 
     state.search = {
-      contact: contact,
-      chats: chats
+      contact,
+      chats,
+      contactAll,
+      chatsAll
     }
   } else {
     keywordCache = null
     state.search = {
       contact: null,
-      chats: null
+      chats: null,
+      contactAll: null,
+      chatsAll: null
     }
   }
 }
@@ -82,7 +102,9 @@ export default {
     state.currentUser = {}
     state.search = {
       contact: null,
-      chats: null
+      chats: null,
+      contactAll: null,
+      chatsAll: null
     }
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
@@ -171,7 +193,9 @@ export default {
     keywordCache = null
     state.search = {
       contact: null,
-      chats: null
+      chats: null,
+      contactAll: null,
+      chatsAll: null
     }
   },
   toggleTime(state, toggle) {

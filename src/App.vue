@@ -126,4 +126,14 @@ audio,
 video {
   outline: none;
 }
+b.highlight {
+  font-weight: normal;
+  &.default {
+    color: #3d75e3;
+  }
+  &.in-bubble {
+    background: #c4ed7a;
+    border-radius: 4px;
+  }
+}
 </style>

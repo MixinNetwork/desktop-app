@@ -20,26 +20,26 @@ let transactions = {
     help_center: 'Help center',
     menu: {
       conversation: {
-        0: 'Exit Group',
-        1: 'Pin to top',
-        2: 'Clear Pin',
-        3: 'Clear',
-        4: 'Mute',
-        5: 'Cancel Mute'
+        exit_group: 'Exit Group',
+        pin_to_top: 'Pin to top',
+        clear_pin: 'Clear Pin',
+        clear: 'Clear',
+        mute: 'Mute',
+        cancel_mute: 'Cancel Mute'
       },
       chat: {
-        0: 'Contact info',
-        1: 'Exit group',
-        2: 'Clear',
-        3: 'Mute',
-        4: 'Cancel Mute'
+        contact_info: 'Contact info',
+        exit_group: 'Exit group',
+        clear: 'Clear',
+        mute: 'Mute',
+        cancel_mute: 'Cancel Mute'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
-        0: 'Reply',
-        1: 'Forward',
-        2: 'Delete',
-        3: 'Recall'
+        reply: 'Reply',
+        forward: 'Forward',
+        delete: 'Delete',
+        recal: 'Recall'
       }
     },
     home: {
@@ -87,6 +87,7 @@ let transactions = {
       chat_sticker: 'Sticker',
       chat_pic: 'Photo',
       chat_contact: 'Contact',
+      chat_more: 'more',
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
@@ -95,8 +96,11 @@ let transactions = {
       chat_recall_me: 'You deleted this message',
       chat_file_invalid_size: 'Requires file size less than 30MB',
       chat_chats: 'Chats',
+      chat_records: 'Records',
       preview: 'Preview',
-      sendMessage: 'Send'
+      sendMessage: 'Send',
+      search: 'Search',
+      search_id_or_phone: 'Search Mixin ID or Phone number:'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -115,8 +119,10 @@ let transactions = {
       user_biography: 'Biography'
     },
     unread_message: 'Unread messages',
+    date: ['/', '/', ''],
     today: 'Today',
     yesterday: 'Yesterday',
+    week_prefix: ['', ''],
     week: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     notification: {
       sendPhoto: 'send a photo',
@@ -147,26 +153,26 @@ let transactions = {
     help_center: '帮助中心',
     menu: {
       conversation: {
-        0: '退出群组',
-        1: '置顶对话',
-        2: '取消置顶',
-        3: '删除',
-        4: '静音',
-        5: '取消静音'
+        exit_group: '退出群组',
+        pin_to_top: '置顶对话',
+        clear_pin: '取消置顶',
+        clear: '删除',
+        mute: '静音',
+        cancel_mute: '取消静音'
       },
       chat: {
-        0: '联系人资料',
-        1: '退出群组',
-        2: '清除消息',
-        3: '静音',
-        4: '取消静音'
+        contact_info: '联系人资料',
+        exit_group: '退出群组',
+        clear: '清空聊天记录',
+        mute: '静音',
+        cancel_mute: '取消静音'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {
-        0: '回复',
-        1: '转发',
-        2: '删除',
-        3: '撤回'
+        reply: '回复',
+        forward: '转发',
+        delete: '删除',
+        recal: '撤回'
       }
     },
     home: {
@@ -214,6 +220,7 @@ let transactions = {
       chat_sticker: '贴纸',
       chat_pic: '照片',
       chat_contact: '联系人',
+      chat_more: '更多',
       chat_file: '文件',
       chat_audio: '语音',
       chat_video: '视频',
@@ -222,8 +229,11 @@ let transactions = {
       chat_recall_me: '你撤回了一条消息',
       chat_file_invalid_size: '不支持大于30MB的文件',
       chat_chats: '会话',
+      chat_records: '条记录',
       preview: '预览',
-      sendMessage: '发送'
+      sendMessage: '发送',
+      search: '搜索聊天记录',
+      search_id_or_phone: '搜索 Mixin ID 或手机号码：'
     },
     loading: {
       initializing: '初始化中...'
@@ -242,9 +252,11 @@ let transactions = {
       user_biography: '个人简介'
     },
     unread_message: '未读消息',
+    date: ['年', '月', '日'],
     today: '今天',
     yesterday: '昨天',
-    week: ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'],
+    week_prefix: ['星期', '周'],
+    week: ['日', '一', '二', '三', '四', '五', '六'],
     notification: {
       sendPhoto: '发送了一个图片',
       sendVideo: '发送了一个视频',

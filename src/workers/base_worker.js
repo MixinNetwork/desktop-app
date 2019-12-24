@@ -4,6 +4,7 @@ import participantSessionDao from '@/dao/participant_session_dao'
 import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
+import messageDao from '@/dao/message_dao'
 import accountApi from '@/api/account'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
@@ -50,19 +51,29 @@ export default class BaseWorker {
     }
   }
 
+  async ftsMessageLoadAll() {
+    const count = messageDao.ftsMessageCount()
+    if (!count) {
+      const conversations = conversationDao.getConversations()
+      conversations.forEach(conversation => {
+        messageDao.ftsMessageLoad(conversation.conversationId)
+      })
+    }
+  }
+
   async refreshConversation(conversationId) {
     const c = await conversationApi.getConversation(conversationId)
     if (c.data.data) {
       const conversation = c.data.data
       const me = JSON.parse(localStorage.getItem('account'))
-      const result = conversation.participants.some(function (item) {
+      const result = conversation.participants.some(function(item) {
         return item.user_id === me.user_id
       })
 
       const status = result ? ConversationStatus.SUCCESS : ConversationStatus.QUIT
       let ownerId = conversation.creator_id
       if (conversation.category === ConversationCategory.CONTACT) {
-        conversation.participants.forEach(function (item) {
+        conversation.participants.forEach(function(item) {
           if (item.user_id !== me.user_id) {
             ownerId = item.user_id
           }
@@ -86,11 +97,11 @@ export default class BaseWorker {
 
   async refreshParticipants(conversationId, participants) {
     const local = participantDao.getParticipants(conversationId)
-    const localIds = local.map(function (item) {
+    const localIds = local.map(function(item) {
       return item.user_id
     })
     var online = []
-    participants.forEach(function (item, index) {
+    participants.forEach(function(item, index) {
       online[index] = {
         conversation_id: conversationId,
         user_id: item.user_id,
@@ -99,19 +110,19 @@ export default class BaseWorker {
       }
     })
 
-    const add = online.filter(function (item) {
-      return !localIds.some(function (e) {
+    const add = online.filter(function(item) {
+      return !localIds.some(function(e) {
         return item.user_id === e
       })
     })
-    const remove = localIds.filter(function (item) {
-      return !online.some(function (e) {
+    const remove = localIds.filter(function(item) {
+      return !online.some(function(e) {
         return item === e.user_id
       })
     })
     if (add.length > 0) {
       participantDao.insertAll(add)
-      const needFetchUsers = add.map(function (item) {
+      const needFetchUsers = add.map(function(item) {
         return item.user_id
       })
       this.fetchUsers(needFetchUsers)
@@ -129,7 +140,7 @@ export default class BaseWorker {
     if (!remote) return
     const local = participantSessionDao.getParticipantsSession(conversationId)
     if (!local || local.length === 0) {
-      const add = remote.map(function (item) {
+      const add = remote.map(function(item) {
         return {
           conversation_id: conversationId,
           user_id: item.user_id,
@@ -142,33 +153,32 @@ export default class BaseWorker {
       participantSessionDao.insertList(add)
       return
     }
-    const common = local.filter(function (item) {
-      return remote.some(function (e) {
-        return e.session_id === item.session_id &&
-          e.user_id === item.user_id
+    const common = local.filter(function(item) {
+      return remote.some(function(e) {
+        return e.session_id === item.session_id && e.user_id === item.user_id
       })
     })
 
-    const del = local.filter(function (item) {
-      return !common.some(function (e) {
-        return e.session_id === item.session_id &&
-          e.user_id === item.user_id
+    const del = local.filter(function(item) {
+      return !common.some(function(e) {
+        return e.session_id === item.session_id && e.user_id === item.user_id
       })
     })
-    const add = remote.filter(function (item) {
-      return !common.some(function (e) {
-        return e.session_id === item.session_id &&
-          e.user_id === item.user_id
+    const add = remote
+      .filter(function(item) {
+        return !common.some(function(e) {
+          return e.session_id === item.session_id && e.user_id === item.user_id
+        })
       })
-    }).map(function (item) {
-      return {
-        conversation_id: conversationId,
-        user_id: item.user_id,
-        session_id: item.session_id,
-        sent_to_server: null,
-        created_at: new Date().toISOString()
-      }
-    })
+      .map(function(item) {
+        return {
+          conversation_id: conversationId,
+          user_id: item.user_id,
+          session_id: item.session_id,
+          sent_to_server: null,
+          created_at: new Date().toISOString()
+        }
+      })
 
     participantSessionDao.deleteList(del)
     participantSessionDao.insertList(add)
@@ -197,7 +207,7 @@ export default class BaseWorker {
   async syncSession(conversationId, userIds) {
     const resp = await userApi.getSessions(userIds)
     if (resp.data.data) {
-      const add = resp.data.data.map(function (item) {
+      const add = resp.data.data.map(function(item) {
         return {
           conversation_id: conversationId,
           user_id: item.user_id,
@@ -288,11 +298,7 @@ export default class BaseWorker {
     const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
     if (data && data.length > 0) {
       const key = data[0]
-      signalProtocol.processSession(
-        key.user_id,
-        signalProtocol.convertToDeviceId(key.session_id),
-        JSON.stringify(key)
-      )
+      signalProtocol.processSession(key.user_id, signalProtocol.convertToDeviceId(key.session_id), JSON.stringify(key))
     } else {
       return
     }
@@ -310,17 +316,19 @@ export default class BaseWorker {
         action: 'CREATE_SIGNAL_KEY_MESSAGES',
         params: {
           conversation_id: conversationId,
-          messages: [{
-            message_id: uuidv4().toLowerCase(),
-            recipient_id: recipientId,
-            data: cipherText,
-            session_id: sessionId
-          }],
+          messages: [
+            {
+              message_id: uuidv4().toLowerCase(),
+              recipient_id: recipientId,
+              data: cipherText,
+              session_id: sessionId
+            }
+          ],
           conversation_checksum: this.getCheckSum(conversationId)
         }
       }
       await Vue.prototype.$blaze.sendMessage(bm).then(
-        _ => { },
+        _ => {},
         async error => {
           if (error.code === 20140) {
             await self.refreshConversation(conversationId)
@@ -329,7 +337,8 @@ export default class BaseWorker {
           } else {
             console.log(error)
           }
-        })
+        }
+      )
     }
   }
 }

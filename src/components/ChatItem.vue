@@ -1,53 +1,84 @@
 <template>
-  <li class="user_item_layout" @click="$emit('item-click',chat)">
-    <Avatar class="user_item_avatar" :conversation="chat" />
-    <slot name="check"></slot>
-    <p class="user_name">
-      {{chat.groupName || chat.name}}
-      <ICRobot v-if="chat.appId" />
-    </p>
+  <li class="item_layout" @click="$emit('item-click',chat)">
+    <Avatar class="item_avatar" :conversation="chat" />
+    <div class="content">
+      <div class="title">
+        <div class="name">
+          <span>{{chat.groupName || chat.name}}</span>
+          <ICRobot v-if="chat.appId" />
+        </div>
+      </div>
+      <div class="record">{{chat.records}} {{$t('chat.chat_records')}}</div>
+    </div>
   </li>
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
-import ICRobot from '../assets/images/ic_robot.svg'
+import ICRobot from '@/assets/images/ic_robot.svg'
+import contentUtil from '@/utils/content_util.js'
 export default {
   components: {
     Avatar,
     ICRobot
   },
   name: 'ChatItem',
-  props: ['chat'],
+  props: ['chat', 'keyword'],
   data: function() {
     return {}
+  },
+  methods: {
+    highlight(content) {
+      return contentUtil.highlight(content, this.keyword)
+    }
   }
 }
 </script>
 <style lang="scss" scoped>
-.user_item_layout {
+.item_layout {
+  cursor: pointer;
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0.8rem 0.8rem;
+  padding: 0.6rem 1.4rem;
   &:hover,
   &.current {
-    background: #f1f2f2;
+    background: #f7f7f7;
   }
   border: none;
-  border-bottom: 1px solid $border-color;
 
   background: white;
 
-  .user_item_avatar {
+  .item_avatar {
     width: 48px;
     height: 48px;
     margin-right: 16px;
+    flex: none;
   }
-  .user_name {
-    flex: 1;
+  .content {
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    .name {
+      display: flex;
+      justify-content: flex-start;
+      flex: 1;
+      span {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      svg {
+        width: 24px;
+        vertical-align: top;
+        margin: 3px 0 0 1px;
+      }
+    }
+  }
+  .record {
+    display: flex;
+    flex: 1;
+    font-size: 0.8rem;
+    color: #bbbec3;
   }
 }
 </style>

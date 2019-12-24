@@ -123,6 +123,9 @@ CREATE TABLE IF NOT EXISTS `messages` (
 	PRIMARY KEY(`message_id`),
 	FOREIGN KEY(`conversation_id`) REFERENCES `conversations`(`conversation_id`) ON UPDATE NO ACTION ON DELETE CASCADE
 );
+
+CREATE VIRTUAL TABLE IF NOT EXISTS `messages_fts` USING FTS5(`message_id` UNINDEXED, `content`, `message_index` UNINDEXED, tokenize='unicode61');
+
 CREATE TABLE IF NOT EXISTS `jobs` (
 	`job_id`	TEXT NOT NULL,
 	`action`	TEXT NOT NULL,
@@ -264,4 +267,10 @@ CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_update AFTER UPDA
 CREATE TRIGGER IF NOT EXISTS conversation_unseen_message_count_insert AFTER INSERT ON messages BEGIN UPDATE conversations SET unseen_message_count = (SELECT count(m.message_id) FROM messages m, users u WHERE m.user_id = u.user_id AND u.relationship != 'ME' AND m.status = 'SENT' AND conversation_id = new.conversation_id) where conversation_id = new.conversation_id; END;
 CREATE TRIGGER IF NOT EXISTS conversation_last_message_update AFTER INSERT ON messages BEGIN UPDATE conversations SET last_message_id = new.message_id WHERE conversation_id = new.conversation_id; END;
 CREATE TRIGGER IF NOT EXISTS conversation_last_message_delete AFTER DELETE ON messages BEGIN UPDATE conversations SET last_message_id = (select message_id from messages where conversation_id = old.conversation_id order by created_at DESC limit 1) WHERE conversation_id = old.conversation_id; END;
+
+CREATE TRIGGER IF NOT EXISTS messages_fts_BEFORE_UPDATE BEFORE UPDATE ON messages BEGIN DELETE FROM messages_fts WHERE `message_id`=OLD.`message_id`; END;
+CREATE TRIGGER IF NOT EXISTS messages_fts_BEFORE_DELETE BEFORE DELETE ON messages BEGIN DELETE FROM messages_fts WHERE `message_id`=OLD.`message_id`; END;
+CREATE TRIGGER IF NOT EXISTS messages_fts_AFTER_UPDATE AFTER UPDATE ON messages BEGIN INSERT INTO messages_fts(`message_id`, `content`, `message_index`) VALUES (NEW.`message_id`, NEW.`content`, (SELECT count(message_id)-1 FROM messages m WHERE conversation_id = NEW.conversation_id)); END;
+CREATE TRIGGER IF NOT EXISTS messages_fts_AFTER_INSERT AFTER INSERT ON messages BEGIN INSERT INTO messages_fts(`message_id`, `content`, `message_index`) VALUES (NEW.`message_id`, NEW.`content`, (SELECT count(message_id)-1 FROM messages m WHERE conversation_id = NEW.conversation_id)); END;
 COMMIT;
+

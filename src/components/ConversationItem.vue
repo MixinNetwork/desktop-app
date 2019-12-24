@@ -71,7 +71,6 @@ import ICSending from '../assets/images/ic_status_clock.svg'
 import ICPin from '../assets/images/ic_pin_top.svg'
 import ICRobot from '../assets/images/ic_robot.svg'
 import ICMute from '../assets/images/ic_mute.svg'
-import moment from 'moment'
 
 export default {
   name: 'ConversationItem',
@@ -184,12 +183,12 @@ export default {
     },
     isMute: function() {
       if (this.conversation.category === ConversationCategory.CONTACT && this.conversation.ownerMuteUntil) {
-        if (moment().isBefore(this.conversation.ownerMuteUntil)) {
+        if (this.$moment().isBefore(this.conversation.ownerMuteUntil)) {
           return true
         }
       }
       if (this.conversation.category === ConversationCategory.GROUP && this.conversation.muteUntil) {
-        if (moment().isBefore(this.conversation.muteUntil)) {
+        if (this.$moment().isBefore(this.conversation.muteUntil)) {
           return true
         }
       }

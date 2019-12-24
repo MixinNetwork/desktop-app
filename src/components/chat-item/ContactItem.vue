@@ -12,7 +12,7 @@
           <Avatar id="avatar" :user="user" />
           <div class="content">
             <span class="name">
-              {{message.sharedUserFullName}}
+              <span>{{message.sharedUserFullName}}</span>
               <ICRobot v-if="message.sharedUserAppId" />
             </span>
             <div class="bottom">
@@ -110,7 +110,8 @@ export default {
     display: flex;
     flex-direction: row;
     align-content: center;
-    width: 12rem;
+    min-width: 12rem;
+    max-width: 16rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     #avatar {
@@ -126,9 +127,17 @@ export default {
       overflow: hidden;
       .name {
         font-size: 1rem;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        span {
+          display: inline-block;
+          max-width: calc(100% - 14px);
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        svg {
+          vertical-align: top;
+          margin: 0.2rem 0 0 0.4rem;
+        }
       }
       .bottom {
         display: flex;

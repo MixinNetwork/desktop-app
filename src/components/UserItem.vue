@@ -1,24 +1,30 @@
 <template>
   <li class="user_item_layout" @click="$emit('user-click',user)">
     <Avatar class="user_item_avatar" :user="user" />
-    <p class="user_name">
-      {{user.full_name}}
+    <div class="user_name">
+      <span v-html="highlight(user.full_name)"></span>
       <ICRobot v-if="user.app_id" />
-    </p>
+    </div>
   </li>
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
 import ICRobot from '../assets/images/ic_robot.svg'
+import contentUtil from '@/utils/content_util.js'
 export default {
   components: {
     Avatar,
     ICRobot
   },
   name: 'UserItem',
-  props: ['user'],
+  props: ['user', 'keyword'],
   data: function() {
     return {}
+  },
+  methods: {
+    highlight(content) {
+      return contentUtil.highlight(content, this.keyword)
+    }
   }
 }
 </script>
@@ -27,13 +33,13 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0.8rem 0.8rem;
+  cursor: pointer;
+  padding: 0.6rem 1.4rem;
   &:hover,
   &.current {
-    background: #f1f2f2;
+    background: #f7f7f7;
   }
   border: none;
-  border-bottom: 1px solid $border-color;
 
   background: white;
 
@@ -41,12 +47,23 @@ export default {
     width: 48px;
     height: 48px;
     margin-right: 16px;
+    flex: none;
   }
   .user_name {
-    flex: 1;
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    display: flex;
+    justify-content: flex-start;
+    flex: 1;
+    span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    svg {
+      width: 24px;
+      vertical-align: top;
+      margin: 3px 0 0 1px;
+    }
   }
 }
 </style>

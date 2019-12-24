@@ -6,8 +6,11 @@
         <div class="username">{{name}}</div>
         <div class="identity number">{{identity}}</div>
       </div>
+      <div class="search" @click="chatSearch">
+        <ICSearch />
+      </div>
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
-        <ICBot></ICBot>
+        <ICBot />
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
@@ -38,6 +41,7 @@
           :unread="unreadMessageId"
           :conversation="conversation"
           :me="me"
+          :searchKeyword="searchKeyword"
           @user-click="onUserClick"
           @handle-item-click="handleItemClick"
         />
@@ -107,6 +111,9 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
+    <transition name="slide-right">
+      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
+    </transition>
   </main>
 </template>
 
@@ -117,22 +124,22 @@ import {
   ConversationStatus,
   MessageCategories,
   MessageStatus,
-  MuteDuration,
-  PerPageMessageCount
+  MuteDuration
 } from '@/utils/constants.js'
 import contentUtil from '@/utils/content_util.js'
 import { isImage, base64ToImage } from '@/utils/attachment_util.js'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
+import ChatSearch from '@/components/ChatSearch.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
-import moment from 'moment'
 import messageBox from '@/store/message_box.js'
 import ICBot from '../assets/images/ic_bot.svg'
+import ICSearch from '../assets/images/ic_search.svg'
 import ICSend from '../assets/images/ic_send.svg'
 import ICAttach from '../assets/images/ic_attach.svg'
 import browser from '@/utils/browser.js'
@@ -149,6 +156,7 @@ export default {
       participant: true,
       menus: [],
       details: false,
+      searching: false,
       unreadMessageId: '',
       MessageStatus: MessageStatus,
       inputFlag: false,
@@ -162,11 +170,18 @@ export default {
       beforeUnseenMessageCount: 0,
       oldMsgLen: 0,
       showMessages: true,
-      infiniteDownLock: true
+      infiniteUpLock: false,
+      infiniteDownLock: true,
+      searchKeyword: ''
     }
   },
   watch: {
-    conversation: function(newC, oldC) {
+    currentUnreadNum(val) {
+      if (val === 0) {
+        messageBox.clearMessagePositionIndex(0)
+      }
+    },
+    conversation(newC, oldC) {
       this.infiniteDownLock = true
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.showMessages = false
@@ -182,7 +197,7 @@ export default {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
-            this.goUnreadPos()
+            this.goMessagePos()
           } else {
             this.unreadMessageId = ''
           }
@@ -200,21 +215,22 @@ export default {
           }
           if (!oldC || newC.conversationId !== oldC.conversationId) {
             this.details = false
+            this.searching = false
             this.file = null
           }
         }
         const chatMenu = this.$t('menu.chat')
         var menu = []
         if (newC.category === ConversationCategory.CONTACT) {
-          menu.push(chatMenu[0])
-          menu.push(chatMenu[2])
+          menu.push(chatMenu.contact_info)
+          menu.push(chatMenu.clear)
           this.identity = newC.ownerIdentityNumber
           this.participant = true
         } else {
           if (newC.status !== ConversationStatus.QUIT) {
-            menu.push(chatMenu[1])
+            menu.push(chatMenu.exit_group)
           }
-          menu.push(chatMenu[2])
+          menu.push(chatMenu.clear)
           this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
           this.participant = newC.participants.some(item => {
             return item.user_id === this.me.user_id
@@ -223,9 +239,9 @@ export default {
 
         if (newC.status !== ConversationStatus.QUIT) {
           if (this.isMute(newC)) {
-            menu.push(chatMenu[4])
+            menu.push(chatMenu.cancel_mute)
           } else {
-            menu.push(chatMenu[3])
+            menu.push(chatMenu.mute)
           }
         }
         this.menus = menu
@@ -236,9 +252,11 @@ export default {
     Dropdown,
     Avatar,
     Details,
+    ChatSearch,
     MessageItem,
     FileContainer,
     ICBot,
+    ICSearch,
     ICChevronDown,
     ICSend,
     ICAttach,
@@ -281,27 +299,43 @@ export default {
       }
     }
     messageBox.bindData(
-      function(messages) {
-        self.messages = messages
+      function(messages, data) {
+        if (messages) {
+          self.messages = messages
+        }
+        if (data) {
+          if (!messages) {
+            self.currentUnreadNum = data
+            setTimeout(() => {
+              self.infiniteDownLock = false
+            })
+          } else {
+            setTimeout(() => {
+              self.searchKeyword = data
+            }, 100)
+          }
+        }
       },
-      function(force) {
+      function(force, message) {
         if (self.isBottom) {
           self.goBottom()
         }
         if (force) {
           self.goBottom()
-          self.goUnreadPos()
+          self.goMessagePos(message)
         }
         setTimeout(() => {
-          const newMsgLen = self.messages.length
-          if (!self.oldMsgLen) {
-            self.oldMsgLen = newMsgLen
+          if (!force) {
+            self.showMessages = true
           }
-          if (!self.isBottom) {
+          const newMsgLen = self.messages.length
+          if (message) {
+            self.oldMsgLen = 0
+          }
+          if (!self.isBottom && self.oldMsgLen) {
             self.currentUnreadNum += newMsgLen - self.oldMsgLen
           }
           self.oldMsgLen = newMsgLen
-          self.showMessages = true
         })
       }
     )
@@ -327,15 +361,30 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
-    goUnreadPos() {
+    goSearchMessagePos(item, keyword) {
+      this.hideSearch()
+      const count = messageDao.ftsMessageCount(this.conversation.conversationId)
+      messageBox.setConversationId(this.conversation.conversationId, count - item.message_index - 1)
+      setTimeout(() => {
+        this.searchKeyword = keyword
+      })
+    },
+    goMessagePos(posMessage) {
       let goDone = false
       let beforeScrollTop = 0
       this.infiniteScroll(null, 'down')
+      this.infiniteDownLock = false
       const action = beforeScrollTop => {
         setTimeout(() => {
-          const divideDom = document.querySelector('.unread-divide')
+          let targetDom = document.querySelector('.unread-divide')
+          if (!targetDom && posMessage) {
+            targetDom = document.getElementById(`m-${posMessage.messageId}`)
+          }
+          if (!targetDom) {
+            return (this.showMessages = true)
+          }
           let list = this.$refs.messagesUl
-          if (!divideDom || !list) {
+          if (!targetDom || !list) {
             return action(beforeScrollTop)
           }
           this.infiniteDownLock = false
@@ -344,7 +393,8 @@ export default {
             action(beforeScrollTop)
           } else {
             goDone = true
-            list.scrollTop = divideDom.offsetTop
+            list.scrollTop = targetDom.offsetTop
+            this.showMessages = true
           }
         }, 10)
       }
@@ -352,27 +402,37 @@ export default {
     },
     goBottom() {
       setTimeout(() => {
-        this.showMessages = true
         this.currentUnreadNum = 0
         let list = this.$refs.messagesUl
         if (!list) return
         let scrollHeight = list.scrollHeight
         list.scrollTop = scrollHeight
+        this.searchKeyword = ''
       })
     },
     goBottomClick() {
-      if (this.beforeUnseenMessageCount > PerPageMessageCount || this.messages.length > 300) {
-        this.showMessages = false
-        messageBox.refreshConversation(this.conversation.conversationId)
-      }
+      this.showMessages = false
+      messageBox.refreshConversation(this.conversation.conversationId)
       this.beforeUnseenMessageCount = 0
       this.goBottom()
+      setTimeout(() => {
+        this.showMessages = true
+      }, 10)
     },
     infiniteScroll($state, direction) {
       messageBox.nextPage(direction).then(messages => {
         if (messages) {
           if (direction === 'down') {
-            this.messages.push(...messages)
+            const newMessages = []
+            const lastMessageId = this.messages[this.messages.length - 1].messageId
+            for (let i = messages.length - 1; i >= 0; i--) {
+              const temp = messages[i]
+              if (temp.messageId === lastMessageId) {
+                break
+              }
+              newMessages.unshift(temp)
+            }
+            this.messages.push(...newMessages)
           } else {
             this.messages.unshift(...messages)
           }
@@ -386,6 +446,7 @@ export default {
       })
     },
     infiniteUp($state) {
+      if (this.infiniteUpLock) return
       this.infiniteScroll($state, 'up')
     },
     infiniteDown($state) {
@@ -394,12 +455,12 @@ export default {
     },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-        if (moment().isBefore(conversation.ownerMuteUntil)) {
+        if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
           return true
         }
       }
       if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-        if (moment().isBefore(conversation.muteUntil)) {
+        if (this.$moment().isBefore(conversation.muteUntil)) {
           return true
         }
       }
@@ -474,12 +535,13 @@ export default {
     onItemClick(index) {
       const chatMenu = this.$t('menu.chat')
       const option = this.menus[index]
-      const key = parseInt(Object.keys(chatMenu).find(key => chatMenu[key] === option))
-      if (key === 0) {
+      const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
+
+      if (key === 'contact_info') {
         this.details = true
-      } else if (key === 1) {
+      } else if (key === 'exit_group') {
         this.$store.dispatch('exitGroup', this.conversation.conversationId)
-      } else if (key === 2) {
+      } else if (key === 'clear') {
         this.$Dialog.alert(
           this.$t('chat.chat_clear'),
           this.$t('ok'),
@@ -491,7 +553,7 @@ export default {
             console.log('cancel')
           }
         )
-      } else if (key === 3) {
+      } else if (key === 'mute') {
         let self = this
         let ownerId = this.conversation.ownerId
         this.$Dialog.options(
@@ -526,7 +588,7 @@ export default {
             console.log('cancel')
           }
         )
-      } else if (key === 4) {
+      } else if (key === 'cancel_mute') {
         let self = this
         let ownerId = this.conversation.ownerId
         this.$Dialog.alert(
@@ -553,6 +615,12 @@ export default {
       this.$store.dispatch('createUserConversation', {
         user
       })
+    },
+    chatSearch() {
+      this.searching = true
+    },
+    hideSearch() {
+      this.searching = false
     },
     openUrl() {
       let app = appDao.findAppByUserId(this.user.app_id)
@@ -662,13 +730,15 @@ export default {
       text-align: left;
       padding-left: 0.8rem;
     }
-    .bot {
+    .bot,
+    .search {
       z-index: 1;
       width: 32px;
       height: 32px;
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
     }
     .username {
       width: 12rem;

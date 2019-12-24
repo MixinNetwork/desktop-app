@@ -2,22 +2,31 @@ import messageDao from '@/dao/message_dao.js'
 import { PerPageMessageCount } from '@/utils/constants.js'
 
 class MessageBox {
-  setConversationId(conversationId, unseenMessageCount) {
-    if (conversationId && this.conversationId !== conversationId) {
+  setConversationId(conversationId, messagePositionIndex, keyword) {
+    if (conversationId) {
       this.conversationId = conversationId
-      const perPageCount = PerPageMessageCount
+      this.messagePositionIndex = messagePositionIndex
       let page = 0
-      if (unseenMessageCount > perPageCount) {
-        page = Math.ceil(unseenMessageCount / perPageCount)
+      if (messagePositionIndex > PerPageMessageCount) {
+        page = parseInt(messagePositionIndex / PerPageMessageCount)
       }
       this.messages = messageDao.getMessages(conversationId, page)
+      this.oldLastMessages = messageDao.getMessages(conversationId, 0)
       this.page = page
       this.pageDown = page
       this.tempCount = 0
+      let posMessage = null
+      if (messagePositionIndex > 0) {
+        posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
+      }
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
-      this.scrollAction(true)
+      this.callback(this.messages, keyword)
+      this.scrollAction(true, posMessage)
     }
+  }
+  clearMessagePositionIndex(index) {
+    this.messagePositionIndex = index
   }
   refreshConversation(conversationId) {
     const page = 0
@@ -30,6 +39,22 @@ class MessageBox {
   refreshMessage(conversationId) {
     if (conversationId === this.conversationId && this.conversationId) {
       const lastMessages = messageDao.getMessages(conversationId, 0)
+      if (this.messagePositionIndex >= PerPageMessageCount) {
+        let newCount = 0
+        for (let i = PerPageMessageCount - 1; i >= 0; i--) {
+          const temp = lastMessages[i]
+          if (temp.messageId === this.oldLastMessages[PerPageMessageCount - 1].messageId) {
+            break
+          }
+          newCount++
+        }
+        if (newCount) {
+          this.pageDown = Math.ceil(newCount / PerPageMessageCount)
+          this.tempCount += newCount % PerPageMessageCount
+        }
+
+        return this.callback(null, newCount)
+      }
       const newMessages = []
       const lastMsgLen = lastMessages.length
       for (let i = lastMsgLen - 1; i >= 0; i--) {

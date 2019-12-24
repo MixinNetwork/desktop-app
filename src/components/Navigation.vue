@@ -17,13 +17,17 @@
           <label class="info">{{getLinkContent()}}</label>
         </div>
       </div>
+      <div class="show-more" v-if="showMoreType" @click="showMoreBack">
+        <ICBack />
+        {{$t('chat.chat_'+showMoreType)}}
+      </div>
       <search class="nav" @input="onInput"></search>
       <h5 v-if="Object.keys(conversations).length==0">{{$t('conversation.empty')}}</h5>
 
       <mixin-scrollbar>
         <ul
           class="conversations"
-          v-show="conversations && !(searchResult.contact||searchResult.group)"
+          v-show="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
         >
           <ConversationItem
             v-for="conversation in conversations"
@@ -35,27 +39,76 @@
             @item-menu-click="openDownMenu"
           />
         </ul>
-        <ul class="conversations" v-show="searchResult.contact||searchResult.chats">
-          <span
-            class="listheader"
-            v-show="searchResult.chats && searchResult.chats.length > 0"
-          >{{$t('chat.chat_chats')}}</span>
-          <ChatItem
-            v-for="chat in searchResult.chats"
-            :key="chat.conversationId"
-            :chat="chat"
-            @item-click="onSearchGroupClick"
-          ></ChatItem>
-          <span
-            class="listheader"
-            v-show="searchResult.contact && searchResult.contact.length > 0"
-          >{{$t('chat.chat_contact')}}</span>
-          <UserItem
-            v-for="user in searchResult.contact"
-            :key="user.user_id"
-            :user="user"
-            @user-click="onSearchUserClick"
-          ></UserItem>
+        <ul
+          class="conversations"
+          v-show="!showMoreType && (searchResult.contact||searchResult.chats)"
+        >
+          <div class="search-id-or-phone" v-if="showIdOrPhoneSearch">
+            <div>
+              {{$t('chat.search_id_or_phone')}}
+              <div>
+                <button class="search-button">{{searchKeyword}}</button>
+              </div>
+            </div>
+          </div>
+          <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
+            {{$t('chat.chat_chats')}}
+            <a
+              v-if="searchResult.chatsAll && searchResult.chatsAll.length > 3"
+              @click="showMoreList('chats')"
+            >{{$t('chat.chat_more')}}</a>
+          </span>
+          <div
+            class="listbox"
+            :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
+          >
+            <ChatItem
+              v-for="chat in searchResult.chats"
+              :key="chat.conversationId"
+              :chat="chat"
+              :keyword="searchKeyword"
+              @item-click="onSearchChatClick"
+            ></ChatItem>
+          </div>
+          <span class="listheader" v-show="searchResult.contact && searchResult.contact.length > 0">
+            {{$t('chat.chat_contact')}}
+            <a
+              v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
+              @click="showMoreList('contact')"
+            >{{$t('chat.chat_more')}}</a>
+          </span>
+          <div class="listbox">
+            <UserItem
+              v-for="user in searchResult.contact"
+              :key="user.user_id"
+              :user="user"
+              :keyword="searchKeyword"
+              @user-click="onSearchUserClick"
+            ></UserItem>
+          </div>
+        </ul>
+
+        <ul class="conversations" v-show="showMoreType === 'chats'">
+          <div class="listbox">
+            <ChatItem
+              v-for="chat in searchResult.chatsAll"
+              :key="chat.conversationId"
+              :chat="chat"
+              :keyword="searchKeyword"
+              @item-click="onSearchChatClick"
+            ></ChatItem>
+          </div>
+        </ul>
+        <ul class="conversations" v-show="showMoreType === 'contact'">
+          <div class="listbox">
+            <UserItem
+              v-for="user in searchResult.contactAll"
+              :key="user.user_id"
+              :user="user"
+              :keyword="searchKeyword"
+              @user-click="onSearchUserClick"
+            ></UserItem>
+          </div>
         </ul>
       </mixin-scrollbar>
     </div>
@@ -97,15 +150,18 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
-import ICEdit from '../assets/images/ic_edit.svg'
-import ICSignal from '../assets/images/ic_signal.svg'
+import ICEdit from '@/assets/images/ic_edit.svg'
+import ICBack from '@/assets/images/ic_back.svg'
+import ICSignal from '@/assets/images/ic_signal.svg'
+import messageBox from '@/store/message_box.js'
+import messageDao from '@/dao/message_dao.js'
 import workerManager from '@/workers/worker_manager.js'
 import { clearDb } from '@/persistence/db_util.js'
 import accountAPI from '@/api/account.js'
 import conversationAPI from '@/api/conversation.js'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants.js'
 import { mapGetters } from 'vuex'
-import moment from 'moment'
+
 export default {
   name: 'navigation',
   data() {
@@ -115,6 +171,8 @@ export default {
       profileShow: false,
       settingShow: false,
       menus: this.$t('menu.personal'),
+      searchKeyword: '',
+      showMoreType: '',
       LinkStatus: LinkStatus,
       ConversationCategory: ConversationCategory,
       // eslint-disable-next-line no-undef
@@ -141,7 +199,16 @@ export default {
         clearDb()
       })
     },
-    openMenu: function(conversation) {
+    showMoreBack() {
+      this.showMoreType = ''
+      this.$store.dispatch('search', {
+        keyword: this.searchKeyword
+      })
+    },
+    showMoreList(type) {
+      this.showMoreType = type
+    },
+    openMenu(conversation) {
       const isContact = conversation.category === ConversationCategory.CONTACT
       const isMute = this.isMute(conversation)
       const menu = this.getMenu(
@@ -162,7 +229,7 @@ export default {
         )
       })
     },
-    openDownMenu: function(conversation, index) {
+    openDownMenu(conversation, index) {
       const isContact = conversation.category === ConversationCategory.CONTACT
       const isMute = this.isMute(conversation)
       const menu = this.getMenu(
@@ -183,18 +250,17 @@ export default {
         )
       })
     },
-    handlerMenu: function(index, isContact, conversationId, pinTime, ownerId) {
-      let position = parseInt(index)
-      if (position === 0) {
+    handlerMenu(position, isContact, conversationId, pinTime, ownerId) {
+      if (position === 'exit_group') {
         this.$store.dispatch('exitGroup', conversationId)
-      } else if (position === 1 || position === 2) {
+      } else if (position === 'pin_to_top' || position === 'clear_pin') {
         this.$store.dispatch('pinTop', {
           conversationId: conversationId,
           pinTime: pinTime
         })
-      } else if (position === 3) {
+      } else if (position === 'clear') {
         this.$store.dispatch('conversationClear', conversationId)
-      } else if (position === 4) {
+      } else if (position === 'mute') {
         let self = this
         this.$Dialog.options(
           this.$t('chat.mute_title'),
@@ -228,7 +294,7 @@ export default {
             console.log('cancel')
           }
         )
-      } else if (position === 5) {
+      } else if (position === 'cancel_mute') {
         let self = this
         this.$Dialog.alert(
           this.$t('chat.chat_mute_cancel'),
@@ -249,96 +315,101 @@ export default {
         )
       }
     },
-    isMute: function(conversation) {
+    isMute(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-        if (moment().isBefore(conversation.ownerMuteUntil)) {
+        if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
           return true
         }
       }
       if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-        if (moment().isBefore(conversation.muteUntil)) {
+        if (this.$moment().isBefore(conversation.muteUntil)) {
           return true
         }
       }
       return false
     },
-    getMenu: function(isContact, isExit, pinTime, isMute) {
+    getMenu(isContact, isExit, pinTime, isMute) {
       const conversationMenu = this.$t('menu.conversation')
       var menu = []
       if (!isContact) {
         if (!isExit) {
-          menu.push(conversationMenu[0])
+          menu.push(conversationMenu.exit_group)
         }
         if (!pinTime) {
-          menu.push(conversationMenu[1])
+          menu.push(conversationMenu.pin_to_top)
         } else {
-          menu.push(conversationMenu[2])
+          menu.push(conversationMenu.clear_pin)
         }
-        menu.push(conversationMenu[3])
+        menu.push(conversationMenu.clear)
       } else {
         if (!pinTime) {
-          menu.push(conversationMenu[1])
+          menu.push(conversationMenu.pin_to_top)
         } else {
-          menu.push(conversationMenu[2])
+          menu.push(conversationMenu.clear_pin)
         }
-        menu.push(conversationMenu[3])
+        menu.push(conversationMenu.clear)
       }
       if (!isExit) {
         if (isMute) {
-          menu.push(conversationMenu[5])
+          menu.push(conversationMenu.cancel_mute)
         } else {
-          menu.push(conversationMenu[4])
+          menu.push(conversationMenu.mute)
         }
       }
       return menu
     },
-    showConveresation: function(event) {
+    showConveresation(event) {
       this.conversationShow = true
     },
-    hideConversation: function() {
+    hideConversation() {
       this.conversationShow = false
     },
-    showProfile: function() {
+    showProfile() {
       this.profileShow = true
     },
-    hideProfile: function() {
+    hideProfile() {
       this.profileShow = false
     },
-    showGroup: function() {
+    showGroup() {
       this.groupShow = true
     },
-    hideGroup: function() {
+    hideGroup() {
       this.groupShow = false
     },
-    hideSetting: function() {
+    hideSetting() {
       this.settingShow = false
     },
-    onInput: function(text) {
+    onInput(keyword) {
+      this.searchKeyword = keyword
       this.$store.dispatch('search', {
-        text
+        keyword,
+        type: this.showMoreType
       })
     },
-    success: function() {
+    success() {
       this.conversationShow = false
       this.groupShow = false
     },
-    onConversationClick: function(conversation) {
+    onConversationClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('searchClear')
       this.$store.dispatch('setCurrentConversation', conversation)
     },
-    onClickUser: function(user) {
+    onClickUser(user) {
       this.conversationShow = false
       this.$store.dispatch('searchClear')
       this.$store.dispatch('createUserConversation', {
         user
       })
     },
-    onSearchGroupClick: function(conversation) {
+    onSearchChatClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
+      const list = messageDao.ftsMessageQuery(conversation.conversationId, this.searchKeyword)
+      const count = messageDao.ftsMessageCount(conversation.conversationId)
+      messageBox.setConversationId(conversation.conversationId, count - list[0].message_index - 1, this.searchKeyword)
     },
-    onSearchUserClick: function(user) {
+    onSearchUserClick(user) {
       this.conversationShow = false
       this.$store.dispatch('createUserConversation', {
         user
@@ -367,6 +438,7 @@ export default {
     NewConversation,
     Dropdown,
     ICEdit,
+    ICBack,
     ICSignal,
     Avatar,
     ProfileContainer,
@@ -374,14 +446,20 @@ export default {
     UserItem,
     ChatItem
   },
-  computed: mapGetters({
-    currentConversationId: 'currentConversationId',
-    conversations: 'getConversations',
-    friends: 'findFriends',
-    me: 'me',
-    searchResult: 'search',
-    linkStatus: 'linkStatus'
-  })
+  computed: {
+    showIdOrPhoneSearch() {
+      // return /^\d{5,15}$/.test(this.searchKeyword)
+      return false
+    },
+    ...mapGetters({
+      currentConversationId: 'currentConversationId',
+      conversations: 'getConversations',
+      friends: 'findFriends',
+      me: 'me',
+      searchResult: 'search',
+      linkStatus: 'linkStatus'
+    })
+  }
 }
 </script>
 
@@ -404,13 +482,53 @@ export default {
       height: 100%;
       overflow-x: hidden;
       .listheader {
-        display: block;
-        padding-left: 16px;
-        padding-right: 16px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-        color: #8888;
-        background: #f5f5f5;
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.6rem 0.6rem;
+        font-family: Helvetica;
+        font-weight: 500;
+        a {
+          color: #3d75e3;
+          font-size: 0.85rem;
+          margin-top: 0.1rem;
+          cursor: pointer;
+        }
+      }
+      .listbox {
+        padding-bottom: 1rem;
+        &.divide {
+          border-bottom: 0.5rem solid #f2f3f6;
+        }
+      }
+    }
+    .show-more {
+      padding: 0.45rem 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      svg {
+        margin: 0.25rem 0.7rem 0 1.1rem;
+        vertical-align: top;
+      }
+    }
+    .search-id-or-phone {
+      text-align: center;
+      background: #f2f3f6;
+      padding-bottom: 0.5rem;
+      & > div {
+        padding: 0.75rem 0.75rem 1.25rem;
+        background: #ffffff;
+        box-shadow: 0 2px 10px 0 rgba(195, 195, 195, 0.2);
+      }
+      .search-button {
+        background: #3d75e3;
+        color: #ffffff;
+        border: none;
+        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+        margin-top: 0.5rem;
+        cursor: pointer;
+        box-shadow: 0 0.5rem 0.7rem 0 rgba(61, 117, 227, 0.3);
+        border-radius: 0.8rem;
       }
     }
     .header {
@@ -484,7 +602,6 @@ export default {
   }
 
   .nav {
-    border-bottom: 1px solid $border-color;
     padding: 0.45rem 0.75rem;
     display: flex;
     align-items: center;

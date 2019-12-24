@@ -360,25 +360,7 @@ export default {
       }
     },
     getTimeDivide(message) {
-      const t = this.$moment(message.createdAt)
-      const td = t.format('YYYY-MM-DD')
-      const n = this.$moment()
-      const nd = n.format('YYYY-MM-DD')
-      const daySeconds = 86400000
-      if (nd === td) {
-        return this.$t('today')
-      } else if (this.$moment(nd).diff(this.$moment(td)) <= n.get('day') * daySeconds) {
-        return `${this.$t('week_prefix')[0]}${this.$t('week')[t.get('day')]}`
-      } else {
-        let [yearStr, monthStr, dayStr] = this.$t('date')
-        if (n.get('year') === t.get('year')) {
-          yearStr = ''
-        } else {
-          yearStr = t.get('year') + yearStr
-        }
-        const dateStr = `${yearStr}${t.format('MM')}${monthStr}${t.format('DD')}${dayStr}`
-        return `${dateStr} ${this.$t('week_prefix')[1]}${this.$t('week')[t.get('day')]}`
-      }
+      return contentUtil.renderTime(message.createdAt)
     },
     equalDay(message, prev) {
       const td = this.$moment(message.createdAt).format('YYYY-MM-DD')

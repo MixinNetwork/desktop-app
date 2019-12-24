@@ -4,7 +4,7 @@
     <div class="box">
       <div class="meta">
         <div v-html="highlight(item.full_name)"></div>
-        <div class="time">{{$moment(item.created_at).fromNow().replace(/\s/, '')}}</div>
+        <div class="time">{{renderTime(item.created_at)}}</div>
       </div>
       <div class="content">
         <div v-html="highlight(item.content)"></div>
@@ -26,6 +26,9 @@ export default {
     return {}
   },
   methods: {
+    renderTime(timeStr) {
+      return contentUtil.renderTime(timeStr, true)
+    },
     highlight(content) {
       return contentUtil.highlight(content, this.keyword)
     }

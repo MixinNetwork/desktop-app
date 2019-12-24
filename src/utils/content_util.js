@@ -1,4 +1,6 @@
 import URI from 'urijs'
+import moment from 'moment'
+import i18n from '@/utils/i18n'
 
 export default {
   messageFilteredText(e) {
@@ -20,6 +22,34 @@ export default {
       return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
     })
     return result
+  },
+  renderTime(timeStr, showDetail) {
+    const t = moment(timeStr)
+    const td = t.format('YYYY-MM-DD')
+    const n = moment()
+    const nd = n.format('YYYY-MM-DD')
+    const daySeconds = 86400000
+    if (nd === td) {
+      if (showDetail) {
+        return t.format('HH:mm')
+      }
+      return i18n.t('today')
+    } else if (moment(nd).diff(moment(td)) <= n.get('day') * daySeconds) {
+      return `${i18n.t('week_prefix')[0]}${i18n.t('week')[t.get('day')]}`
+    } else {
+      let [yearStr, monthStr, dayStr] = i18n.t('date')
+      if (n.get('year') === t.get('year') && !showDetail) {
+        yearStr = ''
+      } else {
+        yearStr = t.get('year') + yearStr
+      }
+      const dateStr = `${yearStr}${t.format('MM')}${monthStr}${t.format('DD')}${dayStr}`
+      let weekStr = ` ${i18n.t('week_prefix')[1]}${i18n.t('week')[t.get('day')]}`
+      if (showDetail) {
+        weekStr = ''
+      }
+      return `${dateStr}${weekStr}`
+    }
   },
   fts5KeywordFilter(text) {
     text = text.trim()

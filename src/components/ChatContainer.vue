@@ -29,11 +29,6 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <infinite-loading direction="top" @infinite="infiniteUp" ref="infiniteUp">
-          <div slot="spinner"></div>
-          <div slot="no-more"></div>
-          <div slot="no-results"></div>
-        </infinite-loading>
         <li v-show="!user.app_id" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
@@ -54,11 +49,6 @@
           @user-click="onUserClick"
           @handle-item-click="handleItemClick"
         />
-        <infinite-loading direction="down" @infinite="infiniteDown" ref="infiniteDown">
-          <div slot="spinner"></div>
-          <div slot="no-more"></div>
-          <div slot="no-results"></div>
-        </infinite-loading>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -200,12 +190,6 @@ export default {
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.box.innerText = this.conversation.draft || ''
         this.showMessages = false
-        if (this.$refs.infiniteUp) {
-          this.$refs.infiniteUp.stateChanger.reset()
-        }
-        if (this.$refs.infiniteDown) {
-          this.$refs.infiniteDown.stateChanger.reset()
-        }
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         this.messages = messageBox.messages
         if (newC) {
@@ -368,6 +352,11 @@ export default {
       }
       if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
+        if (list.scrollTop < 30) {
+          setTimeout(() => {
+            list.scrollTop = this.infiniteUpLock ? 0 : 30
+          })
+        }
       }
       if (!this.isBottom && list.scrollTop > 130) {
         this.timeDivideShow = true
@@ -403,7 +392,7 @@ export default {
     goMessagePos(posMessage) {
       let goDone = false
       let beforeScrollTop = 0
-      this.infiniteScroll(null, 'down')
+      this.infiniteScroll('down')
       this.infiniteDownLock = false
       const action = beforeScrollTop => {
         setTimeout(() => {
@@ -433,6 +422,7 @@ export default {
     },
     goBottom() {
       setTimeout(() => {
+        this.infiniteUpLock = false
         this.currentUnreadNum = 0
         let list = this.$refs.messagesUl
         if (!list) return
@@ -450,9 +440,9 @@ export default {
         this.showMessages = true
       }, 10)
     },
-    infiniteScroll($state, direction) {
+    infiniteScroll(direction) {
       messageBox.nextPage(direction).then(messages => {
-        if (messages) {
+        if (messages.length) {
           if (direction === 'down') {
             const newMessages = []
             const lastMessageId = this.messages[this.messages.length - 1].messageId
@@ -466,23 +456,20 @@ export default {
             this.messages.push(...newMessages)
           } else {
             this.messages.unshift(...messages)
+            this.infiniteUpLock = false
           }
           this.oldMsgLen += messages.length
-          if (!$state) return
-          $state.loaded()
-        } else {
-          if (!$state) return
-          $state.complete()
         }
       })
     },
-    infiniteUp($state) {
+    infiniteUp() {
       if (this.infiniteUpLock) return
-      this.infiniteScroll($state, 'up')
+      this.infiniteUpLock = true
+      this.infiniteScroll('up')
     },
-    infiniteDown($state) {
+    infiniteDown() {
       if (this.infiniteDownLock) return
-      this.infiniteScroll($state, 'down')
+      this.infiniteScroll('down')
     },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {

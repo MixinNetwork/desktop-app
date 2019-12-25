@@ -381,9 +381,11 @@ export default {
     },
     onInput(keyword) {
       this.searchKeyword = keyword
-      this.$store.dispatch('search', {
-        keyword,
-        type: this.showMoreType
+      setTimeout(() => {
+        this.$store.dispatch('search', {
+          keyword,
+          type: this.showMoreType
+        })
       })
     },
     success() {

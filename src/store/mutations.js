@@ -36,6 +36,32 @@ let keywordCache = null
 
 function search(state, payload) {
   const { keyword, type } = payload
+  const LIMIT = 3
+
+  function searchChats(conversations, limit) {
+    const countMap = {}
+    let num = 0
+    for (let i = 0; i < conversations.length; i++) {
+      const conversation = conversations[i]
+      const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+      if (count > 0) {
+        num++
+        countMap[conversation.conversationId] = count
+      }
+      if (limit > 0 && num > limit) {
+        break
+      }
+    }
+    const findChats = []
+    Object.keys(countMap).forEach(key => {
+      if (countMap[key] > 0) {
+        const temp = state.conversations[key]
+        temp.records = countMap[key]
+        findChats.push(temp)
+      }
+    })
+    return findChats
+  }
 
   if (keyword) {
     keywordCache = keyword
@@ -45,23 +71,18 @@ function search(state, payload) {
 
     if (!type || type === 'chats') {
       const conversations = conversationDao.getConversations()
-      const countMap = {}
-      conversations.forEach(conversation => {
-        const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
-        countMap[conversation.conversationId] = count
-      })
-
-      const findChats = []
-      Object.keys(countMap).forEach(key => {
-        if (countMap[key] > 0) {
-          const temp = state.conversations[key]
-          temp.records = countMap[key]
-          findChats.push(temp)
-        }
-      })
-
+      let limit = 0
+      if (!type) {
+        setTimeout(() => {
+          const findChats = searchChats(conversations, 0)
+          chatsAll = [...findChats]
+          state.search.chatsAll = chatsAll
+        }, 1000)
+        limit = 3
+      }
+      const findChats = searchChats(conversations, limit)
       chatsAll = [...findChats]
-      chats = findChats.splice(0, 3)
+      chats = findChats.splice(0, LIMIT)
     }
 
     if (!type || type === 'contact') {
@@ -72,7 +93,7 @@ function search(state, payload) {
         })
       })
       contactAll = [...findContact]
-      contact = findContact.splice(0, 3)
+      contact = findContact.splice(0, LIMIT)
     }
 
     state.search = {

@@ -207,6 +207,10 @@ export default {
     },
     showMoreList(type) {
       this.showMoreType = type
+      this.$store.dispatch('search', {
+        keyword: this.searchKeyword,
+        type: this.showMoreType
+      })
     },
     openMenu(conversation) {
       const isContact = conversation.category === ConversationCategory.CONTACT

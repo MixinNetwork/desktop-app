@@ -73,12 +73,7 @@ function search(state, payload) {
       const conversations = conversationDao.getConversations()
       let limit = 0
       if (!type) {
-        setTimeout(() => {
-          const findChats = searchChats(conversations, 0)
-          chatsAll = [...findChats]
-          state.search.chatsAll = chatsAll
-        }, 100)
-        limit = 3
+        limit = LIMIT
       }
       const findChats = searchChats(conversations, limit)
       chatsAll = [...findChats]

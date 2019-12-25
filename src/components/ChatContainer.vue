@@ -187,6 +187,7 @@ export default {
     },
     conversation(newC, oldC) {
       this.infiniteDownLock = true
+      this.infiniteUpLock = false
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
         this.$refs.box.innerText = this.conversation.draft || ''
         this.showMessages = false
@@ -201,9 +202,9 @@ export default {
             this.unreadMessageId = ''
           }
         }
-        Promise.resolve().then(() => {
+        setTimeout(() => {
           this.$store.dispatch('markRead', newC.conversationId)
-        })
+        }, 100)
       }
       if (newC) {
         if (newC !== oldC) {
@@ -354,7 +355,9 @@ export default {
         this.infiniteUp()
         if (list.scrollTop < 30) {
           setTimeout(() => {
-            list.scrollTop = this.infiniteUpLock ? 0 : 30
+            if (!this.infiniteUpLock) {
+              list.scrollTop = 30
+            }
           })
         }
       }

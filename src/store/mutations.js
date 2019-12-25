@@ -55,7 +55,7 @@ function search(state, payload) {
     const findChats = []
     Object.keys(countMap).forEach(key => {
       if (countMap[key] > 0) {
-        const temp = state.conversations[key]
+        const temp = JSON.parse(JSON.stringify(state.conversations[key]))
         temp.records = countMap[key]
         findChats.push(temp)
       }
@@ -77,7 +77,7 @@ function search(state, payload) {
           const findChats = searchChats(conversations, 0)
           chatsAll = [...findChats]
           state.search.chatsAll = chatsAll
-        }, 1000)
+        }, 100)
         limit = 3
       }
       const findChats = searchChats(conversations, limit)

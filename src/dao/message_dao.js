@@ -71,7 +71,8 @@ class MessageDao {
         .prepare(
           'SELECT count(m.message_id) FROM messages_fts m_fts ' +
             'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
-            'WHERE m.conversation_id = ? AND m_fts.content MATCH ?'
+            'LEFT JOIN users u ON m.user_id = u.user_id ' +
+            'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT") AND m.conversation_id = ? AND m_fts.content MATCH ?'
         )
         .get(conversationId, keywordFinal)
       return data['count(m.message_id)']

@@ -893,6 +893,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     border-radius: 28px;
     width: 40px;
     height: 40px;

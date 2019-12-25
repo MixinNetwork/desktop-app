@@ -49,10 +49,10 @@ export default {
   background: white;
 
   .item_avatar {
-    width: 48px;
-    height: 48px;
-    margin-right: 16px;
-    flex: none;
+    width: 3rem;
+    height: 3rem;
+    margin-right: 0.8rem;
+    flex-shrink: 0;
   }
   .content {
     display: flex;

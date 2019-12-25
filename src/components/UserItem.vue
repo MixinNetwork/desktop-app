@@ -44,10 +44,10 @@ export default {
   background: white;
 
   .user_item_avatar {
-    width: 48px;
-    height: 48px;
-    margin-right: 16px;
-    flex: none;
+    width: 3rem;
+    height: 3rem;
+    margin-right: 0.8rem;
+    flex-shrink: 0;
   }
   .user_name {
     overflow: hidden;

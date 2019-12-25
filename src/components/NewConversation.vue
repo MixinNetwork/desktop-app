@@ -111,11 +111,12 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0.5rem 0;
+  padding: 0.3rem 1.4rem;
+  cursor: pointer;
   .avatar {
     width: 3rem;
     height: 3rem;
-    margin: 0 1rem;
+    margin-right: 0.8rem;
   }
   &:hover,
   &.current {

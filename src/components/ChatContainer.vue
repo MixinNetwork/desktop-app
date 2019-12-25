@@ -188,7 +188,7 @@ export default {
       this.infiniteDownLock = true
       this.infiniteUpLock = false
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-        this.$refs.box.innerText = this.conversation.draft || ''
+        this.$refs.box.innerHTML = this.conversation.draft || ''
         this.showMessages = false
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         this.messages = messageBox.messages
@@ -213,6 +213,9 @@ export default {
             this.name = newC.name
           }
           if (!oldC || newC.conversationId !== oldC.conversationId) {
+            setTimeout(() => {
+              this.$refs.box.innerHTML = this.conversation.draft || ''
+            })
             this.details = false
             this.searching = false
             this.file = null
@@ -380,7 +383,7 @@ export default {
     },
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
-      const draft = this.$refs.box.innerText
+      const draft = this.$refs.box.innerHTML
       conversationDao.updateConversationDraftById(conversationId, draft)
     },
     goSearchMessagePos(item, keyword) {

@@ -67,15 +67,8 @@ class MessageDao {
       }
       const keywordFinal = contentUtil.fts5KeywordFilter(keyword)
       if (!keywordFinal) return 0
-      const data = db
-        .prepare(
-          'SELECT count(m.message_id) FROM messages_fts m_fts ' +
-            'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
-            'LEFT JOIN users u ON m.user_id = u.user_id ' +
-            'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT") AND m.conversation_id = ? AND m_fts.content MATCH ?'
-        )
-        .get(conversationId, keywordFinal)
-      return data['count(m.message_id)']
+      const list = this.ftsMessageQuery(conversationId, keywordFinal)
+      return list.length
     }
     const data = db.prepare('SELECT count(message_id) FROM messages_fts').get()
     return data['count(message_id)']

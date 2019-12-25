@@ -55,7 +55,7 @@ export default {
     overflow: hidden;
   }
   .avatar {
-    margin-right: 0.8rem;
+    margin-right: 0.7rem;
   }
 
   .meta {

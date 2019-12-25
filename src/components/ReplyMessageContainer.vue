@@ -225,6 +225,7 @@ export default {
     object-fit: cover;
   }
   .icon-close {
+    cursor: pointer;
     align-self: center;
     margin-right: 0.4rem;
   }

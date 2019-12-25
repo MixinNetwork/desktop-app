@@ -69,9 +69,8 @@ export default {
   bottom: 0;
 }
 .dropdown-menu {
-  position: relative;
+  position: absolute;
   z-index: 1000;
-  float: left;
   min-width: 160px;
   padding: 5px 0;
   margin: 2px 0 0;
@@ -79,9 +78,9 @@ export default {
   font-size: 14px;
   text-align: left;
   background-color: #fff;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.155);
   background-clip: padding-box;
 }
 .dropdown-menu > li > a {

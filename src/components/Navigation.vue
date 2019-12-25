@@ -173,6 +173,7 @@ export default {
       menus: this.$t('menu.personal'),
       searchKeyword: '',
       showMoreType: '',
+      inputTimer: null,
       LinkStatus: LinkStatus,
       ConversationCategory: ConversationCategory,
       // eslint-disable-next-line no-undef
@@ -385,12 +386,17 @@ export default {
     },
     onInput(keyword) {
       this.searchKeyword = keyword
-      setTimeout(() => {
+      let waitTime = 10
+      if (this.showMoreType) {
+        waitTime = 100
+      }
+      clearTimeout(this.inputTimer)
+      this.inputTimer = setTimeout(() => {
         this.$store.dispatch('search', {
           keyword,
           type: this.showMoreType
         })
-      })
+      }, waitTime)
     },
     success() {
       this.conversationShow = false

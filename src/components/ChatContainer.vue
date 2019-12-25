@@ -84,8 +84,7 @@
             ></div>
           </div>
         </mixin-scrollbar>
-        <!-- <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/> -->
-        <div @click="sendMessage">
+        <div class="send" @click="sendMessage">
           <ICSend />
         </div>
       </div>
@@ -820,12 +819,16 @@ export default {
       align-items: center;
       padding: 0.4rem 0.6rem;
       .attachment {
+        cursor: pointer;
         position: relative;
         input {
           position: absolute;
           opacity: 0;
           z-index: -1;
         }
+      }
+      .send {
+        cursor: pointer;
       }
     }
     .editable {
@@ -852,9 +855,6 @@ export default {
     }
     .bot {
       padding: 0 1rem 0 0;
-    }
-    .send {
-      padding: 0 0.6rem;
     }
   }
   .reply_box {

@@ -68,9 +68,9 @@ export default {
         text-overflow: ellipsis;
       }
       svg {
-        width: 24px;
+        flex-shrink: 0;
         vertical-align: top;
-        margin: 3px 0 0 1px;
+        margin: 0.2rem 0 0 0.4rem;
       }
     }
   }

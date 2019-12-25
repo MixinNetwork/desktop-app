@@ -34,51 +34,63 @@ function refreshConversation(state, conversationId) {
 
 let keywordCache = null
 
-function search(state, payload) {
-  const { keyword, type } = payload
-  const LIMIT = 3
+let chatsSearchTimer = null
+function chatsSearch(state, type, keyword) {
+  let chats = []
+  let chatsAll = []
+  let num = 0
 
-  function searchChats(conversations, limit) {
-    const countMap = {}
-    let num = 0
-    for (let i = 0; i < conversations.length; i++) {
+  function action(conversations, limit, i) {
+    if (i < conversations.length) {
       const conversation = conversations[i]
       const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+      let waitTime = 0
       if (count > 0) {
         num++
-        countMap[conversation.conversationId] = count
+        const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
+        temp.records = count
+
+        chatsAll.push(temp)
+        state.search.chatsAll = chatsAll
+        if (num <= limit) {
+          chats.push(temp)
+          state.search.chats = chats
+        }
+        if (limit > 0 && num > limit) {
+          return
+        }
+        if (num < 20) {
+          waitTime = 0
+        } else {
+          waitTime = 50
+        }
       }
-      if (limit > 0 && num > limit) {
-        break
-      }
+      chatsSearchTimer = setTimeout(() => {
+        action(conversations, limit, ++i)
+      }, waitTime)
     }
-    const findChats = []
-    Object.keys(countMap).forEach(key => {
-      if (countMap[key] > 0) {
-        const temp = JSON.parse(JSON.stringify(state.conversations[key]))
-        temp.records = countMap[key]
-        findChats.push(temp)
-      }
-    })
-    return findChats
   }
+
+  if (!type || type === 'chats') {
+    const conversations = conversationDao.getConversations()
+    let limit = 0
+    if (!type) {
+      limit = 3
+    }
+    action(conversations, limit, 0)
+  }
+}
+
+function search(state, payload) {
+  const { keyword, type } = payload
+
+  clearTimeout(chatsSearchTimer)
 
   if (keyword) {
     keywordCache = keyword
     const account = state.me
 
     let { chats, chatsAll, contact, contactAll } = state.search
-
-    if (!type || type === 'chats') {
-      const conversations = conversationDao.getConversations()
-      let limit = 0
-      if (!type) {
-        limit = LIMIT
-      }
-      const findChats = searchChats(conversations, limit)
-      chatsAll = [...findChats]
-      chats = findChats.splice(0, LIMIT)
-    }
 
     if (!type || type === 'contact') {
       const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
@@ -88,8 +100,10 @@ function search(state, payload) {
         })
       })
       contactAll = [...findContact]
-      contact = findContact.splice(0, LIMIT)
+      contact = findContact.splice(0, 3)
     }
+
+    chatsSearch(state, type, keyword)
 
     state.search = {
       contact,

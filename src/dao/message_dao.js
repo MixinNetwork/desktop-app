@@ -244,6 +244,7 @@ class MessageDao {
   }
   markRead(conversationId) {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
+    db.prepare(`UPDATE conversations SET unseen_message_count = 0 WHERE conversation_id = ?`).run(conversationId)
     db.prepare(
       `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
     ).run(conversationId)

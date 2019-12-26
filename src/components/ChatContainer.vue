@@ -396,19 +396,34 @@ export default {
       })
     },
     goMessagePos(posMessage) {
+      let goDone = false
+      let beforeScrollTop = 0
       this.infiniteScroll('down')
-      this.infiniteDownLock = false
-      setTimeout(() => {
-        this.showMessages = true
-        let targetDom = document.querySelector('.unread-divide')
-        if (posMessage && posMessage.messageId) {
-          targetDom = document.getElementById(`m-${posMessage.messageId}`)
-        }
-        let list = this.$refs.messagesUl
-        if (list && targetDom) {
-          list.scrollTop = targetDom.offsetTop
-        }
-      }, 100)
+      const action = beforeScrollTop => {
+        setTimeout(() => {
+          this.infiniteDownLock = false
+          let targetDom = document.querySelector('.unread-divide')
+          if (posMessage && posMessage.messageId) {
+            targetDom = document.getElementById(`m-${posMessage.messageId}`)
+          }
+          if (!targetDom) {
+            return (this.showMessages = true)
+          }
+          let list = this.$refs.messagesUl
+          if (!list) {
+            return action(beforeScrollTop)
+          }
+          if (!goDone && beforeScrollTop !== list.scrollTop) {
+            beforeScrollTop = list.scrollTop
+            action(beforeScrollTop)
+          } else {
+            goDone = true
+            list.scrollTop = targetDom.offsetTop
+            this.showMessages = true
+          }
+        }, 10)
+      }
+      action(beforeScrollTop)
     },
     goBottom() {
       setTimeout(() => {

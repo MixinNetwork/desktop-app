@@ -57,11 +57,7 @@
                 @click="showMoreList('contact')"
               >{{$t('chat.chat_more')}}</a>
             </span>
-            <div
-              class="listbox"
-              v-if="searchResult.contact && searchResult.contact.length > 0"
-              :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
-            >
+            <div class="listbox" v-if="searchResult.contact && searchResult.contact.length > 0">
               <UserItem
                 v-for="user in searchResult.contact"
                 :key="user.user_id"
@@ -81,6 +77,23 @@
             <div class="listbox" v-if="searchResult.chats && searchResult.chats.length > 0">
               <ChatItem
                 v-for="chat in searchResult.chats"
+                :key="chat.conversationId"
+                :chat="chat"
+                :keyword="searchKeyword"
+                @item-click="onSearchChatClick"
+              ></ChatItem>
+            </div>
+
+            <span class="listheader" v-if="searchResult.message && searchResult.message.length > 0">
+              {{$t('chat.chat_message')}}
+              <a
+                v-if="searchResult.messageAll && searchResult.messageAll.length > 3"
+                @click="showMoreList('message')"
+              >{{$t('chat.chat_more')}}</a>
+            </span>
+            <div class="listbox" v-if="searchResult.message && searchResult.message.length > 0">
+              <ChatItem
+                v-for="chat in searchResult.message"
                 :key="chat.conversationId"
                 :chat="chat"
                 :keyword="searchKeyword"
@@ -419,9 +432,6 @@ export default {
     onSearchChatClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
-      const list = messageDao.ftsMessageQuery(conversation.conversationId, this.searchKeyword)
-      const count = messageDao.ftsMessageCount(conversation.conversationId)
-      messageBox.setConversationId(conversation.conversationId, count - list[0].message_index - 1, this.searchKeyword)
     },
     onSearchUserClick(user) {
       this.conversationShow = false
@@ -508,12 +518,14 @@ export default {
           margin-top: 0.1rem;
           cursor: pointer;
         }
+        &:nth-child(5),
+        &:nth-child(3) {
+          border-top: 0.5rem solid #f2f3f6;
+        }
       }
+
       .listbox {
         padding-bottom: 1rem;
-        &.divide {
-          border-bottom: 0.5rem solid #f2f3f6;
-        }
       }
     }
     .show-more {

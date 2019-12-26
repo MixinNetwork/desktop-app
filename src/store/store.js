@@ -19,8 +19,10 @@ const state = {
   search: {
     contact: null,
     chats: null,
+    message: null,
     contactAll: null,
-    chatsAll: null
+    chatsAll: null,
+    messageAll: null
   },
 
   showTime: false,

@@ -34,10 +34,10 @@ function refreshConversation(state, conversationId) {
 
 let keywordCache = null
 
-let chatsSearchTimer = null
-function chatsSearch(state, type, keyword) {
-  let chats = []
-  let chatsAll = []
+let messageSearchTimer = null
+function messageSearch(state, type, keyword) {
+  let message = []
+  let messageAll = []
   let num = 0
 
   function action(conversations, limit, i) {
@@ -50,11 +50,11 @@ function chatsSearch(state, type, keyword) {
         const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
         temp.records = count
 
-        chatsAll.push(temp)
-        state.search.chatsAll = chatsAll
+        messageAll.push(temp)
+        state.search.messageAll = messageAll
         if (num <= limit) {
-          chats.push(temp)
-          state.search.chats = chats
+          message.push(temp)
+          state.search.message = message
         }
         if (limit > 0 && num > limit) {
           return
@@ -67,13 +67,13 @@ function chatsSearch(state, type, keyword) {
           waitTime = 100
         }
       }
-      chatsSearchTimer = setTimeout(() => {
+      messageSearchTimer = setTimeout(() => {
         action(conversations, limit, ++i)
       }, waitTime)
     }
   }
 
-  if (!type || type === 'chats') {
+  if (!type || type === 'message') {
     const conversations = conversationDao.getConversations()
     let limit = 0
     if (!type) {
@@ -86,13 +86,13 @@ function chatsSearch(state, type, keyword) {
 function search(state, payload) {
   const { keyword, type } = payload
 
-  clearTimeout(chatsSearchTimer)
+  clearTimeout(messageSearchTimer)
 
   if (keyword) {
     keywordCache = keyword
     const account = state.me
 
-    let { chats, chatsAll, contact, contactAll } = state.search
+    let { chats, chatsAll, message, messageAll, contact, contactAll } = state.search
 
     if (!type || type === 'contact') {
       const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
@@ -105,21 +105,35 @@ function search(state, payload) {
       contact = findContact.splice(0, 3)
     }
 
-    chatsSearch(state, type, keyword)
+    if (!type || type === 'chats') {
+      const findChats = conversationDao.fuzzySearchConversation(keyword)
+      findChats.forEach((item, index) => {
+        const participants = participantDao.getParticipantsByConversationId(item.conversationId)
+        findChats[index].participants = participants
+      })
+      chatsAll = [...findChats]
+      chats = findChats.splice(0, 3)
+    }
+
+    messageSearch(state, type, keyword)
 
     state.search = {
       contact,
       chats,
+      message,
       contactAll,
-      chatsAll
+      chatsAll,
+      messageAll
     }
   } else {
     keywordCache = null
     state.search = {
       contact: null,
       chats: null,
+      message: null,
       contactAll: null,
-      chatsAll: null
+      chatsAll: null,
+      messageAll: null
     }
   }
 }
@@ -135,8 +149,10 @@ export default {
     state.search = {
       contact: null,
       chats: null,
+      message: null,
       contactAll: null,
-      chatsAll: null
+      chatsAll: null,
+      messageAll: null
     }
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
@@ -226,8 +242,10 @@ export default {
     state.search = {
       contact: null,
       chats: null,
+      message: null,
       contactAll: null,
-      chatsAll: null
+      chatsAll: null,
+      messageAll: null
     }
   },
   toggleTime(state, toggle) {

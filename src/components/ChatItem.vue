@@ -4,11 +4,12 @@
     <div class="content">
       <div class="title">
         <div class="name">
-          <span>{{chat.groupName || chat.name}}</span>
+          <span v-if="chat.records">{{chat.groupName || chat.name}}</span>
+          <span v-else v-html="highlight(chat.groupName || chat.name)"></span>
           <ICRobot v-if="chat.appId" />
         </div>
       </div>
-      <div class="record">{{chat.records}} {{$t('chat.chat_records')}}</div>
+      <div v-if="chat.records" class="record">{{chat.records}} {{$t('chat.chat_records')}}</div>
     </div>
   </li>
 </template>
@@ -79,6 +80,7 @@ export default {
     flex: 1;
     font-size: 0.8rem;
     color: #bbbec3;
+    margin-top: 0.2rem;
   }
 }
 </style>

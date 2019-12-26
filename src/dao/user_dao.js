@@ -54,13 +54,13 @@ class UserDao {
       .prepare('SELECT u.* FROM users u, conversations c WHERE c.owner_id = u.user_id AND c.conversation_id = ?')
       .get(conversationId)
   }
-  fuzzySearchUser(id, name) {
+  fuzzySearchUser(id, keyword) {
     return db
       .prepare(
-        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND full_name LIKE '%${name.replace(
+        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND (full_name LIKE '%${keyword.replace(
           "'",
           ''
-        )}%'`
+        )}%' OR identity_number LIKE '%${keyword}%')`
       )
       .all()
   }
@@ -72,9 +72,7 @@ class UserDao {
   }
   update(u) {
     db.prepare(
-      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${
-        u.is_verified
-      }, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
+      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${u.is_verified}, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
     ).run()
   }
 }

@@ -17,10 +17,6 @@ if (!!row && row.user_version < MixinDatabaseVersion) {
   const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
   mixinDb.exec('DROP TABLE IF EXISTS resend_messages')
   mixinDb.exec('DROP TABLE IF EXISTS messages_fts')
-  mixinDb.exec('DROP TRIGGER messages_fts_BEFORE_UPDATE')
-  mixinDb.exec('DROP TRIGGER messages_fts_BEFORE_DELETE')
-  mixinDb.exec('DROP TRIGGER messages_fts_AFTER_UPDATE')
-  mixinDb.exec('DROP TRIGGER messages_fts_AFTER_INSERT')
   mixinDb.exec(createSQL)
   stmt.run()
 }

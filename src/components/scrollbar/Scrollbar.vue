@@ -95,11 +95,10 @@ export default {
           thumbTop = parseInt(thumbTop)
         }
         if (this.thumbHeight < 25) {
-          this.thumbTop -= 25 - this.thumbHeight
-        } else {
-          this.thumbTop = thumbTop
+          thumbTop -= 25 - this.thumbHeight
         }
-        if (thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
+        this.thumbTop = thumbTop
+        if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
           this.thumbTop = 0
         }
       }
@@ -163,7 +162,7 @@ export default {
   width: 100%;
   height: 100%;
 
-  overflow: auto;
+  overflow: hidden;
   flex: 1 0 0;
   & > ul,
   & > .ul {

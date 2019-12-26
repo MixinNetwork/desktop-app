@@ -767,7 +767,7 @@ export default {
       z-index: 1;
       width: 32px;
       height: 32px;
-      margin-right: 4px;
+      margin-right: 3px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -775,7 +775,7 @@ export default {
       flex-shrink: 0;
     }
     .search {
-      margin-right: 6px;
+      margin-right: 5px;
     }
     .username {
       max-width: 100%;

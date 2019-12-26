@@ -89,12 +89,17 @@ export default {
           }, 1000)
         }
         this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
-        let maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
-        this.thumbTop = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
+        const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
+        let thumbTop = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
+        if (thumbTop > scrollBox.clientHeight - this.thumbHeight - 25) {
+          thumbTop = parseInt(thumbTop)
+        }
         if (this.thumbHeight < 25) {
           this.thumbTop -= 25 - this.thumbHeight
+        } else {
+          this.thumbTop = thumbTop
         }
-        if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
+        if (thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
           this.thumbTop = 0
         }
       }

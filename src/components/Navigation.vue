@@ -22,7 +22,10 @@
         {{$t('chat.chat_'+showMoreType)}}
       </div>
       <search class="nav" @input="onInput"></search>
-      <h5 v-if="Object.keys(conversations).length==0">{{$t('conversation.empty')}}</h5>
+
+      <h5
+        v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"
+      >{{$t('conversation.empty')}}</h5>
 
       <mixin-scrollbar>
         <div class="conversations ul">
@@ -492,6 +495,7 @@ export default {
       flex: 1;
       height: 100%;
       overflow-x: hidden;
+      background: #fff;
       .listheader {
         display: flex;
         justify-content: space-between;

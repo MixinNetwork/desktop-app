@@ -135,9 +135,9 @@ export default {
     }
   },
   mounted() {
-    this.scrollBox = this.$refs.scroll.querySelector('ul')
+    this.scrollBox = this.$refs.scroll.querySelector('.ul')
     if (!this.scrollBox) {
-      this.scrollBox = this.$refs.scroll.querySelector('.ul')
+      this.scrollBox = this.$refs.scroll.querySelector('ul')
     }
     this.scrollThumb = this.$refs.scroll.querySelector('.scrollbar-thumb')
 

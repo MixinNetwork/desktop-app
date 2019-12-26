@@ -59,10 +59,12 @@ function chatsSearch(state, type, keyword) {
         if (limit > 0 && num > limit) {
           return
         }
-        if (num < 20) {
+        if (num < 10) {
           waitTime = 0
-        } else {
+        } else if (num < 50) {
           waitTime = 50
+        } else {
+          waitTime = 100
         }
       }
       chatsSearchTimer = setTimeout(() => {

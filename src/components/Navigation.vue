@@ -25,91 +25,92 @@
       <h5 v-if="Object.keys(conversations).length==0">{{$t('conversation.empty')}}</h5>
 
       <mixin-scrollbar>
-        <ul
-          class="conversations"
-          v-show="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
-        >
-          <ConversationItem
-            v-for="conversation in conversations"
-            :key="conversation.conversationId"
-            :conversation="conversation"
-            :class="{active:currentConversationId === conversation.conversationId}"
-            @item-click="onConversationClick"
-            @item-more="openMenu"
-            @item-menu-click="openDownMenu"
-          />
-        </ul>
-        <ul
-          class="conversations"
-          v-show="!showMoreType && (searchResult.contact||searchResult.chats)"
-        >
-          <div class="search-id-or-phone" v-if="showIdOrPhoneSearch">
-            <div>
-              {{$t('chat.search_id_or_phone')}}
+        <div class="conversations ul">
+          <ul
+            v-show="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
+          >
+            <ConversationItem
+              v-for="conversation in conversations"
+              :key="conversation.conversationId"
+              :conversation="conversation"
+              :class="{active:currentConversationId === conversation.conversationId}"
+              @item-click="onConversationClick"
+              @item-more="openMenu"
+              @item-menu-click="openDownMenu"
+            />
+          </ul>
+          <ul v-show="!showMoreType && (searchResult.contact||searchResult.chats)">
+            <div class="search-id-or-phone" v-if="showIdOrPhoneSearch">
               <div>
-                <button class="search-button">{{searchKeyword}}</button>
+                {{$t('chat.search_id_or_phone')}}
+                <div>
+                  <button class="search-button">{{searchKeyword}}</button>
+                </div>
               </div>
             </div>
-          </div>
-          <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
-            {{$t('chat.chat_chats')}}
-            <a
-              v-if="searchResult.chatsAll && searchResult.chatsAll.length > 3"
-              @click="showMoreList('chats')"
-            >{{$t('chat.chat_more')}}</a>
-          </span>
-          <div
-            class="listbox"
-            :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
-          >
-            <ChatItem
-              v-for="chat in searchResult.chats"
-              :key="chat.conversationId"
-              :chat="chat"
-              :keyword="searchKeyword"
-              @item-click="onSearchChatClick"
-            ></ChatItem>
-          </div>
-          <span class="listheader" v-show="searchResult.contact && searchResult.contact.length > 0">
-            {{$t('chat.chat_contact')}}
-            <a
-              v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
-              @click="showMoreList('contact')"
-            >{{$t('chat.chat_more')}}</a>
-          </span>
-          <div class="listbox">
-            <UserItem
-              v-for="user in searchResult.contact"
-              :key="user.user_id"
-              :user="user"
-              :keyword="searchKeyword"
-              @user-click="onSearchUserClick"
-            ></UserItem>
-          </div>
-        </ul>
+            <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
+              {{$t('chat.chat_chats')}}
+              <a
+                v-if="searchResult.chatsAll && searchResult.chatsAll.length > 3"
+                @click="showMoreList('chats')"
+              >{{$t('chat.chat_more')}}</a>
+            </span>
+            <div
+              class="listbox"
+              :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
+            >
+              <ChatItem
+                v-for="chat in searchResult.chats"
+                :key="chat.conversationId"
+                :chat="chat"
+                :keyword="searchKeyword"
+                @item-click="onSearchChatClick"
+              ></ChatItem>
+            </div>
+            <span
+              class="listheader"
+              v-show="searchResult.contact && searchResult.contact.length > 0"
+            >
+              {{$t('chat.chat_contact')}}
+              <a
+                v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
+                @click="showMoreList('contact')"
+              >{{$t('chat.chat_more')}}</a>
+            </span>
+            <div class="listbox">
+              <UserItem
+                v-for="user in searchResult.contact"
+                :key="user.user_id"
+                :user="user"
+                :keyword="searchKeyword"
+                @user-click="onSearchUserClick"
+              ></UserItem>
+            </div>
+          </ul>
 
-        <ul class="conversations" v-show="showMoreType === 'chats'">
-          <div class="listbox">
-            <ChatItem
-              v-for="chat in searchResult.chatsAll"
-              :key="chat.conversationId"
-              :chat="chat"
-              :keyword="searchKeyword"
-              @item-click="onSearchChatClick"
-            ></ChatItem>
-          </div>
-        </ul>
-        <ul class="conversations" v-show="showMoreType === 'contact'">
-          <div class="listbox">
-            <UserItem
-              v-for="user in searchResult.contactAll"
-              :key="user.user_id"
-              :user="user"
-              :keyword="searchKeyword"
-              @user-click="onSearchUserClick"
-            ></UserItem>
-          </div>
-        </ul>
+          <ul v-show="showMoreType === 'chats'">
+            <div class="listbox">
+              <ChatItem
+                v-for="chat in searchResult.chatsAll"
+                :key="chat.conversationId"
+                :chat="chat"
+                :keyword="searchKeyword"
+                @item-click="onSearchChatClick"
+              ></ChatItem>
+            </div>
+          </ul>
+          <ul v-show="showMoreType === 'contact'">
+            <div class="listbox">
+              <UserItem
+                v-for="user in searchResult.contactAll"
+                :key="user.user_id"
+                :user="user"
+                :keyword="searchKeyword"
+                @user-click="onSearchUserClick"
+              ></UserItem>
+            </div>
+          </ul>
+        </div>
       </mixin-scrollbar>
     </div>
     <transition name="slide-left">

@@ -767,11 +767,15 @@ export default {
       z-index: 1;
       width: 32px;
       height: 32px;
+      margin-right: 4px;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
       flex-shrink: 0;
+    }
+    .search {
+      margin-right: 6px;
     }
     .username {
       max-width: 100%;

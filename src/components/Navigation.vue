@@ -48,25 +48,7 @@
                 </div>
               </div>
             </div>
-            <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
-              {{$t('chat.chat_chats')}}
-              <a
-                v-if="searchResult.chatsAll && searchResult.chatsAll.length > 3"
-                @click="showMoreList('chats')"
-              >{{$t('chat.chat_more')}}</a>
-            </span>
-            <div
-              class="listbox"
-              :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
-            >
-              <ChatItem
-                v-for="chat in searchResult.chats"
-                :key="chat.conversationId"
-                :chat="chat"
-                :keyword="searchKeyword"
-                @item-click="onSearchChatClick"
-              ></ChatItem>
-            </div>
+
             <span
               class="listheader"
               v-show="searchResult.contact && searchResult.contact.length > 0"
@@ -77,7 +59,11 @@
                 @click="showMoreList('contact')"
               >{{$t('chat.chat_more')}}</a>
             </span>
-            <div class="listbox">
+            <div
+              class="listbox"
+              v-show="searchResult.contact && searchResult.contact.length > 0"
+              :class="{divide: searchResult.contact && searchResult.contact.length > 0}"
+            >
               <UserItem
                 v-for="user in searchResult.contact"
                 :key="user.user_id"
@@ -86,12 +72,17 @@
                 @user-click="onSearchUserClick"
               ></UserItem>
             </div>
-          </ul>
 
-          <ul v-show="showMoreType === 'chats'">
-            <div class="listbox">
+            <span class="listheader" v-show="searchResult.chats && searchResult.chats.length > 0">
+              {{$t('chat.chat_chats')}}
+              <a
+                v-if="searchResult.chatsAll && searchResult.chatsAll.length > 3"
+                @click="showMoreList('chats')"
+              >{{$t('chat.chat_more')}}</a>
+            </span>
+            <div class="listbox" v-show="searchResult.chats && searchResult.chats.length > 0">
               <ChatItem
-                v-for="chat in searchResult.chatsAll"
+                v-for="chat in searchResult.chats"
                 :key="chat.conversationId"
                 :chat="chat"
                 :keyword="searchKeyword"
@@ -99,6 +90,7 @@
               ></ChatItem>
             </div>
           </ul>
+
           <ul v-show="showMoreType === 'contact'">
             <div class="listbox">
               <UserItem
@@ -108,6 +100,17 @@
                 :keyword="searchKeyword"
                 @user-click="onSearchUserClick"
               ></UserItem>
+            </div>
+          </ul>
+          <ul v-show="showMoreType === 'chats'">
+            <div class="listbox">
+              <ChatItem
+                v-for="chat in searchResult.chatsAll"
+                :key="chat.conversationId"
+                :chat="chat"
+                :keyword="searchKeyword"
+                @item-click="onSearchChatClick"
+              ></ChatItem>
             </div>
           </ul>
         </div>

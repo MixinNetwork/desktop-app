@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import signalDb from '@/persistence/signal_db'
 import signalDao from './signal_dao.js'
-import { hexToBytes } from '@/utils/util.js'
+import {hexToBytes} from '@/utils/util.js'
 
 class SignalProtocol {
   createKeyPair(privKey) {
@@ -23,7 +23,7 @@ class SignalProtocol {
       const preKey = preKeys[i]
       const str = String.fromCharCode.apply(String, hexToBytes(preKey))
       const row = JSON.parse(str)
-      rows.push({ id: row.ID, record: str })
+      rows.push({id: row.ID, record: str})
     }
 
     const stmt = signalDb.prepare('INSERT OR REPLACE INTO prekeys (prekey_id, record) VALUES (@id, @record)')
@@ -46,7 +46,7 @@ class SignalProtocol {
 
     const signed = JSON.parse(result)
     const stmt = signalDb.prepare('INSERT OR REPLACE INTO signed_prekeys (prekey_id, record) VALUES (@id, @record)')
-    stmt.run({ id: signed.ID, record: result })
+    stmt.run({id: signed.ID, record: result})
     return signed
   }
 
@@ -95,8 +95,8 @@ class SignalProtocol {
   encryptGroupMessage(groupId, senderId, senderDeviceId, plaintext) {
     return encryptGroupMessageFromGo(groupId, senderId, senderDeviceId, plaintext)
   }
-  encryptSessionMessage(recipientId, deviceId, plaintext) {
-    return encryptSessionMessageFromGo(recipientId, deviceId, plaintext)
+  encryptSessionMessage(recipientId, deviceId, plaintext, messageId) {
+    return encryptSessionMessageFromGo(recipientId, deviceId, plaintext, messageId)
   }
   decryptMessage(groupId, senderId, sessionId, data, category) {
     return decryptEncodedMessageFromGo(groupId, senderId, sessionId, data, category)

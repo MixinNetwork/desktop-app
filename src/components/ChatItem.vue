@@ -9,7 +9,7 @@
           <ICRobot v-if="chat.appId" />
         </div>
       </div>
-      <div v-if="chat.records" class="record">{{chat.records}} {{$t('chat.chat_records')}}</div>
+      <div v-if="chat.records" class="record">{{$t('chat.chat_records', { '0': chat.records })}}</div>
     </div>
   </li>
 </template>

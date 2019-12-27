@@ -2,12 +2,19 @@
   <li class="user_item_layout" @click="$emit('user-click',user)">
     <Avatar class="user_item_avatar" :user="user" />
     <div class="content">
-      <div class="name">
-        <span v-html="highlight(user.full_name)"></span>
-        <ICRobot v-if="user.app_id" />
+      <div class="title">
+        <div class="name">
+          <span v-html="highlight(user.full_name)"></span>
+          <ICRobot v-if="user.app_id" />
+        </div>
+        <span class="role" v-if="user.role">
+          {{ $t({
+          OWNER: 'chat.owner',
+          ADMIN: 'chat.admin'}[user.role])
+          }}
+        </span>
       </div>
       <div class="id">
-        <span>Mixin ID:</span>
         <span v-html="highlight(user.identity_number)"></span>
       </div>
     </div>
@@ -57,6 +64,7 @@ export default {
   }
   .content {
     display: flex;
+    flex: 1;
     flex-direction: column;
     overflow: hidden;
     .name {
@@ -75,15 +83,25 @@ export default {
         margin: 0.2rem 0 0 0.4rem;
       }
     }
-  }
-  .id {
-    display: flex;
-    flex: 1;
-    font-size: 0.8rem;
-    color: #bbbec3;
-    margin-top: 0.2rem;
-    span {
-      margin-right: 0.1rem;
+    .title {
+      display: flex;
+      justify-content: space-between;
+    }
+    .id {
+      display: flex;
+      flex: 1;
+      font-size: 0.8rem;
+      color: #bbbec3;
+      margin-top: 0.2rem;
+      span {
+        margin-right: 0.1rem;
+      }
+    }
+    .role {
+      float: right;
+      color: #bbbec3;
+      margin-top: 0.2rem;
+      font-size: 0.8rem;
     }
   }
 }

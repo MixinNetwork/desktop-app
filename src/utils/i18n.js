@@ -98,7 +98,9 @@ let transactions = {
       preview: 'Preview',
       sendMessage: 'Send',
       search: 'Search',
-      search_id_or_phone: 'Search Mixin ID or phone number:'
+      search_id_or_phone: 'Search Mixin ID or phone number:',
+      admin: 'Admin',
+      owner: 'Owner'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -229,7 +231,9 @@ let transactions = {
       preview: '预览',
       sendMessage: '发送',
       search: '搜索聊天记录',
-      search_id_or_phone: '搜索 Mixin ID 或手机号码：'
+      search_id_or_phone: '搜索 Mixin ID 或手机号码：',
+      admin: '管理员',
+      owner: '群主'
     },
     loading: {
       initializing: '初始化中...'

@@ -2194,7 +2194,6 @@ boolbase@^1.0.0, boolbase@~1.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  uid a560857a7ec286eafebb6808b43b1b5daa745041
   resolved "https://github.com/MixinNetwork/bot-api-js-client.git#a560857a7ec286eafebb6808b43b1b5daa745041"
   dependencies:
     crypto "^1.0.1"
@@ -10799,11 +10798,6 @@ vue-i18n@^8.15.3:
   version "8.15.3"
   resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.15.3.tgz#9f947802d9b734fcb92e2ce724da654f2f9fc0f4"
   integrity sha512-PVNgo6yhOmacZVFjSapZ314oewwLyXHjJwAqjnaPN1GJAJd/dvsrShGzSiJuCX4Hc36G4epJvNXUwO8y7wEKew==
-
-vue-infinite-loading@^2.4.4:
-  version "2.4.4"
-  resolved "https://registry.yarnpkg.com/vue-infinite-loading/-/vue-infinite-loading-2.4.4.tgz#8a9defb9ceeea797c057cb36bdf558a4b2ce409f"
-  integrity sha512-eIFBcyKqkivtsDDq7Ee5ybDJVGLxIzU1NcBJCHG7Zx9Ic66QEGzSPs2OPJlGUdtu0/RS7KpUER35ZP/a7FdSOg==
 
 vue-loader@^15.7.2:
   version "15.8.3"

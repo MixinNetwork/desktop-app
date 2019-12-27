@@ -28,6 +28,7 @@
             v-for="user in conversation.participants"
             :key="user.user_id"
             :user="user"
+            :showRole="true"
           ></UserItem>
         </div>
       </div>

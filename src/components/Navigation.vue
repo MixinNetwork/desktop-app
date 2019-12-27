@@ -445,6 +445,10 @@ export default {
     onSearchChatClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
+      conversation.unseenMessageCount = 0
+      setTimeout(() => {
+        this.$store.dispatch('markRead', conversation.conversationId)
+      }, 100)
     },
     onSearchUserClick(user) {
       this.conversationShow = false

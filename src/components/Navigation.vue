@@ -51,7 +51,7 @@
             </div>
 
             <span class="listheader" v-if="searchResult.contact && searchResult.contact.length > 0">
-              {{$t('chat.chat_contact')}}
+              {{$t('chat.chat_contacts')}}
               <a
                 v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
                 @click="showMoreList('contact')"
@@ -85,7 +85,7 @@
             </div>
 
             <span class="listheader" v-if="searchResult.message && searchResult.message.length > 0">
-              {{$t('chat.chat_message')}}
+              {{$t('chat.chat_messages')}}
               <a
                 v-if="searchResult.messageAll && searchResult.messageAll.length > 3"
                 @click="showMoreList('message')"
@@ -168,8 +168,6 @@ import ChatItem from '@/components/ChatItem.vue'
 import ICEdit from '@/assets/images/ic_edit.svg'
 import ICBack from '@/assets/images/ic_back.svg'
 import ICSignal from '@/assets/images/ic_signal.svg'
-import messageBox from '@/store/message_box.js'
-import messageDao from '@/dao/message_dao.js'
 import workerManager from '@/workers/worker_manager.js'
 import { clearDb } from '@/persistence/db_util.js'
 import accountAPI from '@/api/account.js'

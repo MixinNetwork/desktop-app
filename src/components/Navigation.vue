@@ -20,9 +20,9 @@
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
         <ICBack />
         {{ $t({
-        contact: 'chat.chat_contact',
+        contacts: 'chat.chat_contacts',
         chats: 'chat.chat_chats',
-        message: 'chat.chat_messages' }[showMoreType])
+        messages: 'chat.chat_messages' }[showMoreType])
         }}
       </div>
       <search class="nav" @input="onInput"></search>
@@ -58,7 +58,7 @@
               {{$t('chat.chat_contacts')}}
               <a
                 v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
-                @click="showMoreList('contact')"
+                @click="showMoreList('contacts')"
               >{{$t('chat.chat_more')}}</a>
             </span>
             <div class="listbox" v-if="searchResult.contact && searchResult.contact.length > 0">
@@ -92,7 +92,7 @@
               {{$t('chat.chat_messages')}}
               <a
                 v-if="searchResult.messageAll && searchResult.messageAll.length > 3"
-                @click="showMoreList('message')"
+                @click="showMoreList('messages')"
               >{{$t('chat.chat_more')}}</a>
             </span>
             <div class="listbox" v-if="searchResult.message && searchResult.message.length > 0">
@@ -106,7 +106,7 @@
             </div>
           </ul>
 
-          <ul v-if="showMoreType === 'contact'">
+          <ul v-if="showMoreType === 'contacts'">
             <div class="listbox">
               <UserItem
                 v-for="user in searchResult.contactAll"
@@ -128,7 +128,7 @@
               ></ChatItem>
             </div>
           </ul>
-          <ul v-if="showMoreType === 'message'">
+          <ul v-if="showMoreType === 'messages'">
             <div class="listbox">
               <ChatItem
                 v-for="chat in searchResult.messageAll"

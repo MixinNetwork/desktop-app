@@ -73,7 +73,7 @@ function messageSearch(state, type, keyword) {
     }
   }
 
-  if (!type || type === 'message') {
+  if (!type || type === 'messages') {
     const conversations = conversationDao.getConversations()
     let limit = 0
     if (!type) {
@@ -94,7 +94,7 @@ function search(state, payload) {
 
     let { chats, chatsAll, message, messageAll, contact, contactAll } = state.search
 
-    if (!type || type === 'contact') {
+    if (!type || type === 'contacts') {
       const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
         if (!chats) return []
         return !chats.some(conversation => {

@@ -8,29 +8,27 @@ let transactions = {
     confirm_remove: 'Are you sure that remove?',
     encryption: 'Messages to this conversation are encrypted end-to-end.',
     time_wrong: 'System time is unusual, please continue to use again after correction',
-    signal_no_title: 'Phone not connected',
-    signal_no_content: 'Make sure your phone has an active Internet connection.',
     not_connected_title: 'Not connected',
-    not_connected_content: 'Make sure has an active Internet connection.',
+    not_connected_content: 'Make sure your computer has an active Internet connection.',
     drag_file: 'Drag and drop file into the here',
     version: 'Version',
-    check_update: 'Check of Updates',
+    check_update: 'Check Updates',
     privacy_policy: 'Privacy Policy',
     terms_service: 'Terms of Service',
-    help_center: 'Help center',
+    help_center: 'Help Center',
     menu: {
       conversation: {
         exit_group: 'Exit Group',
-        pin_to_top: 'Pin to top',
-        clear_pin: 'Clear Pin',
-        clear: 'Clear',
+        pin_to_top: 'Pin to Top',
+        clear_pin: 'Remove Pin',
+        clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute'
       },
       chat: {
-        contact_info: 'Contact info',
-        exit_group: 'Exit group',
-        clear: 'Clear',
+        contact_info: 'Contact Info',
+        exit_group: 'Exit Group',
+        clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute'
       },
@@ -44,7 +42,7 @@ let transactions = {
     },
     home: {
       input: 'Say something ...',
-      removed: "You can't send messages to this group because you're no longer a participant."
+      removed: "You can't send messages to this group because you're not a participant."
     },
     conversation: {
       empty: 'No conversation'
@@ -57,7 +55,7 @@ let transactions = {
     chat: {
       user_name: 'Your name',
       personal_info: 'Personal info',
-      new_conversation: 'New conversation',
+      new_conversation: 'New Conversation',
       title_participants: '{0} participants',
       keep_title: '',
       keep_des: 'No conversation selected',
@@ -68,19 +66,17 @@ let transactions = {
       mute_year: 'Mute 1 year',
       mute_cancel: 'Cancel mute',
       chat_mute_cancel: 'Cancel mute?',
-      chat_clear: 'Clear message ?',
+      chat_clear: 'Clear all chat messages?',
       chat_group_create: '%{0} created group "{1}"',
       chat_group_add: '{0} added {1}',
       chat_group_remove: '{0} removed {1}',
       chat_group_exit: '{0} left',
-      chat_group_join: '{0} joined the group via invite link',
+      chat_group_join: '{0} joined the group via an invitation link',
       chat_group_role: "You're now an admin",
       chat_you_start: 'You',
       chat_you: 'you',
       chat_app_card: "[ You've received a card message. View on phone. ]",
       chat_app_button: "[ You've received a button message. View on phone. ]",
-      chat_transfer_send: "[ You've made a transfer ]",
-      chat_transfer_receive: "[ You've received a transfer. View on phone. ]",
       chat_unknown: '[Unknown type of Message. View on phone. ]',
       chat_transfer: '[ Transfer ]',
       chat_create_group: 'Create group',
@@ -94,14 +90,15 @@ let transactions = {
       chat_live: 'LIVE',
       chat_recall_delete: 'This message was deleted',
       chat_recall_me: 'You deleted this message',
-      chat_file_invalid_size: 'Requires file size less than 30MB',
+      chat_file_invalid_size: 'File size must be less than 30MB',
+      chat_contacts: 'Contacts',
       chat_chats: 'Chats',
-      chat_message: 'Message',
+      chat_messages: 'Messages',
       chat_records: 'Records',
       preview: 'Preview',
       sendMessage: 'Send',
       search: 'Search',
-      search_id_or_phone: 'Search Mixin ID or Phone number:'
+      search_id_or_phone: 'Search Mixin ID or phone number:'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -109,14 +106,14 @@ let transactions = {
     sign_in: {
       title: 'To use Mixin Messenger on your PC',
       desc: 'Open Mixin Messenger on your phone, capture the code',
-      reload: 'Reload code'
+      reload: 'Reload Code'
     },
     setting: {
-      title: 'Setting'
+      title: 'Settings'
     },
     profile: {
       title: 'Info',
-      announcement: 'Ann',
+      announcement: 'Announcement',
       user_biography: 'Biography'
     },
     unread_message: 'Unread messages',
@@ -142,8 +139,6 @@ let transactions = {
     confirm_remove: '是否确认删除',
     encryption: '此对话中的消息使用端对端加密。',
     time_wrong: '检测到系统时间异常，请校正后再继续使用',
-    signal_no_title: '手机未连接',
-    signal_no_content: '请确定手机有较好的网络讯号',
     not_connected_title: '未连接',
     not_connected_content: '请确定电脑的网络链接有效',
     drag_file: '拖放文件到此处',
@@ -214,8 +209,6 @@ let transactions = {
       chat_app_card: '[你收到一条 card 消息，请在手机查看]',
       chat_app_button: '[你收到一条 button 消息，请在手机查看]',
       chat_transfer: '[转账]',
-      chat_transfer_send: '[你发出一笔转账]',
-      chat_transfer_receive: '[你收到一笔转账，请在手机查看]',
       chat_unknown: '[未知类型消息，请在手机查看]',
       chat_create_group: '创建群组',
       chat_sticker: '贴纸',
@@ -229,8 +222,9 @@ let transactions = {
       chat_recall_delete: '此消息已撤回',
       chat_recall_me: '你撤回了一条消息',
       chat_file_invalid_size: '不支持大于30MB的文件',
+      chat_contacts: '联系人',
       chat_chats: '会话',
-      chat_message: '消息',
+      chat_messages: '消息',
       chat_records: '条相关消息',
       preview: '预览',
       sendMessage: '发送',

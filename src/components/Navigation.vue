@@ -19,7 +19,11 @@
       </div>
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
         <ICBack />
-        {{$t('chat.chat_'+showMoreType)}}
+        {{ $t({
+        contact: 'chat.chat_contact',
+        chats: 'chat.chat_chats',
+        message: 'chat.chat_messages' }[showMoreType])
+        }}
       </div>
       <search class="nav" @input="onInput"></search>
 
@@ -51,7 +55,7 @@
             </div>
 
             <span class="listheader" v-if="searchResult.contact && searchResult.contact.length > 0">
-              {{$t('chat.chat_contact')}}
+              {{$t('chat.chat_contacts')}}
               <a
                 v-if="searchResult.contactAll && searchResult.contactAll.length > 3"
                 @click="showMoreList('contact')"
@@ -85,7 +89,7 @@
             </div>
 
             <span class="listheader" v-if="searchResult.message && searchResult.message.length > 0">
-              {{$t('chat.chat_message')}}
+              {{$t('chat.chat_messages')}}
               <a
                 v-if="searchResult.messageAll && searchResult.messageAll.length > 3"
                 @click="showMoreList('message')"
@@ -117,6 +121,17 @@
             <div class="listbox">
               <ChatItem
                 v-for="chat in searchResult.chatsAll"
+                :key="chat.conversationId"
+                :chat="chat"
+                :keyword="searchKeyword"
+                @item-click="onSearchChatClick"
+              ></ChatItem>
+            </div>
+          </ul>
+          <ul v-if="showMoreType === 'message'">
+            <div class="listbox">
+              <ChatItem
+                v-for="chat in searchResult.messageAll"
                 :key="chat.conversationId"
                 :chat="chat"
                 :keyword="searchKeyword"
@@ -439,18 +454,10 @@ export default {
     },
 
     getLinkTitle() {
-      if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
-        return this.$t('not_connected_title')
-      } else {
-        return this.$t('signal_no_title')
-      }
+      return this.$t('not_connected_title')
     },
     getLinkContent() {
-      if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
-        return this.$t('not_connected_content')
-      } else {
-        return this.$t('signal_no_content')
-      }
+      return this.$t('not_connected_content')
     }
   },
   components: {

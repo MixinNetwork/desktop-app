@@ -14,7 +14,6 @@
         </div>
       </BadgeItem>
     </div>
-    <!-- <div class="bubble transfer">{{transferText(message)}}</div> -->
   </div>
 </template>
 <script>
@@ -34,13 +33,6 @@ export default {
     }
   },
   methods: {
-    transferText(message) {
-      if (message.userId === this.me.user_id) {
-        return this.$t('chat.chat_transfer_send')
-      } else {
-        return this.$t('chat.chat_transfer_receive')
-      }
-    },
     messageOwnership() {
       return {
         send: this.message.userId === this.me.user_id,

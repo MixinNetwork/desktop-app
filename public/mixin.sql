@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`relationship`	TEXT NOT NULL,
 	`full_name`	TEXT,
 	`avatar_url`	TEXT,
+	`biography`	TEXT,
 	`phone`	TEXT,
 	`is_verified`	INTEGER,
 	`created_at`	TEXT,

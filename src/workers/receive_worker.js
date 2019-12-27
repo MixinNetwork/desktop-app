@@ -15,11 +15,11 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
 import i18n from '@/utils/i18n.js'
 import moment from 'moment'
-import { sendNotification } from '@/utils/util.js'
-import { remote } from 'electron'
+import {sendNotification} from '@/utils/util.js'
+import {remote} from 'electron'
 import snapshotApi from '@/api/snapshot'
 
-import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
+import {downloadAttachment, downloadQueue} from '@/utils/attachment_util.js'
 
 import {
   MessageStatus,
@@ -260,6 +260,7 @@ class ReceiveWorker extends BaseWorker {
         identity_number: 0,
         relationship: '',
         avatar_url: null,
+        biography: '',
         mute_until: null,
         is_verified: 0,
         created_at: null

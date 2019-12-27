@@ -27,6 +27,7 @@ const state = {
   },
   currentAudio: null,
   showTime: false,
+  editing: false,
   linkStatus: LinkStatus.CONNECTED
 }
 

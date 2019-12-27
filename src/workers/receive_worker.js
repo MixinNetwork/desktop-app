@@ -376,6 +376,7 @@ class ReceiveWorker extends BaseWorker {
       }
     } else if (
       data.category === 'PLAIN_TEXT' ||
+      data.category === 'PLAIN_POST' ||
       data.category === 'PLAIN_IMAGE' ||
       data.category === 'PLAIN_VIDEO' ||
       data.category === 'PLAIN_DATA' ||
@@ -433,6 +434,50 @@ class ReceiveWorker extends BaseWorker {
     if (data.category.endsWith('_TEXT')) {
       let plain = plaintext
       if (data.category === 'PLAIN_TEXT') {
+        plain = decodeURIComponent(escape(window.atob(plaintext)))
+      }
+      let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
+      let quoteContent = null
+      if (quoteMessage) {
+        quoteContent = JSON.stringify(quoteMessage)
+      }
+      const message = {
+        message_id: data.message_id,
+        conversation_id: data.conversation_id,
+        user_id: data.user_id,
+        category: data.category,
+        content: plain,
+        media_url: null,
+        media_mime_type: null,
+        media_size: null,
+        media_duration: null,
+        media_width: null,
+        media_height: null,
+        media_hash: null,
+        thumb_image: null,
+        media_key: null,
+        media_digest: null,
+        media_status: null,
+        status: status,
+        created_at: data.created_at,
+        action: null,
+        participant_id: null,
+        snapshot_id: null,
+        hyperlink: null,
+        name: null,
+        album_id: null,
+        sticker_id: null,
+        shared_user_id: null,
+        media_waveform: null,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent,
+        thumb_url: null
+      }
+      messageDao.insertMessage(message)
+      this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
+    } else if (data.category.endsWith('_POST')) {
+      let plain = plaintext
+      if (data.category === 'PLAIN_POST') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
       }
       let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)

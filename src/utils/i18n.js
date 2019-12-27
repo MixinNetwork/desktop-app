@@ -16,6 +16,8 @@ let transactions = {
     privacy_policy: 'Privacy Policy',
     terms_service: 'Terms of Service',
     help_center: 'Help Center',
+    editor_title: 'Editor',
+    editor_hold: 'Markdown edit',
     menu: {
       conversation: {
         exit_group: 'Exit Group',
@@ -30,7 +32,8 @@ let transactions = {
         exit_group: 'Exit Group',
         clear: 'Clear Chat',
         mute: 'Mute',
-        cancel_mute: 'Cancel Mute'
+        cancel_mute: 'Cancel Mute',
+        create_post: 'Create post'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
@@ -88,6 +91,7 @@ let transactions = {
       chat_audio: 'Audio',
       chat_video: 'Video',
       chat_live: 'LIVE',
+      chat_post: 'Post',
       chat_recall_delete: 'This message was deleted',
       chat_recall_me: 'You deleted this message',
       chat_file_invalid_size: 'File size must be less than 30MB',
@@ -149,6 +153,8 @@ let transactions = {
     privacy_policy: '隐私政策',
     terms_service: '服务条款',
     help_center: '帮助中心',
+    editor_title: '编辑文章',
+    editor_hold: '使用 Markdown 编辑文章',
     menu: {
       conversation: {
         exit_group: '退出群组',
@@ -163,7 +169,8 @@ let transactions = {
         exit_group: '退出群组',
         clear: '清空聊天记录',
         mute: '静音',
-        cancel_mute: '取消静音'
+        cancel_mute: '取消静音',
+        create_post: '创建文章'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {
@@ -221,6 +228,7 @@ let transactions = {
       chat_audio: '语音',
       chat_video: '视频',
       chat_live: '直播',
+      chat_post: '文章',
       chat_recall_delete: '此消息已撤回',
       chat_recall_me: '你撤回了一条消息',
       chat_file_invalid_size: '不支持大于30MB的文件',

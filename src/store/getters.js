@@ -61,5 +61,8 @@ export default {
   },
   attachment: state => {
     return state.attachment
+  },
+  editing: state => {
+    return state.editing
   }
 }

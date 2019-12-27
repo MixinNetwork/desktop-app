@@ -127,6 +127,14 @@
     <transition name="slide-right">
       <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
     </transition>
+    <transition name="slide-right">
+      <Edior
+        class="overlay"
+        v-if="editing"
+        :conversation="conversation"
+        :category="user.app_id ? 'PLAIN_POST' : 'SIGNAL_POST'"
+      ></Edior>
+    </transition>
   </main>
 </template>
 
@@ -147,6 +155,7 @@ import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
 import ChatSticker from '@/components/ChatSticker.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
+import Edior from '@/components/Edior.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
@@ -279,6 +288,7 @@ export default {
             menu.push(chatMenu.mute)
           }
         }
+        menu.push(chatMenu.create_post)
         this.menus = menu
       }
     }
@@ -299,13 +309,15 @@ export default {
     ICAttach,
     ICEmoticon,
     ICEmoticonOn,
-    ReplyMessageContainer
+    ReplyMessageContainer,
+    Edior
   },
   computed: {
     ...mapGetters({
       conversation: 'currentConversation',
       user: 'currentUser',
-      me: 'me'
+      me: 'me',
+      editing: 'editing'
     })
   },
   mounted() {
@@ -694,6 +706,8 @@ export default {
             console.log('cancel')
           }
         )
+      } else if (key === 'create_post') {
+        this.$store.dispatch('toggleEditor')
       }
     },
     onUserClick(userId) {

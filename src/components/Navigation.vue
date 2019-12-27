@@ -19,7 +19,12 @@
       </div>
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
         <ICBack />
-        {{$t('chat.chat_'+showMoreType)}}
+        {{$t({
+        'contact': 'chat.chat_contact',
+        'chats': 'chat.chat_chats',
+        'message': 'chat.chat_message'
+        }[showMoreType])
+        }}
       </div>
       <search class="nav" @input="onInput"></search>
 
@@ -117,6 +122,17 @@
             <div class="listbox">
               <ChatItem
                 v-for="chat in searchResult.chatsAll"
+                :key="chat.conversationId"
+                :chat="chat"
+                :keyword="searchKeyword"
+                @item-click="onSearchChatClick"
+              ></ChatItem>
+            </div>
+          </ul>
+          <ul v-if="showMoreType === 'message'">
+            <div class="listbox">
+              <ChatItem
+                v-for="chat in searchResult.messageAll"
                 :key="chat.conversationId"
                 :chat="chat"
                 :keyword="searchKeyword"

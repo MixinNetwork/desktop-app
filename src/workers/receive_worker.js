@@ -15,11 +15,11 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal.js'
 import i18n from '@/utils/i18n.js'
 import moment from 'moment'
-import {sendNotification} from '@/utils/util.js'
-import {remote} from 'electron'
+import { sendNotification } from '@/utils/util.js'
+import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
 
-import {downloadAttachment, downloadQueue} from '@/utils/attachment_util.js'
+import { downloadAttachment, downloadQueue } from '@/utils/attachment_util.js'
 
 import {
   MessageStatus,
@@ -355,15 +355,15 @@ class ReceiveWorker extends BaseWorker {
         })
       } else if (plainData.action === 'RESEND_MESSAGES') {
         plainData.messages.forEach(msg => {
-          const resendMessage = resendMessageDao.findResendMessage(data.user_id, msg.message_id)
-          if (!resendMessage) {
+          const resendMessage = resendMessageDao.findResendMessage(data.user_id, msg)
+          if (resendMessage) {
             return
           }
-          const needResendMessage = messageDao.findMessageById(msg.message_id)
+          const needResendMessage = messageDao.getMessageById(msg)
           if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
-            resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 1)
+            resendMessageDao.insertMessage(msg, data.user_id, data.session_id, 1)
           } else {
-            resendMessageDao.insertMessage(msg.message_id, data.user_id, data.session_id, 0)
+            resendMessageDao.insertMessage(msg, data.user_id, data.session_id, 0)
           }
         })
       } else if (plainData.action === 'RESEND_KEY') {

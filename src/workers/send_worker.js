@@ -6,7 +6,7 @@ import uuidv4 from 'uuid/v4'
 import signalProtocol from '@/crypto/signal.js'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
-import {MessageStatus, MessageCategories} from '@/utils/constants.js'
+import { MessageStatus, MessageCategories } from '@/utils/constants.js'
 
 class SendWorker extends BaseWorker {
   async doWork() {
@@ -34,7 +34,7 @@ class SendWorker extends BaseWorker {
 
   async sendSignalMessage(message) {
     // eslint-disable-next-line no-undef
-    await wasmObject.then(result => {})
+    await wasmObject.then(result => { })
 
     if (message.resend_status) {
       if (message.resend_status === 1) {
@@ -126,7 +126,7 @@ class SendWorker extends BaseWorker {
       if (
         !signalProtocol.containsSession(participant.user_id, signalProtocol.convertToDeviceId(participant.session_id))
       ) {
-        requestSignalKeyUsers.push({user_id: participant.user_id, session_id: participant.session_id})
+        requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
       } else {
         let cipherText = signalProtocol.encryptSenderKey(
           conversationId,
@@ -137,7 +137,7 @@ class SendWorker extends BaseWorker {
         )
 
         if (!cipherText) {
-          requestSignalKeyUsers.push({user_id: participant.user_id, session_id: participant.session_id})
+          requestSignalKeyUsers.push({ user_id: participant.user_id, session_id: participant.session_id })
         } else {
           signalKeyMessages.push({
             message_id: uuidv4().toLowerCase(),
@@ -181,7 +181,7 @@ class SendWorker extends BaseWorker {
               data: cipherText,
               session_id: signalKey.session_id
             })
-            keys.push({user_id: signalKey.user_id, session_id: signalKey.session_id})
+            keys.push({ user_id: signalKey.user_id, session_id: signalKey.session_id })
           })
         }
 
@@ -244,7 +244,7 @@ class SendWorker extends BaseWorker {
         id: uuidv4(),
         action: 'CONSUME_SESSION_SIGNAL_KEYS',
         params: {
-          recipients: [{user_id: recipientId, session_id: sessionId}]
+          recipients: [{ user_id: recipientId, session_id: sessionId }]
         }
       }
       const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)

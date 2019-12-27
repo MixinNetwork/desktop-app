@@ -203,9 +203,7 @@ export default {
             this.unreadMessageId = ''
           }
         }
-        setTimeout(() => {
-          this.$store.dispatch('markRead', newC.conversationId)
-        }, 100)
+        this.$store.dispatch('markRead', newC.conversationId)
       }
       if (newC) {
         if (newC !== oldC) {

@@ -211,8 +211,7 @@ export const MimeType = {
 
 export const LinkStatus = {
   NOT_CONNECTED: 0,
-  CONNECTED: 1,
-  LOSE: 2
+  CONNECTED: 1
 }
 
 export const MuteDuration = {

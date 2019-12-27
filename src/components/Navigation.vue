@@ -441,18 +441,10 @@ export default {
     },
 
     getLinkTitle() {
-      if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
-        return this.$t('not_connected_title')
-      } else {
-        return this.$t('signal_no_title')
-      }
+      return this.$t('not_connected_title')
     },
     getLinkContent() {
-      if (this.linkStatus === LinkStatus.NOT_CONNECTED) {
-        return this.$t('not_connected_content')
-      } else {
-        return this.$t('signal_no_content')
-      }
+      return this.$t('not_connected_content')
     }
   },
   components: {

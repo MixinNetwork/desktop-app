@@ -8,29 +8,27 @@ let transactions = {
     confirm_remove: 'Are you sure that remove?',
     encryption: 'Messages to this conversation are encrypted end-to-end.',
     time_wrong: 'System time is unusual, please continue to use again after correction',
-    signal_no_title: 'Phone not connected',
-    signal_no_content: 'Make sure your phone has an active Internet connection.',
     not_connected_title: 'Not connected',
-    not_connected_content: 'Make sure has an active Internet connection.',
+    not_connected_content: 'Make sure your computer has an active Internet connection.',
     drag_file: 'Drag and drop file into the here',
     version: 'Version',
-    check_update: 'Check of Updates',
+    check_update: 'Check Updates',
     privacy_policy: 'Privacy Policy',
     terms_service: 'Terms of Service',
-    help_center: 'Help center',
+    help_center: 'Help Center',
     menu: {
       conversation: {
         exit_group: 'Exit Group',
-        pin_to_top: 'Pin to top',
-        clear_pin: 'Clear Pin',
-        clear: 'Clear',
+        pin_to_top: 'Pin to Top',
+        clear_pin: 'Remove Pin',
+        clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute'
       },
       chat: {
-        contact_info: 'Contact info',
-        exit_group: 'Exit group',
-        clear: 'Clear',
+        contact_info: 'Contact Info',
+        exit_group: 'Exit Group',
+        clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute'
       },
@@ -44,7 +42,7 @@ let transactions = {
     },
     home: {
       input: 'Say something ...',
-      removed: "You can't send messages to this group because you're no longer a participant."
+      removed: "You can't send messages to this group because you're not a participant."
     },
     conversation: {
       empty: 'No conversation'
@@ -101,7 +99,7 @@ let transactions = {
       preview: 'Preview',
       sendMessage: 'Send',
       search: 'Search',
-      search_id_or_phone: 'Search Mixin ID or Phone number:'
+      search_id_or_phone: 'Search Mixin ID or phone number:'
     },
     loading: {
       initializing: 'Initializing...Please wait a moment'
@@ -142,8 +140,6 @@ let transactions = {
     confirm_remove: '是否确认删除',
     encryption: '此对话中的消息使用端对端加密。',
     time_wrong: '检测到系统时间异常，请校正后再继续使用',
-    signal_no_title: '手机未连接',
-    signal_no_content: '请确定手机有较好的网络讯号',
     not_connected_title: '未连接',
     not_connected_content: '请确定电脑的网络链接有效',
     drag_file: '拖放文件到此处',

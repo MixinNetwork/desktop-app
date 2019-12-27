@@ -36,9 +36,15 @@ export default {
         if (newV) {
           this.searchColor = '#D6D6D6'
           var rect = this.$el.getBoundingClientRect()
-          this.$Menu.alert(rect.x - rect.width - 100, rect.top + rect.height + 3, this.menus, index => {
-            this.$emit('onItemClick', index)
-          })
+          this.$Menu.alert(
+            rect.x - rect.width - 100,
+            rect.top + rect.height + 3,
+            this.menus,
+            index => {
+              this.$emit('onItemClick', index)
+            },
+            'right'
+          )
         } else {
           this.searchColor = 'transparent'
         }

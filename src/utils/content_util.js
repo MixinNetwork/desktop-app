@@ -80,16 +80,13 @@ export default {
     return keyword
   },
   highlight(content, keyword, highlight) {
-    if (!keyword) return ''
+    if (!keyword) return content
     let result = content
     highlight = highlight || 'default'
-    keyword = keyword.trim()
-    if (keyword) {
-      keyword = keyword.replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
-      const regx = new RegExp('(' + keyword + ')', 'ig')
-      if (result) {
-        result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
-      }
+    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+    const regx = new RegExp('(' + keyword + ')', 'ig')
+    if (result) {
+      result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
     }
     return result
   }

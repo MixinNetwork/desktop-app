@@ -59,6 +59,20 @@ class MessageDao {
     insertMany(mIds)
   }
 
+  ftsMessageIndex(conversationId, messageId) {
+    const messageIdList = db
+      .prepare('SELECT message_id FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
+      .all(conversationId)
+    let index = messageIdList.length - 1
+    for (let i = 0; i < messageIdList.length; i++) {
+      if (messageIdList[i].message_id === messageId) {
+        index = i
+        break
+      }
+    }
+    return index
+  }
+
   ftsMessageCount(conversationId, keyword) {
     if (conversationId) {
       if (!keyword) {
@@ -71,7 +85,9 @@ class MessageDao {
         .prepare(
           'SELECT count(m.message_id) FROM messages_fts m_fts ' +
             'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
-            'WHERE m.conversation_id = ? AND m_fts.content MATCH ?'
+            'LEFT JOIN users u ON m.user_id = u.user_id ' +
+            'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA") ' +
+            'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ?'
         )
         .get(conversationId, keywordFinal)
       return data['count(m.message_id)']
@@ -85,12 +101,10 @@ class MessageDao {
       .prepare('SELECT message_id,category,content FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
     const insert = db.prepare(
-      'INSERT OR REPLACE INTO messages_fts (message_id, content, message_index) ' +
-        'VALUES (@message_id, @content, @message_index)'
+      'INSERT OR REPLACE INTO messages_fts (message_id, content) ' + 'VALUES (@message_id, @content)'
     )
     const insertMany = db.transaction(messages => {
-      messages.forEach((message, index) => {
-        message.message_index = index
+      messages.forEach(message => {
         insert.run(message)
       })
     })
@@ -102,11 +116,12 @@ class MessageDao {
     if (!keywordFinal) return []
     return db
       .prepare(
-        'SELECT m.message_id,m.conversation_id,m.content,m.created_at,u.full_name,m.user_id,u.avatar_url,m_fts.message_index ' +
+        'SELECT m.message_id,m.conversation_id,m.content,m.created_at,u.full_name,m.user_id,u.avatar_url ' +
           'FROM messages_fts m_fts ' +
           'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
           'LEFT JOIN users u ON m.user_id = u.user_id ' +
-          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT") AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
+          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA") ' +
+          'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
       )
       .all(conversationId, keywordFinal)
   }
@@ -229,6 +244,7 @@ class MessageDao {
   }
   markRead(conversationId) {
     const userId = JSON.parse(localStorage.getItem('account')).user_id
+    db.prepare(`UPDATE conversations SET unseen_message_count = 0 WHERE conversation_id = ?`).run(conversationId)
     db.prepare(
       `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
     ).run(conversationId)

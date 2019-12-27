@@ -1,10 +1,14 @@
 <template>
   <main class="chat container">
     <header v-show="conversation">
-      <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
-      <div class="title" @click="showDetails">
-        <div class="username">{{name}}</div>
-        <div class="identity number">{{identity}}</div>
+      <div>
+        <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
+      </div>
+      <div class="title">
+        <div @click="showDetails">
+          <div class="username">{{name}}</div>
+          <div class="identity number">{{identity}}</div>
+        </div>
       </div>
       <div class="search" @click="chatSearch">
         <ICSearch />
@@ -25,14 +29,14 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <infinite-loading direction="top" @infinite="infiniteUp" ref="infiniteUp">
-          <div slot="spinner"></div>
-          <div slot="no-more"></div>
-          <div slot="no-results"></div>
-        </infinite-loading>
         <li v-show="!user.app_id" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
+        <TimeDivide
+          ref="timeDivide"
+          v-if="messages[0] && showMessages && timeDivideShow"
+          :messageTime="contentUtil.renderTime(messages[0].createdAt)"
+        />
         <MessageItem
           v-for="(item, index) in messages"
           :key="item.messageId"
@@ -45,11 +49,6 @@
           @user-click="onUserClick"
           @handle-item-click="handleItemClick"
         />
-        <infinite-loading direction="down" @infinite="infiniteDown" ref="infiniteDown">
-          <div slot="spinner"></div>
-          <div slot="no-more"></div>
-          <div slot="no-results"></div>
-        </infinite-loading>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -77,6 +76,7 @@
               class="box"
               contenteditable="true"
               :placeholder="$t('home.input')"
+              @input="saveMessageDraft"
               @keydown.enter="sendMessage"
               @compositionstart="inputFlag = true"
               @compositionend="inputFlag = false"
@@ -84,8 +84,7 @@
             ></div>
           </div>
         </mixin-scrollbar>
-        <!-- <font-awesome-icon :icon="['far', 'paper-plane']" @click="sendMessage"/> -->
-        <div @click="sendMessage">
+        <div class="send" @click="sendMessage">
           <ICSend />
         </div>
       </div>
@@ -132,9 +131,11 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
+import TimeDivide from '@/components/TimeDivide.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
+import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import messageBox from '@/store/message_box.js'
@@ -172,7 +173,9 @@ export default {
       showMessages: true,
       infiniteUpLock: false,
       infiniteDownLock: true,
-      searchKeyword: ''
+      searchKeyword: '',
+      timeDivideShow: false,
+      contentUtil
     }
   },
   watch: {
@@ -183,14 +186,12 @@ export default {
     },
     conversation(newC, oldC) {
       this.infiniteDownLock = true
+      this.infiniteUpLock = false
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+        if (this.$refs.box) {
+          this.$refs.box.innerHTML = this.conversation.draft || ''
+        }
         this.showMessages = false
-        if (this.$refs.infiniteUp) {
-          this.$refs.infiniteUp.stateChanger.reset()
-        }
-        if (this.$refs.infiniteDown) {
-          this.$refs.infiniteDown.stateChanger.reset()
-        }
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         this.messages = messageBox.messages
         if (newC) {
@@ -202,9 +203,9 @@ export default {
             this.unreadMessageId = ''
           }
         }
-        Promise.resolve().then(() => {
+        setTimeout(() => {
           this.$store.dispatch('markRead', newC.conversationId)
-        })
+        }, 100)
       }
       if (newC) {
         if (newC !== oldC) {
@@ -214,6 +215,11 @@ export default {
             this.name = newC.name
           }
           if (!oldC || newC.conversationId !== oldC.conversationId) {
+            setTimeout(() => {
+              if (this.$refs.box) {
+                this.$refs.box.innerHTML = this.conversation.draft || ''
+              }
+            })
             this.details = false
             this.searching = false
             this.file = null
@@ -253,6 +259,7 @@ export default {
     Avatar,
     Details,
     ChatSearch,
+    TimeDivide,
     MessageItem,
     FileContainer,
     ICBot,
@@ -352,7 +359,24 @@ export default {
       }
       if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
         this.infiniteUp()
+        if (list.scrollTop < 30) {
+          setTimeout(() => {
+            if (!this.infiniteUpLock) {
+              list.scrollTop = 30
+            }
+          })
+        }
       }
+      if (!this.isBottom && list.scrollTop > 130) {
+        this.timeDivideShow = true
+      } else {
+        this.timeDivideShow = false
+      }
+      setTimeout(() => {
+        const timeDivide = this.$refs.timeDivide
+        if (!timeDivide) return
+        timeDivide.action()
+      }, 10)
     },
     chooseAttachment() {
       this.file = null
@@ -361,10 +385,17 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
+    saveMessageDraft() {
+      const conversationId = this.conversation.conversationId
+      if (this.$refs.box) {
+        conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
+      }
+    },
     goSearchMessagePos(item, keyword) {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-      messageBox.setConversationId(this.conversation.conversationId, count - item.message_index - 1)
+      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
       setTimeout(() => {
         this.searchKeyword = keyword
       })
@@ -372,29 +403,30 @@ export default {
     goMessagePos(posMessage) {
       let goDone = false
       let beforeScrollTop = 0
-      this.infiniteScroll(null, 'down')
-      this.infiniteDownLock = false
+      this.infiniteScroll('down')
       const action = beforeScrollTop => {
         setTimeout(() => {
+          this.infiniteDownLock = false
           let targetDom = document.querySelector('.unread-divide')
-          if (!targetDom && posMessage) {
+          if (posMessage && posMessage.messageId) {
             targetDom = document.getElementById(`m-${posMessage.messageId}`)
           }
           if (!targetDom) {
             return (this.showMessages = true)
           }
           let list = this.$refs.messagesUl
-          if (!targetDom || !list) {
+          if (!list) {
             return action(beforeScrollTop)
           }
-          this.infiniteDownLock = false
           if (!goDone && beforeScrollTop !== list.scrollTop) {
             beforeScrollTop = list.scrollTop
             action(beforeScrollTop)
           } else {
             goDone = true
             list.scrollTop = targetDom.offsetTop
-            this.showMessages = true
+            setTimeout(() => {
+              this.showMessages = true
+            }, 10)
           }
         }, 10)
       }
@@ -402,6 +434,7 @@ export default {
     },
     goBottom() {
       setTimeout(() => {
+        this.infiniteUpLock = false
         this.currentUnreadNum = 0
         let list = this.$refs.messagesUl
         if (!list) return
@@ -419,9 +452,9 @@ export default {
         this.showMessages = true
       }, 10)
     },
-    infiniteScroll($state, direction) {
+    infiniteScroll(direction) {
       messageBox.nextPage(direction).then(messages => {
-        if (messages) {
+        if (messages.length) {
           if (direction === 'down') {
             const newMessages = []
             const lastMessageId = this.messages[this.messages.length - 1].messageId
@@ -435,23 +468,20 @@ export default {
             this.messages.push(...newMessages)
           } else {
             this.messages.unshift(...messages)
+            this.infiniteUpLock = false
           }
           this.oldMsgLen += messages.length
-          if (!$state) return
-          $state.loaded()
-        } else {
-          if (!$state) return
-          $state.complete()
         }
       })
     },
-    infiniteUp($state) {
+    infiniteUp() {
       if (this.infiniteUpLock) return
-      this.infiniteScroll($state, 'up')
+      this.infiniteUpLock = true
+      this.infiniteScroll('up')
     },
-    infiniteDown($state) {
+    infiniteDown() {
       if (this.infiniteDownLock) return
-      this.infiniteScroll($state, 'down')
+      this.infiniteScroll('down')
     },
     isMute: function(conversation) {
       if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
@@ -638,6 +668,7 @@ export default {
       if (text.trim().length <= 0) {
         return
       }
+      conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
       this.$refs.box.innerText = ''
       const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
       const status = MessageStatus.SENDING
@@ -728,20 +759,32 @@ export default {
       flex: 1;
       z-index: 1;
       text-align: left;
-      padding-left: 0.8rem;
+      cursor: pointer;
+      & > div {
+        max-width: 12rem;
+        padding: 0 0.8rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        display: inline-flex;
+      }
     }
     .bot,
     .search {
       z-index: 1;
       width: 32px;
       height: 32px;
+      margin-right: 3px;
       display: flex;
       justify-content: center;
       align-items: center;
       cursor: pointer;
+      flex-shrink: 0;
+    }
+    .search {
+      margin-right: 5px;
     }
     .username {
-      width: 12rem;
       max-width: 100%;
       overflow: hidden;
       white-space: nowrap;
@@ -790,12 +833,16 @@ export default {
       align-items: center;
       padding: 0.4rem 0.6rem;
       .attachment {
+        cursor: pointer;
         position: relative;
         input {
           position: absolute;
           opacity: 0;
           z-index: -1;
         }
+      }
+      .send {
+        cursor: pointer;
       }
     }
     .editable {
@@ -822,9 +869,6 @@ export default {
     }
     .bot {
       padding: 0 1rem 0 0;
-    }
-    .send {
-      padding: 0 0.6rem;
     }
   }
   .reply_box {
@@ -863,6 +907,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     border-radius: 28px;
     width: 40px;
     height: 40px;

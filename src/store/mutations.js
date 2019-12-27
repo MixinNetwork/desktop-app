@@ -34,35 +34,65 @@ function refreshConversation(state, conversationId) {
 
 let keywordCache = null
 
+let messageSearchTimer = null
+function messageSearch(state, type, keyword) {
+  let message = []
+  let messageAll = []
+  let num = 0
+
+  function action(conversations, limit, i) {
+    if (i < conversations.length) {
+      const conversation = conversations[i]
+      const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+      let waitTime = 0
+      if (count > 0) {
+        num++
+        const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
+        temp.records = count
+
+        messageAll.push(temp)
+        state.search.messageAll = messageAll
+        if (num <= limit) {
+          message.push(temp)
+          state.search.message = message
+        }
+        if (limit > 0 && num > limit) {
+          return
+        }
+        if (num < 10) {
+          waitTime = 0
+        } else if (num < 50) {
+          waitTime = 50
+        } else {
+          waitTime = 100
+        }
+      }
+      messageSearchTimer = setTimeout(() => {
+        action(conversations, limit, ++i)
+      }, waitTime)
+    }
+  }
+
+  if (!type || type === 'message') {
+    const conversations = conversationDao.getConversations()
+    let limit = 0
+    if (!type) {
+      limit = 3
+    }
+    action(conversations, limit, 0)
+  }
+}
+
 function search(state, payload) {
   const { keyword, type } = payload
+
+  clearTimeout(messageSearchTimer)
 
   if (keyword) {
     keywordCache = keyword
     const account = state.me
 
-    let { chats, chatsAll, contact, contactAll } = state.search
-
-    if (!type || type === 'chats') {
-      const conversations = conversationDao.getConversations()
-      const countMap = {}
-      conversations.forEach(conversation => {
-        const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
-        countMap[conversation.conversationId] = count
-      })
-
-      const findChats = []
-      Object.keys(countMap).forEach(key => {
-        if (countMap[key] > 0) {
-          const temp = state.conversations[key]
-          temp.records = countMap[key]
-          findChats.push(temp)
-        }
-      })
-
-      chatsAll = [...findChats]
-      chats = findChats.splice(0, 3)
-    }
+    let { chats, chatsAll, message, messageAll, contact, contactAll } = state.search
 
     if (!type || type === 'contact') {
       const findContact = userDao.fuzzySearchUser(account.user_id, keyword).filter(item => {
@@ -75,19 +105,35 @@ function search(state, payload) {
       contact = findContact.splice(0, 3)
     }
 
+    if (!type || type === 'chats') {
+      const findChats = conversationDao.fuzzySearchConversation(keyword)
+      findChats.forEach((item, index) => {
+        const participants = participantDao.getParticipantsByConversationId(item.conversationId)
+        findChats[index].participants = participants
+      })
+      chatsAll = [...findChats]
+      chats = findChats.splice(0, 3)
+    }
+
+    messageSearch(state, type, keyword)
+
     state.search = {
       contact,
       chats,
+      message,
       contactAll,
-      chatsAll
+      chatsAll,
+      messageAll
     }
   } else {
     keywordCache = null
     state.search = {
       contact: null,
       chats: null,
+      message: null,
       contactAll: null,
-      chatsAll: null
+      chatsAll: null,
+      messageAll: null
     }
   }
 }
@@ -103,8 +149,10 @@ export default {
     state.search = {
       contact: null,
       chats: null,
+      message: null,
       contactAll: null,
-      chatsAll: null
+      chatsAll: null,
+      messageAll: null
     }
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
@@ -194,8 +242,10 @@ export default {
     state.search = {
       contact: null,
       chats: null,
+      message: null,
       contactAll: null,
-      chatsAll: null
+      chatsAll: null,
+      messageAll: null
     }
   },
   toggleTime(state, toggle) {

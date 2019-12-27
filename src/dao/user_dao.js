@@ -10,8 +10,8 @@ class UserDao {
     }
     user.is_verified = user.is_verified ? 1 : 0
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
-        '(@user_id, @full_name, @identity_number, @avatar_url, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
+      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, biography, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
+        '(@user_id, @full_name, @identity_number, @avatar_url, @biography, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
     )
     const info = stmt.run(user)
     if (info.changes >= 1) {
@@ -21,8 +21,8 @@ class UserDao {
   }
   insertUsers(users) {
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
-        '(@user_id, @full_name, @identity_number, @avatar_url, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
+      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, biography, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
+        '(@user_id, @full_name, @identity_number, @avatar_url, @biography, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
     )
     const insertMany = db.transaction(users => {
       for (let user of users) {
@@ -54,13 +54,13 @@ class UserDao {
       .prepare('SELECT u.* FROM users u, conversations c WHERE c.owner_id = u.user_id AND c.conversation_id = ?')
       .get(conversationId)
   }
-  fuzzySearchUser(id, name) {
+  fuzzySearchUser(id, keyword) {
     return db
       .prepare(
-        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND full_name LIKE '%${name.replace(
+        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND (full_name LIKE '%${keyword.replace(
           "'",
           ''
-        )}%'`
+        )}%' OR identity_number LIKE '%${keyword}%')`
       )
       .all()
   }
@@ -72,9 +72,7 @@ class UserDao {
   }
   update(u) {
     db.prepare(
-      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${
-        u.is_verified
-      }, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
+      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${u.is_verified}, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
     ).run()
   }
 }

@@ -120,6 +120,7 @@ export default {
     width: 28px;
     height: 28px;
     background: #397ee4;
+    cursor: pointer;
     color: white;
     padding: 12px;
     border-radius: 28px;

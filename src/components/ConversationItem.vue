@@ -47,7 +47,7 @@
         <ICPin v-if="conversation.pinTime" class="icon" />
         <transition name="slide-right">
           <a
-            @click="$emit('item-menu-click',conversation)"
+            @click.stop="$emit('item-menu-click',conversation)"
             @focus="onFocus"
             @blur="onBlur"
             href="javascript:void(0)"

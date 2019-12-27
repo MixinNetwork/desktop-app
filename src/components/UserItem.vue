@@ -1,9 +1,15 @@
 <template>
   <li class="user_item_layout" @click="$emit('user-click',user)">
     <Avatar class="user_item_avatar" :user="user" />
-    <div class="user_name">
-      <span v-html="highlight(user.full_name)"></span>
-      <ICRobot v-if="user.app_id" />
+    <div class="content">
+      <div class="name">
+        <span v-html="highlight(user.full_name)"></span>
+        <ICRobot v-if="user.app_id" />
+      </div>
+      <div class="id">
+        <span>Mixin ID:</span>
+        <span v-html="highlight(user.identity_number)"></span>
+      </div>
     </div>
   </li>
 </template>
@@ -44,25 +50,40 @@ export default {
   background: white;
 
   .user_item_avatar {
-    width: 48px;
-    height: 48px;
-    margin-right: 16px;
-    flex: none;
+    width: 3rem;
+    height: 3rem;
+    margin-right: 0.8rem;
+    flex-shrink: 0;
   }
-  .user_name {
-    overflow: hidden;
+  .content {
     display: flex;
-    justify-content: flex-start;
-    flex: 1;
-    span {
+    flex-direction: column;
+    overflow: hidden;
+    .name {
       overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
+      display: flex;
+      justify-content: flex-start;
+      flex: 1;
+      span {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      svg {
+        flex-shrink: 0;
+        vertical-align: top;
+        margin: 0.2rem 0 0 0.4rem;
+      }
     }
-    svg {
-      width: 24px;
-      vertical-align: top;
-      margin: 3px 0 0 1px;
+  }
+  .id {
+    display: flex;
+    flex: 1;
+    font-size: 0.8rem;
+    color: #bbbec3;
+    margin-top: 0.2rem;
+    span {
+      margin-right: 0.1rem;
     }
   }
 }

@@ -3,7 +3,7 @@
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
-    <div v-if="!prev || !equalDay(message, prev)" class="time-divide">
+    <div v-if="!prev || !equalDay(message, prev)" class="time-divide inner">
       <span>{{getTimeDivide(message)}}</span>
     </div>
 
@@ -470,19 +470,6 @@ li {
   margin-bottom: 0.6rem;
   margin-left: -3rem;
   margin-right: -3rem;
-}
-.time-divide {
-  color: #333;
-  font-size: 0.75rem;
-  text-align: center;
-  margin-bottom: 0.6rem;
-  span {
-    min-width: 5rem;
-    background: #d5d3f3;
-    border-radius: 0.8rem;
-    display: inline-block;
-    padding: 0.1rem 0.6rem;
-  }
 }
 .username {
   display: inline-block;

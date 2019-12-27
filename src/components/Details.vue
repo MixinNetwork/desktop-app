@@ -17,9 +17,9 @@
           <div
             v-if="conversation.announcement"
             class="announcement"
-            v-html="renderUrl(conversation.announcement)"
+            v-html="contentUtil.renderUrl(conversation.announcement)"
           ></div>
-          <div v-if="conversation.biography" class="biography">{{conversation.biography}}</div>
+          <div v-else-if="conversation.biography" class="biography">{{conversation.biography}}</div>
         </header>
         <div class="participants" v-if="!isContact">
           <span class="title">{{participantTitle}}</span>
@@ -47,9 +47,9 @@ export default {
     Avatar,
     UserItem
   },
-  methods: {
-    renderUrl(content) {
-      return contentUtil.renderUrl(content)
+  data() {
+    return {
+      contentUtil
     }
   },
   computed: {
@@ -141,7 +141,8 @@ export default {
         user-select: text;
       }
     }
-    .announcement {
+    .announcement,
+    .biography {
       word-break: break-all;
       margin-top: 1rem;
       font-weight: 400;

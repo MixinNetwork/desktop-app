@@ -111,31 +111,33 @@ export default {
     flex-direction: row;
     align-content: center;
     min-width: 12rem;
-    max-width: 16rem;
+    max-width: 14rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     #avatar {
       width: 42px;
       height: 42px;
       margin-right: 12px;
+      flex-shrink: 0;
     }
     .content {
       display: flex;
       flex: 1;
       flex-direction: column;
       text-align: start;
-      overflow: hidden;
+      max-width: calc(100% - 54px);
       .name {
         font-size: 1rem;
+        overflow: hidden;
+        display: flex;
         span {
-          display: inline-block;
-          max-width: calc(100% - 14px);
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
         }
         svg {
           vertical-align: top;
+          flex-shrink: 0;
           margin: 0.2rem 0 0 0.4rem;
         }
       }

@@ -7,7 +7,7 @@
         <div class="options" v-if="options">
           <template v-for="(option,index) in options">
             <label :key="index">
-              <input type="radio" name="mode" :value="index" v-model="picked">
+              <input type="radio" name="mode" :value="index" v-model="picked" />
               <a>{{option}}</a>
             </label>
           </template>
@@ -127,12 +127,15 @@ export default {
     }
   }
   .positive {
-    background: #2ec363;
+    background: #3d75e3;
+    cursor: pointer;
     color: white;
     margin-left: 3px;
   }
   .negative {
-    color: #2ec363;
+    border: 1px solid #eaeaea;
+    cursor: pointer;
+    color: #3d75e3;
   }
 }
 .msg {

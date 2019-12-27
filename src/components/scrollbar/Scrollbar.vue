@@ -89,11 +89,15 @@ export default {
           }, 1000)
         }
         this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
-        let maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
-        this.thumbTop = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
-        if (this.thumbHeight < 25) {
-          this.thumbTop -= 25 - this.thumbHeight
+        const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
+        let thumbTop = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
+        if (thumbTop > scrollBox.clientHeight - this.thumbHeight - 25) {
+          thumbTop = parseInt(thumbTop)
         }
+        if (this.thumbHeight < 25) {
+          thumbTop -= 25 - this.thumbHeight
+        }
+        this.thumbTop = thumbTop
         if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
           this.thumbTop = 0
         }
@@ -135,9 +139,9 @@ export default {
     }
   },
   mounted() {
-    this.scrollBox = this.$refs.scroll.querySelector('ul')
+    this.scrollBox = this.$refs.scroll.querySelector('.ul')
     if (!this.scrollBox) {
-      this.scrollBox = this.$refs.scroll.querySelector('.ul')
+      this.scrollBox = this.$refs.scroll.querySelector('ul')
     }
     this.scrollThumb = this.$refs.scroll.querySelector('.scrollbar-thumb')
 
@@ -158,7 +162,7 @@ export default {
   width: 100%;
   height: 100%;
 
-  overflow: auto;
+  overflow: hidden;
   flex: 1 0 0;
   & > ul,
   & > .ul {

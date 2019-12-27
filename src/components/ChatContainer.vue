@@ -188,7 +188,9 @@ export default {
       this.infiniteDownLock = true
       this.infiniteUpLock = false
       if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-        this.$refs.box.innerHTML = this.conversation.draft || ''
+        if (this.$refs.box) {
+          this.$refs.box.innerHTML = this.conversation.draft || ''
+        }
         this.showMessages = false
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         this.messages = messageBox.messages
@@ -214,7 +216,9 @@ export default {
           }
           if (!oldC || newC.conversationId !== oldC.conversationId) {
             setTimeout(() => {
-              this.$refs.box.innerHTML = this.conversation.draft || ''
+              if (this.$refs.box) {
+                this.$refs.box.innerHTML = this.conversation.draft || ''
+              }
             })
             this.details = false
             this.searching = false
@@ -383,8 +387,9 @@ export default {
     },
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
-      const draft = this.$refs.box.innerHTML
-      conversationDao.updateConversationDraftById(conversationId, draft)
+      if (this.$refs.box) {
+        conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
+      }
     },
     goSearchMessagePos(item, keyword) {
       this.hideSearch()
@@ -419,7 +424,9 @@ export default {
           } else {
             goDone = true
             list.scrollTop = targetDom.offsetTop
-            this.showMessages = true
+            setTimeout(() => {
+              this.showMessages = true
+            }, 10)
           }
         }, 10)
       }

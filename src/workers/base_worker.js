@@ -254,7 +254,7 @@ export default class BaseWorker {
       return
     }
     if (conversation.category === 'GROUP') {
-      this.syncConversation(conversation)
+      await this.refreshConversation(conversation.conversation_id)
     } else {
       await this.createConversation(conversation)
     }

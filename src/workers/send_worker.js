@@ -48,7 +48,7 @@ class SendWorker extends BaseWorker {
       return
     }
 
-    if (!signalProtocol.isExistSenderKey(message.conversation_id, message.user_id, this.getDeviceId())) {
+    if (!signalProtocol.isExistSenderKey(message.conversation_id, this.getAccountId(), this.getDeviceId())) {
       await this.checkConversation(message.conversation_id)
     }
 
@@ -64,17 +64,18 @@ class SendWorker extends BaseWorker {
         message.content,
         message.message_id
       )
-      const blazeMessage = this.createBlazeMessage(message, content)
-      return blazeMessage
+      return this.createBlazeMessage(message, content)
     } else {
       const content = signalProtocol.encryptGroupMessage(
         message.conversation_id,
-        message.user_id,
+        this.getAccountId(),
         this.getDeviceId(),
         message.content
       )
-      const blazeMessage = this.createBlazeMessage(message, content)
-      return blazeMessage
+      if (!content) {
+        console.log('encrypt group message failed, empty data')
+      }
+      return this.createBlazeMessage(message, content)
     }
   }
 

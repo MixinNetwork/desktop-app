@@ -21,7 +21,7 @@ class WorkManager {
       receiveWorker.ftsMessageLoadAll()
 
       interval(
-        async (_, stop) => {
+        async(_, stop) => {
           this.workerStatus[0] = Status.RUNNING
           if (this.stoppedExternally) {
             stop()
@@ -34,7 +34,7 @@ class WorkManager {
         { stopOnError: false }
       )
       interval(
-        async (_, stop) => {
+        async(_, stop) => {
           this.workerStatus[1] = Status.RUNNING
           if (this.stoppedExternally) {
             stop()
@@ -47,7 +47,7 @@ class WorkManager {
         { stopOnError: false }
       )
       interval(
-        async (_, stop) => {
+        async(_, stop) => {
           this.workerStatus[2] = Status.RUNNING
           if (this.stoppedExternally) {
             stop()

@@ -88,7 +88,9 @@ class SendWorker extends BaseWorker {
       },
       async error => {
         if (error.code === 20140) {
+          console.log('send message checksum failed')
           await self.refreshConversation(message.conversation_id)
+          console.log('refresh end')
         } else if (error.code === 403) {
           messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
         } else {
@@ -104,13 +106,14 @@ class SendWorker extends BaseWorker {
       message_id: message.message_id,
       category: message.category,
       data: data,
-      quote_message_id: message.quote_message_id,
-      conversation_checksum: this.getCheckSum(message.conversation_id)
+      quote_message_id: message.quote_message_id
     }
     if (message.resend_user_id) {
       blazeParam.message_id = uuidv4()
       blazeParam.user_id = message.resend_user_id
       blazeParam.session_id = message.resend_session_id
+    } else {
+      blazeParam.conversation_checksum = this.getCheckSum(message.conversation_id)
     }
     const blazeMessage = {
       id: uuidv4(),
@@ -235,6 +238,7 @@ class SendWorker extends BaseWorker {
       )
     }, async error => {
       if (error.code === 20140) {
+        console.log('checkSessionSenderKey checksum failed')
         await self.refreshConversation(conversationId)
         await self.checkSessionSenderKey(conversationId)
       } else {

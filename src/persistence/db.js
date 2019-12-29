@@ -22,9 +22,9 @@ setTimeout(() => {
         mixinDb.exec('DROP TABLE IF EXISTS snapshots')
       }
       if (row.user_version < 2) {
-        mixinDb.exec('DROP TRIGGER IF EXISTS conversation_unseen_message_count_update')
         mixinDb.exec('ALTER TABLE users ADD COLUMN biography TEXT')
       }
+      mixinDb.exec('DROP TRIGGER IF EXISTS conversation_unseen_message_count_update')
       mixinDb.exec('DROP TABLE IF EXISTS resend_messages')
       stmt.run()
     })()

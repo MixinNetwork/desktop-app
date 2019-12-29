@@ -180,7 +180,7 @@ export default {
   setCurrentConversation(state, conversation) {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
-    messageBox.setConversationId(conversationId, unseenMessageCount)
+    messageBox.setConversationId(conversationId, unseenMessageCount - 1)
     if (
       !state.conversationKeys.some(item => {
         return item === conversationId

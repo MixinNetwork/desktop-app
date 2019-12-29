@@ -598,6 +598,7 @@ export default {
     }
     h5 {
       position: absolute;
+      z-index: 1;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);

@@ -251,7 +251,7 @@ export default {
     messageDao.ftsMessagesDelete(conversationId)
     setTimeout(() => {
       conversationDao.deleteConversation(conversationId)
-    })
+    }, 1000)
     commit('conversationClear', conversationId)
   },
   pinTop: ({ commit }, payload) => {

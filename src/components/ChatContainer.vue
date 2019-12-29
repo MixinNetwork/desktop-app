@@ -327,7 +327,9 @@ export default {
         }
         if (force) {
           self.goBottom()
-          self.goMessagePos(message)
+          setTimeout(() => {
+            self.goMessagePos(message)
+          })
         }
         setTimeout(() => {
           if (!force) {

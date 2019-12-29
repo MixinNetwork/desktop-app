@@ -59,6 +59,13 @@ class MessageDao {
     insertMany(mIds)
   }
 
+  ftsMessagesDelete(conversationId) {
+    return db
+      .prepare('DELETE FROM messages_fts ' +
+      'WHERE message_id = (SELECT message_id from messages WHERE conversation_id = ?)')
+      .run(conversationId)
+  }
+
   ftsMessageIndex(conversationId, messageId) {
     const messageIdList = db
       .prepare('SELECT message_id FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')

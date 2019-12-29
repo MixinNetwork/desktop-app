@@ -190,7 +190,7 @@ export default {
       commit('setCurrentConversation', conversation)
     }
   },
-  createGroupConversation: async ({ commit }, payload) => {
+  createGroupConversation: async({ commit }, payload) => {
     const response = await conversationApi.createGroupConversation(payload.groupName, payload.users)
     if (response.data.data) {
       const conversation = response.data.data
@@ -232,7 +232,7 @@ export default {
     userDao.insertUser(user)
     commit('saveAccount', user)
   },
-  setCurrentConversation: async ({ commit }, conversation) => {
+  setCurrentConversation: async({ commit }, conversation) => {
     commit('setCurrentConversation', conversation)
   },
   markRead: ({ commit }, conversationId) => {
@@ -248,7 +248,10 @@ export default {
     commit('refreshConversations')
   },
   conversationClear: ({ commit }, conversationId) => {
-    conversationDao.deleteConversation(conversationId)
+    messageDao.ftsMessagesDelete(conversationId)
+    setTimeout(() => {
+      conversationDao.deleteConversation(conversationId)
+    })
     commit('conversationClear', conversationId)
   },
   pinTop: ({ commit }, payload) => {
@@ -258,7 +261,7 @@ export default {
     )
     commit('refreshConversations')
   },
-  refreshUser: async ({ commit }, { userId, conversationId }) => {
+  refreshUser: async({ commit }, { userId, conversationId }) => {
     const response = await userApi.getUserById(userId)
     if (response.data.data) {
       let user = userDao.findUserById(userId)
@@ -384,7 +387,7 @@ export default {
   init: ({ commit }) => {
     commit('init')
   },
-  refreshFriends: async ({ commit }, friends) => {
+  refreshFriends: async({ commit }, friends) => {
     userDao.insertUsers(friends)
     let f = friends.map(item => item.user_id)
     let df = userDao
@@ -467,7 +470,7 @@ export default {
     )
     commit('refreshMessage', message.conversation_id)
   },
-  syncConversation: async ({ commit }, conversationId) => {
+  syncConversation: async({ commit }, conversationId) => {
     await refreshConversation(conversationId, function() {
       commit('refreshConversation', conversationId)
     })

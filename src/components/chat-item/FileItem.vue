@@ -11,7 +11,7 @@
         <div class="file" @click="openFile">
           <spinner class="loading" v-if="loading"></spinner>
           <AttachmentIcon
-            v-else-if="message.mediaStatus === MediaStatus.CANCELED"
+            v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus"
             @mediaClick="$emit('mediaClick')"
             :me="me"
             :message="message"
@@ -93,6 +93,7 @@ export default {
         sourcePath = sourcePath.replace('file://', '')
       }
       fs.copyFileSync(sourcePath, savePath)
+      this.$toast(this.$t('chat.download_success'))
     },
     messageOwnership: function() {
       let { message, me } = this

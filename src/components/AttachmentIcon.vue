@@ -1,24 +1,23 @@
 <template>
-  <div class="root" v-if="show" @click="$emit('mediaClick')">
-    <ICDown v-if="!message.mediaUrl"></ICDown>
-    <ICUp v-else></ICUp>
+  <div class="root" @click="$emit('mediaClick')">
+    <ICUp v-if="isMe"></ICUp>
+    <ICDown v-else></ICDown>
   </div>
 </template>
 
 <script>
 import ICDown from '@/assets/images/arrow-down.svg'
 import ICUp from '@/assets/images/arrow-up.svg'
-import { MediaStatus } from '@/utils/constants.js'
 
 export default {
-  props: ['message'],
+  props: ['message', 'me'],
   components: {
     ICDown,
     ICUp
   },
   computed: {
-    show: function() {
-      return MediaStatus.CANCELED === this.message.mediaStatus
+    isMe() {
+      return this.message.userId === this.me.user_id
     }
   }
 }

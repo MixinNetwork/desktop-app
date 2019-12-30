@@ -225,10 +225,10 @@ export default {
   },
   methods: {
     mediaClick() {
-      if (this.message.mediaStatus !== MediaStatus.CANCELED) {
+      if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
         return
       }
-      if (this.message.mediaUrl) {
+      if (this.message.userId === this.me.user_id) {
         this.$store.dispatch('upload', this.message)
       } else {
         this.$store.dispatch('download', this.message.messageId)

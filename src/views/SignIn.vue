@@ -92,7 +92,7 @@ export default {
     },
     getSecret: function(deviceId) {
       interval(
-        async (iteration, stop) => {
+        async(iteration, stop) => {
           await accountAPI
             .getProvisioning(deviceId)
             .then(resp => {

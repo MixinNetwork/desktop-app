@@ -280,6 +280,9 @@ export default {
       }
     }
   },
+  setCurrentAudio: ({ commit }, audioMessage) => {
+    commit('setCurrentAudio', audioMessage)
+  },
   sendMessage: ({ commit }, { msg, quoteId }) => {
     markRead(msg.conversationId)
     if (quoteId) {

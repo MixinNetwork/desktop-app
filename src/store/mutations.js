@@ -154,6 +154,7 @@ export default {
       chatsAll: null,
       messageAll: null
     }
+    state.currentAudio = null
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
   },
@@ -192,6 +193,9 @@ export default {
     }
     state.currentConversationId = conversationId
     state.currentUser = userDao.findUserByConversationId(conversationId)
+  },
+  setCurrentAudio(state, audioMessage) {
+    state.currentAudio = audioMessage
   },
   refreshMessage(state, conversationId) {
     messageBox.refreshMessage(conversationId)

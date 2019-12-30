@@ -102,6 +102,21 @@ export default {
     }
   },
   watch: {
+    currentAudio(data) {
+      const mixinAudio = this.$refs.mixinAudio
+      if (data.messageId !== this.message.messageId) {
+        if (!mixinAudio.paused) {
+          mixinAudio.pause()
+          mixinAudio.currentTime = 0
+          this.audioStatus = 'play'
+        }
+      } else {
+        if (mixinAudio.paused) {
+          this.audioStatus = 'pause'
+          mixinAudio.play()
+        }
+      }
+    },
     message(data) {
       if (data.mediaStatus === MediaStatus.DONE) {
         this.audioStatus = 'play'
@@ -124,9 +139,10 @@ export default {
       this.$emit('mediaClick')
     },
     playAudio() {
-      let mixinAudio = this.$refs.mixinAudio
+      const mixinAudio = this.$refs.mixinAudio
       if (mixinAudio.paused) {
         this.audioStatus = 'pause'
+        this.$store.dispatch('setCurrentAudio', this.message)
         mixinAudio.play()
       } else {
         this.audioStatus = 'play'
@@ -140,6 +156,8 @@ export default {
       let scales = this.$refs.mixinAudio.currentTime / this.$refs.mixinAudio.duration
       this.progressStyle.width = scales * 100 + '%'
       this.dotStyle.left = scales * 100 + '%'
+      if (scales === 1) {
+      }
     },
     onEnded() {
       this.audioStatus = 'play'
@@ -169,7 +187,8 @@ export default {
       return this.attachment.includes(this.message.messageId)
     },
     ...mapGetters({
-      attachment: 'attachment'
+      attachment: 'attachment',
+      currentAudio: 'currentAudio'
     })
   }
 }

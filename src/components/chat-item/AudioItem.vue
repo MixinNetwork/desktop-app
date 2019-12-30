@@ -35,26 +35,24 @@
               :src="message.mediaUrl"
             ></audio>
           </div>
-          <div class="bottom">
-            <span class="time">
-              {{message.lt}}
-              <ICSending
-                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-                class="icon"
-              />
-              <ICSend
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                class="icon"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                class="icon"
-              />
-            </span>
+          <div class="time">
+            {{message.lt}}
+            <ICSending
+              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
+              class="icon"
+            />
+            <ICSend
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+              class="icon"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+              class="icon wait"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+              class="icon"
+            />
           </div>
         </div>
       </BadgeItem>
@@ -197,72 +195,66 @@ export default {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 0.2rem;
+    padding: 0.6rem 2.5rem 0.6rem 0.6rem;
+    box-shadow: 0px 1px 1px #aaaaaa33;
     .name {
       font-size: 1rem;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
-    .bottom {
+    .mixin-audio {
       display: flex;
-      justify-content: flex-end;
-      .time {
-        color: #8799a5;
+      align-items: center;
+      .audio-status {
+        width: 30px;
+        height: 30px;
+        border-radius: 20px;
+        background: #f2f2f6;
         display: flex;
-        float: right;
-        font-size: 0.75rem;
-        bottom: 0.2rem;
-        right: 0.2rem;
-        align-items: flex-end;
-        .icon {
-          padding-left: 0.2rem;
-        }
-        .wait {
-          path {
-            fill: #859479;
-          }
-        }
+        justify-content: center;
+        align-items: center;
+        margin-right: 0.6rem;
+      }
+      .audio-progress {
+        width: 10rem;
+        height: 2px;
+        background-color: #e6e5eb;
+        border-radius: 2px;
+        margin-left: 0.4rem;
+        margin-right: 0.5rem;
+        position: relative;
+      }
+      .bar {
+        height: 100%;
+        background-color: #c6c9d3;
+        border-radius: 2px;
+        display: inline-block;
+        position: absolute;
+      }
+      .audio-time,
+      .audio-duration {
+        font-size: 0.8rem;
+        font-weight: 400;
+        color: #777;
       }
     }
-  }
-  .mixin-audio {
-    background: rgba(255, 255, 255, 1);
-    border-radius: 0.2rem;
-    padding: 0.4rem 0.6rem;
-    display: flex;
-    align-items: center;
-    box-shadow: 0px 1px 1px #aaaaaa33;
-    .audio-status {
-      width: 30px;
-      height: 30px;
-      border-radius: 20px;
-      background: #f2f2f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-right: 0.6rem;
-    }
-    .audio-progress {
-      width: 12rem;
-      height: 2px;
-      background-color: #e6e5eb;
-      border-radius: 2px;
-      margin-left: 0.4rem;
-      margin-right: 0.5rem;
-      position: relative;
-    }
-    .bar {
-      height: 100%;
-      background-color: #c6c9d3;
-      border-radius: 2px;
-      display: inline-block;
+    .time {
+      color: #8799a5;
+      font-size: 0.75rem;
       position: absolute;
-    }
-    .audio-time,
-    .audio-duration {
-      font-size: 0.8rem;
-      font-weight: 400;
-      color: #777;
+      bottom: 0.3rem;
+      right: 0.2rem;
+      .icon {
+        padding-left: 0.2rem;
+      }
+      .wait {
+        path {
+          fill: #859479;
+        }
+      }
     }
   }
 }

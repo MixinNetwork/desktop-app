@@ -154,6 +154,7 @@ export default {
       chatsAll: null,
       messageAll: null
     }
+    state.currentAudio = null
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
   },
@@ -180,7 +181,7 @@ export default {
   setCurrentConversation(state, conversation) {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
-    messageBox.setConversationId(conversationId, unseenMessageCount)
+    messageBox.setConversationId(conversationId, unseenMessageCount - 1)
     if (
       !state.conversationKeys.some(item => {
         return item === conversationId
@@ -192,6 +193,9 @@ export default {
     }
     state.currentConversationId = conversationId
     state.currentUser = userDao.findUserByConversationId(conversationId)
+  },
+  setCurrentAudio(state, audioMessage) {
+    state.currentAudio = audioMessage
   },
   refreshMessage(state, conversationId) {
     messageBox.refreshMessage(conversationId)

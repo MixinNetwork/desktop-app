@@ -24,7 +24,7 @@ const state = {
     chatsAll: null,
     messageAll: null
   },
-
+  currentAudio: null,
   showTime: false,
   linkStatus: LinkStatus.CONNECTED
 }

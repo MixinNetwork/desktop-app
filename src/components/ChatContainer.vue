@@ -198,7 +198,6 @@ export default {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
             this.unreadMessageId = unreadMessage.message_id
-            this.goMessagePos()
           } else {
             this.unreadMessageId = ''
           }
@@ -327,7 +326,9 @@ export default {
         }
         if (force) {
           self.goBottom()
-          self.goMessagePos(message)
+          setTimeout(() => {
+            self.goMessagePos(message)
+          })
         }
         setTimeout(() => {
           if (!force) {

@@ -32,6 +32,10 @@ export default {
     return state.currentUser
   },
 
+  currentAudio: state => {
+    return state.currentAudio
+  },
+
   findFriends: state => {
     return state.friends
   },

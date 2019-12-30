@@ -62,7 +62,8 @@ export default {
       index: 0,
       images: [],
       scale: 1,
-      scrollStyle: {}
+      scrollStyle: {},
+      limit: 100
     }
   },
   watch: {
@@ -75,16 +76,19 @@ export default {
       } else {
         this.visible = false
       }
+      setTimeout(() => {
+        const img = document.querySelector('.image-viewer-nav-thumb > img')
+        this.$refs.scroll.scrollLeft = img.width * this.limit
+      })
     },
     index(value) {
       this.imgVisible = false
       this.index = value
       this.scale = 1
       this.imgStyle(value)
-      this.$nextTick(() => {
-        const _img = document.querySelector('.image-viewer-content > div > img')
-        const _width = _img.width
-        this.$refs.scroll.scrollLeft = _width * (value - 1)
+      setTimeout(() => {
+        const img = document.querySelector('.image-viewer-nav-thumb > img')
+        this.$refs.scroll.scrollLeft = img.width * (value - 1)
       })
     }
   },

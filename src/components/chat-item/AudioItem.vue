@@ -16,16 +16,18 @@
               <ICPlay v-if="audioStatus === 'play'" @click="playAudio" />
               <ICPause v-if="audioStatus === 'pause'" @click="playAudio" />
             </span>
-            <span class="audio-time">{{time}}</span>
-            <div
-              class="audio-progress"
-              ref="audioProgress"
-              @mousedown="controlAudioProgress($event)"
-            >
-              <!-- <span class="progress-dot" :style="dotStyle"></span> -->
-              <span class="bar" :style="progressStyle"></span>
+            <!-- <span class="audio-time">{{time}}</span> -->
+            <div class="progress-box">
+              <div
+                class="audio-progress"
+                ref="audioProgress"
+                @mousedown="controlAudioProgress($event)"
+              >
+                <!-- <span class="progress-dot" :style="dotStyle"></span> -->
+                <span class="bar" :style="progressStyle"></span>
+              </div>
+              <span class="audio-duration">{{duration}}</span>
             </div>
-            <span class="audio-duration">{{duration}}</span>
 
             <audio
               ref="mixinAudio"
@@ -221,10 +223,9 @@ export default {
       .audio-progress {
         width: 10rem;
         height: 2px;
+        margin: 0.3rem 0 0.1rem;
         background-color: #e6e5eb;
         border-radius: 2px;
-        margin-left: 0.4rem;
-        margin-right: 0.5rem;
         position: relative;
       }
       .bar {
@@ -248,7 +249,7 @@ export default {
       bottom: 0.3rem;
       right: 0.2rem;
       .icon {
-        padding-left: 0.2rem;
+        vertical-align: bottom;
       }
       .wait {
         path {

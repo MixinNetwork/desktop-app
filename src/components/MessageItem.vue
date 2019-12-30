@@ -54,6 +54,7 @@
       :me="me"
       :showName="this.showUserName()"
       :coversation="conversation"
+      @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
     ></AudioItem>

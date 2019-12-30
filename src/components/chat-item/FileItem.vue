@@ -93,7 +93,6 @@ export default {
         sourcePath = sourcePath.replace('file://', '')
       }
       fs.copyFileSync(sourcePath, savePath)
-      this.$toast(this.$t('chat.download_success'))
     },
     messageOwnership: function() {
       let { message, me } = this

@@ -58,7 +58,7 @@
     "electron-icon-builder": "^1.0.2",
     "electron-notarize": "^0.2.1",
     "eslint": "^6.8.0",
-    "eslint-plugin-vue": "^6.1.1",
+    "eslint-plugin-vue": "^6.1.2",
     "fs-extra": "^8.1.0",
     "node-loader": "^0.6.0",
     "node-sass": "^4.13.0",

@@ -275,6 +275,11 @@ export default {
             break
           }
         }
+        if (!firstImage) {
+          return setTimeout(() => {
+            this.preview()
+          }, 100)
+        }
         let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
         let images = local.map((item, index) => {
           if (item.message_id === this.message.messageId) {

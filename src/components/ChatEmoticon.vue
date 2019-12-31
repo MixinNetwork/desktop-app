@@ -58,8 +58,10 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   height: 15rem;
-  left: 0;
-  right: 10px;
+  left: 18rem;
+  bottom: calc(3.6rem - 10px);
+  right: 0;
+  position: absolute;
 
   .title-bar {
     overflow-x: auto;

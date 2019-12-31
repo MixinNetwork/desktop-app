@@ -505,6 +505,7 @@ export default {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 
   .root {
     width: 100%;

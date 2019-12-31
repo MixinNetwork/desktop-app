@@ -57,7 +57,7 @@ class MessageBox {
       }
       const lastMsgLen = lastMessages.length
       const msgLen = this.messages.length
-      const beforeMessageId = this.messages[msgLen - 1].messageId
+      const beforeMessageId = this.messages[msgLen - 1] && this.messages[msgLen - 1].messageId
       for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
         if (temp && msgLen > 0 && temp.messageId === beforeMessageId) {

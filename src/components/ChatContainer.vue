@@ -1,5 +1,5 @@
 <template>
-  <main class="chat container">
+  <main class="chat container" @click="hideStickerChoose">
     <header v-show="conversation">
       <div>
         <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
@@ -69,17 +69,13 @@
     ></ReplyMessageContainer>
 
     <transition name="slide-up">
-      <ChatEmoticon
-        v-if="emoticonChoosing"
-        @close="hideEmoticonChoose"
-        @choose="chooseEmoticonDone"
-      ></ChatEmoticon>
+      <ChatSticker v-if="stickerChoosing" @close="hideStickerChoose" @choose="chooseStickerDone"></ChatSticker>
     </transition>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div class="emoticon" @click="chooseEmoticon">
-          <ICEmoticonOn v-if="emoticonChoosing" />
+        <div class="sticker" @click.stop="chooseSticker">
+          <ICEmoticonOn v-if="stickerChoosing" />
           <ICEmoticon v-else />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
@@ -144,7 +140,7 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
-import ChatEmoticon from '@/components/ChatEmoticon.vue'
+import ChatSticker from '@/components/ChatSticker.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
@@ -192,7 +188,7 @@ export default {
       searchKeyword: '',
       timeDivideShow: false,
       contentUtil,
-      emoticonChoosing: false
+      stickerChoosing: false
     }
   },
   watch: {
@@ -237,7 +233,7 @@ export default {
             })
             this.details = false
             this.searching = false
-            this.emoticonChoosing = false
+            this.stickerChoosing = false
             this.file = null
           }
         }
@@ -275,7 +271,7 @@ export default {
     Avatar,
     Details,
     ChatSearch,
-    ChatEmoticon,
+    ChatSticker,
     TimeDivide,
     MessageItem,
     FileContainer,
@@ -406,14 +402,14 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
-    chooseEmoticon() {
-      this.emoticonChoosing = !this.emoticonChoosing
+    chooseSticker() {
+      this.stickerChoosing = !this.stickerChoosing
     },
-    hideEmoticonChoose() {
-      this.emoticonChoosing = false
+    hideStickerChoose() {
+      this.stickerChoosing = false
     },
-    chooseEmoticonDone() {
-      this.emoticonChoosing = false
+    chooseStickerDone() {
+      this.stickerChoosing = false
     },
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
@@ -875,7 +871,7 @@ export default {
       align-items: center;
       padding: 0.4rem 0.6rem;
 
-      .emoticon {
+      .sticker {
         margin-top: 2px;
         cursor: pointer;
       }

@@ -173,9 +173,9 @@ import {
   MediaStatus
 } from '@/utils/constants.js'
 
-import ICSending from '../assets/images/ic_status_clock.svg'
-import ICSend from '../assets/images/ic_status_send.svg'
-import ICRead from '../assets/images/ic_status_read.svg'
+import ICSending from '@/assets/images/ic_status_clock.svg'
+import ICSend from '@/assets/images/ic_status_send.svg'
+import ICRead from '@/assets/images/ic_status_read.svg'
 
 import ReplyMessageItem from './chat-item/ReplyMessageItem'
 import TransferItem from './chat-item/TransferItem'

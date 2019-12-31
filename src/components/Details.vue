@@ -37,7 +37,7 @@
 </template>
 <script>
 import UserItem from '@/components/UserItem.vue'
-import ICClose from '../assets/images/ic_close.svg'
+import ICClose from '@/assets/images/ic_close.svg'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util.js'
 import { mapGetters } from 'vuex'

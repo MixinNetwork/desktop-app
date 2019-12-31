@@ -67,11 +67,20 @@
       class="reply"
       @hidenReplyBox="hidenReplyBox"
     ></ReplyMessageContainer>
+
+    <transition name="slide-up">
+      <ChatEmoticon
+        v-if="emoticonChoosing"
+        @close="hideEmoticonChoose"
+        @choose="chooseEmoticonDone"
+      ></ChatEmoticon>
+    </transition>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
         <div class="emoticon" @click="chooseEmoticon">
-          <ICEmoticon style="margin-top: 2px" />
+          <ICEmoticonOn v-if="emoticonChoosing" />
+          <ICEmoticon v-else />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -135,6 +144,7 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
+import ChatEmoticon from '@/components/ChatEmoticon.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
@@ -143,11 +153,12 @@ import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import messageBox from '@/store/message_box.js'
-import ICBot from '../assets/images/ic_bot.svg'
-import ICSearch from '../assets/images/ic_search.svg'
-import ICSend from '../assets/images/ic_send.svg'
-import ICAttach from '../assets/images/ic_attach.svg'
-import ICEmoticon from '../assets/images/ic_emoticon.svg'
+import ICBot from '@/assets/images/ic_bot.svg'
+import ICSearch from '@/assets/images/ic_search.svg'
+import ICSend from '@/assets/images/ic_send.svg'
+import ICAttach from '@/assets/images/ic_attach.svg'
+import ICEmoticon from '@/assets/images/ic_emoticon.svg'
+import ICEmoticonOn from '@/assets/images/ic_emoticon_on.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
@@ -180,7 +191,8 @@ export default {
       infiniteDownLock: true,
       searchKeyword: '',
       timeDivideShow: false,
-      contentUtil
+      contentUtil,
+      emoticonChoosing: false
     }
   },
   watch: {
@@ -225,6 +237,7 @@ export default {
             })
             this.details = false
             this.searching = false
+            this.emoticonChoosing = false
             this.file = null
           }
         }
@@ -262,6 +275,7 @@ export default {
     Avatar,
     Details,
     ChatSearch,
+    ChatEmoticon,
     TimeDivide,
     MessageItem,
     FileContainer,
@@ -271,6 +285,7 @@ export default {
     ICSend,
     ICAttach,
     ICEmoticon,
+    ICEmoticonOn,
     ReplyMessageContainer
   },
   computed: {
@@ -391,7 +406,15 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
-    chooseEmoticon() {},
+    chooseEmoticon() {
+      this.emoticonChoosing = !this.emoticonChoosing
+    },
+    hideEmoticonChoose() {
+      this.emoticonChoosing = false
+    },
+    chooseEmoticonDone() {
+      this.emoticonChoosing = false
+    },
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
       if (this.$refs.box) {
@@ -853,6 +876,8 @@ export default {
       padding: 0.4rem 0.6rem;
 
       .emoticon {
+        margin-top: 2px;
+        cursor: pointer;
       }
       .send {
         cursor: pointer;
@@ -999,6 +1024,14 @@ export default {
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {
+    transform: translateY(200%);
+  }
+  .slide-up-enter-active,
+  .slide-up-leave-active {
+    transition: all 0.3s;
+  }
+  .slide-up-enter,
+  .slide-up-leave-to {
     transform: translateY(200%);
   }
 }

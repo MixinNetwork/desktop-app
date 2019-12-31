@@ -65,12 +65,12 @@
 import { timeAgo } from '@/utils/util.js'
 import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants.js'
 import Avatar from '@/components/Avatar.vue'
-import ICSend from '../assets/images/ic_status_send.svg'
-import ICRead from '../assets/images/ic_status_read.svg'
-import ICSending from '../assets/images/ic_status_clock.svg'
-import ICPin from '../assets/images/ic_pin_top.svg'
-import ICRobot from '../assets/images/ic_robot.svg'
-import ICMute from '../assets/images/ic_mute.svg'
+import ICSend from '@/assets/images/ic_status_send.svg'
+import ICRead from '@/assets/images/ic_status_read.svg'
+import ICSending from '@/assets/images/ic_status_clock.svg'
+import ICPin from '@/assets/images/ic_pin_top.svg'
+import ICRobot from '@/assets/images/ic_robot.svg'
+import ICMute from '@/assets/images/ic_mute.svg'
 
 export default {
   name: 'ConversationItem',

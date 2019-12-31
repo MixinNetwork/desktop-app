@@ -146,6 +146,7 @@ export default {
     state.conversationKeys = []
     state.friends = []
     state.currentUser = {}
+    state.currentMessages = {}
     state.search = {
       contact: null,
       chats: null,
@@ -196,6 +197,9 @@ export default {
   },
   setCurrentAudio(state, audioMessage) {
     state.currentAudio = audioMessage
+  },
+  setCurrentMessages(state, messages) {
+    state.currentMessages = messages
   },
   refreshMessage(state, conversationId) {
     messageBox.refreshMessage(conversationId)

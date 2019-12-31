@@ -262,12 +262,11 @@ class MessageDao {
       `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
     ).run([path, status, id])
   }
-  findImages(conversationId, messageId, limit) {
-    limit = limit || 100
+  findImages(conversationId, messageId) {
     return db
       .prepare(
         `SELECT m.message_id, m.media_url, m.media_width, m.media_height FROM messages m WHERE m.conversation_id = ? and (m.category = 'SIGNAL_IMAGE' OR m.category = 'PLAIN_IMAGE') AND m.media_status = 'DONE'
-        AND m.created_at <= (SELECT created_at FROM messages WHERE message_id = ?) ORDER BY m.created_at ASC LIMIT ${limit}`
+        AND m.created_at >= (SELECT created_at FROM messages WHERE message_id = ?) ORDER BY m.created_at ASC`
       )
       .all(conversationId, messageId)
   }

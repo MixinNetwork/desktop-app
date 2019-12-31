@@ -161,7 +161,7 @@ export default {
         let nextAudioMessage = null
         let currentAudioId = ''
         for (let i = 0; i < messages.length; i++) {
-          if (messages[i].type === 'SIGNAL_AUDIO' && this.message.mediaUrl) {
+          if (messages[i].type.endsWith('_AUDIO') && this.message.mediaUrl) {
             if (currentAudioId) {
               nextAudioMessage = messages[i]
               break

@@ -13,6 +13,10 @@
       <div class="search" @click="chatSearch">
         <ICSearch />
       </div>
+      <div class="attachment" @click="chooseAttachment">
+        <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
+        <ICAttach style="margin-top: 3px" />
+      </div>
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
         <ICBot />
       </div>
@@ -66,9 +70,8 @@
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div class="attachment" @click="chooseAttachment">
-          <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
-          <ICAttach style="margin-top: 3px" />
+        <div class="emoticon" @click="chooseEmoticon">
+          <ICEmoticon style="margin-top: 2px" />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -84,6 +87,7 @@
             ></div>
           </div>
         </mixin-scrollbar>
+
         <div class="send" @click="sendMessage">
           <ICSend />
         </div>
@@ -143,6 +147,7 @@ import ICBot from '../assets/images/ic_bot.svg'
 import ICSearch from '../assets/images/ic_search.svg'
 import ICSend from '../assets/images/ic_send.svg'
 import ICAttach from '../assets/images/ic_attach.svg'
+import ICEmoticon from '../assets/images/ic_emoticon.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
@@ -265,6 +270,7 @@ export default {
     ICChevronDown,
     ICSend,
     ICAttach,
+    ICEmoticon,
     ReplyMessageContainer
   },
   computed: {
@@ -385,6 +391,7 @@ export default {
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
     },
+    chooseEmoticon() {},
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
       if (this.$refs.box) {
@@ -786,6 +793,16 @@ export default {
     .search {
       margin-right: 5px;
     }
+    .attachment {
+      cursor: pointer;
+      position: relative;
+      margin: 0 9px 0 5px;
+      input {
+        position: absolute;
+        opacity: 0;
+        z-index: -1;
+      }
+    }
     .username {
       max-width: 100%;
       overflow: hidden;
@@ -834,14 +851,8 @@ export default {
       display: flex;
       align-items: center;
       padding: 0.4rem 0.6rem;
-      .attachment {
-        cursor: pointer;
-        position: relative;
-        input {
-          position: absolute;
-          opacity: 0;
-          z-index: -1;
-        }
+
+      .emoticon {
       }
       .send {
         cursor: pointer;

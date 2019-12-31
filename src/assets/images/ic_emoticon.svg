@@ -1,0 +1,14 @@
+<svg width="19" height="19" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="InputBox/Default" transform="translate(-1161.000000, -19.000000)">
+            <g id="Icon/Emoji/Default" transform="translate(1159.000000, 17.000000)">
+                <g id="" transform="translate(3.000000, 3.000000)">
+                    <circle id="Oval" stroke="#3A3C3E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill-rule="nonzero" cx="10" cy="10" r="10"></circle>
+                    <path d="M15.1973068,13 L15.1973068,13 C14.1598786,14.7934041 12.2208471,16 10,16 C7.77915293,16 5.84012143,14.7934041 4.80269317,13" id="Path" stroke="#BBBEC3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill-rule="nonzero"></path>
+                    <circle id="Oval" fill="#3A3C3E" fill-rule="nonzero" cx="6.5" cy="8.5" r="1.5"></circle>
+                    <circle id="Oval-Copy" fill="#3A3C3E" fill-rule="nonzero" cx="13.5" cy="8.5" r="1.5"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

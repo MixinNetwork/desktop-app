@@ -55,18 +55,17 @@ class MessageBox {
 
         return this.callback(null, newCount)
       }
-      const newMessages = []
       const lastMsgLen = lastMessages.length
+      const msgLen = this.messages.length
+      const beforeMessageId = this.messages[msgLen - 1].messageId
       for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
-        const msgLen = this.messages.length
-        if (temp && msgLen > 0 && temp.messageId === this.messages[msgLen - 1].messageId) {
+        if (temp && msgLen > 0 && temp.messageId === beforeMessageId) {
           break
         }
-        newMessages.unshift(temp)
+        this.tempCount += 1
+        this.messages.push(temp)
       }
-      this.messages = this.messages.concat(newMessages)
-      this.tempCount += newMessages.length
       for (let i = 1; i <= lastMsgLen; i++) {
         this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
       }

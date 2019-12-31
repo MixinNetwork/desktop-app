@@ -157,6 +157,23 @@ export default {
       this.progressStyle.width = scales * 100 + '%'
       this.dotStyle.left = scales * 100 + '%'
       if (scales === 1) {
+        const messages = this.currentMessages
+        let nextAudioMessage = null
+        let currentAudioId = ''
+        for (let i = 0; i < messages.length; i++) {
+          if (messages[i].type === 'SIGNAL_AUDIO' && this.message.mediaUrl) {
+            if (currentAudioId) {
+              nextAudioMessage = messages[i]
+              break
+            }
+            if (this.currentAudio.messageId === messages[i].messageId) {
+              currentAudioId = messages[i].messageId
+            }
+          }
+        }
+        if (nextAudioMessage) {
+          this.$store.dispatch('setCurrentAudio', nextAudioMessage)
+        }
       }
     },
     onEnded() {
@@ -188,7 +205,8 @@ export default {
     },
     ...mapGetters({
       attachment: 'attachment',
-      currentAudio: 'currentAudio'
+      currentAudio: 'currentAudio',
+      currentMessages: 'currentMessages'
     })
   }
 }

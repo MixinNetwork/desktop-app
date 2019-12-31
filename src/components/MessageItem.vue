@@ -194,6 +194,7 @@ import messageDao from '@/dao/message_dao.js'
 import { getNameColorById } from '@/utils/util.js'
 import { ipcRenderer } from 'electron'
 import contentUtil from '@/utils/content_util.js'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'MessageItem',
@@ -266,7 +267,15 @@ export default {
     preview() {
       if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
         let position = 0
-        let local = messageDao.findImages(this.conversation.conversationId, this.message.messageId)
+        const messages = this.currentMessages
+        let firstImage = null
+        for (let i = 0; i < messages.length; i++) {
+          if (messages[i].type.endsWith('_IMAGE') && this.message.mediaUrl) {
+            firstImage = messages[i]
+            break
+          }
+        }
+        let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
         let images = local.map((item, index) => {
           if (item.message_id === this.message.messageId) {
             position = index
@@ -451,6 +460,11 @@ export default {
         owner: this.message
       })
     }
+  },
+  computed: {
+    ...mapGetters({
+      currentMessages: 'currentMessages'
+    })
   }
 }
 </script>

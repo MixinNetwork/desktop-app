@@ -194,6 +194,7 @@ export default {
         this.showMessages = false
         this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
         this.messages = messageBox.messages
+        this.$store.dispatch('setCurrentMessages', this.messages)
         if (newC) {
           let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
           if (unreadMessage) {
@@ -465,8 +466,10 @@ export default {
               newMessages.unshift(temp)
             }
             this.messages.push(...newMessages)
+            this.$store.dispatch('setCurrentMessages', this.messages)
           } else {
             this.messages.unshift(...messages)
+            this.$store.dispatch('setCurrentMessages', this.messages)
             this.infiniteUpLock = false
           }
           this.oldMsgLen += messages.length

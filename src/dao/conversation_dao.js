@@ -164,6 +164,11 @@ class ConversationDao {
     return db.prepare('SELECT unseen_message_count FROM conversations WHERE conversation_id = ?').get(conversationId)
       .unseen_message_count
   }
+
+  updateUnseenMessageCount(conversationId) {
+    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    db.prepare(`UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE m.conversation_id = ? AND m.user_id != '${userId}' AND m.status IN ('SENT', 'DELIVERED')) WHERE conversation_id = ? `).run(conversationId, conversationId)
+  }
 }
 
 export default new ConversationDao()

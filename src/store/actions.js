@@ -239,6 +239,9 @@ export default {
     markRead(conversationId)
     commit('refreshConversation', conversationId)
   },
+  refreshConversationAction: ({ commit }, conversationId) => {
+    commit('refreshConversation', conversationId)
+  },
   updateConversationMute: ({ commit }, { conversation, ownerId }) => {
     if (conversation.category === ConversationCategory.CONTACT) {
       userDao.updateMute(conversation.mute_until, ownerId)

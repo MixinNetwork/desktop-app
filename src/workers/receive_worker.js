@@ -351,7 +351,13 @@ class ReceiveWorker extends BaseWorker {
         plainData.ack_messages.length > 0
       ) {
         plainData.ack_messages.forEach(item => {
+          if (item.status !== 'READ') {
+            return
+          }
           this.makeMessageStatus(item.status, item.message_id)
+          const conversation = messageDao.findConversationIdById(item.message_id)
+          conversationDao.updateUnseenMessageCount(conversation.conversation_id)
+          store.dispatch('refreshConversationAction', conversation.conversation_id)
         })
       } else if (plainData.action === 'RESEND_MESSAGES') {
         plainData.messages.forEach(msg => {

@@ -296,6 +296,12 @@ class MessageDao {
       messageId
     ])
   }
+
+  findConversationIdById(messageId) {
+    return db.prepare(
+      `SELECT conversation_id FROM messages WHERE message_id = ?`
+    ).get(messageId)
+  }
 }
 
 export default new MessageDao()

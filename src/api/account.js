@@ -19,9 +19,6 @@ export default {
   getSignalKeyCount() {
     return api.get('/signal/keys/count')
   },
-  getStickerById(id) {
-    return api.get('/stickers/' + id)
-  },
   logout() {
     return api.post('/logout', {})
   },

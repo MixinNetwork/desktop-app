@@ -32,6 +32,7 @@
         <span class="sticker" v-for="item in stickers" :key="item.sticker_id">
           <img :src="item.asset_url" />
         </span>
+        <i v-for="i in 30" :key="i"></i>
       </div>
     </mixin-scrollbar>
   </div>
@@ -58,7 +59,7 @@ export default {
     }
   },
   beforeCreate() {
-    stickerApi.getStickers().then(res => {
+    stickerApi.getStickerAlbums().then(res => {
       if (res.data.data) {
         this.albums = res.data.data
       }
@@ -66,7 +67,7 @@ export default {
   },
   methods: {
     getStickers(id) {
-      stickerApi.getStickersById(id).then(res => {
+      stickerApi.getStickersByAlbumId(id).then(res => {
         if (res.data.data) {
           this.stickers = res.data.data
         }
@@ -102,6 +103,7 @@ export default {
   bottom: 3rem;
   right: 0;
   position: absolute;
+  z-index: 1;
 
   .title-bar {
     overflow-x: auto;
@@ -135,14 +137,27 @@ export default {
     }
   }
   .ul {
-    padding: 0.4rem 0.3rem;
+    padding: 0 0.6rem 0.8rem;
     height: 10.5rem;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    i {
+      width: 5rem;
+      margin: 0 0.5rem;
+    }
     .sticker {
       cursor: pointer;
-      position: relative;
+      width: 5rem;
+      height: 5rem;
+      display: inline-flex;
+      margin: 0.3rem 0.5rem;
+      align-items: center;
+      justify-content: center;
       img {
-        margin: 0 0.3rem 0.3rem;
-        width: 5rem;
+        max-height: 100%;
+        max-width: 100%;
       }
     }
   }

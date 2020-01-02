@@ -11,11 +11,6 @@
           <ICLike @click="changeTab('like')" />
         </div>
       </div>
-      <div>
-        <div class="album" :class="{on: 'gif' === currentAlbumId}">
-          <ICGif @click="changeTab('gif')" />
-        </div>
-      </div>
       <div
         v-show="item.icon_url"
         v-for="item in albums"
@@ -41,7 +36,6 @@
 import { mapGetters } from 'vuex'
 import ICHistory from '@/assets/images/ic_history.svg'
 import ICLike from '@/assets/images/ic_like.svg'
-import ICGif from '@/assets/images/ic_gif.svg'
 
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
@@ -49,8 +43,7 @@ import stickerApi from '@/api/sticker'
 export default {
   components: {
     ICHistory,
-    ICLike,
-    ICGif
+    ICLike
   },
   data() {
     return {
@@ -64,6 +57,14 @@ export default {
     stickerApi.getStickerAlbums().then(res => {
       if (res.data.data) {
         this.albums = res.data.data
+        const list = stickerDao.getLastUseStickers()
+        if (!list || (list && list.length === 0)) {
+          setTimeout(() => {
+            const albumId = this.albums[1].album_id
+            this.getStickers(albumId)
+            this.changeTab(albumId)
+          })
+        }
       }
     })
   },
@@ -100,8 +101,6 @@ export default {
         if (this.albums[0]) {
           this.getStickers(this.albums[0].album_id)
         }
-      } else if (id === 'gif') {
-        this.stickers = []
       } else if (id) {
         this.getStickers(id)
       }

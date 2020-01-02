@@ -39,9 +39,12 @@ class SendWorker extends BaseWorker {
     if (message.resend_status) {
       if (message.resend_status === 1) {
         if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
-          const result = await this.deliver(message, this.encryptNormalMessage(message))
-          if (result) {
-            resendMessageDao.deleteResendMessageByMessageId(message.message_id)
+          const bm = this.encryptNormalMessage(message)
+          if (bm) {
+            const result = await this.deliver(message, bm)
+            if (result) {
+              resendMessageDao.deleteResendMessageByMessageId(message.message_id)
+            }
           }
         }
       }
@@ -53,7 +56,10 @@ class SendWorker extends BaseWorker {
     }
 
     await this.checkSessionSenderKey(message.conversation_id)
-    await this.deliver(message, this.encryptNormalMessage(message))
+    const bm = this.encryptNormalMessage(message)
+    if (bm) {
+      await this.deliver(message, bm)
+    }
   }
 
   encryptNormalMessage(message) {
@@ -74,6 +80,7 @@ class SendWorker extends BaseWorker {
       )
       if (!content) {
         console.log('encrypt group message failed, empty data')
+        return
       }
       return this.createBlazeMessage(message, content)
     }

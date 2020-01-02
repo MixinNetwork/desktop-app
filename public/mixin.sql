@@ -198,7 +198,6 @@ CREATE TABLE IF NOT EXISTS `apps` (
 	`name`	TEXT NOT NULL,
 	`icon_url`	TEXT NOT NULL,
 	`description`	TEXT NOT NULL,
-	`app_secret`	TEXT NOT NULL,
 	`capabilites`	TEXT,
 	`creator_id`	TEXT NOT NULL,
 	PRIMARY KEY(`app_id`)

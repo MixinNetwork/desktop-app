@@ -5,7 +5,7 @@ class AppDao {
     if (!app) return
     app.capabilites = JSON.stringify(app.capabilites)
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO apps VALUES (@app_id, @app_number, @home_uri, @redirect_uri, @name, @icon_url, @description, @app_secret, @capabilites, @creator_id)'
+      'INSERT OR REPLACE INTO apps VALUES (@app_id, @app_number, @home_uri, @redirect_uri, @name, @icon_url, @description, @capabilites, @creator_id)'
     )
     stmt.run(app)
   }

@@ -350,9 +350,7 @@ class ReceiveWorker extends BaseWorker {
         plainData.ack_messages &&
         plainData.ack_messages.length > 0
       ) {
-        plainData.ack_messages.forEach(item => {
-          this.makeMessageStatus(item.status, item.message_id)
-        })
+        this.makeMessageStatus(plainData.ack_messages)
       } else if (plainData.action === 'RESEND_MESSAGES') {
         plainData.messages.forEach(msg => {
           const resendMessage = resendMessageDao.findResendMessage(data.user_id, msg)
@@ -388,14 +386,24 @@ class ReceiveWorker extends BaseWorker {
     }
   }
 
-  makeMessageStatus(status, messageId) {
-    const currentStatus = messageDao.findMessageStatusById(messageId)
-    if (currentStatus && currentStatus !== MessageStatus.READ) {
-      store.dispatch('makeMessageStatus', {
-        messageId,
-        status
-      })
-    }
+  makeMessageStatus(messages) {
+    const conversationSet = new Set()
+    messages.filter(message => {
+      const messageId = message.message_id
+      const simple = messageDao.findSimpleMessageById(messageId)
+      if (simple && simple.status && simple.status !== MessageStatus.READ) {
+        conversationSet.add(simple.conversation_id)
+        return true;
+      } else {
+        return false;
+      }
+    }).forEach(msg => {
+      messageDao.updateMessageStatusById(msg.status, msg.message_id)
+    })
+    conversationSet.forEach(conversationId => {
+      messageDao.takeUnseen(this.getAccountId(), conversationId)
+      store.dispatch('refreshMessage', conversationId)
+    })
   }
 
   async download(message) {

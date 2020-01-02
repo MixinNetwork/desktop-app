@@ -230,6 +230,18 @@ class MessageDao {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status
   }
+
+  findSimpleMessageById(messageId) {
+    return db.prepare('SELECT conversation_id, status FROM messages WHERE message_id = ?').get(messageId)
+  }
+
+  takeUnseen(userId, conversationId) {
+    return db.prepare(
+      `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE m.user_id != '${userId}' 
+        AND m.status IN ('SENT', 'DELIVERED') AND m.conversation_id = '${conversationId}') WHERE conversation_id = '${conversationId}'`)
+      .run()
+  }
+
   findMessageIdById(messageId) {
     const message = db.prepare('SELECT message_id FROM messages WHERE message_id = ?').get(messageId)
     return message ? message.message_id : message

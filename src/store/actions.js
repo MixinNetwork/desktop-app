@@ -1,5 +1,6 @@
 import conversationDao from '@/dao/conversation_dao'
 import messageDao from '@/dao/message_dao'
+import stickerDao from '@/dao/sticker_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao.js'
 import conversationApi from '@/api/conversation'
@@ -303,15 +304,20 @@ export default {
     const { conversationId, stickerId, category, status } = msg
     markRead(conversationId)
     const messageId = uuidv4().toLowerCase()
+    const content = btoa(`{"sticker_id":"${stickerId}"}`)
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
       user_id: JSON.parse(localStorage.getItem('account')).user_id,
       category,
+      content,
       status,
       created_at: new Date().toISOString(),
       sticker_id: stickerId
     })
+    const sticker = stickerDao.getStickerByUnique(stickerId)
+    sticker.last_use_at = new Date().toISOString()
+    stickerDao.insertUpdate(sticker)
     commit('refreshMessage', msg.conversationId)
   },
   sendAttachmentMessage: ({ commit }, { conversationId, mediaUrl, mediaMimeType, category }) => {

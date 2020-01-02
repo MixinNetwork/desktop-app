@@ -27,7 +27,7 @@ class StickerDao {
   insertUpdate(s) {
     const sticker = this.getStickerByUnique(s.sticker_id)
     if (sticker) {
-      s.last_use_at = sticker.last_use_at
+      s.last_use_at = s.last_use_at || sticker.last_use_at
     } else {
       s.last_use_at = null
     }

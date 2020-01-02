@@ -15,6 +15,11 @@ mixinDb.exec(createSQL)
 setTimeout(() => {
   const row = mixinDb.prepare('PRAGMA user_version').get()
   if (!!row && row.user_version < MixinDatabaseVersion) {
+    const usersTableInfo = mixinDb.prepare('PRAGMA table_info(users)').all()
+    const usersColumns = []
+    usersTableInfo.forEach(item => {
+      usersColumns.push(item.name)
+    })
     const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
     mixinDb.transaction(() => {
       if (row.user_version < 1) {
@@ -30,7 +35,9 @@ setTimeout(() => {
         )
         mixinDb.exec('DROP TABLE apps')
         mixinDb.exec('ALTER TABLE apps_backup RENAME TO apps')
-        mixinDb.exec('ALTER TABLE users ADD COLUMN biography TEXT')
+        if (usersColumns.indexOf('biography') === -1) {
+          mixinDb.exec('ALTER TABLE users ADD COLUMN biography TEXT')
+        }
       }
       mixinDb.exec('DROP TRIGGER IF EXISTS conversation_unseen_message_count_update')
       mixinDb.exec('DROP TABLE IF EXISTS resend_messages')

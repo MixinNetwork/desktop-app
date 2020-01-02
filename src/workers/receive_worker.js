@@ -393,9 +393,9 @@ class ReceiveWorker extends BaseWorker {
       const simple = messageDao.findSimpleMessageById(messageId)
       if (simple && simple.status && simple.status !== MessageStatus.READ) {
         conversationSet.add(simple.conversation_id)
-        return true;
+        return true
       } else {
-        return false;
+        return false
       }
     }).forEach(msg => {
       messageDao.updateMessageStatusById(msg.status, msg.message_id)

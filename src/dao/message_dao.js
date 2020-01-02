@@ -237,8 +237,8 @@ class MessageDao {
 
   takeUnseen(userId, conversationId) {
     return db.prepare(
-      `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE m.user_id != '${userId}' 
-        AND m.status IN ('SENT', 'DELIVERED') AND m.conversation_id = '${conversationId}') WHERE conversation_id = '${conversationId}'`)
+      `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE  m.conversation_id = '${conversationId}' AND m.user_id != '${userId}'
+        AND m.status IN ('SENT', 'DELIVERED')) WHERE conversation_id = '${conversationId}'`)
       .run()
   }
 

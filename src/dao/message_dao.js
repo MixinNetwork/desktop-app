@@ -43,10 +43,44 @@ class MessageDao {
     ])
   }
   insertMessage(message) {
+    const finalMsg = {
+      message_id: null,
+      conversation_id: null,
+      user_id: null,
+      category: null,
+      content: null,
+      media_url: null,
+      media_mime_type: null,
+      media_size: null,
+      media_duration: null,
+      media_width: null,
+      media_height: null,
+      media_hash: null,
+      thumb_image: null,
+      media_key: null,
+      media_digest: null,
+      media_status: null,
+      status: null,
+      created_at: null,
+      action: null,
+      participant_id: null,
+      snapshot_id: null,
+      hyperlink: null,
+      name: null,
+      album_id: null,
+      sticker_id: null,
+      shared_user_id: null,
+      media_waveform: null,
+      quote_message_id: null,
+      quote_content: null,
+      thumb_url: null
+    }
+    Object.assign(finalMsg, message)
+
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
     )
-    stmt.run(message)
+    stmt.run(finalMsg)
   }
 
   deleteMessagesById(mIds) {

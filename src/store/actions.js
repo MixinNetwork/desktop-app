@@ -299,6 +299,21 @@ export default {
     messageDao.insertTextMessage(msg)
     commit('refreshMessage', msg.conversationId)
   },
+  sendStickerMessage: ({ commit }, msg) => {
+    const { conversationId, stickerId, category, status } = msg
+    markRead(conversationId)
+    const messageId = uuidv4().toLowerCase()
+    messageDao.insertMessage({
+      message_id: messageId,
+      conversation_id: conversationId,
+      user_id: JSON.parse(localStorage.getItem('account')).user_id,
+      category,
+      status,
+      created_at: new Date().toISOString(),
+      sticker_id: stickerId
+    })
+    commit('refreshMessage', msg.conversationId)
+  },
   sendAttachmentMessage: ({ commit }, { conversationId, mediaUrl, mediaMimeType, category }) => {
     const messageId = uuidv4().toLowerCase()
     putAttachment(
@@ -312,32 +327,16 @@ export default {
           conversation_id: conversationId,
           user_id: JSON.parse(localStorage.getItem('account')).user_id,
           category: category,
-          content: null,
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,
           media_size: data.mediaSize,
-          media_duration: null,
           media_width: data.mediaWidth,
           media_height: data.mediaHeight,
-          media_hash: null,
           thumb_image: data.thumbImage,
-          media_key: null,
-          media_digest: null,
           media_status: 'PENDING',
           status: MessageStatus.SENDING,
           created_at: new Date().toISOString(),
-          action: null,
-          participant_id: null,
-          snapshot_id: null,
-          hyperlink: null,
-          name: data.name,
-          album_id: null,
-          sticker_id: null,
-          shared_user_id: null,
-          media_waveform: null,
-          quote_message_id: null,
-          quote_content: null,
-          thumb_url: null
+          name: data.name
         })
         commit('startLoading', messageId)
         commit('refreshMessage', conversationId)

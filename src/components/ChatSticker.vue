@@ -30,7 +30,7 @@
     <mixin-scrollbar>
       <div class="ul">
         <span class="sticker" v-for="item in stickers" :key="item.sticker_id">
-          <img :src="item.asset_url" />
+          <img :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
         </span>
         <i v-for="i in 30" :key="i"></i>
       </div>
@@ -105,6 +105,9 @@ export default {
       } else if (id) {
         this.getStickers(id)
       }
+    },
+    sendSticker(id) {
+      this.$emit('send', id)
     }
   },
   computed: {

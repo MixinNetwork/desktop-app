@@ -69,7 +69,7 @@
     ></ReplyMessageContainer>
 
     <transition name="slide-up">
-      <ChatSticker v-if="stickerChoosing" @close="hideStickerChoose" @choose="chooseStickerDone"></ChatSticker>
+      <ChatSticker v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
     </transition>
     <div v-show="conversation" class="action">
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
@@ -403,13 +403,25 @@ export default {
       this.file = event.target.files[0]
     },
     chooseSticker() {
+      this.boxMessage = false
       this.stickerChoosing = !this.stickerChoosing
     },
     hideStickerChoose() {
       this.stickerChoosing = false
     },
-    chooseStickerDone() {
+    sendSticker(stickerId) {
       this.stickerChoosing = false
+      const { conversationId } = this.conversation
+      const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+      const status = MessageStatus.SENDING
+      const msg = {
+        conversationId,
+        stickerId,
+        category,
+        status
+      }
+      this.$store.dispatch('sendStickerMessage', msg)
+      this.goBottom()
     },
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
@@ -815,7 +827,7 @@ export default {
     .attachment {
       cursor: pointer;
       position: relative;
-      margin: 0 9px 0 5px;
+      margin: 0 12px 0 9px;
       input {
         position: absolute;
         opacity: 0;

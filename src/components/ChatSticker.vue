@@ -43,6 +43,7 @@ import ICHistory from '@/assets/images/ic_history.svg'
 import ICLike from '@/assets/images/ic_like.svg'
 import ICGif from '@/assets/images/ic_gif.svg'
 
+import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
 
 export default {
@@ -55,7 +56,8 @@ export default {
     return {
       albums: [],
       stickers: [],
-      currentAlbumId: ''
+      lastUseStickers: [],
+      currentAlbumId: 'history'
     }
   },
   beforeCreate() {
@@ -65,21 +67,41 @@ export default {
       }
     })
   },
+  created() {
+    this.changeTab('history')
+  },
   methods: {
     getStickers(id) {
-      stickerApi.getStickersByAlbumId(id).then(res => {
-        if (res.data.data) {
-          this.stickers = res.data.data
-        }
-      })
+      let stickers = stickerDao.getStickersByAlbumId(id)
+      if (stickers && stickers.length) {
+        this.stickers = stickers
+      } else {
+        stickerApi.getStickersByAlbumId(id).then(res => {
+          if (res.data.data) {
+            this.stickers = res.data.data
+            this.stickers.forEach(item => {
+              stickerDao.insertUpdate(item)
+            })
+          }
+        })
+      }
     },
     changeTab(id) {
       this.currentAlbumId = id
-
       if (id === 'history') {
+        const list = stickerDao.getLastUseStickers()
+        if (list && list.length) {
+          this.lastUseStickers = list
+          this.stickers = list
+        } else {
+          this.stickers = []
+        }
       } else if (id === 'like') {
-        this.getStickers(this.albums[0].album_id)
+        if (this.albums[0]) {
+          this.getStickers(this.albums[0].album_id)
+        }
       } else if (id === 'gif') {
+        this.stickers = []
       } else if (id) {
         this.getStickers(id)
       }

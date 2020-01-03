@@ -1,12 +1,26 @@
-import Database from 'better-sqlite3'
+import DB from './wrapper'
+
 import fs from 'fs'
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const MixinDatabaseVersion = 2
 const mixinPath = path.join(getDbPath(), 'mixin.db3')
-const mixinDb = new Database(mixinPath, { readonly: false })
-mixinDb.pragma('journal_mode = WAL')
+DB({
+  path: mixinPath,
+  memory: false,
+  readonly: false,
+  fileMustExist: false,
+  WAL: true,
+  migrate: {
+    force: false,
+    table: 'migration',
+    migrationsPath: './migrations'
+  }
+})
+
+const mixinDb = DB().connection()
+
+const MixinDatabaseVersion = 2
 // eslint-disable-next-line no-undef
 const fileLocation = path.join(__static, 'mixin.sql')
 const createSQL = fs.readFileSync(fileLocation, 'utf8')

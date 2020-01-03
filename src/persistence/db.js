@@ -24,7 +24,13 @@ setTimeout(() => {
   if (!!row && row.user_version < 1) {
     mixinDb.transaction(() => {
       mixinDb.exec('DROP TABLE IF EXISTS assets')
+      mixinDb.exec(
+        'CREATE TABLE IF NOT EXISTS `assets` (`asset_id` TEXT NOT NULL,`symbol` TEXT NOT NULL,`name` TEXT NOT NULL,`icon_url` TEXT NOT NULL,`balance` TEXT NOT NULL,`destination` TEXT NOT NULL,`tag` TEXT,`price_btc` TEXT NOT NULL,`price_usd` TEXT NOT NULL,`chain_id` TEXT NOT NULL,`change_usd` TEXT NOT NULL,`change_btc` TEXT NOT NULL,`confirmations` INTEGER NOT NULL,`asset_key` TEXT,PRIMARY KEY(`asset_id`))'
+      )
       mixinDb.exec('DROP TABLE IF EXISTS snapshots')
+      mixinDb.exec(
+        'CREATE TABLE IF NOT EXISTS `snapshots` (`snapshot_id` TEXT NOT NULL,`type` TEXT NOT NULL,`asset_id` TEXT NOT NULL,`amount` TEXT NOT NULL,`created_at` TEXT NOT NULL,`opponent_id` TEXT,`transaction_hash` TEXT,`sender` TEXT,`receiver` TEXT,`memo` TEXT,`confirmations` INTEGER,PRIMARY KEY(`snapshot_id`))'
+      )
     })()
   }
 })

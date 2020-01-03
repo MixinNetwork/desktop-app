@@ -1,40 +1,36 @@
-import Database from 'better-sqlite3'
-import fs from 'fs'
+import DB from './wrapper'
+
 import path from 'path'
 import { getDbPath } from './db_util'
 
-const MixinDatabaseVersion = 2
 const mixinPath = path.join(getDbPath(), 'mixin.db3')
-const mixinDb = new Database(mixinPath, { readonly: false })
-mixinDb.pragma('journal_mode = WAL')
-// eslint-disable-next-line no-undef
-const fileLocation = path.join(__static, 'mixin.sql')
-const createSQL = fs.readFileSync(fileLocation, 'utf8')
-mixinDb.exec(createSQL)
+DB({
+  path: mixinPath,
+  memory: false,
+  readonly: false,
+  fileMustExist: false,
+  WAL: true,
+  migrate: {
+    force: false,
+    table: 'migration',
+    migrationsPath: './migrations'
+  }
+})
+
+const mixinDb = DB().connection()
 
 setTimeout(() => {
   const row = mixinDb.prepare('PRAGMA user_version').get()
-  if (!!row && row.user_version < MixinDatabaseVersion) {
-    const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
+  if (!!row && row.user_version < 1) {
     mixinDb.transaction(() => {
-      if (row.user_version < 1) {
-        mixinDb.exec('DROP TABLE IF EXISTS assets')
-        mixinDb.exec('DROP TABLE IF EXISTS snapshots')
-      }
-      if (row.user_version < 2) {
-        mixinDb.exec(
-          'CREATE TABLE `apps_backup` (`app_id` TEXT NOT NULL, `app_number` TEXT NOT NULL, `home_uri` TEXT NOT NULL, `redirect_uri` TEXT NOT NULL, `name` TEXT NOT NULL, `icon_url` TEXT NOT NULL, `description` TEXT NOT NULL, `capabilites` TEXT,  `creator_id` TEXT NOT NULL, PRIMARY KEY(`app_id`))'
-        )
-        mixinDb.exec(
-          'INSERT INTO apps_backup SELECT app_id, app_number, home_uri, redirect_uri, name, icon_url, description, capabilites, creator_id FROM apps'
-        )
-        mixinDb.exec('DROP TABLE apps')
-        mixinDb.exec('ALTER TABLE apps_backup RENAME TO apps')
-        mixinDb.exec('ALTER TABLE users ADD COLUMN biography TEXT')
-      }
-      mixinDb.exec('DROP TRIGGER IF EXISTS conversation_unseen_message_count_update')
-      mixinDb.exec('DROP TABLE IF EXISTS resend_messages')
-      stmt.run()
+      mixinDb.exec('DROP TABLE IF EXISTS assets')
+      mixinDb.exec(
+        'CREATE TABLE IF NOT EXISTS `assets` (`asset_id` TEXT NOT NULL,`symbol` TEXT NOT NULL,`name` TEXT NOT NULL,`icon_url` TEXT NOT NULL,`balance` TEXT NOT NULL,`destination` TEXT NOT NULL,`tag` TEXT,`price_btc` TEXT NOT NULL,`price_usd` TEXT NOT NULL,`chain_id` TEXT NOT NULL,`change_usd` TEXT NOT NULL,`change_btc` TEXT NOT NULL,`confirmations` INTEGER NOT NULL,`asset_key` TEXT,PRIMARY KEY(`asset_id`))'
+      )
+      mixinDb.exec('DROP TABLE IF EXISTS snapshots')
+      mixinDb.exec(
+        'CREATE TABLE IF NOT EXISTS `snapshots` (`snapshot_id` TEXT NOT NULL,`type` TEXT NOT NULL,`asset_id` TEXT NOT NULL,`amount` TEXT NOT NULL,`created_at` TEXT NOT NULL,`opponent_id` TEXT,`transaction_hash` TEXT,`sender` TEXT,`receiver` TEXT,`memo` TEXT,`confirmations` INTEGER,PRIMARY KEY(`snapshot_id`))'
+      )
     })()
   }
 })

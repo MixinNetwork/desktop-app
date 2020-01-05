@@ -4,6 +4,8 @@ import path from 'path'
 import { getDbPath } from './db_util'
 
 const mixinPath = path.join(getDbPath(), 'mixin.db3')
+// eslint-disable-next-line no-undef
+const migration = path.join(__static, '/migrations')
 DB({
   path: mixinPath,
   memory: false,
@@ -13,7 +15,7 @@ DB({
   migrate: {
     force: false,
     table: 'migration',
-    migrationsPath: './migrations'
+    migrationsPath: migration
   }
 })
 

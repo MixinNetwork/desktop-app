@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS `apps`;
 ALTER TABLE `apps_backup` RENAME TO `apps`;
 
 
-ALTER TABLE users ADD COLUMN biography TEXT
+ALTER TABLE users ADD COLUMN biography TEXT;
 
 
 DROP TRIGGER IF EXISTS `conversation_unseen_message_count_update`;

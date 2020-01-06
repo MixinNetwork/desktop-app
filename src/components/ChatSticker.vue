@@ -54,24 +54,38 @@ export default {
     }
   },
   beforeCreate() {
-    stickerApi.getStickerAlbums().then(res => {
-      if (res.data.data) {
-        this.albums = res.data.data
-        const list = stickerDao.getLastUseStickers()
-        if (!list || (list && list.length === 0)) {
-          setTimeout(() => {
-            const albumId = this.albums[1].album_id
-            this.getStickers(albumId)
-            this.changeTab(albumId)
+    const findAlbums = stickerDao.getStickerAlbums()
+    if (findAlbums.length) {
+      setTimeout(() => {
+        this.albums = JSON.parse(JSON.stringify(findAlbums))
+        this.albumPos()
+      })
+    } else {
+      stickerApi.getStickerAlbums().then(res => {
+        if (res.data.data) {
+          this.albums = res.data.data
+          this.albums.forEach(item => {
+            stickerDao.insertAlbum(item)
           })
+          this.albumPos()
         }
-      }
-    })
+      })
+    }
   },
   created() {
     this.changeTab('history')
   },
   methods: {
+    albumPos() {
+      const list = stickerDao.getLastUseStickers()
+      if (!list || (list && list.length === 0)) {
+        setTimeout(() => {
+          const albumId = this.albums[1].album_id
+          this.getStickers(albumId)
+          this.changeTab(albumId)
+        })
+      }
+    },
     getStickers(id) {
       let stickers = stickerDao.getStickersByAlbumId(id)
       if (stickers && stickers.length) {

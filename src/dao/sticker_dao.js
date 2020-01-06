@@ -1,6 +1,9 @@
 import db from '@/persistence/db'
 
 class StickerDao {
+  getStickerAlbums() {
+    return db.prepare(`SELECT * FROM sticker_albums ORDER BY created_at DESC`).all()
+  }
   getStickersByAlbumId(id) {
     return db
       .prepare(
@@ -23,6 +26,11 @@ class StickerDao {
   }
   getStickerByUnique(stickerId) {
     return db.prepare(`SELECT * FROM stickers WHERE sticker_id = ?`).get(stickerId)
+  }
+  insertAlbum(s) {
+    db.prepare(
+      `INSERT OR REPLACE INTO sticker_albums VALUES (@album_id, @name, @icon_url, @created_at, @update_at, @user_id, @category, @description)`
+    ).run(s)
   }
   insertUpdate(s) {
     const sticker = this.getStickerByUnique(s.sticker_id)

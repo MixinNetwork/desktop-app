@@ -8,11 +8,12 @@
       @mouseover="thumbMouseOver"
       @mouseout="thumbMouseOut"
       @mousedown="thumbMouseDown"
-      v-show="thumbShowForce"
+      v-show="thumbShowForce && showScroll"
       :style="{
         opacity: thumbShow ? 1 : 0,
         transform: `translate3d(0, ${thumbTop}px, 0)`,
-        height: thumbHeight + 'px'
+        height: thumbHeight + 'px',
+        transition: showScroll ? 'transform 0.05s ease-out, width 0.15s, opacity 0.5s, height 0.55s' : ''
       }"
     ></div>
   </div>
@@ -31,6 +32,11 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    showScroll: {
+      type: Boolean,
+      required: false,
+      default: true
     },
     globalOptions: {
       type: Object,
@@ -189,7 +195,6 @@ export default {
     border-radius: 5px;
     min-height: 25px;
     width: 6px;
-    transition: transform 0.05s ease-out, width 0.15s, opacity 0.5s, height 0.55s;
     &.dragging,
     &:hover {
       border-radius: 8px;

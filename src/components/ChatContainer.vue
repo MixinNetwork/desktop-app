@@ -22,7 +22,7 @@
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
-    <mixin-scrollbar v-if="conversation" :goBottom="!showMessages">
+    <mixin-scrollbar v-if="conversation" :showScroll="showScroll" :goBottom="!showMessages">
       <ul
         class="messages"
         ref="messagesUl"
@@ -71,7 +71,7 @@
     <transition name="slide-up">
       <ChatSticker v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
     </transition>
-    <div v-show="conversation" class="action">
+    <div v-show="conversation" class="action" @click.stop>
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
         <div class="sticker" @click.stop="chooseSticker">
@@ -188,10 +188,22 @@ export default {
       searchKeyword: '',
       timeDivideShow: false,
       contentUtil,
-      stickerChoosing: false
+      stickerChoosing: false,
+      showScroll: true,
+      chooseStickerTimeout: null
     }
   },
   watch: {
+    stickerChoosing(val) {
+      this.showScroll = false
+      if (val) {
+        this.goBottom()
+      }
+      clearTimeout(this.chooseStickerTimeout)
+      this.chooseStickerTimeout = setTimeout(() => {
+        this.showScroll = true
+      }, 100)
+    },
     currentUnreadNum(val) {
       if (val === 0) {
         messageBox.clearMessagePositionIndex(0)
@@ -410,7 +422,6 @@ export default {
       this.stickerChoosing = false
     },
     sendSticker(stickerId) {
-      this.stickerChoosing = false
       const { conversationId } = this.conversation
       const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
       const status = MessageStatus.SENDING
@@ -708,6 +719,7 @@ export default {
       if (text.trim().length <= 0) {
         return
       }
+      this.stickerChoosing = false
       conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
       this.$refs.box.innerText = ''
       const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
@@ -884,11 +896,12 @@ export default {
       padding: 0.4rem 0.6rem;
 
       .sticker {
-        margin-top: 2px;
+        margin: 0.15rem 0.25rem 0 0.25rem;
         cursor: pointer;
       }
       .send {
         cursor: pointer;
+        margin: 0.1rem 0.15rem 0 0.25rem;
       }
     }
     .editable {
@@ -1031,8 +1044,7 @@ export default {
   .slide-bottom-leave-to {
     transform: translateY(200%);
   }
-  .slide-up-enter-active,
-  .slide-up-leave-active {
+  .slide-up-enter-active {
     transition: all 0.3s;
   }
   .slide-up-enter,

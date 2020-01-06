@@ -123,10 +123,7 @@ export default {
   display: flex;
   flex-flow: column nowrap;
   height: 15rem;
-  left: 18rem;
-  bottom: 3rem;
-  right: 0;
-  position: absolute;
+  position: relative;
   z-index: 1;
 
   .title-bar {

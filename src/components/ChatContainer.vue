@@ -22,7 +22,12 @@
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
-    <mixin-scrollbar v-if="conversation" :showScroll="showScroll" :goBottom="!showMessages">
+    <mixin-scrollbar
+      :style="stickerChoosing ? 'transition: 0.3s all ease;margin-bottom: 15rem;' : ''"
+      v-if="conversation"
+      :showScroll="showScroll"
+      :goBottom="!showMessages"
+    >
       <ul
         class="messages"
         ref="messagesUl"
@@ -196,13 +201,13 @@ export default {
   watch: {
     stickerChoosing(val) {
       this.showScroll = false
-      if (val) {
-        this.goBottom()
-      }
       clearTimeout(this.chooseStickerTimeout)
       this.chooseStickerTimeout = setTimeout(() => {
+        if (val) {
+          this.goBottom()
+        }
         this.showScroll = true
-      }, 100)
+      }, 300)
     },
     currentUnreadNum(val) {
       if (val === 0) {
@@ -1045,7 +1050,7 @@ export default {
     transform: translateY(200%);
   }
   .slide-up-enter-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-up-enter,
   .slide-up-leave-to {

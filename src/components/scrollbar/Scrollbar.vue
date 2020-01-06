@@ -8,7 +8,7 @@
       @mouseover="thumbMouseOver"
       @mouseout="thumbMouseOut"
       @mousedown="thumbMouseDown"
-      v-show="thumbShowForce && showScroll"
+      v-show="thumbShowForce"
       :style="{
         opacity: thumbShow ? 1 : 0,
         transform: `translate3d(0, ${thumbTop}px, 0)`,

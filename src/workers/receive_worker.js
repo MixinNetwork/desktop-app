@@ -36,7 +36,12 @@ class ReceiveWorker extends BaseWorker {
       return
     }
     for (const fm of fms) {
-      await this.process(fm)
+      try {
+        await this.process(fm)
+      } catch (err) {
+        console.log(err)
+        this.updateRemoteMessageStatus(fm.message_id, MessageStatus.DELIVERED)
+      }
       floodMessageDao.delete(fm.message_id)
     }
   }

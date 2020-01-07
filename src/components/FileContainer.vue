@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import ICClose from '../assets/images/ic_close.svg'
-import ICFile from '../assets/images/ic_file.svg'
+import ICClose from '@/assets/images/ic_close.svg'
+import ICFile from '@/assets/images/ic_file.svg'
 import { isImage } from '@/utils/attachment_util.js'
 import path from 'path'
 export default {

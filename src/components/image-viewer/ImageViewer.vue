@@ -42,8 +42,8 @@
 <script>
 import fs from 'fs'
 import path from 'path'
-import ICClose from '../../assets/images/ic_close_white.svg'
-import ICDownload from '../../assets/images/download.svg'
+import ICClose from '@/assets/images/ic_close_white.svg'
+import ICDownload from '@/assets/images/download.svg'
 export default {
   name: 'imageViewer',
   components: {

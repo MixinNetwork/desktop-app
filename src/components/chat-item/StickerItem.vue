@@ -93,15 +93,11 @@ export default {
     }
     .time {
       color: #8799a5;
-      align-self: flex-end;
-      display: flex;
-      float: right;
+      text-align: right;
+      padding-right: .4rem;
       font-size: 0.75rem;
-      bottom: 0.3rem;
-      right: 0.2rem;
-      align-items: flex-end;
       .icon {
-        padding-left: 0.2rem;
+        vertical-align: bottom;
       }
       .wait {
         path {

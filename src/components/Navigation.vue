@@ -505,6 +505,7 @@ export default {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 
   .root {
     width: 100%;
@@ -580,7 +581,7 @@ export default {
       #avatar {
         width: 2.5rem;
         height: 2.5rem;
-        margin-right: 2rem;
+        margin-right: 2.4rem;
         cursor: pointer;
       }
       .action_bar {

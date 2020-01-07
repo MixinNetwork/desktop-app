@@ -11,7 +11,7 @@
     <div class="info">
       <div class="title">
         <div class="username">
-          {{conversation.groupName?conversation.groupName:conversation.name}}
+          <span>{{conversation.groupName?conversation.groupName:conversation.name}}</span>
           <ICRobot v-if="conversation.appId" />
         </div>
         <div class="time">{{timeAgo}}</div>
@@ -65,12 +65,12 @@
 import { timeAgo } from '@/utils/util.js'
 import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants.js'
 import Avatar from '@/components/Avatar.vue'
-import ICSend from '../assets/images/ic_status_send.svg'
-import ICRead from '../assets/images/ic_status_read.svg'
-import ICSending from '../assets/images/ic_status_clock.svg'
-import ICPin from '../assets/images/ic_pin_top.svg'
-import ICRobot from '../assets/images/ic_robot.svg'
-import ICMute from '../assets/images/ic_mute.svg'
+import ICSend from '@/assets/images/ic_status_send.svg'
+import ICRead from '@/assets/images/ic_status_read.svg'
+import ICSending from '@/assets/images/ic_status_clock.svg'
+import ICPin from '@/assets/images/ic_pin_top.svg'
+import ICRobot from '@/assets/images/ic_robot.svg'
+import ICMute from '@/assets/images/ic_mute.svg'
 
 export default {
   name: 'ConversationItem',
@@ -238,10 +238,21 @@ li.conversation.item {
       display: flex;
       flex-direction: row;
       .username {
-        flex: 1;
         overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        display: flex;
+        justify-content: flex-start;
+        flex: 1;
+        line-height: 1.4rem;
+        span {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        svg {
+          flex-shrink: 0;
+          vertical-align: top;
+          margin: 0.2rem 0.6rem 0 0.2rem;
+        }
       }
       .time {
         color: $light-font-color;

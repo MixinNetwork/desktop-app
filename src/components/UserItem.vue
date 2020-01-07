@@ -22,7 +22,7 @@
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
-import ICRobot from '../assets/images/ic_robot.svg'
+import ICRobot from '@/assets/images/ic_robot.svg'
 import contentUtil from '@/utils/content_util.js'
 export default {
   components: {

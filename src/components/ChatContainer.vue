@@ -1,5 +1,5 @@
 <template>
-  <main class="chat container">
+  <main class="chat container" @click="hideStickerChoose">
     <header v-show="conversation">
       <div>
         <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
@@ -13,12 +13,21 @@
       <div class="search" @click="chatSearch">
         <ICSearch />
       </div>
+      <div class="attachment" @click="chooseAttachment">
+        <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
+        <ICAttach style="margin-top: 3px" />
+      </div>
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
         <ICBot />
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
-    <mixin-scrollbar v-if="conversation" :goBottom="!showMessages">
+    <mixin-scrollbar
+      :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
+      v-if="conversation"
+      :showScroll="showScroll"
+      :goBottom="!showMessages"
+    >
       <ul
         class="messages"
         ref="messagesUl"
@@ -63,12 +72,16 @@
       class="reply"
       @hidenReplyBox="hidenReplyBox"
     ></ReplyMessageContainer>
-    <div v-show="conversation" class="action">
+
+    <transition name="slide-up">
+      <ChatSticker v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
+    </transition>
+    <div v-show="conversation" class="action" @click.stop>
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
-        <div class="attachment" @click="chooseAttachment">
-          <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
-          <ICAttach style="margin-top: 3px" />
+        <div class="sticker" @click.stop="chooseSticker">
+          <ICEmoticonOn v-if="stickerChoosing" />
+          <ICEmoticon v-else />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -84,6 +97,7 @@
             ></div>
           </div>
         </mixin-scrollbar>
+
         <div class="send" @click="sendMessage">
           <ICSend />
         </div>
@@ -131,6 +145,7 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
+import ChatSticker from '@/components/ChatSticker.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
@@ -139,10 +154,12 @@ import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao.js'
 import conversationAPI from '@/api/conversation.js'
 import messageBox from '@/store/message_box.js'
-import ICBot from '../assets/images/ic_bot.svg'
-import ICSearch from '../assets/images/ic_search.svg'
-import ICSend from '../assets/images/ic_send.svg'
-import ICAttach from '../assets/images/ic_attach.svg'
+import ICBot from '@/assets/images/ic_bot.svg'
+import ICSearch from '@/assets/images/ic_search.svg'
+import ICSend from '@/assets/images/ic_send.svg'
+import ICAttach from '@/assets/images/ic_attach.svg'
+import ICEmoticon from '@/assets/images/ic_emoticon.svg'
+import ICEmoticonOn from '@/assets/images/ic_emoticon_on.svg'
 import browser from '@/utils/browser.js'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
@@ -175,10 +192,23 @@ export default {
       infiniteDownLock: true,
       searchKeyword: '',
       timeDivideShow: false,
-      contentUtil
+      contentUtil,
+      stickerChoosing: false,
+      showScroll: true,
+      chooseStickerTimeout: null
     }
   },
   watch: {
+    stickerChoosing(val) {
+      this.showScroll = false
+      clearTimeout(this.chooseStickerTimeout)
+      this.chooseStickerTimeout = setTimeout(() => {
+        if (val) {
+          this.goBottom()
+        }
+        this.showScroll = true
+      }, 300)
+    },
     currentUnreadNum(val) {
       if (val === 0) {
         messageBox.clearMessagePositionIndex(0)
@@ -220,6 +250,7 @@ export default {
             })
             this.details = false
             this.searching = false
+            this.stickerChoosing = false
             this.file = null
           }
         }
@@ -257,6 +288,7 @@ export default {
     Avatar,
     Details,
     ChatSearch,
+    ChatSticker,
     TimeDivide,
     MessageItem,
     FileContainer,
@@ -265,6 +297,8 @@ export default {
     ICChevronDown,
     ICSend,
     ICAttach,
+    ICEmoticon,
+    ICEmoticonOn,
     ReplyMessageContainer
   },
   computed: {
@@ -384,6 +418,26 @@ export default {
     },
     chooseAttachmentDone(event) {
       this.file = event.target.files[0]
+    },
+    chooseSticker() {
+      this.boxMessage = false
+      this.stickerChoosing = !this.stickerChoosing
+    },
+    hideStickerChoose() {
+      this.stickerChoosing = false
+    },
+    sendSticker(stickerId) {
+      const { conversationId } = this.conversation
+      const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+      const status = MessageStatus.SENDING
+      const msg = {
+        conversationId,
+        stickerId,
+        category,
+        status
+      }
+      this.$store.dispatch('sendStickerMessage', msg)
+      this.goBottom()
     },
     saveMessageDraft() {
       const conversationId = this.conversation.conversationId
@@ -670,6 +724,7 @@ export default {
       if (text.trim().length <= 0) {
         return
       }
+      this.stickerChoosing = false
       conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
       this.$refs.box.innerText = ''
       const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
@@ -786,6 +841,16 @@ export default {
     .search {
       margin-right: 5px;
     }
+    .attachment {
+      cursor: pointer;
+      position: relative;
+      margin: 0 12px 0 9px;
+      input {
+        position: absolute;
+        opacity: 0;
+        z-index: -1;
+      }
+    }
     .username {
       max-width: 100%;
       overflow: hidden;
@@ -834,17 +899,14 @@ export default {
       display: flex;
       align-items: center;
       padding: 0.4rem 0.6rem;
-      .attachment {
+
+      .sticker {
+        margin: 0.15rem 0.25rem 0 0.25rem;
         cursor: pointer;
-        position: relative;
-        input {
-          position: absolute;
-          opacity: 0;
-          z-index: -1;
-        }
       }
       .send {
         cursor: pointer;
+        margin: 0.1rem 0.15rem 0 0.25rem;
       }
     }
     .editable {
@@ -935,7 +997,6 @@ export default {
     left: 18rem;
     right: 0;
     height: 100%;
-    border-left: 1px solid $border-color;
     z-index: 10;
   }
   .overlay-reply {
@@ -944,7 +1005,6 @@ export default {
     top: 0;
     right: 0;
     height: 100%;
-    border-left: 1px solid $border-color;
     z-index: 10;
   }
 
@@ -952,7 +1012,6 @@ export default {
     position: absolute;
     height: 100%;
     left: 18rem;
-    border-left: 1px solid $border-color;
     right: 0;
     bottom: 0;
     pointer-events: none;
@@ -988,6 +1047,14 @@ export default {
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {
+    transform: translateY(200%);
+  }
+  .slide-up-enter-active,
+  .slide-up-leave-active {
+    transition: all 0.3s ease;
+  }
+  .slide-up-enter,
+  .slide-up-leave-to {
     transform: translateY(200%);
   }
 }

@@ -5,7 +5,7 @@ import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
 import messageDao from '@/dao/message_dao'
-import accountApi from '@/api/account'
+import stickerApi from '@/api/sticker'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/constants.js'
@@ -221,7 +221,7 @@ export default class BaseWorker {
   }
 
   async refreshSticker(stickerId) {
-    const response = await accountApi.getStickerById(stickerId)
+    const response = await stickerApi.getStickerById(stickerId)
     if (response.data.data) {
       stickerDao.insertUpdate(response.data.data)
     }
@@ -328,7 +328,7 @@ export default class BaseWorker {
         }
       }
       await Vue.prototype.$blaze.sendMessagePromise(bm).then(
-        _ => { },
+        _ => {},
         async error => {
           if (error.code === 20140) {
             await self.refreshConversation(conversationId)

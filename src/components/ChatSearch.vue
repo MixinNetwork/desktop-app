@@ -29,7 +29,7 @@
 <script>
 import Search from '@/components/Search.vue'
 import SearchItem from '@/components/SearchItem.vue'
-import ICClose from '../assets/images/ic_close.svg'
+import ICClose from '@/assets/images/ic_close.svg'
 import messageDao from '@/dao/message_dao'
 import { mapGetters } from 'vuex'
 

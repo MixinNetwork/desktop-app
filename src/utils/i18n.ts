@@ -102,6 +102,9 @@ let transactions = {
       preview: 'Preview',
       sendMessage: 'Send',
       search: 'Search',
+      searching: 'Searching for records ...',
+      search_empty: 'No related records found',
+      search_notify: 'Search for records related to {0}',
       search_id_or_phone: 'Search Mixin ID or phone number:',
       admin: 'Admin',
       owner: 'Owner'
@@ -239,6 +242,9 @@ let transactions = {
       preview: '预览',
       sendMessage: '发送',
       search: '搜索聊天记录',
+      searching: '正在搜索聊天 ...',
+      search_empty: '未搜索到相关记录',
+      search_notify: '搜索和 {0} 相关的记录',
       search_id_or_phone: '搜索 Mixin ID 或手机号码：',
       admin: '管理员',
       owner: '群主'

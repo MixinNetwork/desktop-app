@@ -39,7 +39,7 @@ const template = [
     submenu: [
       {
         label: 'Learn More',
-        click () {
+        click() {
           require('electron').shell.openExternal('https://mixin.one/messenger')
         }
       }

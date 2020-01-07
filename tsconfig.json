@@ -23,8 +23,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx",
-    "src/components/dialog/Dialog.js", "src/background.js"
+    "tests/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import VueElectron from 'vue-electron'
+import electron from 'electron'
 import App from './App.vue'
 import router from './router'
 import store from './store/store'
@@ -22,7 +22,6 @@ const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
 
 Vue.use(VueAxios, axios)
-Vue.use(VueElectron)
 Vue.use(Dialog)
 Vue.use(Menu)
 Vue.use(Toast)
@@ -36,6 +35,7 @@ Vue.config.productionTip = false
 Vue.prototype.$blaze = blaze
 moment.locale(navigator.language)
 Vue.prototype.$moment = moment
+Vue.prototype.$electron = electron
 
 new Vue({
   i18n,

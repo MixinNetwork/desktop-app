@@ -251,7 +251,7 @@ li.conversation.item {
         svg {
           flex-shrink: 0;
           vertical-align: top;
-          margin: 0.2rem 0.1rem 0 0.2rem;
+          margin: 0.2rem 0.6rem 0 0.2rem;
         }
       }
       .time {

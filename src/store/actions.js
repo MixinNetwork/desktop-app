@@ -249,7 +249,10 @@ export default {
     commit('refreshConversations')
   },
   conversationClear: ({ commit }, conversationId) => {
-    conversationDao.deleteConversation(conversationId)
+    messageDao.ftsMessagesDelete(conversationId)
+    setTimeout(() => {
+      conversationDao.deleteConversation(conversationId)
+    }, 1000)
     commit('conversationClear', conversationId)
   },
   pinTop: ({ commit }, payload) => {
@@ -277,6 +280,12 @@ export default {
         commit('refreshConversation', conversationId)
       }
     }
+  },
+  setCurrentAudio: ({ commit }, audioMessage) => {
+    commit('setCurrentAudio', audioMessage)
+  },
+  setCurrentMessages: ({ commit }, messages) => {
+    commit('setCurrentMessages', messages)
   },
   sendMessage: ({ commit }, { msg, quoteId }) => {
     markRead(msg.conversationId)

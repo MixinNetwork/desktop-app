@@ -56,7 +56,7 @@
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
 import ICCose from '@/assets/images/ic_close.svg'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 import ICMessageAudio from '@/assets/images/ic_message_audio.svg'
 import ICMessagePhoto from '@/assets/images/ic_message_photo.svg'
 import ICMessageVideo from '@/assets/images/ic_message_video.svg'

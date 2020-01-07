@@ -1,15 +1,15 @@
-import { ConversationCategory } from '@/utils/constants.js'
+import { ConversationCategory } from '@/utils/constants'
 export default {
-  currentConversationId: state => {
+  currentConversationId: (state: { currentConversationId: any }) => {
     return state.currentConversationId
   },
 
-  getConversations: state => {
+  getConversations: (state: { conversationKeys: any[]; conversations: { [x: string]: any } }) => {
     return state.conversationKeys
-      .map(key => {
+      .map((key: string | number) => {
         return state.conversations[key]
       })
-      .filter(item => {
+      .filter((item: { category: string; messageStatus: any }) => {
         return (
           item &&
           item.category &&
@@ -19,7 +19,7 @@ export default {
       })
   },
 
-  currentConversation: state => {
+  currentConversation: (state: { conversations: any; currentConversationId: any }) => {
     const { conversations, currentConversationId } = state
     if (conversations && currentConversationId) {
       return conversations[currentConversationId]
@@ -28,41 +28,41 @@ export default {
     }
   },
 
-  currentUser: state => {
+  currentUser: (state: { currentUser: any }) => {
     return state.currentUser
   },
 
-  currentAudio: state => {
+  currentAudio: (state: { currentAudio: any }) => {
     return state.currentAudio
   },
 
-  currentMessages: state => {
+  currentMessages: (state: { currentMessages: any }) => {
     return state.currentMessages
   },
 
-  findFriends: state => {
+  findFriends: (state: { friends: any }) => {
     return state.friends
   },
 
-  me: state => {
+  me: (state: { me: any }) => {
     return state.me
   },
 
-  search: state => {
+  search: (state: string) => {
     return state.search
   },
 
-  showTime: state => {
+  showTime: (state: { showTime: any }) => {
     return state.showTime
   },
 
-  linkStatus: state => {
+  linkStatus: (state: { linkStatus: any }) => {
     return state.linkStatus
   },
-  attachment: state => {
+  attachment: (state: { attachment: any }) => {
     return state.attachment
   },
-  editing: state => {
+  editing: (state: { editing: any }) => {
     return state.editing
   }
 }

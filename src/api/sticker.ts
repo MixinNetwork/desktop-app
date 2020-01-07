@@ -1,13 +1,13 @@
-import api from '@/api/base.js'
+import api from '@/api/base'
 
 export default {
   getStickerAlbums() {
     return api.get('/stickers/albums')
   },
-  getStickersByAlbumId(id) {
+  getStickersByAlbumId(id: string) {
     return api.get('/stickers/albums/' + id)
   },
-  getStickerById(id) {
+  getStickerById(id: string) {
     return api.get('/stickers/' + id)
   }
 }

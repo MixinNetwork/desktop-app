@@ -1,6 +1,6 @@
-import api from '@/api/base.js'
+import api from '@/api/base'
 import uuidv4 from 'uuid/v4'
-import { ConversationCategory } from '@/utils/constants.js'
+import { ConversationCategory } from '@/utils/constants'
 
 export default {
   createGroupConversation(groupName, users) {

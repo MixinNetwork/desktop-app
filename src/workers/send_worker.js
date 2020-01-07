@@ -3,10 +3,10 @@ import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
 import uuidv4 from 'uuid/v4'
-import signalProtocol from '@/crypto/signal.js'
+import signalProtocol from '@/crypto/signal'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
-import { MessageStatus, MessageCategories } from '@/utils/constants.js'
+import { MessageStatus, MessageCategories } from '@/utils/constants'
 
 class SendWorker extends BaseWorker {
   async doWork() {

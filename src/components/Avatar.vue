@@ -11,8 +11,8 @@
   </div>
 </template>
 <script>
-import { ConversationCategory } from '@/utils/constants.js'
-import { getAvatarColorById } from '@/utils/util.js'
+import { ConversationCategory } from '@/utils/constants'
+import { getAvatarColorById } from '@/utils/util'
 
 const ranges = [
   '\ud83c[\udf00-\udfff]', // U+1F300 to U+1F3FF

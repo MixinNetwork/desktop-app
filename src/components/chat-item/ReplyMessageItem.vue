@@ -47,7 +47,7 @@
 </template>
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 import ICMessageAudio from '@/assets/images/ic_message_audio.svg'
 import ICMessagePhoto from '@/assets/images/ic_message_photo.svg'
 import ICMessageVideo from '@/assets/images/ic_message_video.svg'
@@ -56,7 +56,7 @@ import ICMessageContact from '@/assets/images/ic_message_contact.svg'
 import ICMessageTransfer from '@/assets/images/ic_message_transfer.svg'
 import ICMessageBotMenu from '@/assets/images/ic_message_bot_menu.svg'
 import Avatar from '@/components/Avatar'
-import userDao from '@/dao/user_dao.js'
+import userDao from '@/dao/user_dao'
 export default {
   props: ['message', 'me'],
   data() {

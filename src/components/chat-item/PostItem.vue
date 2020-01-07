@@ -42,9 +42,9 @@ import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
 import VueMarkdown from 'vue-markdown'
-import { MessageStatus } from '@/utils/constants.js'
+import { MessageStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {

@@ -1,5 +1,5 @@
-import messageDao from '@/dao/message_dao.js'
-import { PerPageMessageCount } from '@/utils/constants.js'
+import messageDao from '@/dao/message_dao'
+import { PerPageMessageCount } from '@/utils/constants'
 
 class MessageBox {
   setConversationId(conversationId, messagePositionIndex, keyword) {

@@ -62,8 +62,8 @@
 </template>
 
 <script>
-import { timeAgo } from '@/utils/util.js'
-import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants.js'
+import { timeAgo } from '@/utils/util'
+import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'

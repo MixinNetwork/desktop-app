@@ -1,7 +1,7 @@
 import db from '@/persistence/db'
 
 class AppDao {
-  insert(app) {
+  insert(app: { capabilites: string }) {
     if (!app) return
     app.capabilites = JSON.stringify(app.capabilites)
     const stmt = db.prepare(
@@ -10,7 +10,7 @@ class AppDao {
     stmt.run(app)
   }
 
-  findAppByUserId(id) {
+  findAppByUserId(id: any) {
     if (!id) return null
     return db.prepare('SELECT * FROM apps WHERE app_id = ?').get([id])
   }

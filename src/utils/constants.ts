@@ -110,7 +110,7 @@ export const MessageStatus = {
   FAILED: 'FAILED'
 }
 
-export function canReply(type) {
+export function canReply(type: string) {
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||
@@ -133,7 +133,7 @@ export function canReply(type) {
   )
 }
 
-export function canRecall(message, userId) {
+export function canRecall(message: { createdAt: string | number | Date; userId: any; type: any; status: string }, userId: any) {
   let offset = new Date().valueOf() - new Date(message.createdAt).valueOf()
   if (offset > 3600000) {
     return false

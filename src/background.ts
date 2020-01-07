@@ -14,7 +14,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let win: BrowserWindow
 
 // Standard scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -28,7 +28,7 @@ function createWindow() {
     minWidth: 700,
     minHeight: 500,
     // eslint-disable-next-line no-undef
-    icon: path.join(__static, 'icon.png'),
+    icon: 'app://./icon.png',
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
@@ -104,7 +104,7 @@ app.on('activate', () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
+app.on('ready', async() => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {

@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import messageBox from '@/store/message_box.js'
+import messageBox from '@/store/message_box'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
-import { LinkStatus, ConversationCategory } from '@/utils/constants.js'
+import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
 function refreshConversations(state) {
   const conversations = conversationDao.getConversations()

@@ -15,7 +15,7 @@
 <script>
 import VueMarkdown from 'vue-markdown'
 import ICSend from '../assets/images/ic_send.svg'
-import { MessageStatus } from '@/utils/constants.js'
+import { MessageStatus } from '@/utils/constants'
 export default {
   name: 'editor',
   props: ['conversation', 'category'],

@@ -3,7 +3,7 @@ import Toast from './Toast.vue'
 
 const ToastConstructor = vue.extend(Toast)
 
-function showToast(text, duration = 2000) {
+function showToast(text: any, duration = 2000) {
   const toastDom = new ToastConstructor({
     el: document.createElement('div'),
     data() {
@@ -25,7 +25,7 @@ function showToast(text, duration = 2000) {
 }
 
 export default {
-  install(Vue) {
+  install(Vue: any) {
     Vue.prototype.$toast = showToast
   }
 }

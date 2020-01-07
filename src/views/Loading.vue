@@ -7,9 +7,9 @@
 
 <script>
 import spinner from '@/components/Spinner.vue'
-import accountAPI from '@/api/account.js'
-import { checkSignalKey } from '@/utils/signal_key_util.js'
-import { clearDb } from '@/persistence/db_util.js'
+import accountAPI from '@/api/account'
+import { checkSignalKey } from '@/utils/signal_key_util'
+import { clearDb } from '@/persistence/db_util'
 
 export default {
   components: {

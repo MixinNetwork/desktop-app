@@ -1,8 +1,8 @@
 import moment from 'moment'
 import uuidv4 from 'uuid/v4'
 import db from '@/persistence/db'
-import contentUtil from '@/utils/content_util.js'
-import { PerPageMessageCount } from '@/utils/constants.js'
+import contentUtil from '@/utils/content_util'
+import { PerPageMessageCount } from '@/utils/constants'
 
 class MessageDao {
   me() {

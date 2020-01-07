@@ -23,7 +23,7 @@
 <script>
 import Avatar from '@/components/Avatar.vue'
 import ICRobot from '@/assets/images/ic_robot.svg'
-import contentUtil from '@/utils/content_util.js'
+import contentUtil from '@/utils/content_util'
 export default {
   components: {
     Avatar,

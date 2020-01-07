@@ -181,7 +181,7 @@ import {
   canReply,
   canRecall,
   MediaStatus
-} from '@/utils/constants.js'
+} from '@/utils/constants'
 
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
@@ -200,11 +200,11 @@ import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
 import BadgeItem from './chat-item/BadgeItem'
 
-import messageDao from '@/dao/message_dao.js'
+import messageDao from '@/dao/message_dao'
 
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
-import contentUtil from '@/utils/content_util.js'
+import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'
 
 export default {

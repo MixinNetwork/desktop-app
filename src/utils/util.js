@@ -5,8 +5,8 @@ import store from '@/store/store'
 import {
   AvatarColors,
   NameColors
-} from '@/utils/constants.js'
-import signalProtocol from '@/crypto/signal.js'
+} from '@/utils/constants'
+import signalProtocol from '@/crypto/signal'
 import md5 from 'md5'
 
 export function generateConversationId(userId, recipientId) {

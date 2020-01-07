@@ -7,9 +7,9 @@ import path from 'path'
 import sizeOf from 'image-size'
 import jo from 'jpeg-autorotate'
 import cryptoAttachment from '@/crypto/crypto_attachment'
-import { base64ToUint8Array } from '@/utils/util.js'
-import conversationAPI from '@/api/conversation.js'
-import signalProtocol from '@/crypto/signal.js'
+import { base64ToUint8Array } from '@/utils/util'
+import conversationAPI from '@/api/conversation'
+import signalProtocol from '@/crypto/signal'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()

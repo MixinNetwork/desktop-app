@@ -70,9 +70,9 @@ import ICPlay from '@/assets/images/ic_audio_play.svg'
 import ICPause from '@/assets/images/ic_audio_pause.svg'
 import spinner from '@/components/Spinner.vue'
 import BadgeItem from './BadgeItem'
-import { MessageStatus, MediaStatus } from '@/utils/constants.js'
+import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {

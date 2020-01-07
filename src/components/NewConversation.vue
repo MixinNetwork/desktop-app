@@ -25,7 +25,7 @@
 import UserItem from '@/components/UserItem.vue'
 import Search from '@/components/Search.vue'
 import { mapGetters } from 'vuex'
-import accountApi from '@/api/account.js'
+import accountApi from '@/api/account'
 export default {
   name: 'NewConversation',
   data: function() {

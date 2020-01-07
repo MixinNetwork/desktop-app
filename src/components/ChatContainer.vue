@@ -23,7 +23,7 @@
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
     <mixin-scrollbar
-      :style="stickerChoosing ? 'transition: 0.3s all ease;margin-bottom: 15rem;' : ''"
+      :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
       v-if="conversation"
       :showScroll="showScroll"
       :goBottom="!showMessages"
@@ -1049,7 +1049,8 @@ export default {
   .slide-bottom-leave-to {
     transform: translateY(200%);
   }
-  .slide-up-enter-active {
+  .slide-up-enter-active,
+  .slide-up-leave-active {
     transition: all 0.3s ease;
   }
   .slide-up-enter,

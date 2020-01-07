@@ -11,7 +11,7 @@
     <div class="info">
       <div class="title">
         <div class="username">
-          {{conversation.groupName?conversation.groupName:conversation.name}}
+          <span>{{conversation.groupName?conversation.groupName:conversation.name}}</span>
           <ICRobot v-if="conversation.appId" />
         </div>
         <div class="time">{{timeAgo}}</div>
@@ -238,10 +238,21 @@ li.conversation.item {
       display: flex;
       flex-direction: row;
       .username {
-        flex: 1;
         overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        display: flex;
+        justify-content: flex-start;
+        flex: 1;
+        line-height: 1.4rem;
+        span {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+        svg {
+          flex-shrink: 0;
+          vertical-align: top;
+          margin: 0.2rem 0.1rem 0 0.2rem;
+        }
       }
       .time {
         color: $light-font-color;

@@ -9,7 +9,9 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <VueMarkdown class="post">{{message.content}}</VueMarkdown>
+          <div class="post">
+            <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
+          </div>
           <div class="bottom">
             <span class="time">
               {{message.lt}}
@@ -103,15 +105,18 @@ export default {
     overflow: hidden;
 
     .post {
-      width:500px;
-      height:120px;
+      width: 30rem;
+      height: 6rem;
+
       font-size: 0.75rem;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
       border-radius: 0.2rem;
       background-color: white;
-      padding: 16px;
+      padding: 1rem;
+      .inner {
+        height: 100%;
+        word-break: break-word;
+        overflow: hidden;
+      }
     }
     .bottom {
       display: flex;

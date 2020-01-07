@@ -128,12 +128,12 @@
       <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
     </transition>
     <transition name="slide-right">
-      <Edior
+      <Editor
         class="overlay"
         v-if="editing"
         :conversation="conversation"
         :category="user.app_id ? 'PLAIN_POST' : 'SIGNAL_POST'"
-      ></Edior>
+      ></Editor>
     </transition>
   </main>
 </template>
@@ -155,7 +155,7 @@ import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
 import ChatSticker from '@/components/ChatSticker.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
-import Edior from '@/components/Edior.vue'
+import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
@@ -310,7 +310,7 @@ export default {
     ICEmoticon,
     ICEmoticonOn,
     ReplyMessageContainer,
-    Edior
+    Editor
   },
   computed: {
     ...mapGetters({

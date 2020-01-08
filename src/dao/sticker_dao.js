@@ -1,8 +1,9 @@
 import db from '@/persistence/db'
 
 class StickerDao {
-  getStickerAlbums() {
-    return db.prepare(`SELECT * FROM sticker_albums ORDER BY created_at DESC`).all()
+  getStickerAlbums(ca) {
+    const category = ca || 'SYSTEM'
+    return db.prepare(`SELECT * FROM sticker_albums WHERE category = '${category}' ORDER BY created_at DESC`).all()
   }
   getStickersByAlbumId(id) {
     return db

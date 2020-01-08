@@ -10,35 +10,37 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
-import { mapGetters } from 'vuex'
-export default {
+
+import {
+  Getter
+} from 'vuex-class'
+
+@Component({
   components: {
     spinner
-  },
-  data() {
-    return { isLoading: false }
-  },
-  methods: {
-    ping: function() {
-      this.isLoading = true
-      accountApi.checkPing().then(
-        resp => {
-          this.isLoading = false
-        },
-        err => {
-          console.log(err.data)
-          this.isLoading = false
-        }
-      )
-    }
-  },
-  computed: {
-    ...mapGetters({
-      showTime: 'showTime'
-    })
+  }
+})
+export default class App extends Vue {
+  @Getter('showTime') showTime: any
+
+  isLoading = false
+
+  ping() {
+    this.isLoading = true
+    accountApi.checkPing().then(
+      resp => {
+        this.isLoading = false
+      },
+      err => {
+        console.log(err.data)
+        this.isLoading = false
+      }
+    )
   }
 }
 </script>

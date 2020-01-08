@@ -2,7 +2,7 @@
   <transition name="image-viewer-fade">
     <div class="image-viewer" v-show="visible">
       <div class="image-viewer-close icon-close" @click="close">
-        <ICClose></ICClose>
+        <svg-icon style="font-size: 1.5rem" v-if="visible" icon-class="ic_close_white" />
       </div>
       <div class="image-viewer-content" v-if="images.length">
         <div class="scorll" :style="scorllStyle">
@@ -16,7 +16,7 @@
         </div>
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
-          <ICDownload @click="openFile(images[index])"></ICDownload>
+          <svg-icon style="font-size: 1.5rem" icon-class="download" @click="openFile(images[index])" />
         </div>
         <div class="image-viewer-content-prev" @click="imgChange('prev')"></div>
         <div class="image-viewer-content-next" @click="imgChange('next')"></div>
@@ -42,14 +42,8 @@
 <script>
 import fs from 'fs'
 import path from 'path'
-import ICClose from '@/assets/images/ic_close_white.svg'
-import ICDownload from '@/assets/images/download.svg'
 export default {
   name: 'imageViewer',
-  components: {
-    ICClose,
-    ICDownload
-  },
   data() {
     return {
       config: {

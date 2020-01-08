@@ -12,19 +12,19 @@
       </BadgeItem>
       <span class="time">
         {{message.lt}}
-        <ICSending
+        <svg-icon icon-class="ic_status_clock"
           v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
           class="icon"
         />
-        <ICSend
+        <svg-icon icon-class="ic_status_send"
           v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
           class="icon"
         />
-        <ICRead
+        <svg-icon icon-class="ic_status_read"
           v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
           class="icon wait"
         />
-        <ICRead
+        <svg-icon icon-class="ic_status_read"
           v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
           class="icon"
         />
@@ -34,9 +34,6 @@
 </template>
 <script>
 import { MessageStatus } from '@/utils/constants'
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
 import { getNameColorById } from '@/utils/util'
 import BadgeItem from './BadgeItem'
 export default {
@@ -47,9 +44,6 @@ export default {
     }
   },
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
     BadgeItem
   },
   methods: {
@@ -97,6 +91,8 @@ export default {
       padding-right: .4rem;
       font-size: 0.75rem;
       .icon {
+        width: .875rem;
+        height: .875rem;
         vertical-align: bottom;
       }
       .wait {

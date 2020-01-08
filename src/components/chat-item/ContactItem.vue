@@ -13,25 +13,25 @@
           <div class="content">
             <span class="name">
               <span>{{message.sharedUserFullName}}</span>
-              <ICRobot v-if="message.sharedUserAppId" />
+              <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="message.sharedUserAppId" />
             </span>
             <div class="bottom">
               <span class="number">{{message.sharedUserIdentityNumber}}</span>
               <span class="time">
                 {{message.lt}}
-                <ICSending
+                <svg-icon icon-class="ic_status_clock"
                   v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                   class="icon"
                 />
-                <ICSend
+                <svg-icon icon-class="ic_status_send"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                   class="icon"
                 />
-                <ICRead
+                <svg-icon icon-class="ic_status_read"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
                   class="icon wait"
                 />
-                <ICRead
+                <svg-icon icon-class="ic_status_read"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
                   class="icon"
                 />
@@ -46,10 +46,6 @@
 <script>
 import Avatar from '@/components/Avatar'
 import userDao from '@/dao/user_dao'
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
-import ICRobot from '@/assets/images/ic_robot.svg'
 import BadgeItem from './BadgeItem'
 
 import { MessageStatus } from '@/utils/constants'
@@ -58,10 +54,6 @@ export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
     Avatar,
-    ICSending,
-    ICSend,
-    ICRead,
-    ICRobot,
     BadgeItem
   },
   data: function() {
@@ -158,6 +150,8 @@ export default {
           right: 0.2rem;
           align-items: flex-end;
           .icon {
+            width: .875rem;
+            height: .875rem;
             padding-left: 0.2rem;
           }
           .wait {

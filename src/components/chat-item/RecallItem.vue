@@ -13,7 +13,7 @@
           @click="$emit('user-click')"
         >{{message.userFullName}}</span>
         <div class="recall">
-          <ICRecall></ICRecall>
+          <svg-icon icon-class="if_recall" />
           <I class="text">{{getContent}}</I>
           <span class="time-place"></span>
           <span class="time">{{message.lt}}</span>
@@ -23,13 +23,11 @@
   </div>
 </template>
 <script>
-import ICRecall from '@/assets/images/if_recall.svg'
 import BadgeItem from './BadgeItem'
 import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICRecall,
     BadgeItem
   },
   computed: {

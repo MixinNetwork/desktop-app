@@ -3,12 +3,12 @@
     <div class="title-bar">
       <div>
         <div class="album" :class="{on: 'history' === currentAlbumId}">
-          <ICHistory @click="changeTab('history')" />
+          <svg-icon icon-class="ic_history" @click="changeTab('history')" />
         </div>
       </div>
       <div>
         <div class="album" :class="{on: 'like' === currentAlbumId}">
-          <ICLike @click="changeTab('like')" />
+          <svg-icon icon-class="ic_like" @click="changeTab('like')" />
         </div>
       </div>
       <div
@@ -34,17 +34,11 @@
 </template>
 <script>
 import { mapGetters } from 'vuex'
-import ICHistory from '@/assets/images/ic_history.svg'
-import ICLike from '@/assets/images/ic_like.svg'
 
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
 
 export default {
-  components: {
-    ICHistory,
-    ICLike
-  },
   data() {
     return {
       albums: [],

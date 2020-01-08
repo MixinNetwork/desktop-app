@@ -29,19 +29,19 @@
           <div class="bottom">
             <span class="time">
               {{message.lt}}
-              <ICSending
+              <svg-icon icon-class="ic_status_clock"
                 v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                 class="icon"
               />
-              <ICSend
+              <svg-icon icon-class="ic_status_send"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                 class="icon"
               />
-              <ICRead
+              <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
                 class="icon wait"
               />
-              <ICRead
+              <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
                 class="icon"
               />
@@ -55,9 +55,6 @@
 <script>
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
@@ -67,9 +64,6 @@ let maxHeight = convertRemToPixels(15)
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
     BadgeItem,
     spinner,
     AttachmentIcon
@@ -180,6 +174,8 @@ export default {
         right: 0.2rem;
         align-items: flex-end;
         .icon {
+          width: .875rem;
+          height: .875rem;
           padding-left: 0.2rem;
         }
         .wait {

@@ -11,10 +11,10 @@
         <div class="content">
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
-              <ICDown v-if="audioStatus === 'wait'" @click="downloadAudio" />
+              <svg-icon icon-class="arrow-down" v-if="audioStatus === 'wait'" @click="downloadAudio" />
               <spinner class="loading" v-if="audioStatus === 'loading'"></spinner>
-              <ICPlay v-if="audioStatus === 'play'" @click="playAudio" />
-              <ICPause v-if="audioStatus === 'pause'" @click="playAudio" />
+              <svg-icon icon-class="ic_audio_play" v-if="audioStatus === 'play'" @click="playAudio" />
+              <svg-icon icon-class="ic_audio_pause" v-if="audioStatus === 'pause'" @click="playAudio" />
             </span>
             <!-- <span class="audio-time">{{time}}</span> -->
             <div class="progress-box">
@@ -39,19 +39,19 @@
           </div>
           <div class="time">
             {{message.lt}}
-            <ICSending
+            <svg-icon icon-class="ic_status_clock"
               v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
               class="icon"
             />
-            <ICSend
+            <svg-icon icon-class="ic_status_send"
               v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
               class="icon"
             />
-            <ICRead
+            <svg-icon icon-class="ic_status_read"
               v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
               class="icon wait"
             />
-            <ICRead
+            <svg-icon icon-class="ic_status_read"
               v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
               class="icon"
             />
@@ -62,12 +62,6 @@
   </div>
 </template>
 <script>
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
-import ICDown from '@/assets/images/arrow-down.svg'
-import ICPlay from '@/assets/images/ic_audio_play.svg'
-import ICPause from '@/assets/images/ic_audio_pause.svg'
 import spinner from '@/components/Spinner.vue'
 import BadgeItem from './BadgeItem'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
@@ -76,12 +70,6 @@ import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
-    ICDown,
-    ICPlay,
-    ICPause,
     spinner,
     BadgeItem
   },
@@ -286,6 +274,8 @@ export default {
       bottom: 0.3rem;
       right: 0.2rem;
       .icon {
+        width: .875rem;
+        height: .875rem;
         vertical-align: bottom;
       }
       .wait {

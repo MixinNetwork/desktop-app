@@ -1,13 +1,13 @@
 <template>
   <div class="file_layout">
     <div class="header" @click="$emit('onClose')">
-      <ICClose />
+      <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImage" />
       <div class="file" v-else>
-        <ICFile />
+        <svg-icon icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
       </div>
     </div>
@@ -22,17 +22,11 @@
 </template>
 
 <script>
-import ICClose from '@/assets/images/ic_close.svg'
-import ICFile from '@/assets/images/ic_file.svg'
 import { isImage } from '@/utils/attachment_util'
 import path from 'path'
 export default {
   name: 'FileContainer',
   props: ['file', 'dragging'],
-  components: {
-    ICClose,
-    ICFile
-  },
   methods: {
     getPath() {
       if (this.file) {

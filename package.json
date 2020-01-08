@@ -37,6 +37,7 @@
     "qrious": "^4.0.2",
     "robust-websocket": "1.0.0",
     "sequential-task-queue": "^1.2.1",
+    "svg-sprite-loader": "^4.1.6",
     "urijs": "^1.19.2",
     "url-parse": "^1.4.7",
     "uuid": "^3.3.3",
@@ -70,7 +71,6 @@
     "sass-loader": "^8.0.0",
     "typescript": "~3.5.3",
     "vue-cli-plugin-electron-builder": "^1.4.4",
-    "vue-svg-loader": "^0.15.0",
     "vue-template-compiler": "^2.6.11"
   },
   "main": "background.js",

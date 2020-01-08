@@ -2,7 +2,7 @@
   <div class="chat-search">
     <header class="title-bar">
       <div @click="$emit('close')">
-        <ICClose />
+        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       </div>
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
@@ -30,13 +30,11 @@
 <script>
 import Search from '@/components/Search.vue'
 import SearchItem from '@/components/SearchItem.vue'
-import ICClose from '@/assets/images/ic_close.svg'
 import messageDao from '@/dao/message_dao'
 import { mapGetters } from 'vuex'
 
 export default {
   components: {
-    ICClose,
     SearchItem,
     Search
   },

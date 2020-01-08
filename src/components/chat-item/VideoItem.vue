@@ -13,19 +13,19 @@
           <div class="bottom">
             <span class="time">
               {{message.lt}}
-              <ICSending
+              <svg-icon icon-class="ic_status_clock"
                 v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                 class="icon"
               />
-              <ICSend
+              <svg-icon icon-class="ic_status_send"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                 class="icon"
               />
-              <ICRead
+              <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
                 class="icon wait"
               />
-              <ICRead
+              <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
                 class="icon"
               />
@@ -37,9 +37,6 @@
   </div>
 </template>
 <script>
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
 import { MessageStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
@@ -47,9 +44,6 @@ import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
     BadgeItem
   },
   data: function() {
@@ -131,6 +125,8 @@ export default {
         right: 0.2rem;
         align-items: flex-end;
         .icon {
+          width: .875rem;
+          height: .875rem;
           padding-left: 0.2rem;
         }
         .wait {

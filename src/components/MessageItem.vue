@@ -161,10 +161,10 @@
           <span class="time-place"></span>
           <span class="time">
             {{message.lt}}
-            <ICSending v-if="message.status === MessageStatus.SENDING" class="icon" />
-            <ICSend v-else-if="message.status === MessageStatus.SENT" class="icon" />
-            <ICRead v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait" />
-            <ICRead v-else-if="message.status === MessageStatus.READ" class="icon" />
+            <svg-icon icon-class="ic_status_clock"  v-if="message.status === MessageStatus.SENDING" class="icon" />
+            <svg-icon icon-class="ic_status_send" v-else-if="message.status === MessageStatus.SENT" class="icon" />
+            <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait" />
+            <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.READ" class="icon" />
           </span>
         </div>
       </BadgeItem>
@@ -182,10 +182,6 @@ import {
   canRecall,
   MediaStatus
 } from '@/utils/constants'
-
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
 
 import ReplyMessageItem from './chat-item/ReplyMessageItem'
 import TransferItem from './chat-item/TransferItem'
@@ -211,9 +207,6 @@ export default {
   name: 'MessageItem',
   props: ['conversation', 'message', 'me', 'prev', 'unread', 'searchKeyword'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
     ReplyMessageItem,
     TransferItem,
     ContactItem,
@@ -576,6 +569,8 @@ li {
     align-items: flex-end;
   }
   .icon {
+    width: .875rem;
+    height: .875rem;
     padding-left: 0.2rem;
   }
 }

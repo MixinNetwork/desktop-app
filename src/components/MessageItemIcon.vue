@@ -1,5 +1,5 @@
 <template>
-  <div class="icon">
+  <div class="message-item">
     <img v-if="url" :src="url" />
   </div>
 </template>
@@ -13,7 +13,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.icon {
+.message-item {
   width: 40px;
   height: 40px;
   margin-right: 12px;

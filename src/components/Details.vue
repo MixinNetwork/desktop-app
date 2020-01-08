@@ -2,7 +2,7 @@
   <div id="delails_root">
     <header class="title_bar">
       <div @click="$emit('close')">
-        <ICClose />
+        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       </div>
       <div class="title_content">{{$t('profile.title')}}</div>
     </header>
@@ -37,14 +37,12 @@
 </template>
 <script>
 import UserItem from '@/components/UserItem.vue'
-import ICClose from '@/assets/images/ic_close.svg'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'
 import { ConversationCategory } from '@/utils/constants'
 export default {
   components: {
-    ICClose,
     Avatar,
     UserItem
   },

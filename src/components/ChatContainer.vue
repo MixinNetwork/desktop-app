@@ -11,14 +11,14 @@
         </div>
       </div>
       <div class="search" @click="chatSearch">
-        <ICSearch />
+        <svg-icon icon-class="ic_search" />
       </div>
       <div class="attachment" @click="chooseAttachment">
         <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
-        <ICAttach style="margin-top: 3px" />
+        <svg-icon icon-class="ic_attach" />
       </div>
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
-        <ICBot />
+        <svg-icon icon-class="ic_bot" />
       </div>
       <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
     </header>
@@ -63,7 +63,7 @@
     <transition name="fade">
       <div class="floating" v-show="conversation && !isBottom" @click="goBottomClick">
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
-        <ICChevronDown />
+        <svg-icon style="font-size: 1.8rem" icon-class="chevron-down" />
       </div>
     </transition>
     <ReplyMessageContainer
@@ -80,8 +80,8 @@
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
         <div class="sticker" @click.stop="chooseSticker">
-          <ICEmoticonOn v-if="stickerChoosing" />
-          <ICEmoticon v-else />
+          <svg-icon icon-class="ic_emoticon_on" v-if="stickerChoosing" />
+          <svg-icon icon-class="ic_emoticon" v-else />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
           <div class="ul editable">
@@ -99,7 +99,7 @@
         </mixin-scrollbar>
 
         <div class="send" @click="sendMessage">
-          <ICSend />
+          <svg-icon icon-class="ic_send" />
         </div>
       </div>
     </div>
@@ -163,15 +163,8 @@ import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 import conversationAPI from '@/api/conversation'
 import messageBox from '@/store/message_box'
-import ICBot from '@/assets/images/ic_bot.svg'
-import ICSearch from '@/assets/images/ic_search.svg'
-import ICSend from '@/assets/images/ic_send.svg'
-import ICAttach from '@/assets/images/ic_attach.svg'
-import ICEmoticon from '@/assets/images/ic_emoticon.svg'
-import ICEmoticonOn from '@/assets/images/ic_emoticon_on.svg'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
-import ICChevronDown from '@/assets/images/chevron-down.svg'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
 
 export default {
@@ -302,13 +295,6 @@ export default {
     TimeDivide,
     MessageItem,
     FileContainer,
-    ICBot,
-    ICSearch,
-    ICChevronDown,
-    ICSend,
-    ICAttach,
-    ICEmoticon,
-    ICEmoticonOn,
     ReplyMessageContainer,
     Editor
   },
@@ -841,11 +827,12 @@ export default {
       }
     }
     .bot,
-    .search {
+    .search,
+    .attachment {
       z-index: 1;
-      width: 32px;
-      height: 32px;
-      margin-right: 3px;
+      width: 2rem;
+      height: 2rem;
+      margin-right: .3rem;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -853,12 +840,17 @@ export default {
       flex-shrink: 0;
     }
     .search {
-      margin-right: 5px;
+      margin-right: .5rem;
+    }
+    .bot {
+      font-size: 1.25rem;
     }
     .attachment {
+      font-size: 1.05rem;
+      margin-right: .4rem;
       cursor: pointer;
       position: relative;
-      margin: 0 12px 0 9px;
+      overflow: hidden;
       input {
         position: absolute;
         opacity: 0;

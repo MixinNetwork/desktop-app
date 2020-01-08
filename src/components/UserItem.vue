@@ -5,7 +5,7 @@
       <div class="title">
         <div class="name">
           <span v-html="highlight(user.full_name)"></span>
-          <ICRobot v-if="user.app_id" />
+          <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="user.app_id" />
         </div>
         <span class="role" v-if="user.role">
           {{ $t({
@@ -22,12 +22,10 @@
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
-import ICRobot from '@/assets/images/ic_robot.svg'
 import contentUtil from '@/utils/content_util'
 export default {
   components: {
-    Avatar,
-    ICRobot
+    Avatar
   },
   name: 'UserItem',
   props: ['user', 'keyword'],

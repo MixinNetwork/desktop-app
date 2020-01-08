@@ -1,10 +1,10 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
     <div class="bar" v-show="show">
-      <ICClose class="icon" @click="close"></ICClose>
-      <ICMinimize class="icon" @click="minimize"></ICMinimize>
-      <ICUnPin class="icon" v-show="pin" @click="toggle"></ICUnPin>
-      <ICPin class="icon" v-show="!pin" @click="toggle"></ICPin>
+      <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
+      <svg-icon icon-class="ic_minimize" class="icon" @click="minimize" />
+      <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
+      <svg-icon icon-class="ic_pin" class="icon" v-show="!pin" @click="toggle" />
     </div>
   </div>
 </template>
@@ -12,22 +12,12 @@
 import Chimee from 'chimee'
 import ChimeeKernelHls from 'chimee-kernel-hls'
 import { ipcRenderer } from 'electron'
-import ICPin from '@/assets/images/ic_pin.svg'
-import ICUnPin from '@/assets/images/ic_unpin.svg'
-import ICClose from '@/assets/images/ic_player_close.svg'
-import ICMinimize from '@/assets/images/ic_minimize.svg'
 export default {
   data: function() {
     return {
       show: false,
       pin: false
     }
-  },
-  components: {
-    ICPin,
-    ICUnPin,
-    ICClose,
-    ICMinimize
   },
   watch: {
     pin(newPin) {

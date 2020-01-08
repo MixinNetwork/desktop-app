@@ -4,15 +4,15 @@
     <div class="layout">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
-        <ICRecall class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
-        <ICMessageAudio class="replay_icon" v-else-if="messageType() === 'audio'" />
-        <ICMessagePhoto class="replay_icon" v-else-if="messageType() === 'image'" />
-        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'video'" />
-        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'live'" />
-        <ICMessageFile class="replay_icon" v-else-if="messageType() === 'file'" />
-        <ICMessageContact class="replay_icon" v-else-if="messageType() === 'contact'" />
-        <ICMessageTransfer class="replay_icon" v-else-if="messageType() === 'transfer'" />
-        <ICMessageBotMenu
+        <svg-icon icon-class="if_recall" class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
+        <svg-icon icon-class="ic_message_audio" class="replay_icon" v-else-if="messageType() === 'audio'" />
+        <svg-icon icon-class="ic_message_photo" class="replay_icon" v-else-if="messageType() === 'image'" />
+        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'video'" />
+        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'live'" />
+        <svg-icon icon-class="ic_message_file" class="replay_icon" v-else-if="messageType() === 'file'" />
+        <svg-icon icon-class="ic_message_contact" class="replay_icon" v-else-if="messageType() === 'contact'" />
+        <svg-icon icon-class="ic_message_transfer" class="replay_icon" v-else-if="messageType() === 'transfer'" />
+        <svg-icon icon-class="ic_message_bot_menu"
           class="replay_icon"
           v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
         />
@@ -46,15 +46,7 @@
   </div>
 </template>
 <script>
-import ICRecall from '@/assets/images/if_recall.svg'
 import { getNameColorById } from '@/utils/util'
-import ICMessageAudio from '@/assets/images/ic_message_audio.svg'
-import ICMessagePhoto from '@/assets/images/ic_message_photo.svg'
-import ICMessageVideo from '@/assets/images/ic_message_video.svg'
-import ICMessageFile from '@/assets/images/ic_message_file.svg'
-import ICMessageContact from '@/assets/images/ic_message_contact.svg'
-import ICMessageTransfer from '@/assets/images/ic_message_transfer.svg'
-import ICMessageBotMenu from '@/assets/images/ic_message_bot_menu.svg'
 import Avatar from '@/components/Avatar'
 import userDao from '@/dao/user_dao'
 export default {
@@ -63,14 +55,6 @@ export default {
     return {}
   },
   components: {
-    ICRecall,
-    ICMessageAudio,
-    ICMessagePhoto,
-    ICMessageVideo,
-    ICMessageFile,
-    ICMessageContact,
-    ICMessageTransfer,
-    ICMessageBotMenu,
     Avatar
   },
   computed: {

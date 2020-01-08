@@ -12,7 +12,7 @@
       <div class="title">
         <div class="username">
           <span>{{conversation.groupName?conversation.groupName:conversation.name}}</span>
-          <ICRobot v-if="conversation.appId" />
+          <svg-icon style="width: 0.875rem" icon-class="ic_robot" v-if="conversation.appId" />
         </div>
         <div class="time">{{timeAgo}}</div>
       </div>
@@ -21,19 +21,19 @@
           class="layout"
           v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
         >
-          <ICSending
+          <svg-icon icon-class="ic_status_clock"
             v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
             class="icon"
           />
-          <ICSend
+          <svg-icon icon-class="ic_status_send"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.SENT"
             class="icon"
           />
-          <ICRead
+          <svg-icon icon-class="ic_status_read"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.DELIVERED"
             class="icon wait"
           />
-          <ICRead
+          <svg-icon icon-class="ic_status_read"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.READ"
             class="icon"
           />
@@ -43,8 +43,8 @@
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
-        <ICMute v-if="this.isMute()" class="mute_icon" />
-        <ICPin v-if="conversation.pinTime" class="icon" />
+        <svg-icon icon-class="ic_mute" v-if="this.isMute()" class="mute_icon" />
+        <svg-icon icon-class="ic_pin_top" v-if="conversation.pinTime" class="icon" />
         <transition name="slide-right">
           <a
             @click.stop="$emit('item-menu-click',conversation)"
@@ -52,8 +52,9 @@
             @blur="onBlur"
             href="javascript:void(0)"
             v-show="show || fouse"
+            class="down"
           >
-            <font-awesome-icon class="down" icon="chevron-down" />
+            <font-awesome-icon icon="chevron-down" />
           </a>
         </transition>
       </div>
@@ -65,24 +66,12 @@
 import contentUtil from '@/utils/content_util'
 import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICPin from '@/assets/images/ic_pin_top.svg'
-import ICRobot from '@/assets/images/ic_robot.svg'
-import ICMute from '@/assets/images/ic_mute.svg'
 
 export default {
   name: 'ConversationItem',
   props: ['conversation', 'mouseEve'],
   components: {
-    Avatar,
-    ICSending,
-    ICSend,
-    ICRead,
-    ICPin,
-    ICRobot,
-    ICMute
+    Avatar
   },
   computed: {
     timeAgo: function() {
@@ -273,6 +262,8 @@ li.conversation.item {
         display: flex;
         align-items: center;
         .icon {
+          width: .875rem;
+          height: .875rem;
           margin-right: 3px;
         }
       }

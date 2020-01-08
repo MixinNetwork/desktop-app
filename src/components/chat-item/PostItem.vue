@@ -1,11 +1,13 @@
 <template>
   <div class="post-item layout" :class="messageOwnership()">
-    <span
-      class="username"
-      v-if="showName"
-      :style="{color: getColor(message.userId)}"
-      @click="$emit('user-click')"
-    >{{message.userFullName}}</span>
+    <div class="item-title">
+      <span
+        class="username"
+        v-if="showName"
+        :style="{color: getColor(message.userId)}"
+        @click="$emit('user-click')"
+      >{{message.userFullName}}</span>
+    </div>
     <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
       <div class="content">
         <div class="post">
@@ -83,6 +85,7 @@ export default {
   display: flex;
   margin-left: 0.8rem;
   margin-right: 0.8rem;
+  flex-direction: column;
   .username {
     display: inline-block;
     font-size: 0.85rem;
@@ -90,14 +93,13 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    margin-left: 0.4rem;
     min-width: 2rem;
     min-height: 0.85rem;
   }
-  .layout {
+  .item-title, .layout {
     max-width: 30rem;
     width: 100%;
+    flex: 1;
   }
   .content {
     flex-direction: column;
@@ -106,7 +108,7 @@ export default {
 
     .post {
       box-sizing: border-box;
-      height: 6rem;
+      height: 10rem;
 
       font-size: 0.75rem;
       border-radius: 0.2rem;
@@ -141,10 +143,7 @@ export default {
     }
   }
   &.send {
-    flex-direction: row-reverse;
-  }
-  &.receive {
-    flex-direction: row;
+    align-items: flex-end;
   }
 }
 </style>

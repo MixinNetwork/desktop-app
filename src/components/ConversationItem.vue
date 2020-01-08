@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { timeAgo } from '@/utils/util'
+import contentUtil from '@/utils/content_util'
 import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
 import ICSend from '@/assets/images/ic_status_send.svg'
@@ -86,7 +86,7 @@ export default {
   },
   computed: {
     timeAgo: function() {
-      return timeAgo(this.conversation.createdAt)
+      return contentUtil.renderTime(this.conversation.createdAt, true)
     },
     description: function() {
       const { conversation } = this

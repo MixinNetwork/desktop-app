@@ -76,38 +76,6 @@ export const readArrayBuffer = data => {
   })
 }
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December'
-]
-
-export function timeAgo(time) {
-  const date = new Date(time)
-  const now = new Date()
-  const offset = now - date
-  if (offset > 7 * 24 * 60 * 60 * 1000) {
-    return months[date.getMonth]
-  } else if (offset > 24 * 60 * 60 * 1000) {
-    return days[date.getDay]
-  } else if (date.getDay !== now.getDay) {
-    return 'Yesterday'
-  } else {
-    return moment(time).format('HH:mm')
-  }
-}
-
 export function base64ToUint8Array(base64) {
   const binaryString = window.atob(base64)
   const len = binaryString.length

@@ -1,41 +1,39 @@
 <template>
-  <div class="layout" :class="messageOwnership()">
-    <div>
-      <span
-        class="username"
-        v-if="showName"
-        :style="{color: getColor(message.userId)}"
-        @click="$emit('user-click')"
-      >{{message.userFullName}}</span>
-      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content">
-          <div class="post">
-            <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
-          </div>
-          <div class="bottom">
-            <span class="time">
-              {{message.lt}}
-              <ICSending
-                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-                class="icon"
-              />
-              <ICSend
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                class="icon"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                class="icon"
-              />
-            </span>
-          </div>
+  <div class="post-item layout" :class="messageOwnership()">
+    <span
+      class="username"
+      v-if="showName"
+      :style="{color: getColor(message.userId)}"
+      @click="$emit('user-click')"
+    >{{message.userFullName}}</span>
+    <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+      <div class="content">
+        <div class="post">
+          <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
         </div>
-      </BadgeItem>
-    </div>
+        <div class="bottom">
+          <span class="time">
+            {{message.lt}}
+            <ICSending
+              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
+              class="icon"
+            />
+            <ICSend
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+              class="icon"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+              class="icon wait"
+            />
+            <ICRead
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+              class="icon"
+            />
+          </span>
+        </div>
+      </div>
+    </BadgeItem>
   </div>
 </template>
 <script>
@@ -81,10 +79,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.layout {
+.post-item {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.8rem;
+  margin-right: 0.8rem;
   .username {
     display: inline-block;
     font-size: 0.85rem;
@@ -97,15 +95,17 @@ export default {
     min-width: 2rem;
     min-height: 0.85rem;
   }
+  .layout {
+    max-width: 30rem;
+    width: 100%;
+  }
   .content {
-    display: flex;
-    flex: 1;
     flex-direction: column;
     text-align: start;
     overflow: hidden;
 
     .post {
-      width: 30rem;
+      box-sizing: border-box;
       height: 6rem;
 
       font-size: 0.75rem;
@@ -140,11 +140,11 @@ export default {
       }
     }
   }
-}
-.layout.send {
-  flex-direction: row-reverse;
-}
-.layout.receive {
-  flex-direction: row;
+  &.send {
+    flex-direction: row-reverse;
+  }
+  &.receive {
+    flex-direction: row;
+  }
 }
 </style>

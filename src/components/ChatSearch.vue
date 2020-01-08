@@ -21,6 +21,7 @@
           ></SearchItem>
         </div>
         <div class="notify" v-else-if="keyword">{{$t(searching ? 'chat.searching' : 'chat.search_empty')}}</div>
+        <div class="notify" v-else-if="conversation.category === 'GROUP'">{{$t('chat.search_group_notify', { 0: conversation.groupName })}}</div>
         <div class="notify" v-else>{{$t('chat.search_notify', { 0: conversation.name })}}</div>
       </div>
     </mixin-scrollbar>

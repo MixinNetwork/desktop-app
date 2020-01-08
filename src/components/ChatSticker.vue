@@ -67,6 +67,7 @@ export default {
           this.albums.forEach(item => {
             stickerDao.insertAlbum(item)
           })
+          this.albums = stickerDao.getStickerAlbums()
           this.albumPos()
         }
       })
@@ -80,7 +81,7 @@ export default {
       const list = stickerDao.getLastUseStickers()
       if (!list || (list && list.length === 0)) {
         setTimeout(() => {
-          const albumId = this.albums[1].album_id
+          const albumId = this.albums[0].album_id
           this.getStickers(albumId)
           this.changeTab(albumId)
         })
@@ -112,9 +113,8 @@ export default {
           this.stickers = []
         }
       } else if (id === 'like') {
-        if (this.albums[0]) {
-          this.getStickers(this.albums[0].album_id)
-        }
+        const albums = stickerDao.getStickerAlbums('PERSONAL')
+        this.getStickers(albums[0].album_id)
       } else if (id) {
         this.getStickers(id)
       }

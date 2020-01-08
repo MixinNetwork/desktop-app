@@ -57,9 +57,9 @@ import ICSend from '@/assets/images/ic_status_send.svg'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
-import { MessageStatus, MediaStatus } from '@/utils/constants.js'
+import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {

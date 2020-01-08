@@ -20,7 +20,7 @@
   </div>
 </template>
 <script>
-import browser from '@/utils/browser.js'
+import browser from '@/utils/browser'
 import { mapGetters } from 'vuex'
 import { ipcRenderer } from 'electron'
 export default {

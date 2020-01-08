@@ -9,16 +9,9 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <div class="set" :style="borderSet(message)">
-            <img
-              class="image"
-              :style="borderSetObject(message)"
-              :src="message.thumbUrl"
-              @click="$emit('liveClick')"
-            />
-            <ICPlay class="play" @click="$emit('liveClick')"></ICPlay>
+          <div class="post">
+            <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
           </div>
-          <span class="tag">LIVE</span>
           <div class="bottom">
             <span class="time">
               {{message.lt}}
@@ -49,21 +42,19 @@
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
-import ICPlay from '@/assets/images/ic_play.svg'
 import BadgeItem from './BadgeItem'
+import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
-import { getNameColorById, convertRemToPixels } from '@/utils/util'
-let maxWidth = convertRemToPixels(10)
-let maxHeight = convertRemToPixels(15)
+import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
     ICSending,
     ICSend,
     ICRead,
-    ICPlay,
-    BadgeItem
+    BadgeItem,
+    VueMarkdown
   },
   data: function() {
     return {
@@ -80,22 +71,6 @@ export default {
     },
     getColor: function(id) {
       return getNameColorById(id)
-    },
-    borderSet: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return 'width-set'
-      }
-      return 'height-set'
-    },
-
-    borderSetObject: message => {
-      const width = Math.min(message.mediaWidth, maxWidth)
-      const scale = message.mediaWidth / message.mediaHeight
-      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return { width: `${width}px`, height: `${width / scale}px` }
-      }
-      const height = Math.min(message.mediaHeight, maxHeight)
-      return { width: `${height * scale}px`, height: `${height}px` }
     }
   },
   computed: {
@@ -108,73 +83,44 @@ export default {
 <style lang="scss" scoped>
 .layout {
   display: flex;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .username {
     display: inline-block;
     font-size: 0.85rem;
-    max-width: 80%;
-    margin-left: 0.8rem;
+    max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     margin-bottom: 0.2rem;
+    margin-left: 0.4rem;
     min-width: 2rem;
     min-height: 0.85rem;
   }
   .content {
     display: flex;
     flex: 1;
-    position: relative;
     flex-direction: column;
     text-align: start;
     overflow: hidden;
-    .tag {
-      position: absolute;
-      margin-left: 1rem;
-      margin-top: 0.2rem;
-      padding-left: 3px;
-      padding-right: 3px;
-      padding-top: 1px;
-      padding-bottom: 1px;
-      color: white;
-      background: #ec4f7d;
-      font-size: 0.6rem;
-      border-radius: 0.1rem;
-    }
-    .play {
-      width: 30px;
-      height: 30px;
-      position: absolute;
-      margin: auto;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      z-index: 10;
-    }
-    .loading {
-      width: 32px;
-      height: 32px;
-      left: 50%;
-      top: 50%;
-      position: absolute;
-      transform: translate(-50%, -50%);
-      z-index: 3;
-    }
-    .set {
-      max-width: 10rem;
-      max-height: 15rem;
-      margin-left: 0.8rem;
-      margin-right: 0.8rem;
-      overflow: hidden;
-      position: relative;
-      .image {
-        border-radius: 0.2rem;
+
+    .post {
+      width: 30rem;
+      height: 6rem;
+
+      font-size: 0.75rem;
+      border-radius: 0.2rem;
+      background-color: white;
+      padding: 1rem;
+      .inner {
+        height: 100%;
+        word-break: break-word;
+        overflow: hidden;
       }
     }
     .bottom {
       display: flex;
       justify-content: flex-end;
-      margin-right: 0.8rem;
       .time {
         color: #8799a5;
         display: flex;

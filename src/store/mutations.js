@@ -1,10 +1,10 @@
 import Vue from 'vue'
-import messageBox from '@/store/message_box.js'
+import messageBox from '@/store/message_box'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
-import { LinkStatus, ConversationCategory } from '@/utils/constants.js'
+import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
 function refreshConversations(state) {
   const conversations = conversationDao.getConversations()
@@ -142,6 +142,7 @@ export default {
   exit(state) {
     state.me = {}
     state.currentConversationId = null
+    state.editing = false
     state.conversations = {}
     state.conversationKeys = []
     state.friends = []
@@ -193,6 +194,7 @@ export default {
       refreshConversation(state, conversationId)
     }
     state.currentConversationId = conversationId
+    state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)
   },
   setCurrentAudio(state, audioMessage) {
@@ -231,6 +233,7 @@ export default {
     }
     if (state.currentConversationId === conversationId) {
       state.currentConversationId = null
+      state.editing = false
     }
   },
   refreshFriends(state) {
@@ -272,5 +275,8 @@ export default {
     state.attachment = arr.filter(item => {
       return item !== messageId
     })
+  },
+  toggleEditor(state) {
+    state.editing = !state.editing
   }
 }

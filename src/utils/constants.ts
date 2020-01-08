@@ -110,17 +110,17 @@ export const MessageStatus = {
   FAILED: 'FAILED'
 }
 
-export function canReply(type) {
+export function canReply(type: string) {
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||
-    type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_VIDEO ||
     type === MessageCategories.SIGNAL_AUDIO ||
     type === MessageCategories.SIGNAL_DATA ||
     type === MessageCategories.SIGNAL_STICKER ||
     type === MessageCategories.SIGNAL_CONTACT ||
     type === MessageCategories.SIGNAL_LIVE ||
+    type === MessageCategories.SIGNAL_POST ||
     type === MessageCategories.PLAIN_TEXT ||
     type === MessageCategories.PLAIN_IMAGE ||
     type === MessageCategories.PLAIN_VIDEO ||
@@ -128,11 +128,12 @@ export function canReply(type) {
     type === MessageCategories.PLAIN_DATA ||
     type === MessageCategories.PLAIN_STICKER ||
     type === MessageCategories.PLAIN_CONTACT ||
-    type === MessageCategories.PLAIN_LIVE
+    type === MessageCategories.PLAIN_LIVE ||
+    type === MessageCategories.PLAIN_POST
   )
 }
 
-export function canRecall(message, userId) {
+export function canRecall(message: { createdAt: string | number | Date; userId: any; type: any; status: string }, userId: any) {
   let offset = new Date().valueOf() - new Date(message.createdAt).valueOf()
   if (offset > 3600000) {
     return false
@@ -150,6 +151,7 @@ export const MessageCategories = {
   SIGNAL_STICKER: 'SIGNAL_STICKER',
   SIGNAL_CONTACT: 'SIGNAL_CONTACT',
   SIGNAL_LIVE: 'SIGNAL_LIVE',
+  SIGNAL_POST: 'SIGNAL_POST',
   PLAIN_TEXT: 'PLAIN_TEXT',
   PLAIN_IMAGE: 'PLAIN_IMAGE',
   PLAIN_VIDEO: 'PLAIN_VIDEO',
@@ -158,6 +160,7 @@ export const MessageCategories = {
   PLAIN_STICKER: 'PLAIN_STICKER',
   PLAIN_CONTACT: 'PLAIN_CONTACT',
   PLAIN_LIVE: 'PLAIN_LIVE',
+  PLAIN_POST: 'PLAIN_POST',
   PLAIN_JSON: 'PLAIN_JSON',
   SYSTEM_CONVERSATION: 'SYSTEM_CONVERSATION',
   SYSTEM_ACCOUNT_SNAPSHOT: 'SYSTEM_ACCOUNT_SNAPSHOT',

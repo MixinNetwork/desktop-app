@@ -13,7 +13,7 @@
   </li>
 </template>
 <script>
-import contentUtil from '@/utils/content_util.js'
+import contentUtil from '@/utils/content_util'
 import Avatar from '@/components/Avatar.vue'
 
 export default {

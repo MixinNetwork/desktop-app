@@ -5,7 +5,6 @@ import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-buil
 import { autoUpdater } from 'electron-updater'
 import { setFocusWindow } from './updater'
 import { initPlayer } from './player'
-import path from 'path'
 
 ipcMain.on('checkUp', (event, _) => {
   autoUpdater.checkForUpdates()
@@ -14,7 +13,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let win: BrowserWindow | null
+
+let quitting = false
 
 // Standard scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -28,7 +29,7 @@ function createWindow() {
     minWidth: 700,
     minHeight: 500,
     // eslint-disable-next-line no-undef
-    icon: path.join(__static, 'icon.png'),
+    icon: 'app://./icon.png',
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
@@ -47,8 +48,8 @@ function createWindow() {
   }
 
   win.on('close', async e => {
-    if (process.platform === 'darwin') {
-      if (app.quitting) {
+    if (process.platform === 'darwin' && win !== null) {
+      if (quitting) {
         win = null
       } else {
         e.preventDefault()
@@ -104,7 +105,7 @@ app.on('activate', () => {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
+app.on('ready', async() => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
@@ -117,7 +118,7 @@ app.on('ready', async () => {
 })
 
 app.on('before-quit', () => {
-  app.quitting = true
+  quitting = true
 })
 
 // Exit cleanly on request from parent process in development mode.

@@ -25,7 +25,7 @@
 <script>
 import ICRecall from '@/assets/images/if_recall.svg'
 import BadgeItem from './BadgeItem'
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {

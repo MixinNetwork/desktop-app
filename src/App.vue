@@ -12,7 +12,7 @@
 </template>
 <script>
 import spinner from '@/components/Spinner.vue'
-import accountApi from '@/api/account.js'
+import accountApi from '@/api/account'
 import { mapGetters } from 'vuex'
 export default {
   components: {

@@ -62,8 +62,8 @@
 </template>
 
 <script>
-import { timeAgo } from '@/utils/util.js'
-import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants.js'
+import { timeAgo } from '@/utils/util'
+import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
@@ -136,6 +136,8 @@ export default {
         return this.getMessageName() + this.$t('chat.chat_video')
       } else if (conversation.contentType && conversation.contentType.endsWith('_LIVE')) {
         return this.getMessageName() + this.$t('chat.chat_live')
+      } else if (conversation.contentType && conversation.contentType.endsWith('_POST')) {
+        return this.getMessageName() + this.$t('chat.chat_post')
       } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
         if (conversation.contentType === 'APP_CARD') {
           return this.getMessageName() + this.$t('chat.chat_app_card')

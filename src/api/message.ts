@@ -1,7 +1,7 @@
-import api from '@/api/base.js'
+import api from '@/api/base'
 
 export default {
-  acknowledgements(body) {
+  acknowledgements(body: any) {
     return api.post('/acknowledgements', body)
   }
 }

@@ -59,9 +59,9 @@ import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
 import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
-import { MessageStatus, MediaStatus } from '@/utils/constants.js'
+import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
-import { getNameColorById, convertRemToPixels } from '@/utils/util.js'
+import { getNameColorById, convertRemToPixels } from '@/utils/util'
 let maxWidth = convertRemToPixels(10)
 let maxHeight = convertRemToPixels(15)
 export default {

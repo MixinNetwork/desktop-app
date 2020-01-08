@@ -1,7 +1,7 @@
-import api from '@/api/base.js'
+import api from '@/api/base'
 
 export default {
-  getAttachment(id) {
+  getAttachment(id: string) {
     return api.get('/attachments/' + id)
   }
 }

@@ -1,10 +1,10 @@
 import { remote } from 'electron'
 let { BrowserWindow } = remote
 
-let browser = null
+let browser: Electron.BrowserWindow | null = null
 
 export default {
-  loadURL(url) {
+  loadURL(url: any) {
     if (!browser) {
       browser = new BrowserWindow({
         resizable: false,

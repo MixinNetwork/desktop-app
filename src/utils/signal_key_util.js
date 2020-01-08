@@ -1,6 +1,6 @@
-import signalAPI from '@/api/signal.js'
-import signalProtocol from '@/crypto/signal.js'
-import signalDao from '@/crypto/signal_dao.js'
+import signalAPI from '@/api/signal'
+import signalProtocol from '@/crypto/signal'
+import signalDao from '@/crypto/signal_dao'
 
 async function refresh() {
   const response = await signalAPI.postSignalKeys(generateKeys())

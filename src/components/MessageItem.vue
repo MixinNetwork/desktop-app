@@ -102,6 +102,16 @@
       @liveClick="liveClick"
     ></LiveItem>
 
+    <PostItem
+      v-else-if="message.type.endsWith('_POST')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :coversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></PostItem>
+
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -171,7 +181,7 @@ import {
   canReply,
   canRecall,
   MediaStatus
-} from '@/utils/constants.js'
+} from '@/utils/constants'
 
 import ICSending from '@/assets/images/ic_status_clock.svg'
 import ICSend from '@/assets/images/ic_status_send.svg'
@@ -181,6 +191,7 @@ import ReplyMessageItem from './chat-item/ReplyMessageItem'
 import TransferItem from './chat-item/TransferItem'
 import ContactItem from './chat-item/ContactItem'
 import FileItem from './chat-item/FileItem'
+import PostItem from './chat-item/PostItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
 import ImageItem from './chat-item/ImageItem'
@@ -189,11 +200,11 @@ import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
 import BadgeItem from './chat-item/BadgeItem'
 
-import messageDao from '@/dao/message_dao.js'
+import messageDao from '@/dao/message_dao'
 
-import { getNameColorById } from '@/utils/util.js'
+import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
-import contentUtil from '@/utils/content_util.js'
+import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -213,7 +224,8 @@ export default {
     StickerItem,
     RecallItem,
     BadgeItem,
-    LiveItem
+    LiveItem,
+    PostItem
   },
   data: function() {
     return {

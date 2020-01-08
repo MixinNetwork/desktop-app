@@ -1,14 +1,14 @@
 import RobustWebSocket from 'robust-websocket'
-import { getToken, readArrayBuffer } from '@/utils/util.js'
-import { MessageStatus, LinkStatus, API_URL } from '@/utils/constants.js'
-import { clearDb } from '@/persistence/db_util.js'
+import { getToken, readArrayBuffer } from '@/utils/util'
+import { MessageStatus, LinkStatus, API_URL } from '@/utils/constants'
+import { clearDb } from '@/persistence/db_util'
 import uuidv4 from 'uuid/v4'
 import pako from 'pako'
 import store from '@/store/store'
 import messageDao from '@/dao/message_dao'
 import jobDao from '@/dao/job_dao'
 import floodMessageDao from '@/dao/flood_message_dao'
-import accountApi from '@/api/account.js'
+import accountApi from '@/api/account'
 import router from '@/router'
 class Blaze {
   constructor() {

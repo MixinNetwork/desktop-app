@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import signalDb from '@/persistence/signal_db'
-import signalDao from './signal_dao.js'
-import {hexToBytes} from '@/utils/util.js'
+import signalDao from './signal_dao'
+import {hexToBytes} from '@/utils/util'
 
 class SignalProtocol {
   createKeyPair(privKey) {

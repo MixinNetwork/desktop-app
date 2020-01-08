@@ -2,14 +2,14 @@ import conversationDao from '@/dao/conversation_dao'
 import messageDao from '@/dao/message_dao'
 import stickerDao from '@/dao/sticker_dao'
 import userDao from '@/dao/user_dao'
-import participantDao from '@/dao/participant_dao.js'
+import participantDao from '@/dao/participant_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
-import { generateConversationId } from '@/utils/util.js'
-import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants.js'
+import { generateConversationId } from '@/utils/util'
+import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
-import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } from '@/utils/attachment_util.js'
+import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId) {
@@ -509,5 +509,8 @@ export default {
       run_count: 0
     })
     commit('refreshMessage', conversationId)
+  },
+  toggleEditor: ({ commit }) => {
+    commit('toggleEditor')
   }
 }

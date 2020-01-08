@@ -127,6 +127,14 @@
     <transition name="slide-right">
       <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
     </transition>
+    <transition name="slide-right">
+      <Editor
+        class="overlay"
+        v-if="editing"
+        :conversation="conversation"
+        :category="user.app_id ? 'PLAIN_POST' : 'SIGNAL_POST'"
+      ></Editor>
+    </transition>
   </main>
 </template>
 
@@ -138,29 +146,30 @@ import {
   MessageCategories,
   MessageStatus,
   MuteDuration
-} from '@/utils/constants.js'
-import contentUtil from '@/utils/content_util.js'
-import { isImage, base64ToImage } from '@/utils/attachment_util.js'
+} from '@/utils/constants'
+import contentUtil from '@/utils/content_util'
+import { isImage, base64ToImage } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
 import ChatSticker from '@/components/ChatSticker.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
+import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
-import userDao from '@/dao/user_dao.js'
-import conversationAPI from '@/api/conversation.js'
-import messageBox from '@/store/message_box.js'
+import userDao from '@/dao/user_dao'
+import conversationAPI from '@/api/conversation'
+import messageBox from '@/store/message_box'
 import ICBot from '@/assets/images/ic_bot.svg'
 import ICSearch from '@/assets/images/ic_search.svg'
 import ICSend from '@/assets/images/ic_send.svg'
 import ICAttach from '@/assets/images/ic_attach.svg'
 import ICEmoticon from '@/assets/images/ic_emoticon.svg'
 import ICEmoticonOn from '@/assets/images/ic_emoticon_on.svg'
-import browser from '@/utils/browser.js'
+import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
 import ICChevronDown from '@/assets/images/chevron-down.svg'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer'
@@ -279,6 +288,7 @@ export default {
             menu.push(chatMenu.mute)
           }
         }
+        // menu.push(chatMenu.create_post)
         this.menus = menu
       }
     }
@@ -299,13 +309,15 @@ export default {
     ICAttach,
     ICEmoticon,
     ICEmoticonOn,
-    ReplyMessageContainer
+    ReplyMessageContainer,
+    Editor
   },
   computed: {
     ...mapGetters({
       conversation: 'currentConversation',
       user: 'currentUser',
-      me: 'me'
+      me: 'me',
+      editing: 'editing'
     })
   },
   mounted() {
@@ -694,6 +706,8 @@ export default {
             console.log('cancel')
           }
         )
+      } else if (key === 'create_post') {
+        this.$store.dispatch('toggleEditor')
       }
     },
     onUserClick(userId) {

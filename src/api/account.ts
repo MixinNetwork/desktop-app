@@ -1,13 +1,13 @@
-import api from '@/api/base.js'
+import api from '@/api/base'
 
 export default {
-  getProvisioningId(deviceId) {
+  getProvisioningId(deviceId: any) {
     return api.post('/provisionings', { device: deviceId })
   },
-  getProvisioning(id) {
+  getProvisioning(id: string) {
     return api.get('/provisionings/' + id)
   },
-  verifyProvisioning(body) {
+  verifyProvisioning(body: any) {
     return api.post('/provisionings/verify', body)
   },
   getMe() {

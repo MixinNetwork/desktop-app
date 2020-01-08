@@ -4,7 +4,7 @@ import Vuex from 'vuex'
 import mutations from './mutations'
 import actions from './actions'
 import getters from './getters'
-import { LinkStatus } from '@/utils/constants.js'
+import { LinkStatus } from '@/utils/constants'
 
 Vue.use(Vuex)
 
@@ -27,6 +27,7 @@ const state = {
   },
   currentAudio: null,
   showTime: false,
+  editing: false,
   linkStatus: LinkStatus.CONNECTED
 }
 

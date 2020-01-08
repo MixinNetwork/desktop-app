@@ -20,8 +20,8 @@
             @search-click="onSearchClick"
           ></SearchItem>
         </div>
-        <div class="notify" v-else-if="keyword">{{searching?'正在搜索聊天 ...':'未搜索到相关记录'}}</div>
-        <div class="notify" v-else>{{`搜索和 ${conversation.name} 相关的记录`}}</div>
+        <div class="notify" v-else-if="keyword">{{$t(searching ? 'chat.searching' : 'chat.search_empty')}}</div>
+        <div class="notify" v-else>{{$t('chat.search_notify', { 0: conversation.name })}}</div>
       </div>
     </mixin-scrollbar>
   </div>

@@ -10,9 +10,9 @@
 <script>
 import ChatContainer from '@/components/ChatContainer.vue'
 import Navigation from '@/components/Navigation.vue'
-import accountApi from '@/api/account.js'
-import workerManager from '@/workers/worker_manager.js'
-import { LinkStatus } from '@/utils/constants.js'
+import accountApi from '@/api/account'
+import workerManager from '@/workers/worker_manager'
+import { LinkStatus } from '@/utils/constants'
 export default {
   name: 'home',
   data() {

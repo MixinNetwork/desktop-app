@@ -1,4 +1,4 @@
-import api from '@/api/base.js'
+import api from '@/api/base'
 
 export default {
   postSignalKeys(body) {

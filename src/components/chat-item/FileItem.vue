@@ -203,6 +203,7 @@ export default {
           margin-top: 0.375rem;
         }
         .time {
+          position: absolute;
           color: #8799a5;
           display: flex;
           float: right;

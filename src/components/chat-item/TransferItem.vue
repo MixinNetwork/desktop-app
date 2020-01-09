@@ -72,6 +72,7 @@ export default {
           min-height: 1rem;
         }
         .time {
+          position: absolute;
           color: #8799a5;
           display: flex;
           float: right;

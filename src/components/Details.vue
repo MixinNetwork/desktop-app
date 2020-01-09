@@ -15,7 +15,7 @@
           <span class="name">{{name}}</span>
           <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
           <div
-            v-if="conversation.announcement"
+            v-if="conversation.category === 'GROUP'"
             class="announcement"
             v-html="contentUtil.renderUrl(conversation.announcement)"
           ></div>
@@ -29,52 +29,64 @@
             :key="user.user_id"
             :user="user"
             :showRole="true"
+            @user-click="setConversation"
           ></UserItem>
         </div>
       </div>
     </mixin-scrollbar>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import {
+  Getter
+} from 'vuex-class'
+
 import UserItem from '@/components/UserItem.vue'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
-import { mapGetters } from 'vuex'
 import { ConversationCategory } from '@/utils/constants'
-export default {
+
+@Component({
   components: {
     Avatar,
     UserItem
-  },
-  data() {
-    return {
-      contentUtil
-    }
-  },
-  computed: {
-    participantTitle: function() {
-      const { conversation } = this
-      return this.$t('chat.title_participants', { '0': conversation.participants.length })
-    },
-    name: function() {
-      const { conversation } = this
-      if (conversation.groupName) {
-        return conversation.groupName
-      } else if (conversation.name) {
-        return conversation.name
-      } else {
-        return null
-      }
-    },
-    isContact: function() {
-      return this.conversation.category === ConversationCategory.CONTACT
-    },
-    ...mapGetters({
-      conversation: 'currentConversation',
-      user: 'currentUser'
+  }
+})
+export default class App extends Vue {
+  @Getter('currentConversation') conversation: any
+  @Getter('currentUser') user: any
+
+  contentUtil: any = contentUtil
+
+  setConversation(user: Object) {
+    this.$store.dispatch('createUserConversation', {
+      user
     })
-  },
-  mounted: async function() {
+  }
+
+  get participantTitle() {
+    const { conversation } = this
+    return this.$t('chat.title_participants', { '0': conversation.participants.length })
+  }
+
+  get name() {
+    const { conversation } = this
+    if (conversation.groupName) {
+      return conversation.groupName
+    } else if (conversation.name) {
+      return conversation.name
+    } else {
+      return null
+    }
+  }
+
+  get isContact() {
+    return this.conversation.category === ConversationCategory.CONTACT
+  }
+
+  mounted() {
     if (this.conversation.category === ConversationCategory.CONTACT) {
       this.$store.dispatch('refreshUser', {
         userId: this.conversation.ownerId,

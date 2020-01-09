@@ -22,9 +22,9 @@
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                 class="icon"
               />
-              <svg-icon icon-class="ic_status_read"
+              <svg-icon icon-class="ic_status_delivered"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
+                class="icon"
               />
               <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
@@ -132,11 +132,6 @@ export default {
           &.lock {
             width: .55rem;
             margin-right: 0.2rem;
-          }
-        }
-        .wait {
-          path {
-            fill: #859479;
           }
         }
       }

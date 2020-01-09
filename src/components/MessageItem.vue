@@ -164,7 +164,7 @@
             <span>{{message.lt}}</span>
             <svg-icon icon-class="ic_status_clock" v-if="message.status === MessageStatus.SENDING" class="icon" />
             <svg-icon icon-class="ic_status_send" v-else-if="message.status === MessageStatus.SENT" class="icon" />
-            <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait" />
+            <svg-icon icon-class="ic_status_delivered" v-else-if="message.status === MessageStatus.DELIVERED" class="icon" />
             <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.READ" class="icon" />
           </span>
         </div>
@@ -662,11 +662,6 @@ li {
       &:after {
         border-left: 0.6rem solid #cbe9ca;
       }
-    }
-  }
-  .wait {
-    path {
-      fill: #859479;
     }
   }
 }

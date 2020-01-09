@@ -29,9 +29,9 @@
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.SENT"
             class="icon"
           />
-          <svg-icon icon-class="ic_status_read"
+          <svg-icon icon-class="ic_status_delivered"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.DELIVERED"
-            class="icon wait"
+            class="icon"
           />
           <svg-icon icon-class="ic_status_read"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.READ"
@@ -293,11 +293,6 @@ li.conversation.item {
         font-size: 0.65rem;
         padding: 0.23rem 0.45rem;
         margin-right: 0.1875rem;
-      }
-      .wait {
-        path {
-          fill: #859479;
-        }
       }
     }
   }

@@ -85,11 +85,6 @@ export default {
             height: .875rem;
             padding-left: 0.2rem;
           }
-          .wait {
-            path {
-              fill: #859479;
-            }
-          }
         }
       }
     }

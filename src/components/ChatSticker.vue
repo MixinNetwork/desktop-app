@@ -153,7 +153,7 @@ export default {
         cursor: pointer;
       }
       img {
-        width: 20px;
+        width: 1.25rem;
       }
     }
     .album {

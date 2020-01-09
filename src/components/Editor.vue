@@ -61,7 +61,7 @@ export default {
   .title_bar {
     height: 3.6rem;
     display: flex;
-    padding: 0px 16px 0px 16px;
+    padding: 0px 1rem 0px 1rem;
     flex-flow: row nowrap;
     line-height: 0;
     align-items: center;

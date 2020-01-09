@@ -148,7 +148,7 @@ export default {
       color: white;
     }
     .emoji {
-      margin-left: 5px;
+      margin-left: 0.3125rem;
     }
   }
   .avatar-group[data-group-size='2'] .avatar:first-child,

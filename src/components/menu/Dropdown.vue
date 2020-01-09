@@ -67,7 +67,7 @@ export default {
 }
 .dropdown-toggle {
   display: flex;
-  padding: 8px;
-  border-radius: 20px;
+  padding: 0.5rem;
+  border-radius: 1.25rem;
 }
 </style>

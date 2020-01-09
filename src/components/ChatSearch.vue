@@ -91,26 +91,26 @@ export default {
     height: 3.6rem;
     display: flex;
     align-items: center;
-    padding: 0px 16px 0px 16px;
+    padding: 0px 1rem 0px 1rem;
     line-height: 0;
 
     .title-content {
-      margin-left: 16px;
+      margin-left: 1rem;
       font-weight: 500;
-      font-size: 16px;
+      font-size: 1rem;
     }
   }
   .search-bar {
     background: #f5f7fa;
     padding: 3px 0;
     .input {
-      width: calc(100% - 30px);
+      width: calc(100% - 1.875rem);
     }
   }
   .notify {
     text-align: center;
     color: #ccc;
-    margin-top: 30px;
+    margin-top: 1.875rem;
   }
 }
 </style>

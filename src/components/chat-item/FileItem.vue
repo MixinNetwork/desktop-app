@@ -152,7 +152,7 @@ export default {
     min-height: 0.85rem;
   }
   .file {
-    padding: 12px;
+    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -161,20 +161,20 @@ export default {
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     .loading {
-      width: 40px;
-      height: 40px;
-      margin-right: 12px;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-right: 0.75rem;
     }
     .ic {
-      margin-right: 12px;
+      margin-right: 0.75rem;
       background: #f2f2f6;
-      border-radius: 20px;
+      border-radius: 1.25rem;
       display: flex;
-      height: 40px;
+      height: 2.5rem;
       justify-content: center;
       align-items: center;
       .text {
-        width: 40px;
+        width: 2.5rem;
         color: #a5a5a4;
         text-align: center;
         font-size: 0.7rem;
@@ -199,7 +199,7 @@ export default {
         .number {
           color: #888888cc;
           font-size: 0.8rem;
-          margin-top: 6px;
+          margin-top: 0.375rem;
         }
         .time {
           color: #8799a5;

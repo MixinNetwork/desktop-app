@@ -14,10 +14,10 @@ export default {
 
 <style lang="scss" scoped>
 .message-item {
-  width: 40px;
-  height: 40px;
-  margin-right: 12px;
-  border-radius: 20px;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.75rem;
+  border-radius: 1.25rem;
   background: #f2f2f6;
   display: flex;
   justify-content: center;

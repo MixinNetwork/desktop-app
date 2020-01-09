@@ -61,12 +61,12 @@ export default {
         display: 'flex',
         background: '#f5f7fa',
         'align-items': 'center',
-        'padding-left': '16px',
-        'padding-right': '16px',
+        'padding-left': '1rem',
+        'padding-right': '1rem',
         'padding-top': '8px',
         'padding-bottom': '8px',
         'border-width': '1px',
-        'border-radius': '20px'
+        'border-radius': '1.25rem'
       }
     }
   }
@@ -75,8 +75,8 @@ export default {
 
 <style lang="scss" scoped>
 .box {
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   border: none;
   flex-grow: 19;
   font-size: 1rem;
@@ -89,8 +89,8 @@ export default {
   justify-content: center;
   align-items: center;
   display: flex;
-  width: 18px;
-  height: 18px;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 .layout {
   input {

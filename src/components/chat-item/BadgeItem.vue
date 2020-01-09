@@ -46,7 +46,7 @@ export default {
             style.width = '100px'
             style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
           } else {
-            style.width = '40px'
+            style.width = '2.5rem'
             style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(255, 255, 255, 1)  50%,rgba(255, 255, 255, 1) 100%`
           }
         }
@@ -103,15 +103,15 @@ export default {
   position: relative;
   .shadow {
     position: absolute;
-    right: 0px;
+    right: 0;
     border-top-right-radius: 0.3rem;
     z-index: 1;
-    height: 32px;
+    height: 2rem;
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-start;
     align-items: center;
-    padding-right: 8px;
+    padding-right: 0.5rem;
     pointer-events: none;
   }
   .badge {

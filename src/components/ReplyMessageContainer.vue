@@ -179,7 +179,7 @@ export default {
   }
   .layout {
     flex: 1;
-    padding: 3px;
+    padding: 0.1875rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;
@@ -199,8 +199,8 @@ export default {
     }
   }
   .image {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     margin-top: 0.2rem;
     margin-left: 0.4rem;
     object-fit: cover;
@@ -211,7 +211,7 @@ export default {
     margin-right: 0.4rem;
   }
   .replay_icon {
-    height: 14px;
+    height: 0.875rem;
     vertical-align: text-top;
   }
 }

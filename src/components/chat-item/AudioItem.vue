@@ -236,9 +236,10 @@ export default {
       display: flex;
       align-items: center;
       .audio-status {
-        width: 30px;
-        height: 30px;
-        border-radius: 20px;
+        width: 1.875rem;
+        height: 1.875rem;
+        border-radius: 1.25rem;
+        font-size: 2rem;
         background: #f2f2f6;
         display: flex;
         justify-content: center;
@@ -247,16 +248,16 @@ export default {
       }
       .audio-progress {
         width: 10rem;
-        height: 2px;
+        height: 0.125rem;
         margin: 0.3rem 0 0.1rem;
         background-color: #e6e5eb;
-        border-radius: 2px;
+        border-radius: 0.125rem;
         position: relative;
       }
       .bar {
         height: 100%;
         background-color: #c6c9d3;
-        border-radius: 2px;
+        border-radius: 0.125rem;
         display: inline-block;
         position: absolute;
       }

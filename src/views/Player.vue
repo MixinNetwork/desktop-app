@@ -68,20 +68,20 @@ export default {
   width: 100%;
   height: 100%;
   background: black;
-  border-radius: 5px;
+  border-radius: 0.3125rem;
   color: #fff;
   .bar {
     width: 100%;
     position: absolute;
     right: 0;
-    padding-top: 12px;
-    padding-bottom: 12px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
     z-index: 10;
     display: flex;
     flex-direction: row-reverse;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.8) 100%);
     .icon {
-      margin-right: 12px;
+      margin-right: 0.75rem;
     }
   }
 }

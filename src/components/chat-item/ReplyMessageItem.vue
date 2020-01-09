@@ -174,7 +174,7 @@ export default {
 .message {
   border-radius: 0.2rem;
   overflow: hidden;
-  margin-bottom: 3px;
+  margin-bottom: 0.1875rem;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -183,7 +183,7 @@ export default {
   }
   .layout {
     flex: 1;
-    padding: 3px;
+    padding: 0.1875rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;
@@ -203,19 +203,19 @@ export default {
     }
   }
   .image {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     margin-left: 0.4rem;
     object-fit: cover;
   }
   .avatar {
-    width: 36px;
-    height: 36px;
-    margin: 4px;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0.25rem;
     margin-left: 0.4rem;
   }
   .replay_icon {
-    height: 14px;
+    height: 0.875rem;
     vertical-align: text-top;
   }
 }

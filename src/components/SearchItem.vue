@@ -38,7 +38,7 @@ export default {
 <style lang="scss" scoped>
 .search-item {
   display: flex;
-  padding: 10px 16px;
+  padding: 0.625rem 1rem;
   cursor: pointer;
   &:hover,
   &.current {

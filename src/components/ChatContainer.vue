@@ -963,7 +963,7 @@ export default {
         color: #93a0a7;
       }
       #title {
-        font-size: 30px;
+        font-size: 1.875rem;
         color: #505d64;
         font-weight: 300;
       }
@@ -978,23 +978,23 @@ export default {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 28px;
-    width: 40px;
-    height: 40px;
+    border-radius: 1.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
     background: #fafafa;
-    right: 20px;
+    right: 1.25rem;
     position: absolute;
     bottom: 72px;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     .badge {
       position: absolute;
-      top: -6px;
+      top: -0.375rem;
       background: #4b7ed2;
-      border-radius: 20px;
+      border-radius: 1.25rem;
       box-sizing: border-box;
       color: #fff;
       font-size: 13px;
-      padding: 1px 5px;
+      padding: 1px 0.3125rem;
     }
   }
 

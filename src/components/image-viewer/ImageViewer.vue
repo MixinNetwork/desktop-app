@@ -269,8 +269,8 @@ export default {
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 40px;
-  padding: 0 3% 10px;
+  height: 2.5rem;
+  padding: 0 3% 0.625rem;
   display: flex;
   cursor: pointer;
   > *,
@@ -281,17 +281,17 @@ export default {
   }
   > p {
     flex: 1;
-    line-height: 30px;
-    font-size: 14px;
+    line-height: 1.875rem;
+    font-size: 0.875rem;
     cursor: default;
   }
   .right {
-    width: 200px;
+    width: 12.5rem;
     i {
-      width: 30px;
-      height: 30px;
-      margin-right: 20px;
-      font-size: 20px;
+      width: 1.875rem;
+      height: 1.875rem;
+      margin-right: 1.25rem;
+      font-size: 1.25rem;
       cursor: pointer;
       &:last-child {
         margin: 0;
@@ -347,10 +347,10 @@ export default {
   height: 100%;
   cursor: pointer;
   > i {
-    width: 20px;
-    height: 20px;
-    line-height: 20px;
-    font-size: 20px;
+    width: 1.25rem;
+    height: 1.25rem;
+    line-height: 1.25rem;
+    font-size: 1.25rem;
     color: #fff;
   }
 }
@@ -363,8 +363,8 @@ export default {
 
 .image-viewer-close {
   z-index: 1001;
-  top: 20px;
-  right: 20px;
+  top: 1.25rem;
+  right: 1.25rem;
   position: absolute;
   cursor: pointer;
 }
@@ -373,6 +373,6 @@ export default {
 .image-viewer-nav-prev:hover > i,
 .image-viewer-nav-next:hover > i,
 .image-viewer-close:hover {
-  text-shadow: 0 0 20px #fff, 0 0 20px #fff, 0 0 20px #fff;
+  text-shadow: 0 0 1.25rem #fff, 0 0 1.25rem #fff, 0 0 1.25rem #fff;
 }
 </style>

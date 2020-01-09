@@ -123,8 +123,8 @@ export default {
       position: absolute;
       margin-left: 1rem;
       margin-top: 0.2rem;
-      padding-left: 3px;
-      padding-right: 3px;
+      padding-left: 0.1875rem;
+      padding-right: 0.1875rem;
       padding-top: 1px;
       padding-bottom: 1px;
       color: white;
@@ -133,8 +133,8 @@ export default {
       border-radius: 0.1rem;
     }
     .play {
-      width: 30px;
-      height: 30px;
+      width: 1.875rem;
+      height: 1.875rem;
       position: absolute;
       margin: auto;
       left: 0;
@@ -144,8 +144,8 @@ export default {
       z-index: 10;
     }
     .loading {
-      width: 32px;
-      height: 32px;
+      width: 2rem;
+      height: 2rem;
       left: 50%;
       top: 50%;
       position: absolute;

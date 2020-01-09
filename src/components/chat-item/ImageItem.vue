@@ -142,8 +142,8 @@ export default {
     overflow: hidden;
     cursor: zoom-in;
     .loading {
-      width: 32px;
-      height: 32px;
+      width: 2rem;
+      height: 2rem;
       left: 50%;
       top: 50%;
       position: absolute;

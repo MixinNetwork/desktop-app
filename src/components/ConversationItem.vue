@@ -214,8 +214,8 @@ li.conversation.item {
     background: #f1f2f2;
   }
   #avatar {
-    width: 48px;
-    height: 48px;
+    width: 3rem;
+    height: 3rem;
     margin-right: 0.8rem;
   }
   .info {
@@ -256,7 +256,7 @@ li.conversation.item {
     .message {
       display: flex;
       flex-flow: row nowrap;
-      min-height: 18px;
+      min-height: 1.125rem;
       align-items: center;
       .layout {
         display: flex;
@@ -264,11 +264,12 @@ li.conversation.item {
         .icon {
           width: .875rem;
           height: .875rem;
-          margin-right: 3px;
+          margin-right: 0.1875rem;
         }
       }
       .mute_icon {
-        margin-right: 3px;
+        font-size: 1.1rem;
+        margin-right: 0.1875rem;
       }
       .content {
         flex: 1;
@@ -280,9 +281,9 @@ li.conversation.item {
       }
       .down {
         color: #a7a7a7;
-        width: 16px;
-        height: 16px;
-        margin-left: 3px;
+        width: 1rem;
+        height: 1rem;
+        margin-left: 0.1875rem;
       }
       .badge {
         background: #4b7ed2;
@@ -291,7 +292,7 @@ li.conversation.item {
         color: white;
         font-size: 0.65rem;
         padding: 0.23rem 0.45rem;
-        margin-right: 3px;
+        margin-right: 0.1875rem;
       }
       .wait {
         path {

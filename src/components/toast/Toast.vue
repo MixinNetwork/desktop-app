@@ -6,11 +6,11 @@
 .wrap {
   position: fixed;
   z-index: 99;
-  left: 16px;
-  bottom: 16px;
+  left: 1rem;
+  bottom: 1rem;
   background: rgba(0, 0, 0, 0.8);
-  padding: 10px;
-  border-radius: 5px;
+  padding: 0.625rem;
+  border-radius: 0.3125rem;
   color: #fff;
 }
 .fadein {

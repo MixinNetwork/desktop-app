@@ -601,21 +601,21 @@ export default {
     .signal {
       background: #fedd4a;
       display: flex;
-      padding: 10px;
+      padding: 0.625rem;
       align-items: center;
       .signal_icon {
         flex-shrink: 0;
       }
       .content {
-        margin-left: 10px;
+        margin-left: 0.625rem;
         display: flex;
         flex-direction: column;
         .title {
-          font-size: 15px;
+          font-size: 0.9375rem;
           font-weight: 500;
         }
         .info {
-          font-size: 14px;
+          font-size: 0.875rem;
           max-lines: 2;
         }
       }

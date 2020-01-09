@@ -55,25 +55,25 @@ export default {
   align-items: center;
   background: #f5f7fa;
   .bar {
-    padding-top: 60px;
+    padding-top: 3.75rem;
     width: 100%;
     display: flex;
-    height: 60px;
+    height: 3.75rem;
     background: #ffffff;
     align-items: center;
     flex-flow: row nowrap;
     .back {
-      padding: 16px;
+      padding: 1rem;
     }
     h3 {
-      padding: 8px;
+      padding: 0.5rem;
     }
   }
   .layout {
     display: flex;
     width: 100%;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     justify-content: center;
     #avatar {
       width: 225px;
@@ -85,11 +85,11 @@ export default {
     flex-direction: column;
     background: white;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 1.25rem;
 
     .item {
       font-weight: 500;
-      padding: 16px;
+      padding: 1rem;
       border-bottom: 1px solid $border-color;
       &:hover,
       &.current {

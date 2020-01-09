@@ -96,13 +96,13 @@ export default {
     height: 3.6rem;
     display: flex;
     align-items: center;
-    padding: 0px 16px 0px 16px;
+    padding: 0px 1rem 0px 1rem;
     line-height: 0;
 
     .title_content {
-      margin-left: 16px;
+      margin-left: 1rem;
       font-weight: 500;
-      font-size: 16px;
+      font-size: 1rem;
     }
   }
   .content {
@@ -115,15 +115,15 @@ export default {
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      padding-bottom: 32px;
-      padding-left: 32px;
-      padding-right: 32px;
+      padding-bottom: 2rem;
+      padding-left: 2rem;
+      padding-right: 2rem;
       .avatar {
-        width: 160px;
-        height: 160px;
-        margin-top: 32px;
-        margin-bottom: 32px;
-        font-size: 32px;
+        width: 10rem;
+        height: 10rem;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        font-size: 2rem;
       }
       .name {
         font-weight: 500;
@@ -160,10 +160,10 @@ export default {
         font-weight: 500;
       }
       .participant {
-        padding-left: 16px;
-        padding-right: 16px;
-        min-height: 40px;
-        height: 40px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        min-height: 2.5rem;
+        height: 2.5rem;
       }
     }
   }

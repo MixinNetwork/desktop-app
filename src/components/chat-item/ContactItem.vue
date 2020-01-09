@@ -97,7 +97,7 @@ export default {
     min-height: 0.85rem;
   }
   .contact {
-    padding: 12px;
+    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -107,9 +107,9 @@ export default {
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     #avatar {
-      width: 42px;
-      height: 42px;
-      margin-right: 12px;
+      width: 2.625rem;
+      height: 2.625rem;
+      margin-right: 0.75rem;
       flex-shrink: 0;
     }
     .content {
@@ -139,7 +139,7 @@ export default {
         .number {
           color: #888888cc;
           font-size: 0.8rem;
-          margin-top: 6px;
+          margin-top: 0.375rem;
         }
         .time {
           color: #8799a5;

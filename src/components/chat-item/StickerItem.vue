@@ -98,6 +98,7 @@ export default class App extends Vue {
       .icon {
         width: .875rem;
         height: .875rem;
+        padding-left: 0.2rem;
         vertical-align: bottom;
         &.lock {
           width: .55rem;

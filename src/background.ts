@@ -1,6 +1,7 @@
 'use strict'
 
 import { app, protocol, ipcMain, shell, BrowserWindow } from 'electron'
+import windowStateKeeper from 'electron-window-state'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
 import { setFocusWindow } from './updater'
@@ -23,10 +24,17 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { standard: true, supportFetchAPI: true, secure: true } }
 ])
 function createWindow() {
+  let mainWindowState = windowStateKeeper({
+    defaultWidth: 900,
+    defaultHeight: 700
+  })
+
   // Create the browser window.
   win = new BrowserWindow({
-    width: 900,
-    height: 700,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
     minWidth: 700,
     minHeight: 500,
     // eslint-disable-next-line no-undef
@@ -37,6 +45,8 @@ function createWindow() {
       webSecurity: false
     }
   })
+
+  mainWindowState.manage(win)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

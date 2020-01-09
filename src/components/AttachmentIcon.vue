@@ -1,16 +1,17 @@
 <template>
   <div class="accachment" @click="$emit('mediaClick')">
-    <svg-icon icon-class="arrow-up" v-if="isMe" />
+    <svg-icon icon-class="arrow-up" v-if="message.userId === me.user_id" />
     <svg-icon icon-class="arrow-down" v-else />
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Prop } from 'vue-property-decorator'
+import { Vue, Prop, Component } from 'vue-property-decorator'
 
+@Component
 export default class App extends Vue {
-  @Prop(Object) message: any
-  @Prop(Object) me: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
 
   get isMe() {
     return this.message.userId === this.me.user_id
@@ -20,12 +21,13 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
 .accachment {
-  width: 40px;
-  height: 40px;
-  margin-right: 12px;
-  border-radius: 20px;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.75rem;
+  border-radius: 1.25rem;
   background: #f2f2f6;
   display: flex;
+  font-size: 1.5rem;
   justify-content: center;
   align-items: center;
   z-index: 3;

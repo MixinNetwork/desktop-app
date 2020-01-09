@@ -39,39 +39,42 @@
     </BadgeItem>
   </div>
 </template>
-<script>
-import BadgeItem from './BadgeItem'
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import {
+  Getter
+} from 'vuex-class'
+
+import BadgeItem from './BadgeItem.vue'
 import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+
+@Component({
   components: {
     BadgeItem,
     VueMarkdown
-  },
-  data: function() {
+  }
+})
+export default class App extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  @Getter('attachment') attachment: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
+    let { message, me } = this
     return {
-      MessageStatus: MessageStatus
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
-    }
-  },
-  computed: {
-    ...mapGetters({
-      attachment: 'attachment'
-    })
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
   }
 }
 </script>

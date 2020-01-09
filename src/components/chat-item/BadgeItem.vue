@@ -18,82 +18,81 @@
     <slot></slot>
   </span>
 </template>
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
 
-<script>
-export default {
-  props: ['type', 'send', 'quote'],
-  data: function() {
-    return {
-      focus: false,
-      show: false
-    }
-  },
-  computed: {
-    shadowStyle() {
-      const style = {}
-      if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
-        if (this.send) {
-          style.right = '0.8rem'
-          if (this.quote) {
-            style.width = '100px'
-            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-          } else {
-            style.width = '56px'
-            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(197, 237, 255, 1) 50%,rgba(197, 237, 255, 1) 100%`
-          }
-        } else {
-          if (this.quote) {
-            style.width = '100px'
-            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-          } else {
-            style.width = '2.5rem'
-            style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(255, 255, 255, 1)  50%,rgba(255, 255, 255, 1) 100%`
-          }
-        }
-      } else if (this.type.endsWith('_IMAGE') || this.type.endsWith('_LIVE')) {
+@Component
+export default class App extends Vue {
+  @Prop(String) readonly type: any
+  @Prop(Boolean) readonly send: any
+  @Prop(Boolean) readonly quote: any
+
+  focus: Boolean = false
+  show: Boolean = false
+
+  enter() {
+    this.show = true
+  }
+  leave() {
+    this.show = false
+  }
+  onFocus() {
+    this.focus = true
+  }
+  onBlur() {
+    this.focus = false
+  }
+
+  get shadowStyle() {
+    const style: any = {}
+    if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
+      if (this.send) {
         style.right = '0.8rem'
-        style.width = '100px'
-        style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-      } else {
-        style.width = '100px'
-        style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-      }
-      return style
-    },
-    iconStyle() {
-      const color = { color: 'white' }
-      if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
-        if (this.send) {
-          color.right = '0.8rem'
-          if (this.quote) {
-            color.color = 'white'
-          } else {
-            color.color = '#8799a5'
-          }
+        if (this.quote) {
+          style.width = '100px'
+          style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
         } else {
-          if (this.quote) {
-            color.color = 'white'
-          } else {
-            color.color = '#8799a5'
-          }
+          style.width = '56px'
+          style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(197, 237, 255, 1) 50%,rgba(197, 237, 255, 1) 100%`
+        }
+      } else {
+        if (this.quote) {
+          style.width = '100px'
+          style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
+        } else {
+          style.width = '2.5rem'
+          style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(255, 255, 255, 1)  50%,rgba(255, 255, 255, 1) 100%`
         }
       }
-      return color
+    } else if (this.type.endsWith('_IMAGE') || this.type.endsWith('_LIVE')) {
+      style.right = '0.8rem'
+      style.width = '100px'
+      style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
+    } else {
+      style.width = '100px'
+      style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
     }
-  },
-  methods: {
-    enter() {
-      this.show = true
-    },
-    leave() {
-      this.show = false
-    },
-    onFocus() {
-      this.focus = true
-    },
-    onBlur() {
-      this.focus = false
+    return style
+  }
+  get iconStyle() {
+    const color: any = { color: 'white' }
+    if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
+      if (this.send) {
+        color.right = '0.8rem'
+        if (this.quote) {
+          color.color = 'white'
+        } else {
+          color.color = '#8799a5'
+        }
+      } else {
+        if (this.quote) {
+          color.color = 'white'
+        } else {
+          color.color = '#8799a5'
+        }
+      }
     }
+    return color
   }
 }
 </script>

@@ -604,6 +604,7 @@ export default {
       padding: 0.625rem;
       align-items: center;
       .signal_icon {
+        font-size: 3rem;
         flex-shrink: 0;
       }
       .content {

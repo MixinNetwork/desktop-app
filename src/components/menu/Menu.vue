@@ -71,21 +71,21 @@ export default {
 .dropdown-menu {
   position: absolute;
   z-index: 1000;
-  min-width: 160px;
+  min-width: 10rem;
   padding: 5px 0;
   margin: 2px 0 0;
   list-style: none;
-  font-size: 14px;
+  font-size: 0.875rem;
   text-align: left;
   background-color: #fff;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.155);
   background-clip: padding-box;
 }
 .dropdown-menu > li > a {
   cursor: pointer;
-  padding: 10px 30px;
+  padding: 0.625rem 1.875rem;
   display: block;
   clear: both;
   font-weight: bold;

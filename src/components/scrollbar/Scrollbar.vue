@@ -183,7 +183,7 @@ export default {
     width: 0;
   }
   .scrollbar-track {
-    width: 9px;
+    width: 0.5625rem;
     position: absolute;
     top: 0;
     right: 0;
@@ -194,13 +194,13 @@ export default {
     top: 0;
     right: 0;
     background: rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-    min-height: 25px;
-    width: 6px;
+    border-radius: 0.3125rem;
+    min-height: 1.625rem;
+    width: 0.375rem;
     &.dragging,
     &:hover {
-      border-radius: 8px;
-      width: 9px;
+      border-radius: 0.5rem;
+      width: 0.5625rem;
     }
   }
 }

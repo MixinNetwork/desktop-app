@@ -4,15 +4,15 @@
     <div class="layout">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
-        <ICRecall class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
-        <ICMessageAudio class="replay_icon" v-else-if="messageType() === 'audio'" />
-        <ICMessagePhoto class="replay_icon" v-else-if="messageType() === 'image'" />
-        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'video'" />
-        <ICMessageVideo class="replay_icon" v-else-if="messageType() === 'live'" />
-        <ICMessageFile class="replay_icon" v-else-if="messageType() === 'file'" />
-        <ICMessageContact class="replay_icon" v-else-if="messageType() === 'contact'" />
-        <ICMessageTransfer class="replay_icon" v-else-if="messageType() === 'transfer'" />
-        <ICMessageBotMenu
+        <svg-icon icon-class="if_recall" class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
+        <svg-icon icon-class="ic_message_audio" class="replay_icon" v-else-if="messageType() === 'audio'" />
+        <svg-icon icon-class="ic_message_photo" class="replay_icon" v-else-if="messageType() === 'image'" />
+        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'video'" />
+        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'live'" />
+        <svg-icon icon-class="ic_message_file" class="replay_icon" v-else-if="messageType() === 'file'" />
+        <svg-icon icon-class="ic_message_contact" class="replay_icon" v-else-if="messageType() === 'contact'" />
+        <svg-icon icon-class="ic_message_transfer" class="replay_icon" v-else-if="messageType() === 'transfer'" />
+        <svg-icon icon-class="ic_message_bot_menu"
           class="replay_icon"
           v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
         />
@@ -46,15 +46,7 @@
   </div>
 </template>
 <script>
-import ICRecall from '@/assets/images/if_recall.svg'
 import { getNameColorById } from '@/utils/util'
-import ICMessageAudio from '@/assets/images/ic_message_audio.svg'
-import ICMessagePhoto from '@/assets/images/ic_message_photo.svg'
-import ICMessageVideo from '@/assets/images/ic_message_video.svg'
-import ICMessageFile from '@/assets/images/ic_message_file.svg'
-import ICMessageContact from '@/assets/images/ic_message_contact.svg'
-import ICMessageTransfer from '@/assets/images/ic_message_transfer.svg'
-import ICMessageBotMenu from '@/assets/images/ic_message_bot_menu.svg'
 import Avatar from '@/components/Avatar'
 import userDao from '@/dao/user_dao'
 export default {
@@ -63,14 +55,6 @@ export default {
     return {}
   },
   components: {
-    ICRecall,
-    ICMessageAudio,
-    ICMessagePhoto,
-    ICMessageVideo,
-    ICMessageFile,
-    ICMessageContact,
-    ICMessageTransfer,
-    ICMessageBotMenu,
     Avatar
   },
   computed: {
@@ -190,7 +174,7 @@ export default {
 .message {
   border-radius: 0.2rem;
   overflow: hidden;
-  margin-bottom: 3px;
+  margin-bottom: 0.1875rem;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
@@ -199,7 +183,7 @@ export default {
   }
   .layout {
     flex: 1;
-    padding: 3px;
+    padding: 0.1875rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;
@@ -219,19 +203,19 @@ export default {
     }
   }
   .image {
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     margin-left: 0.4rem;
     object-fit: cover;
   }
   .avatar {
-    width: 36px;
-    height: 36px;
-    margin: 4px;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin: 0.25rem;
     margin-left: 0.4rem;
   }
   .replay_icon {
-    height: 14px;
+    height: 0.875rem;
     vertical-align: text-top;
   }
 }

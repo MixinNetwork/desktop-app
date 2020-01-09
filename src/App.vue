@@ -10,35 +10,37 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
-import { mapGetters } from 'vuex'
-export default {
+
+import {
+  Getter
+} from 'vuex-class'
+
+@Component({
   components: {
     spinner
-  },
-  data() {
-    return { isLoading: false }
-  },
-  methods: {
-    ping: function() {
-      this.isLoading = true
-      accountApi.checkPing().then(
-        resp => {
-          this.isLoading = false
-        },
-        err => {
-          console.log(err.data)
-          this.isLoading = false
-        }
-      )
-    }
-  },
-  computed: {
-    ...mapGetters({
-      showTime: 'showTime'
-    })
+  }
+})
+export default class App extends Vue {
+  @Getter('showTime') showTime: any
+
+  isLoading = false
+
+  ping() {
+    this.isLoading = true
+    accountApi.checkPing().then(
+      resp => {
+        this.isLoading = false
+      },
+      err => {
+        console.log(err.data)
+        this.isLoading = false
+      }
+    )
   }
 }
 </script>
@@ -53,7 +55,7 @@ body {
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   user-select: none;
   overflow: hidden;
-  font-size: 16px;
+  font-size: 1rem;
 }
 button {
   -webkit-app-region: no-drag;
@@ -92,10 +94,10 @@ a {
       height: 33.6vw;
     }
     .app_time_info {
-      margin-top: 10px;
+      margin-top: 0.625rem;
     }
     .app_time_continue {
-      margin-top: 16px;
+      margin-top: 1rem;
       height: 2rem;
       color: #2cc3fa;
       &:hover,
@@ -104,7 +106,7 @@ a {
       }
     }
     .app_time_loding {
-      margin-top: 16px;
+      margin-top: 1rem;
       width: 2rem;
       height: 2rem;
     }
@@ -113,7 +115,7 @@ a {
 .drag-bar {
   -webkit-app-region: drag;
   width: 100%;
-  height: 48px;
+  height: 3rem;
   position: absolute;
   top: 0;
 }
@@ -133,7 +135,7 @@ b.highlight {
   }
   &.in-bubble {
     background: #c4ed7a;
-    border-radius: 4px;
+    border-radius: 0.25rem;
   }
 }
 </style>

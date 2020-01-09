@@ -53,42 +53,42 @@ main {
     align-items: center;
     height: 100%;
     .bar {
-      padding-top: 60px;
+      padding-top: 3.75rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 60px;
+      height: 3.75rem;
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 16px;
+        padding: 1rem;
       }
       h3 {
-        padding: 8px;
+        padding: 0.5rem;
       }
     }
     .avatar {
-      width: 160px;
-      height: 160px;
-      margin: 40px auto;
+      width: 10rem;
+      height: 10rem;
+      margin: 2.5rem auto;
     }
     .item-wrap {
       background: #fff;
-      padding: 15px 0 20px;
+      padding: 15px 0 1.25rem;
     }
     .item {
       width: 100%;
-      padding-top: 10px;
-      padding-bottom: 10px;
+      padding-top: 0.625rem;
+      padding-bottom: 0.625rem;
       display: flex;
       flex-direction: column;
       a {
         color: #333;
-        margin: 0 20px;
+        margin: 0 1.25rem;
         font-weight: bold;
       }
       label {
-        margin: 10px 20px 0;
+        margin: 10px 1.25rem 0;
         user-select: text;
       }
     }

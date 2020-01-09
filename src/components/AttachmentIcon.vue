@@ -1,36 +1,33 @@
 <template>
-  <div class="root" @click="$emit('mediaClick')">
-    <ICUp v-if="isMe"></ICUp>
-    <ICDown v-else></ICDown>
+  <div class="accachment" @click="$emit('mediaClick')">
+    <svg-icon icon-class="arrow-up" v-if="isMe" />
+    <svg-icon icon-class="arrow-down" v-else />
   </div>
 </template>
 
-<script>
-import ICDown from '@/assets/images/arrow-down.svg'
-import ICUp from '@/assets/images/arrow-up.svg'
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
 
-export default {
-  props: ['message', 'me'],
-  components: {
-    ICDown,
-    ICUp
-  },
-  computed: {
-    isMe() {
-      return this.message.userId === this.me.user_id
-    }
+@Component
+export default class App extends Vue {
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+
+  get isMe() {
+    return this.message.userId === this.me.user_id
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.root {
-  width: 40px;
-  height: 40px;
-  margin-right: 12px;
-  border-radius: 20px;
+.accachment {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.75rem;
+  border-radius: 1.25rem;
   background: #f2f2f6;
   display: flex;
+  font-size: 1.5rem;
   justify-content: center;
   align-items: center;
   z-index: 3;

@@ -29,7 +29,7 @@ class ParticipantDao {
   getParticipantsByConversationId(conversationId) {
     return db
       .prepare(
-        'SELECT u.user_id, u.identity_number, u.full_name, p.role, u.avatar_url, u.relationship FROM participants p, users u WHERE p.conversation_id = ? AND p.user_id = u.user_id ORDER BY p.created_at DESC'
+        'SELECT u.user_id, u.identity_number, u.full_name, u.app_id, p.role, u.avatar_url, u.relationship FROM participants p, users u WHERE p.conversation_id = ? AND p.user_id = u.user_id ORDER BY p.created_at DESC'
       )
       .all(conversationId)
   }

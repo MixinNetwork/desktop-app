@@ -5,6 +5,7 @@ import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-buil
 import { autoUpdater } from 'electron-updater'
 import { setFocusWindow } from './updater'
 import { initPlayer } from './player'
+import path from 'path'
 
 ipcMain.on('checkUp', (event, _) => {
   autoUpdater.checkForUpdates()
@@ -29,7 +30,7 @@ function createWindow() {
     minWidth: 700,
     minHeight: 500,
     // eslint-disable-next-line no-undef
-    icon: 'app://./icon.png',
+    icon: path.join(__dirname, '../public/icon.png'),
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
@@ -73,6 +74,7 @@ function createWindow() {
   setFocusWindow(win)
   if (process.platform === 'darwin') {
     require('./menu')
+    app.dock.setIcon(path.join(__dirname, '../public/icon.png'))
   } else if (process.platform === 'linux') {
     win.setMenuBarVisibility(false)
     win.setAutoHideMenuBar(true)

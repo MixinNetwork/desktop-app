@@ -124,18 +124,18 @@ main {
     flex-flow: column nowrap;
     height: 100vh;
     .bar {
-      padding-top: 60px;
+      padding-top: 3.75rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 60px;
+      height: 3.75rem;
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 16px;
+        padding: 1rem;
       }
       h3 {
-        padding: 8px;
+        padding: 0.5rem;
       }
     }
     .nav {
@@ -149,21 +149,21 @@ main {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      padding: 16px;
+      padding: 1rem;
     }
     .list {
       overflow: auto;
       flex: 1 0 0;
     }
     .create {
-      width: 28px;
-      height: 28px;
+      width: 1.75rem;
+      height: 1.75rem;
       background: #397ee4;
       color: white;
-      padding: 12px;
-      border-radius: 28px;
+      padding: 0.75rem;
+      border-radius: 1.75rem;
       position: absolute;
-      bottom: 64px;
+      bottom: 4rem;
       cursor: pointer;
       left: 0;
       right: 0;
@@ -182,10 +182,10 @@ main {
     left: 0;
     .inputbox {
       position: relative;
-      margin-top: 100px;
-      margin-left: 16px;
+      margin-top: 6.25rem;
+      margin-left: 1rem;
       input {
-        font-size: 16px;
+        font-size: 1rem;
         border: none;
         background: transparent;
         border-bottom: 2px solid #2cbda5;
@@ -196,33 +196,33 @@ main {
 
       label {
         color: #999;
-        font-size: 16px;
+        font-size: 1rem;
         font-weight: normal;
         position: absolute;
         pointer-events: none;
         color: #8a8a8a;
-        left: 10px;
-        top: 10px;
+        left: 0.625rem;
+        top: 0.625rem;
         transition: 0.2s ease all;
       }
 
       input:focus ~ label,
       input:valid ~ label {
-        top: -12px;
-        font-size: 12px;
+        top: -0.75rem;
+        font-size: 0.75rem;
         color: #8d8d8d;
       }
     }
     .create {
-      width: 28px;
-      height: 28px;
+      width: 1.75rem;
+      height: 1.75rem;
       background: #397ee4;
       cursor: pointer;
       color: white;
-      padding: 12px;
-      border-radius: 28px;
+      padding: 0.75rem;
+      border-radius: 1.75rem;
       position: absolute;
-      bottom: 64px;
+      bottom: 4rem;
       left: 0;
       right: 0;
       margin: auto;
@@ -236,24 +236,24 @@ main {
     flex-flow: column nowrap;
     background: #f5f7fa;
     .bar {
-      padding-top: 60px;
+      padding-top: 3.75rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 60px;
+      height: 3.75rem;
       color: white;
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 16px;
+        padding: 1rem;
       }
       h3 {
-        padding: 8px;
+        padding: 0.5rem;
       }
     }
     input {
-      padding: 8px;
-      margin: 10px;
+      padding: 0.5rem;
+      margin: 0.625rem;
     }
   }
   .slide-right-enter-active,

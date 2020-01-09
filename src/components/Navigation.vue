@@ -5,20 +5,20 @@
         <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile" />
         <div class="action_bar">
           <div id="edit" @click="showConveresation">
-            <ICEdit />
+            <svg-icon icon-class="ic_edit" />
           </div>
           <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
         </div>
       </div>
       <div class="signal" v-show="linkStatus!=LinkStatus.CONNECTED">
-        <ICSignal class="signal_icon"></ICSignal>
+        <svg-icon icon-class="ic_signal" class="signal_icon" />
         <div class="content">
           <label class="title">{{getLinkTitle()}}</label>
           <label class="info">{{getLinkContent()}}</label>
         </div>
       </div>
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
-        <ICBack />
+        <svg-icon icon-class="ic_back" />
         {{ $t({
         contacts: 'chat.chat_contacts',
         chats: 'chat.chat_chats',
@@ -180,9 +180,6 @@ import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
-import ICEdit from '@/assets/images/ic_edit.svg'
-import ICBack from '@/assets/images/ic_back.svg'
-import ICSignal from '@/assets/images/ic_signal.svg'
 import workerManager from '@/workers/worker_manager'
 import { clearDb } from '@/persistence/db_util'
 import accountAPI from '@/api/account'
@@ -470,9 +467,6 @@ export default {
     GroupContainer,
     NewConversation,
     Dropdown,
-    ICEdit,
-    ICBack,
-    ICSignal,
     Avatar,
     ProfileContainer,
     SettingContainer,
@@ -607,21 +601,21 @@ export default {
     .signal {
       background: #fedd4a;
       display: flex;
-      padding: 10px;
+      padding: 0.625rem;
       align-items: center;
       .signal_icon {
         flex-shrink: 0;
       }
       .content {
-        margin-left: 10px;
+        margin-left: 0.625rem;
         display: flex;
         flex-direction: column;
         .title {
-          font-size: 15px;
+          font-size: 0.9375rem;
           font-weight: 500;
         }
         .info {
-          font-size: 14px;
+          font-size: 0.875rem;
           max-lines: 2;
         }
       }

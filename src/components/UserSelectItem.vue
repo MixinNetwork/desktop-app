@@ -9,16 +9,16 @@ export default {
 </script>
 <style lang="scss" scoped>
 .item {
-  max-width: 80px;
+  max-width: 5rem;
   white-space: nowrap;
-  padding-left: 8px;
-  padding-right: 8px;
-  margin: 3px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  margin: 0.1875rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   background: #e8e8e8;
-  border-radius: 20px;
-  height: 20px;
+  border-radius: 1.25rem;
+  height: 1.25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1, 1;

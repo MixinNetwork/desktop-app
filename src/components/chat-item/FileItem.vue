@@ -24,20 +24,21 @@
             <div class="bottom">
               <span class="number">{{fileSize}}</span>
               <span class="time">
-                {{message.lt}}
-                <ICSending
+                <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+                <span>{{message.lt}}</span>
+                <svg-icon icon-class="ic_status_clock"
                   v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                   class="icon"
                 />
-                <ICSend
+                <svg-icon icon-class="ic_status_send"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                   class="icon"
                 />
-                <ICRead
+                <svg-icon icon-class="ic_status_read"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
                   class="icon wait"
                 />
-                <ICRead
+                <svg-icon icon-class="ic_status_read"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
                   class="icon"
                 />
@@ -52,10 +53,7 @@
 <script>
 import fs from 'fs'
 import spinner from '@/components/Spinner.vue'
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
@@ -64,9 +62,6 @@ export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
     spinner,
-    ICSending,
-    ICSend,
-    ICRead,
     AttachmentIcon,
     BadgeItem
   },
@@ -158,7 +153,7 @@ export default {
     min-height: 0.85rem;
   }
   .file {
-    padding: 12px;
+    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -167,20 +162,20 @@ export default {
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     .loading {
-      width: 40px;
-      height: 40px;
-      margin-right: 12px;
+      width: 2.5rem;
+      height: 2.5rem;
+      margin-right: 0.75rem;
     }
     .ic {
-      margin-right: 12px;
+      margin-right: 0.75rem;
       background: #f2f2f6;
-      border-radius: 20px;
+      border-radius: 1.25rem;
       display: flex;
-      height: 40px;
+      height: 2.5rem;
       justify-content: center;
       align-items: center;
       .text {
-        width: 40px;
+        width: 2.5rem;
         color: #a5a5a4;
         text-align: center;
         font-size: 0.7rem;
@@ -205,7 +200,7 @@ export default {
         .number {
           color: #888888cc;
           font-size: 0.8rem;
-          margin-top: 6px;
+          margin-top: 0.375rem;
         }
         .time {
           color: #8799a5;
@@ -216,7 +211,13 @@ export default {
           right: 0.2rem;
           align-items: flex-end;
           .icon {
+            width: .875rem;
+            height: .875rem;
             padding-left: 0.2rem;
+            &.lock {
+              width: .55rem;
+              margin-right: 0.2rem;
+            }
           }
           .wait {
             path {

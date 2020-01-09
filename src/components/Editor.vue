@@ -2,11 +2,11 @@
   <div class="editor">
     <header class="title_bar">
       <div @click="closeEditor">
-        <ICClose />
+        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       </div>
       <div class="title_content">{{$t('editor_title')}}</div>
       <div class="title_send" @click="sendPost">
-        <ICSend />
+        <svg-icon icon-class="ic_send" />
       </div>
     </header>
     <div class="content">
@@ -21,15 +21,11 @@
 </template>
 <script>
 import VueMarkdown from 'vue-markdown'
-import ICSend from '../assets/images/ic_send.svg'
-import ICClose from '@/assets/images/ic_close.svg'
 import { MessageStatus } from '@/utils/constants'
 export default {
   name: 'editor',
   props: ['conversation', 'category'],
   components: {
-    ICSend,
-    ICClose,
     VueMarkdown
   },
   data() {
@@ -65,7 +61,7 @@ export default {
   .title_bar {
     height: 3.6rem;
     display: flex;
-    padding: 0px 16px 0px 16px;
+    padding: 0px 1rem 0px 1rem;
     flex-flow: row nowrap;
     line-height: 0;
     align-items: center;
@@ -73,6 +69,9 @@ export default {
       flex: 1;
       font-weight: 500;
       margin-left: 1rem;
+    }
+    .title_send {
+      font-size: 1.2rem;
     }
   }
   .content {

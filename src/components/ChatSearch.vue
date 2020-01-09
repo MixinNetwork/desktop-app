@@ -2,7 +2,7 @@
   <div class="chat-search">
     <header class="title-bar">
       <div @click="$emit('close')">
-        <ICClose />
+        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       </div>
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
@@ -21,6 +21,7 @@
           ></SearchItem>
         </div>
         <div class="notify" v-else-if="keyword">{{$t(searching ? 'chat.searching' : 'chat.search_empty')}}</div>
+        <div class="notify" v-else-if="conversation.category === 'GROUP'">{{$t('chat.search_group_notify', { 0: conversation.groupName })}}</div>
         <div class="notify" v-else>{{$t('chat.search_notify', { 0: conversation.name })}}</div>
       </div>
     </mixin-scrollbar>
@@ -29,13 +30,11 @@
 <script>
 import Search from '@/components/Search.vue'
 import SearchItem from '@/components/SearchItem.vue'
-import ICClose from '@/assets/images/ic_close.svg'
 import messageDao from '@/dao/message_dao'
 import { mapGetters } from 'vuex'
 
 export default {
   components: {
-    ICClose,
     SearchItem,
     Search
   },
@@ -92,26 +91,26 @@ export default {
     height: 3.6rem;
     display: flex;
     align-items: center;
-    padding: 0px 16px 0px 16px;
+    padding: 0px 1rem 0px 1rem;
     line-height: 0;
 
     .title-content {
-      margin-left: 16px;
+      margin-left: 1rem;
       font-weight: 500;
-      font-size: 16px;
+      font-size: 1rem;
     }
   }
   .search-bar {
     background: #f5f7fa;
     padding: 3px 0;
     .input {
-      width: calc(100% - 30px);
+      width: calc(100% - 1.875rem);
     }
   }
   .notify {
     text-align: center;
     color: #ccc;
-    margin-top: 30px;
+    margin-top: 1.875rem;
   }
 }
 </style>

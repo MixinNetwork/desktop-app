@@ -6,7 +6,7 @@
         <div class="name">
           <span v-if="chat.records">{{chat.groupName || chat.name}}</span>
           <span v-else v-html="highlight(chat.groupName || chat.name)"></span>
-          <ICRobot v-if="chat.appId" />
+          <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="chat.appId" />
         </div>
       </div>
       <div v-if="chat.records" class="record">{{$t('chat.chat_records', { '0': chat.records })}}</div>
@@ -15,12 +15,10 @@
 </template>
 <script>
 import Avatar from '@/components/Avatar.vue'
-import ICRobot from '@/assets/images/ic_robot.svg'
 import contentUtil from '@/utils/content_util'
 export default {
   components: {
-    Avatar,
-    ICRobot
+    Avatar
   },
   name: 'ChatItem',
   props: ['chat', 'keyword'],

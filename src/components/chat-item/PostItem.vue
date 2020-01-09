@@ -1,47 +1,45 @@
 <template>
-  <div class="layout" :class="messageOwnership()">
-    <div>
+  <div class="post-item layout" :class="messageOwnership()">
+    <div class="item-title">
       <span
         class="username"
         v-if="showName"
         :style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content">
-          <div class="post">
-            <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
-          </div>
-          <div class="bottom">
-            <span class="time">
-              {{message.lt}}
-              <ICSending
-                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-                class="icon"
-              />
-              <ICSend
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                class="icon"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
-              />
-              <ICRead
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                class="icon"
-              />
-            </span>
-          </div>
-        </div>
-      </BadgeItem>
     </div>
+    <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+      <div class="content">
+        <div class="post">
+          <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
+        </div>
+        <div class="bottom">
+          <span class="time">
+            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+            <span>{{message.lt}}</span>
+            <svg-icon icon-class="ic_status_clock"
+              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
+              class="icon"
+            />
+            <svg-icon icon-class="ic_status_send"
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
+              class="icon"
+            />
+            <svg-icon icon-class="ic_status_read"
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
+              class="icon wait"
+            />
+            <svg-icon icon-class="ic_status_read"
+              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
+              class="icon"
+            />
+          </span>
+        </div>
+      </div>
+    </BadgeItem>
   </div>
 </template>
 <script>
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
 import BadgeItem from './BadgeItem'
 import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
@@ -50,9 +48,6 @@ import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
     BadgeItem,
     VueMarkdown
   },
@@ -81,10 +76,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.layout {
+.post-item {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.8rem;
+  margin-right: 0.8rem;
+  flex-direction: column;
   .username {
     display: inline-block;
     font-size: 0.85rem;
@@ -92,21 +88,22 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    margin-left: 0.4rem;
     min-width: 2rem;
     min-height: 0.85rem;
   }
-  .content {
-    display: flex;
+  .item-title, .layout {
+    max-width: 30rem;
+    width: 100%;
     flex: 1;
+  }
+  .content {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
 
     .post {
-      width: 30rem;
-      height: 6rem;
+      box-sizing: border-box;
+      height: 10rem;
 
       font-size: 0.75rem;
       border-radius: 0.2rem;
@@ -130,7 +127,13 @@ export default {
         right: 0.2rem;
         align-items: flex-end;
         .icon {
+          width: .875rem;
+          height: .875rem;
           padding-left: 0.2rem;
+          &.lock {
+            width: .55rem;
+            margin-right: 0.2rem;
+          }
         }
         .wait {
           path {
@@ -140,11 +143,8 @@ export default {
       }
     }
   }
-}
-.layout.send {
-  flex-direction: row-reverse;
-}
-.layout.receive {
-  flex-direction: row;
+  &.send {
+    align-items: flex-end;
+  }
 }
 </style>

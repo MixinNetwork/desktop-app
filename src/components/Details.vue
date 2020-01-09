@@ -2,7 +2,7 @@
   <div id="delails_root">
     <header class="title_bar">
       <div @click="$emit('close')">
-        <ICClose />
+        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       </div>
       <div class="title_content">{{$t('profile.title')}}</div>
     </header>
@@ -15,7 +15,7 @@
           <span class="name">{{name}}</span>
           <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
           <div
-            v-if="conversation.announcement"
+            v-if="conversation.category === 'GROUP'"
             class="announcement"
             v-html="contentUtil.renderUrl(conversation.announcement)"
           ></div>
@@ -29,54 +29,64 @@
             :key="user.user_id"
             :user="user"
             :showRole="true"
+            @user-click="setConversation"
           ></UserItem>
         </div>
       </div>
     </mixin-scrollbar>
   </div>
 </template>
-<script>
+
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import {
+  Getter
+} from 'vuex-class'
+
 import UserItem from '@/components/UserItem.vue'
-import ICClose from '@/assets/images/ic_close.svg'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
-import { mapGetters } from 'vuex'
 import { ConversationCategory } from '@/utils/constants'
-export default {
+
+@Component({
   components: {
-    ICClose,
     Avatar,
     UserItem
-  },
-  data() {
-    return {
-      contentUtil
-    }
-  },
-  computed: {
-    participantTitle: function() {
-      const { conversation } = this
-      return this.$t('chat.title_participants', { '0': conversation.participants.length })
-    },
-    name: function() {
-      const { conversation } = this
-      if (conversation.groupName) {
-        return conversation.groupName
-      } else if (conversation.name) {
-        return conversation.name
-      } else {
-        return null
-      }
-    },
-    isContact: function() {
-      return this.conversation.category === ConversationCategory.CONTACT
-    },
-    ...mapGetters({
-      conversation: 'currentConversation',
-      user: 'currentUser'
+  }
+})
+export default class App extends Vue {
+  @Getter('currentConversation') conversation: any
+  @Getter('currentUser') user: any
+
+  contentUtil: any = contentUtil
+
+  setConversation(user: Object) {
+    this.$store.dispatch('createUserConversation', {
+      user
     })
-  },
-  mounted: async function() {
+  }
+
+  get participantTitle() {
+    const { conversation } = this
+    return this.$t('chat.title_participants', { '0': conversation.participants.length })
+  }
+
+  get name() {
+    const { conversation } = this
+    if (conversation.groupName) {
+      return conversation.groupName
+    } else if (conversation.name) {
+      return conversation.name
+    } else {
+      return null
+    }
+  }
+
+  get isContact() {
+    return this.conversation.category === ConversationCategory.CONTACT
+  }
+
+  mounted() {
     if (this.conversation.category === ConversationCategory.CONTACT) {
       this.$store.dispatch('refreshUser', {
         userId: this.conversation.ownerId,
@@ -98,13 +108,13 @@ export default {
     height: 3.6rem;
     display: flex;
     align-items: center;
-    padding: 0px 16px 0px 16px;
+    padding: 0px 1rem 0px 1rem;
     line-height: 0;
 
     .title_content {
-      margin-left: 16px;
+      margin-left: 1rem;
       font-weight: 500;
-      font-size: 16px;
+      font-size: 1rem;
     }
   }
   .content {
@@ -117,15 +127,15 @@ export default {
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      padding-bottom: 32px;
-      padding-left: 32px;
-      padding-right: 32px;
+      padding-bottom: 2rem;
+      padding-left: 2rem;
+      padding-right: 2rem;
       .avatar {
-        width: 160px;
-        height: 160px;
-        margin-top: 32px;
-        margin-bottom: 32px;
-        font-size: 32px;
+        width: 10rem;
+        height: 10rem;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        font-size: 2rem;
       }
       .name {
         font-weight: 500;
@@ -162,10 +172,10 @@ export default {
         font-weight: 500;
       }
       .participant {
-        padding-left: 16px;
-        padding-right: 16px;
-        min-height: 40px;
-        height: 40px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        min-height: 2.5rem;
+        height: 2.5rem;
       }
     }
   }

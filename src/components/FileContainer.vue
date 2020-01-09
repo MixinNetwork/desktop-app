@@ -1,13 +1,13 @@
 <template>
   <div class="file_layout">
     <div class="header" @click="$emit('onClose')">
-      <ICClose />
+      <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImage" />
       <div class="file" v-else>
-        <ICFile />
+        <svg-icon icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
       </div>
     </div>
@@ -22,17 +22,11 @@
 </template>
 
 <script>
-import ICClose from '@/assets/images/ic_close.svg'
-import ICFile from '@/assets/images/ic_file.svg'
 import { isImage } from '@/utils/attachment_util'
 import path from 'path'
 export default {
   name: 'FileContainer',
   props: ['file', 'dragging'],
-  components: {
-    ICClose,
-    ICFile
-  },
   methods: {
     getPath() {
       if (this.file) {
@@ -97,35 +91,35 @@ export default {
     justify-content: center;
     align-items: center;
     top: 3.6rem;
-    left: 16px;
-    right: 16px;
-    bottom: 96px;
-    font-size: 20px;
+    left: 1rem;
+    right: 1rem;
+    bottom: 6rem;
+    font-size: 1.25rem;
     background: #f5f7fa;
-    border-radius: 10px;
+    border-radius: 0.625rem;
     border: 1px dashed #c0cfe6;
   }
   .header {
-    padding: 16px;
+    padding: 1rem;
     display: flex;
     pointer-events: all;
     label {
       font-weight: 600;
-      font-size: 18px;
-      margin-left: 6px;
+      font-size: 1.125rem;
+      margin-left: 0.375rem;
     }
   }
 
   .create {
-    width: 28px;
-    height: 28px;
+    width: 1.75rem;
+    height: 1.75rem;
     background: #397ee4;
     cursor: pointer;
     color: white;
-    padding: 12px;
-    border-radius: 28px;
+    padding: 0.75rem;
+    border-radius: 1.75rem;
     position: absolute;
-    bottom: 24px;
+    bottom: 1.5rem;
     left: 0;
     right: 0;
     margin: auto;

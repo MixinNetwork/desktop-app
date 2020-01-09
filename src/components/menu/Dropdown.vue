@@ -8,13 +8,12 @@
       @focus="onFocus"
       @blur="onBlur"
     >
-      <ICDown></ICDown>
+      <svg-icon icon-class="ic_down" />
     </a>
   </div>
 </template>
 
 <script>
-import ICDown from '@/assets/images/ic_down.svg'
 export default {
   name: 'Dropdown',
   props: ['menus'],
@@ -23,9 +22,6 @@ export default {
       showMenu: false,
       searchColor: 'transparent'
     }
-  },
-  components: {
-    ICDown
   },
   activated() {
     this.showMenu = false
@@ -71,7 +67,7 @@ export default {
 }
 .dropdown-toggle {
   display: flex;
-  padding: 8px;
-  border-radius: 20px;
+  padding: 0.5rem;
+  border-radius: 1.25rem;
 }
 </style>

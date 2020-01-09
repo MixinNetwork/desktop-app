@@ -75,8 +75,8 @@ export default {
 }
 .title {
   position: relative;
-  font-size: 20px;
-  margin-bottom: 20px;
+  font-size: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 .message {
   position: absolute;
@@ -85,25 +85,25 @@ export default {
   transform: translate(-50%, -50%);
   width: 22rem;
   background: #fff;
-  padding: 8px;
+  padding: 0.5rem;
   z-index: 9999;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  padding: 24px;
+  padding: 1.5rem;
 }
 .options {
-  padding-bottom: 20px;
+  padding-bottom: 1.25rem;
   display: flex;
   flex-direction: column;
   label {
     cursor: pointer;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
     a {
-      margin-left: 8px;
+      margin-left: 0.5rem;
     }
     input {
       cursor: pointer;
@@ -114,13 +114,13 @@ export default {
   display: flex;
   flex-direction: row-reverse;
   .button {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    padding-left: 24px;
-    padding-right: 24px;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
     border: none;
-    font-size: 14px;
-    border-radius: 4px;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
     &:hover,
     &.current {
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.175);
@@ -130,7 +130,7 @@ export default {
     background: #3d75e3;
     cursor: pointer;
     color: white;
-    margin-left: 3px;
+    margin-left: 0.1875rem;
   }
   .negative {
     border: 1px solid #eaeaea;

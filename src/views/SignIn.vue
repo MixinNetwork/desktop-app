@@ -223,7 +223,7 @@ h1 {
 }
 
 .qr_layout {
-  margin-top: 20px;
+  margin-top: 1.25rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -252,8 +252,8 @@ h1 {
     .text {
       color: white;
       font-weight: 600;
-      margin-top: 20px;
-      font-size: 16px;
+      margin-top: 1.25rem;
+      font-size: 1rem;
     }
   }
 }

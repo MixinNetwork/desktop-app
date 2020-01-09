@@ -11,10 +11,10 @@
         <div class="content">
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
-              <ICDown v-if="audioStatus === 'wait'" @click="downloadAudio" />
+              <svg-icon icon-class="arrow-down" v-if="audioStatus === 'wait'" @click="downloadAudio" />
               <spinner class="loading" v-if="audioStatus === 'loading'"></spinner>
-              <ICPlay v-if="audioStatus === 'play'" @click="playAudio" />
-              <ICPause v-if="audioStatus === 'pause'" @click="playAudio" />
+              <svg-icon icon-class="ic_audio_play" v-if="audioStatus === 'play'" @click="playAudio" />
+              <svg-icon icon-class="ic_audio_pause" v-if="audioStatus === 'pause'" @click="playAudio" />
             </span>
             <!-- <span class="audio-time">{{time}}</span> -->
             <div class="progress-box">
@@ -38,20 +38,21 @@
             ></audio>
           </div>
           <div class="time">
-            {{message.lt}}
-            <ICSending
+            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+            <span>{{message.lt}}</span>
+            <svg-icon icon-class="ic_status_clock"
               v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
               class="icon"
             />
-            <ICSend
+            <svg-icon icon-class="ic_status_send"
               v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
               class="icon"
             />
-            <ICRead
+            <svg-icon icon-class="ic_status_read"
               v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
               class="icon wait"
             />
-            <ICRead
+            <svg-icon icon-class="ic_status_read"
               v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
               class="icon"
             />
@@ -62,12 +63,6 @@
   </div>
 </template>
 <script>
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
-import ICDown from '@/assets/images/arrow-down.svg'
-import ICPlay from '@/assets/images/ic_audio_play.svg'
-import ICPause from '@/assets/images/ic_audio_pause.svg'
 import spinner from '@/components/Spinner.vue'
 import BadgeItem from './BadgeItem'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
@@ -76,12 +71,6 @@ import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
-    ICDown,
-    ICPlay,
-    ICPause,
     spinner,
     BadgeItem
   },
@@ -196,6 +185,9 @@ export default {
       }
     },
     transTime(value) {
+      if (value < 1) {
+        value = 1
+      }
       return this.$moment(value * 1000).format('mm:ss')
     }
   },
@@ -236,7 +228,7 @@ export default {
     overflow: hidden;
     background: rgba(255, 255, 255, 1);
     border-radius: 0.2rem;
-    padding: 0.6rem 2.5rem 0.6rem 0.6rem;
+    padding: 0.6rem 1.5rem 0.6rem 0.6rem;
     box-shadow: 0px 1px 1px #aaaaaa33;
     .name {
       font-size: 1rem;
@@ -248,9 +240,10 @@ export default {
       display: flex;
       align-items: center;
       .audio-status {
-        width: 30px;
-        height: 30px;
-        border-radius: 20px;
+        width: 1.875rem;
+        height: 1.875rem;
+        border-radius: 1.25rem;
+        font-size: 2rem;
         background: #f2f2f6;
         display: flex;
         justify-content: center;
@@ -258,17 +251,17 @@ export default {
         margin-right: 0.6rem;
       }
       .audio-progress {
-        width: 10rem;
-        height: 2px;
+        width: 11rem;
+        height: 0.125rem;
         margin: 0.3rem 0 0.1rem;
         background-color: #e6e5eb;
-        border-radius: 2px;
+        border-radius: 0.125rem;
         position: relative;
       }
       .bar {
         height: 100%;
         background-color: #c6c9d3;
-        border-radius: 2px;
+        border-radius: 0.125rem;
         display: inline-block;
         position: absolute;
       }
@@ -286,7 +279,14 @@ export default {
       bottom: 0.3rem;
       right: 0.2rem;
       .icon {
+        width: .875rem;
+        height: .875rem;
         vertical-align: bottom;
+        padding-left: 0.2rem;
+        &.lock {
+          width: .55rem;
+          margin-right: 0.2rem;
+        }
       }
       .wait {
         path {

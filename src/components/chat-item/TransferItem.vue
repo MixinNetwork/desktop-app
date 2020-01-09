@@ -48,7 +48,7 @@ export default {
   margin-left: 0.4rem;
   margin-right: 0.4rem;
   .transfer {
-    padding: 12px;
+    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -68,7 +68,7 @@ export default {
         .symbol {
           color: #888888cc;
           font-size: 0.8rem;
-          margin-top: 6px;
+          margin-top: 0.375rem;
           min-height: 1rem;
         }
         .time {
@@ -80,6 +80,8 @@ export default {
           right: 0.2rem;
           align-items: flex-end;
           .icon {
+            width: .875rem;
+            height: .875rem;
             padding-left: 0.2rem;
           }
           .wait {

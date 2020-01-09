@@ -3,12 +3,12 @@
     <div class="title-bar">
       <div>
         <div class="album" :class="{on: 'history' === currentAlbumId}">
-          <ICHistory @click="changeTab('history')" />
+          <svg-icon icon-class="ic_history" @click="changeTab('history')" />
         </div>
       </div>
       <div>
         <div class="album" :class="{on: 'like' === currentAlbumId}">
-          <ICLike @click="changeTab('like')" />
+          <svg-icon icon-class="ic_like" @click="changeTab('like')" />
         </div>
       </div>
       <div
@@ -34,17 +34,11 @@
 </template>
 <script>
 import { mapGetters } from 'vuex'
-import ICHistory from '@/assets/images/ic_history.svg'
-import ICLike from '@/assets/images/ic_like.svg'
 
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
 
 export default {
-  components: {
-    ICHistory,
-    ICLike
-  },
   data() {
     return {
       albums: [],
@@ -67,6 +61,7 @@ export default {
           this.albums.forEach(item => {
             stickerDao.insertAlbum(item)
           })
+          this.albums = stickerDao.getStickerAlbums()
           this.albumPos()
         }
       })
@@ -80,7 +75,7 @@ export default {
       const list = stickerDao.getLastUseStickers()
       if (!list || (list && list.length === 0)) {
         setTimeout(() => {
-          const albumId = this.albums[1].album_id
+          const albumId = this.albums[0].album_id
           this.getStickers(albumId)
           this.changeTab(albumId)
         })
@@ -112,9 +107,8 @@ export default {
           this.stickers = []
         }
       } else if (id === 'like') {
-        if (this.albums[0]) {
-          this.getStickers(this.albums[0].album_id)
-        }
+        const albums = stickerDao.getStickerAlbums('PERSONAL')
+        this.getStickers(albums[0].album_id)
       } else if (id) {
         this.getStickers(id)
       }
@@ -159,7 +153,7 @@ export default {
         cursor: pointer;
       }
       img {
-        width: 20px;
+        width: 1.25rem;
       }
     }
     .album {

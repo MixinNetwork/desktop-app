@@ -16,25 +16,26 @@
               :src="message.thumbUrl"
               @click="$emit('liveClick')"
             />
-            <ICPlay class="play" @click="$emit('liveClick')"></ICPlay>
+            <svg-icon icon-class="ic_play" class="play" @click="$emit('liveClick')" />
           </div>
           <span class="tag">LIVE</span>
           <div class="bottom">
             <span class="time">
-              {{message.lt}}
-              <ICSending
+              <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+              <span>{{message.lt}}</span>
+              <svg-icon icon-class="ic_status_clock"
                 v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                 class="icon"
               />
-              <ICSend
+              <svg-icon icon-class="ic_status_send"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                 class="icon"
               />
-              <ICRead
+              <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
                 class="icon wait"
               />
-              <ICRead
+              <svg-icon icon-class="ic_status_read"
                 v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
                 class="icon"
               />
@@ -46,10 +47,6 @@
   </div>
 </template>
 <script>
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
-import ICPlay from '@/assets/images/ic_play.svg'
 import BadgeItem from './BadgeItem'
 import { MessageStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
@@ -59,10 +56,6 @@ let maxHeight = convertRemToPixels(15)
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
-    ICSending,
-    ICSend,
-    ICRead,
-    ICPlay,
     BadgeItem
   },
   data: function() {
@@ -131,8 +124,8 @@ export default {
       position: absolute;
       margin-left: 1rem;
       margin-top: 0.2rem;
-      padding-left: 3px;
-      padding-right: 3px;
+      padding-left: 0.1875rem;
+      padding-right: 0.1875rem;
       padding-top: 1px;
       padding-bottom: 1px;
       color: white;
@@ -141,8 +134,8 @@ export default {
       border-radius: 0.1rem;
     }
     .play {
-      width: 30px;
-      height: 30px;
+      width: 1.875rem;
+      height: 1.875rem;
       position: absolute;
       margin: auto;
       left: 0;
@@ -152,8 +145,8 @@ export default {
       z-index: 10;
     }
     .loading {
-      width: 32px;
-      height: 32px;
+      width: 2rem;
+      height: 2rem;
       left: 50%;
       top: 50%;
       position: absolute;
@@ -184,7 +177,13 @@ export default {
         right: 0.2rem;
         align-items: flex-end;
         .icon {
+          width: .875rem;
+          height: .875rem;
           padding-left: 0.2rem;
+          &.lock {
+            width: .55rem;
+            margin-right: 0.2rem;
+          }
         }
         .wait {
           path {

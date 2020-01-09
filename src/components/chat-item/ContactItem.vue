@@ -13,25 +13,26 @@
           <div class="content">
             <span class="name">
               <span>{{message.sharedUserFullName}}</span>
-              <ICRobot v-if="message.sharedUserAppId" />
+              <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="message.sharedUserAppId" />
             </span>
             <div class="bottom">
               <span class="number">{{message.sharedUserIdentityNumber}}</span>
               <span class="time">
-                {{message.lt}}
-                <ICSending
+                <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+                <span>{{message.lt}}</span>
+                <svg-icon icon-class="ic_status_clock"
                   v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                   class="icon"
                 />
-                <ICSend
+                <svg-icon icon-class="ic_status_send"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
                   class="icon"
                 />
-                <ICRead
+                <svg-icon icon-class="ic_status_read"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
                   class="icon wait"
                 />
-                <ICRead
+                <svg-icon icon-class="ic_status_read"
                   v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
                   class="icon"
                 />
@@ -46,10 +47,6 @@
 <script>
 import Avatar from '@/components/Avatar'
 import userDao from '@/dao/user_dao'
-import ICSending from '@/assets/images/ic_status_clock.svg'
-import ICSend from '@/assets/images/ic_status_send.svg'
-import ICRead from '@/assets/images/ic_status_read.svg'
-import ICRobot from '@/assets/images/ic_robot.svg'
 import BadgeItem from './BadgeItem'
 
 import { MessageStatus } from '@/utils/constants'
@@ -58,10 +55,6 @@ export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
     Avatar,
-    ICSending,
-    ICSend,
-    ICRead,
-    ICRobot,
     BadgeItem
   },
   data: function() {
@@ -105,7 +98,7 @@ export default {
     min-height: 0.85rem;
   }
   .contact {
-    padding: 12px;
+    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -115,9 +108,9 @@ export default {
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     #avatar {
-      width: 42px;
-      height: 42px;
-      margin-right: 12px;
+      width: 2.625rem;
+      height: 2.625rem;
+      margin-right: 0.75rem;
       flex-shrink: 0;
     }
     .content {
@@ -147,7 +140,7 @@ export default {
         .number {
           color: #888888cc;
           font-size: 0.8rem;
-          margin-top: 6px;
+          margin-top: 0.375rem;
         }
         .time {
           color: #8799a5;
@@ -158,7 +151,13 @@ export default {
           right: 0.2rem;
           align-items: flex-end;
           .icon {
+            width: .875rem;
+            height: .875rem;
             padding-left: 0.2rem;
+            &.lock {
+              width: .55rem;
+              margin-right: 0.2rem;
+            }
           }
           .wait {
             path {

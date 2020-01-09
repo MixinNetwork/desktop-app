@@ -228,7 +228,7 @@ export default {
     overflow: hidden;
     background: rgba(255, 255, 255, 1);
     border-radius: 0.2rem;
-    padding: 0.6rem 2.5rem 0.6rem 0.6rem;
+    padding: 0.6rem 1.5rem 0.6rem 0.6rem;
     box-shadow: 0px 1px 1px #aaaaaa33;
     .name {
       font-size: 1rem;
@@ -251,7 +251,7 @@ export default {
         margin-right: 0.6rem;
       }
       .audio-progress {
-        width: 10rem;
+        width: 11rem;
         height: 0.125rem;
         margin: 0.3rem 0 0.1rem;
         background-color: #e6e5eb;

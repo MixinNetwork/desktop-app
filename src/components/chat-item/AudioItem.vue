@@ -38,7 +38,8 @@
             ></audio>
           </div>
           <div class="time">
-            {{message.lt}}
+            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+            <span>{{message.lt}}</span>
             <svg-icon icon-class="ic_status_clock"
               v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
               class="icon"
@@ -184,6 +185,9 @@ export default {
       }
     },
     transTime(value) {
+      if (value < 1) {
+        value = 1
+      }
       return this.$moment(value * 1000).format('mm:ss')
     }
   },
@@ -278,6 +282,11 @@ export default {
         width: .875rem;
         height: .875rem;
         vertical-align: bottom;
+        padding-left: 0.2rem;
+        &.lock {
+          width: .55rem;
+          margin-right: 0.2rem;
+        }
       }
       .wait {
         path {

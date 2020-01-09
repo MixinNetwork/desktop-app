@@ -267,8 +267,8 @@ li.conversation.item {
           margin-right: 0.1875rem;
         }
       }
-      .mute_icon {
-        font-size: 1.1rem;
+      .mute_icon, .icon {
+        font-size: 1.125rem;
         margin-right: 0.1875rem;
       }
       .content {

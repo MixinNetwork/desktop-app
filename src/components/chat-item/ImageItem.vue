@@ -28,7 +28,8 @@
           ></AttachmentIcon>
           <div class="bottom">
             <span class="time">
-              {{message.lt}}
+              <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+              <span>{{message.lt}}</span>
               <svg-icon icon-class="ic_status_clock"
                 v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
                 class="icon"
@@ -177,6 +178,10 @@ export default {
           width: .875rem;
           height: .875rem;
           padding-left: 0.2rem;
+          &.lock {
+            width: .55rem;
+            margin-right: 0.2rem;
+          }
         }
         .wait {
           path {

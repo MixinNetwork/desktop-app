@@ -160,8 +160,9 @@
           >{{$t('chat.chat_unknown') }}</span>
           <span class="time-place"></span>
           <span class="time">
-            {{message.lt}}
-            <svg-icon icon-class="ic_status_clock"  v-if="message.status === MessageStatus.SENDING" class="icon" />
+            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+            <span>{{message.lt}}</span>
+            <svg-icon icon-class="ic_status_clock" v-if="message.status === MessageStatus.SENDING" class="icon" />
             <svg-icon icon-class="ic_status_send" v-else-if="message.status === MessageStatus.SENT" class="icon" />
             <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.DELIVERED" class="icon wait" />
             <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.READ" class="icon" />
@@ -572,6 +573,10 @@ li {
     width: .875rem;
     height: .875rem;
     padding-left: 0.2rem;
+    &.lock {
+      width: .55rem;
+      margin-right: 0.2rem;
+    }
   }
 }
 .receive {
@@ -616,6 +621,9 @@ li {
   }
   .icon {
     display: none;
+    &.lock {
+      display: inline;
+    }
   }
 }
 .send {

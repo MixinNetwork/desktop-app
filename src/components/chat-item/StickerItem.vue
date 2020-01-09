@@ -8,7 +8,7 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <img :src="message.assetUrl" loading="lazy" />
+        <img :height="message.assetHeight < 96 ? message.assetHeight : 96" :src="message.assetUrl" />
       </BadgeItem>
       <span class="time">
         <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
@@ -33,31 +33,35 @@
     </span>
   </span>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
-import BadgeItem from './BadgeItem'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
-  data: function() {
-    return {
-      MessageStatus: MessageStatus
-    }
-  },
+import BadgeItem from './BadgeItem.vue'
+
+@Component({
   components: {
     BadgeItem
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
+  }
+})
+export default class App extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
   }
 }
 </script>

@@ -10,26 +10,7 @@
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <img :height="message.assetHeight < 96 ? message.assetHeight : 96" :src="message.assetUrl" />
       </BadgeItem>
-      <span class="time">
-        <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-        <span>{{message.lt}}</span>
-        <svg-icon icon-class="ic_status_clock"
-          v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-          class="icon"
-        />
-        <svg-icon icon-class="ic_status_send"
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-          class="icon"
-        />
-        <svg-icon icon-class="ic_status_delivered"
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-          class="icon"
-        />
-        <svg-icon icon-class="ic_status_read"
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-          class="icon"
-        />
-      </span>
+      <TimeAndStatus :relative="true" style="padding-right: .4rem" :message="message" />
     </span>
   </span>
 </template>
@@ -39,10 +20,12 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 
 @Component({
   components: {
-    BadgeItem
+    BadgeItem,
+    TimeAndStatus
   }
 })
 export default class App extends Vue {
@@ -89,22 +72,6 @@ export default class App extends Vue {
     img {
       max-height: 6rem;
       border-radius: 0.3rem;
-    }
-    .time {
-      color: #8799a5;
-      text-align: right;
-      padding-right: .4rem;
-      font-size: 0.75rem;
-      .icon {
-        width: .875rem;
-        height: .875rem;
-        padding-left: 0.2rem;
-        vertical-align: bottom;
-        &.lock {
-          width: .55rem;
-          margin-right: 0.2rem;
-        }
-      }
     }
   }
 }

@@ -159,14 +159,7 @@
             class="unknown"
           >{{$t('chat.chat_unknown') }}</span>
           <span class="time-place"></span>
-          <span class="time">
-            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-            <span>{{message.lt}}</span>
-            <svg-icon icon-class="ic_status_clock" v-if="message.status === MessageStatus.SENDING" class="icon" />
-            <svg-icon icon-class="ic_status_send" v-else-if="message.status === MessageStatus.SENT" class="icon" />
-            <svg-icon icon-class="ic_status_delivered" v-else-if="message.status === MessageStatus.DELIVERED" class="icon" />
-            <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.READ" class="icon" />
-          </span>
+          <TimeAndStatus :message="message" />
         </div>
       </BadgeItem>
     </div>
@@ -176,7 +169,6 @@
 <script>
 import {
   ConversationCategory,
-  MessageStatus,
   SystemConversationAction,
   MessageCategories,
   canReply,
@@ -196,6 +188,7 @@ import LiveItem from './chat-item/LiveItem'
 import StickerItem from './chat-item/StickerItem'
 import RecallItem from './chat-item/RecallItem'
 import BadgeItem from './chat-item/BadgeItem'
+import TimeAndStatus from './chat-item/TimeAndStatus'
 
 import messageDao from '@/dao/message_dao'
 
@@ -219,12 +212,12 @@ export default {
     RecallItem,
     BadgeItem,
     LiveItem,
-    PostItem
+    PostItem,
+    TimeAndStatus
   },
   data: function() {
     return {
       ConversationCategory: ConversationCategory,
-      MessageStatus: MessageStatus,
       MessageCategories: MessageCategories,
       fouse: false,
       show: false,
@@ -559,25 +552,6 @@ li {
     width: 4.5rem;
     height: 1rem;
   }
-  .time {
-    color: #8799a5;
-    display: flex;
-    float: right;
-    font-size: 0.75rem;
-    position: absolute;
-    bottom: 0.3rem;
-    right: 0.2rem;
-    align-items: flex-end;
-  }
-  .icon {
-    width: .875rem;
-    height: .875rem;
-    padding-left: 0.2rem;
-    &.lock {
-      width: .55rem;
-      margin-right: 0.2rem;
-    }
-  }
 }
 .receive {
   text-align: left;
@@ -617,12 +591,6 @@ li {
       &:after {
         border-right: 0.6rem solid #cbe9ca;
       }
-    }
-  }
-  .icon {
-    display: none;
-    &.lock {
-      display: inline;
     }
   }
 }

@@ -23,26 +23,7 @@
             <span class="name">{{fileName}}</span>
             <div class="bottom">
               <span class="number">{{fileSize}}</span>
-              <span class="time">
-                <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-                <span>{{message.lt}}</span>
-                <svg-icon icon-class="ic_status_clock"
-                  v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-                  class="icon"
-                />
-                <svg-icon icon-class="ic_status_send"
-                  v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                  class="icon"
-                />
-                <svg-icon icon-class="ic_status_delivered"
-                  v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                  class="icon"
-                />
-                <svg-icon icon-class="ic_status_read"
-                  v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                  class="icon"
-                />
-              </span>
+              <TimeAndStatus :message="message" />
             </div>
           </div>
         </div>
@@ -55,6 +36,7 @@ import fs from 'fs'
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import BadgeItem from './BadgeItem'
+import TimeAndStatus from './TimeAndStatus'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
@@ -63,7 +45,8 @@ export default {
   components: {
     spinner,
     AttachmentIcon,
-    BadgeItem
+    BadgeItem,
+    TimeAndStatus
   },
   data: function() {
     return {
@@ -201,25 +184,6 @@ export default {
           color: #888888cc;
           font-size: 0.8rem;
           margin-top: 0.375rem;
-        }
-        .time {
-          position: absolute;
-          color: #8799a5;
-          display: flex;
-          float: right;
-          font-size: 0.75rem;
-          bottom: 0.3rem;
-          right: 0.2rem;
-          align-items: flex-end;
-          .icon {
-            width: .875rem;
-            height: .875rem;
-            padding-left: 0.2rem;
-            &.lock {
-              width: .55rem;
-              margin-right: 0.2rem;
-            }
-          }
         }
       }
     }

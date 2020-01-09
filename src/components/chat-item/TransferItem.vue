@@ -80,11 +80,6 @@ export default {
           bottom: 0.3rem;
           right: 0.2rem;
           align-items: flex-end;
-          .icon {
-            width: .875rem;
-            height: .875rem;
-            padding-left: 0.2rem;
-          }
         }
       }
     }

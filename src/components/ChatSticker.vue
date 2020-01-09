@@ -146,6 +146,7 @@ export default {
     display: flex;
     align-items: center;
     padding: 0 0.6rem;
+    font-size: 1.125rem;
     & > div {
       padding-right: 0.5rem;
       svg,

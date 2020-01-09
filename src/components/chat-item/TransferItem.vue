@@ -72,6 +72,7 @@ export default {
           min-height: 1rem;
         }
         .time {
+          position: absolute;
           color: #8799a5;
           display: flex;
           float: right;
@@ -79,16 +80,6 @@ export default {
           bottom: 0.3rem;
           right: 0.2rem;
           align-items: flex-end;
-          .icon {
-            width: .875rem;
-            height: .875rem;
-            padding-left: 0.2rem;
-          }
-          .wait {
-            path {
-              fill: #859479;
-            }
-          }
         }
       }
     }

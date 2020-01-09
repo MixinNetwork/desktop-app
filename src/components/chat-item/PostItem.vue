@@ -14,64 +14,50 @@
           <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
         </div>
         <div class="bottom">
-          <span class="time">
-            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-            <span>{{message.lt}}</span>
-            <svg-icon icon-class="ic_status_clock"
-              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-              class="icon"
-            />
-            <svg-icon icon-class="ic_status_send"
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-              class="icon"
-            />
-            <svg-icon icon-class="ic_status_read"
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-              class="icon wait"
-            />
-            <svg-icon icon-class="ic_status_read"
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-              class="icon"
-            />
-          </span>
+          <TimeAndStatus :relative="true" :message="message" />
         </div>
       </div>
     </BadgeItem>
   </div>
 </template>
-<script>
-import BadgeItem from './BadgeItem'
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import {
+  Getter
+} from 'vuex-class'
+
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+
+@Component({
   components: {
     BadgeItem,
+    TimeAndStatus,
     VueMarkdown
-  },
-  data: function() {
+  }
+})
+export default class App extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  @Getter('attachment') attachment: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
+    let { message, me } = this
     return {
-      MessageStatus: MessageStatus
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
-    }
-  },
-  computed: {
-    ...mapGetters({
-      attachment: 'attachment'
-    })
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
   }
 }
 </script>
@@ -118,29 +104,6 @@ export default {
     .bottom {
       display: flex;
       justify-content: flex-end;
-      .time {
-        color: #8799a5;
-        display: flex;
-        float: right;
-        font-size: 0.75rem;
-        bottom: 0.2rem;
-        right: 0.2rem;
-        align-items: flex-end;
-        .icon {
-          width: .875rem;
-          height: .875rem;
-          padding-left: 0.2rem;
-          &.lock {
-            width: .55rem;
-            margin-right: 0.2rem;
-          }
-        }
-        .wait {
-          path {
-            fill: #859479;
-          }
-        }
-      }
     }
   }
   &.send {

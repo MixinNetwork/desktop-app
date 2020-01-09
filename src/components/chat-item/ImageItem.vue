@@ -27,26 +27,7 @@
             @mediaClick="$emit('mediaClick')"
           ></AttachmentIcon>
           <div class="bottom">
-            <span class="time">
-              <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-              <span>{{message.lt}}</span>
-              <svg-icon icon-class="ic_status_clock"
-                v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-                class="icon"
-              />
-              <svg-icon icon-class="ic_status_send"
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-                class="icon"
-              />
-              <svg-icon icon-class="ic_status_read"
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-                class="icon wait"
-              />
-              <svg-icon icon-class="ic_status_read"
-                v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-                class="icon"
-              />
-            </span>
+            <TimeAndStatus :relative="true" :message="message" />
           </div>
         </div>
       </BadgeItem>
@@ -57,6 +38,7 @@
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import BadgeItem from './BadgeItem'
+import TimeAndStatus from './TimeAndStatus'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
@@ -67,7 +49,8 @@ export default {
   components: {
     BadgeItem,
     spinner,
-    AttachmentIcon
+    AttachmentIcon,
+    TimeAndStatus
   },
   data: function() {
     return {
@@ -166,29 +149,6 @@ export default {
       display: flex;
       justify-content: flex-end;
       margin-right: 0.8rem;
-      .time {
-        color: #8799a5;
-        display: flex;
-        float: right;
-        font-size: 0.75rem;
-        bottom: 0.2rem;
-        right: 0.2rem;
-        align-items: flex-end;
-        .icon {
-          width: .875rem;
-          height: .875rem;
-          padding-left: 0.2rem;
-          &.lock {
-            width: .55rem;
-            margin-right: 0.2rem;
-          }
-        }
-        .wait {
-          path {
-            fill: #859479;
-          }
-        }
-      }
     }
   }
 }

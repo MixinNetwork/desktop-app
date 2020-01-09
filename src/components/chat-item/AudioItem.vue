@@ -37,26 +37,7 @@
               :src="message.mediaUrl"
             ></audio>
           </div>
-          <div class="time">
-            <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-            <span>{{message.lt}}</span>
-            <svg-icon icon-class="ic_status_clock"
-              v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-              class="icon"
-            />
-            <svg-icon icon-class="ic_status_send"
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-              class="icon"
-            />
-            <svg-icon icon-class="ic_status_read"
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-              class="icon wait"
-            />
-            <svg-icon icon-class="ic_status_read"
-              v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-              class="icon"
-            />
-          </div>
+          <TimeAndStatus :message="message" />
         </div>
       </BadgeItem>
     </div>
@@ -68,11 +49,14 @@ import BadgeItem from './BadgeItem'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
+import TimeAndStatus from './TimeAndStatus'
+
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
   components: {
     spinner,
-    BadgeItem
+    BadgeItem,
+    TimeAndStatus
   },
   data: function() {
     return {
@@ -270,28 +254,6 @@ export default {
         font-size: 0.8rem;
         font-weight: 400;
         color: #777;
-      }
-    }
-    .time {
-      color: #8799a5;
-      font-size: 0.75rem;
-      position: absolute;
-      bottom: 0.3rem;
-      right: 0.2rem;
-      .icon {
-        width: .875rem;
-        height: .875rem;
-        vertical-align: bottom;
-        padding-left: 0.2rem;
-        &.lock {
-          width: .55rem;
-          margin-right: 0.2rem;
-        }
-      }
-      .wait {
-        path {
-          fill: #859479;
-        }
       }
     }
   }

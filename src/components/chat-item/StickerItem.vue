@@ -8,56 +8,43 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <img :src="message.assetUrl" loading="lazy" />
+        <img :height="message.assetHeight < 96 ? message.assetHeight : 96" :src="message.assetUrl" />
       </BadgeItem>
-      <span class="time">
-        <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
-        <span>{{message.lt}}</span>
-        <svg-icon icon-class="ic_status_clock"
-          v-if="message.userId === me.user_id && (message.status === MessageStatus.SENDING)"
-          class="icon"
-        />
-        <svg-icon icon-class="ic_status_send"
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.SENT"
-          class="icon"
-        />
-        <svg-icon icon-class="ic_status_read"
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.DELIVERED"
-          class="icon wait"
-        />
-        <svg-icon icon-class="ic_status_read"
-          v-else-if="message.userId === me.user_id && message.status === MessageStatus.READ"
-          class="icon"
-        />
-      </span>
+      <TimeAndStatus :relative="true" style="padding-right: .4rem" :message="message" />
     </span>
   </span>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
-import BadgeItem from './BadgeItem'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
-  data: function() {
-    return {
-      MessageStatus: MessageStatus
-    }
-  },
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
+
+@Component({
   components: {
-    BadgeItem
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
+    BadgeItem,
+    TimeAndStatus
+  }
+})
+export default class App extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
   }
 }
 </script>
@@ -85,26 +72,6 @@ export default {
     img {
       max-height: 6rem;
       border-radius: 0.3rem;
-    }
-    .time {
-      color: #8799a5;
-      text-align: right;
-      padding-right: .4rem;
-      font-size: 0.75rem;
-      .icon {
-        width: .875rem;
-        height: .875rem;
-        vertical-align: bottom;
-        &.lock {
-          width: .55rem;
-          margin-right: 0.2rem;
-        }
-      }
-      .wait {
-        path {
-          fill: #859479;
-        }
-      }
     }
   }
 }

@@ -4,7 +4,7 @@
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="transfer" @click="$emit('user-share-click')">
           <MessageItemIcon :url="message.assetIcon" />
-          <div class="content bubble">
+          <div class="content">
             <span class="amount">{{message.snapshotAmount}}</span>
             <div class="bottom">
               <span class="symbol">{{message.assetSymbol}}</span>

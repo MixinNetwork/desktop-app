@@ -1,6 +1,6 @@
 <template>
   <span class="time" :class="{absolute: !relative, relative}">
-    <svg-icon icon-class="ic_status_lock" v-if="/^SIGNAL_/.test(message.type)" class="icon lock" />
+    <svg-icon icon-class="ic_status_lock" v-if="message.type.startsWith('SIGNAL_')" class="icon lock" />
     <span>{{message.lt}}</span>
     <svg-icon icon-class="ic_status_clock" v-if="message.status === MessageStatus.SENDING" class="icon" />
     <svg-icon icon-class="ic_status_send" v-else-if="message.status === MessageStatus.SENT" class="icon" />

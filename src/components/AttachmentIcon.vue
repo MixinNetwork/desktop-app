@@ -21,6 +21,7 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
 .accachment {
+  cursor: pointer;
   width: 2.5rem;
   height: 2.5rem;
   margin-right: 0.75rem;

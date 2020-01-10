@@ -81,6 +81,7 @@ export default {
     min-height: 0.85rem;
   }
   .contact {
+    cursor: pointer;
     padding: 0.75rem;
     background: white;
     display: flex;

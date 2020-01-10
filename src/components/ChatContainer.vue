@@ -56,6 +56,7 @@
           :me="me"
           :searchKeyword="searchKeyword"
           @user-click="onUserClick"
+          @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
       </ul>
@@ -702,6 +703,21 @@ export default {
         user
       })
     },
+    handleAction(action) {
+      if (action.startsWith('input:')) {
+        const content = action.split('input:')[1]
+        const msg = {
+          conversationId: this.conversation.conversationId,
+          content,
+          category: 'PLAIN_TEXT',
+          status: MessageStatus.SENDING
+        }
+        this.$store.dispatch('sendMessage', { msg })
+        this.goBottom()
+      } else if (action.startsWith('http')) {
+        browser.loadURL(action)
+      }
+    },
     chatSearch() {
       this.searching = true
     },
@@ -832,7 +848,7 @@ export default {
       z-index: 1;
       width: 2rem;
       height: 2rem;
-      margin-right: .3rem;
+      margin-right: 0.3rem;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -840,14 +856,14 @@ export default {
       flex-shrink: 0;
     }
     .search {
-      margin-right: .5rem;
+      margin-right: 0.5rem;
     }
     .bot {
       font-size: 1.25rem;
     }
     .attachment {
       font-size: 1.05rem;
-      margin-right: .4rem;
+      margin-right: 0.4rem;
       cursor: pointer;
       position: relative;
       overflow: hidden;

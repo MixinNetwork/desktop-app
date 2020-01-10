@@ -112,6 +112,20 @@
       @handleMenuClick="handleMenuClick"
     ></PostItem>
 
+    <AppCardItem
+      v-else-if="message.type.startsWith('APP_CARD')"
+      :message="message"
+      @action-click="actionClick"
+      @handleMenuClick="handleMenuClick"
+    ></AppCardItem>
+
+    <AppButtonItem
+      v-else-if="message.type.startsWith('APP_BUTTON')"
+      :message="message"
+      @action-click="actionClick"
+      @handleMenuClick="handleMenuClick"
+    ></AppButtonItem>
+
     <div v-else-if="message.type === MessageCategories.SYSTEM_CONVERSATION" class="system">
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
@@ -147,14 +161,6 @@
             <span v-html="textMessage(message)"></span>
           </span>
           <span
-            v-else-if="messageType(message) === 'app_card'"
-            class="app_card"
-          >{{$t('chat.chat_app_card') }}</span>
-          <span
-            v-else-if="messageType(message) === 'app_button'"
-            class="app_button"
-          >{{$t('chat.chat_app_button') }}</span>
-          <span
             v-else-if="messageType(message) === 'unknown'"
             class="unknown"
           >{{$t('chat.chat_unknown') }}</span>
@@ -181,6 +187,8 @@ import TransferItem from './chat-item/TransferItem'
 import ContactItem from './chat-item/ContactItem'
 import FileItem from './chat-item/FileItem'
 import PostItem from './chat-item/PostItem'
+import AppCardItem from './chat-item/AppCardItem'
+import AppButtonItem from './chat-item/AppButtonItem'
 import AudioItem from './chat-item/AudioItem'
 import VideoItem from './chat-item/VideoItem'
 import ImageItem from './chat-item/ImageItem'
@@ -213,6 +221,8 @@ export default {
     BadgeItem,
     LiveItem,
     PostItem,
+    AppCardItem,
+    AppButtonItem,
     TimeAndStatus
   },
   data: function() {
@@ -234,6 +244,9 @@ export default {
       } else {
         this.$store.dispatch('download', this.message.messageId)
       }
+    },
+    actionClick(action) {
+      this.$emit('action-click', action)
     },
     showUserName() {
       if (!this.conversation) {

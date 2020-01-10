@@ -45,7 +45,7 @@ export default class App extends Vue {
   padding: 0.75rem;
   .content {
     max-width: 14rem;
-    * {
+    &, * {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

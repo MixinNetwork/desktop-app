@@ -714,7 +714,7 @@ export default {
         }
         this.$store.dispatch('sendMessage', { msg })
         this.goBottom()
-      } else if (action.startsWith('http')) {
+      } else {
         browser.loadURL(action)
       }
     },

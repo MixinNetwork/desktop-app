@@ -6,7 +6,7 @@
           class="button-item"
           @click="$emit('action-click', item.action)"
           :style="{color: item.color}"
-          v-for="item in messaageContent"
+          v-for="item in messageContent"
           :key="item.action"
         >{{item.label}}</div>
       </div>
@@ -25,7 +25,7 @@ import BadgeItem from './BadgeItem.vue'
 export default class App extends Vue {
   @Prop(Object) readonly message: any
 
-  get messaageContent() {
+  get messageContent() {
     return JSON.parse(this.message.content)
   }
 }

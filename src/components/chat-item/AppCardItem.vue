@@ -1,11 +1,11 @@
 <template>
   <div class="layout">
     <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-      <div class="app-card" @click="$emit('action-click', messaageContent.action)">
-        <MessageItemIcon :url="messaageContent.icon_url" />
+      <div class="app-card" @click="$emit('action-click', messageContent.action)">
+        <MessageItemIcon :url="messageContent.icon_url" />
         <div class="content">
-          <span class="title">{{messaageContent.title}}</span>
-          <div class="desc">{{messaageContent.description}}</div>
+          <span class="title">{{messageContent.title}}</span>
+          <div class="desc">{{messageContent.description}}</div>
         </div>
       </div>
     </BadgeItem>
@@ -25,7 +25,7 @@ import MessageItemIcon from '@/components/MessageItemIcon.vue'
 export default class App extends Vue {
   @Prop(Object) readonly message: any
 
-  get messaageContent() {
+  get messageContent() {
     return JSON.parse(this.message.content)
   }
 }

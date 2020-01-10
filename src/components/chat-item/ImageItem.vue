@@ -57,7 +57,7 @@ let maxHeight = convertRemToPixels(15)
     TimeAndStatus
   }
 })
-export default class App extends Vue {
+export default class ImageItem extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly message: any
   @Prop(Object) readonly me: any

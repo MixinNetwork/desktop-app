@@ -9,7 +9,7 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component
-export default class App extends Vue {
+export default class AttachmentIcon extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Object) readonly me: any
 

@@ -28,7 +28,7 @@ import TimeAndStatus from './TimeAndStatus.vue'
     TimeAndStatus
   }
 })
-export default class App extends Vue {
+export default class StickerItem extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly message: any
   @Prop(Object) readonly me: any

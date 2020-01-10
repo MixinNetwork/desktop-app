@@ -22,7 +22,7 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component
-export default class App extends Vue {
+export default class BadgeItem extends Vue {
   @Prop(String) readonly type: any
   @Prop(Boolean) readonly send: any
   @Prop(Boolean) readonly quote: any
@@ -68,6 +68,11 @@ export default class App extends Vue {
       style.right = '0.8rem'
       style.width = '100px'
       style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
+    } else if (this.type.startsWith('APP_BUTTON')) {
+      style.width = '35px'
+      style.height = '16px'
+      style.padding = '0 2px'
+      style.background = `linear-gradient(26deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
     } else {
       style.width = '100px'
       style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
@@ -115,6 +120,11 @@ export default class App extends Vue {
   }
   .badge {
     pointer-events: auto;
+    a {
+      display: inline-block;
+      vertical-align: top;
+      line-height: .8rem;
+    }
   }
 }
 </style>

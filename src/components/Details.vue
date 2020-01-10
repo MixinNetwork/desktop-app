@@ -54,7 +54,7 @@ import { ConversationCategory } from '@/utils/constants'
     UserItem
   }
 })
-export default class App extends Vue {
+export default class Details extends Vue {
   @Getter('currentConversation') conversation: any
   @Getter('currentUser') user: any
 

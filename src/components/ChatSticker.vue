@@ -24,30 +24,46 @@
     </div>
     <mixin-scrollbar>
       <div class="ul">
-        <span class="sticker" v-for="item in stickers" :key="item.sticker_id">
+        <span
+          class="sticker"
+          :style="{width: `${stickerStyle.w}px`, height: `${stickerStyle.w}px`, margin: `${stickerStyle.m}px`}"
+          v-for="item in stickers"
+          :key="item.sticker_id"
+        >
           <img :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
         </span>
-        <i v-for="i in 30" :key="i"></i>
+        <i v-for="i in 30"
+          :style="{width: `${stickerStyle.w}px`, margin: `0 ${stickerStyle.m}px`}"
+          :key="i"></i>
       </div>
     </mixin-scrollbar>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { mapGetters } from 'vuex'
 
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
 
-export default {
-  data() {
-    return {
-      albums: [],
-      stickers: [],
-      lastUseStickers: [],
-      currentAlbumId: 'history'
-    }
-  },
-  beforeCreate() {
+import { Vue, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component
+export default class ChatSticker extends Vue {
+  @Getter('currentConversation') conversation: any
+
+  albums: any = []
+  stickers: any = []
+  lastUseStickers: any = []
+  currentAlbumId: any = 'history'
+  stickerStyle: any = {
+    w: 80,
+    h: 80,
+    m: 5
+  }
+  resezeStickerTimeout: any
+
+  created() {
     const findAlbums = stickerDao.getStickerAlbums()
     if (findAlbums.length) {
       setTimeout(() => {
@@ -58,7 +74,7 @@ export default {
       stickerApi.getStickerAlbums().then(res => {
         if (res.data.data) {
           this.albums = res.data.data
-          this.albums.forEach(item => {
+          this.albums.forEach((item: any) => {
             stickerDao.insertAlbum(item)
           })
           this.albums = stickerDao.getStickerAlbums()
@@ -66,63 +82,80 @@ export default {
         }
       })
     }
-  },
-  created() {
-    this.changeTab('history')
-  },
-  methods: {
-    albumPos() {
-      const list = stickerDao.getLastUseStickers()
-      if (!list || (list && list.length === 0)) {
-        setTimeout(() => {
-          const albumId = this.albums[0].album_id
-          this.getStickers(albumId)
-          this.changeTab(albumId)
-        })
+    setTimeout(() => {
+      this.changeTab('history')
+      window.onresize = () => {
+        this.resezeSticker()
       }
-    },
-    getStickers(id) {
-      let stickers = stickerDao.getStickersByAlbumId(id)
-      if (stickers && stickers.length) {
-        this.stickers = stickers
-      } else {
-        stickerApi.getStickersByAlbumId(id).then(res => {
-          if (res.data.data) {
-            this.stickers = res.data.data
-            this.stickers.forEach(item => {
-              stickerDao.insertUpdate(item)
-            })
-          }
-        })
-      }
-    },
-    changeTab(id) {
-      this.currentAlbumId = id
-      if (id === 'history') {
-        const list = stickerDao.getLastUseStickers()
-        if (list && list.length) {
-          this.lastUseStickers = list
-          this.stickers = list
-        } else {
-          this.stickers = []
-        }
-      } else if (id === 'like') {
-        const albums = stickerDao.getStickerAlbums('PERSONAL')
-        this.getStickers(albums[0].album_id)
-      } else if (id) {
-        this.getStickers(id)
-      }
-    },
-    sendSticker(id) {
-      this.$emit('send', id)
-    }
-  },
-  computed: {
-    ...mapGetters({
-      conversation: 'currentConversation'
     })
-  },
-  mounted: async function() {}
+  }
+
+  resezeSticker() {
+    clearTimeout(this.resezeStickerTimeout)
+    this.resezeStickerTimeout = setTimeout(() => {
+      const element = document.querySelector('.container')
+      let { m } = this.stickerStyle
+      // @ts-ignore
+      const width = element.offsetWidth - 20
+      // @ts-ignore
+      const size = parseInt(width / (80 + 2 * m))
+      const fit = (width - size * (80 + m * 2)) / size
+      if (fit < 80) {
+        this.stickerStyle = {
+          w: 80 + fit, h: 80 + fit, m
+        }
+      }
+    }, 50)
+  }
+
+  albumPos() {
+    const list = stickerDao.getLastUseStickers()
+    if (!list || (list && list.length === 0)) {
+      setTimeout(() => {
+        const albumId = this.albums[0].album_id
+        this.getStickers(albumId)
+        this.changeTab(albumId)
+      })
+    }
+  }
+  getStickers(id: string) {
+    let stickers = stickerDao.getStickersByAlbumId(id)
+    if (stickers && stickers.length) {
+      this.stickers = stickers
+      this.resezeSticker()
+    } else {
+      stickerApi.getStickersByAlbumId(id).then(res => {
+        if (res.data.data) {
+          this.stickers = res.data.data
+          this.resezeSticker()
+          this.stickers.forEach((item: any) => {
+            stickerDao.insertUpdate(item)
+          })
+        }
+      })
+    }
+  }
+  changeTab(id: string) {
+    this.currentAlbumId = id
+    if (id === 'history') {
+      const list = stickerDao.getLastUseStickers()
+      if (list && list.length) {
+        this.lastUseStickers = list
+        this.stickers = list
+      } else {
+        this.stickers = []
+      }
+      this.resezeSticker()
+    } else if (id === 'like') {
+      const albums = stickerDao.getStickerAlbums('PERSONAL')
+      this.getStickers(albums[0].album_id)
+    } else if (id) {
+      this.getStickers(id)
+    }
+  }
+  sendSticker(id: string) {
+    this.$emit('send', id)
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -170,27 +203,24 @@ export default {
     }
   }
   .ul {
-    padding: 0 0.6rem 0.8rem;
+    padding: 0 10px 0.8rem;
     height: 11.4rem;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
 
-    i {
-      width: 5rem;
-      margin: 0 0.5rem;
-    }
     .sticker {
       cursor: pointer;
-      width: 5rem;
-      height: 5rem;
       display: inline-flex;
-      margin: 0.3rem 0.5rem;
       align-items: center;
       justify-content: center;
+      transition: 0.12s all ease;
       img {
         max-height: 100%;
         max-width: 100%;
+      }
+      &:hover {
+        transform: translateZ(0) scale(1.05);
       }
     }
   }

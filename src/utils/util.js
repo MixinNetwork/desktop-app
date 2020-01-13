@@ -8,6 +8,7 @@ import {
 } from '@/utils/constants'
 import signalProtocol from '@/crypto/signal'
 import md5 from 'md5'
+import { ipcRenderer } from 'electron'
 
 export function generateConversationId(userId, recipientId) {
   userId = userId.toString()
@@ -92,6 +93,7 @@ export function sendNotification(title, body, conversation) {
   })
   newNotification.onclick = () => {
     store.dispatch('setCurrentConversation', conversation)
+    ipcRenderer.send('showWin')
   }
 }
 

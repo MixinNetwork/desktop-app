@@ -179,6 +179,7 @@ import {
   MessageCategories,
   canReply,
   canRecall,
+  canForward,
   MediaStatus
 } from '@/utils/constants'
 
@@ -426,7 +427,9 @@ export default class MessageItem extends Vue {
   handleMenuClick() {
     let menu: any = this.$t('menu.chat_operation')
     let messageMenu: any[] = []
-    messageMenu.push(menu.forward)
+    if (canForward(this.message.type)) {
+      messageMenu.push(menu.forward)
+    }
     if (canReply(this.message.type)) {
       messageMenu.push(menu.reply)
     }

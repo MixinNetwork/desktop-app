@@ -121,6 +121,30 @@ export function canReply(type: string) {
     type === MessageCategories.SIGNAL_CONTACT ||
     type === MessageCategories.SIGNAL_LIVE ||
     type === MessageCategories.SIGNAL_POST ||
+    type === MessageCategories.APP_CARD ||
+    type === MessageCategories.PLAIN_TEXT ||
+    type === MessageCategories.PLAIN_IMAGE ||
+    type === MessageCategories.PLAIN_VIDEO ||
+    type === MessageCategories.PLAIN_AUDIO ||
+    type === MessageCategories.PLAIN_DATA ||
+    type === MessageCategories.PLAIN_STICKER ||
+    type === MessageCategories.PLAIN_CONTACT ||
+    type === MessageCategories.PLAIN_LIVE ||
+    type === MessageCategories.PLAIN_POST
+  )
+}
+
+export function canForward(type: string) {
+  return (
+    type === MessageCategories.SIGNAL_TEXT ||
+    type === MessageCategories.SIGNAL_IMAGE ||
+    type === MessageCategories.SIGNAL_VIDEO ||
+    type === MessageCategories.SIGNAL_AUDIO ||
+    type === MessageCategories.SIGNAL_DATA ||
+    type === MessageCategories.SIGNAL_STICKER ||
+    type === MessageCategories.SIGNAL_CONTACT ||
+    type === MessageCategories.SIGNAL_LIVE ||
+    type === MessageCategories.SIGNAL_POST ||
     type === MessageCategories.PLAIN_TEXT ||
     type === MessageCategories.PLAIN_IMAGE ||
     type === MessageCategories.PLAIN_VIDEO ||

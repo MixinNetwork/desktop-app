@@ -98,6 +98,8 @@ export default {
         return this.formatSeconds(this.message.mediaDuration)
       } else if (this.message.type.endsWith('_DATA')) {
         return this.message.mediaName
+      } else if (this.message.type.startsWith('APP_CARD')) {
+        return JSON.parse(this.message.content).description
       } else if (this.message.type.endsWith('_CONTACT')) {
         return this.message.sharedUserIdentityNumber
       } else if (this.message.type.endsWith('_LIVE')) {

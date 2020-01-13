@@ -105,6 +105,8 @@
       </div>
     </div>
 
+    <MessageForward v-if="forwardMessage" :message="forwardMessage" @close="handleHideMessageForward" />
+
     <div class="empty" v-if="!conversation">
       <span>
         <img src="../assets/empty.png" />
@@ -163,6 +165,7 @@ import TimeDivide from '@/components/TimeDivide.vue'
 import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
+import MessageForward from '@/components/MessageForward.vue'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
@@ -183,6 +186,7 @@ import appDao from '@/dao/app_dao'
     MessageItem,
     FileContainer,
     ReplyMessageContainer,
+    MessageForward,
     Editor
   }
 })
@@ -312,7 +316,7 @@ export default class ChatContainer extends Vue {
   messages: any[] = []
   isBottom: any = true
   boxMessage: any = null
-  forwardList: boolean = false
+  forwardMessage: any = null
   currentUnreadNum: any = 0
   beforeUnseenMessageCount: any = 0
   oldMsgLen: any = 0
@@ -804,7 +808,10 @@ export default class ChatContainer extends Vue {
     this.boxMessage = message
   }
   handleForward(message: any) {
-    this.forwardList = true
+    this.forwardMessage = message
+  }
+  handleHideMessageForward() {
+    this.forwardMessage = null
   }
   handleRemove(message: any) {
     if (!message) return
@@ -819,12 +826,6 @@ export default class ChatContainer extends Vue {
   }
   hidenReplyBox() {
     this.boxMessage = null
-  }
-  handleHideMessageForward(el: any) {
-    this.forwardList = false
-  }
-  handleShowMessageForward() {
-    this.forwardList = true
   }
 }
 

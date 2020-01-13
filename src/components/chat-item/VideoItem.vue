@@ -22,7 +22,6 @@
 import BadgeItem from './BadgeItem'
 import TimeAndStatus from './TimeAndStatus'
 import { MessageStatus } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
 export default {
   props: ['conversation', 'message', 'me', 'showName'],
@@ -60,10 +59,7 @@ export default {
         width: `${width}px`,
         height: `${height}px`
       }
-    },
-    ...mapGetters({
-      attachment: 'attachment'
-    })
+    }
   }
 }
 </script>

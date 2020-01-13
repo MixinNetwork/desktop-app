@@ -31,7 +31,6 @@
 import BadgeItem from './BadgeItem'
 import TimeAndStatus from './TimeAndStatus'
 import { MessageStatus } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
 let maxWidth = convertRemToPixels(10)
 let maxHeight = convertRemToPixels(15)
@@ -73,11 +72,6 @@ export default {
       const height = Math.min(message.mediaHeight, maxHeight)
       return { width: `${height * scale}px`, height: `${height}px` }
     }
-  },
-  computed: {
-    ...mapGetters({
-      attachment: 'attachment'
-    })
   }
 }
 </script>

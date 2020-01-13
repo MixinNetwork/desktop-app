@@ -172,7 +172,7 @@
   </li>
 </template>
 
-<script>
+<script lang="ts">
 import {
   ConversationCategory,
   SystemConversationAction,
@@ -182,32 +182,36 @@ import {
   MediaStatus
 } from '@/utils/constants'
 
-import ReplyMessageItem from './chat-item/ReplyMessageItem'
-import TransferItem from './chat-item/TransferItem'
-import ContactItem from './chat-item/ContactItem'
-import FileItem from './chat-item/FileItem'
-import PostItem from './chat-item/PostItem'
-import AppCardItem from './chat-item/AppCardItem'
-import AppButtonItem from './chat-item/AppButtonItem'
-import AudioItem from './chat-item/AudioItem'
-import VideoItem from './chat-item/VideoItem'
-import ImageItem from './chat-item/ImageItem'
-import LiveItem from './chat-item/LiveItem'
-import StickerItem from './chat-item/StickerItem'
-import RecallItem from './chat-item/RecallItem'
-import BadgeItem from './chat-item/BadgeItem'
-import TimeAndStatus from './chat-item/TimeAndStatus'
+import ReplyMessageItem from './chat-item/ReplyMessageItem.vue'
+import TransferItem from './chat-item/TransferItem.vue'
+import ContactItem from './chat-item/ContactItem.vue'
+import FileItem from './chat-item/FileItem.vue'
+import PostItem from './chat-item/PostItem.vue'
+import AppCardItem from './chat-item/AppCardItem.vue'
+import AppButtonItem from './chat-item/AppButtonItem.vue'
+import AudioItem from './chat-item/AudioItem.vue'
+import VideoItem from './chat-item/VideoItem.vue'
+import ImageItem from './chat-item/ImageItem.vue'
+import LiveItem from './chat-item/LiveItem.vue'
+import StickerItem from './chat-item/StickerItem.vue'
+import RecallItem from './chat-item/RecallItem.vue'
+import BadgeItem from './chat-item/BadgeItem.vue'
+import TimeAndStatus from './chat-item/TimeAndStatus.vue'
 
 import messageDao from '@/dao/message_dao'
 
 import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
 import contentUtil from '@/utils/content_util'
-import { mapGetters } from 'vuex'
 
-export default {
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import {
+  Getter,
+  Action
+} from 'vuex-class'
+
+@Component({
   name: 'MessageItem',
-  props: ['conversation', 'message', 'me', 'prev', 'unread', 'searchKeyword'],
   components: {
     ReplyMessageItem,
     TransferItem,
@@ -224,263 +228,270 @@ export default {
     AppCardItem,
     AppButtonItem,
     TimeAndStatus
-  },
-  data: function() {
-    return {
-      ConversationCategory: ConversationCategory,
-      MessageCategories: MessageCategories,
-      fouse: false,
-      show: false,
-      menus: this.$t('menu.chat_operation')
+  }
+})
+export default class MessageItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Object) readonly prev: any
+  @Prop(String) readonly unread: any
+  @Prop(String) readonly searchKeyword: any
+
+  @Getter('currentMessages') currentMessages: any
+
+  ConversationCategory: any = ConversationCategory
+  MessageCategories: any = MessageCategories
+  fouse: boolean = false
+  show: boolean = false
+  $moment: any
+  $Dialog: any
+  $Menu: any
+  $imageViewer: any
+
+  mediaClick() {
+    if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
+      return
     }
-  },
-  methods: {
-    mediaClick() {
-      if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
-        return
-      }
-      if (this.message.userId === this.me.user_id) {
-        this.$store.dispatch('upload', this.message)
-      } else {
-        this.$store.dispatch('download', this.message.messageId)
-      }
-    },
-    actionClick(action) {
-      this.$emit('action-click', action)
-    },
-    showUserName() {
-      if (!this.conversation) {
-        return false
-      }
-      if (
-        this.conversation.category === ConversationCategory.CONTACT &&
+    if (this.message.userId === this.me.user_id) {
+      this.$store.dispatch('upload', this.message)
+    } else {
+      this.$store.dispatch('download', this.message.messageId)
+    }
+  }
+  actionClick(action: any) {
+    this.$emit('action-click', action)
+  }
+  showUserName() {
+    if (!this.conversation) {
+      return false
+    }
+    if (
+      this.conversation.category === ConversationCategory.CONTACT &&
         this.message.userId !== this.conversation.ownerId &&
         this.message.userId !== this.me.user_id &&
         (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
-      ) {
-        return true
-      }
-      if (
-        this.prev &&
+    ) {
+      return true
+    }
+    if (
+      this.prev &&
         this.message.userId !== this.me.user_id &&
         ((this.prev.type === MessageCategories.SYSTEM_CONVERSATION ||
           this.prev.type === MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT) &&
           (this.message.type !== MessageCategories.SYSTEM_CONVERSATION &&
             this.message.type !== MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT))
-      ) {
-        return true
-      }
-      return (
-        this.conversation.category === ConversationCategory.GROUP &&
+    ) {
+      return true
+    }
+    return (
+      this.conversation.category === ConversationCategory.GROUP &&
         this.message.userId !== this.me.user_id &&
         (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
-      )
-    },
-    preview() {
-      if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
-        let position = 0
-        const messages = this.currentMessages
-        let firstImage = null
-        for (let i = 0; i < messages.length; i++) {
-          if (messages[i].type.endsWith('_IMAGE') && this.message.mediaUrl) {
-            firstImage = messages[i]
-            break
-          }
+    )
+  }
+  preview() {
+    if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
+      let position = 0
+      const messages = this.currentMessages
+      let firstImage = null
+      for (let i = 0; i < messages.length; i++) {
+        if (messages[i].type.endsWith('_IMAGE') && this.message.mediaUrl) {
+          firstImage = messages[i]
+          break
         }
-        if (!firstImage) {
-          return setTimeout(() => {
-            this.preview()
-          }, 100)
+      }
+      if (!firstImage) {
+        return setTimeout(() => {
+          this.preview()
+        }, 100)
+      }
+      let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
+      let images = local.map((item: any, index: any) => {
+        if (item.message_id === this.message.messageId) {
+          position = index
         }
-        let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
-        let images = local.map((item, index) => {
-          if (item.message_id === this.message.messageId) {
-            position = index
-          }
-          return { url: item.media_url, width: item.media_width, height: item.media_height }
-        })
-        this.$imageViewer.images(images)
-        this.$imageViewer.index(position)
-        this.$imageViewer.show()
-      }
-    },
-    liveClick() {
-      let message = this.message
-      ipcRenderer.send('play', {
-        width: message.mediaWidth,
-        height: message.mediaHeight,
-        thumb: message.thumbUrl,
-        url: message.mediaUrl,
-        pin: localStorage.pinTop
+        return { url: item.media_url, width: item.media_width, height: item.media_height }
       })
-    },
-    messageOwnership: (message, me) => {
-      return {
-        reply: message.userId === me.user_id && message.quoteContent,
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    messageType: message => {
-      let type = message.type
-      if (type.endsWith('_STICKER')) {
-        return 'sticker'
-      } else if (type.endsWith('_IMAGE')) {
-        return 'image'
-      } else if (type.endsWith('_TEXT')) {
-        return 'text'
-      } else if (type.endsWith('_VIDEO')) {
-        return 'video'
-      } else if (type.endsWith('_AUDIO')) {
-        return 'audio'
-      } else if (type.endsWith('_DATA')) {
-        return 'file'
-      } else if (type.endsWith('_CONTACT')) {
-        return 'contact'
-      } else if (type.startsWith('APP_')) {
-        if (type === 'APP_CARD') {
-          return 'app_card'
-        } else {
-          return 'app_button'
-        }
-      } else {
-        return 'unknown'
-      }
-    },
-    textMessage(message) {
-      let content = contentUtil.renderUrl(message.content)
-      if (this.searchKeyword) {
-        content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
-      }
-      return content
-    },
-
-    getInfo(message, me) {
-      const id = me.user_id
-      if (SystemConversationAction.CREATE === message.actionName) {
-        return this.$t('chat.chat_group_create', {
-          0: id === message.userId ? this.$t('chat.chat_you_start') : message.userFullName,
-          1: message.groupName
-        })
-      } else if (SystemConversationAction.ADD === message.actionName) {
-        return this.$t('chat.chat_group_add', {
-          0: id === message.userId ? this.$t('chat.chat_you_start') : message.userFullName,
-          1: id === message.participantUserId ? this.$t('chat.chat_you') : message.participantFullName
-        })
-      } else if (SystemConversationAction.REMOVE === message.actionName) {
-        return this.$t('chat.chat_group_remove', {
-          0: id === message.userId ? this.$t('chat.chat_you_start') : message.userFullName,
-          1: id === message.participantUserId ? this.$t('chat.chat_you') : message.participantFullName
-        })
-      } else if (SystemConversationAction.JOIN === message.actionName) {
-        return this.$t('chat.chat_group_join', {
-          0: id === message.participantUserId ? this.$t('chat.chat_you_start') : message.participantFullName
-        })
-      } else if (SystemConversationAction.EXIT === message.actionName) {
-        return this.$t('chat.chat_group_exit', {
-          0: id === message.participantUserId ? this.$t('chat.chat_you_start') : message.participantFullName
-        })
-      } else if (SystemConversationAction.ROLE === message.actionName) {
-        return this.$t('chat.chat_group_role')
-      } else {
-        return this.$t('chat.chat_no_support')
-      }
-    },
-    getTimeDivide(message) {
-      return contentUtil.renderTime(message.createdAt)
-    },
-    equalDay(message, prev) {
-      const td = this.$moment(message.createdAt).format('YYYY-MM-DD')
-      const pd = this.$moment(prev.createdAt).format('YYYY-MM-DD')
-      return !this.$moment(pd).diff(this.$moment(td))
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
-    },
-    enter() {
-      this.show = true
-    },
-    leave() {
-      this.show = false
-    },
-    onFocus() {
-      this.fouse = true
-    },
-    onBlur() {
-      this.fouse = false
-    },
-    handleMenuClick() {
-      let menu = this.$t('menu.chat_operation')
-      let messageMenu = []
-      if (canReply(this.message.type)) {
-        messageMenu.push(menu.reply)
-      }
-      messageMenu.push(menu.delete)
-      if (canRecall(this.message, this.me.user_id)) {
-        messageMenu.push(menu.recal)
-      }
-      const dwidth = document.body.clientWidth
-      const dheihgt = document.body.clientHeight
-      let x = dwidth - event.clientX < 250 ? event.clientX - 180 : event.clientX - 20
-      let y = dheihgt - event.clientY < 200 ? event.clientY - messageMenu.length * 42 - 24 : event.clientY + 8
-      this.$Menu.alert(x, y, messageMenu, index => {
-        const option = messageMenu[index]
-        switch (Object.keys(menu).find(key => menu[key] === option)) {
-          case 'reply':
-            this.handleReply()
-            break
-          case 'forward':
-            this.handleForward()
-            break
-          case 'delete':
-            this.handleRemove()
-            break
-          case 'recal':
-            this.handleRecall()
-            break
-          default:
-            break
-        }
-      })
-    },
-    handleReply() {
-      this.$emit('handle-item-click', {
-        type: 'Reply',
-        message: this.message
-      })
-    },
-    handleForward() {
-      this.$emit('handle-item-click', {
-        type: 'Forward',
-        message: this.message
-      })
-    },
-    handleRemove() {
-      let { message } = this
-      this.$Dialog.alert(
-        this.$t('confirm_remove'),
-        this.$t('ok'),
-        () => {
-          this.$emit('handle-item-click', {
-            type: 'Remove',
-            message: message
-          })
-        },
-        this.$t('cancel'),
-        () => {}
-      )
-    },
-    handleRecall() {
-      this.$emit('handle-item-click', {
-        type: 'Recall',
-        message: this.message,
-        owner: this.message
-      })
+      this.$imageViewer.images(images)
+      this.$imageViewer.index(position)
+      this.$imageViewer.show()
     }
-  },
-  computed: {
-    ...mapGetters({
-      currentMessages: 'currentMessages'
+  }
+  liveClick() {
+    let message = this.message
+    ipcRenderer.send('play', {
+      width: message.mediaWidth,
+      height: message.mediaHeight,
+      thumb: message.thumbUrl,
+      url: message.mediaUrl,
+      pin: localStorage.pinTop
+    })
+  }
+  messageOwnership(message: any, me: any) {
+    return {
+      reply: message.userId === me.user_id && message.quoteContent,
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
+    }
+  }
+  messageType(message: any) {
+    let type = message.type
+    if (type.endsWith('_STICKER')) {
+      return 'sticker'
+    } else if (type.endsWith('_IMAGE')) {
+      return 'image'
+    } else if (type.endsWith('_TEXT')) {
+      return 'text'
+    } else if (type.endsWith('_VIDEO')) {
+      return 'video'
+    } else if (type.endsWith('_AUDIO')) {
+      return 'audio'
+    } else if (type.endsWith('_DATA')) {
+      return 'file'
+    } else if (type.endsWith('_CONTACT')) {
+      return 'contact'
+    } else if (type.startsWith('APP_')) {
+      if (type === 'APP_CARD') {
+        return 'app_card'
+      } else {
+        return 'app_button'
+      }
+    } else {
+      return 'unknown'
+    }
+  }
+  textMessage(message: any) {
+    let content = contentUtil.renderUrl(message.content)
+    if (this.searchKeyword) {
+      content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
+    }
+    return content
+  }
+
+  getInfo(message: any, me: any) {
+    const id = me.user_id
+    if (SystemConversationAction.CREATE === message.actionName) {
+      return this.$t('chat.chat_group_create', {
+        0: id === message.userId ? this.$t('chat.chat_you_start') : message.userFullName,
+        1: message.groupName
+      })
+    } else if (SystemConversationAction.ADD === message.actionName) {
+      return this.$t('chat.chat_group_add', {
+        0: id === message.userId ? this.$t('chat.chat_you_start') : message.userFullName,
+        1: id === message.participantUserId ? this.$t('chat.chat_you') : message.participantFullName
+      })
+    } else if (SystemConversationAction.REMOVE === message.actionName) {
+      return this.$t('chat.chat_group_remove', {
+        0: id === message.userId ? this.$t('chat.chat_you_start') : message.userFullName,
+        1: id === message.participantUserId ? this.$t('chat.chat_you') : message.participantFullName
+      })
+    } else if (SystemConversationAction.JOIN === message.actionName) {
+      return this.$t('chat.chat_group_join', {
+        0: id === message.participantUserId ? this.$t('chat.chat_you_start') : message.participantFullName
+      })
+    } else if (SystemConversationAction.EXIT === message.actionName) {
+      return this.$t('chat.chat_group_exit', {
+        0: id === message.participantUserId ? this.$t('chat.chat_you_start') : message.participantFullName
+      })
+    } else if (SystemConversationAction.ROLE === message.actionName) {
+      return this.$t('chat.chat_group_role')
+    } else {
+      return this.$t('chat.chat_no_support')
+    }
+  }
+  getTimeDivide(message: any) {
+    return contentUtil.renderTime(message.createdAt)
+  }
+  equalDay(message: any, prev: any) {
+    const td = this.$moment(message.createdAt).format('YYYY-MM-DD')
+    const pd = this.$moment(prev.createdAt).format('YYYY-MM-DD')
+    return !this.$moment(pd).diff(this.$moment(td))
+  }
+  getColor(id: any) {
+    return getNameColorById(id)
+  }
+  enter() {
+    this.show = true
+  }
+  leave() {
+    this.show = false
+  }
+  onFocus() {
+    this.fouse = true
+  }
+  onBlur() {
+    this.fouse = false
+  }
+  handleMenuClick() {
+    let menu: any = this.$t('menu.chat_operation')
+    let messageMenu: any[] = []
+    messageMenu.push(menu.forward)
+    if (canReply(this.message.type)) {
+      messageMenu.push(menu.reply)
+    }
+    messageMenu.push(menu.delete)
+    if (canRecall(this.message, this.me.user_id)) {
+      messageMenu.push(menu.recal)
+    }
+    const dwidth = document.body.clientWidth
+    const dheihgt = document.body.clientHeight
+    // @ts-ignore
+    let x = dwidth - event.clientX < 250 ? event.clientX - 180 : event.clientX - 20
+    // @ts-ignore
+    let y = dheihgt - event.clientY < 200 ? event.clientY - messageMenu.length * 42 - 24 : event.clientY + 8
+    this.$Menu.alert(x, y, messageMenu, (index: number) => {
+      const option = messageMenu[index]
+      switch (Object.keys(menu).find(key => menu[key] === option)) {
+        case 'reply':
+          this.handleReply()
+          break
+        case 'forward':
+          this.handleForward()
+          break
+        case 'delete':
+          this.handleRemove()
+          break
+        case 'recal':
+          this.handleRecall()
+          break
+        default:
+          break
+      }
+    })
+  }
+  handleReply() {
+    this.$emit('handle-item-click', {
+      type: 'Reply',
+      message: this.message
+    })
+  }
+  handleForward() {
+    this.$emit('handle-item-click', {
+      type: 'Forward',
+      message: this.message
+    })
+  }
+  handleRemove() {
+    let { message } = this
+    this.$Dialog.alert(
+      this.$t('confirm_remove'),
+      this.$t('ok'),
+      () => {
+        this.$emit('handle-item-click', {
+          type: 'Remove',
+          message: message
+        })
+      },
+      this.$t('cancel'),
+      () => {}
+    )
+  }
+  handleRecall() {
+    this.$emit('handle-item-click', {
+      type: 'Recall',
+      message: this.message,
+      owner: this.message
     })
   }
 }

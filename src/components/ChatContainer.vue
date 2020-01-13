@@ -140,7 +140,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Vue, Watch, Component } from 'vue-property-decorator'
 import {
   Getter,
   Action
@@ -282,6 +282,17 @@ export default class ChatContainer extends Vue {
   @Getter('me') me: any
   @Getter('editing') editing: any
 
+  @Action('sendMessage') actionSendMessage: any
+  @Action('setCurrentMessages') actionSetCurrentMessages: any
+  @Action('markRead') actionMarkRead: any
+  @Action('sendStickerMessage') actionSendStickerMessage: any
+  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
+  @Action('exitGroup') actionExitGroup: any
+  @Action('conversationClear') actionConversationClear: any
+  @Action('toggleEditor') actionToggleEditor: any
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('recallMessage') actionRecallMessage: any
+
   $t: any
   $Dialog: any
   $toast: any
@@ -298,10 +309,10 @@ export default class ChatContainer extends Vue {
   inputFlag: any = false
   dragging: any = false
   file: any = null
-  messages: any = []
+  messages: any[] = []
   isBottom: any = true
   boxMessage: any = null
-  forwardList: any = false
+  forwardList: boolean = false
   currentUnreadNum: any = 0
   beforeUnseenMessageCount: any = 0
   oldMsgLen: any = 0
@@ -738,17 +749,6 @@ export default class ChatContainer extends Vue {
       browser.loadURL(app.home_uri)
     }
   }
-
-  @Action('sendMessage') actionSendMessage: any
-  @Action('setCurrentMessages') actionSetCurrentMessages: any
-  @Action('markRead') actionMarkRead: any
-  @Action('sendStickerMessage') actionSendStickerMessage: any
-  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
-  @Action('exitGroup') actionExitGroup: any
-  @Action('conversationClear') actionConversationClear: any
-  @Action('toggleEditor') actionToggleEditor: any
-  @Action('createUserConversation') actionCreateUserConversation: any
-  @Action('recallMessage') actionRecallMessage: any
 
   sendMessage(event: any) {
     if (this.inputFlag === true || event.shiftKey) {

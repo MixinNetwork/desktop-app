@@ -21,7 +21,6 @@
 </template>
 <script>
 import browser from '@/utils/browser'
-import { mapGetters } from 'vuex'
 import { ipcRenderer } from 'electron'
 export default {
   components: {},
@@ -35,8 +34,7 @@ export default {
     version: function() {
       let version = this.$t('version')
       return `${version} ${this.$electron.remote.app.getVersion()}`
-    },
-    ...mapGetters({ me: 'me' })
+    }
   },
   methods: {
     checkUpdate() {

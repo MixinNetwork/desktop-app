@@ -1,4 +1,4 @@
-const { dialog } = require('electron')
+const { app, dialog, BrowserWindow } = require('electron')
 const { autoUpdater } = require('electron-updater')
 
 let updater, focusedWindow
@@ -49,7 +49,14 @@ autoUpdater.on('update-downloaded', () => {
       message: 'Updates downloaded, application will be quit for update...'
     },
     () => {
-      setImmediate(() => autoUpdater.quitAndInstall())
+      setImmediate(() => {
+        app.removeAllListeners('window-all-closed')
+        const browserWindows = BrowserWindow.getAllWindows()
+        browserWindows.forEach(function(browserWindow) {
+          browserWindow.removeAllListeners('close')
+        })
+        autoUpdater.quitAndInstall(true, true)
+      })
     }
   )
 })

@@ -22,7 +22,7 @@
         </div>
       </div>
     </div>
-    <mixin-scrollbar>
+    <mixin-scrollbar v-if="stickers">
       <div class="ul">
         <span
           class="sticker"
@@ -136,22 +136,25 @@ export default class ChatSticker extends Vue {
     }
   }
   changeTab(id: string) {
-    this.currentAlbumId = id
-    if (id === 'history') {
-      const list = stickerDao.getLastUseStickers()
-      if (list && list.length) {
-        this.lastUseStickers = list
-        this.stickers = list
-      } else {
-        this.stickers = []
+    this.stickers = ''
+    setTimeout(() => {
+      this.currentAlbumId = id
+      if (id === 'history') {
+        const list = stickerDao.getLastUseStickers()
+        if (list && list.length) {
+          this.lastUseStickers = list
+          this.stickers = list
+        } else {
+          this.stickers = []
+        }
+        this.resezeSticker()
+      } else if (id === 'like') {
+        const albums = stickerDao.getStickerAlbums('PERSONAL')
+        this.getStickers(albums[0].album_id)
+      } else if (id) {
+        this.getStickers(id)
       }
-      this.resezeSticker()
-    } else if (id === 'like') {
-      const albums = stickerDao.getStickerAlbums('PERSONAL')
-      this.getStickers(albums[0].album_id)
-    } else if (id) {
-      this.getStickers(id)
-    }
+    })
   }
   sendSticker(id: string) {
     this.$emit('send', id)
@@ -214,13 +217,15 @@ export default class ChatSticker extends Vue {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: 0.12s all ease;
       img {
+        transition: 0.1s all ease;
         max-height: 100%;
         max-width: 100%;
       }
       &:hover {
-        transform: translateZ(0) scale(1.05);
+        img {
+          transform: scale(1.065);
+        }
       }
     }
   }

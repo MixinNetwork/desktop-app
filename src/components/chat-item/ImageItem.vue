@@ -8,19 +8,19 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content">
-          <div class="set" :style="borderSet(message)">
+        <div class="content" :class="{zoom: !waitStatus}">
+          <div class="set" :style="borderSet()">
             <img
               class="image"
-              :src="media(message)"
+              :src="media()"
               :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-              :style="borderSetObject(message)"
+              :style="borderSetObject()"
               @click="$emit('preview')"
             />
           </div>
           <spinner class="loading" v-if="loading"></spinner>
           <AttachmentIcon
-            v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus"
+            v-else-if="waitStatus"
             class="loading"
             :me="me"
             :message="message"
@@ -34,71 +34,83 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import {
+  Getter
+} from 'vuex-class'
+
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import BadgeItem from './BadgeItem'
-import TimeAndStatus from './TimeAndStatus'
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
 let maxWidth = convertRemToPixels(10)
 let maxHeight = convertRemToPixels(15)
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+
+@Component({
   components: {
     BadgeItem,
     spinner,
     AttachmentIcon,
     TimeAndStatus
-  },
-  data: function() {
-    return {
-      MessageStatus: MessageStatus,
-      MediaStatus: MediaStatus
-    }
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
-    },
-    media: message => {
-      if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
-        return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
-      }
-      return message.mediaUrl
-    },
-    borderSet: message => {
-      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return 'width-set'
-      }
-      return 'height-set'
-    },
+  }
+})
+export default class ImageItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
 
-    borderSetObject: message => {
-      const width = Math.min(message.mediaWidth, maxWidth)
-      const scale = message.mediaWidth / message.mediaHeight
-      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return { width: `${width}px`, height: `${width / scale}px` }
-      }
-      const height = Math.min(message.mediaHeight, maxHeight)
-      return { width: `${height * scale}px`, height: `${height}px` }
+  @Getter('attachment') attachment: any
+
+  MessageStatus: any = MessageStatus
+  MediaStatus: any = MediaStatus
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
-  },
-  computed: {
-    loading: function() {
-      return this.attachment.includes(this.message.messageId)
-    },
-    ...mapGetters({
-      attachment: 'attachment'
-    })
+  }
+
+  getColor(id: string) {
+    return getNameColorById(id)
+  }
+  media() {
+    const { message } = this
+    if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
+      return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
+    }
+    return message.mediaUrl
+  }
+  borderSet() {
+    const { message } = this
+    if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+      return 'width-set'
+    }
+    return 'height-set'
+  }
+
+  borderSetObject() {
+    const { message } = this
+    const width = Math.min(message.mediaWidth, maxWidth)
+    const scale = message.mediaWidth / message.mediaHeight
+    if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+      return { width: `${width}px`, height: `${width / scale}px` }
+    }
+    const height = Math.min(message.mediaHeight, maxHeight)
+    return { width: `${height * scale}px`, height: `${height}px` }
+  }
+
+  get waitStatus() {
+    const { message } = this
+    return (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+  }
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
   }
 }
 </script>
@@ -124,7 +136,9 @@ export default {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
-    cursor: zoom-in;
+    &.zoom {
+      cursor: zoom-in;
+    }
     .loading {
       width: 2rem;
       height: 2rem;

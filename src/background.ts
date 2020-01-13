@@ -93,6 +93,12 @@ function createWindow() {
   }
   initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
+
+  ipcMain.on('showWin', (event, _) => {
+    if (win) {
+      win.show()
+    }
+  })
 }
 
 // Quit when all windows are closed.

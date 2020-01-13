@@ -39,7 +39,7 @@ import { getNameColorById } from '@/utils/util'
     VueMarkdown
   }
 })
-export default class App extends Vue {
+export default class PostItem extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly message: any
   @Prop(Object) readonly me: any

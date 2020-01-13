@@ -130,7 +130,7 @@ export default {
   background: #f5f7fa;
   display: flex;
   flex-flow: column nowrap;
-  height: 15rem;
+  height: 15.1rem;
   left: 18rem;
   bottom: 3rem;
   right: 0;
@@ -171,7 +171,7 @@ export default {
   }
   .ul {
     padding: 0 0.6rem 0.8rem;
-    height: 10.5rem;
+    height: 11.4rem;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;

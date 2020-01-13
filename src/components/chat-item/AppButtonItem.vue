@@ -22,7 +22,7 @@ import BadgeItem from './BadgeItem.vue'
     BadgeItem
   }
 })
-export default class App extends Vue {
+export default class AppButtonItem extends Vue {
   @Prop(Object) readonly message: any
 
   get messageContent() {

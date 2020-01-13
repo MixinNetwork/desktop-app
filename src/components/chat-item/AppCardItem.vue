@@ -22,7 +22,7 @@ import MessageItemIcon from '@/components/MessageItemIcon.vue'
     MessageItemIcon
   }
 })
-export default class App extends Vue {
+export default class AppCardItem extends Vue {
   @Prop(Object) readonly message: any
 
   get messageContent() {

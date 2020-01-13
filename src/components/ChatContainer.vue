@@ -139,8 +139,12 @@
   </main>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script lang="ts">
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import {
+  Getter,
+  Action
+} from 'vuex-class'
 import {
   ConversationCategory,
   ConversationStatus,
@@ -159,6 +163,7 @@ import TimeDivide from '@/components/TimeDivide.vue'
 import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
+import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
@@ -166,127 +171,8 @@ import conversationAPI from '@/api/conversation'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
-import ReplyMessageContainer from '@/components/ReplyMessageContainer'
 
-export default {
-  name: 'ChatContainer',
-  data() {
-    return {
-      name: '',
-      identity: '',
-      participant: true,
-      menus: [],
-      details: false,
-      searching: false,
-      unreadMessageId: '',
-      MessageStatus: MessageStatus,
-      inputFlag: false,
-      dragging: false,
-      file: null,
-      messages: [],
-      isBottom: true,
-      boxMessage: null,
-      forwardList: false,
-      currentUnreadNum: 0,
-      beforeUnseenMessageCount: 0,
-      oldMsgLen: 0,
-      showMessages: true,
-      infiniteUpLock: false,
-      infiniteDownLock: true,
-      searchKeyword: '',
-      timeDivideShow: false,
-      contentUtil,
-      stickerChoosing: false,
-      showScroll: true,
-      chooseStickerTimeout: null
-    }
-  },
-  watch: {
-    stickerChoosing(val) {
-      this.showScroll = false
-      clearTimeout(this.chooseStickerTimeout)
-      this.chooseStickerTimeout = setTimeout(() => {
-        if (val) {
-          this.goBottom()
-        }
-        this.showScroll = true
-      }, 300)
-    },
-    currentUnreadNum(val) {
-      if (val === 0) {
-        messageBox.clearMessagePositionIndex(0)
-      }
-    },
-    conversation(newC, oldC) {
-      this.infiniteDownLock = true
-      this.infiniteUpLock = false
-      if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-        if (this.$refs.box) {
-          this.$refs.box.innerHTML = this.conversation.draft || ''
-        }
-        this.showMessages = false
-        this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-        this.messages = messageBox.messages
-        this.$store.dispatch('setCurrentMessages', this.messages)
-        if (newC) {
-          let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
-          if (unreadMessage) {
-            this.unreadMessageId = unreadMessage.message_id
-          } else {
-            this.unreadMessageId = ''
-          }
-        }
-        this.$store.dispatch('markRead', newC.conversationId)
-      }
-      if (newC) {
-        if (newC !== oldC) {
-          if (newC.groupName) {
-            this.name = newC.groupName
-          } else if (newC.name) {
-            this.name = newC.name
-          }
-          if (!oldC || newC.conversationId !== oldC.conversationId) {
-            setTimeout(() => {
-              if (this.$refs.box) {
-                this.$refs.box.innerHTML = this.conversation.draft || ''
-              }
-            })
-            this.details = false
-            this.searching = false
-            this.stickerChoosing = false
-            this.file = null
-          }
-        }
-        const chatMenu = this.$t('menu.chat')
-        var menu = []
-        if (newC.category === ConversationCategory.CONTACT) {
-          menu.push(chatMenu.contact_info)
-          menu.push(chatMenu.clear)
-          this.identity = newC.ownerIdentityNumber
-          this.participant = true
-        } else {
-          if (newC.status !== ConversationStatus.QUIT) {
-            menu.push(chatMenu.exit_group)
-          }
-          menu.push(chatMenu.clear)
-          this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
-          this.participant = newC.participants.some(item => {
-            return item.user_id === this.me.user_id
-          })
-        }
-
-        if (newC.status !== ConversationStatus.QUIT) {
-          if (this.isMute(newC)) {
-            menu.push(chatMenu.cancel_mute)
-          } else {
-            menu.push(chatMenu.mute)
-          }
-        }
-        // menu.push(chatMenu.create_post)
-        this.menus = menu
-      }
-    }
-  },
+@Component({
   components: {
     Dropdown,
     Avatar,
@@ -298,23 +184,146 @@ export default {
     FileContainer,
     ReplyMessageContainer,
     Editor
-  },
-  computed: {
-    ...mapGetters({
-      conversation: 'currentConversation',
-      user: 'currentUser',
-      me: 'me',
-      editing: 'editing'
-    })
-  },
+  }
+})
+export default class ChatContainer extends Vue {
+  @Watch('stickerChoosing')
+  onStickerChoosingChanged(val: string, oldVal: string) {
+    this.showScroll = false
+    clearTimeout(this.chooseStickerTimeout)
+    this.chooseStickerTimeout = setTimeout(() => {
+      if (val) {
+        this.goBottom()
+      }
+      this.showScroll = true
+    }, 300)
+  }
+
+  @Watch('currentUnreadNum')
+  onCurrentUnreadNumChanged(val: number, oldVal: string) {
+    if (val === 0) {
+      messageBox.clearMessagePositionIndex(0)
+    }
+  }
+
+  @Watch('conversation')
+  onConversationChanged(newC: any, oldC: any) {
+    this.infiniteDownLock = true
+    this.infiniteUpLock = false
+    if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+      if (this.$refs.box) {
+        this.$refs.box.innerHTML = this.conversation.draft || ''
+      }
+      this.showMessages = false
+      this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      this.messages = messageBox.messages
+      this.actionSetCurrentMessages(this.messages)
+      if (newC) {
+        let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
+        if (unreadMessage) {
+          this.unreadMessageId = unreadMessage.message_id
+        } else {
+          this.unreadMessageId = ''
+        }
+      }
+      this.actionMarkRead(newC.conversationId)
+    }
+    if (newC) {
+      if (newC !== oldC) {
+        if (newC.groupName) {
+          this.name = newC.groupName
+        } else if (newC.name) {
+          this.name = newC.name
+        }
+        if (!oldC || newC.conversationId !== oldC.conversationId) {
+          setTimeout(() => {
+            if (this.$refs.box) {
+              this.$refs.box.innerHTML = this.conversation.draft || ''
+            }
+          })
+          this.details = false
+          this.searching = false
+          this.stickerChoosing = false
+          this.file = null
+        }
+      }
+      const chatMenu = this.$t('menu.chat')
+      var menu = []
+      if (newC.category === ConversationCategory.CONTACT) {
+        menu.push(chatMenu.contact_info)
+        menu.push(chatMenu.clear)
+        this.identity = newC.ownerIdentityNumber
+        this.participant = true
+      } else {
+        if (newC.status !== ConversationStatus.QUIT) {
+          menu.push(chatMenu.exit_group)
+        }
+        menu.push(chatMenu.clear)
+        this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
+        this.participant = newC.participants.some((item: any) => {
+          return item.user_id === this.me.user_id
+        })
+      }
+
+      if (newC.status !== ConversationStatus.QUIT) {
+        if (this.isMute(newC)) {
+          menu.push(chatMenu.cancel_mute)
+        } else {
+          menu.push(chatMenu.mute)
+        }
+      }
+      // menu.push(chatMenu.create_post)
+      this.menus = menu
+    }
+  }
+
+  @Getter('currentConversation') conversation: any
+  @Getter('currentUser') user: any
+  @Getter('me') me: any
+  @Getter('editing') editing: any
+
+  $t: any
+  $Dialog: any
+  $toast: any
+  $refs: any
+  $moment: any
+  name: any = ''
+  identity: any = ''
+  participant: any = true
+  menus: any = []
+  details: any = false
+  searching: any = false
+  unreadMessageId: any = ''
+  MessageStatus: any = MessageStatus
+  inputFlag: any = false
+  dragging: any = false
+  file: any = null
+  messages: any = []
+  isBottom: any = true
+  boxMessage: any = null
+  forwardList: any = false
+  currentUnreadNum: any = 0
+  beforeUnseenMessageCount: any = 0
+  oldMsgLen: any = 0
+  showMessages: any = true
+  infiniteUpLock: any = false
+  infiniteDownLock: any = true
+  searchKeyword: any = ''
+  timeDivideShow: any = false
+  contentUtil: any = contentUtil
+  stickerChoosing: any = false
+  showScroll: any = true
+  chooseStickerTimeout: any = null
+  lastEnter: any = null
+
   mounted() {
     let self = this
-    document.onpaste = function(e) {
+    document.onpaste = function(event: any) {
       if (!self.conversation) return
-      e.preventDefault()
+      event.preventDefault()
       const items = (event.clipboardData || event.originalEvent.clipboardData).items
-      let blob = null
-      let mimeType = null
+      let blob: any = null
+      let mimeType: any = null
 
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') === 0) {
@@ -325,19 +334,19 @@ export default {
       }
       if (blob !== null) {
         let reader = new FileReader()
-        reader.onload = async function(event) {
+        reader.onload = async function(event: any) {
           self.file = await base64ToImage(event.target.result, mimeType)
         }
         reader.readAsDataURL(blob)
         return
       }
-      var text = (e.originalEvent || e).clipboardData.getData('text/plain')
+      var text = (event.originalEvent || event).clipboardData.getData('text/plain')
       if (text) {
         document.execCommand('insertText', false, text)
       }
     }
     messageBox.bindData(
-      function(messages, data) {
+      function(messages: any, data: any) {
         if (messages) {
           self.messages = messages
         }
@@ -354,7 +363,7 @@ export default {
           }
         }
       },
-      function(force, message) {
+      function(force: any, message: any) {
         if (self.isBottom) {
           self.goBottom()
         }
@@ -379,433 +388,446 @@ export default {
         })
       }
     )
-  },
-  lastEnter: null,
-  methods: {
-    onScroll() {
-      let list = this.$refs.messagesUl
-      if (!list) return
-      this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
-      if (this.isBottom) {
-        this.currentUnreadNum = 0
-        this.infiniteDown()
-      }
-      if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
-        this.infiniteUp()
-        if (list.scrollTop < 30) {
-          setTimeout(() => {
-            if (!this.infiniteUpLock) {
-              list.scrollTop = 30
-            }
-          })
-        }
-      }
-      if (!this.isBottom && list.scrollTop > 130) {
-        this.timeDivideShow = true
-      } else {
-        this.timeDivideShow = false
-      }
-      setTimeout(() => {
-        const timeDivide = this.$refs.timeDivide
-        if (!timeDivide) return
-        timeDivide.action()
-      }, 10)
-    },
-    chooseAttachment() {
-      this.file = null
-      this.$refs.attachmentInput.click()
-    },
-    chooseAttachmentDone(event) {
-      this.file = event.target.files[0]
-    },
-    chooseSticker() {
-      this.boxMessage = false
-      this.stickerChoosing = !this.stickerChoosing
-    },
-    hideStickerChoose() {
-      this.stickerChoosing = false
-    },
-    sendSticker(stickerId) {
-      const { conversationId } = this.conversation
-      const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
-      const status = MessageStatus.SENDING
-      const msg = {
-        conversationId,
-        stickerId,
-        category,
-        status
-      }
-      this.$store.dispatch('sendStickerMessage', msg)
-      this.goBottom()
-    },
-    saveMessageDraft() {
-      const conversationId = this.conversation.conversationId
-      if (this.$refs.box) {
-        conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
-      }
-    },
-    goSearchMessagePos(item, keyword) {
-      this.hideSearch()
-      const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
-      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
-      setTimeout(() => {
-        this.searchKeyword = keyword
-      })
-    },
-    goMessagePos(posMessage) {
-      let goDone = false
-      let beforeScrollTop = 0
-      this.infiniteScroll('down')
-      const action = beforeScrollTop => {
-        setTimeout(() => {
-          this.infiniteDownLock = false
-          let targetDom = document.querySelector('.unread-divide')
-          if (posMessage && posMessage.messageId) {
-            targetDom = document.getElementById(`m-${posMessage.messageId}`)
-          }
-          if (!targetDom) {
-            return (this.showMessages = true)
-          }
-          let list = this.$refs.messagesUl
-          if (!list) {
-            return action(beforeScrollTop)
-          }
-          if (!goDone && beforeScrollTop !== list.scrollTop) {
-            beforeScrollTop = list.scrollTop
-            action(beforeScrollTop)
-          } else {
-            goDone = true
-            list.scrollTop = targetDom.offsetTop
-            setTimeout(() => {
-              this.showMessages = true
-            }, 10)
-          }
-        }, 10)
-      }
-      action(beforeScrollTop)
-    },
-    goBottom() {
-      setTimeout(() => {
-        this.infiniteUpLock = false
-        this.currentUnreadNum = 0
-        let list = this.$refs.messagesUl
-        if (!list) return
-        let scrollHeight = list.scrollHeight
-        list.scrollTop = scrollHeight
-        this.searchKeyword = ''
-      })
-    },
-    goBottomClick() {
-      this.showMessages = false
-      messageBox.refreshConversation(this.conversation.conversationId)
-      this.beforeUnseenMessageCount = 0
-      this.goBottom()
-      setTimeout(() => {
-        this.showMessages = true
-      }, 10)
-    },
-    infiniteScroll(direction) {
-      messageBox.nextPage(direction).then(messages => {
-        if (messages.length) {
-          if (direction === 'down') {
-            const newMessages = []
-            const lastMessageId = this.messages[this.messages.length - 1].messageId
-            for (let i = messages.length - 1; i >= 0; i--) {
-              const temp = messages[i]
-              if (temp.messageId === lastMessageId) {
-                break
-              }
-              newMessages.unshift(temp)
-            }
-            this.messages.push(...newMessages)
-            this.$store.dispatch('setCurrentMessages', this.messages)
-          } else {
-            this.messages.unshift(...messages)
-            this.$store.dispatch('setCurrentMessages', this.messages)
-            this.infiniteUpLock = false
-          }
-          this.oldMsgLen += messages.length
-        }
-      })
-    },
-    infiniteUp() {
-      if (this.infiniteUpLock) return
-      this.infiniteUpLock = true
-      this.infiniteScroll('up')
-    },
-    infiniteDown() {
-      if (this.infiniteDownLock) return
-      this.infiniteScroll('down')
-    },
-    isMute: function(conversation) {
-      if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-        if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
-          return true
-        }
-      }
-      if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-        if (this.$moment().isBefore(conversation.muteUntil)) {
-          return true
-        }
-      }
-      return false
-    },
-    onDragEnter(e) {
-      this.lastEnter = e.target
-      e.preventDefault()
-      this.dragging = true
-    },
-    onDragLeave(e) {
-      if (this.lastEnter === e.target) {
-        e.stopPropagation()
-        e.preventDefault()
-        this.dragging = false
-      }
-    },
-    onClose() {
-      this.file = null
-      this.dragging = false
-    },
-    sendFile() {
-      if (!this.file) return
-      let size = this.file.size
-      if (size / 1000 > 30000) {
-        this.$toast(this.$t('chat.chat_file_invalid_size'))
-      } else {
-        let image = isImage(this.file.type)
-        var category
-        if (image) {
-          category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
-        } else {
-          category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
-        }
-        let mimeType = this.file.type
-        if (!mimeType) {
-          mimeType = 'text/plain'
-        }
-        const message = {
-          conversationId: this.conversation.conversationId,
-          mediaUrl: this.file.path,
-          mediaMimeType: mimeType,
-          category: category
-        }
-        this.$store.dispatch('sendAttachmentMessage', message)
-        this.goBottom()
-      }
-      this.file = null
-      this.dragging = false
-    },
-    onDragOver(e) {
-      e.preventDefault()
-    },
-    onDrop(e) {
-      e.preventDefault()
-      var fileList = e.dataTransfer.files
-      if (fileList.length > 0) {
-        this.file = fileList[0]
-      }
-      this.dragging = false
-    },
-    closeFile() {
-      this.dragging = false
-      this.file = null
-    },
-    showDetails() {
-      this.details = true
-    },
-    hideDetails() {
-      this.details = false
-    },
-    onItemClick(index) {
-      const chatMenu = this.$t('menu.chat')
-      const option = this.menus[index]
-      const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
+  }
 
-      if (key === 'contact_info') {
-        this.details = true
-      } else if (key === 'exit_group') {
-        this.$store.dispatch('exitGroup', this.conversation.conversationId)
-      } else if (key === 'clear') {
-        this.$Dialog.alert(
-          this.$t('chat.chat_clear'),
-          this.$t('ok'),
-          () => {
-            this.$store.dispatch('conversationClear', this.conversation.conversationId)
-          },
-          this.$t('cancel'),
-          () => {
-            console.log('cancel')
+  onScroll() {
+    let list = this.$refs.messagesUl
+    if (!list) return
+    this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
+    if (this.isBottom) {
+      this.currentUnreadNum = 0
+      this.infiniteDown()
+    }
+    if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
+      this.infiniteUp()
+      if (list.scrollTop < 30) {
+        setTimeout(() => {
+          if (!this.infiniteUpLock) {
+            list.scrollTop = 30
           }
-        )
-      } else if (key === 'mute') {
-        let self = this
-        let ownerId = this.conversation.ownerId
-        this.$Dialog.options(
-          this.$t('chat.mute_title'),
-          this.$t('chat.mute_menu'),
-          this.$t('ok'),
-          picked => {
-            let duration = MuteDuration.HOURS
-            if (picked === 0) {
-              duration = MuteDuration.HOURS
-            } else if (picked === 1) {
-              duration = MuteDuration.WEEK
-            } else {
-              duration = MuteDuration.YEAR
-            }
-            conversationAPI.mute(self.conversation.conversationId, duration).then(resp => {
-              if (resp.data.data) {
-                const c = resp.data.data
-                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-                if (picked === 0) {
-                  this.$toast(this.$t('chat.mute_hours'))
-                } else if (picked === 1) {
-                  this.$toast(this.$t('chat.mute_week'))
-                } else {
-                  this.$toast(this.$t('chat.mute_year'))
-                }
-              }
-            })
-          },
-          this.$t('cancel'),
-          () => {
-            console.log('cancel')
-          }
-        )
-      } else if (key === 'cancel_mute') {
-        let self = this
-        let ownerId = this.conversation.ownerId
-        this.$Dialog.alert(
-          this.$t('chat.chat_mute_cancel'),
-          this.$t('ok'),
-          () => {
-            conversationAPI.mute(self.conversation.conversationId, 0).then(resp => {
-              if (resp.data.data) {
-                const c = resp.data.data
-                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-                this.$toast(this.$t('chat.mute_cancel'))
-              }
-            })
-          },
-          this.$t('cancel'),
-          () => {
-            console.log('cancel')
-          }
-        )
-      } else if (key === 'create_post') {
-        this.$store.dispatch('toggleEditor')
+        })
       }
-    },
-    onUserClick(userId) {
-      let user = userDao.findUserById(userId)
-      this.$store.dispatch('createUserConversation', {
-        user
-      })
-    },
-    handleAction(action) {
-      if (action.startsWith('input:')) {
-        const content = action.split('input:')[1]
-        const msg = {
-          conversationId: this.conversation.conversationId,
-          content,
-          category: 'PLAIN_TEXT',
-          status: MessageStatus.SENDING
-        }
-        this.$store.dispatch('sendMessage', { msg })
-        this.goBottom()
-      } else {
-        browser.loadURL(action)
-      }
-    },
-    chatSearch() {
-      this.searching = true
-    },
-    hideSearch() {
-      this.searching = false
-    },
-    openUrl() {
-      let app = appDao.findAppByUserId(this.user.app_id)
-      if (app) {
-        browser.loadURL(app.home_uri)
-      }
-    },
-    sendMessage(event) {
-      if (this.inputFlag === true || event.shiftKey) {
-        return
-      }
-      event.stopPropagation()
-      event.preventDefault()
-      const text = contentUtil.messageFilteredText(this.$refs.box)
-      if (text.trim().length <= 0) {
-        return
-      }
-      this.stickerChoosing = false
-      conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
-      this.$refs.box.innerText = ''
-      const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
-      const status = MessageStatus.SENDING
-      const message = {
-        conversationId: this.conversation.conversationId,
-        content: text.trim(),
-        category: category,
-        status: status
-      }
-      let msg = {}
-      if (this.boxMessage) {
-        msg.quoteId = this.boxMessage.messageId
-        this.boxMessage = null
-      }
-      msg.msg = message
-      this.$store.dispatch('sendMessage', msg)
-      this.goBottom()
-    },
-    handleItemClick({ type, message }) {
-      switch (type) {
-        case 'Reply':
-          this.handleReply(message)
-          break
-        case 'Forward':
-          this.handleForward(message)
-          break
-        case 'Remove':
-          this.handleRemove(message)
-          break
-        case 'Recall':
-          this.handleRecall(message)
-          break
-        default:
-          break
-      }
-    },
-    handleReply(message) {
-      this.boxMessage = message
-    },
-    handleForward(message) {
-      this.forwardList = true
-    },
-    handleRemove(message) {
-      if (!message) return
-      messageBox.deleteMessages([message.messageId])
-    },
-    handleRecall(message) {
-      if (!message) return
-      this.$store.dispatch('recallMessage', {
-        messageId: message.messageId,
-        conversationId: message.conversationId
-      })
-    },
-    hidenReplyBox() {
-      this.boxMessage = null
-    },
-    handleHideMessageForward(el) {
-      this.forwardList = false
-    },
-    handleShowMessageForward() {
-      this.forwardList = true
+    }
+    if (!this.isBottom && list.scrollTop > 130) {
+      this.timeDivideShow = true
+    } else {
+      this.timeDivideShow = false
+    }
+    setTimeout(() => {
+      const timeDivide = this.$refs.timeDivide
+      if (!timeDivide) return
+      timeDivide.action()
+    }, 10)
+  }
+  chooseAttachment() {
+    this.file = null
+    this.$refs.attachmentInput.click()
+  }
+  chooseAttachmentDone(event: any) {
+    this.file = event.target.files[0]
+  }
+  chooseSticker() {
+    this.boxMessage = false
+    this.stickerChoosing = !this.stickerChoosing
+  }
+  hideStickerChoose() {
+    this.stickerChoosing = false
+  }
+  sendSticker(stickerId: string) {
+    const { conversationId } = this.conversation
+    const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+    const status = MessageStatus.SENDING
+    const msg = {
+      conversationId,
+      stickerId,
+      category,
+      status
+    }
+    this.actionSendStickerMessage(msg)
+    this.goBottom()
+  }
+  saveMessageDraft() {
+    const conversationId = this.conversation.conversationId
+    if (this.$refs.box) {
+      conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
     }
   }
+  goSearchMessagePos(item: any, keyword: string) {
+    this.hideSearch()
+    const count = messageDao.ftsMessageCount(this.conversation.conversationId)
+    const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
+    messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+    setTimeout(() => {
+      this.searchKeyword = keyword
+    })
+  }
+  goMessagePos(posMessage: any) {
+    let goDone = false
+    let beforeScrollTop = 0
+    this.infiniteScroll('down')
+    const action = (beforeScrollTop: any) => {
+      setTimeout(() => {
+        this.infiniteDownLock = false
+        let targetDom: any = document.querySelector('.unread-divide')
+        if (posMessage && posMessage.messageId) {
+          targetDom = document.getElementById(`m-${posMessage.messageId}`)
+        }
+        if (!targetDom) {
+          return (this.showMessages = true)
+        }
+        let list = this.$refs.messagesUl
+        if (!list) {
+          return action(beforeScrollTop)
+        }
+        if (!goDone && beforeScrollTop !== list.scrollTop) {
+          beforeScrollTop = list.scrollTop
+          action(beforeScrollTop)
+        } else {
+          goDone = true
+          list.scrollTop = targetDom.offsetTop
+          setTimeout(() => {
+            this.showMessages = true
+          }, 10)
+        }
+      }, 10)
+    }
+    action(beforeScrollTop)
+  }
+  goBottom() {
+    setTimeout(() => {
+      this.infiniteUpLock = false
+      this.currentUnreadNum = 0
+      let list = this.$refs.messagesUl
+      if (!list) return
+      let scrollHeight = list.scrollHeight
+      list.scrollTop = scrollHeight
+      this.searchKeyword = ''
+    })
+  }
+  goBottomClick() {
+    this.showMessages = false
+    messageBox.refreshConversation(this.conversation.conversationId)
+    this.beforeUnseenMessageCount = 0
+    this.goBottom()
+    setTimeout(() => {
+      this.showMessages = true
+    }, 10)
+  }
+  infiniteScroll(direction: any) {
+    messageBox.nextPage(direction).then(messages => {
+      if (messages.length) {
+        if (direction === 'down') {
+          const newMessages = []
+          const lastMessageId = this.messages[this.messages.length - 1].messageId
+          for (let i = messages.length - 1; i >= 0; i--) {
+            const temp = messages[i]
+            if (temp.messageId === lastMessageId) {
+              break
+            }
+            newMessages.unshift(temp)
+          }
+          this.messages.push(...newMessages)
+          this.actionSetCurrentMessages(this.messages)
+        } else {
+          this.messages.unshift(...messages)
+          this.actionSetCurrentMessages(this.messages)
+          this.infiniteUpLock = false
+        }
+        this.oldMsgLen += messages.length
+      }
+    })
+  }
+  infiniteUp() {
+    if (this.infiniteUpLock) return
+    this.infiniteUpLock = true
+    this.infiniteScroll('up')
+  }
+  infiniteDown() {
+    if (this.infiniteDownLock) return
+    this.infiniteScroll('down')
+  }
+  isMute(conversation: any) {
+    if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+      if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
+        return true
+      }
+    }
+    if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+      if (this.$moment().isBefore(conversation.muteUntil)) {
+        return true
+      }
+    }
+    return false
+  }
+  onDragEnter(e: any) {
+    this.lastEnter = e.target
+    e.preventDefault()
+    this.dragging = true
+  }
+  onDragLeave(e: any) {
+    if (this.lastEnter === e.target) {
+      e.stopPropagation()
+      e.preventDefault()
+      this.dragging = false
+    }
+  }
+  onClose() {
+    this.file = null
+    this.dragging = false
+  }
+  sendFile() {
+    if (!this.file) return
+    let size = this.file.size
+    if (size / 1000 > 30000) {
+      this.$toast(this.$t('chat.chat_file_invalid_size'))
+    } else {
+      let image = isImage(this.file.type)
+      var category
+      if (image) {
+        category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
+      } else {
+        category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
+      }
+      let mimeType = this.file.type
+      if (!mimeType) {
+        mimeType = 'text/plain'
+      }
+      const message = {
+        conversationId: this.conversation.conversationId,
+        mediaUrl: this.file.path,
+        mediaMimeType: mimeType,
+        category: category
+      }
+      this.actionSendAttachmentMessage(message)
+      this.goBottom()
+    }
+    this.file = null
+    this.dragging = false
+  }
+  onDragOver(e: any) {
+    e.preventDefault()
+  }
+  onDrop(e: any) {
+    e.preventDefault()
+    var fileList = e.dataTransfer.files
+    if (fileList.length > 0) {
+      this.file = fileList[0]
+    }
+    this.dragging = false
+  }
+  closeFile() {
+    this.dragging = false
+    this.file = null
+  }
+  showDetails() {
+    this.details = true
+  }
+  hideDetails() {
+    this.details = false
+  }
+  onItemClick(index: number) {
+    const chatMenu = this.$t('menu.chat')
+    const option = this.menus[index]
+    const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
+
+    if (key === 'contact_info') {
+      this.details = true
+    } else if (key === 'exit_group') {
+      this.actionExitGroup(this.conversation.conversationId)
+    } else if (key === 'clear') {
+      this.$Dialog.alert(
+        this.$t('chat.chat_clear'),
+        this.$t('ok'),
+        () => {
+          this.actionConversationClear(this.conversation.conversationId)
+        },
+        this.$t('cancel'),
+        () => {
+          console.log('cancel')
+        }
+      )
+    } else if (key === 'mute') {
+      let self = this
+      let ownerId = this.conversation.ownerId
+      this.$Dialog.options(
+        this.$t('chat.mute_title'),
+        this.$t('chat.mute_menu'),
+        this.$t('ok'),
+        (picked: any) => {
+          let duration = MuteDuration.HOURS
+          if (picked === 0) {
+            duration = MuteDuration.HOURS
+          } else if (picked === 1) {
+            duration = MuteDuration.WEEK
+          } else {
+            duration = MuteDuration.YEAR
+          }
+          conversationAPI.mute(self.conversation.conversationId, duration).then(resp => {
+            if (resp.data.data) {
+              const c = resp.data.data
+              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              if (picked === 0) {
+                this.$toast(this.$t('chat.mute_hours'))
+              } else if (picked === 1) {
+                this.$toast(this.$t('chat.mute_week'))
+              } else {
+                this.$toast(this.$t('chat.mute_year'))
+              }
+            }
+          })
+        },
+        this.$t('cancel'),
+        () => {
+          console.log('cancel')
+        }
+      )
+    } else if (key === 'cancel_mute') {
+      let self = this
+      let ownerId = this.conversation.ownerId
+      this.$Dialog.alert(
+        this.$t('chat.chat_mute_cancel'),
+        this.$t('ok'),
+        () => {
+          conversationAPI.mute(self.conversation.conversationId, 0).then(resp => {
+            if (resp.data.data) {
+              const c = resp.data.data
+              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              this.$toast(this.$t('chat.mute_cancel'))
+            }
+          })
+        },
+        this.$t('cancel'),
+        () => {
+          console.log('cancel')
+        }
+      )
+    } else if (key === 'create_post') {
+      this.actionToggleEditor()
+    }
+  }
+  onUserClick(userId: any) {
+    let user = userDao.findUserById(userId)
+    this.actionCreateUserConversation({
+      user
+    })
+  }
+  handleAction(action: any) {
+    if (action.startsWith('input:')) {
+      const content = action.split('input:')[1]
+      const msg = {
+        conversationId: this.conversation.conversationId,
+        content,
+        category: 'PLAIN_TEXT',
+        status: MessageStatus.SENDING
+      }
+      this.actionSendMessage({ msg })
+      this.goBottom()
+    } else {
+      browser.loadURL(action)
+    }
+  }
+  chatSearch() {
+    this.searching = true
+  }
+  hideSearch() {
+    this.searching = false
+  }
+  openUrl() {
+    let app = appDao.findAppByUserId(this.user.app_id)
+    if (app) {
+      browser.loadURL(app.home_uri)
+    }
+  }
+
+  @Action('sendMessage') actionSendMessage: any
+  @Action('setCurrentMessages') actionSetCurrentMessages: any
+  @Action('markRead') actionMarkRead: any
+  @Action('sendStickerMessage') actionSendStickerMessage: any
+  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
+  @Action('exitGroup') actionExitGroup: any
+  @Action('conversationClear') actionConversationClear: any
+  @Action('toggleEditor') actionToggleEditor: any
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('recallMessage') actionRecallMessage: any
+
+  sendMessage(event: any) {
+    if (this.inputFlag === true || event.shiftKey) {
+      return
+    }
+    event.stopPropagation()
+    event.preventDefault()
+    const text = contentUtil.messageFilteredText(this.$refs.box)
+    if (text.trim().length <= 0) {
+      return
+    }
+    this.stickerChoosing = false
+    conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
+    this.$refs.box.innerText = ''
+    const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
+    const status = MessageStatus.SENDING
+    const message = {
+      conversationId: this.conversation.conversationId,
+      content: text.trim(),
+      category: category,
+      status: status
+    }
+    let msg: any = {
+      quoteId: ''
+    }
+    if (this.boxMessage) {
+      msg.quoteId = this.boxMessage.messageId
+      this.boxMessage = null
+    }
+    msg.msg = message
+    this.actionSendMessage(msg)
+    this.goBottom()
+  }
+  handleItemClick({ type, message }: any) {
+    switch (type) {
+      case 'Reply':
+        this.handleReply(message)
+        break
+      case 'Forward':
+        this.handleForward(message)
+        break
+      case 'Remove':
+        this.handleRemove(message)
+        break
+      case 'Recall':
+        this.handleRecall(message)
+        break
+      default:
+        break
+    }
+  }
+  handleReply(message: any) {
+    this.boxMessage = message
+  }
+  handleForward(message: any) {
+    this.forwardList = true
+  }
+  handleRemove(message: any) {
+    if (!message) return
+    messageBox.deleteMessages([message.messageId])
+  }
+  handleRecall(message: any) {
+    if (!message) return
+    this.actionRecallMessage({
+      messageId: message.messageId,
+      conversationId: message.conversationId
+    })
+  }
+  hidenReplyBox() {
+    this.boxMessage = null
+  }
+  handleHideMessageForward(el: any) {
+    this.forwardList = false
+  }
+  handleShowMessageForward() {
+    this.forwardList = true
+  }
 }
+
 </script>
 
 <style lang="scss" scoped>

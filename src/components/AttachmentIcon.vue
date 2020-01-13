@@ -9,7 +9,7 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component
-export default class App extends Vue {
+export default class AttachmentIcon extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Object) readonly me: any
 
@@ -21,6 +21,7 @@ export default class App extends Vue {
 
 <style lang="scss" scoped>
 .accachment {
+  cursor: pointer;
   width: 2.5rem;
   height: 2.5rem;
   margin-right: 0.75rem;

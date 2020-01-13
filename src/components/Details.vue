@@ -40,7 +40,8 @@
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import {
-  Getter
+  Getter,
+  Action
 } from 'vuex-class'
 
 import UserItem from '@/components/UserItem.vue'
@@ -54,14 +55,19 @@ import { ConversationCategory } from '@/utils/constants'
     UserItem
   }
 })
-export default class App extends Vue {
+export default class Details extends Vue {
   @Getter('currentConversation') conversation: any
   @Getter('currentUser') user: any
 
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('refreshUser') actionRefreshUser: any
+  @Action('syncConversation') actionSyncConversation: any
+
   contentUtil: any = contentUtil
+  $t: any
 
   setConversation(user: Object) {
-    this.$store.dispatch('createUserConversation', {
+    this.actionCreateUserConversation({
       user
     })
   }
@@ -88,12 +94,12 @@ export default class App extends Vue {
 
   mounted() {
     if (this.conversation.category === ConversationCategory.CONTACT) {
-      this.$store.dispatch('refreshUser', {
+      this.actionRefreshUser({
         userId: this.conversation.ownerId,
         conversationId: this.conversation.conversationId
       })
     } else {
-      this.$store.dispatch('syncConversation', this.conversation.conversationId)
+      this.actionSyncConversation(this.conversation.conversationId)
     }
   }
 }

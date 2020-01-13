@@ -16,7 +16,7 @@ import {
 } from '@/utils/constants'
 
 @Component
-export default class App extends Vue {
+export default class TimeAndStatus extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Boolean) readonly relative: any
 

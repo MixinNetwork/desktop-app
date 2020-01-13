@@ -224,6 +224,7 @@ export default {
       display: flex;
       align-items: center;
       .audio-status {
+        cursor: pointer;
         width: 1.875rem;
         height: 1.875rem;
         border-radius: 1.25rem;
@@ -235,6 +236,7 @@ export default {
         margin-right: 0.6rem;
       }
       .audio-progress {
+        cursor: pointer;
         width: 11rem;
         height: 0.125rem;
         margin: 0.3rem 0 0.1rem;

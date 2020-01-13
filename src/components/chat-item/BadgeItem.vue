@@ -116,7 +116,7 @@ export default class BadgeItem extends Vue {
     justify-content: flex-start;
     align-items: center;
     padding-right: 0.5rem;
-    // pointer-events: none;
+    pointer-events: none;
   }
   .badge {
     pointer-events: auto;

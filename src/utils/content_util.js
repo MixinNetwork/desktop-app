@@ -38,7 +38,7 @@ export default {
       return `${i18n.t('week_prefix')[0]}${i18n.t('week')[t.get('day')]}`
     } else {
       let [yearStr, monthStr, dayStr] = i18n.t('date')
-      if (n.get('year') === t.get('year') && !showDetail) {
+      if (n.get('year') === t.get('year') || !showDetail) {
         yearStr = ''
       } else {
         yearStr = t.get('year') + yearStr

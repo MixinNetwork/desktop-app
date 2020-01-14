@@ -276,7 +276,7 @@ export default class ChatContainer extends Vue {
           menu.push(chatMenu.mute)
         }
       }
-      menu.push(chatMenu.create_post)
+      // menu.push(chatMenu.create_post)
       this.menus = menu
     }
   }

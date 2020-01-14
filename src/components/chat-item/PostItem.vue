@@ -95,7 +95,7 @@ export default class PostItem extends Vue {
 
     .post {
       box-sizing: border-box;
-      height: 10rem;
+      max-height: 10rem;
 
       font-size: 0.75rem;
       border-radius: 0.2rem;
@@ -103,6 +103,7 @@ export default class PostItem extends Vue {
       padding: 1rem;
       .inner {
         height: 100%;
+        max-height: 8.5rem;
         word-break: break-word;
         overflow: hidden;
       }

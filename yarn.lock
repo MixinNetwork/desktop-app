@@ -11216,10 +11216,10 @@ vue-axios@^2.1.5:
   resolved "https://registry.yarnpkg.com/vue-axios/-/vue-axios-2.1.5.tgz#1af4bf1218ed71309c76afb38d0f683e312c24a7"
   integrity sha512-th5xVbInVoyIoe+qY+9GCflEVezxAvztD4xpFF39SRQYqpoKD2qkmX8yv08jJG9a2SgNOCjirjJGSwg/wTrbmA==
 
-vue-class-component@^7.1.0, vue-class-component@^7.2.1:
-  version "7.2.1"
-  resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.2.1.tgz#5aa0d6aef4c42aec801c53feb2937a322d3270f9"
-  integrity sha512-ehfZKyeV7nQK3gFZ7hS/cNLNMJwBa0IjZ6v1VqAw8ZRT2J8VObW0RouVX/rC1/3iEjoTUstWf5FR7JiAx+/YSw==
+vue-class-component@^7.1.0, vue-class-component@^7.2.2:
+  version "7.2.2"
+  resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.2.2.tgz#aecc6d28801f64c61eb04407cf3a5476da26b0c0"
+  integrity sha512-QjVfjRffux0rUBNtxr1hvUxDrfifDvk9q/OSdB/sKIlfxAudDF2E1YTeiEC+qOYIOOBGWkgSKQSnast6H+S38w==
 
 vue-cli-plugin-electron-builder@^1.4.4:
   version "1.4.4"

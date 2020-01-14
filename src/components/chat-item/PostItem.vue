@@ -67,6 +67,7 @@ export default class PostItem extends Vue {
   margin-left: 0.8rem;
   margin-right: 0.8rem;
   flex-direction: column;
+  cursor: pointer;
   .username {
     display: inline-block;
     font-size: 0.85rem;

@@ -12,7 +12,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @handleMenuClick="handleMenuClick"
       @user-click="$emit('user-click',message.userId)"
     ></StickerItem>
@@ -21,7 +21,7 @@
       v-else-if="message.type === 'SYSTEM_ACCOUNT_SNAPSHOT'"
       :message="message"
       :me="me"
-      :coversation="conversation"
+      :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
     ></TransferItem>
@@ -31,7 +31,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @user-share-click="$emit('user-click',message.sharedUserId)"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -42,7 +42,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -53,7 +53,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -63,7 +63,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       v-else-if="message.type.endsWith('_VIDEO')"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -74,7 +74,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
     ></RecallItem>
@@ -84,10 +84,9 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
-      @preview="preview"
       @mediaClick="mediaClick"
     ></ImageItem>
 
@@ -96,7 +95,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
       @liveClick="liveClick"
@@ -107,7 +106,7 @@
       :message="message"
       :me="me"
       :showName="this.showUserName()"
-      :coversation="conversation"
+      :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
     ></PostItem>
@@ -199,17 +198,11 @@ import RecallItem from './chat-item/RecallItem.vue'
 import BadgeItem from './chat-item/BadgeItem.vue'
 import TimeAndStatus from './chat-item/TimeAndStatus.vue'
 
-import messageDao from '@/dao/message_dao'
-
 import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
 import contentUtil from '@/utils/content_util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
-import {
-  Getter,
-  Action
-} from 'vuex-class'
 
 @Component({
   name: 'MessageItem',
@@ -239,8 +232,6 @@ export default class MessageItem extends Vue {
   @Prop(String) readonly unread: any
   @Prop(String) readonly searchKeyword: any
 
-  @Getter('currentMessages') currentMessages: any
-
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
   fouse: boolean = false
@@ -248,7 +239,6 @@ export default class MessageItem extends Vue {
   $moment: any
   $Dialog: any
   $Menu: any
-  $imageViewer: any
 
   mediaClick() {
     if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
@@ -290,34 +280,6 @@ export default class MessageItem extends Vue {
         this.message.userId !== this.me.user_id &&
         (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
     )
-  }
-  preview() {
-    if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
-      let position = 0
-      const messages = this.currentMessages
-      let firstImage = null
-      for (let i = 0; i < messages.length; i++) {
-        if (messages[i].type.endsWith('_IMAGE') && this.message.mediaUrl) {
-          firstImage = messages[i]
-          break
-        }
-      }
-      if (!firstImage) {
-        return setTimeout(() => {
-          this.preview()
-        }, 100)
-      }
-      let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
-      let images = local.map((item: any, index: any) => {
-        if (item.message_id === this.message.messageId) {
-          position = index
-        }
-        return { url: item.media_url, width: item.media_width, height: item.media_height }
-      })
-      this.$imageViewer.images(images)
-      this.$imageViewer.index(position)
-      this.$imageViewer.show()
-    }
   }
   liveClick() {
     let message = this.message

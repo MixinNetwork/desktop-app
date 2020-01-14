@@ -9,5 +9,8 @@ export default {
   },
   getSessions(body: any) {
     return api.post('/sessions/fetch', body)
+  },
+  updateSession(body: any) {
+    return api.post('/session', body)
   }
 }

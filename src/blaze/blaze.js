@@ -129,7 +129,7 @@ class Blaze {
           transaction(blazeMsg)
           delete this.transactions[blazeMsg.id]
         }
-        console.log(blazeMsg.error)
+        console.log(blazeMsg)
       }
     }
   }

@@ -8,6 +8,7 @@
 <script>
 import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account'
+import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
 import { clearDb } from '@/persistence/db_util'
 
@@ -42,6 +43,8 @@ export default {
         }
         return
       }
+      userAPI.updateSession({platform: 'Desktop', app_version: this.$electron.remote.app.getVersion()}).then(() => {
+      })
       this.pushSignalKeys().then(() => {
         const user = account.data.data
         if (user) {

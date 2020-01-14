@@ -46,6 +46,7 @@ export default class PostViewer extends Vue {
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: text;
 }
 .mask {
   position: absolute;
@@ -66,12 +67,14 @@ export default class PostViewer extends Vue {
     .svg-icon {
       font-size: 1.45rem;
       cursor: pointer;
-      margin: 0.5rem 1rem;
+      margin: 0.75rem 1rem 0;
       float: right;
     }
   }
   .markdown {
-    padding: 0 1rem;
+    margin: 0 auto;
+    max-width: 50rem;
+    padding: 0 1rem 2rem;
   }
 }
 .modal-enter {

@@ -20,6 +20,7 @@
                 v-for="chat in chatList"
                 :key="chat.conversationId"
                 :chat="chat"
+                :keyword="keyword"
                 @item-click="onChatClick"
               ></ChatItem>
               <div class="title" id="contactTitle">{{$t('chat.chat_contact')}}</div>
@@ -27,6 +28,7 @@
                 v-for="user in contactList"
                 :key="user.user_id"
                 :user="user"
+                :keyword="keyword"
                 @user-click="onUserClick"
               ></UserItem>
             </div>
@@ -43,8 +45,12 @@ import Search from '@/components/Search.vue'
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
 
+import conversationDao from '@/dao/conversation_dao'
+import userDao from '@/dao/user_dao'
+import participantDao from '@/dao/participant_dao'
+
 import { Getter, Action } from 'vuex-class'
-import { MessageStatus } from '@/utils/constants'
+import { MessageStatus, ConversationCategory } from '@/utils/constants'
 
 @Component({
   components: {
@@ -56,6 +62,7 @@ import { MessageStatus } from '@/utils/constants'
 export default class MessageForward extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Object) readonly category: any
+  @Prop(Object) readonly me: any
 
   @Getter('currentConversation') conversation: any
   @Getter('getConversations') conversations: any
@@ -67,6 +74,7 @@ export default class MessageForward extends Vue {
 
   contacts: any[] = []
   chats: any[] = []
+  keyword: string = ''
   observer: any
   beforeContactTitleTop: number = 0
   showContactTitleFixed: boolean = false
@@ -132,7 +140,22 @@ export default class MessageForward extends Vue {
     }, 100)
   }
 
-  onSearch(text: string) {}
+  onSearch(keyword: string) {
+    this.keyword = keyword
+    const chats = conversationDao.fuzzySearchConversation(keyword)
+    chats.forEach((item: any, index: number) => {
+      const participants = participantDao.getParticipantsByConversationId(item.conversationId)
+      chats[index].participants = participants
+    })
+    this.chats = [...chats]
+    const contacts = userDao.fuzzySearchUser(this.me.user_id, keyword).filter((item: any) => {
+      if (!chats) return []
+      return !chats.some((conversation: any) => {
+        return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+      })
+    })
+    this.contacts = [...contacts]
+  }
 
   onChatClick(conversation: any) {
     this.$emit('close')
@@ -179,12 +202,12 @@ export default class MessageForward extends Vue {
   }
 
   get chatList() {
-    if (this.chats.length) return this.chats
+    if (this.chats.length || this.keyword) return this.chats
     return this.conversations
   }
 
   get contactList() {
-    if (this.contacts.length) return this.contacts
+    if (this.contacts.length || this.keyword) return this.contacts
     return this.friends
   }
 }
@@ -242,6 +265,7 @@ export default class MessageForward extends Vue {
     }
   }
   .list {
+    font-size: 1rem;
     height: calc(72vh - 8rem);
   }
 }

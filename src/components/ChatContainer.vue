@@ -105,7 +105,7 @@
       </div>
     </div>
 
-    <MessageForward v-if="forwardMessage" :message="forwardMessage" @close="handleHideMessageForward" />
+    <MessageForward v-if="forwardMessage" :me="me" :message="forwardMessage" @close="handleHideMessageForward" />
 
     <div class="empty" v-if="!conversation">
       <span>

@@ -10,7 +10,9 @@
         <div class="forward-search">
           <Search @input="onSearch" />
         </div>
-        <div class="title">{{showContactTitleFixed ? $t('chat.chat_contact') : $t('chat.recent_chat')}}</div>
+        <div
+          class="title"
+        >{{showContactTitleFixed ? $t('chat.chat_contact') : $t('chat.recent_chat')}}</div>
         <div class="list">
           <mixin-scrollbar>
             <div class="ul">
@@ -73,9 +75,60 @@ export default class MessageForward extends Vue {
   sendMessage() {
     setTimeout(() => {
       const message = this.message
-      const { conversationId } = this.conversation
+      const { conversationId, appId } = this.conversation
       const msg: any = {}
-      // TODO
+      const status: any = MessageStatus.SENDING
+
+      if (message.type.endsWith('_STICKER')) {
+        const { stickerId } = message
+        const category = appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+        const msg = {
+          conversationId,
+          stickerId,
+          category,
+          status
+        }
+        this.actionSendStickerMessage(msg)
+      } else if (message.type.endsWith('_CONTACT')) {
+
+      } else if (this.isFileType(message.type)) {
+        let { mediaUrl, mediaMimeType } = message
+        if (/^file:\/\//.test(mediaUrl)) {
+          mediaUrl = mediaUrl.split('file://')[1]
+        }
+
+        const typeEnds = message.type.split('_')[1]
+        const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
+        const msg = {
+          conversationId,
+          mediaUrl,
+          mediaMimeType,
+          category
+        }
+        this.actionSendAttachmentMessage(msg)
+      } else if (message.type.endsWith('_POST')) {
+        const category = appId ? 'PLAIN_POST' : 'SIGNAL_POST'
+        const msg = {
+          msg: {
+            conversationId,
+            content: message.content,
+            category,
+            status
+          }
+        }
+        this.actionSendMessage(msg)
+      } else if (message.type.endsWith('_TEXT')) {
+        const category = appId ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
+        const msg = {
+          msg: {
+            conversationId,
+            content: message.content,
+            category,
+            status
+          }
+        }
+        this.actionSendMessage(msg)
+      }
     }, 100)
   }
 
@@ -114,6 +167,15 @@ export default class MessageForward extends Vue {
   }
   destroy() {
     this.observer = null
+  }
+
+  isFileType(type: string) {
+    return (type.endsWith('_IMAGE') ||
+        type.endsWith('_DATA') ||
+        type.endsWith('_AUDIO') ||
+        type.endsWith('_VIDEO') ||
+        type.endsWith('_IMAGE') ||
+        type.endsWith('_LIVE'))
   }
 
   get chatList() {

@@ -1,6 +1,6 @@
 <template>
   <transition name="modal">
-    <div class="root" @touchmove="notAllowTouchMove($event)" @contextmenu.prevent="dismiss($event)">
+    <div class="root">
       <div class="mask"></div>
       <div class="message-forward">
         <div class="header">
@@ -41,7 +41,8 @@ import Search from '@/components/Search.vue'
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
 
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
+import { MessageStatus } from '@/utils/constants'
 
 @Component({
   components: {
@@ -52,25 +53,50 @@ import { Getter } from 'vuex-class'
 })
 export default class MessageForward extends Vue {
   @Prop(Object) readonly message: any
-  @Prop(Object) readonly me: any
+  @Prop(Object) readonly category: any
 
+  @Getter('currentConversation') conversation: any
   @Getter('getConversations') conversations: any
   @Getter('findFriends') friends: any
+
+  @Action('sendMessage') actionSendMessage: any
+  @Action('sendStickerMessage') actionSendStickerMessage: any
+  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
 
   contacts: any[] = []
   chats: any[] = []
   observer: any
   beforeContactTitleTop: number = 0
   showContactTitleFixed: boolean = false
+  MessageStatus: any = MessageStatus
 
-  notAllowTouchMove(event: any) {
-    event.preventDefault()
+  sendMessage() {
+    setTimeout(() => {
+      const message = this.message
+      const { conversationId } = this.conversation
+      const msg: any = {}
+      // TODO
+    }, 100)
   }
 
   onSearch(text: string) {}
 
-  onChatClick() {}
-  onUserClick() {}
+  onChatClick(conversation: any) {
+    this.$emit('close')
+    this.$store.dispatch('setCurrentConversation', conversation)
+    conversation.unseenMessageCount = 0
+    setTimeout(() => {
+      this.$store.dispatch('markRead', conversation.conversationId)
+    }, 100)
+    this.sendMessage()
+  }
+  onUserClick(user: any) {
+    this.$emit('close')
+    this.$store.dispatch('createUserConversation', {
+      user
+    })
+    this.sendMessage()
+  }
 
   mounted() {
     const callback = (entries: any) => {

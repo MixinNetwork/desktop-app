@@ -9,6 +9,7 @@ import Dialog from '@/components/dialog/Dialog'
 import Menu from '@/components/menu/Menu'
 import ImageViewer from '@/components/image-viewer/ImageViewer'
 import Scrollbar from '@/components/scrollbar/Scrollbar'
+import PostViewer from '@/components/post-viewer/PostViewer'
 import Toast from '@/components/toast/Toast'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import blaze from '@/blaze/blaze'
@@ -28,6 +29,7 @@ Vue.use(Menu)
 Vue.use(Toast)
 Vue.use(ImageViewer)
 Vue.use(Scrollbar)
+Vue.use(PostViewer)
 
 Vue.axios.defaults.baseURL = API_URL.HTTP
 Vue.axios.defaults.headers.post['Content-Type'] = 'application/json'

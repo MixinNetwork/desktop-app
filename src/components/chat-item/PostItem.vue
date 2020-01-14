@@ -10,7 +10,7 @@
     </div>
     <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
       <div class="content">
-        <div class="post">
+        <div class="post" @click="preview">
           <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
         </div>
         <div class="bottom">
@@ -47,6 +47,7 @@ export default class PostItem extends Vue {
 
   @Getter('attachment') attachment: any
 
+  $postViewer: any
   MessageStatus: any = MessageStatus
 
   messageOwnership() {
@@ -58,6 +59,10 @@ export default class PostItem extends Vue {
   }
   getColor(id: string) {
     return getNameColorById(id)
+  }
+  preview() {
+    this.$postViewer.setPost(this.message.content)
+    this.$postViewer.show()
   }
 }
 </script>

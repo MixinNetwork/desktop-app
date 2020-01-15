@@ -49,6 +49,8 @@
 import { getNameColorById } from '@/utils/util'
 import Avatar from '@/components/Avatar'
 import userDao from '@/dao/user_dao'
+import { messageType } from '@/utils/constants'
+
 export default {
   props: ['message', 'me'],
   data() {
@@ -97,7 +99,7 @@ export default {
       } else if (this.message.type.endsWith('_LIVE')) {
         return this.$t('chat.chat_live')
       } else if (this.message.type.endsWith('_AUDIO')) {
-        return this.formatSeconds(this.message.mediaDuration)
+        return this.$moment(Math.ceil((this.message.mediaDuration - 0) / 1000) * 1000).format('mm:ss')
       } else if (this.message.type.startsWith('APP_CARD')) {
         return JSON.parse(this.message.content).description
       } else if (this.message.type.endsWith('_DATA')) {
@@ -119,55 +121,8 @@ export default {
       }
       return message.mediaUrl
     },
-    formatSeconds(msd) {
-      let time = parseFloat(msd) / 1000
-      if (time !== null && time !== '') {
-        // let h = parseInt(time / 3600.0)
-        let m = parseInt((parseFloat(time / 3600.0) - parseInt(time / 3600.0)) * 60)
-        let s = parseInt(
-          (parseFloat((parseFloat(time / 3600.0) - parseInt(time / 3600.0)) * 60) -
-            parseInt((parseFloat(time / 3600.0) - parseInt(time / 3600.0)) * 60)) *
-            60
-        )
-        if (m < 10) {
-          m = '0' + m
-        }
-        if (s < 10) {
-          s = '0' + s
-        }
-        time = m + ':' + s
-      }
-      return time
-    },
     messageType() {
-      let type = this.message.type
-      if (type.endsWith('_STICKER')) {
-        return 'sticker'
-      } else if (type.endsWith('_IMAGE')) {
-        return 'image'
-      } else if (type.endsWith('_TEXT')) {
-        return 'text'
-      } else if (type.endsWith('_VIDEO')) {
-        return 'video'
-      } else if (type.endsWith('_LIVE')) {
-        return 'live'
-      } else if (type.endsWith('_AUDIO')) {
-        return 'audio'
-      } else if (type.endsWith('_DATA')) {
-        return 'file'
-      } else if (type.endsWith('_CONTACT')) {
-        return 'contact'
-      } else if (type.startsWith('APP_')) {
-        if (type === 'APP_CARD') {
-          return 'app_card'
-        } else {
-          return 'app_button'
-        }
-      } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-        return 'transfer'
-      } else {
-        return 'unknown'
-      }
+      return messageType(this.message.type)
     }
   }
 }

@@ -52,7 +52,6 @@ export default class PostItem extends Vue {
 
   messageOwnership() {
     let { message, me } = this
-    console.log(55, message)
     return {
       send: message.userId === me.user_id,
       receive: message.userId !== me.user_id

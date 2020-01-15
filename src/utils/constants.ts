@@ -110,6 +110,36 @@ export const MessageStatus = {
   FAILED: 'FAILED'
 }
 
+export function messageType(type: string) {
+  if (type.endsWith('_STICKER')) {
+    return 'sticker'
+  } else if (type.endsWith('_IMAGE')) {
+    return 'image'
+  } else if (type.endsWith('_TEXT')) {
+    return 'text'
+  } else if (type.endsWith('_VIDEO')) {
+    return 'video'
+  } else if (type.endsWith('_LIVE')) {
+    return 'live'
+  } else if (type.endsWith('_AUDIO')) {
+    return 'audio'
+  } else if (type.endsWith('_DATA')) {
+    return 'file'
+  } else if (type.endsWith('_CONTACT')) {
+    return 'contact'
+  } else if (type.startsWith('APP_')) {
+    if (type === 'APP_CARD') {
+      return 'app_card'
+    } else {
+      return 'app_button'
+    }
+  } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+    return 'transfer'
+  } else {
+    return 'unknown'
+  }
+}
+
 export function canReply(type: string) {
   return (
     type === MessageCategories.SIGNAL_TEXT ||

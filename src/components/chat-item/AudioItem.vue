@@ -169,10 +169,7 @@ export default {
       }
     },
     transTime(value) {
-      if (value < 1) {
-        value = 1
-      }
-      return this.$moment(value * 1000).format('mm:ss')
+      return this.$moment(Math.ceil(value - 0) * 1000).format('mm:ss')
     }
   },
   computed: {

@@ -5916,10 +5916,10 @@ internal-ip@^4.3.0:
     default-gateway "^4.2.0"
     ipaddr.js "^1.9.0"
 
-interval-promise@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/interval-promise/-/interval-promise-1.3.0.tgz#26fc4fbcd18605162d0dd012c2cc5657c4f8bc22"
-  integrity sha512-AebPZJ0o6D1jWg487njjrhfzBp6/hfmtWCMQhXr0SXD7Zg5RexQe4Y6joYiGieJziP7W7WEMQWxFKSbywXmhbw==
+interval-promise@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/interval-promise/-/interval-promise-1.4.0.tgz#eef1a3633c6c6560488d8ca4b2f52cf901e16f8d"
+  integrity sha512-PUwEmGqUglJhb6M01JNvMDvxr4DA8FCeYoYCLHPEcBBZiq/8yOpCchfs1VJui7fXj69l170gAxzF1FeSA0nSlg==
 
 invariant@^2.2.2:
   version "2.2.4"

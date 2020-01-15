@@ -54,13 +54,10 @@ class UserDao {
       .prepare('SELECT u.* FROM users u, conversations c WHERE c.owner_id = u.user_id AND c.conversation_id = ?')
       .get(conversationId)
   }
-  fuzzySearchUser(id, keyword) {
+  fuzzySearchUser(keyword) {
     return db
       .prepare(
-        `SELECT * FROM users WHERE user_id != '${id}' AND relationship = 'FRIEND' AND (full_name LIKE '%${keyword.replace(
-          "'",
-          ''
-        )}%' OR identity_number LIKE '%${keyword}%')`
+        `SELECT * FROM users WHERE relationship = 'FRIEND' AND (full_name LIKE '%${keyword.replace("'", '')}%' OR identity_number LIKE '%${keyword}%')`
       )
       .all()
   }

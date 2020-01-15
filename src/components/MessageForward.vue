@@ -148,7 +148,7 @@ export default class MessageForward extends Vue {
       chats[index].participants = participants
     })
     this.chats = [...chats]
-    const contacts = userDao.fuzzySearchUser(this.me.user_id, keyword).filter((item: any) => {
+    const contacts = userDao.fuzzySearchUser(keyword).filter((item: any) => {
       if (!chats) return []
       return !chats.some((conversation: any) => {
         return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id

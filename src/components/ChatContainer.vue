@@ -593,7 +593,7 @@ export default class ChatContainer extends Vue {
   sendFile() {
     if (!this.file) return
     let size = this.file.size
-    if (size / 1000 > 30000) {
+    if (size / 1000 > 102400) {
       this.$toast(this.$t('chat.chat_file_invalid_size'))
     } else {
       let image = isImage(this.file.type)

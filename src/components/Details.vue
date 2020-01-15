@@ -29,7 +29,7 @@
             :key="user.user_id"
             :user="user"
             :showRole="true"
-            @user-click="setConversation"
+            @user-click="participantClick"
           ></UserItem>
         </div>
       </div>
@@ -65,10 +65,34 @@ export default class Details extends Vue {
 
   contentUtil: any = contentUtil
   $t: any
+  $Menu: any
 
-  setConversation(user: Object) {
-    this.actionCreateUserConversation({
-      user
+  participantClick(user: Object) {
+    const participantMenu = this.$t('menu.participant')
+    const menu: string[] = []
+
+    // menu.push(participantMenu.profile)
+    menu.push(participantMenu.send_message)
+
+    // @ts-ignore
+    const account = JSON.parse(localStorage.getItem('account'))
+    // @ts-ignore
+    if (user.user_id === account.user_id) {
+      return
+    }
+
+    // @ts-ignore
+    this.$Menu.alert(event.clientX, event.clientY, menu, index => {
+      const option = menu[index]
+      const position = Object.keys(participantMenu).find(key => participantMenu[key] === option)
+
+      if (position === 'send_message') {
+        this.actionCreateUserConversation({
+          user
+        })
+      } else if (position === 'profile') {
+
+      }
     })
   }
 

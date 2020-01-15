@@ -18,7 +18,7 @@ export async function downloadAttachment(message) {
   try {
     const response = await attachmentApi.getAttachment(message.content)
     if (response.data.data) {
-      var dir
+      let dir
       if (message.category.endsWith('_IMAGE')) {
         dir = getImagePath()
       } else if (message.category.endsWith('_VIDEO')) {
@@ -77,17 +77,17 @@ function processAttachment(imagePath, mimeType, category, id) {
 }
 
 export async function base64ToImage(img, mimeType) {
-  var data = img.replace(/^data:image\/\w+;base64,/, '')
-  var buf = Buffer.from(data, 'base64')
+  let data = img.replace(/^data:image\/\w+;base64,/, '')
+  let buf = Buffer.from(data, 'base64')
   const destination = path.join(getImagePath(), generateName(null, mimeType, '_IMAGE'))
   await fs.writeFileSync(destination, buf)
   return { path: destination, type: mimeType }
 }
 
 function toArrayBuffer(buf) {
-  var ab = new ArrayBuffer(buf.length)
-  var view = new Uint8Array(ab)
-  for (var i = 0; i < buf.length; ++i) {
+  let ab = new ArrayBuffer(buf.length)
+  let view = new Uint8Array(ab)
+  for (let i = 0; i < buf.length; ++i) {
     view[i] = buf[i]
   }
   return ab
@@ -105,9 +105,9 @@ function base64Thumbnail(url, width, height) {
 }
 export async function putAttachment(imagePath, mimeType, category, id, processCallback, sendCallback, errorCallback) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
-  var mediaWidth = null
-  var mediaHeight = null
-  var thumbImage = null
+  let mediaWidth = null
+  let mediaHeight = null
+  let thumbImage = null
   if (category.endsWith('_IMAGE')) {
     const dimensions = sizeOf(localPath)
     mediaWidth = dimensions.width
@@ -116,9 +116,9 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
     // thumbImage =
     //   'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
   }
-  var buffer = fs.readFileSync(localPath)
-  var key
-  var digest
+  let buffer = fs.readFileSync(localPath)
+  let key
+  let digest
   const message = {
     name: name,
     mediaSize: buffer.byteLength,
@@ -181,9 +181,9 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
 }
 
 export async function uploadAttachment(localPath, category, sendCallback, errorCallback) {
-  var key
-  var digest
-  var buffer = fs.readFileSync(localPath)
+  let key
+  let digest
+  let buffer = fs.readFileSync(localPath)
   if (category.startsWith('SIGNAL_')) {
     // eslint-disable-next-line no-undef
     key = libsignal.crypto.getRandomBytes(64)
@@ -237,7 +237,7 @@ function generateName(fileName, mimeType, category, id) {
   const name = `${date.getFullYear()}${date.getMonth()}${date.getDay()}_${date.getHours()}${date.getMinutes()}_${Math.abs(
     signalProtocol.convertToDeviceId(id)
   )}`
-  var header
+  let header
   if (category.endsWith('_IMAGE')) {
     header = 'IMG'
   } else if (category.endsWith('_VIDEO')) {
@@ -249,7 +249,7 @@ function generateName(fileName, mimeType, category, id) {
     header = 'AUDIO'
     return `${header}_${name}.ogg`
   }
-  var extension
+  let extension
   if (mimeType === MimeType.JPEG.name) {
     extension = MimeType.JPEG.extension
   } else if (mimeType === MimeType.PNG.name) {

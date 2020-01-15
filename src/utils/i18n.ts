@@ -35,6 +35,10 @@ let transactions = {
         cancel_mute: 'Cancel Mute',
         create_post: 'Create post'
       },
+      participant: {
+        profile: 'Profile',
+        send_message: 'Send Message'
+      },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
         reply: 'Reply',
@@ -177,6 +181,10 @@ let transactions = {
         mute: '静音',
         cancel_mute: '取消静音',
         create_post: '创建文章'
+      },
+      participant: {
+        profile: '信息',
+        send_message: '发送信息'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {

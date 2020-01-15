@@ -117,7 +117,7 @@ export default {
       return message.mediaUrl
     },
     formatSeconds(msd) {
-      var time = parseFloat(msd) / 1000
+      let time = parseFloat(msd) / 1000
       if (time !== null && time !== '') {
         // let h = parseInt(time / 3600.0)
         let m = parseInt((parseFloat(time / 3600.0) - parseInt(time / 3600.0)) * 60)

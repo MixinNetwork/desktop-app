@@ -90,7 +90,7 @@ export default {
     },
     cancel: function(user) {
       const { slected } = this
-      var index = slected.indexOf(user)
+      const index = slected.indexOf(user)
       if (index > -1) {
         slected.splice(index, 1)
       }

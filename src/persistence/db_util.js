@@ -10,7 +10,7 @@ export function getDbPath() {
   return dbPath
 }
 
-var clearing = false
+let clearing = false
 export function clearDb() {
   if (clearing) {
     return

@@ -252,7 +252,7 @@ export default class ChatContainer extends Vue {
         }
       }
       const chatMenu = this.$t('menu.chat')
-      var menu = []
+      let menu = []
       if (newC.category === ConversationCategory.CONTACT) {
         menu.push(chatMenu.contact_info)
         menu.push(chatMenu.clear)
@@ -355,7 +355,7 @@ export default class ChatContainer extends Vue {
         reader.readAsDataURL(blob)
         return
       }
-      var text = (event.originalEvent || event).clipboardData.getData('text/plain')
+      let text = (event.originalEvent || event).clipboardData.getData('text/plain')
       if (text) {
         document.execCommand('insertText', false, text)
       }
@@ -597,7 +597,7 @@ export default class ChatContainer extends Vue {
       this.$toast(this.$t('chat.chat_file_invalid_size'))
     } else {
       let image = isImage(this.file.type)
-      var category
+      let category
       if (image) {
         category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
       } else {
@@ -624,7 +624,7 @@ export default class ChatContainer extends Vue {
   }
   onDrop(e: any) {
     e.preventDefault()
-    var fileList = e.dataTransfer.files
+    let fileList = e.dataTransfer.files
     if (fileList.length > 0) {
       this.file = fileList[0]
     }

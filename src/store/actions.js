@@ -56,7 +56,7 @@ async function refreshParticipants(conversationId, participants, callback) {
   const localIds = local.map(function(item) {
     return item.user_id
   })
-  var online = []
+  const online = []
   participants.forEach(function(item, index) {
     online[index] = {
       conversation_id: conversationId,
@@ -148,7 +148,7 @@ export default {
     if (user.user_id === account.user_id) {
       return
     }
-    var conversation = conversationDao.getConversationByUserId(user.user_id)
+    let conversation = conversationDao.getConversationByUserId(user.user_id)
     if (conversation && state.conversations && state.conversations[conversation.conversation_id]) {
       commit('setCurrentConversation', conversation)
     } else {

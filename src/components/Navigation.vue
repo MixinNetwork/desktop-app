@@ -360,7 +360,7 @@ export default {
     },
     getMenu(isContact, isExit, pinTime, isMute) {
       const conversationMenu = this.$t('menu.conversation')
-      var menu = []
+      const menu = []
       if (!isContact) {
         if (!isExit) {
           menu.push(conversationMenu.exit_group)

@@ -55,7 +55,7 @@ export function getToken(method, uri, data) {
 }
 
 export function hexToBytes(hex) {
-  var bytes = []
+  const bytes = []
   for (let c = 0; c < hex.length; c += 2) {
     bytes.push(parseInt(hex.substr(c, 2), 16))
   }

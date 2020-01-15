@@ -17,7 +17,9 @@
           placeholder="Search"
           @focus="onFocus"
           @blur="onBlur"
-          @input="$emit('input', $event.target.value)"
+          @compositionstart="inputFlag = true"
+          @compositionend="inputFlag = false"
+          @input="inputFlag ? '' : $emit('input', $event.target.value)"
         />
       </keep-alive>
     </div>
@@ -56,6 +58,7 @@ export default {
   data() {
     return {
       focus: false,
+      inputFlag: false,
       layoutStyle: {
         width: '100%',
         display: 'flex',

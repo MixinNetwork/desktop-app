@@ -129,9 +129,13 @@ export default {
         return this.getMessageName() + this.$t('chat.chat_post')
       } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
         if (conversation.contentType === 'APP_CARD') {
-          return this.getMessageName() + this.$t('chat.chat_app_card')
+          return `[${JSON.parse(this.conversation.content).title}]`
         } else {
-          return this.getMessageName() + this.$t('chat.chat_app_button')
+          let str = ''
+          JSON.parse(this.conversation.content).forEach(item => {
+            str += `[${item.label}]`
+          })
+          return str
         }
       } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
         return this.$t('chat.chat_transfer')

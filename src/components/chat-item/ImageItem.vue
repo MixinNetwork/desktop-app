@@ -15,7 +15,7 @@
               :src="media()"
               :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
               :style="borderSetObject()"
-              @click="$emit('preview')"
+              @click="preview"
             />
           </div>
           <spinner class="loading" v-if="loading"></spinner>
@@ -46,6 +46,9 @@ import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
+
+import messageDao from '@/dao/message_dao'
+
 let maxWidth = convertRemToPixels(10)
 let maxHeight = convertRemToPixels(15)
 
@@ -64,7 +67,9 @@ export default class ImageItem extends Vue {
   @Prop(Boolean) readonly showName: any
 
   @Getter('attachment') attachment: any
+  @Getter('currentMessages') currentMessages: any
 
+  $imageViewer: any
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
 
@@ -78,6 +83,35 @@ export default class ImageItem extends Vue {
 
   getColor(id: string) {
     return getNameColorById(id)
+  }
+
+  preview() {
+    if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
+      let position = 0
+      const messages = this.currentMessages
+      let firstImage = null
+      for (let i = 0; i < messages.length; i++) {
+        if (messages[i].type.endsWith('_IMAGE') && this.message.mediaUrl) {
+          firstImage = messages[i]
+          break
+        }
+      }
+      if (!firstImage) {
+        return setTimeout(() => {
+          this.preview()
+        }, 100)
+      }
+      let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
+      let images = local.map((item: any, index: any) => {
+        if (item.message_id === this.message.messageId) {
+          position = index
+        }
+        return { url: item.media_url, width: item.media_width, height: item.media_height }
+      })
+      this.$imageViewer.images(images)
+      this.$imageViewer.index(position)
+      this.$imageViewer.show()
+    }
   }
   media() {
     const { message } = this

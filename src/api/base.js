@@ -29,7 +29,7 @@ axiosApi.interceptors.request.use(
 axiosApi.interceptors.response.use(
   function(response) {
     if (response.data.error && response.data.error.code === 500) {
-      let config = response.config
+      const config = response.config
       if (!config || !config.retry) {
         return Promise.reject(response)
       }
@@ -38,7 +38,7 @@ axiosApi.interceptors.response.use(
         return Promise.reject(response)
       }
       config.__retryCount += 1
-      var backOff = new Promise(resolve => {
+      const backOff = new Promise(resolve => {
         setTimeout(() => {
           resolve()
         }, 1000)
@@ -67,12 +67,12 @@ axiosApi.interceptors.response.use(
     return response
   },
   function(error) {
-    let config = error.config
+    const config = error.config
     if (!config || !config.retry) {
       return Promise.reject(error)
     }
     config.__retryCount += 1
-    var backOff = new Promise(resolve => {
+    const backOff = new Promise(resolve => {
       setTimeout(() => {
         resolve()
       }, 200)

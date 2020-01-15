@@ -72,7 +72,7 @@ export function initPlayer(id) {
     })
   }
 
-  var currentURL = null
+  let currentURL = null
   ipcMain.on('play', (event, args) => {
     let playerWindow = getPlayerWindow()
     if (args.url !== currentURL) {

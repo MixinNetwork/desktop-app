@@ -97,21 +97,11 @@ export default {
     .markdown {
       flex: 1;
       display: block;
-      word-break: break-word;
       background-color: #eeffef;
       border: none;
       padding: 1rem;
-      line-height: 1.5;
       width: 100%;
       height: 100%;
-      font-size: 1rem;
-      font-weight: 400;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      color: #333;
-      outline: none;
-      p {
-        margin: 0 0 1rem;
-      }
     }
   }
 }

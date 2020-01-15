@@ -40,8 +40,6 @@
   </div>
 </template>
 <script lang="ts">
-import { mapGetters } from 'vuex'
-
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
 

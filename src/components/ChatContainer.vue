@@ -105,6 +105,8 @@
       </div>
     </div>
 
+    <MessageForward v-if="forwardMessage" :me="me" :message="forwardMessage" @close="handleHideMessageForward" />
+
     <div class="empty" v-if="!conversation">
       <span>
         <img src="../assets/empty.png" />
@@ -140,7 +142,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Vue, Watch, Component } from 'vue-property-decorator'
 import {
   Getter,
   Action
@@ -163,6 +165,7 @@ import TimeDivide from '@/components/TimeDivide.vue'
 import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
+import MessageForward from '@/components/MessageForward.vue'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
@@ -183,6 +186,7 @@ import appDao from '@/dao/app_dao'
     MessageItem,
     FileContainer,
     ReplyMessageContainer,
+    MessageForward,
     Editor
   }
 })
@@ -248,7 +252,7 @@ export default class ChatContainer extends Vue {
         }
       }
       const chatMenu = this.$t('menu.chat')
-      var menu = []
+      let menu = []
       if (newC.category === ConversationCategory.CONTACT) {
         menu.push(chatMenu.contact_info)
         menu.push(chatMenu.clear)
@@ -282,6 +286,17 @@ export default class ChatContainer extends Vue {
   @Getter('me') me: any
   @Getter('editing') editing: any
 
+  @Action('sendMessage') actionSendMessage: any
+  @Action('setCurrentMessages') actionSetCurrentMessages: any
+  @Action('markRead') actionMarkRead: any
+  @Action('sendStickerMessage') actionSendStickerMessage: any
+  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
+  @Action('exitGroup') actionExitGroup: any
+  @Action('conversationClear') actionConversationClear: any
+  @Action('toggleEditor') actionToggleEditor: any
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('recallMessage') actionRecallMessage: any
+
   $t: any
   $Dialog: any
   $toast: any
@@ -298,10 +313,10 @@ export default class ChatContainer extends Vue {
   inputFlag: any = false
   dragging: any = false
   file: any = null
-  messages: any = []
+  messages: any[] = []
   isBottom: any = true
   boxMessage: any = null
-  forwardList: any = false
+  forwardMessage: any = null
   currentUnreadNum: any = 0
   beforeUnseenMessageCount: any = 0
   oldMsgLen: any = 0
@@ -340,7 +355,7 @@ export default class ChatContainer extends Vue {
         reader.readAsDataURL(blob)
         return
       }
-      var text = (event.originalEvent || event).clipboardData.getData('text/plain')
+      let text = (event.originalEvent || event).clipboardData.getData('text/plain')
       if (text) {
         document.execCommand('insertText', false, text)
       }
@@ -578,11 +593,11 @@ export default class ChatContainer extends Vue {
   sendFile() {
     if (!this.file) return
     let size = this.file.size
-    if (size / 1000 > 30000) {
+    if (size / 1000 > 102400) {
       this.$toast(this.$t('chat.chat_file_invalid_size'))
     } else {
       let image = isImage(this.file.type)
-      var category
+      let category
       if (image) {
         category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
       } else {
@@ -609,7 +624,7 @@ export default class ChatContainer extends Vue {
   }
   onDrop(e: any) {
     e.preventDefault()
-    var fileList = e.dataTransfer.files
+    let fileList = e.dataTransfer.files
     if (fileList.length > 0) {
       this.file = fileList[0]
     }
@@ -739,17 +754,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Action('sendMessage') actionSendMessage: any
-  @Action('setCurrentMessages') actionSetCurrentMessages: any
-  @Action('markRead') actionMarkRead: any
-  @Action('sendStickerMessage') actionSendStickerMessage: any
-  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
-  @Action('exitGroup') actionExitGroup: any
-  @Action('conversationClear') actionConversationClear: any
-  @Action('toggleEditor') actionToggleEditor: any
-  @Action('createUserConversation') actionCreateUserConversation: any
-  @Action('recallMessage') actionRecallMessage: any
-
   sendMessage(event: any) {
     if (this.inputFlag === true || event.shiftKey) {
       return
@@ -804,7 +808,10 @@ export default class ChatContainer extends Vue {
     this.boxMessage = message
   }
   handleForward(message: any) {
-    this.forwardList = true
+    this.forwardMessage = message
+  }
+  handleHideMessageForward() {
+    this.forwardMessage = null
   }
   handleRemove(message: any) {
     if (!message) return
@@ -819,12 +826,6 @@ export default class ChatContainer extends Vue {
   }
   hidenReplyBox() {
     this.boxMessage = null
-  }
-  handleHideMessageForward(el: any) {
-    this.forwardList = false
-  }
-  handleShowMessageForward() {
-    this.forwardList = true
   }
 }
 

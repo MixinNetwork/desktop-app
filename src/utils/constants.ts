@@ -110,7 +110,61 @@ export const MessageStatus = {
   FAILED: 'FAILED'
 }
 
+export function messageType(type: string) {
+  if (type.endsWith('_STICKER')) {
+    return 'sticker'
+  } else if (type.endsWith('_IMAGE')) {
+    return 'image'
+  } else if (type.endsWith('_TEXT')) {
+    return 'text'
+  } else if (type.endsWith('_VIDEO')) {
+    return 'video'
+  } else if (type.endsWith('_LIVE')) {
+    return 'live'
+  } else if (type.endsWith('_AUDIO')) {
+    return 'audio'
+  } else if (type.endsWith('_DATA')) {
+    return 'file'
+  } else if (type.endsWith('_CONTACT')) {
+    return 'contact'
+  } else if (type.startsWith('APP_')) {
+    if (type === 'APP_CARD') {
+      return 'app_card'
+    } else {
+      return 'app_button'
+    }
+  } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+    return 'transfer'
+  } else {
+    return 'unknown'
+  }
+}
+
 export function canReply(type: string) {
+  return (
+    type === MessageCategories.SIGNAL_TEXT ||
+    type === MessageCategories.SIGNAL_IMAGE ||
+    type === MessageCategories.SIGNAL_VIDEO ||
+    type === MessageCategories.SIGNAL_AUDIO ||
+    type === MessageCategories.SIGNAL_DATA ||
+    type === MessageCategories.SIGNAL_STICKER ||
+    type === MessageCategories.SIGNAL_CONTACT ||
+    type === MessageCategories.SIGNAL_LIVE ||
+    type === MessageCategories.SIGNAL_POST ||
+    type === MessageCategories.APP_CARD ||
+    type === MessageCategories.PLAIN_TEXT ||
+    type === MessageCategories.PLAIN_IMAGE ||
+    type === MessageCategories.PLAIN_VIDEO ||
+    type === MessageCategories.PLAIN_AUDIO ||
+    type === MessageCategories.PLAIN_DATA ||
+    type === MessageCategories.PLAIN_STICKER ||
+    type === MessageCategories.PLAIN_CONTACT ||
+    type === MessageCategories.PLAIN_LIVE ||
+    type === MessageCategories.PLAIN_POST
+  )
+}
+
+export function canForward(type: string) {
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||

@@ -84,10 +84,10 @@ export default {
     }
   },
   computed: {
-    loading: function() {
+    loading() {
       return this.attachment.includes(this.message.messageId)
     },
-    fileName: function() {
+    fileName() {
       let name = this.message.mediaName
       if (name && name.length > 18) {
         return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
@@ -95,14 +95,14 @@ export default {
         return name
       }
     },
-    fileSize: function() {
+    fileSize() {
       let num = parseFloat(this.message.mediaSize)
-      var count = 0
+      let count = 0
       while (count > 3 || num > 1024) {
         num /= 1024
         count++
       }
-      var unit = 'Byte'
+      let unit = 'Byte'
       if (count === 1) {
         unit = 'KB'
       } else if (count === 2) {

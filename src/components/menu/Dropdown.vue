@@ -27,11 +27,11 @@ export default {
     this.showMenu = false
   },
   watch: {
-    showMenu: function(newV, oldV) {
+    showMenu(newV, oldV) {
       if (newV !== oldV) {
         if (newV) {
           this.searchColor = '#D6D6D6'
-          var rect = this.$el.getBoundingClientRect()
+          const rect = this.$el.getBoundingClientRect()
           this.$Menu.alert(
             rect.x - rect.width - 100,
             rect.top + rect.height + 3,

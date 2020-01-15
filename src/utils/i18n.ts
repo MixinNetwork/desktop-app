@@ -35,6 +35,10 @@ let transactions = {
         cancel_mute: 'Cancel Mute',
         create_post: 'Create post'
       },
+      participant: {
+        profile: 'Profile',
+        send_message: 'Send Message'
+      },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
         reply: 'Reply',
@@ -107,6 +111,8 @@ let transactions = {
       search_notify: 'Search for messages related to {0}',
       search_group_notify: 'Search for messages in {0}',
       search_id_or_phone: 'Search Mixin ID or phone number:',
+      recent_chat: 'Recent chat',
+      share_with: 'Share with',
       admin: 'Admin',
       owner: 'Owner'
     },
@@ -175,6 +181,10 @@ let transactions = {
         mute: '静音',
         cancel_mute: '取消静音',
         create_post: '创建文章'
+      },
+      participant: {
+        profile: '信息',
+        send_message: '发送信息'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {
@@ -248,6 +258,8 @@ let transactions = {
       search_notify: '搜索和 {0} 相关的消息',
       search_group_notify: '在 {0} 中搜索消息',
       search_id_or_phone: '搜索 Mixin ID 或手机号码：',
+      recent_chat: '最近聊天',
+      share_with: '分享给',
       admin: '管理员',
       owner: '群主'
     },

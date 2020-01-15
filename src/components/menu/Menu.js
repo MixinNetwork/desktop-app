@@ -20,7 +20,7 @@ const Menu = function(config = {}) {
 
 const Alert = function(x, y, menus, onItemClick) {
   let menuHeight = menus.length * 42 + 16
-  var bottom = y
+  let bottom = y
   if (menuHeight + y > window.innerHeight) {
     bottom = y - menuHeight
   }

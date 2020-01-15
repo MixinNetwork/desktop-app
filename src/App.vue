@@ -16,9 +16,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
-import {
-  Getter
-} from 'vuex-class'
+import { Getter } from 'vuex-class'
 
 @Component({
   components: {
@@ -136,6 +134,21 @@ b.highlight {
   &.in-bubble {
     background: #c4ed7a;
     border-radius: 0.25rem;
+  }
+}
+.markdown {
+  word-break: break-word;
+  line-height: 1.5;
+  font-size: 1rem;
+  font-weight: 400;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+  outline: none;
+  p {
+    margin: 0 0 1rem;
+    img {
+      max-width: 100%;
+    }
   }
 }
 </style>

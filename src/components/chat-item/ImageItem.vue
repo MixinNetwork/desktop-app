@@ -7,7 +7,7 @@
         :style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :style="{maxWidth: `calc(${borderSetObject(true)}px + 1.6rem)`}" :type="message.type">
         <div class="content" :class="{zoom: !waitStatus}">
           <div class="set" :style="borderSet()">
             <img
@@ -128,14 +128,20 @@ export default class ImageItem extends Vue {
     return 'height-set'
   }
 
-  borderSetObject() {
+  borderSetObject(getWidth: boolean) {
     const { message } = this
     const width = Math.min(message.mediaWidth, maxWidth)
     const scale = message.mediaWidth / message.mediaHeight
     if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+      if (getWidth) {
+        return width
+      }
       return { width: `${width}px`, height: `${width / scale}px` }
     }
     const height = Math.min(message.mediaHeight, maxHeight)
+    if (getWidth) {
+      return height * scale
+    }
     return { width: `${height * scale}px`, height: `${height}px` }
   }
 

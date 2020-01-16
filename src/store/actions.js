@@ -454,6 +454,14 @@ export default {
   exitGroup: (_, conversationId) => {
     conversationApi.exit(conversationId)
   },
+  participantSetAsAdmin: (_, payload) => {
+    const { conversationId, userId } = payload
+    conversationApi.participant(conversationId, 'ROLE', userId, 'ADMIN')
+  },
+  participantRemove: (_, payload) => {
+    const { conversationId, userId } = payload
+    conversationApi.participant(conversationId, 'REMOVE', userId, '')
+  },
   startLoading: ({ commit }, messageId) => {
     commit('startLoading', messageId)
   },

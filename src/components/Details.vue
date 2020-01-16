@@ -63,22 +63,34 @@ export default class Details extends Vue {
   @Action('refreshUser') actionRefreshUser: any
   @Action('syncConversation') actionSyncConversation: any
 
+  @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
+  @Action('participantRemove') actionParticipantRemove: any
+
   contentUtil: any = contentUtil
   $t: any
   $Menu: any
 
-  participantClick(user: Object) {
+  participantClick(user: any) {
     const participantMenu = this.$t('menu.participant')
     const menu: string[] = []
 
-    // menu.push(participantMenu.profile)
-    menu.push(participantMenu.send_message)
-
     // @ts-ignore
     const account = JSON.parse(localStorage.getItem('account'))
-    // @ts-ignore
     if (user.user_id === account.user_id) {
       return
+    }
+
+    // menu.push(participantMenu.profile)
+    const { participants, conversationId } = this.conversation
+    const me = participants.filter((item: any) => {
+      return item.user_id === account.user_id
+    })[0]
+    menu.push(participantMenu.send_message)
+    if (me.role === 'OWNER') {
+      menu.push(participantMenu.set_as_admin)
+    }
+    if (['OWNER', 'ADMIN'].indexOf(me.role) > -1) {
+      menu.push(participantMenu.remove)
     }
 
     // @ts-ignore
@@ -91,7 +103,16 @@ export default class Details extends Vue {
           user
         })
       } else if (position === 'profile') {
-
+      } else if (position === 'set_as_admin') {
+        this.actionParticipantSetAsAdmin({
+          conversationId,
+          userId: user.user_id
+        })
+      } else if (position === 'remove') {
+        this.actionParticipantRemove({
+          conversationId,
+          userId: user.user_id
+        })
       }
     })
   }

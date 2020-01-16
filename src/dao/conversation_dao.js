@@ -99,6 +99,7 @@ class ConversationDao {
   }
 
   fuzzySearchConversation(keyword) {
+    keyword = keyword.replace(/'/g, '')
     return db
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +

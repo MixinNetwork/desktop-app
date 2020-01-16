@@ -19,7 +19,7 @@
           @blur="onBlur"
           @compositionstart="inputFlag = true"
           @compositionend="inputFlag = false"
-          @input="inputFlag ? '' : $emit('input', $event.target.value)"
+          v-model="keyword"
         />
       </keep-alive>
     </div>
@@ -45,7 +45,12 @@ export default {
     }
   },
   watch: {
-    focus: function(newFocus, oldFocus) {
+    keyword(value) {
+      if (!this.inputFlag) {
+        this.$emit('input', value)
+      }
+    },
+    focus(newFocus, oldFocus) {
       if (newFocus) {
         this.searchColor = '#FFFFFF'
         this.layoutStyle['border-color'] = '#cccccc'
@@ -58,6 +63,7 @@ export default {
   data() {
     return {
       focus: false,
+      keyword: '',
       inputFlag: false,
       layoutStyle: {
         width: '100%',

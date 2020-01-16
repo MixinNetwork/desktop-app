@@ -66,7 +66,7 @@ class AckWorker extends BaseWorker {
       return
     }
     const userId = JSON.parse(localStorage.getItem('account')).user_id
-    const conversationId = participantDao.joinedConversationId(userId)
+    const conversationId = participantDao.getRandomJoinConversationId(userId)
     const messages = jobs.map(function(item) {
       return JSON.parse(item.blaze_message)
     })

@@ -47,7 +47,7 @@ class ParticipantDao {
     ])
   }
   getRandomJoinConversationId(userId) {
-    return db.prepare('SELECT conversation_id FROM participants WHERE user_id = ?').get(userId).conversation_id
+    return db.prepare('SELECT conversation_id FROM participants WHERE user_id = ? LIMIT 1').get(userId).conversation_id
   }
 }
 

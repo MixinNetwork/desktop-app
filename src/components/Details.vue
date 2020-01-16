@@ -76,7 +76,7 @@ export default class Details extends Vue {
 
     // @ts-ignore
     const account = JSON.parse(localStorage.getItem('account'))
-    if (user.user_id === account.user_id) {
+    if (user.user_id === account.user_id || user.role === 'OWNER') {
       return
     }
 

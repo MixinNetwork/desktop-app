@@ -46,7 +46,8 @@ class ParticipantDao {
       userId
     ])
   }
-  getRandomJoinConversationId(userId) {
+
+  joinedConversationId(userId) {
     return db.prepare('SELECT conversation_id FROM participants WHERE user_id = ?').get(userId).conversation_id
   }
 }

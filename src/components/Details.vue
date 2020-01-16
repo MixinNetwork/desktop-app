@@ -86,7 +86,7 @@ export default class Details extends Vue {
       return item.user_id === account.user_id
     })[0]
     menu.push(participantMenu.send_message)
-    if (me.role === 'OWNER') {
+    if (me.role === 'OWNER' && user.role !== 'ADMIN') {
       menu.push(participantMenu.set_as_admin)
     }
     if (['OWNER', 'ADMIN'].indexOf(me.role) > -1) {

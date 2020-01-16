@@ -17,7 +17,7 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const messages = jobs.map(function(item) {
+    const messages = jobs.map(function (item) {
       return JSON.parse(item.blaze_message)
     })
     await messageApi.acknowledgements(messages).then(
@@ -68,7 +68,7 @@ class AckWorker extends BaseWorker {
     }
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     const conversationId = generateConversationId(userId, userId)
-    const messages = jobs.map(function(item) {
+    const messages = jobs.map(function (item) {
       return JSON.parse(item.blaze_message)
     })
 

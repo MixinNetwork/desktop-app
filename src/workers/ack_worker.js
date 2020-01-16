@@ -3,7 +3,6 @@ import BaseWorker from './base_worker'
 import jobDao from '@/dao/job_dao'
 import messageApi from '@/api/message'
 import Vue from 'vue'
-import { generateConversationId } from '@/utils/util'
 
 class AckWorker extends BaseWorker {
   async doWork() {
@@ -17,7 +16,7 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const messages = jobs.map(function (item) {
+    const messages = jobs.map(function(item) {
       return JSON.parse(item.blaze_message)
     })
     await messageApi.acknowledgements(messages).then(
@@ -66,9 +65,8 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
-    const conversationId = generateConversationId(userId, userId)
-    const messages = jobs.map(function (item) {
+    const conversationId = jobs[0].conversation_id
+    const messages = jobs.map(function(item) {
       return JSON.parse(item.blaze_message)
     })
 
@@ -82,6 +80,7 @@ class AckWorker extends BaseWorker {
         )
       )
     )
+    const userId = JSON.parse(localStorage.getItem('account')).user_id
     const blazeMessage = {
       id: uuidv4(),
       action: 'CREATE_MESSAGE',

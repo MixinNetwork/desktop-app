@@ -233,6 +233,9 @@ export default {
     userDao.insertUser(user)
     commit('saveAccount', user)
   },
+  setSearching: async({ commit }, keyword) => {
+    commit('setSearching', keyword)
+  },
   setCurrentConversation: async({ commit }, conversation) => {
     commit('setCurrentConversation', conversation)
   },

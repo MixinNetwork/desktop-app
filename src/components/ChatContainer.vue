@@ -246,7 +246,9 @@ export default class ChatContainer extends Vue {
             }
           })
           this.details = false
-          this.searching = false
+          if (!this.searching.replace(/^key:/, '')) {
+            this.actionSetSearching('')
+          }
           this.stickerChoosing = false
           this.file = null
         }
@@ -282,11 +284,13 @@ export default class ChatContainer extends Vue {
   }
 
   @Getter('currentConversation') conversation: any
+  @Getter('searching') searching: any
   @Getter('currentUser') user: any
   @Getter('me') me: any
   @Getter('editing') editing: any
 
   @Action('sendMessage') actionSendMessage: any
+  @Action('setSearching') actionSetSearching: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
@@ -307,7 +311,6 @@ export default class ChatContainer extends Vue {
   participant: any = true
   menus: any = []
   details: any = false
-  searching: any = false
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
   inputFlag: any = false
@@ -742,10 +745,10 @@ export default class ChatContainer extends Vue {
     }
   }
   chatSearch() {
-    this.searching = true
+    this.actionSetSearching('key:')
   }
   hideSearch() {
-    this.searching = false
+    this.actionSetSearching('')
   }
   openUrl() {
     let app = appDao.findAppByUserId(this.user.app_id)

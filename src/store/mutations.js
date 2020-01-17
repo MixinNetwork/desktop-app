@@ -150,6 +150,7 @@ export default {
     state.conversationKeys = []
     state.friends = []
     state.currentUser = {}
+    state.searching = ''
     state.currentMessages = {}
     state.search = {
       contact: null,
@@ -182,6 +183,9 @@ export default {
   },
   saveAccount(state, user) {
     state.me = user
+  },
+  setSearching(state, keyword) {
+    state.searching = keyword
   },
   setCurrentConversation(state, conversation) {
     const { unseenMessageCount } = conversation

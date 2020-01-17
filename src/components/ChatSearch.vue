@@ -7,7 +7,7 @@
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
     <header class="search-bar">
-      <Search class="input" v-model="keyword" />
+      <Search class="input" v-if="!searchingBefore || searchingBefore === 'key:'" @input="onInput" />
     </header>
     <mixin-scrollbar>
       <div class="ul">
@@ -47,12 +47,16 @@ export default {
     }
   },
   watch: {
-    keyword() {
-      this.onInput()
+    conversation() {
+      this.resultList = []
+      this.searching = true
+      const keyword = this.searchingBefore.replace(/^key:/, '')
+      this.onInput(keyword)
     }
   },
   methods: {
-    onInput() {
+    onInput(keyword) {
+      this.keyword = keyword
       if (this.keyword.length > 0) {
         this.searching = true
         clearTimeout(this.timeoutListener)
@@ -62,7 +66,7 @@ export default {
           if (data) {
             this.resultList = data
           }
-        }, 500)
+        }, 200)
       } else {
         this.resultList = []
         this.searching = false
@@ -75,10 +79,10 @@ export default {
   },
   computed: {
     ...mapGetters({
+      searchingBefore: 'searching',
       conversation: 'currentConversation'
     })
-  },
-  mounted: async function() {}
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -102,8 +106,10 @@ export default {
   }
   .search-bar {
     background: #f5f7fa;
-    padding: 3px 0;
+    border-top: 1px solid #f0f0f0;
     .input {
+      padding: .2rem 0;
+      border-bottom: 1px solid #f0f0f0;
       width: calc(100% - 1.875rem);
     }
   }

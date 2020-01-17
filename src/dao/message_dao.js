@@ -24,6 +24,23 @@ class MessageDao {
       createdAt
     ])
   }
+  insertContactMessage(message) {
+    const stmt = db.prepare(
+      'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,shared_user_id,category,content,status,created_at) VALUES (?,?,?,?,?,?,?,?)'
+    )
+    const senderId = this.me().user_id
+    const createdAt = new Date().toISOString()
+    stmt.run([
+      uuidv4().toLowerCase(),
+      message.conversationId,
+      senderId,
+      message.sharedUserId,
+      message.category,
+      message.content,
+      message.status,
+      createdAt
+    ])
+  }
   insertRelyMessage(message, quoteMessageId, quoteContent) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,category,content,status,created_at,quote_message_id,quote_content) VALUES (?,?,?,?,?,?,?,?,?)'

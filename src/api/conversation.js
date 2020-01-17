@@ -32,6 +32,15 @@ export default {
   mute(id, duration) {
     return api.post('conversations/' + id + '/mute', { duration })
   },
+  participant(id, action, userId, role) {
+    const data = {
+      user_id: userId
+    }
+    if (role) {
+      data.role = role
+    }
+    return api.post('conversations/' + id + '/participants/' + action, [data])
+  },
   requestAttachment() {
     return api.post('attachments')
   }

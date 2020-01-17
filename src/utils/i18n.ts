@@ -37,7 +37,9 @@ let transactions = {
       },
       participant: {
         profile: 'Profile',
-        send_message: 'Send Message'
+        send_message: 'Send Message',
+        set_as_admin: 'Set As Administrator',
+        remove: 'Remove'
       },
       personal: ['New Group', 'Profile', 'Setting', 'Logout'],
       chat_operation: {
@@ -184,7 +186,9 @@ let transactions = {
       },
       participant: {
         profile: '信息',
-        send_message: '发送信息'
+        send_message: '发送信息',
+        set_as_admin: '设为管理员',
+        remove: '从群组中移除'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
       chat_operation: {

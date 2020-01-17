@@ -55,9 +55,10 @@ class UserDao {
       .get(conversationId)
   }
   fuzzySearchUser(keyword) {
+    keyword = keyword.replace(/'/g, '')
     return db
       .prepare(
-        `SELECT * FROM users WHERE relationship = 'FRIEND' AND (full_name LIKE '%${keyword.replace("'", '')}%' OR identity_number LIKE '%${keyword}%')`
+        `SELECT * FROM users WHERE relationship = 'FRIEND' AND (full_name LIKE '%${keyword}%' OR identity_number LIKE '%${keyword}%')`
       )
       .all()
   }

@@ -17,7 +17,9 @@
           placeholder="Search"
           @focus="onFocus"
           @blur="onBlur"
-          @input="$emit('input', $event.target.value)"
+          @compositionstart="inputFlag = true"
+          @compositionend="inputFlag = false"
+          v-model="keyword"
         />
       </keep-alive>
     </div>
@@ -32,18 +34,23 @@ export default {
       this.focus = true
     },
     onBlur: function() {
-      if (this.$refs.box.value === '') {
+      if (this.keyword === '') {
         this.focus = false
       }
     },
     back: function() {
       this.focus = false
-      this.$refs.box.value = ''
+      this.keyword = ''
       this.$emit('input', '')
     }
   },
   watch: {
-    focus: function(newFocus, oldFocus) {
+    keyword(value) {
+      if (!this.inputFlag) {
+        this.$emit('input', value)
+      }
+    },
+    focus(newFocus, oldFocus) {
       if (newFocus) {
         this.searchColor = '#FFFFFF'
         this.layoutStyle['border-color'] = '#cccccc'
@@ -56,6 +63,8 @@ export default {
   data() {
     return {
       focus: false,
+      keyword: '',
+      inputFlag: false,
       layoutStyle: {
         width: '100%',
         display: 'flex',

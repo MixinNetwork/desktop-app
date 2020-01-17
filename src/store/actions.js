@@ -233,6 +233,9 @@ export default {
     userDao.insertUser(user)
     commit('saveAccount', user)
   },
+  setSearching: async({ commit }, keyword) => {
+    commit('setSearching', keyword)
+  },
   setCurrentConversation: async({ commit }, conversation) => {
     commit('setCurrentConversation', conversation)
   },
@@ -297,7 +300,11 @@ export default {
         return
       }
     }
-    messageDao.insertTextMessage(msg)
+    if (msg.category.endsWith('_CONTACT')) {
+      messageDao.insertContactMessage(msg)
+    } else {
+      messageDao.insertTextMessage(msg)
+    }
     commit('refreshMessage', msg.conversationId)
   },
   sendStickerMessage: ({ commit }, msg) => {
@@ -319,6 +326,36 @@ export default {
     sticker.last_use_at = new Date().toISOString()
     stickerDao.insertUpdate(sticker)
     commit('refreshMessage', msg.conversationId)
+  },
+  sendLiveMessage: ({ commit }, msg) => {
+    const { conversationId, mediaUrl, mediaMimeType,
+      mediaSize, mediaWidth, mediaHeight, thumbUrl, name, category } = msg
+    const messageId = uuidv4().toLowerCase()
+    const payload = {
+      width: mediaWidth,
+      height: mediaHeight,
+      thumb_url: thumbUrl,
+      url: mediaUrl
+    }
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
+    messageDao.insertMessage({
+      message_id: messageId,
+      conversation_id: conversationId,
+      user_id: JSON.parse(localStorage.getItem('account')).user_id,
+      content: content,
+      category: category,
+      media_url: mediaUrl,
+      media_mime_type: mediaMimeType,
+      media_size: mediaSize,
+      media_width: mediaWidth,
+      media_height: mediaHeight,
+      thumb_url: thumbUrl,
+      media_status: 'PENDING',
+      status: MessageStatus.SENDING,
+      created_at: new Date().toISOString(),
+      name
+    })
+    commit('refreshMessage', conversationId)
   },
   sendAttachmentMessage: ({ commit }, { conversationId, mediaUrl, mediaMimeType, category }) => {
     const messageId = uuidv4().toLowerCase()
@@ -453,6 +490,14 @@ export default {
   },
   exitGroup: (_, conversationId) => {
     conversationApi.exit(conversationId)
+  },
+  participantSetAsAdmin: (_, payload) => {
+    const { conversationId, userId } = payload
+    conversationApi.participant(conversationId, 'ROLE', userId, 'ADMIN')
+  },
+  participantRemove: (_, payload) => {
+    const { conversationId, userId } = payload
+    conversationApi.participant(conversationId, 'REMOVE', userId, '')
   },
   startLoading: ({ commit }, messageId) => {
     commit('startLoading', messageId)

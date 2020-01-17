@@ -67,6 +67,10 @@ function messageSearch(state, type, keyword) {
           waitTime = 100
         }
       }
+      if (i === conversations.length - 1 && num === 0) {
+        state.search.message = []
+        state.search.messageAll = []
+      }
       messageSearchTimer = setTimeout(() => {
         action(conversations, limit, ++i)
       }, waitTime)
@@ -90,7 +94,6 @@ function search(state, payload) {
 
   if (keyword) {
     keywordCache = keyword
-    const account = state.me
 
     let { chats, chatsAll, message, messageAll, contact, contactAll } = state.search
 
@@ -147,6 +150,7 @@ export default {
     state.conversationKeys = []
     state.friends = []
     state.currentUser = {}
+    state.searching = ''
     state.currentMessages = {}
     state.search = {
       contact: null,
@@ -179,6 +183,9 @@ export default {
   },
   saveAccount(state, user) {
     state.me = user
+  },
+  setSearching(state, keyword) {
+    state.searching = keyword
   },
   setCurrentConversation(state, conversation) {
     const { unseenMessageCount } = conversation

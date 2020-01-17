@@ -32,6 +32,10 @@ export default {
     return state.currentUser
   },
 
+  searching: (state: { searching: string }) => {
+    return state.searching
+  },
+
   currentAudio: (state: { currentAudio: any }) => {
     return state.currentAudio
   },
@@ -62,7 +66,7 @@ export default {
   attachment: (state: { attachment: any }) => {
     return state.attachment
   },
-  editing: (state: { editing: any }) => {
+  editing: (state: { editing: boolean }) => {
     return state.editing
   }
 }

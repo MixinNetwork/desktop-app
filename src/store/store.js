@@ -15,6 +15,7 @@ const state = {
   conversationKeys: [],
   friends: [],
   currentUser: {},
+  searching: '',
   currentMessages: [],
   attachment: [],
   search: {

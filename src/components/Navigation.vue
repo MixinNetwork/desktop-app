@@ -25,7 +25,7 @@
         messages: 'chat.chat_messages' }[showMoreType])
         }}
       </div>
-      <search class="nav" @input="onInput"></search>
+      <Search class="nav" @input="onInput" />
 
       <h5
         v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"
@@ -415,6 +415,9 @@ export default {
       if (this.showMoreType) {
         waitTime = 100
       }
+      if (!keyword) {
+        this.$store.dispatch('setSearching', '')
+      }
       clearTimeout(this.inputTimer)
       this.inputTimer = setTimeout(() => {
         this.$store.dispatch('search', {
@@ -442,6 +445,7 @@ export default {
     onSearchChatClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
+      this.$store.dispatch('setSearching', `key:${this.searchKeyword}`)
       conversation.unseenMessageCount = 0
       setTimeout(() => {
         this.$store.dispatch('markRead', conversation.conversationId)

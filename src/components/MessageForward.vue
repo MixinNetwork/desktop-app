@@ -71,6 +71,7 @@ export default class MessageForward extends Vue {
   @Action('sendMessage') actionSendMessage: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
+  @Action('sendLiveMessage') actionSendLiveMessage: any
 
   contacts: any[] = []
   chats: any[] = []
@@ -98,7 +99,33 @@ export default class MessageForward extends Vue {
         }
         this.actionSendStickerMessage(msg)
       } else if (message.type.endsWith('_CONTACT')) {
-
+        const { content, sharedUserId } = message
+        const category = appId ? 'PLAIN_CONTACT' : 'SIGNAL_CONTACT'
+        const msg = {
+          msg: {
+            conversationId,
+            content,
+            sharedUserId,
+            category,
+            status
+          }
+        }
+        this.actionSendMessage(msg)
+      } else if (message.type.endsWith('_LIVE')) {
+        const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
+        let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name } = message
+        const msg = {
+          conversationId,
+          mediaUrl,
+          mediaMimeType,
+          mediaSize,
+          mediaWidth,
+          mediaHeight,
+          thumbUrl,
+          name,
+          category
+        }
+        this.actionSendLiveMessage(msg)
       } else if (this.isFileType(message.type)) {
         let { mediaUrl, mediaMimeType } = message
         if (/^file:\/\//.test(mediaUrl)) {
@@ -114,19 +141,10 @@ export default class MessageForward extends Vue {
           category
         }
         this.actionSendAttachmentMessage(msg)
-      } else if (message.type.endsWith('_POST')) {
-        const category = appId ? 'PLAIN_POST' : 'SIGNAL_POST'
-        const msg = {
-          msg: {
-            conversationId,
-            content: message.content,
-            category,
-            status
-          }
-        }
-        this.actionSendMessage(msg)
-      } else if (message.type.endsWith('_TEXT')) {
-        const category = appId ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
+      } else if (message.type.endsWith('_POST') || message.type.endsWith('_TEXT')) {
+        const typeEnds = message.type.split('_')[1]
+        const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
+
         const msg = {
           msg: {
             conversationId,
@@ -193,12 +211,13 @@ export default class MessageForward extends Vue {
   }
 
   isFileType(type: string) {
-    return (type.endsWith('_IMAGE') ||
-        type.endsWith('_DATA') ||
-        type.endsWith('_AUDIO') ||
-        type.endsWith('_VIDEO') ||
-        type.endsWith('_IMAGE') ||
-        type.endsWith('_LIVE'))
+    return (
+      type.endsWith('_IMAGE') ||
+      type.endsWith('_DATA') ||
+      type.endsWith('_AUDIO') ||
+      type.endsWith('_VIDEO') ||
+      type.endsWith('_IMAGE')
+    )
   }
 
   get chatList() {

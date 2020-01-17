@@ -9,13 +9,12 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <div class="set" :style="borderSet(message)">
-            <img
+          <div class="set" :style="borderSet()">
+            <div
               class="image"
-              :style="borderSetObject(message)"
-              :src="message.thumbUrl"
+              :style="borderSetObject()"
               @click="$emit('liveClick')"
-            />
+            ></div>
             <svg-icon icon-class="ic_play" class="play" @click="$emit('liveClick')" />
           </div>
           <span class="tag">LIVE</span>
@@ -46,31 +45,33 @@ export default {
     }
   },
   methods: {
-    messageOwnership: function() {
+    messageOwnership() {
       let { message, me } = this
       return {
         send: message.userId === me.user_id,
         receive: message.userId !== me.user_id
       }
     },
-    getColor: function(id) {
+    getColor(id) {
       return getNameColorById(id)
     },
-    borderSet: message => {
+    borderSet() {
+      let { message } = this
       if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
         return 'width-set'
       }
       return 'height-set'
     },
 
-    borderSetObject: message => {
+    borderSetObject() {
+      const { message } = this
       const width = Math.min(message.mediaWidth, maxWidth)
       const scale = message.mediaWidth / message.mediaHeight
       if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return { width: `${width}px`, height: `${width / scale}px` }
+        return { width: `${width}px`, height: `${width / scale}px`, backgroundImage: `url(${message.thumbUrl})` }
       }
       const height = Math.min(message.mediaHeight, maxHeight)
-      return { width: `${height * scale}px`, height: `${height}px` }
+      return { width: `${height * scale}px`, height: `${height}px`, backgroundImage: `url(${message.thumbUrl})` }
     }
   }
 }
@@ -137,7 +138,10 @@ export default {
       margin-right: 0.8rem;
       overflow: hidden;
       position: relative;
+      cursor: pointer;
       .image {
+        background-size: cover;
+        background-position: center;
         border-radius: 0.2rem;
       }
     }

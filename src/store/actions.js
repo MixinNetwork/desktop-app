@@ -320,6 +320,28 @@ export default {
     stickerDao.insertUpdate(sticker)
     commit('refreshMessage', msg.conversationId)
   },
+  sendLiveMessage: ({ commit }, msg) => {
+    const { conversationId, mediaUrl, mediaMimeType,
+      mediaSize, mediaWidth, mediaHeight, thumbUrl, name, category } = msg
+    const messageId = uuidv4().toLowerCase()
+    messageDao.insertMessage({
+      message_id: messageId,
+      conversation_id: conversationId,
+      user_id: JSON.parse(localStorage.getItem('account')).user_id,
+      category: category,
+      media_url: mediaUrl,
+      media_mime_type: mediaMimeType,
+      media_size: mediaSize,
+      media_width: mediaWidth,
+      media_height: mediaHeight,
+      thumb_url: thumbUrl,
+      media_status: 'PENDING',
+      status: MessageStatus.SENDING,
+      created_at: new Date().toISOString(),
+      name
+    })
+    commit('refreshMessage', conversationId)
+  },
   sendAttachmentMessage: ({ commit }, { conversationId, mediaUrl, mediaMimeType, category }) => {
     const messageId = uuidv4().toLowerCase()
     putAttachment(

@@ -99,7 +99,18 @@ export default class MessageForward extends Vue {
         }
         this.actionSendStickerMessage(msg)
       } else if (message.type.endsWith('_CONTACT')) {
-
+        const { content, sharedUserId } = message
+        const category = appId ? 'PLAIN_CONTACT' : 'SIGNAL_CONTACT'
+        const msg = {
+          msg: {
+            conversationId,
+            content,
+            sharedUserId,
+            category,
+            status
+          }
+        }
+        this.actionSendMessage(msg)
       } else if (message.type.endsWith('_LIVE')) {
         const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
         let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name } = message

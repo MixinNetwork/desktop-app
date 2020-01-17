@@ -297,7 +297,11 @@ export default {
         return
       }
     }
-    messageDao.insertTextMessage(msg)
+    if (msg.category.endsWith('_CONTACT')) {
+      messageDao.insertContactMessage(msg)
+    } else {
+      messageDao.insertTextMessage(msg)
+    }
     commit('refreshMessage', msg.conversationId)
   },
   sendStickerMessage: ({ commit }, msg) => {

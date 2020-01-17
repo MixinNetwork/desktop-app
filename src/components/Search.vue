@@ -34,13 +34,13 @@ export default {
       this.focus = true
     },
     onBlur: function() {
-      if (this.$refs.box.value === '') {
+      if (this.keyword === '') {
         this.focus = false
       }
     },
     back: function() {
       this.focus = false
-      this.$refs.box.value = ''
+      this.keyword = ''
       this.$emit('input', '')
     }
   },

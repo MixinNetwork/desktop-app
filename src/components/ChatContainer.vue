@@ -127,8 +127,8 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
-    <transition name="slide-right">
-      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
+    <transition :name="searching.replace(/^key:/, '') ? '' : 'slide-right'">
+      <ChatSearch class="overlay" :rr="searching" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
     </transition>
     <transition name="slide-right">
       <Editor

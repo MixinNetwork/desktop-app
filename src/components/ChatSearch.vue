@@ -7,7 +7,7 @@
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
     <header class="search-bar">
-      <Search class="input" v-if="!searchingBefore || searchingBefore === 'key:'" @input="onInput" />
+      <Search class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
     </header>
     <mixin-scrollbar>
       <div class="ul">
@@ -20,8 +20,14 @@
             @search-click="onSearchClick"
           ></SearchItem>
         </div>
-        <div class="notify" v-else-if="keyword">{{$t(searching ? 'chat.searching' : 'chat.search_empty')}}</div>
-        <div class="notify" v-else-if="conversation.category === 'GROUP'">{{$t('chat.search_group_notify', { 0: conversation.groupName })}}</div>
+        <div
+          class="notify"
+          v-else-if="keyword"
+        >{{$t(searching ? 'chat.searching' : 'chat.search_empty')}}</div>
+        <div
+          class="notify"
+          v-else-if="conversation.category === 'GROUP'"
+        >{{$t('chat.search_group_notify', { 0: conversation.groupName })}}</div>
         <div class="notify" v-else>{{$t('chat.search_notify', { 0: conversation.name })}}</div>
       </div>
     </mixin-scrollbar>
@@ -108,7 +114,7 @@ export default {
     background: #f5f7fa;
     border-top: 1px solid #f0f0f0;
     .input {
-      padding: .2rem 0;
+      padding: 0.35rem 0;
       border-bottom: 1px solid #f0f0f0;
       width: calc(100% - 1.875rem);
     }

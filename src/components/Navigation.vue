@@ -445,7 +445,11 @@ export default {
     onSearchChatClick(conversation) {
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
-      this.$store.dispatch('setSearching', `key:${this.searchKeyword}`)
+      let searchKey = ''
+      if (conversation.records) {
+        searchKey = `key:${this.searchKeyword}`
+      }
+      this.$store.dispatch('setSearching', searchKey)
       conversation.unseenMessageCount = 0
       setTimeout(() => {
         this.$store.dispatch('markRead', conversation.conversationId)
@@ -453,6 +457,7 @@ export default {
     },
     onSearchUserClick(user) {
       this.conversationShow = false
+      this.$store.dispatch('setSearching', '')
       this.$store.dispatch('createUserConversation', {
         user
       })

@@ -324,10 +324,17 @@ export default {
     const { conversationId, mediaUrl, mediaMimeType,
       mediaSize, mediaWidth, mediaHeight, thumbUrl, name, category } = msg
     const messageId = uuidv4().toLowerCase()
+    const content = btoa(`{
+      "width": "${mediaWidth}",
+      "height": "${mediaHeight}",
+      "thumb_url": "${thumbUrl}",
+      "url": ${mediaUrl}"
+    }`)
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
       user_id: JSON.parse(localStorage.getItem('account')).user_id,
+      content: content,
       category: category,
       media_url: mediaUrl,
       media_mime_type: mediaMimeType,

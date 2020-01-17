@@ -324,12 +324,13 @@ export default {
     const { conversationId, mediaUrl, mediaMimeType,
       mediaSize, mediaWidth, mediaHeight, thumbUrl, name, category } = msg
     const messageId = uuidv4().toLowerCase()
-    const content = btoa(`{
-      "width": "${mediaWidth}",
-      "height": "${mediaHeight}",
-      "thumb_url": "${thumbUrl}",
-      "url": ${mediaUrl}"
-    }`)
+    const payload = {
+      width: mediaWidth,
+      height: mediaHeight,
+      thumb_url: thumbUrl,
+      url: mediaUrl
+    }
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,

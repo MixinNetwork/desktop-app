@@ -98,11 +98,51 @@ export function sendNotification(title, body, conversation) {
 }
 
 export function getAvatarColorById(id) {
-  return AvatarColors[Math.abs(signalProtocol.convertToDeviceId(id)) % AvatarColors.length]
+  return AvatarColors[Math.abs(uuidHashCode(id)) % AvatarColors.length]
 }
 
 export function getNameColorById(id) {
-  return NameColors[Math.abs(signalProtocol.convertToDeviceId(id)) % NameColors.length]
+  return NameColors[Math.abs(uuidHashCode(id)) % NameColors.length]
+}
+
+function uuidHashCode(name) {
+  let components = name.split('-')
+  if (components.length !== 5) { return 0 }
+  let mostSigBits = `${components[0]}${components[1]}${components[2]}`
+  let leastSigBits = `${components[3]}${components[4]}`
+  let hilo = bytesToHex(bytesXor(hexToBytes64(mostSigBits), hexToBytes64(leastSigBits)))
+  let p1 = hexToBytes(hilo.substr(0, 8))
+  let p2 = hexToBytes(hilo.substr(8, 16))
+  return parseInt(bytesToHex(bytesXor(p1, p2)), 16)
+}
+
+function bytesToHex(bytes) {
+  for (var hex = [], i = 0; i < bytes.length; i++) {
+    var current = bytes[i] < 0 ? bytes[i] + 256 : bytes[i]
+    hex.push((current >>> 4).toString(16))
+    hex.push((current & 0xF).toString(16))
+  }
+  return hex.join('')
+}
+
+function hexToBytes64(hex) {
+  const bytes = []
+  for (let c = 0; c < 16; c += 2) {
+    if (c < hex.length) {
+      bytes.push(parseInt(hex.substr(c, 2), 16))
+    } else {
+      bytes.push(0)
+    }
+  }
+  return bytes
+}
+
+function bytesXor(a, b) {
+  const r = []
+  for (let c = 0; c < a.length; c++) {
+    r[c] = a[c] ^ b[c]
+  }
+  return r
 }
 
 export function convertRemToPixels(rem) {

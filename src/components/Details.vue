@@ -186,7 +186,7 @@ export default class Details extends Vue {
         height: 10rem;
         margin-top: 2rem;
         margin-bottom: 2rem;
-        font-size: 2rem;
+        font-size: 4rem;
       }
       .name {
         font-weight: 500;

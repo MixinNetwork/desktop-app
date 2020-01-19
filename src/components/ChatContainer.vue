@@ -2,7 +2,7 @@
   <main class="chat container" @click="hideStickerChoose">
     <header v-show="conversation">
       <div>
-        <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
+        <Avatar style="font-size: 1rem" :conversation="conversation" @onAvatarClick="showDetails" />
       </div>
       <div class="title">
         <div @click="showDetails">

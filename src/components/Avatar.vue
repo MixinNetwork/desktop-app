@@ -5,7 +5,7 @@
       <div v-else v-for="user in users" :key="user.user_id" class="avatar" :style="user.color">
         <img v-show="user.has_avatar" :src="user.avatar_url" />
         <span v-if="!user.has_avatar && user.emoji" class="emoji" :style="font">{{user.emoji}}</span>
-        <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier}}</span>
+        <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier.toUpperCase()}}</span>
       </div>
     </div>
   </div>
@@ -72,12 +72,12 @@ export default {
   },
   methods: {
     resize() {
-      const width = this.$refs.root.clientWidth
-      if (width > 0) {
-        this.font = {
-          'font-size': `${width * scales[this.users.length]}px`
-        }
-      }
+      // const width = this.$refs.root.clientWidth
+      // if (width > 0) {
+      //   this.font = {
+      //     'font-size': `${width * scales[this.users.length]}px`
+      //   }
+      // }
     },
     onChange() {
       // eslint-disable-next-line
@@ -116,6 +116,7 @@ export default {
 .root {
   width: 2.5rem;
   height: 2.5rem;
+  font-size: 1.2rem;
   .empty {
     width: 100%;
     height: 100%;
@@ -144,6 +145,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1em !important;
     span {
       color: white;
     }

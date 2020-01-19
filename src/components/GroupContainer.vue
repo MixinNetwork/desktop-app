@@ -132,6 +132,7 @@ main {
       align-items: center;
       flex-flow: row nowrap;
       .back {
+        cursor: pointer;
         padding: 1rem;
       }
       h3 {
@@ -258,7 +259,7 @@ main {
   }
   .slide-right-enter-active,
   .slide-right-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-right-enter,
   .slide-right-leave-to {

@@ -31,7 +31,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :style="showMessages ? '' : 'opacity: 0'"
+        :style="(showMessages && !goSearchPos) ? '' : 'opacity: 0'"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -127,8 +127,8 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
-    <transition :name="searching.replace(/^key:/, '') ? '' : 'slide-right'">
-      <ChatSearch class="overlay" :rr="searching" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
+    <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
+      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos" />
     </transition>
     <transition name="slide-right">
       <Editor
@@ -327,12 +327,13 @@ export default class ChatContainer extends Vue {
   infiniteUpLock: any = false
   infiniteDownLock: any = true
   searchKeyword: any = ''
-  timeDivideShow: any = false
+  timeDivideShow: boolean = false
   contentUtil: any = contentUtil
-  stickerChoosing: any = false
+  stickerChoosing: boolean = false
   showScroll: any = true
   chooseStickerTimeout: any = null
   lastEnter: any = null
+  goSearchPos: boolean = false
 
   mounted() {
     let self = this
@@ -382,14 +383,14 @@ export default class ChatContainer extends Vue {
         }
       },
       function(force: any, message: any) {
-        if (self.isBottom) {
-          self.goBottom()
-        }
         if (force) {
+          self.showMessages = false
           self.goBottom()
           setTimeout(() => {
             self.goMessagePos(message)
           })
+        } else if (self.isBottom) {
+          self.goBottom()
         }
         setTimeout(() => {
           if (!force) {
@@ -471,12 +472,18 @@ export default class ChatContainer extends Vue {
     }
   }
   goSearchMessagePos(item: any, keyword: string) {
-    this.hideSearch()
-    const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-    const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
-    messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+    this.goSearchPos = true
+    this.showScroll = false
     setTimeout(() => {
-      this.searchKeyword = keyword
+      this.hideSearch()
+      const count = messageDao.ftsMessageCount(this.conversation.conversationId)
+      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+      setTimeout(() => {
+        this.searchKeyword = keyword
+        this.goSearchPos = false
+        this.showScroll = true
+      })
     })
   }
   goMessagePos(posMessage: any) {
@@ -1075,7 +1082,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-right-enter-active,
   .slide-right-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-right-enter,
   .slide-right-leave-to {
@@ -1083,7 +1090,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-bottom-enter-active,
   .slide-bottom-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {
@@ -1091,7 +1098,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-bottom-enter-active,
   .slide-bottom-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {
@@ -1099,7 +1106,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-up-enter-active,
   .slide-up-leave-active {
-    transition: all 0.3s ease;
+    transition: all 0.3s ease ease;
   }
   .slide-up-enter,
   .slide-up-leave-to {

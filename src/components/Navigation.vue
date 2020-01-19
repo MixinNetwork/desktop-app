@@ -651,7 +651,7 @@ export default {
 
   .slide-left-enter-active,
   .slide-left-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-left-enter,
   .slide-left-leave-to {
@@ -659,7 +659,7 @@ export default {
   }
   .slide-right-enter-active,
   .slide-right-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-right-enter,
   .slide-right-leave-to {

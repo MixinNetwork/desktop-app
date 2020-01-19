@@ -264,7 +264,6 @@ export default class MessageForward extends Vue {
   font-size: 0.875rem;
   background-color: #fff;
   border-radius: 0.25rem;
-  border: 1px solid #eee;
   box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.195);
   .forward-search {
     width: calc(100% - 4rem);

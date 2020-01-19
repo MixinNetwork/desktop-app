@@ -30,6 +30,8 @@ let transactions = {
       chat: {
         contact_info: 'Contact Info',
         exit_group: 'Exit Group',
+        add_contact: 'Add Contact',
+        remove_contact: 'Remove Contact',
         clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute',
@@ -68,6 +70,7 @@ let transactions = {
       title_participants: '{0} participants',
       keep_title: '',
       keep_des: 'No conversation selected',
+      remove_contact: 'Remove contact? Chat will be retained',
       mute_title: 'Mute notifications for…',
       mute_menu: ['8 Hours', '1 Week', '1 Year'],
       mute_hours: 'Mute 8 hours',
@@ -179,6 +182,8 @@ let transactions = {
       chat: {
         contact_info: '联系人资料',
         exit_group: '退出群组',
+        add_contact: '添加联系人',
+        remove_contact: '删除联系人',
         clear: '清空聊天记录',
         mute: '静音',
         cancel_mute: '取消静音',
@@ -217,6 +222,7 @@ let transactions = {
       title_participants: '{0} 成员',
       keep_title: '',
       keep_des: '尚未选择对话。',
+      remove_contact: '删除好友？聊天记录将会保留',
       mute_title: '静音通知',
       mute_menu: ['8 小时', '1 星期', '1 年'],
       mute_hours: '静音 8 小时',

@@ -14,6 +14,10 @@
           </div>
           <span class="name">{{name}}</span>
           <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
+          <span class="add" v-if="showAddContact" @click="addContact">
+            <span>+</span>
+            <small>{{$t('menu.chat.add_contact')}}</small>
+          </span>
           <div
             v-if="conversation.category === 'GROUP'"
             class="announcement"
@@ -39,10 +43,7 @@
 
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import {
-  Getter,
-  Action
-} from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 import UserItem from '@/components/UserItem.vue'
 import Avatar from '@/components/Avatar.vue'
@@ -117,6 +118,23 @@ export default class Details extends Vue {
     })
   }
 
+  addContact() {
+    //
+  }
+
+  get showAddContact() {
+    const { participants } = this.conversation
+    let flag = true
+    if (participants.length === 2) {
+      participants.forEach((item: any) => {
+        if (item.relationship === 'FRIEND') {
+          flag = false
+        }
+      })
+    }
+    return flag
+  }
+
   get participantTitle() {
     const { conversation } = this
     return this.$t('chat.title_participants', { '0': conversation.participants.length })
@@ -189,6 +207,7 @@ export default class Details extends Vue {
         font-size: 4rem;
       }
       .name {
+        font-size: 1.2rem;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
@@ -201,6 +220,15 @@ export default class Details extends Vue {
         text-align: center;
         width: 100%;
         user-select: text;
+      }
+      .add {
+        cursor: pointer;
+        color: #3a7ee4;
+        font-weight: 400;
+        margin-top: 1rem;
+        padding: 0.2rem 0.6rem;
+        background: #f2f2f2;
+        border-radius: 1rem;
       }
     }
     .announcement,

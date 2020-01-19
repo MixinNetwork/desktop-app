@@ -257,6 +257,20 @@ export default class ChatContainer extends Vue {
       let menu = []
       if (newC.category === ConversationCategory.CONTACT) {
         menu.push(chatMenu.contact_info)
+        const { participants } = this.conversation
+        let flag = true
+        if (participants.length === 2) {
+          participants.forEach((item: any) => {
+            if (item.relationship === 'FRIEND') {
+              flag = false
+            }
+          })
+        }
+        if (flag) {
+          menu.push(chatMenu.add_contact)
+        } else {
+          menu.push(chatMenu.remove_contact)
+        }
         menu.push(chatMenu.clear)
         this.identity = newC.ownerIdentityNumber
         this.participant = true
@@ -659,6 +673,19 @@ export default class ChatContainer extends Vue {
       this.details = true
     } else if (key === 'exit_group') {
       this.actionExitGroup(this.conversation.conversationId)
+    } else if (key === 'add_contact') {
+      //
+    } else if (key === 'remove_contact') {
+      this.$Dialog.alert(
+        this.$t('chat.remove_contact'),
+        this.$t('ok'),
+        () => {
+          //
+        },
+        this.$t('cancel'),
+        () => {
+        }
+      )
     } else if (key === 'clear') {
       this.$Dialog.alert(
         this.$t('chat.chat_clear'),

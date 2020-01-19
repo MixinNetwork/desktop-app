@@ -456,6 +456,7 @@ export default {
       })
     },
     onSearchChatClick(conversation) {
+      if (this.currentConversationId === conversation.conversationId) return
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
       let searchKey = ''

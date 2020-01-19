@@ -121,21 +121,27 @@ export default {
     border: none;
     font-size: 0.875rem;
     border-radius: 0.25rem;
-    &:hover,
-    &.current {
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.175);
-    }
+    transition: 0.1s all;
   }
   .positive {
     background: #3d75e3;
     cursor: pointer;
     color: white;
     margin-left: 0.1875rem;
+    &:hover,
+    &.current {
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    }
   }
   .negative {
-    border: 1px solid #eaeaea;
+    border: 1px solid #ddd;
     cursor: pointer;
     color: #3d75e3;
+    &:hover,
+    &.current {
+      background: #f8f8f8;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
   }
 }
 .msg {
@@ -148,7 +154,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.6);
+  background: #33333377;
 }
 .modal-enter {
   opacity: 0;

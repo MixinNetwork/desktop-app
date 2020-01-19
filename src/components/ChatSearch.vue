@@ -114,7 +114,7 @@ export default {
     background: #f5f7fa;
     border-top: 1px solid #f0f0f0;
     .input {
-      padding: 0.35rem 0;
+      padding: 0.2rem 0;
       border-bottom: 1px solid #f0f0f0;
       width: calc(100% - 1.875rem);
     }

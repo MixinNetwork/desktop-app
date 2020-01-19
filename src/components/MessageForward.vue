@@ -251,13 +251,13 @@ export default class MessageForward extends Vue {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff55;
+  background: #33333377;
 }
 .message-forward {
   position: relative;
   z-index: 1000;
   width: 28rem;
-  padding: 1rem 0;
+  padding: 0.3rem 0 1rem;
   max-height: 72vh;
   overflow: hidden;
   list-style: none;

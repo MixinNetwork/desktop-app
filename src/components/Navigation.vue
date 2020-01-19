@@ -417,6 +417,18 @@ export default {
       }
       if (!keyword) {
         this.$store.dispatch('setSearching', '')
+        setTimeout(() => {
+          const container = document.querySelector('.conversations.ul')
+          let index = 0
+          const { conversations, currentConversationId } = this
+          for (let i = 0; i < conversations.length; i++) {
+            if (conversations[i].conversationId === currentConversationId) {
+              index = i
+              break
+            }
+          }
+          container.scrollTop = 73.6 * index
+        }, 100)
       }
       clearTimeout(this.inputTimer)
       this.inputTimer = setTimeout(() => {
@@ -431,6 +443,7 @@ export default {
       this.groupShow = false
     },
     onConversationClick(conversation) {
+      if (this.currentConversationId === conversation.conversationId) return
       this.conversationShow = false
       this.$store.dispatch('searchClear')
       this.$store.dispatch('setCurrentConversation', conversation)

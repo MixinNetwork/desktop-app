@@ -26,58 +26,59 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Search',
-  methods: {
-    onFocus: function() {
-      this.focus = true
-    },
-    onBlur: function() {
-      if (this.keyword === '') {
-        this.focus = false
-      }
-    },
-    back: function() {
+<script lang="ts">
+import { Vue, Watch, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'Search'
+})
+export default class Search extends Vue {
+  focus: any = false
+  keyword: any = ''
+  inputFlag: any = false
+  layoutStyle: any = {
+    width: '100%',
+    display: 'flex',
+    background: '#f5f7fa',
+    'align-items': 'center',
+    'padding-left': '1rem',
+    'padding-right': '1rem',
+    'padding-top': '8px',
+    'padding-bottom': '8px',
+    'border-width': '1px',
+    'border-radius': '1.25rem'
+  }
+
+  @Watch('keyword')
+  onKeywordChanged(value: any) {
+    if (!this.inputFlag) {
+      this.$emit('input', value)
+    }
+  }
+
+  @Watch('focus')
+  onFocusChanged(newFocus: any, oldFocus: any) {
+    if (newFocus) {
+      // this.searchColor = '#FFFFFF'
+      this.layoutStyle['border-color'] = '#cccccc'
+    } else {
+      // this.searchColor = '#FBFBFB'
+      this.layoutStyle['border-color'] = '#f5f7fa'
+    }
+  }
+
+  onFocus() {
+    this.focus = true
+  }
+  onBlur() {
+    if (this.keyword === '') {
       this.focus = false
-      this.keyword = ''
-      this.$emit('input', '')
     }
-  },
-  watch: {
-    keyword(value) {
-      if (!this.inputFlag) {
-        this.$emit('input', value)
-      }
-    },
-    focus(newFocus, oldFocus) {
-      if (newFocus) {
-        this.searchColor = '#FFFFFF'
-        this.layoutStyle['border-color'] = '#cccccc'
-      } else {
-        this.searchColor = '#FBFBFB'
-        this.layoutStyle['border-color'] = '#f5f7fa'
-      }
-    }
-  },
-  data() {
-    return {
-      focus: false,
-      keyword: '',
-      inputFlag: false,
-      layoutStyle: {
-        width: '100%',
-        display: 'flex',
-        background: '#f5f7fa',
-        'align-items': 'center',
-        'padding-left': '1rem',
-        'padding-right': '1rem',
-        'padding-top': '8px',
-        'padding-bottom': '8px',
-        'border-width': '1px',
-        'border-radius': '1.25rem'
-      }
-    }
+  }
+  back() {
+    this.focus = false
+    this.keyword = ''
+    this.$emit('input', '')
   }
 }
 </script>

@@ -21,35 +21,38 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { isImage } from '@/utils/attachment_util'
 import path from 'path'
-export default {
-  name: 'FileContainer',
-  props: ['file', 'dragging'],
-  methods: {
-    getPath() {
-      if (this.file) {
-        return 'file://' + this.file.path
-      } else {
-        return ''
-      }
-    }
-  },
-  computed: {
-    showImage() {
-      if (this.file) {
-        return isImage(this.file.type)
-      } else {
-        return false
-      }
-    },
-    fileName() {
-      if (this.file) {
-        return path.parse(this.file.path).base
-      }
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'FileContainer'
+})
+export default class FileContainer extends Vue {
+  @Prop(Object) readonly file: any
+  @Prop(Boolean) readonly dragging: any
+
+  getPath() {
+    if (this.file) {
+      return 'file://' + this.file.path
+    } else {
       return ''
     }
+  }
+
+  get showImage() {
+    if (this.file) {
+      return isImage(this.file.type)
+    } else {
+      return false
+    }
+  }
+  get fileName() {
+    if (this.file) {
+      return path.parse(this.file.path).base
+    }
+    return ''
   }
 }
 </script>

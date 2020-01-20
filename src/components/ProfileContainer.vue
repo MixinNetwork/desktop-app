@@ -40,8 +40,7 @@ export default {
   },
   computed: {
     ...mapGetters({ me: 'me' })
-  },
-  methods: {}
+  }
 }
 </script>
 <style lang="scss" scoped>

@@ -62,142 +62,144 @@
   </li>
 </template>
 
-<script>
+<script lang="ts">
 import contentUtil from '@/utils/content_util'
 import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
 
-export default {
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
   name: 'ConversationItem',
-  props: ['conversation', 'mouseEve'],
   components: {
     Avatar
-  },
-  computed: {
-    timeAgo: function() {
-      return contentUtil.renderTime(this.conversation.createdAt, true)
-    },
-    description: function() {
-      const { conversation } = this
-      const id = JSON.parse(localStorage.getItem('account')).user_id
-      if (conversation.contentType === 'SYSTEM_CONVERSATION') {
-        if (SystemConversationAction.CREATE === conversation.actionName) {
-          return this.$t('chat.chat_group_create', {
-            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
-            1: conversation.groupName
-          })
-        } else if (SystemConversationAction.ADD === conversation.actionName) {
-          return this.$t('chat.chat_group_add', {
-            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
-            1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
-          })
-        } else if (SystemConversationAction.REMOVE === conversation.actionName) {
-          return this.$t('chat.chat_group_remove', {
-            0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
-            1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
-          })
-        } else if (SystemConversationAction.JOIN === conversation.actionName) {
-          return this.$t('chat.chat_group_join', {
-            0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
-          })
-        } else if (SystemConversationAction.EXIT === conversation.actionName) {
-          return this.$t('chat.chat_group_exit', {
-            0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
-          })
-        } else if (SystemConversationAction.ROLE === conversation.actionName) {
-          return this.$t('chat.chat_group_role')
-        } else {
-          return ''
-        }
-      } else if (conversation.contentType && conversation.contentType.endsWith('_IMAGE')) {
-        return this.getMessageName() + this.$t('chat.chat_pic')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
-        return this.getMessageName() + this.$t('chat.chat_sticker')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
-        return this.getMessageName() + this.conversation.content
-      } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
-        return this.getMessageName() + this.$t('chat.chat_contact')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {
-        return this.getMessageName() + this.$t('chat.chat_file')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_AUDIO')) {
-        return this.getMessageName() + this.$t('chat.chat_audio')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
-        return this.getMessageName() + this.$t('chat.chat_video')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_LIVE')) {
-        return this.getMessageName() + this.$t('chat.chat_live')
-      } else if (conversation.contentType && conversation.contentType.endsWith('_POST')) {
-        return this.getMessageName() + this.$t('chat.chat_post')
-      } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
-        if (conversation.contentType === 'APP_CARD') {
-          return `[${JSON.parse(this.conversation.content).title}]`
-        } else {
-          let str = ''
-          JSON.parse(this.conversation.content).forEach(item => {
-            str += `[${item.label}]`
-          })
-          return str
-        }
-      } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-        return this.$t('chat.chat_transfer')
-      } else if (conversation.contentType && conversation.contentType === 'MESSAGE_RECALL') {
-        if (id === conversation.senderId) {
-          return this.getMessageName() + this.$t('chat.chat_recall_me')
-        } else {
-          return this.getMessageName() + this.$t('chat.chat_recall_delete')
-        }
-      } else {
-        return this.$t('chat.chat_unknown')
-      }
-    },
-    isSelf: function() {
-      return this.conversation.senderId === this.getAccount().user_id
-    }
-  },
-  data: function() {
-    return {
-      show: false,
-      fouse: false,
-      MessageStatus: MessageStatus
-    }
-  },
-  methods: {
-    getAccount: function() {
-      return JSON.parse(localStorage.getItem('account'))
-    },
-    enter: function() {
-      this.show = true
-    },
-    leave: function() {
-      this.show = false
-    },
-    onFocus: function() {
-      this.fouse = true
-    },
-    onBlur: function() {
-      this.fouse = false
-    },
-    isMute: function() {
-      if (this.conversation.category === ConversationCategory.CONTACT && this.conversation.ownerMuteUntil) {
-        if (this.$moment().isBefore(this.conversation.ownerMuteUntil)) {
-          return true
-        }
-      }
-      if (this.conversation.category === ConversationCategory.GROUP && this.conversation.muteUntil) {
-        if (this.$moment().isBefore(this.conversation.muteUntil)) {
-          return true
-        }
-      }
-      return false
-    },
-    getMessageName: function() {
-      if (
-        this.conversation.category === ConversationCategory.GROUP &&
-        this.conversation.senderId !== this.getAccount().user_id
-      ) {
-        return this.conversation.senderFullName + ': '
+  }
+})
+export default class ConversationItem extends Vue {
+  @Prop(Object) readonly conversation: any
+
+  show: boolean = false
+  fouse: boolean = false
+  MessageStatus: any = MessageStatus
+  $moment: any
+
+  get timeAgo() {
+    return contentUtil.renderTime(this.conversation.createdAt, true)
+  }
+  get description() {
+    const { conversation } = this
+    // @ts-ignore
+    const id = JSON.parse(localStorage.getItem('account')).user_id
+    if (conversation.contentType === 'SYSTEM_CONVERSATION') {
+      if (SystemConversationAction.CREATE === conversation.actionName) {
+        return this.$t('chat.chat_group_create', {
+          0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
+          1: conversation.groupName
+        })
+      } else if (SystemConversationAction.ADD === conversation.actionName) {
+        return this.$t('chat.chat_group_add', {
+          0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
+          1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
+        })
+      } else if (SystemConversationAction.REMOVE === conversation.actionName) {
+        return this.$t('chat.chat_group_remove', {
+          0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
+          1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
+        })
+      } else if (SystemConversationAction.JOIN === conversation.actionName) {
+        return this.$t('chat.chat_group_join', {
+          0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
+        })
+      } else if (SystemConversationAction.EXIT === conversation.actionName) {
+        return this.$t('chat.chat_group_exit', {
+          0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
+        })
+      } else if (SystemConversationAction.ROLE === conversation.actionName) {
+        return this.$t('chat.chat_group_role')
       } else {
         return ''
       }
+    } else if (conversation.contentType && conversation.contentType.endsWith('_IMAGE')) {
+      return this.getMessageName() + this.$t('chat.chat_pic')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
+      return this.getMessageName() + this.$t('chat.chat_sticker')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
+      return this.getMessageName() + this.conversation.content
+    } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
+      return this.getMessageName() + this.$t('chat.chat_contact')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {
+      return this.getMessageName() + this.$t('chat.chat_file')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_AUDIO')) {
+      return this.getMessageName() + this.$t('chat.chat_audio')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
+      return this.getMessageName() + this.$t('chat.chat_video')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_LIVE')) {
+      return this.getMessageName() + this.$t('chat.chat_live')
+    } else if (conversation.contentType && conversation.contentType.endsWith('_POST')) {
+      return this.getMessageName() + this.$t('chat.chat_post')
+    } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
+      if (conversation.contentType === 'APP_CARD') {
+        return `[${JSON.parse(this.conversation.content).title}]`
+      } else {
+        let str = ''
+        JSON.parse(this.conversation.content).forEach((item: any) => {
+          str += `[${item.label}]`
+        })
+        return str
+      }
+    } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+      return this.$t('chat.chat_transfer')
+    } else if (conversation.contentType && conversation.contentType === 'MESSAGE_RECALL') {
+      if (id === conversation.senderId) {
+        return this.getMessageName() + this.$t('chat.chat_recall_me')
+      } else {
+        return this.getMessageName() + this.$t('chat.chat_recall_delete')
+      }
+    } else {
+      return this.$t('chat.chat_unknown')
+    }
+  }
+  get isSelf() {
+    return this.conversation.senderId === this.getAccount().user_id
+  }
+
+  getAccount() {
+    // @ts-ignore
+    return JSON.parse(localStorage.getItem('account'))
+  }
+  enter() {
+    this.show = true
+  }
+  leave() {
+    this.show = false
+  }
+  onFocus() {
+    this.fouse = true
+  }
+  onBlur() {
+    this.fouse = false
+  }
+  isMute() {
+    if (this.conversation.category === ConversationCategory.CONTACT && this.conversation.ownerMuteUntil) {
+      if (this.$moment().isBefore(this.conversation.ownerMuteUntil)) {
+        return true
+      }
+    }
+    if (this.conversation.category === ConversationCategory.GROUP && this.conversation.muteUntil) {
+      if (this.$moment().isBefore(this.conversation.muteUntil)) {
+        return true
+      }
+    }
+    return false
+  }
+  getMessageName() {
+    if (
+      this.conversation.category === ConversationCategory.GROUP &&
+        this.conversation.senderId !== this.getAccount().user_id
+    ) {
+      return this.conversation.senderFullName + ': '
+    } else {
+      return ''
     }
   }
 }

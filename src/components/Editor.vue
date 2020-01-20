@@ -19,37 +19,39 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
-export default {
-  name: 'editor',
-  props: ['conversation', 'category'],
+
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'Editor',
   components: {
     VueMarkdown
-  },
-  data() {
-    return {
-      post: ''
-    }
-  },
-  methods: {
-    sendPost() {
-      let { conversation, category } = this
-      const message = {
-        msg: {
-          conversationId: conversation.conversationId,
-          content: this.post,
-          category: category,
-          status: MessageStatus.SENDING
-        }
+  }
+})
+export default class Editor extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(String) readonly category: any
+
+  post: any = ''
+
+  sendPost() {
+    let { conversation, category } = this
+    const message = {
+      msg: {
+        conversationId: conversation.conversationId,
+        content: this.post,
+        category: category,
+        status: MessageStatus.SENDING
       }
-      this.$store.dispatch('sendMessage', message)
-      this.$store.dispatch('toggleEditor')
-    },
-    closeEditor() {
-      this.$store.dispatch('toggleEditor')
     }
+    this.$store.dispatch('sendMessage', message)
+    this.$store.dispatch('toggleEditor')
+  }
+  closeEditor() {
+    this.$store.dispatch('toggleEditor')
   }
 }
 </script>

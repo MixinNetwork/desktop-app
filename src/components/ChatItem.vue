@@ -13,22 +13,23 @@
     </div>
   </li>
 </template>
-<script>
+<script lang="ts">
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
-export default {
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'ChatItem',
   components: {
     Avatar
-  },
-  name: 'ChatItem',
-  props: ['chat', 'keyword'],
-  data: function() {
-    return {}
-  },
-  methods: {
-    highlight(content) {
-      return contentUtil.highlight(content, this.keyword)
-    }
+  }
+})
+export default class ChatItem extends Vue {
+  @Prop(Object) readonly chat: any
+  @Prop(String) readonly keyword: any
+
+  highlight(content: string) {
+    return contentUtil.highlight(content, this.keyword)
   }
 }
 </script>

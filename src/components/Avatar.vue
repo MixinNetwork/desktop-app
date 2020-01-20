@@ -10,9 +10,10 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import { ConversationCategory } from '@/utils/constants'
 import { getAvatarColorById } from '@/utils/util'
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 const ranges = [
   '\ud83c[\udf00-\udfff]', // U+1F300 to U+1F3FF
@@ -20,7 +21,7 @@ const ranges = [
   '\ud83d[\ude80-\udeff]' // U+1F680 to U+1F6FF
 ].join('|')
 let reg = new RegExp(ranges, 'g')
-function emoji(u) {
+function emoji(u: any) {
   let emojis = u.full_name.match(reg)
   if (emojis && emojis.length > 0) {
     u.emoji = emojis[0]
@@ -32,82 +33,64 @@ function emoji(u) {
 }
 
 const scales = [1, 0.5, 0.4, 0.3, 0.25]
-export default {
-  data: function() {
-    return {
-      users: [],
-      font: {}
+
+@Component
+export default class Avatar extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly user: any
+
+  @Watch('conversation')
+  onConversationChange(newConversation: any, oldConversation: any) {
+    if (newConversation) {
+      this.onChange()
     }
-  },
-  props: {
-    conversation: {
-      type: Object,
-      required: false
-    },
-    user: {
-      type: Object,
-      required: false
+  }
+  @Watch('user')
+  onUserChange(user: any) {
+    if (user) {
+      this.onChange()
     }
-  },
+  }
+
+  users: any = []
+  font: any = {}
+
   beforeMount() {
     this.onChange()
-  },
-  watch: {
-    conversation: function(newConversation, oldConversation) {
-      if (newConversation) {
-        this.onChange()
-        if (!oldConversation || oldConversation.participants.length !== newConversation.participants.length) {
-          this.resize()
-        }
-      }
-    },
-    user: function(user) {
-      if (user) {
-        this.onChange()
-      }
-    }
-  },
+  }
+
   mounted() {
     this.onChange()
-  },
-  methods: {
-    resize() {
-      // const width = this.$refs.root.clientWidth
-      // if (width > 0) {
-      //   this.font = {
-      //     'font-size': `${width * scales[this.users.length]}px`
-      //   }
-      // }
-    },
-    onChange() {
-      // eslint-disable-next-line
-      wasmObject.then(() => {
-        const { conversation, user } = this
-        let users = []
-        if (conversation && conversation.category === ConversationCategory.GROUP) {
-          users = conversation.participants
-        } else if (conversation) {
-          users = conversation.participants.filter(item => {
-            return item.user_id === conversation.ownerId
-          })
-        } else if (user) {
-          users = [user]
-        }
-        users = users.slice(0, 4)
-        users.map(u => {
-          u.has_avatar = false
+  }
 
-          emoji(u)
-          if (u.avatar_url && u.avatar_url.startsWith('http')) {
-            u.has_avatar = true
-          } else {
-            u.color = { background: getAvatarColorById(u.user_id) }
-          }
-          return u
+  onChange() {
+    // @ts-ignore
+    wasmObject.then(() => {
+      const { conversation, user } = this
+      let users = []
+      if (conversation && conversation.category === ConversationCategory.GROUP) {
+        users = conversation.participants
+      } else if (conversation) {
+        users = conversation.participants.filter((item: any) => {
+          return item.user_id === conversation.ownerId
         })
-        this.users = users
+      } else if (user) {
+        users = [user]
+      }
+      users = users.slice(0, 4)
+      users.map((u: any) => {
+        u.has_avatar = false
+
+        emoji(u)
+        if (u.avatar_url && u.avatar_url.startsWith('http')) {
+          u.has_avatar = true
+        } else {
+          u.color = { background: getAvatarColorById(u.user_id) }
+        }
+        return u
       })
-    }
+      this.users = users
+    })
   }
 }
 </script>

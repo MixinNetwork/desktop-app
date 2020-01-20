@@ -33,61 +33,59 @@
     </mixin-scrollbar>
   </div>
 </template>
-<script>
+<script lang="ts">
 import Search from '@/components/Search.vue'
 import SearchItem from '@/components/SearchItem.vue'
 import messageDao from '@/dao/message_dao'
 import { mapGetters } from 'vuex'
 
-export default {
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component({
+  name: 'ChatSearch',
   components: {
     SearchItem,
     Search
-  },
-  data() {
-    return {
-      timeoutListener: null,
-      keyword: '',
-      searching: false,
-      resultList: []
-    }
-  },
-  watch: {
-    conversation() {
-      this.resultList = []
+  }
+})
+export default class ChatSearch extends Vue {
+@Getter('searching') readonly searchingBefore: any
+@Getter('currentConversation') readonly conversation: any
+
+  timeoutListener: any = null
+  keyword: any = ''
+  searching: any = false
+  resultList: any = []
+
+  @Watch('conversation')
+  onConversationChanged() {
+    this.resultList = []
+    this.searching = true
+    const keyword = this.searchingBefore.replace(/^key:/, '')
+    this.onInput(keyword)
+  }
+
+  onInput(keyword: any) {
+    this.keyword = keyword
+    if (this.keyword.length > 0) {
       this.searching = true
-      const keyword = this.searchingBefore.replace(/^key:/, '')
-      this.onInput(keyword)
-    }
-  },
-  methods: {
-    onInput(keyword) {
-      this.keyword = keyword
-      if (this.keyword.length > 0) {
-        this.searching = true
-        clearTimeout(this.timeoutListener)
-        this.timeoutListener = setTimeout(() => {
-          this.searching = false
-          const data = messageDao.ftsMessageQuery(this.conversation.conversationId, this.keyword)
-          if (data) {
-            this.resultList = data
-          }
-        }, 200)
-      } else {
-        this.resultList = []
+      clearTimeout(this.timeoutListener)
+      this.timeoutListener = setTimeout(() => {
         this.searching = false
-      }
-    },
-    onSearchClick(item) {
-      this.$emit('search', item, this.keyword)
+        const data = messageDao.ftsMessageQuery(this.conversation.conversationId, this.keyword)
+        if (data) {
+          this.resultList = data
+        }
+      }, 200)
+    } else {
+      this.resultList = []
       this.searching = false
     }
-  },
-  computed: {
-    ...mapGetters({
-      searchingBefore: 'searching',
-      conversation: 'currentConversation'
-    })
+  }
+  onSearchClick(item: any) {
+    this.$emit('search', item, this.keyword)
+    this.searching = false
   }
 }
 </script>

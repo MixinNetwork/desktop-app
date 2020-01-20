@@ -6,9 +6,7 @@
 
 <script>
 export default {
-  props: ['url'],
-  components: {},
-  computed: {}
+  props: ['url']
 }
 </script>
 

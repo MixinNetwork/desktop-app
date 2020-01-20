@@ -1,11 +1,13 @@
 import attachmentApi from '@/api/attachment'
 import { remote, nativeImage } from 'electron'
 import { MimeType } from '@/utils/constants'
+// @ts-ignore
 import uuidv4 from 'uuid/v4'
+// @ts-ignore
+import jo from 'jpeg-autorotate'
 import fs from 'fs'
 import path from 'path'
 import sizeOf from 'image-size'
-import jo from 'jpeg-autorotate'
 import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util'
 import conversationAPI from '@/api/conversation'
@@ -14,7 +16,7 @@ import signalProtocol from '@/crypto/signal'
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()
 
-export async function downloadAttachment(message) {
+export async function downloadAttachment(message: any) {
   try {
     const response = await attachmentApi.getAttachment(message.content)
     if (response.data.data) {
@@ -48,7 +50,7 @@ export async function downloadAttachment(message) {
           return [m, filePath]
         }
       } else {
-        const data = await getAttachment(response.data.data.view_url)
+        const data: any = await getAttachment(response.data.data.view_url)
         const m = message
         const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
         const filePath = path.join(dir, name)
@@ -67,24 +69,25 @@ export async function downloadAttachment(message) {
   }
 }
 
-function processAttachment(imagePath, mimeType, category, id) {
+function processAttachment(imagePath: any, mimeType: string, category: any, id: any) {
   const fileName = path.parse(imagePath).base
-  let type = mimeType
+  let type :string = mimeType
+  // @ts-ignore
   if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
   const destination = path.join(getImagePath(), generateName(fileName, type, category, id))
   fs.copyFileSync(imagePath, destination)
   return { localPath: destination, name: fileName }
 }
 
-export async function base64ToImage(img, mimeType) {
+export async function base64ToImage(img: string, mimeType: any) {
   let data = img.replace(/^data:image\/\w+;base64,/, '')
   let buf = Buffer.from(data, 'base64')
-  const destination = path.join(getImagePath(), generateName(null, mimeType, '_IMAGE'))
+  const destination = path.join(getImagePath(), generateName('', mimeType, '_IMAGE', ''))
   await fs.writeFileSync(destination, buf)
   return { path: destination, type: mimeType }
 }
 
-function toArrayBuffer(buf) {
+function toArrayBuffer(buf: string | any[] | Buffer) {
   let ab = new ArrayBuffer(buf.length)
   let view = new Uint8Array(ab)
   for (let i = 0; i < buf.length; ++i) {
@@ -92,7 +95,7 @@ function toArrayBuffer(buf) {
   }
   return ab
 }
-function base64Thumbnail(url, width, height) {
+function base64Thumbnail(url: string, width: number, height: number) {
   let image = nativeImage.createFromPath(url)
   if (width > height) {
     image = image.resize({ width: 48, height: height / (width / 48), quality: 'good' })
@@ -103,12 +106,27 @@ function base64Thumbnail(url, width, height) {
 
   return base64str
 }
-export async function putAttachment(imagePath, mimeType, category, id, processCallback, sendCallback, errorCallback) {
+
+function putHeader(buffer: any) {
+  return {
+    method: 'PUT',
+    body: buffer,
+    headers: {
+      'x-amz-acl': 'public-read',
+      Connection: 'close',
+      'Content-Length': buffer.byteLength,
+      'Content-Type': 'application/octet-stream'
+    }
+  }
+}
+
+export async function putAttachment(imagePath: any, mimeType: any, category: string, id: any, processCallback: any, sendCallback: any, errorCallback: any) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
-  let mediaWidth = null
-  let mediaHeight = null
-  let thumbImage = null
+  let mediaWidth: number = 0
+  let mediaHeight: number = 0
+  let thumbImage: string | null = null
   if (category.endsWith('_IMAGE')) {
+    // @ts-ignore
     const dimensions = sizeOf(localPath)
     mediaWidth = dimensions.width
     mediaHeight = dimensions.height
@@ -117,8 +135,8 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
     //   'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
   }
   let buffer = fs.readFileSync(localPath)
-  let key
-  let digest
+  let key: Iterable<number>
+  let digest: Iterable<number>
   const message = {
     name: name,
     mediaSize: buffer.byteLength,
@@ -129,12 +147,12 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
     thumbImage: thumbImage
   }
   if (category.startsWith('SIGNAL_')) {
-    // eslint-disable-next-line no-undef
+    // @ts-ignore
     key = libsignal.crypto.getRandomBytes(64)
-    // eslint-disable-next-line no-undef
+    // @ts-ignore
     const iv = libsignal.crypto.getRandomBytes(16)
     const buf = toArrayBuffer(buffer)
-    await cryptoAttachment.encryptAttachment(buf, key, iv).then(result => {
+    await cryptoAttachment.encryptAttachment(buf, key, iv).then((result: { ciphertext: Buffer; digest: any }) => {
       buffer = result.ciphertext
       digest = result.digest
     })
@@ -147,17 +165,8 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
   }
   const url = result.data.data.upload_url
   const attachmentId = result.data.data.attachment_id
-  fetch(url, {
-    method: 'PUT',
-    body: buffer,
-    headers: {
-      'x-amz-acl': 'public-read',
-      Connection: 'close',
-      'Content-Length': buffer.byteLength,
-      'Content-Type': 'application/octet-stream'
-    }
-  }).then(
-    function(resp) {
+  fetch(url, putHeader(buffer)).then(
+    function(resp: { status: number }) {
       if (resp.status === 200) {
         sendCallback({
           attachment_id: attachmentId,
@@ -174,23 +183,23 @@ export async function putAttachment(imagePath, mimeType, category, id, processCa
         errorCallback(resp.status)
       }
     },
-    error => {
+    (error: any) => {
       errorCallback(error)
     }
   )
 }
 
-export async function uploadAttachment(localPath, category, sendCallback, errorCallback) {
-  let key
-  let digest
+export async function uploadAttachment(localPath: string | number | Buffer | import('url').URL, category: string, sendCallback: { (attachmentId: any, key: any, digest: any): void; (arg0: any, arg1: string, arg2: string): void }, errorCallback: { (e: any): void; (arg0: string | number): void }) {
+  let key: Iterable<number>
+  let digest: Iterable<number>
   let buffer = fs.readFileSync(localPath)
   if (category.startsWith('SIGNAL_')) {
-    // eslint-disable-next-line no-undef
+    // @ts-ignore
     key = libsignal.crypto.getRandomBytes(64)
-    // eslint-disable-next-line no-undef
+    // @ts-ignore
     const iv = libsignal.crypto.getRandomBytes(16)
     const buf = toArrayBuffer(buffer)
-    await cryptoAttachment.encryptAttachment(buf, key, iv).then(result => {
+    await cryptoAttachment.encryptAttachment(buf, key, iv).then((result: { ciphertext: Buffer; digest: any }) => {
       buffer = result.ciphertext
       digest = result.digest
     })
@@ -202,17 +211,8 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
   }
   const url = result.data.data.upload_url
   const attachmentId = result.data.data.attachment_id
-  fetch(url, {
-    method: 'PUT',
-    body: buffer,
-    headers: {
-      'x-amz-acl': 'public-read',
-      Connection: 'close',
-      'Content-Length': buffer.byteLength,
-      'Content-Type': 'application/octet-stream'
-    }
-  }).then(
-    function(resp) {
+  fetch(url, putHeader(buffer)).then(
+    function(resp: { status: number }) {
       if (resp.status === 200) {
         sendCallback(
           attachmentId,
@@ -223,13 +223,13 @@ export async function uploadAttachment(localPath, category, sendCallback, errorC
         errorCallback(resp.status)
       }
     },
-    error => {
+    (error: any) => {
       errorCallback(error)
     }
   )
 }
 
-function generateName(fileName, mimeType, category, id) {
+function generateName(fileName: string, mimeType: string, category: string, id: string) {
   const date = new Date()
   if (!id) {
     id = uuidv4()
@@ -273,7 +273,7 @@ function generateName(fileName, mimeType, category, id) {
   }
 }
 
-export function isImage(mimeType) {
+export function isImage(mimeType: string) {
   if (
     mimeType === MimeType.JPEG.name ||
     mimeType === MimeType.JPEG.name ||
@@ -288,10 +288,10 @@ export function isImage(mimeType) {
   }
 }
 
-function parseFile(blob) {
+function parseFile(blob: Blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onloadend = function(event) {
+    reader.onloadend = function(event: any) {
       const content = event.target.result
       resolve(content)
     }
@@ -302,15 +302,15 @@ function parseFile(blob) {
   })
 }
 
-function getAttachment(url) {
+function getAttachment(url: RequestInfo) {
   return fetch(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/octet-stream'
     }
   })
-    .then(function(resp) {
-      let code = parseInt(resp.status)
+    .then(function(resp: any) {
+      let code: any = parseInt(resp.status)
       if (code !== 200) {
         throw Error(code)
       }

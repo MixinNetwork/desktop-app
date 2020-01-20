@@ -1,20 +1,21 @@
+// @ts-ignore
 import URI from 'urijs'
 import moment from 'moment'
 import i18n from '@/utils/i18n'
 
 export default {
-  messageFilteredText(e) {
+  messageFilteredText(e: { innerHTML: string; innerText: string }) {
     e.innerHTML = e.innerHTML.replace(/<br><br><\/div>/g, '<br></div>').replace(/<div><br><\/div>/g, '<div>　</div>')
     // eslint-disable-next-line
     return e.innerText.replace(/\n　\n/g, '\n\n')
   },
-  renderUrl(content) {
+  renderUrl(content: string) {
     const h = content
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-    const result = URI.withinString(h, function(url) {
+    const result = URI.withinString(h, function(url: string) {
       let l = url
       if (!url.startsWith('http')) {
         l = 'https://' + url
@@ -23,7 +24,7 @@ export default {
     })
     return result
   },
-  renderTime(timeStr, showDetail) {
+  renderTime(timeStr: any, showDetail: any) {
     const t = moment(timeStr)
     const td = t.format('YYYY-MM-DD')
     const n = moment()
@@ -35,15 +36,20 @@ export default {
       }
       return i18n.t('today')
     } else if (moment(nd).diff(moment(td)) <= n.get('day') * daySeconds) {
+      // @ts-ignore
       return `${i18n.t('week_prefix')[0]}${i18n.t('week')[t.get('day')]}`
     } else {
-      let [yearStr, monthStr, dayStr] = i18n.t('date')
+      const dateObj: any = i18n.t('date')
+      let yearStr = dateObj[0]
+      const monthStr = dateObj[1]
+      const dayStr = dateObj[2]
       if (n.get('year') === t.get('year') || !showDetail) {
         yearStr = ''
       } else {
         yearStr = t.get('year') + yearStr
       }
       const dateStr = `${yearStr}${t.format('MM')}${monthStr}${t.format('DD')}${dayStr}`
+      // @ts-ignore
       let weekStr = ` ${i18n.t('week_prefix')[1]}${i18n.t('week')[t.get('day')]}`
       if (showDetail) {
         weekStr = ''
@@ -51,7 +57,7 @@ export default {
       return `${dateStr}${weekStr}`
     }
   },
-  fts5KeywordFilter(text) {
+  fts5KeywordFilter(text: string) {
     text = text.trim()
     text = text.replace(/[' ']+/g, '.')
     let keyword = ''
@@ -79,9 +85,9 @@ export default {
     keyword = keyword.replace(/['* ']+/g, '* ').replace(/^\* /, '')
     return keyword
   },
-  highlight(content, keyword, highlight) {
+  highlight(content: any, keyword: string, highlight: string) {
     if (!keyword) return content
-    let result = content
+    let result: any = content
     highlight = highlight || 'default'
     keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
     const regx = new RegExp('(' + keyword + ')', 'ig')

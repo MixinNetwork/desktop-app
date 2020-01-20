@@ -37,7 +37,7 @@ export default class UserItem extends Vue {
   @Prop(Object) readonly user: any
 
   highlight(content: string) {
-    return contentUtil.highlight(content, this.keyword)
+    return contentUtil.highlight(content, this.keyword, '')
   }
 }
 </script>

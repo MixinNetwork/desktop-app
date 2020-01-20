@@ -69,7 +69,7 @@ export default class ChatSticker extends Vue {
         this.albumPos()
       })
     } else {
-      stickerApi.getStickerAlbums().then(res => {
+      stickerApi.getStickerAlbums().then((res: any) => {
         if (res.data.data) {
           this.albums = res.data.data
           this.albums.forEach((item: any) => {
@@ -122,7 +122,7 @@ export default class ChatSticker extends Vue {
       this.stickers = stickers
       this.resezeSticker()
     } else {
-      stickerApi.getStickersByAlbumId(id).then(res => {
+      stickerApi.getStickersByAlbumId(id).then((res: any) => {
         if (res.data.data) {
           this.stickers = res.data.data
           this.resezeSticker()

@@ -249,7 +249,7 @@ export default class Navigation extends Vue {
     }
   }
   exit() {
-    accountAPI.logout().then(resp => {
+    accountAPI.logout().then((resp: any) => {
       this.$blaze.closeBlaze()
       this.$router.push('/sign_in')
       clearDb()
@@ -337,7 +337,7 @@ export default class Navigation extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationAPI.mute(conversationId, duration).then(resp => {
+          conversationAPI.mute(conversationId, duration).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -362,7 +362,7 @@ export default class Navigation extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationAPI.mute(conversationId, 0).then(resp => {
+          conversationAPI.mute(conversationId, 0).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })

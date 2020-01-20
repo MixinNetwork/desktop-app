@@ -6,11 +6,11 @@ import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
-function refreshConversations(state) {
+function refreshConversations(state: any) {
   const conversations = conversationDao.getConversations()
-  const conversationKeys = []
+  const conversationKeys: any = []
   Vue.set(state, 'conversations', {})
-  conversations.forEach((conversation, index) => {
+  conversations.forEach((conversation: any, index: string | number) => {
     const conversationId = conversation.conversationId
     conversationKeys[index] = conversationId
     const participants = participantDao.getParticipantsByConversationId(conversationId)
@@ -20,27 +20,27 @@ function refreshConversations(state) {
   state.conversationKeys = conversationKeys
 }
 
-function refreshConversation(state, conversationId) {
+function refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string | number) {
   const conversation = conversationDao.getConversationItemByConversationId(conversationId)
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
     conversation.participants = participants
     Vue.set(state.conversations, conversationId, conversation)
   }
-  state.conversationKeys = conversationDao.getConversationsIds().map(item => {
+  state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
     return item.conversationId
   })
 }
 
-let keywordCache = null
+let keywordCache: any = null
 
-let messageSearchTimer = null
-function messageSearch(state, type, keyword) {
-  let message = []
-  let messageAll = []
+let messageSearchTimer: any = null
+function messageSearch(state: any, type: string, keyword: any) {
+  let message: any = []
+  let messageAll: any = []
   let num = 0
 
-  function action(conversations, limit, i) {
+  function action(conversations: any, limit: any, i: number) {
     if (i < conversations.length) {
       const conversation = conversations[i]
       const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
@@ -87,7 +87,7 @@ function messageSearch(state, type, keyword) {
   }
 }
 
-function search(state, payload) {
+function search(state: any, payload: any) {
   const { keyword, type } = payload
 
   clearTimeout(messageSearchTimer)
@@ -98,9 +98,9 @@ function search(state, payload) {
     let { chats, chatsAll, message, messageAll, contact, contactAll } = state.search
 
     if (!type || type === 'contacts') {
-      const findContact = userDao.fuzzySearchUser(keyword).filter(item => {
+      const findContact = userDao.fuzzySearchUser(keyword).filter((item: any) => {
         if (!chats) return []
-        return !chats.some(conversation => {
+        return !chats.some((conversation: any) => {
           return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
         })
       })
@@ -110,7 +110,7 @@ function search(state, payload) {
 
     if (!type || type === 'chats') {
       const findChats = conversationDao.fuzzySearchConversation(keyword)
-      findChats.forEach((item, index) => {
+      findChats.forEach((item: any, index: number) => {
         const participants = participantDao.getParticipantsByConversationId(item.conversationId)
         findChats[index].participants = participants
       })
@@ -142,7 +142,7 @@ function search(state, payload) {
 }
 
 export default {
-  exit(state) {
+  exit(state: any) {
     state.me = {}
     state.currentConversationId = null
     state.editing = false
@@ -164,10 +164,10 @@ export default {
     state.showTime = false
     state.linkStatus = LinkStatus.CONNECTED
   },
-  init(state) {
+  init(state: any) {
     const conversations = conversationDao.getConversations()
-    const conversationKeys = []
-    conversations.forEach((conversation, index) => {
+    const conversationKeys: any = []
+    conversations.forEach((conversation: any, index: number) => {
       const conversationId = conversation.conversationId
       conversationKeys[index] = conversationId
       const participants = participantDao.getParticipantsByConversationId(conversationId)
@@ -178,24 +178,25 @@ export default {
     if (friends.length > 0) {
       state.friends = friends
     }
+    // @ts-ignore
     state.me = JSON.parse(localStorage.getItem('account'))
     state.conversationKeys = conversationKeys
   },
-  saveAccount(state, user) {
+  saveAccount(state: any, user: any) {
     state.me = user
   },
-  setSearching(state, keyword) {
+  setSearching(state: { searching: any }, keyword: any) {
     state.searching = keyword
   },
-  setCurrentUser(state, user) {
+  setCurrentUser(state: { currentUser: any }, user: any) {
     state.currentUser = user
   },
-  setCurrentConversation(state, conversation) {
+  setCurrentConversation(state: any, conversation: any) {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
     messageBox.setConversationId(conversationId, unseenMessageCount - 1)
     if (
-      !state.conversationKeys.some(item => {
+      !state.conversationKeys.some((item: any) => {
         return item === conversationId
       })
     ) {
@@ -207,16 +208,16 @@ export default {
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)
   },
-  setCurrentAudio(state, audioMessage) {
+  setCurrentAudio(state: { currentAudio: any }, audioMessage: any) {
     state.currentAudio = audioMessage
   },
-  setCurrentMessages(state, messages) {
+  setCurrentMessages(state: { currentMessages: any }, messages: any) {
     state.currentMessages = messages
   },
-  refreshMessage(state, conversationId) {
+  refreshMessage(state: any, conversationId: string | number) {
     messageBox.refreshMessage(conversationId)
     if (
-      !state.conversationKeys.some(item => {
+      !state.conversationKeys.some((item: any) => {
         return item === conversationId
       })
     ) {
@@ -225,13 +226,13 @@ export default {
       refreshConversation(state, conversationId)
     }
   },
-  refreshConversation(state, conversationId) {
+  refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string | number) {
     refreshConversation(state, conversationId)
   },
-  refreshConversations(state) {
+  refreshConversations(state: any) {
     refreshConversations(state)
   },
-  conversationClear(state, conversationId) {
+  conversationClear(state: { conversationKeys: any[]; conversations: { [x: string]: any }; currentConversationId: null; editing: boolean }, conversationId: string | number) {
     const index = state.conversationKeys.indexOf(conversationId)
     if (index > -1) {
       state.conversationKeys.splice(index, 1)
@@ -246,19 +247,19 @@ export default {
       state.editing = false
     }
   },
-  refreshFriends(state) {
+  refreshFriends(state: { friends: any }) {
     state.friends = userDao.findFriends()
   },
-  refreshParticipants(state, conversationId) {
+  refreshParticipants(state: { conversations: { [x: string]: { participants: any } } }, conversationId: string | number) {
     const users = participantDao.getParticipantsByConversationId(conversationId)
     if (state.conversations[conversationId]) {
       state.conversations[conversationId].participants = users
     }
   },
-  search(state, keyword) {
+  search(state: any, keyword: any) {
     search(state, keyword)
   },
-  searchClear(state) {
+  searchClear(state: { search: { contact: null; chats: null; message: null; contactAll: null; chatsAll: null; messageAll: null } }) {
     keywordCache = null
     state.search = {
       contact: null,
@@ -269,24 +270,24 @@ export default {
       messageAll: null
     }
   },
-  toggleTime(state, toggle) {
+  toggleTime(state: { showTime: any }, toggle: any) {
     if (state.showTime !== toggle) {
       state.showTime = toggle
     }
   },
-  setLinkStatus(state, status) {
+  setLinkStatus(state: { linkStatus: any }, status: any) {
     state.linkStatus = status
   },
-  startLoading(state, messageId) {
+  startLoading(state: { attachment: any[] }, messageId: any) {
     state.attachment.push(messageId)
   },
-  stopLoading(state, messageId) {
+  stopLoading(state: { attachment: any }, messageId: any) {
     let arr = state.attachment
-    state.attachment = arr.filter(item => {
+    state.attachment = arr.filter((item: any) => {
       return item !== messageId
     })
   },
-  toggleEditor(state) {
+  toggleEditor(state: { editing: boolean }) {
     state.editing = !state.editing
   }
 }

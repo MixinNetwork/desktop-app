@@ -123,7 +123,7 @@ export default class Details extends Vue {
   addContact() {
     const userId = this.user.user_id
     const { conversationId } = this.conversation
-    userApi.updateRelationship({user_id: userId, full_name: this.user.full_name, action: 'ADD'}).then((res) => {
+    userApi.updateRelationship({user_id: userId, full_name: this.user.full_name, action: 'ADD'}).then((res: any) => {
       if (res.data) {
         this.actionSetCurrentUser(res.data.data)
       }

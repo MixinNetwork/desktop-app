@@ -29,7 +29,7 @@ export default class ChatItem extends Vue {
   @Prop(String) readonly keyword: any
 
   highlight(content: string) {
-    return contentUtil.highlight(content, this.keyword)
+    return contentUtil.highlight(content, this.keyword, '')
   }
 }
 </script>

@@ -31,10 +31,10 @@ export default class App extends Vue {
   ping() {
     this.isLoading = true
     accountApi.checkPing().then(
-      resp => {
+      (resp: any) => {
         this.isLoading = false
       },
-      err => {
+      (err: any) => {
         console.log(err.data)
         this.isLoading = false
       }

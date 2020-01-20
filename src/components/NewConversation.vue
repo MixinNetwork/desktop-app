@@ -47,13 +47,13 @@ export default class NewConversation extends Vue {
 
   mounted() {
     accountApi.getFriends().then(
-      resp => {
+      (resp: any) => {
         const friends = resp.data.data
         if (friends && friends.length > 0) {
           this.$store.dispatch('refreshFriends', friends)
         }
       },
-      err => {
+      (err: any) => {
         console.log(err.data)
       }
     )

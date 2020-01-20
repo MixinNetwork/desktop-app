@@ -659,7 +659,7 @@ export default class ChatContainer extends Vue {
     this.details = false
   }
   changeContactRelationship(action: string) {
-    userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res) => {
+    userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res: any) => {
       if (res.data) {
         const user = res.data.data
         this.actionSetCurrentUser(user)
@@ -736,7 +736,7 @@ export default class ChatContainer extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationAPI.mute(self.conversation.conversationId, duration).then(resp => {
+          conversationAPI.mute(self.conversation.conversationId, duration).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -762,7 +762,7 @@ export default class ChatContainer extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationAPI.mute(self.conversation.conversationId, 0).then(resp => {
+          conversationAPI.mute(self.conversation.conversationId, 0).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })

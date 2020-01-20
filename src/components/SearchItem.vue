@@ -32,7 +32,7 @@ export default class SearchItem extends Vue {
     return contentUtil.renderTime(timeStr, true)
   }
   highlight(content: string) {
-    return contentUtil.highlight(content, this.keyword)
+    return contentUtil.highlight(content, this.keyword, '')
   }
 }
 </script>

@@ -134,7 +134,7 @@ class MessageDao {
     return index
   }
 
-  ftsMessageCount(conversationId: any, keyword: any) {
+  ftsMessageCount(conversationId?: any, keyword?: any) {
     if (conversationId) {
       if (!keyword) {
         const data = db.prepare('SELECT count(message_id) FROM messages WHERE conversation_id = ?').get(conversationId)

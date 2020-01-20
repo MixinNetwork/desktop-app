@@ -12,5 +12,8 @@ export default {
   },
   updateSession(body: any) {
     return api.post('/session', body)
+  },
+  updateRelationship(body: any) {
+    return api.post('/relationships', body)
   }
 }

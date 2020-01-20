@@ -31,11 +31,12 @@ const router = new Router({
   ]
 })
 
-const publicPages = {
+const publicPages: any = {
   '/sign_in': true
 }
 
 router.beforeEach((to, from, next) => {
+  // @ts-ignore
   const account = JSON.parse(localStorage.getItem('account'))
   if (!publicPages[to.path] && !account) {
     return next('/sign_in')

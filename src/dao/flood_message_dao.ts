@@ -1,7 +1,7 @@
 import db from '@/persistence/db'
 
 class FloodMessageDao {
-  insert(messageId, data, createdAt) {
+  insert(messageId: any, data: string, createdAt: any) {
     const stmt = db.prepare('INSERT OR REPLACE INTO flood_messages(message_id,data,created_at) VALUES (?,?,?)')
     stmt.run(messageId, data, createdAt)
   }
@@ -9,7 +9,7 @@ class FloodMessageDao {
     const stmt = db.prepare('SELECT * FROM flood_messages ORDER BY created_at ASC LIMIT 20')
     return stmt.all()
   }
-  delete(messageId) {
+  delete(messageId: any) {
     db.prepare('DELETE FROM flood_messages WHERE message_id = ?').run(messageId)
   }
 }

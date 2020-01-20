@@ -2,7 +2,7 @@
   <main class="chat container" @click="hideStickerChoose">
     <header v-show="conversation">
       <div>
-        <Avatar :conversation="conversation" @onAvatarClick="showDetails" />
+        <Avatar style="font-size: 1rem" :conversation="conversation" @onAvatarClick="showDetails" />
       </div>
       <div class="title">
         <div @click="showDetails">
@@ -31,7 +31,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :style="showMessages ? '' : 'opacity: 0'"
+        :style="(showMessages && !goSearchPos) ? '' : 'opacity: 0'"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -127,8 +127,8 @@
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
-    <transition :name="searching.replace(/^key:/, '') ? '' : 'slide-right'">
-      <ChatSearch class="overlay" :rr="searching" v-if="searching" @close="hideSearch" @search="goSearchMessagePos"></ChatSearch>
+    <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
+      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos" />
     </transition>
     <transition name="slide-right">
       <Editor
@@ -174,6 +174,7 @@ import conversationAPI from '@/api/conversation'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
+import userApi from '@/api/user'
 
 @Component({
   components: {
@@ -257,6 +258,11 @@ export default class ChatContainer extends Vue {
       let menu = []
       if (newC.category === ConversationCategory.CONTACT) {
         menu.push(chatMenu.contact_info)
+        if (this.user.relationship !== 'FRIEND') {
+          menu.push(chatMenu.add_contact)
+        } else {
+          menu.push(chatMenu.remove_contact)
+        }
         menu.push(chatMenu.clear)
         this.identity = newC.ownerIdentityNumber
         this.participant = true
@@ -291,6 +297,7 @@ export default class ChatContainer extends Vue {
 
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
+  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
@@ -327,12 +334,13 @@ export default class ChatContainer extends Vue {
   infiniteUpLock: any = false
   infiniteDownLock: any = true
   searchKeyword: any = ''
-  timeDivideShow: any = false
+  timeDivideShow: boolean = false
   contentUtil: any = contentUtil
-  stickerChoosing: any = false
+  stickerChoosing: boolean = false
   showScroll: any = true
   chooseStickerTimeout: any = null
   lastEnter: any = null
+  goSearchPos: boolean = false
 
   mounted() {
     let self = this
@@ -382,14 +390,14 @@ export default class ChatContainer extends Vue {
         }
       },
       function(force: any, message: any) {
-        if (self.isBottom) {
-          self.goBottom()
-        }
         if (force) {
+          self.showMessages = false
           self.goBottom()
           setTimeout(() => {
             self.goMessagePos(message)
           })
+        } else if (self.isBottom) {
+          self.goBottom()
         }
         setTimeout(() => {
           if (!force) {
@@ -471,17 +479,24 @@ export default class ChatContainer extends Vue {
     }
   }
   goSearchMessagePos(item: any, keyword: string) {
-    this.hideSearch()
-    const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-    const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
-    messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+    this.goSearchPos = true
+    this.showScroll = false
     setTimeout(() => {
-      this.searchKeyword = keyword
+      this.hideSearch()
+      const count = messageDao.ftsMessageCount(this.conversation.conversationId)
+      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+      setTimeout(() => {
+        this.searchKeyword = keyword
+        this.goSearchPos = false
+        this.showScroll = true
+      })
     })
   }
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
+    this.infiniteScroll('up')
     this.infiniteScroll('down')
     const action = (beforeScrollTop: any) => {
       setTimeout(() => {
@@ -532,7 +547,7 @@ export default class ChatContainer extends Vue {
     }, 10)
   }
   infiniteScroll(direction: any) {
-    messageBox.nextPage(direction).then(messages => {
+    messageBox.nextPage(direction).then((messages: any) => {
       if (messages.length) {
         if (direction === 'down') {
           const newMessages = []
@@ -643,6 +658,33 @@ export default class ChatContainer extends Vue {
   hideDetails() {
     this.details = false
   }
+  changeContactRelationship(action: string) {
+    userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res: any) => {
+      if (res.data) {
+        const user = res.data.data
+        this.actionSetCurrentUser(user)
+        const chatMenu = this.$t('menu.chat')
+        const menu = []
+        menu.push(chatMenu.contact_info)
+        if (this.user.relationship !== 'FRIEND') {
+          menu.push(chatMenu.add_contact)
+        } else {
+          menu.push(chatMenu.remove_contact)
+        }
+        menu.push(chatMenu.clear)
+
+        if (this.conversation.status !== ConversationStatus.QUIT) {
+          if (this.isMute(this.conversation)) {
+            menu.push(chatMenu.cancel_mute)
+          } else {
+            menu.push(chatMenu.mute)
+          }
+        }
+        // menu.push(chatMenu.create_post)
+        this.menus = menu
+      }
+    })
+  }
   onItemClick(index: number) {
     const chatMenu = this.$t('menu.chat')
     const option = this.menus[index]
@@ -652,6 +694,20 @@ export default class ChatContainer extends Vue {
       this.details = true
     } else if (key === 'exit_group') {
       this.actionExitGroup(this.conversation.conversationId)
+    } else if (key === 'add_contact') {
+      this.changeContactRelationship('ADD')
+    } else if (key === 'remove_contact') {
+      const userId = this.user.user_id
+      this.$Dialog.alert(
+        this.$t('chat.remove_contact'),
+        this.$t('ok'),
+        () => {
+          this.changeContactRelationship('REMOVE')
+        },
+        this.$t('cancel'),
+        () => {
+        }
+      )
     } else if (key === 'clear') {
       this.$Dialog.alert(
         this.$t('chat.chat_clear'),
@@ -680,7 +736,7 @@ export default class ChatContainer extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationAPI.mute(self.conversation.conversationId, duration).then(resp => {
+          conversationAPI.mute(self.conversation.conversationId, duration).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -706,7 +762,7 @@ export default class ChatContainer extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationAPI.mute(self.conversation.conversationId, 0).then(resp => {
+          conversationAPI.mute(self.conversation.conversationId, 0).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -1075,7 +1131,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-right-enter-active,
   .slide-right-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-right-enter,
   .slide-right-leave-to {
@@ -1083,7 +1139,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-bottom-enter-active,
   .slide-bottom-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {
@@ -1091,7 +1147,7 @@ export default class ChatContainer extends Vue {
   }
   .slide-bottom-enter-active,
   .slide-bottom-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {

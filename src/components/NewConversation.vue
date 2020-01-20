@@ -21,52 +21,50 @@
     </mixin-scrollbar>
   </div>
 </template>
-<script>
+<script lang="ts">
 import UserItem from '@/components/UserItem.vue'
 import Search from '@/components/Search.vue'
-import { mapGetters } from 'vuex'
 import accountApi from '@/api/account'
-export default {
+
+import { Vue, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component({
   name: 'NewConversation',
-  data: function() {
-    return {
-      keyword: ''
-    }
-  },
   components: {
     UserItem,
     Search
-  },
-  methods: {
-    onInput: function(text) {
-      this.keyword = text
-    }
-  },
+  }
+})
+export default class NewConversation extends Vue {
+  @Getter('findFriends') friends: any
+
+  keyword: string = ''
+
+  onInput(text: string) {
+    this.keyword = text
+  }
+
   mounted() {
     accountApi.getFriends().then(
-      resp => {
+      (resp: any) => {
         const friends = resp.data.data
         if (friends && friends.length > 0) {
           this.$store.dispatch('refreshFriends', friends)
         }
       },
-      err => {
+      (err: any) => {
         console.log(err.data)
       }
     )
-  },
-  computed: {
-    currentFriends: function() {
-      const { keyword, friends } = this
-      return friends.filter(item => {
-        if (keyword !== '') {
-          return item.full_name.toUpperCase().includes(keyword.toUpperCase())
-        }
-        return true
-      })
-    },
-    ...mapGetters({
-      friends: 'findFriends'
+  }
+  get currentFriends() {
+    const { keyword, friends } = this
+    return friends.filter((item: any) => {
+      if (keyword !== '') {
+        return item.full_name.toUpperCase().includes(keyword.toUpperCase())
+      }
+      return true
     })
   }
 }

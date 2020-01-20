@@ -109,7 +109,7 @@ export default class BadgeItem extends Vue {
     position: absolute;
     right: 0;
     border-top-right-radius: 0.3rem;
-    z-index: 1;
+    z-index: 100;
     height: 2rem;
     display: flex;
     flex-direction: row-reverse;

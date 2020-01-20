@@ -364,7 +364,7 @@ export default class MessageItem extends Vue {
     }
   }
   getTimeDivide(message: any) {
-    return contentUtil.renderTime(message.createdAt)
+    return contentUtil.renderTime(message.createdAt, false)
   }
   equalDay(message: any, prev: any) {
     const td = this.$moment(message.createdAt).format('YYYY-MM-DD')

@@ -52,67 +52,73 @@
     </transition>
   </main>
 </template>
-<script>
+<script lang="ts">
 import Search from '@/components/Search.vue'
 import UserItem from '@/components/UserItem.vue'
 import UserSelectItem from '@/components/UserSelectItem.vue'
-import { mapGetters } from 'vuex'
-export default {
+
+import { Vue, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component({
   name: 'group',
-  components: { Search, UserItem, UserSelectItem },
-  data: function() {
-    return {
-      slected: [],
-      groupShow: false,
-      title: '',
-      keyword: ''
-    }
-  },
-  computed: {
-    unSlected: function() {
-      const { friends, slected, keyword } = this
-      const result = friends.concat(slected).filter(v => !friends.includes(v) || !slected.includes(v))
-      return result.filter(item => {
-        if (keyword !== '') {
-          return item.full_name.toUpperCase().includes(keyword.toUpperCase())
-        }
-        return true
-      })
-    },
-    ...mapGetters({ friends: 'findFriends' })
-  },
-  activated: function() {
-    this.slected = []
-  },
-  methods: {
-    onInput: function(text) {
-      this.keyword = text
-    },
-    cancel: function(user) {
-      const { slected } = this
-      const index = slected.indexOf(user)
-      if (index > -1) {
-        slected.splice(index, 1)
+  components: {
+    Search,
+    UserItem,
+    UserSelectItem
+  }
+})
+export default class GroupContainer extends Vue {
+  @Getter('findFriends') readonly friends: any
+
+  slected: any = []
+  groupShow: any = false
+  title: any = ''
+  keyword: any = ''
+  $toast: any
+
+  get unSlected() {
+    const { friends, slected, keyword } = this
+    const result = friends.concat(slected).filter((v: any) => !friends.includes(v) || !slected.includes(v))
+    return result.filter((item: any) => {
+      if (keyword !== '') {
+        return item.full_name.toUpperCase().includes(keyword.toUpperCase())
       }
-    },
-    onClickUser: function(user) {
-      this.slected.push(user)
-    },
-    showGroup: function() {
-      this.groupShow = true
-    },
-    hideGroup: function() {
-      this.groupShow = false
-    },
-    createGroup: function() {
-      const { slected, title } = this
-      this.$toast(this.$t('chat.chat_create_group'), 3000)
-      this.$store.dispatch('createGroupConversation', {
-        groupName: title,
-        users: slected
-      })
-      this.$emit('success')
+      return true
+    })
+  }
+
+  activated() {
+    this.slected = []
+  }
+
+  onInput(text: string) {
+    this.keyword = text
+  }
+  cancel(user: any) {
+    const { slected } = this
+    const index = slected.indexOf(user)
+    if (index > -1) {
+      slected.splice(index, 1)
     }
+  }
+  onClickUser(user: any) {
+    this.slected.push(user)
+  }
+  showGroup() {
+    this.groupShow = true
+  }
+  hideGroup() {
+    this.groupShow = false
+  }
+  createGroup() {
+    const { slected, title } = this
+    this.$toast(this.$t('chat.chat_create_group'), 3000)
+    this.$store.dispatch('createGroupConversation', {
+      groupName: title,
+      users: slected
+    })
+    this.$emit('success')
   }
 }
 </script>
@@ -132,6 +138,7 @@ main {
       align-items: center;
       flex-flow: row nowrap;
       .back {
+        cursor: pointer;
         padding: 1rem;
       }
       h3 {
@@ -258,7 +265,7 @@ main {
   }
   .slide-right-enter-active,
   .slide-right-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-right-enter,
   .slide-right-leave-to {

@@ -1,7 +1,7 @@
 import db from '@/persistence/db'
 
 class JobDao {
-  insert(job) {
+  insert(job: any) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO jobs VALUES (@job_id, @action, @created_at,@order_id, @priority, @user_id, @blaze_message, @conversation_id, @resend_message_id, @run_count)'
     )
@@ -19,16 +19,16 @@ class JobDao {
   findRecallJob() {
     return db.prepare(`SELECT * FROM jobs WHERE action = 'RECALL_MESSAGE'`).get()
   }
-  delete(jobs) {
+  delete(jobs: any) {
     const stmt = db.prepare('DELETE FROM jobs WHERE job_id = ?')
-    const deleteMany = db.transaction(jobs => {
+    const deleteMany = db.transaction((jobs: any) => {
       for (const job of jobs) {
         stmt.run(job.job_id)
       }
     })
     deleteMany(jobs)
   }
-  deleteById(jobId) {
+  deleteById(jobId: any) {
     db.prepare('DELETE FROM jobs WHERE job_id = ?').run(jobId)
   }
 }

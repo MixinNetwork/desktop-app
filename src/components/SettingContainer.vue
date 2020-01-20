@@ -19,30 +19,28 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator'
+
 import browser from '@/utils/browser'
 import { ipcRenderer } from 'electron'
-export default {
-  components: {},
-  data: function() {
-    return {
-      group: false,
-      title: ''
-    }
-  },
-  computed: {
-    version: function() {
-      let version = this.$t('version')
-      return `${version} ${this.$electron.remote.app.getVersion()}`
-    }
-  },
-  methods: {
-    checkUpdate() {
-      ipcRenderer.send('checkUp')
-    },
-    open(url) {
-      browser.loadURL(url)
-    }
+
+@Component
+export default class SettingContainer extends Vue {
+  group: boolean = false
+  title: string = ''
+  $electron: any
+
+  get version() {
+    let version = this.$t('version')
+    return `${version} ${this.$electron.remote.app.getVersion()}`
+  }
+
+  checkUpdate() {
+    ipcRenderer.send('checkUp')
+  }
+  open(url: string) {
+    browser.loadURL(url)
   }
 }
 </script>

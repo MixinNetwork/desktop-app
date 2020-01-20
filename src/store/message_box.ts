@@ -2,12 +2,24 @@ import messageDao from '@/dao/message_dao'
 import { PerPageMessageCount } from '@/utils/constants'
 
 class MessageBox {
-  setConversationId(conversationId, messagePositionIndex, keyword) {
+  conversationId: any
+  messagePositionIndex: any
+  oldLastMessages: any
+  scrollAction: any
+  messages: any
+  pageDown: any
+  tempCount: any
+  page: any
+  callback: any
+  count: any
+
+  setConversationId(conversationId: string, messagePositionIndex: number) {
     if (conversationId) {
       this.conversationId = conversationId
       this.messagePositionIndex = messagePositionIndex
       let page = 0
       if (messagePositionIndex >= PerPageMessageCount) {
+        // @ts-ignore
         page = parseInt(messagePositionIndex / PerPageMessageCount)
       }
       this.messages = messageDao.getMessages(conversationId, page)
@@ -21,14 +33,14 @@ class MessageBox {
       }
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
-      this.callback(this.messages, keyword)
+      this.callback(this.messages)
       this.scrollAction(true, posMessage)
     }
   }
-  clearMessagePositionIndex(index) {
+  clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
   }
-  refreshConversation(conversationId) {
+  refreshConversation(conversationId: any) {
     const page = 0
     this.page = page
     this.pageDown = page
@@ -36,7 +48,7 @@ class MessageBox {
     this.messages = messageDao.getMessages(conversationId, page)
     this.callback(this.messages)
   }
-  refreshMessage(conversationId) {
+  refreshMessage(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
       const lastMessages = messageDao.getMessages(conversationId, 0)
       if (this.messagePositionIndex >= PerPageMessageCount) {
@@ -77,7 +89,7 @@ class MessageBox {
       this.count = count
     }
   }
-  deleteMessages(messageIds) {
+  deleteMessages(messageIds: any[]) {
     messageDao.deleteMessagesById(messageIds)
     for (let i = this.messages.length - 1; i >= 0; i--) {
       if (messageIds[0] === this.messages[i].messageId) {
@@ -86,9 +98,9 @@ class MessageBox {
       }
     }
   }
-  nextPage(direction) {
+  nextPage(direction: string) {
     return new Promise(resolve => {
-      let data = []
+      let data: unknown = []
       if (direction === 'down') {
         if (this.pageDown > 0) {
           data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
@@ -101,11 +113,11 @@ class MessageBox {
       })
     })
   }
-  bindData(callback, scrollAction) {
+  bindData(callback: any, scrollAction: any) {
     this.callback = callback
     this.scrollAction = scrollAction
   }
-  clearData(conversationId) {
+  clearData(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
       this.page = 0
       this.messages = []

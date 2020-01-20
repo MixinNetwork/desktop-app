@@ -12,26 +12,27 @@
     </div>
   </li>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
 import contentUtil from '@/utils/content_util'
 import Avatar from '@/components/Avatar.vue'
 
-export default {
+@Component({
+  name: 'SearchItem',
   components: {
     Avatar
-  },
-  name: 'SearchItem',
-  props: ['item', 'keyword'],
-  data: function() {
-    return {}
-  },
-  methods: {
-    renderTime(timeStr) {
-      return contentUtil.renderTime(timeStr, true)
-    },
-    highlight(content) {
-      return contentUtil.highlight(content, this.keyword)
-    }
+  }
+})
+export default class SearchItem extends Vue {
+  @Prop(String) readonly keyword: any
+  @Prop(Object) readonly item: any
+
+  renderTime(timeStr: string) {
+    return contentUtil.renderTime(timeStr, true)
+  }
+  highlight(content: string) {
+    return contentUtil.highlight(content, this.keyword, '')
   }
 }
 </script>

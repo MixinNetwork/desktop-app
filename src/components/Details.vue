@@ -14,6 +14,10 @@
           </div>
           <span class="name">{{name}}</span>
           <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
+          <span class="add" v-if="showAddContact" @click="addContact">
+            <span>+</span>
+            <small>{{$t('menu.chat.add_contact')}}</small>
+          </span>
           <div
             v-if="conversation.category === 'GROUP'"
             class="announcement"
@@ -39,15 +43,13 @@
 
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import {
-  Getter,
-  Action
-} from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 import UserItem from '@/components/UserItem.vue'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
 import { ConversationCategory } from '@/utils/constants'
+import userApi from '@/api/user'
 
 @Component({
   components: {
@@ -61,6 +63,7 @@ export default class Details extends Vue {
 
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('refreshUser') actionRefreshUser: any
+  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('syncConversation') actionSyncConversation: any
 
   @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
@@ -117,6 +120,20 @@ export default class Details extends Vue {
     })
   }
 
+  addContact() {
+    const userId = this.user.user_id
+    const { conversationId } = this.conversation
+    userApi.updateRelationship({user_id: userId, full_name: this.user.full_name, action: 'ADD'}).then((res: any) => {
+      if (res.data) {
+        this.actionSetCurrentUser(res.data.data)
+      }
+    })
+  }
+
+  get showAddContact() {
+    return this.isContact && this.user.relationship !== 'FRIEND'
+  }
+
   get participantTitle() {
     const { conversation } = this
     return this.$t('chat.title_participants', { '0': conversation.participants.length })
@@ -138,7 +155,7 @@ export default class Details extends Vue {
   }
 
   mounted() {
-    if (this.conversation.category === ConversationCategory.CONTACT) {
+    if (this.isContact) {
       this.actionRefreshUser({
         userId: this.conversation.ownerId,
         conversationId: this.conversation.conversationId
@@ -186,9 +203,10 @@ export default class Details extends Vue {
         height: 10rem;
         margin-top: 2rem;
         margin-bottom: 2rem;
-        font-size: 2rem;
+        font-size: 4rem;
       }
       .name {
+        font-size: 1.2rem;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
@@ -201,6 +219,15 @@ export default class Details extends Vue {
         text-align: center;
         width: 100%;
         user-select: text;
+      }
+      .add {
+        cursor: pointer;
+        color: #3a7ee4;
+        font-weight: 400;
+        margin-top: 1rem;
+        padding: 0.2rem 0.6rem;
+        background: #f2f2f2;
+        border-radius: 1rem;
       }
     }
     .announcement,

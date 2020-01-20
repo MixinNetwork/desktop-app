@@ -4,32 +4,35 @@ import { getToken } from '@/utils/util'
 import { clearDb } from '@/persistence/db_util'
 import { API_URL } from '@/utils/constants'
 import store from '@/store/store'
+// @ts-ignore
 import router from '@/router'
 import Vue from 'vue'
 
-const axiosApi = axios.create({
+const axiosApi: any = axios.create({
   baseURL: API_URL.HTTP,
   timeout: 8000,
+  // @ts-ignore
   retry: 2 ** 31
 })
 
 axiosApi.interceptors.request.use(
-  config => {
+  (config: any) => {
     const url = new Url(config.url)
     const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
     config.headers.common['Authorization'] = 'Bearer ' + token
+    // @ts-ignore
     config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage
     return config
   },
-  error => {
+  (error: any) => {
     return Promise.reject(error)
   }
 )
 
 axiosApi.interceptors.response.use(
-  function(response) {
+  function(response: any) {
     if (response.data.error && response.data.error.code === 500) {
-      const config = response.config
+      const config: any = response.config
       if (!config || !config.retry) {
         return Promise.reject(response)
       }
@@ -47,6 +50,7 @@ axiosApi.interceptors.response.use(
         return axiosApi(config)
       })
     }
+    // @ts-ignore
     const timeLag = Math.abs(response.headers['x-server-time'] / 1000000 - Date.parse(new Date()))
     if (timeLag > 600000) {
       store.dispatch('showTime')
@@ -66,7 +70,7 @@ axiosApi.interceptors.response.use(
     }
     return response
   },
-  function(error) {
+  function(error: any) {
     const config = error.config
     if (!config || !config.retry) {
       return Promise.reject(error)

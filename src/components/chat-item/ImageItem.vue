@@ -183,7 +183,7 @@ export default class ImageItem extends Vue {
       width: 2rem;
       height: 2rem;
       left: 50%;
-      top: 50%;
+      top: calc(50% - 0.5rem);
       position: absolute;
       transform: translate(-50%, -50%);
       z-index: 3;

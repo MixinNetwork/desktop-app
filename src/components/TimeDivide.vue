@@ -6,39 +6,39 @@
   </transition>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      timeDivide: '',
-      timeDivideCurrentIndex: 0,
-      scrollTimeout: null,
-      scrolling: false
-    }
-  },
-  props: ['messageTime'],
-  methods: {
-    action(data) {
-      this.scrolling = true
-      clearTimeout(this.scrollTimeout)
-      this.scrollTimeout = setTimeout(() => {
-        this.scrolling = false
-      }, 500)
-      const divideList = document.querySelectorAll('.time-divide.inner')
-      this.timeDivide = this.messageTime
-      if (divideList.length) {
-        let index = divideList.length - 1 - this.timeDivideCurrentIndex
-        const currentDivide = divideList[index]
-        const nextDivide = divideList[index + 1]
-        if (currentDivide) {
-          if (this.timeDivideCurrentIndex < divideList.length - 1 && currentDivide.getBoundingClientRect().top > 65) {
-            this.timeDivideCurrentIndex += 1
-          }
-          if (nextDivide && nextDivide.getBoundingClientRect().top < 66) {
-            this.timeDivideCurrentIndex -= 1
-          }
-          this.timeDivide = currentDivide.innerText
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component
+export default class TimeDivide extends Vue {
+  @Prop(String) readonly messageTime: any
+
+  timeDivide: any = ''
+  timeDivideCurrentIndex: any = 0
+  scrollTimeout: any = null
+  scrolling: any = false
+
+  action(data: any) {
+    this.scrolling = true
+    clearTimeout(this.scrollTimeout)
+    this.scrollTimeout = setTimeout(() => {
+      this.scrolling = false
+    }, 500)
+    const divideList = document.querySelectorAll('.time-divide.inner')
+    this.timeDivide = this.messageTime
+    if (divideList.length) {
+      let index = divideList.length - 1 - this.timeDivideCurrentIndex
+      const currentDivide = divideList[index]
+      const nextDivide = divideList[index + 1]
+      if (currentDivide) {
+        if (this.timeDivideCurrentIndex < divideList.length - 1 && currentDivide.getBoundingClientRect().top > 65) {
+          this.timeDivideCurrentIndex += 1
         }
+        if (nextDivide && nextDivide.getBoundingClientRect().top < 66) {
+          this.timeDivideCurrentIndex -= 1
+        }
+        // @ts-ignore
+        this.timeDivide = currentDivide.innerText
       }
     }
   }

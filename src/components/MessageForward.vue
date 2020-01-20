@@ -251,20 +251,19 @@ export default class MessageForward extends Vue {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #ffffff55;
+  background: #33333377;
 }
 .message-forward {
   position: relative;
   z-index: 1000;
   width: 28rem;
-  padding: 1rem 0;
+  padding: 0.3rem 0 1rem;
   max-height: 72vh;
   overflow: hidden;
   list-style: none;
   font-size: 0.875rem;
   background-color: #fff;
   border-radius: 0.25rem;
-  border: 1px solid #eee;
   box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.195);
   .forward-search {
     width: calc(100% - 4rem);

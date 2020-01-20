@@ -34,6 +34,7 @@ const state = {
 
 export default new Vuex.Store({
   state: state,
+  // @ts-ignore
   getters: getters,
   actions: actions,
   mutations: mutations

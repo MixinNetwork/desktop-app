@@ -20,22 +20,24 @@
     </div>
   </li>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
-export default {
+
+@Component({
+  name: 'UserItem',
   components: {
     Avatar
-  },
-  name: 'UserItem',
-  props: ['user', 'keyword'],
-  data: function() {
-    return {}
-  },
-  methods: {
-    highlight(content) {
-      return contentUtil.highlight(content, this.keyword)
-    }
+  }
+})
+export default class UserItem extends Vue {
+  @Prop(String) readonly keyword: any
+  @Prop(Object) readonly user: any
+
+  highlight(content: string) {
+    return contentUtil.highlight(content, this.keyword, '')
   }
 }
 </script>

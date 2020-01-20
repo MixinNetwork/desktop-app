@@ -13,7 +13,7 @@
           @click="$emit('user-click')"
         >{{message.userFullName}}</span>
         <div class="recall">
-          <svg-icon icon-class="if_recall" />
+          <svg-icon style="margin-top: 0.15rem" icon-class="if_recall" />
           <I class="text">{{getContent}}</I>
           <span class="time-place"></span>
           <span class="time">{{message.lt}}</span>

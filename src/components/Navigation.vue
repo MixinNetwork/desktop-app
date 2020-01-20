@@ -169,7 +169,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import ConversationItem from '@/components/ConversationItem.vue'
 import Search from '@/components/Search.vue'
 import GroupContainer from '@/components/GroupContainer.vue'
@@ -185,291 +185,12 @@ import { clearDb } from '@/persistence/db_util'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 
-export default {
+import { Vue, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component({
   name: 'navigation',
-  data() {
-    return {
-      conversationShow: false,
-      groupShow: false,
-      profileShow: false,
-      settingShow: false,
-      menus: this.$t('menu.personal'),
-      searchKeyword: '',
-      showMoreType: '',
-      inputTimer: null,
-      LinkStatus: LinkStatus,
-      ConversationCategory: ConversationCategory,
-      // eslint-disable-next-line no-undef
-      isMacOS: platform.os.family === 'OS X',
-      primaryPlatform: localStorage.primaryPlatform
-    }
-  },
-  methods: {
-    onItemClick(index) {
-      if (index === 0) {
-        this.groupShow = true
-      } else if (index === 1) {
-        this.profileShow = true
-      } else if (index === 2) {
-        this.settingShow = true
-      } else if (index === 3) {
-        workerManager.stop(this.exit)
-      }
-    },
-    exit() {
-      accountAPI.logout().then(resp => {
-        this.$blaze.closeBlaze()
-        this.$router.push('/sign_in')
-        clearDb()
-      })
-    },
-    showMoreBack() {
-      this.showMoreType = ''
-      this.$store.dispatch('search', {
-        keyword: this.searchKeyword
-      })
-    },
-    showMoreList(type) {
-      this.showMoreType = type
-      this.$store.dispatch('search', {
-        keyword: this.searchKeyword,
-        type: this.showMoreType
-      })
-    },
-    openMenu(conversation) {
-      const isContact = conversation.category === ConversationCategory.CONTACT
-      const isMute = this.isMute(conversation)
-      const menu = this.getMenu(
-        isContact,
-        conversation.status === ConversationStatus.QUIT,
-        conversation.pinTime,
-        isMute
-      )
-      this.$Menu.alert(event.clientX, event.clientY, menu, index => {
-        const option = menu[index]
-        const conversationMenu = this.$t('menu.conversation')
-        this.handlerMenu(
-          Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
-          isContact,
-          conversation.conversationId,
-          conversation.pinTime,
-          conversation.ownerId
-        )
-      })
-    },
-    openDownMenu(conversation, index) {
-      const isContact = conversation.category === ConversationCategory.CONTACT
-      const isMute = this.isMute(conversation)
-      const menu = this.getMenu(
-        isContact,
-        conversation.status === ConversationStatus.QUIT,
-        conversation.pinTime,
-        isMute
-      )
-      this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
-        const option = menu[index]
-        const conversationMenu = this.$t('menu.conversation')
-        this.handlerMenu(
-          Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
-          isContact,
-          conversation.conversationId,
-          conversation.pinTime,
-          conversation.ownerId
-        )
-      })
-    },
-    handlerMenu(position, isContact, conversationId, pinTime, ownerId) {
-      if (position === 'exit_group') {
-        this.$store.dispatch('exitGroup', conversationId)
-      } else if (position === 'pin_to_top' || position === 'clear_pin') {
-        this.$store.dispatch('pinTop', {
-          conversationId: conversationId,
-          pinTime: pinTime
-        })
-      } else if (position === 'clear') {
-        this.$store.dispatch('conversationClear', conversationId)
-      } else if (position === 'mute') {
-        let self = this
-        this.$Dialog.options(
-          this.$t('chat.mute_title'),
-          this.$t('chat.mute_menu'),
-          this.$t('ok'),
-          picked => {
-            let duration = MuteDuration.HOURS
-            if (picked === 0) {
-              duration = MuteDuration.HOURS
-            } else if (picked === 1) {
-              duration = MuteDuration.WEEK
-            } else {
-              duration = MuteDuration.YEAR
-            }
-            conversationAPI.mute(conversationId, duration).then(resp => {
-              if (resp.data.data) {
-                const c = resp.data.data
-                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-                if (picked === 0) {
-                  this.$toast(this.$t('chat.mute_hours'))
-                } else if (picked === 1) {
-                  this.$toast(this.$t('chat.mute_week'))
-                } else {
-                  this.$toast(this.$t('chat.mute_year'))
-                }
-              }
-            })
-          },
-          this.$t('cancel'),
-          () => {
-            console.log('cancel')
-          }
-        )
-      } else if (position === 'cancel_mute') {
-        let self = this
-        this.$Dialog.alert(
-          this.$t('chat.chat_mute_cancel'),
-          this.$t('ok'),
-          () => {
-            conversationAPI.mute(conversationId, 0).then(resp => {
-              if (resp.data.data) {
-                const c = resp.data.data
-                self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-                this.$toast(this.$t('chat.mute_cancel'))
-              }
-            })
-          },
-          this.$t('cancel'),
-          () => {
-            console.log('cancel')
-          }
-        )
-      }
-    },
-    isMute(conversation) {
-      if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-        if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
-          return true
-        }
-      }
-      if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-        if (this.$moment().isBefore(conversation.muteUntil)) {
-          return true
-        }
-      }
-      return false
-    },
-    getMenu(isContact, isExit, pinTime, isMute) {
-      const conversationMenu = this.$t('menu.conversation')
-      const menu = []
-      if (!isContact) {
-        if (!isExit) {
-          menu.push(conversationMenu.exit_group)
-        }
-        if (!pinTime) {
-          menu.push(conversationMenu.pin_to_top)
-        } else {
-          menu.push(conversationMenu.clear_pin)
-        }
-        menu.push(conversationMenu.clear)
-      } else {
-        if (!pinTime) {
-          menu.push(conversationMenu.pin_to_top)
-        } else {
-          menu.push(conversationMenu.clear_pin)
-        }
-        menu.push(conversationMenu.clear)
-      }
-      if (!isExit) {
-        if (isMute) {
-          menu.push(conversationMenu.cancel_mute)
-        } else {
-          menu.push(conversationMenu.mute)
-        }
-      }
-      return menu
-    },
-    showConveresation(event) {
-      this.conversationShow = true
-    },
-    hideConversation() {
-      this.conversationShow = false
-    },
-    showProfile() {
-      this.profileShow = true
-    },
-    hideProfile() {
-      this.profileShow = false
-    },
-    showGroup() {
-      this.groupShow = true
-    },
-    hideGroup() {
-      this.groupShow = false
-    },
-    hideSetting() {
-      this.settingShow = false
-    },
-    onInput(keyword) {
-      this.searchKeyword = keyword
-      let waitTime = 10
-      if (this.showMoreType) {
-        waitTime = 100
-      }
-      if (!keyword) {
-        this.$store.dispatch('setSearching', '')
-      }
-      clearTimeout(this.inputTimer)
-      this.inputTimer = setTimeout(() => {
-        this.$store.dispatch('search', {
-          keyword,
-          type: this.showMoreType
-        })
-      }, waitTime)
-    },
-    success() {
-      this.conversationShow = false
-      this.groupShow = false
-    },
-    onConversationClick(conversation) {
-      this.conversationShow = false
-      this.$store.dispatch('searchClear')
-      this.$store.dispatch('setCurrentConversation', conversation)
-    },
-    onClickUser(user) {
-      this.conversationShow = false
-      this.$store.dispatch('searchClear')
-      this.$store.dispatch('createUserConversation', {
-        user
-      })
-    },
-    onSearchChatClick(conversation) {
-      this.conversationShow = false
-      this.$store.dispatch('setCurrentConversation', conversation)
-      let searchKey = ''
-      if (conversation.records) {
-        searchKey = `key:${this.searchKeyword}`
-      }
-      this.$store.dispatch('setSearching', searchKey)
-      conversation.unseenMessageCount = 0
-      setTimeout(() => {
-        this.$store.dispatch('markRead', conversation.conversationId)
-      }, 100)
-    },
-    onSearchUserClick(user) {
-      this.conversationShow = false
-      this.$store.dispatch('setSearching', '')
-      this.$store.dispatch('createUserConversation', {
-        user
-      })
-    },
-
-    getLinkTitle() {
-      return this.$t('not_connected_title')
-    },
-    getLinkContent() {
-      return this.$t('not_connected_content')
-    }
-  },
   components: {
     ConversationItem,
     Search,
@@ -481,20 +202,323 @@ export default {
     SettingContainer,
     UserItem,
     ChatItem
-  },
-  computed: {
-    showIdOrPhoneSearch() {
-      // return /^\d{5,15}$/.test(this.searchKeyword)
-      return false
-    },
-    ...mapGetters({
-      currentConversationId: 'currentConversationId',
-      conversations: 'getConversations',
-      friends: 'findFriends',
-      me: 'me',
-      searchResult: 'search',
-      linkStatus: 'linkStatus'
+  }
+})
+export default class Navigation extends Vue {
+  @Getter('currentConversationId') currentConversationId: any
+  @Getter('getConversations') conversations: any
+  @Getter('findFriends') friends: any
+  @Getter('searching') searching: any
+  @Getter('me') me: any
+  @Getter('search') searchResult: any
+  @Getter('linkStatus') linkStatus: any
+
+  conversationShow: any = false
+  groupShow: any = false
+  profileShow: any = false
+  settingShow: any = false
+  menus: any = []
+  searchKeyword: any = ''
+  showMoreType: any = ''
+  inputTimer: any = null
+  LinkStatus: any = LinkStatus
+  ConversationCategory: any = ConversationCategory
+  // @ts-ignore
+  isMacOS: any = platform.os.family === 'OS X'
+  primaryPlatform: any = localStorage.primaryPlatform
+  $moment: any
+  $toast: any
+  $Dialog: any
+  $Menu: any
+  $blaze: any
+  $t: any
+
+  created() {
+    this.menus = this.$t('menu.personal')
+  }
+
+  onItemClick(index: number) {
+    if (index === 0) {
+      this.groupShow = true
+    } else if (index === 1) {
+      this.profileShow = true
+    } else if (index === 2) {
+      this.settingShow = true
+    } else if (index === 3) {
+      workerManager.stop(this.exit)
+    }
+  }
+  exit() {
+    accountAPI.logout().then((resp: any) => {
+      this.$blaze.closeBlaze()
+      this.$router.push('/sign_in')
+      clearDb()
     })
+  }
+  showMoreBack() {
+    this.showMoreType = ''
+    this.$store.dispatch('search', {
+      keyword: this.searchKeyword
+    })
+  }
+  showMoreList(type: string) {
+    this.showMoreType = type
+    this.$store.dispatch('search', {
+      keyword: this.searchKeyword,
+      type: this.showMoreType
+    })
+  }
+  openMenu(conversation: any) {
+    const isContact = conversation.category === ConversationCategory.CONTACT
+    const isMute = this.isMute(conversation)
+    const menu = this.getMenu(
+      isContact,
+      conversation.status === ConversationStatus.QUIT,
+      conversation.pinTime,
+      isMute
+    )
+    // @ts-ignore
+    this.$Menu.alert(event.clientX, event.clientY, menu, index => {
+      const option = menu[index]
+      const conversationMenu: any = this.$t('menu.conversation')
+      this.handlerMenu(
+        Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
+        isContact,
+        conversation.conversationId,
+        conversation.pinTime,
+        conversation.ownerId
+      )
+    })
+  }
+  openDownMenu(conversation: any, index: number) {
+    const isContact = conversation.category === ConversationCategory.CONTACT
+    const isMute = this.isMute(conversation)
+    const menu = this.getMenu(
+      isContact,
+      conversation.status === ConversationStatus.QUIT,
+      conversation.pinTime,
+      isMute
+    )
+    // @ts-ignore
+    this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
+      const option = menu[index]
+      const conversationMenu: any = this.$t('menu.conversation')
+      this.handlerMenu(
+        Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
+        isContact,
+        conversation.conversationId,
+        conversation.pinTime,
+        conversation.ownerId
+      )
+    })
+  }
+  handlerMenu(position: any, isContact: any, conversationId: any, pinTime: any, ownerId: any) {
+    if (position === 'exit_group') {
+      this.$store.dispatch('exitGroup', conversationId)
+    } else if (position === 'pin_to_top' || position === 'clear_pin') {
+      this.$store.dispatch('pinTop', {
+        conversationId: conversationId,
+        pinTime: pinTime
+      })
+    } else if (position === 'clear') {
+      this.$store.dispatch('conversationClear', conversationId)
+    } else if (position === 'mute') {
+      let self = this
+      this.$Dialog.options(
+        this.$t('chat.mute_title'),
+        this.$t('chat.mute_menu'),
+        this.$t('ok'),
+        (picked: number) => {
+          let duration = MuteDuration.HOURS
+          if (picked === 0) {
+            duration = MuteDuration.HOURS
+          } else if (picked === 1) {
+            duration = MuteDuration.WEEK
+          } else {
+            duration = MuteDuration.YEAR
+          }
+          conversationAPI.mute(conversationId, duration).then((resp: any) => {
+            if (resp.data.data) {
+              const c = resp.data.data
+              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              if (picked === 0) {
+                this.$toast(this.$t('chat.mute_hours'))
+              } else if (picked === 1) {
+                this.$toast(this.$t('chat.mute_week'))
+              } else {
+                this.$toast(this.$t('chat.mute_year'))
+              }
+            }
+          })
+        },
+        this.$t('cancel'),
+        () => {
+          console.log('cancel')
+        }
+      )
+    } else if (position === 'cancel_mute') {
+      let self = this
+      this.$Dialog.alert(
+        this.$t('chat.chat_mute_cancel'),
+        this.$t('ok'),
+        () => {
+          conversationAPI.mute(conversationId, 0).then((resp: any) => {
+            if (resp.data.data) {
+              const c = resp.data.data
+              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              this.$toast(this.$t('chat.mute_cancel'))
+            }
+          })
+        },
+        this.$t('cancel'),
+        () => {
+          console.log('cancel')
+        }
+      )
+    }
+  }
+  isMute(conversation: any) {
+    if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+      if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
+        return true
+      }
+    }
+    if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+      if (this.$moment().isBefore(conversation.muteUntil)) {
+        return true
+      }
+    }
+    return false
+  }
+  getMenu(isContact: any, isExit: any, pinTime: any, isMute: any) {
+    const conversationMenu: any = this.$t('menu.conversation')
+    const menu = []
+    if (!isContact) {
+      if (!isExit) {
+        menu.push(conversationMenu.exit_group)
+      }
+      if (!pinTime) {
+        menu.push(conversationMenu.pin_to_top)
+      } else {
+        menu.push(conversationMenu.clear_pin)
+      }
+      menu.push(conversationMenu.clear)
+    } else {
+      if (!pinTime) {
+        menu.push(conversationMenu.pin_to_top)
+      } else {
+        menu.push(conversationMenu.clear_pin)
+      }
+      menu.push(conversationMenu.clear)
+    }
+    if (!isExit) {
+      if (isMute) {
+        menu.push(conversationMenu.cancel_mute)
+      } else {
+        menu.push(conversationMenu.mute)
+      }
+    }
+    return menu
+  }
+  showConveresation(event: any) {
+    this.conversationShow = true
+  }
+  hideConversation() {
+    this.conversationShow = false
+  }
+  showProfile() {
+    this.profileShow = true
+  }
+  hideProfile() {
+    this.profileShow = false
+  }
+  showGroup() {
+    this.groupShow = true
+  }
+  hideGroup() {
+    this.groupShow = false
+  }
+  hideSetting() {
+    this.settingShow = false
+  }
+  onInput(keyword: string) {
+    this.searchKeyword = keyword
+    let waitTime = 10
+    if (this.showMoreType) {
+      waitTime = 100
+    }
+    if (!keyword) {
+      this.$store.dispatch('setSearching', '')
+      setTimeout(() => {
+        const container = document.querySelector('.conversations.ul')
+        let index = 0
+        const { conversations, currentConversationId } = this
+        for (let i = 0; i < conversations.length; i++) {
+          if (conversations[i].conversationId === currentConversationId) {
+            index = i
+            break
+          }
+        }
+        if (container) {
+          container.scrollTop = 73.6 * index
+        }
+      }, 100)
+    }
+    clearTimeout(this.inputTimer)
+    this.inputTimer = setTimeout(() => {
+      this.$store.dispatch('search', {
+        keyword,
+        type: this.showMoreType
+      })
+    }, waitTime)
+  }
+  success() {
+    this.conversationShow = false
+    this.groupShow = false
+  }
+  onConversationClick(conversation: any) {
+    if (this.currentConversationId === conversation.conversationId) return
+    this.conversationShow = false
+    this.$store.dispatch('searchClear')
+    this.$store.dispatch('setCurrentConversation', conversation)
+  }
+  onClickUser(user: any) {
+    this.$store.dispatch('searchClear')
+    this.$store.dispatch('createUserConversation', {
+      user
+    })
+  }
+  onSearchChatClick(conversation: any) {
+    if (this.currentConversationId === conversation.conversationId && this.searching) return
+    this.conversationShow = false
+    this.$store.dispatch('setCurrentConversation', conversation)
+    let searchKey = ''
+    if (conversation.records) {
+      searchKey = `key:${this.searchKeyword}`
+    }
+    this.$store.dispatch('setSearching', searchKey)
+    conversation.unseenMessageCount = 0
+    setTimeout(() => {
+      this.$store.dispatch('markRead', conversation.conversationId)
+    }, 100)
+  }
+  onSearchUserClick(user: any) {
+    this.$store.dispatch('setSearching', '')
+    this.$store.dispatch('createUserConversation', {
+      user
+    })
+  }
+
+  getLinkTitle() {
+    return this.$t('not_connected_title')
+  }
+  getLinkContent() {
+    return this.$t('not_connected_content')
+  }
+
+  get showIdOrPhoneSearch() {
+    // return /^\d{5,15}$/.test(this.searchKeyword)
+    return false
   }
 }
 </script>
@@ -651,7 +675,7 @@ export default {
 
   .slide-left-enter-active,
   .slide-left-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-left-enter,
   .slide-left-leave-to {
@@ -659,7 +683,7 @@ export default {
   }
   .slide-right-enter-active,
   .slide-right-leave-active {
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
   .slide-right-enter,
   .slide-right-leave-to {

@@ -10,7 +10,7 @@ function refreshConversations(state: any) {
   const conversations = conversationDao.getConversations()
   const conversationKeys: any = []
   Vue.set(state, 'conversations', {})
-  conversations.forEach((conversation: any, index: string | number) => {
+  conversations.forEach((conversation: any, index: number) => {
     const conversationId = conversation.conversationId
     conversationKeys[index] = conversationId
     const participants = participantDao.getParticipantsByConversationId(conversationId)
@@ -20,7 +20,7 @@ function refreshConversations(state: any) {
   state.conversationKeys = conversationKeys
 }
 
-function refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string | number) {
+function refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string) {
   const conversation = conversationDao.getConversationItemByConversationId(conversationId)
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
@@ -214,7 +214,7 @@ export default {
   setCurrentMessages(state: { currentMessages: any }, messages: any) {
     state.currentMessages = messages
   },
-  refreshMessage(state: any, conversationId: string | number) {
+  refreshMessage(state: any, conversationId: string) {
     messageBox.refreshMessage(conversationId)
     if (
       !state.conversationKeys.some((item: any) => {
@@ -226,13 +226,13 @@ export default {
       refreshConversation(state, conversationId)
     }
   },
-  refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string | number) {
+  refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string) {
     refreshConversation(state, conversationId)
   },
   refreshConversations(state: any) {
     refreshConversations(state)
   },
-  conversationClear(state: { conversationKeys: any[]; conversations: { [x: string]: any }; currentConversationId: null; editing: boolean }, conversationId: string | number) {
+  conversationClear(state: { conversationKeys: any[]; conversations: { [x: string]: any }; currentConversationId: null; editing: boolean }, conversationId: string) {
     const index = state.conversationKeys.indexOf(conversationId)
     if (index > -1) {
       state.conversationKeys.splice(index, 1)
@@ -250,7 +250,7 @@ export default {
   refreshFriends(state: { friends: any }) {
     state.friends = userDao.findFriends()
   },
-  refreshParticipants(state: { conversations: { [x: string]: { participants: any } } }, conversationId: string | number) {
+  refreshParticipants(state: { conversations: { [x: string]: { participants: any } } }, conversationId: string) {
     const users = participantDao.getParticipantsByConversationId(conversationId)
     if (state.conversations[conversationId]) {
       state.conversations[conversationId].participants = users

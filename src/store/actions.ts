@@ -59,7 +59,7 @@ async function refreshParticipants(conversationId: any, participants: any[], cal
     return item.user_id
   })
   const online: any = []
-  participants.forEach(function(item: any, index: string | number) {
+  participants.forEach(function(item: any, index: number) {
     online[index] = {
       conversation_id: conversationId,
       user_id: item.user_id,

@@ -547,7 +547,7 @@ export default class ChatContainer extends Vue {
     }, 10)
   }
   infiniteScroll(direction: any) {
-    messageBox.nextPage(direction).then(messages => {
+    messageBox.nextPage(direction).then((messages: any) => {
       if (messages.length) {
         if (direction === 'down') {
           const newMessages = []

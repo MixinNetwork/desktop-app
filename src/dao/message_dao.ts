@@ -1,4 +1,5 @@
 import moment from 'moment'
+// @ts-ignore
 import uuidv4 from 'uuid/v4'
 import db from '@/persistence/db'
 import contentUtil from '@/utils/content_util'
@@ -6,9 +7,10 @@ import { PerPageMessageCount } from '@/utils/constants'
 
 class MessageDao {
   me() {
+    // @ts-ignore
     return JSON.parse(localStorage.getItem('account'))
   }
-  insertTextMessage(message) {
+  insertTextMessage(message: { conversationId: any; category: any; content: any; status: any }) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,category,content,status,created_at) VALUES (?,?,?,?,?,?,?)'
     )
@@ -24,7 +26,7 @@ class MessageDao {
       createdAt
     ])
   }
-  insertContactMessage(message) {
+  insertContactMessage(message: { conversationId: any; sharedUserId: any; category: any; content: any; status: any }) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,shared_user_id,category,content,status,created_at) VALUES (?,?,?,?,?,?,?,?)'
     )
@@ -41,7 +43,7 @@ class MessageDao {
       createdAt
     ])
   }
-  insertRelyMessage(message, quoteMessageId, quoteContent) {
+  insertRelyMessage(message: { conversationId: any; category: any; content: any; status: any }, quoteMessageId: any, quoteContent: any) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,category,content,status,created_at,quote_message_id,quote_content) VALUES (?,?,?,?,?,?,?,?,?)'
     )
@@ -59,7 +61,7 @@ class MessageDao {
       quoteContent
     ])
   }
-  insertMessage(message) {
+  insertMessage(message: any) {
     const finalMsg = {
       message_id: null,
       conversation_id: null,
@@ -100,9 +102,9 @@ class MessageDao {
     stmt.run(finalMsg)
   }
 
-  deleteMessagesById(mIds) {
+  deleteMessagesById(mIds: any) {
     const stmt = db.prepare('DELETE FROM messages WHERE message_id = ?')
-    const insertMany = db.transaction(mIds => {
+    const insertMany = db.transaction((mIds: any) => {
       for (let mId of mIds) {
         stmt.run(mId)
       }
@@ -110,7 +112,7 @@ class MessageDao {
     insertMany(mIds)
   }
 
-  ftsMessagesDelete(conversationId) {
+  ftsMessagesDelete(conversationId: any) {
     return db
       .prepare(
         'DELETE FROM messages_fts WHERE message_id = (SELECT message_id from messages WHERE conversation_id = ?)'
@@ -118,7 +120,7 @@ class MessageDao {
       .run(conversationId)
   }
 
-  ftsMessageIndex(conversationId, messageId) {
+  ftsMessageIndex(conversationId: any, messageId: any) {
     const messageIdList = db
       .prepare('SELECT message_id FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
@@ -132,7 +134,7 @@ class MessageDao {
     return index
   }
 
-  ftsMessageCount(conversationId, keyword) {
+  ftsMessageCount(conversationId: any, keyword: any) {
     if (conversationId) {
       if (!keyword) {
         const data = db.prepare('SELECT count(message_id) FROM messages WHERE conversation_id = ?').get(conversationId)
@@ -155,22 +157,22 @@ class MessageDao {
     return data['count(message_id)']
   }
 
-  ftsMessageLoad(conversationId) {
+  ftsMessageLoad(conversationId: any) {
     const messages = db
       .prepare('SELECT message_id,category,content FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
     const insert = db.prepare(
       'INSERT OR REPLACE INTO messages_fts (message_id, content) ' + 'VALUES (@message_id, @content)'
     )
-    const insertMany = db.transaction(messages => {
-      messages.forEach(message => {
+    const insertMany = db.transaction((messages: any[]) => {
+      messages.forEach((message: any) => {
         insert.run(message)
       })
     })
     insertMany(messages)
   }
 
-  ftsMessageQuery(conversationId, keyword) {
+  ftsMessageQuery(conversationId: any, keyword: any) {
     const keywordFinal = contentUtil.fts5KeywordFilter(keyword)
     if (!keywordFinal) return []
     return db
@@ -185,7 +187,7 @@ class MessageDao {
       .all(conversationId, keywordFinal)
   }
 
-  getMessages(conversationId, page = 0, tempCount = 0) {
+  getMessages(conversationId: any, page = 0, tempCount = 0) {
     const perPageCount = PerPageMessageCount
     const offset = page * perPageCount + tempCount
     const stmt = db.prepare(
@@ -216,12 +218,12 @@ class MessageDao {
         ' OFFSET ?) ORDER BY createdAt ASC'
     )
     let data = stmt.all(conversationId, offset)
-    data.forEach(function(e) {
+    data.forEach(function(e: { lt: string; createdAt: string | number | void | Date | moment.Moment | (string | number)[] | moment.MomentInputObject | undefined }) {
       e.lt = moment(e.createdAt).format('HH:mm')
     })
     return data
   }
-  getMessagesCount(conversationId) {
+  getMessagesCount(conversationId: any) {
     return db.prepare('SELECT count(m.message_id) FROM messages m WHERE m.conversation_id = ?').get(conversationId)
   }
   getSendingMessages() {
@@ -236,30 +238,30 @@ class MessageDao {
     const data = stmt.get()
     return data
   }
-  updateMessageStatusById(status, messageId) {
+  updateMessageStatusById(status: any, messageId: any) {
     return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
   }
-  updateMessageContent(content, messageId) {
+  updateMessageContent(content: any, messageId: any) {
     return db
       .prepare('UPDATE messages SET content = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
       .run(content, messageId)
   }
 
-  updateMediaStatus(mediaStatus, messageId) {
+  updateMediaStatus(mediaStatus: any, messageId: any) {
     return db
       .prepare('UPDATE messages SET media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
       .run(mediaStatus, messageId)
   }
 
-  getConversationIdById(messageId) {
+  getConversationIdById(messageId: any) {
     const message = db.prepare('SELECT conversation_id FROM messages WHERE message_id = ?').get(messageId)
     return message.conversation_id
   }
-  getMessageById(messageId) {
+  getMessageById(messageId: any) {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
 
-  recallMessage(messageId) {
+  recallMessage(messageId: any) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,
     media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,
@@ -268,7 +270,7 @@ class MessageDao {
     ).run(messageId)
   }
 
-  recallMessageAndSend(messageId) {
+  recallMessageAndSend(messageId: any) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,
     media_duration = NULL, media_width = NULL, media_height = NULL, media_hash = NULL, thumb_image = NULL, media_key = NULL,
@@ -277,27 +279,28 @@ class MessageDao {
     ).run(messageId)
   }
 
-  findMessageStatusById(messageId) {
+  findMessageStatusById(messageId: any) {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status
   }
 
-  findSimpleMessageById(messageId) {
+  findSimpleMessageById(messageId: any) {
     return db.prepare('SELECT conversation_id, status FROM messages WHERE message_id = ?').get(messageId)
   }
 
-  takeUnseen(userId, conversationId) {
+  takeUnseen(userId: any, conversationId: any) {
     return db.prepare(
       `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE  m.conversation_id = '${conversationId}' AND m.user_id != '${userId}'
         AND m.status IN ('SENT', 'DELIVERED')) WHERE conversation_id = '${conversationId}'`)
       .run()
   }
 
-  findMessageIdById(messageId) {
+  findMessageIdById(messageId: any) {
     const message = db.prepare('SELECT message_id FROM messages WHERE message_id = ?').get(messageId)
     return message ? message.message_id : message
   }
-  findUnreadMessage(conversationId) {
+  findUnreadMessage(conversationId: any) {
+    // @ts-ignore
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     return db
       .prepare(
@@ -305,7 +308,8 @@ class MessageDao {
       )
       .all(conversationId)
   }
-  getUnreadMessage(conversationId) {
+  getUnreadMessage(conversationId: any) {
+    // @ts-ignore
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     return db
       .prepare(
@@ -313,19 +317,20 @@ class MessageDao {
       )
       .get(conversationId)
   }
-  markRead(conversationId) {
+  markRead(conversationId: any) {
+    // @ts-ignore
     const userId = JSON.parse(localStorage.getItem('account')).user_id
     db.prepare(`UPDATE conversations SET unseen_message_count = 0 WHERE conversation_id = ?`).run(conversationId)
     db.prepare(
       `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
     ).run(conversationId)
   }
-  updateMediaMessage(path, status, id) {
+  updateMediaMessage(path: any, status: any, id: any) {
     db.prepare(
       `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
     ).run([path, status, id])
   }
-  findImages(conversationId, messageId) {
+  findImages(conversationId: any, messageId: any) {
     return db
       .prepare(
         `SELECT m.message_id, m.media_url, m.media_width, m.media_height FROM messages m WHERE m.conversation_id = ? and (m.category = 'SIGNAL_IMAGE' OR m.category = 'PLAIN_IMAGE') AND m.media_status = 'DONE'
@@ -333,7 +338,7 @@ class MessageDao {
       )
       .all(conversationId, messageId)
   }
-  findMessageItemById(conversationId, messageId) {
+  findMessageItemById(conversationId: any, messageId: any) {
     return db
       .prepare(
         `SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, u.full_name AS userFullName,
@@ -352,7 +357,7 @@ class MessageDao {
       .get([conversationId, messageId])
   }
 
-  updateQuoteContentByQuoteId(conversationId, messageId, content) {
+  updateQuoteContentByQuoteId(conversationId: any, messageId: any, content: any) {
     db.prepare(`UPDATE messages SET quote_content = ? WHERE conversation_id = ? AND quote_message_id = ?`).run([
       content,
       conversationId,

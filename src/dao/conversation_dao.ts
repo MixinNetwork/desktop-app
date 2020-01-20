@@ -1,7 +1,7 @@
 import db from '@/persistence/db'
 
 class ConversationDao {
-  getConversationByUserId(userId) {
+  getConversationByUserId(userId: any) {
     const stmt = db.prepare('SELECT * FROM conversations WHERE owner_id=? AND category = "CONTACT"')
     return stmt.get(userId)
   }
@@ -42,7 +42,7 @@ class ConversationDao {
       .all()
   }
 
-  getConversationItemByConversationId(conversationId) {
+  getConversationItemByConversationId(conversationId: any) {
     return db
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
@@ -65,7 +65,7 @@ class ConversationDao {
       .get(conversationId)
   }
 
-  getSimpleConversationItem(conversationId) {
+  getSimpleConversationItem(conversationId: any) {
     return db
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
@@ -80,11 +80,11 @@ class ConversationDao {
       .get(conversationId)
   }
 
-  getConversationById(conversationId) {
+  getConversationById(conversationId: any) {
     return db.prepare('SELECT * FROM conversations where conversation_id = ?').get(conversationId)
   }
 
-  getConversationsByUserId(userId) {
+  getConversationsByUserId(userId: any) {
     return db
       .prepare(
         'select c.conversation_id from conversations c inner join users u on c.owner_id = u.user_id ' +
@@ -94,11 +94,11 @@ class ConversationDao {
       .all(userId)
   }
 
-  updateConversationStatusById(conversationId, status) {
+  updateConversationStatusById(conversationId: any, status: any) {
     return db.prepare('UPDATE conversations SET status = ? WHERE conversation_id = ?').run(status, conversationId)
   }
 
-  fuzzySearchConversation(keyword) {
+  fuzzySearchConversation(keyword: string) {
     keyword = keyword.replace(/'/g, '')
     return db
       .prepare(
@@ -125,11 +125,11 @@ class ConversationDao {
       .all()
   }
 
-  updateConversationDraftById(conversationId, draft) {
+  updateConversationDraftById(conversationId: any, draft: any) {
     return db.prepare('UPDATE conversations SET draft = ? WHERE conversation_id = ?').run(draft, conversationId)
   }
 
-  insertConversation(conversation) {
+  insertConversation(conversation: any) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO conversations VALUES (@conversation_id, @owner_id, @category, ' +
         '@name, @icon_url, @announcement, @code_url, @pay_type, @created_at, @pin_time, ' +
@@ -138,7 +138,7 @@ class ConversationDao {
     stmt.run(conversation)
   }
 
-  updateConversation(conversation) {
+  updateConversation(conversation: any) {
     const stmt = db.prepare(
       'UPDATE conversations SET owner_id = @owner_id, category = @category, ' +
         'name = @name, announcement = @announcement, mute_until = @mute_until, ' +
@@ -147,21 +147,21 @@ class ConversationDao {
     stmt.run(conversation.conversation_id, conversation)
   }
 
-  updateMute(muteUntil, conversationId) {
+  updateMute(muteUntil: any, conversationId: any) {
     const stmt = db.prepare('UPDATE conversations SET mute_until = ? WHERE conversation_id = ?')
     stmt.run(muteUntil, conversationId)
   }
 
-  updateConversationPinTimeById(conversationId, pinTime) {
+  updateConversationPinTimeById(conversationId: any, pinTime: any) {
     const stmt = db.prepare('UPDATE conversations SET pin_time = ? WHERE conversation_id = ?')
     stmt.run([pinTime, conversationId])
   }
 
-  deleteConversation(conversationId) {
+  deleteConversation(conversationId: any) {
     db.prepare('DELETE FROM conversations WHERE conversation_id = ?').run(conversationId)
   }
 
-  indexUnread(conversationId) {
+  indexUnread(conversationId: any) {
     return db.prepare('SELECT unseen_message_count FROM conversations WHERE conversation_id = ?').get(conversationId)
       .unseen_message_count
   }

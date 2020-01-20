@@ -1,11 +1,11 @@
 import db from '@/persistence/db'
 
 class StickerDao {
-  getStickerAlbums(ca) {
+  getStickerAlbums(ca: string) {
     const category = ca || 'SYSTEM'
     return db.prepare(`SELECT * FROM sticker_albums WHERE category = '${category}' ORDER BY created_at DESC`).all()
   }
-  getStickersByAlbumId(id) {
+  getStickersByAlbumId(id: any) {
     return db
       .prepare(
         `SELECT s.* FROM sticker_relationships sr INNER JOIN stickers s ON s.sticker_id = sr.sticker_id WHERE sr.album_id = ? ORDER BY s.created_at DESC`
@@ -25,15 +25,15 @@ class StickerDao {
   getLastUseStickers() {
     return db.prepare(`SELECT * FROM stickers WHERE last_use_at > 0 ORDER BY last_use_at DESC LIMIT 20`).all()
   }
-  getStickerByUnique(stickerId) {
+  getStickerByUnique(stickerId: any) {
     return db.prepare(`SELECT * FROM stickers WHERE sticker_id = ?`).get(stickerId)
   }
-  insertAlbum(s) {
+  insertAlbum(s: any) {
     db.prepare(
       `INSERT OR REPLACE INTO sticker_albums VALUES (@album_id, @name, @icon_url, @created_at, @update_at, @user_id, @category, @description)`
     ).run(s)
   }
-  insertUpdate(s) {
+  insertUpdate(s: any) {
     const sticker = this.getStickerByUnique(s.sticker_id)
     if (sticker) {
       s.last_use_at = s.last_use_at || sticker.last_use_at

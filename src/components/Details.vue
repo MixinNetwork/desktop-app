@@ -131,7 +131,7 @@ export default class Details extends Vue {
   }
 
   get showAddContact() {
-    return this.user.relationship !== 'FRIEND'
+    return this.isContact && this.user.relationship !== 'FRIEND'
   }
 
   get participantTitle() {
@@ -155,7 +155,7 @@ export default class Details extends Vue {
   }
 
   mounted() {
-    if (this.conversation.category === ConversationCategory.CONTACT) {
+    if (this.isContact) {
       this.actionRefreshUser({
         userId: this.conversation.ownerId,
         conversationId: this.conversation.conversationId

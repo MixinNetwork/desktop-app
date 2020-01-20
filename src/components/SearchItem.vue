@@ -26,7 +26,7 @@ import Avatar from '@/components/Avatar.vue'
 })
 export default class SearchItem extends Vue {
   @Prop(String) readonly keyword: any
-  @Prop(Object) readonly user: any
+  @Prop(Object) readonly item: any
 
   renderTime(timeStr: string) {
     return contentUtil.renderTime(timeStr, true)

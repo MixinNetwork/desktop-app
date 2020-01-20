@@ -49,6 +49,7 @@ import UserItem from '@/components/UserItem.vue'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
 import { ConversationCategory } from '@/utils/constants'
+import userApi from '@/api/user'
 
 @Component({
   components: {
@@ -62,6 +63,7 @@ export default class Details extends Vue {
 
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('refreshUser') actionRefreshUser: any
+  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('syncConversation') actionSyncConversation: any
 
   @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
@@ -119,20 +121,17 @@ export default class Details extends Vue {
   }
 
   addContact() {
-    //
+    const userId = this.user.user_id
+    const { conversationId } = this.conversation
+    userApi.updateRelationship({user_id: userId, full_name: this.user.full_name, action: 'ADD'}).then((res) => {
+      if (res.data) {
+        this.actionSetCurrentUser(res.data.data)
+      }
+    })
   }
 
   get showAddContact() {
-    const { participants } = this.conversation
-    let flag = true
-    if (participants.length === 2) {
-      participants.forEach((item: any) => {
-        if (item.relationship === 'FRIEND') {
-          flag = false
-        }
-      })
-    }
-    return flag
+    return this.user.relationship !== 'FRIEND'
   }
 
   get participantTitle() {

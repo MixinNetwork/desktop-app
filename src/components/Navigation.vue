@@ -449,14 +449,13 @@ export default {
       this.$store.dispatch('setCurrentConversation', conversation)
     },
     onClickUser(user) {
-      this.conversationShow = false
       this.$store.dispatch('searchClear')
       this.$store.dispatch('createUserConversation', {
         user
       })
     },
     onSearchChatClick(conversation) {
-      if (this.currentConversationId === conversation.conversationId) return
+      if (this.currentConversationId === conversation.conversationId && this.searching) return
       this.conversationShow = false
       this.$store.dispatch('setCurrentConversation', conversation)
       let searchKey = ''
@@ -470,7 +469,6 @@ export default {
       }, 100)
     },
     onSearchUserClick(user) {
-      this.conversationShow = false
       this.$store.dispatch('setSearching', '')
       this.$store.dispatch('createUserConversation', {
         user
@@ -505,6 +503,7 @@ export default {
       currentConversationId: 'currentConversationId',
       conversations: 'getConversations',
       friends: 'findFriends',
+      searching: 'searching',
       me: 'me',
       searchResult: 'search',
       linkStatus: 'linkStatus'

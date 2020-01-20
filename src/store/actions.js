@@ -236,6 +236,9 @@ export default {
   setSearching: async({ commit }, keyword) => {
     commit('setSearching', keyword)
   },
+  setCurrentUser: async({ commit }, user) => {
+    commit('setCurrentUser', user)
+  },
   setCurrentConversation: async({ commit }, conversation) => {
     commit('setCurrentConversation', conversation)
   },

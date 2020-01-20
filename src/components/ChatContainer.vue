@@ -174,6 +174,7 @@ import conversationAPI from '@/api/conversation'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
+import userApi from '@/api/user'
 
 @Component({
   components: {
@@ -257,16 +258,7 @@ export default class ChatContainer extends Vue {
       let menu = []
       if (newC.category === ConversationCategory.CONTACT) {
         menu.push(chatMenu.contact_info)
-        const { participants } = this.conversation
-        let flag = true
-        if (participants.length === 2) {
-          participants.forEach((item: any) => {
-            if (item.relationship === 'FRIEND') {
-              flag = false
-            }
-          })
-        }
-        if (flag) {
+        if (this.user.relationship !== 'FRIEND') {
           menu.push(chatMenu.add_contact)
         } else {
           menu.push(chatMenu.remove_contact)
@@ -305,6 +297,7 @@ export default class ChatContainer extends Vue {
 
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
+  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
@@ -664,6 +657,33 @@ export default class ChatContainer extends Vue {
   hideDetails() {
     this.details = false
   }
+  changeContactRelationship(action: string) {
+    userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res) => {
+      if (res.data) {
+        const user = res.data.data
+        this.actionSetCurrentUser(user)
+        const chatMenu = this.$t('menu.chat')
+        const menu = []
+        menu.push(chatMenu.contact_info)
+        if (this.user.relationship !== 'FRIEND') {
+          menu.push(chatMenu.add_contact)
+        } else {
+          menu.push(chatMenu.remove_contact)
+        }
+        menu.push(chatMenu.clear)
+
+        if (this.conversation.status !== ConversationStatus.QUIT) {
+          if (this.isMute(this.conversation)) {
+            menu.push(chatMenu.cancel_mute)
+          } else {
+            menu.push(chatMenu.mute)
+          }
+        }
+        // menu.push(chatMenu.create_post)
+        this.menus = menu
+      }
+    })
+  }
   onItemClick(index: number) {
     const chatMenu = this.$t('menu.chat')
     const option = this.menus[index]
@@ -674,13 +694,14 @@ export default class ChatContainer extends Vue {
     } else if (key === 'exit_group') {
       this.actionExitGroup(this.conversation.conversationId)
     } else if (key === 'add_contact') {
-      //
+      this.changeContactRelationship('ADD')
     } else if (key === 'remove_contact') {
+      const userId = this.user.user_id
       this.$Dialog.alert(
         this.$t('chat.remove_contact'),
         this.$t('ok'),
         () => {
-          //
+          this.changeContactRelationship('REMOVE')
         },
         this.$t('cancel'),
         () => {

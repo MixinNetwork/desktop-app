@@ -187,6 +187,9 @@ export default {
   setSearching(state, keyword) {
     state.searching = keyword
   },
+  setCurrentUser(state, user) {
+    state.currentUser = user
+  },
   setCurrentConversation(state, conversation) {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id

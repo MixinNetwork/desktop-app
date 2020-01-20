@@ -48,7 +48,7 @@ export function getToken(method, uri, data) {
     const sid = account.session_id
     const m = method.toUpperCase()
     const scp =
-      'PROFILE:READ PROFILE:WRITE PHONE:READ PHONE:WRITE CONTACTS:READ CONTACTS:WRITE MESSAGES:READ MESSAGES:WRITE ASSETS:READ'
+      'PROFILE:READ PROFILE:WRITE PHONE:READ PHONE:WRITE CONTACTS:READ CONTACTS:WRITE MESSAGES:READ MESSAGES:WRITE ASSETS:READ SNAPSHOTS:READ'
     token = new Bot().signAuthenticationToken(uid, sid, privateKey, m, uri, data, scp)
   }
   return token

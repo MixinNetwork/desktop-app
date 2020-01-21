@@ -4,23 +4,17 @@ function createPlayerWindow(w: any, h: any, pin: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
   if (w > h) {
-    // @ts-ignore
-    ww = parseInt(width / 2)
-    // @ts-ignore
-    wh = parseInt((ww * h) / w)
+    ww = Math.floor(width / 2)
+    wh = Math.floor((ww * h) / w)
   } else {
-    // @ts-ignore
-    wh = parseInt(height / 2)
-    // @ts-ignore
-    ww = parseInt((wh * w) / h)
+    wh = Math.floor(height / 2)
+    ww = Math.floor((wh * w) / h)
   }
   let playerWindow = new BrowserWindow({
     width: ww,
     height: wh,
-    // @ts-ignore
-    minWidth: parseInt(ww / 2),
-    // @ts-ignore
-    minHeight: parseInt(wh / 2),
+    minWidth: Math.floor(ww / 2),
+    minHeight: Math.floor(wh / 2),
     // @ts-ignore
     icon: path.join(__static, 'icon.png'),
     frame: process.platform !== 'darwin',

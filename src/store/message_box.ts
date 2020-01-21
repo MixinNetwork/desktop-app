@@ -19,8 +19,7 @@ class MessageBox {
       this.messagePositionIndex = messagePositionIndex
       let page = 0
       if (messagePositionIndex >= PerPageMessageCount) {
-        // @ts-ignore
-        page = parseInt(messagePositionIndex / PerPageMessageCount)
+        page = Math.floor(messagePositionIndex / PerPageMessageCount)
       }
       this.messages = messageDao.getMessages(conversationId, page)
       this.oldLastMessages = messageDao.getMessages(conversationId, 0)

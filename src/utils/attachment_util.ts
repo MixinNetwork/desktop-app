@@ -120,6 +120,11 @@ function putHeader(buffer: any) {
   }
 }
 
+function getRandomBytes(bit: number) {
+  // @ts-ignore
+  return libsignal.crypto.getRandomBytes(bit)
+}
+
 export async function putAttachment(imagePath: any, mimeType: any, category: string, id: any, processCallback: any, sendCallback: any, errorCallback: any) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
   let mediaWidth: number = 0
@@ -131,8 +136,6 @@ export async function putAttachment(imagePath: any, mimeType: any, category: str
     mediaWidth = dimensions.width
     mediaHeight = dimensions.height
     thumbImage = base64Thumbnail(localPath, mediaWidth, mediaHeight)
-    // thumbImage =
-    //   'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
   }
   let buffer = fs.readFileSync(localPath)
   let key: Iterable<number>
@@ -147,10 +150,8 @@ export async function putAttachment(imagePath: any, mimeType: any, category: str
     thumbImage: thumbImage
   }
   if (category.startsWith('SIGNAL_')) {
-    // @ts-ignore
-    key = libsignal.crypto.getRandomBytes(64)
-    // @ts-ignore
-    const iv = libsignal.crypto.getRandomBytes(16)
+    key = getRandomBytes(64)
+    const iv = getRandomBytes(16)
     const buf = toArrayBuffer(buffer)
     await cryptoAttachment.encryptAttachment(buf, key, iv).then((result: { ciphertext: Buffer; digest: any }) => {
       buffer = result.ciphertext
@@ -194,10 +195,8 @@ export async function uploadAttachment(localPath: string | number | Buffer | imp
   let digest: Iterable<number>
   let buffer = fs.readFileSync(localPath)
   if (category.startsWith('SIGNAL_')) {
-    // @ts-ignore
-    key = libsignal.crypto.getRandomBytes(64)
-    // @ts-ignore
-    const iv = libsignal.crypto.getRandomBytes(16)
+    key = getRandomBytes(64)
+    const iv = getRandomBytes(16)
     const buf = toArrayBuffer(buffer)
     await cryptoAttachment.encryptAttachment(buf, key, iv).then((result: { ciphertext: Buffer; digest: any }) => {
       buffer = result.ciphertext

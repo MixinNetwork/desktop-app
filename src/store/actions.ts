@@ -20,12 +20,16 @@ function markRead(conversationId: any) {
   messageDao.markRead(conversationId)
 }
 
+function getAccount() {
+  // @ts-ignore
+  return JSON.parse(localStorage.getItem('account'))
+}
+
 async function refreshConversation(conversationId: any, callback: () => void) {
   const c = await conversationApi.getConversation(conversationId)
   if (c.data.data) {
     const conversation = c.data.data
-    // @ts-ignore
-    const me = JSON.parse(localStorage.getItem('account'))
+    const me = getAccount()
     const result = conversation.participants.some(function(item: any) {
       return item.user_id === me.user_id
     })
@@ -146,8 +150,7 @@ function updateRemoteMessageStatus(conversationId: any, messageId: any, status: 
 export default {
   createUserConversation: ({ commit, state }: any, payload: { user: any }) => {
     const { user } = payload
-    // @ts-ignore
-    const account = JSON.parse(localStorage.getItem('account'))
+    const account = getAccount()
     if (user.user_id === account.user_id) {
       return
     }
@@ -321,8 +324,7 @@ export default {
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
-      // @ts-ignore
-      user_id: JSON.parse(localStorage.getItem('account')).user_id,
+      user_id: getAccount().user_id,
       category,
       content,
       status,
@@ -348,8 +350,7 @@ export default {
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
-      // @ts-ignore
-      user_id: JSON.parse(localStorage.getItem('account')).user_id,
+      user_id: getAccount().user_id,
       content: content,
       category: category,
       media_url: mediaUrl,
@@ -376,8 +377,7 @@ export default {
         messageDao.insertMessage({
           message_id: messageId,
           conversation_id: conversationId,
-          // @ts-ignore
-          user_id: JSON.parse(localStorage.getItem('account')).user_id,
+          user_id: getAccount().user_id,
           category: category,
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,
@@ -520,8 +520,9 @@ export default {
     downloadQueue.push(
       async(message: any) => {
         try {
-          // @ts-ignore
-          const [m, filePath] = await downloadAttachment(message)
+          const ret: any = await downloadAttachment(message)
+          const m = ret[0]
+          const filePath = ret[1]
           messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
           commit('stopLoading', m.message_id)
           commit('refreshMessage', m.conversation_id)

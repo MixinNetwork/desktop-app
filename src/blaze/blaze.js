@@ -67,10 +67,9 @@ class Blaze {
     console.log('---onclose--')
     console.log(event)
     this.ping = false
-    if (event.code === 1006) {
-      console.log('---should reconnect--')
-      this.reconnectBlaze()
-    }
+    if (event.code === 1008) return
+    console.log('---should reconnect--')
+    this.reconnectBlaze()
   }
   _onError(event) {
     console.log('-------onerrror--')

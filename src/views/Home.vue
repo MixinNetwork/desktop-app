@@ -45,11 +45,7 @@ export default class Home extends Vue {
       }
     )
     const self = this
-    if (window.navigator.onLine) {
-      self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-    } else {
-      self.$store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
-    }
+
     window.addEventListener('offline', function(e) {
       self.$store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
       console.log('----offline')
@@ -58,10 +54,11 @@ export default class Home extends Vue {
     window.addEventListener('online', function(e) {
       console.log('----online')
       if (!self.$blaze.isConnect()) {
+        self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
         self.$blaze.connect()
+      } else {
+        self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       }
-
-      self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
     })
   }
 }

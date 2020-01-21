@@ -20,7 +20,12 @@ class Blaze {
   }
 
   connect() {
-    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+      return setTimeout(() => {
+        this.connect()
+      }, 1000)
+    }
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       return
     }
     if (this.ws) {
@@ -87,6 +92,7 @@ class Blaze {
     if (this.ws) {
       this.ws.close(1000, 'Normal close, should reconnect')
     }
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     this.connect()
   }
   isConnect() {
@@ -176,6 +182,7 @@ class Blaze {
         }, 5000)
       })
     } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
+      store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
       this.connect()
     }
   }

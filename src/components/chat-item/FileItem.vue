@@ -31,90 +31,92 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import fs from 'fs'
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import BadgeItem from './BadgeItem'
-import TimeAndStatus from './TimeAndStatus'
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component({
   components: {
     spinner,
     AttachmentIcon,
     BadgeItem,
     TimeAndStatus
-  },
-  data: function() {
-    return {
-      MessageStatus: MessageStatus,
-      MediaStatus: MediaStatus
-    }
-  },
+  }
+})
+export default class FileItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
 
-  methods: {
-    openFile: function() {
-      if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
-        return
-      }
-      const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
-        defaultPath: this.message.mediaName
-      })
-      if (!savePath) {
-        return
-      }
-      let sourcePath = this.message.mediaUrl
-      if (sourcePath.startsWith('file://')) {
-        sourcePath = sourcePath.replace('file://', '')
-      }
-      fs.copyFileSync(sourcePath, savePath)
-    },
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
+  @Getter('attachment') attachment: any
+
+  MessageStatus: any = MessageStatus
+  MediaStatus: any = MediaStatus
+  $electron: any
+
+  openFile() {
+    if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
+      return
     }
-  },
-  computed: {
-    loading() {
-      return this.attachment.includes(this.message.messageId)
-    },
-    fileName() {
-      let name = this.message.mediaName
-      if (name && name.length > 18) {
-        return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
-      } else {
-        return name
-      }
-    },
-    fileSize() {
-      let num = parseFloat(this.message.mediaSize)
-      let count = 0
-      while (count > 3 || num > 1024) {
-        num /= 1024
-        count++
-      }
-      let unit = 'Byte'
-      if (count === 1) {
-        unit = 'KB'
-      } else if (count === 2) {
-        unit = 'MB'
-      } else if (count === 3) {
-        unit = 'GB'
-      }
-      return `${Math.round(num * 100) / 100} ${unit}`
-    },
-    ...mapGetters({
-      attachment: 'attachment'
+    const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
+      defaultPath: this.message.mediaName
     })
+    if (!savePath) {
+      return
+    }
+    let sourcePath = this.message.mediaUrl
+    if (sourcePath.startsWith('file://')) {
+      sourcePath = sourcePath.replace('file://', '')
+    }
+    fs.copyFileSync(sourcePath, savePath)
+  }
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
+    }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
+  }
+
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
+  }
+  get fileName() {
+    let name = this.message.mediaName
+    if (name && name.length > 18) {
+      return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
+    } else {
+      return name
+    }
+  }
+  get fileSize() {
+    let num = parseFloat(this.message.mediaSize)
+    let count = 0
+    while (count > 3 || num > 1024) {
+      num /= 1024
+      count++
+    }
+    let unit = 'Byte'
+    if (count === 1) {
+      unit = 'KB'
+    } else if (count === 2) {
+      unit = 'MB'
+    } else if (count === 3) {
+      unit = 'GB'
+    }
+    return `${Math.round(num * 100) / 100} ${unit}`
   }
 }
 </script>

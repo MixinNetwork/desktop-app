@@ -43,144 +43,152 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
 import spinner from '@/components/Spinner.vue'
-import BadgeItem from './BadgeItem'
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
-import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
-import TimeAndStatus from './TimeAndStatus'
 
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+
+@Component({
   components: {
     spinner,
     BadgeItem,
     TimeAndStatus
-  },
-  data: function() {
-    return {
-      MessageStatus: MessageStatus,
-      MediaStatus: MediaStatus,
-      time: '00:00',
-      duration: '00:00',
-      progressStyle: { width: '' },
-      dotStyle: { left: '' },
-      audioStatus: 'wait'
+  }
+})
+export default class AudioItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  MessageStatus: any = MessageStatus
+  MediaStatus: any = MediaStatus
+  time: string= '00:00'
+  duration: string= '00:00'
+  progressStyle: any = { width: '' }
+  dotStyle: any = { left: '' }
+  audioStatus: string= 'wait'
+  $moment: any
+
+  @Getter('attachment') attachment: any
+  @Getter('currentAudio') currentAudio: any
+  @Getter('currentMessages') currentMessages: any
+
+  @Watch('currentAudio')
+  onCurrentAudioChange(data: any) {
+    const mixinAudio: any = this.$refs.mixinAudio
+    if (data.messageId !== this.message.messageId) {
+      if (!mixinAudio.paused) {
+        mixinAudio.pause()
+        mixinAudio.currentTime = 0
+        this.audioStatus = 'play'
+      }
+    } else {
+      if (mixinAudio.paused) {
+        this.audioStatus = 'pause'
+        mixinAudio.play()
+      }
     }
-  },
+  }
+
+  @Watch('message')
+  onMessageChange(data: any) {
+    if (data.mediaStatus === MediaStatus.DONE) {
+      this.audioStatus = 'play'
+    }
+  }
+
   created() {
     if (this.message.mediaStatus === MediaStatus.DONE) {
       this.audioStatus = 'play'
     }
-  },
-  watch: {
-    currentAudio(data) {
-      const mixinAudio = this.$refs.mixinAudio
-      if (data.messageId !== this.message.messageId) {
-        if (!mixinAudio.paused) {
-          mixinAudio.pause()
-          mixinAudio.currentTime = 0
-          this.audioStatus = 'play'
-        }
-      } else {
-        if (mixinAudio.paused) {
-          this.audioStatus = 'pause'
-          mixinAudio.play()
-        }
-      }
-    },
-    message(data) {
-      if (data.mediaStatus === MediaStatus.DONE) {
-        this.audioStatus = 'play'
-      }
+  }
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
-    },
-    downloadAudio() {
-      this.audioStatus = 'loading'
-      this.$emit('mediaClick')
-    },
-    playAudio() {
-      const mixinAudio = this.$refs.mixinAudio
-      if (mixinAudio.paused) {
-        this.audioStatus = 'pause'
-        this.$store.dispatch('setCurrentAudio', this.message)
-        mixinAudio.play()
-      } else {
-        this.audioStatus = 'play'
-        mixinAudio.pause()
-      }
-    },
-    timeUpdate() {
-      this.duration = this.transTime(this.$refs.mixinAudio.duration)
-      let timeStr = parseInt(this.$refs.mixinAudio.currentTime)
-      this.time = this.transTime(timeStr)
-      let scales = this.$refs.mixinAudio.currentTime / this.$refs.mixinAudio.duration
-      this.progressStyle.width = scales * 100 + '%'
-      this.dotStyle.left = scales * 100 + '%'
-      if (scales === 1) {
-        const messages = this.currentMessages
-        let nextAudioMessage = null
-        let currentAudioId = ''
-        for (let i = 0; i < messages.length; i++) {
-          if (messages[i].type.endsWith('_AUDIO') && this.message.mediaUrl) {
-            if (currentAudioId) {
-              nextAudioMessage = messages[i]
-              break
-            }
-            if (this.currentAudio.messageId === messages[i].messageId) {
-              currentAudioId = messages[i].messageId
-            }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
+  }
+  downloadAudio() {
+    this.audioStatus = 'loading'
+    this.$emit('mediaClick')
+  }
+  playAudio() {
+    const mixinAudio: any = this.$refs.mixinAudio
+    if (mixinAudio.paused) {
+      this.audioStatus = 'pause'
+      this.$store.dispatch('setCurrentAudio', this.message)
+      mixinAudio.play()
+    } else {
+      this.audioStatus = 'play'
+      mixinAudio.pause()
+    }
+  }
+  timeUpdate() {
+    const audio: any = this.$refs.mixinAudio
+    this.duration = this.transTime(audio.duration)
+    let timeStr = parseInt(audio.currentTime)
+    this.time = this.transTime(timeStr)
+    let scales = audio.currentTime / audio.duration
+    this.progressStyle.width = scales * 100 + '%'
+    this.dotStyle.left = scales * 100 + '%'
+    if (scales === 1) {
+      const messages = this.currentMessages
+      let nextAudioMessage = null
+      let currentAudioId = ''
+      for (let i = 0; i < messages.length; i++) {
+        if (messages[i].type.endsWith('_AUDIO') && this.message.mediaUrl) {
+          if (currentAudioId) {
+            nextAudioMessage = messages[i]
+            break
+          }
+          if (this.currentAudio.messageId === messages[i].messageId) {
+            currentAudioId = messages[i].messageId
           }
         }
-        if (nextAudioMessage) {
-          this.$store.dispatch('setCurrentAudio', nextAudioMessage)
-        }
       }
-    },
-    onEnded() {
-      this.audioStatus = 'play'
-      this.time = '00:00'
-      this.progressStyle.width = 0
-      this.dotStyle.left = 0
-    },
-    canPlay() {
-      this.duration = this.transTime(this.$refs.mixinAudio.duration)
-    },
-    controlAudioProgress(event) {
-      let audio = this.$refs.mixinAudio
-      let audioProgress = this.$refs.audioProgress
-      if (!audio.paused || audio.currentTime !== 0) {
-        let pgsWidth = parseFloat(window.getComputedStyle(audioProgress, null).width.replace('px', ''))
-        let rate = event.offsetX / pgsWidth
-        audio.currentTime = audio.duration * rate
-        this.timeUpdate()
+      if (nextAudioMessage) {
+        this.$store.dispatch('setCurrentAudio', nextAudioMessage)
       }
-    },
-    transTime(value) {
-      return this.$moment(Math.ceil(value - 0) * 1000).format('mm:ss')
     }
-  },
-  computed: {
-    loading: function() {
-      return this.attachment.includes(this.message.messageId)
-    },
-    ...mapGetters({
-      attachment: 'attachment',
-      currentAudio: 'currentAudio',
-      currentMessages: 'currentMessages'
-    })
+  }
+  onEnded() {
+    this.audioStatus = 'play'
+    this.time = '00:00'
+    this.progressStyle.width = 0
+    this.dotStyle.left = 0
+  }
+  canPlay() {
+    const audio: any = this.$refs.mixinAudio
+    this.duration = this.transTime(audio.duration)
+  }
+  controlAudioProgress(event: any) {
+    const audio: any = this.$refs.mixinAudio
+    let audioProgress = this.$refs.audioProgress
+    if (!audio.paused || audio.currentTime !== 0) {
+      // @ts-ignore
+      let pgsWidth = parseFloat(window.getComputedStyle(audioProgress, null).width.replace('px', ''))
+      let rate = event.offsetX / pgsWidth
+      audio.currentTime = audio.duration * rate
+      this.timeUpdate()
+    }
+  }
+  transTime(value: any) {
+    return this.$moment(Math.ceil(value - 0) * 1000).format('mm:ss')
+  }
+
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
   }
 }
 </script>

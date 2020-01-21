@@ -25,41 +25,43 @@
     </div>
   </div>
 </template>
-<script>
-import Avatar from '@/components/Avatar'
+<script lang="ts">
+import Avatar from '@/components/Avatar.vue'
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import userDao from '@/dao/user_dao'
-import BadgeItem from './BadgeItem'
-import TimeAndStatus from './TimeAndStatus'
 
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     Avatar,
     BadgeItem,
     TimeAndStatus
-  },
-  data: function() {
+  }
+})
+export default class ContactItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
     return {
-      MessageStatus: MessageStatus
+      send: this.message.userId === this.me.user_id,
+      receive: this.message.userId !== this.me.user_id
     }
-  },
-  methods: {
-    messageOwnership: function() {
-      return {
-        send: this.message.userId === this.me.user_id,
-        receive: this.message.userId !== this.me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
-    }
-  },
-  computed: {
-    user: function() {
-      return userDao.findUserById(this.message.sharedUserId)
-    }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
+  }
+
+  get user() {
+    return userDao.findUserById(this.message.sharedUserId)
   }
 }
 </script>

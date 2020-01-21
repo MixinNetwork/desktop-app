@@ -8,40 +8,40 @@
     </div>
   </div>
 </template>
-<script>
+<script lang="ts">
+// @ts-ignore
 import Chimee from 'chimee'
+// @ts-ignore
 import ChimeeKernelHls from 'chimee-kernel-hls'
 import { ipcRenderer } from 'electron'
-export default {
-  data: function() {
-    return {
-      show: false,
-      pin: false
-    }
-  },
-  watch: {
-    pin(newPin) {
-      localStorage.pinTop = newPin
-    }
-  },
-  methods: {
-    toggle: function() {
-      this.pin = !this.pin
-      ipcRenderer.send('pinToggle', this.pin)
-    },
-    close: function() {
-      ipcRenderer.send('closePlayer', this.pin)
-    },
-    minimize: function() {
-      ipcRenderer.send('minimizePlayer', this.pin)
-    },
-    enter: function() {
-      this.show = true
-    },
-    leave: function() {
-      this.show = false
-    }
-  },
+
+import { Vue, Watch, Component } from 'vue-property-decorator'
+
+@Component
+export default class Player extends Vue {
+  show: boolean = false
+  pin: boolean = false
+
+  @Watch('pin')
+  onPinChange(newPin: any) {
+    localStorage.pinTop = newPin
+  }
+  toggle() {
+    this.pin = !this.pin
+    ipcRenderer.send('pinToggle', this.pin)
+  }
+  close() {
+    ipcRenderer.send('closePlayer', this.pin)
+  }
+  minimize() {
+    ipcRenderer.send('minimizePlayer', this.pin)
+  }
+  enter() {
+    this.show = true
+  }
+  leave() {
+    this.show = false
+  }
   mounted() {
     this.pin = localStorage.pinTop === 'true'
     let args = this.$route.query

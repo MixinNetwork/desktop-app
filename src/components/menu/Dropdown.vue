@@ -13,47 +13,47 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'Dropdown',
-  props: ['menus'],
-  data() {
-    return {
-      showMenu: false,
-      searchColor: 'transparent'
-    }
-  },
-  activated() {
-    this.showMenu = false
-  },
-  watch: {
-    showMenu(newV, oldV) {
-      if (newV !== oldV) {
-        if (newV) {
-          this.searchColor = '#D6D6D6'
-          const rect = this.$el.getBoundingClientRect()
-          this.$Menu.alert(
-            rect.x - rect.width - 100,
-            rect.top + rect.height + 3,
-            this.menus,
-            index => {
-              this.$emit('onItemClick', index)
-            },
-            'right'
-          )
-        } else {
-          this.searchColor = 'transparent'
-        }
+<script lang="ts">
+
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+
+@Component
+export default class Dropdown extends Vue {
+  @Prop(Array) readonly menus: any
+
+  showMenu: boolean = false
+  searchColor: string = 'transparent'
+  $Menu: any
+
+  @Watch('showMenu')
+  onShowMenuChange(newV: any, oldV: any) {
+    if (newV !== oldV) {
+      if (newV) {
+        this.searchColor = '#D6D6D6'
+        const rect = this.$el.getBoundingClientRect()
+        this.$Menu.alert(
+          rect.x - rect.width - 100,
+          rect.top + rect.height + 3,
+          this.menus,
+          (index: number) => {
+            this.$emit('onItemClick', index)
+          },
+          'right'
+        )
+      } else {
+        this.searchColor = 'transparent'
       }
     }
-  },
-  methods: {
-    onFocus() {
-      this.showMenu = true
-    },
-    onBlur() {
-      this.showMenu = false
-    }
+  }
+
+  activated() {
+    this.showMenu = false
+  }
+  onFocus() {
+    this.showMenu = true
+  }
+  onBlur() {
+    this.showMenu = false
   }
 }
 </script>

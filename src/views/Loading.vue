@@ -5,25 +5,29 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
 import { clearDb } from '@/persistence/db_util'
 
-export default {
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'Loading',
   components: {
     spinner
-  },
-  data() {
-    return {
-      isLoading: true
-    }
-  },
-  created: async function() {
+  }
+})
+export default class Loading extends Vue {
+  isLoading: boolean = true
+  $electron: any
+  $blaze: any
+
+  async created() {
     if (localStorage.account && localStorage.sessionToken) {
-      const account = await accountAPI.getMe().catch(function(err) {
+      const account = await accountAPI.getMe().catch((err: any) => {
         console.log(err)
       })
       if (!localStorage.newVersion) {
@@ -55,14 +59,13 @@ export default {
         }
       })
     }
-  },
-  methods: {
-    pushSignalKeys: function() {
-      // eslint-disable-next-line
-      return wasmObject.then(() => {
-        checkSignalKey()
-      })
-    }
+  }
+
+  pushSignalKeys() {
+    // @ts-ignore
+    return wasmObject.then(() => {
+      checkSignalKey()
+    })
   }
 }
 </script>

@@ -16,28 +16,30 @@
     </div>
   </div>
 </template>
-<script>
-import MessageItemIcon from '@/components/MessageItemIcon'
-import BadgeItem from './BadgeItem'
+<script lang="ts">
+import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import BadgeItem from './BadgeItem.vue'
 
 import { MessageStatus } from '@/utils/constants'
-export default {
-  props: ['conversation', 'message', 'me'],
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     MessageItemIcon,
     BadgeItem
-  },
-  data: function() {
+  }
+})
+export default class TransferItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
     return {
-      MessageStatus: MessageStatus
-    }
-  },
-  methods: {
-    messageOwnership() {
-      return {
-        send: this.message.userId === this.me.user_id,
-        receive: this.message.userId !== this.me.user_id
-      }
+      send: this.message.userId === this.me.user_id,
+      receive: this.message.userId !== this.me.user_id
     }
   }
 }

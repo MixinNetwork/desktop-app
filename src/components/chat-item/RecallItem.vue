@@ -22,35 +22,41 @@
     </BadgeItem>
   </div>
 </template>
-<script>
-import BadgeItem from './BadgeItem'
+<script lang="ts">
+import BadgeItem from './BadgeItem.vue'
 import { getNameColorById } from '@/utils/util'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     BadgeItem
-  },
-  computed: {
-    getContent: function() {
-      let { message, me } = this
-      if (message.userId === me.user_id) {
-        return this.$t('chat.chat_recall_me')
-      } else {
-        return this.$t('chat.chat_recall_delete')
-      }
+  }
+})
+export default class RecallItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  $t: any
+
+  get getContent() {
+    let { message, me } = this
+    if (message.userId === me.user_id) {
+      return this.$t('chat.chat_recall_me')
+    } else {
+      return this.$t('chat.chat_recall_delete')
     }
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
+  }
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
   }
 }
 </script>

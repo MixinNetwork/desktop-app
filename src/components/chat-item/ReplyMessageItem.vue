@@ -45,85 +45,87 @@
     <Avatar class="avatar" v-if="message.type.endsWith('_CONTACT')" id="avatar" :user="user" />
   </div>
 </template>
-<script>
+<script lang="ts">
 import { getNameColorById } from '@/utils/util'
-import Avatar from '@/components/Avatar'
+import Avatar from '@/components/Avatar.vue'
 import userDao from '@/dao/user_dao'
 import { messageType } from '@/utils/constants'
 
-export default {
-  props: ['message', 'me'],
-  data() {
-    return {}
-  },
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     Avatar
-  },
-  computed: {
-    bg: function() {
-      let color = getNameColorById(this.message.userId)
-      return { background: color }
-    },
-    abg: function() {
-      let color = getNameColorById(this.message.userId)
-      return { background: color + '0D' }
-    },
-    font: function() {
-      let color = getNameColorById(this.message.userId)
-      return { color: color }
-    },
-    mediaUrl: function() {
-      if (this.message.mediaUrl) {
-        return this.message.mediaUrl
-      } else if (this.message.assetUrl) {
-        return this.message.assetUrl
-      }
-      return null
-    },
-    getContent: function() {
-      if (this.message.type.endsWith('_TEXT')) {
-        return this.message.content
-      } else if (this.message.type.endsWith('_STICKER')) {
-        return this.$t('chat.chat_sticker')
-      } else if (this.message.type.endsWith('_IMAGE')) {
-        return this.$t('chat.chat_pic')
-      } else if (this.message.type === 'MESSAGE_RECALL') {
-        let { message, me } = this
-        if (message.userId === me.user_id) {
-          return this.$t('chat.chat_recall_me')
-        } else {
-          return this.$t('chat.chat_recall_delete')
-        }
-      } else if (this.message.type.endsWith('_VIDEO')) {
-        return this.$t('chat.chat_video')
-      } else if (this.message.type.endsWith('_LIVE')) {
-        return this.$t('chat.chat_live')
-      } else if (this.message.type.endsWith('_AUDIO')) {
-        return this.$moment(Math.ceil((this.message.mediaDuration - 0) / 1000) * 1000).format('mm:ss')
-      } else if (this.message.type.startsWith('APP_CARD')) {
-        return JSON.parse(this.message.content).description
-      } else if (this.message.type.endsWith('_DATA')) {
-        return this.message.mediaName
-      } else if (this.message.type.endsWith('_CONTACT')) {
-        return this.message.sharedUserIdentityNumber
+  }
+})
+export default class ReplyMessageItem extends Vue {
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+
+  $moment: any
+
+  get bg() {
+    let color = getNameColorById(this.message.userId)
+    return { background: color }
+  }
+  get abg() {
+    let color = getNameColorById(this.message.userId)
+    return { background: color + '0D' }
+  }
+  get font() {
+    let color = getNameColorById(this.message.userId)
+    return { color: color }
+  }
+  get mediaUrl() {
+    if (this.message.mediaUrl) {
+      return this.message.mediaUrl
+    } else if (this.message.assetUrl) {
+      return this.message.assetUrl
+    }
+    return null
+  }
+  get getContent() {
+    if (this.message.type.endsWith('_TEXT')) {
+      return this.message.content
+    } else if (this.message.type.endsWith('_STICKER')) {
+      return this.$t('chat.chat_sticker')
+    } else if (this.message.type.endsWith('_IMAGE')) {
+      return this.$t('chat.chat_pic')
+    } else if (this.message.type === 'MESSAGE_RECALL') {
+      let { message, me } = this
+      if (message.userId === me.user_id) {
+        return this.$t('chat.chat_recall_me')
       } else {
-        return null
+        return this.$t('chat.chat_recall_delete')
       }
-    },
-    user: function() {
-      return userDao.findUserById(this.message.sharedUserId)
+    } else if (this.message.type.endsWith('_VIDEO')) {
+      return this.$t('chat.chat_video')
+    } else if (this.message.type.endsWith('_LIVE')) {
+      return this.$t('chat.chat_live')
+    } else if (this.message.type.endsWith('_AUDIO')) {
+      return this.$moment(Math.ceil((this.message.mediaDuration - 0) / 1000) * 1000).format('mm:ss')
+    } else if (this.message.type.startsWith('APP_CARD')) {
+      return JSON.parse(this.message.content).description
+    } else if (this.message.type.endsWith('_DATA')) {
+      return this.message.mediaName
+    } else if (this.message.type.endsWith('_CONTACT')) {
+      return this.message.sharedUserIdentityNumber
+    } else {
+      return null
     }
-  },
-  methods: {
-    media: message => {
-      if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
-        return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
-      }
-      return message.mediaUrl
-    },
-    messageType() {
-      return messageType(this.message.type)
+  }
+  get user() {
+    return userDao.findUserById(this.message.sharedUserId)
+  }
+
+  media(message: any) {
+    if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
+      return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
     }
+    return message.mediaUrl
+  }
+  messageType() {
+    return messageType(this.message.type)
   }
 }
 </script>

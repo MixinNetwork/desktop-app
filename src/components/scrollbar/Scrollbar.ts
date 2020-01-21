@@ -1,7 +1,8 @@
 import Scrollbar from './Scrollbar.vue'
 
-const install = (Vue, options) => {
+const install = (Vue: any, options: any) => {
   if (options) {
+    // @ts-ignore
     Scrollbar.props.globalOptions.default = () => options
   }
   Vue.component(Scrollbar.name, Scrollbar)

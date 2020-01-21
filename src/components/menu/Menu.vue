@@ -15,38 +15,36 @@
     </div>
   </transition>
 </template>
-<script>
-export default {
-  data() {
+<script lang="ts">
+
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component
+export default class Menu extends Vue {
+  show: any = false
+  closable: any = true
+  menus: any = []
+  x: any = 0
+  y: any = 0
+  onItemClick: any = {}
+
+  get position() {
+    const { x, y } = this
     return {
-      show: false,
-      closable: true,
-      menus: [],
-      x: 0,
-      y: 0,
-      onItemClick: {}
+      top: y + 'px',
+      left: x + 'px'
     }
-  },
-  computed: {
-    position: function() {
-      const { x, y } = this
-      return {
-        top: y + 'px',
-        left: x + 'px'
-      }
+  }
+
+  dismiss(event: any) {
+    if (!this.closable && event.target.getAttribute('role') !== 'close-button') {
+      return
     }
-  },
-  methods: {
-    dismiss(event) {
-      if (!this.closable && event.target.getAttribute('role') !== 'close-button') {
-        return
-      }
-      this.show = false
-      document.body.style.overflow = 'auto'
-    },
-    notAllowTouchMove(event) {
-      event.preventDefault()
-    }
+    this.show = false
+    document.body.style.overflow = 'auto'
+  }
+  notAllowTouchMove(event: any) {
+    event.preventDefault()
   }
 }
 </script>

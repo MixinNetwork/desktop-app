@@ -16,16 +16,11 @@ class Blaze {
     this.ws = null
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.ping = false
+    this.reconnecting = false
   }
 
   connect() {
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      return setTimeout(() => {
-        this.connect()
-      }, 1000)
-    }
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       return
     }
     if (this.ws) {
@@ -64,9 +59,12 @@ class Blaze {
     }
   }
   _onClose(event) {
+    if (this.reconnecting) return
     console.log('---onclose--')
-    console.log(event)
-    this.ping = false
+    this.reconnecting = true
+    setTimeout(() => {
+      this.reconnecting = false
+    })
     if (event.code === 1008) return
     console.log('---should reconnect--')
     this.reconnectBlaze()
@@ -74,7 +72,6 @@ class Blaze {
   _onError(event) {
     console.log('-------onerrror--')
     console.log(event)
-    this.ping = false
   }
   _sendGzip(data, result) {
     this.transactions[data.id] = result

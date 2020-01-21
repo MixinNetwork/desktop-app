@@ -51,14 +51,17 @@ export default class Home extends Vue {
       console.log('----offline')
     })
 
+    let emitLock = false
     window.addEventListener('online', function(e) {
       console.log('----online')
-      if (!self.$blaze.isConnect()) {
-        self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+      if (!self.$blaze.isConnect() && !emitLock) {
+        emitLock = true
+        setTimeout(() => {
+          emitLock = false
+        })
         self.$blaze.connect()
-      } else {
-        self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       }
+      self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
     })
   }
 }

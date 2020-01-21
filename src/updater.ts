@@ -1,10 +1,10 @@
 const { app, dialog, BrowserWindow } = require('electron')
 const { autoUpdater } = require('electron-updater')
 
-let updater, focusedWindow
+let updater: any, focusedWindow: any
 autoUpdater.autoDownload = false
 
-autoUpdater.on('error', error => {
+autoUpdater.on('error', (error: { stack: any } | null) => {
   dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString())
 })
 
@@ -17,7 +17,8 @@ autoUpdater.on('update-available', () => {
       message: 'Found updates, do you want update now?',
       buttons: ['Sure', 'No']
     },
-    buttonIndex => {
+    // @ts-ignore
+    (buttonIndex: number) => {
       if (buttonIndex === 0) {
         autoUpdater.downloadUpdate()
       } else {
@@ -48,6 +49,7 @@ autoUpdater.on('update-downloaded', () => {
       title: 'Install Updates',
       message: 'Updates downloaded, application will be quit for update...'
     },
+    // @ts-ignore
     () => {
       setImmediate(() => {
         app.removeAllListeners('window-all-closed')
@@ -62,7 +64,7 @@ autoUpdater.on('update-downloaded', () => {
 })
 
 // export this to MenuItem click callback
-export function checkForUpdates(menuItem, focusedWindow, event) {
+export function checkForUpdates(menuItem: any, focusedWindow: any, event: any) {
   updater = menuItem
   if (updater) {
     updater.enabled = false
@@ -70,6 +72,6 @@ export function checkForUpdates(menuItem, focusedWindow, event) {
   autoUpdater.checkForUpdates()
 }
 
-export function setFocusWindow(window) {
+export function setFocusWindow(window: Electron.BrowserWindow) {
   focusedWindow = window
 }

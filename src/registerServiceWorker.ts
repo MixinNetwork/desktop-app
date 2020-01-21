@@ -1,5 +1,4 @@
-/* eslint-disable no-console */
-
+// @ts-ignore
 import { register } from 'register-service-worker'
 
 register(`${process.env.BASE_URL}service-worker.js`, {
@@ -23,7 +22,7 @@ register(`${process.env.BASE_URL}service-worker.js`, {
   offline() {
     console.log('No internet connection found. App is running in offline mode.')
   },
-  error(error) {
+  error(error: any) {
     console.error('Error during service worker registration:', error)
   }
 })

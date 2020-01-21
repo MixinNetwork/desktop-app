@@ -8,12 +8,12 @@
       @mouseover="thumbMouseOver"
       @mouseout="thumbMouseOut"
       @mousedown="thumbMouseDown"
-      v-show="thumbShowForce && showScroll"
+      v-show="thumbShowForce"
       :style="{
         opacity: thumbShow ? 1 : 0,
         transform: `translate3d(0, ${thumbTop}px, 0)`,
         height: thumbHeight + 'px',
-        transition: showScroll ? 'transform 0.05s ease-out, width 0.15s, opacity 0.5s, height 0.55s' : ''
+        transition: 'transform 0.05s ease-out, width 0.15s, opacity 0.5s, height 0.55s'
       }"
     ></div>
   </div>
@@ -28,7 +28,6 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 export default class MixinScrollbar extends Vue {
   @Prop(Boolean) readonly goBottom: any
   @Prop(Boolean) readonly isBottom: any
-  @Prop(Boolean) readonly showScroll: any
   @Prop(Object) readonly globalOptions: any
   @Prop(Object) readonly options: any
 

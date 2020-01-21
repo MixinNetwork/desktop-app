@@ -25,7 +25,6 @@
     <mixin-scrollbar
       :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
       v-if="conversation"
-      :showScroll="showScroll"
       :goBottom="!showMessages"
     >
       <ul
@@ -194,13 +193,11 @@ import userApi from '@/api/user'
 export default class ChatContainer extends Vue {
   @Watch('stickerChoosing')
   onStickerChoosingChanged(val: string, oldVal: string) {
-    this.showScroll = false
     clearTimeout(this.chooseStickerTimeout)
     this.chooseStickerTimeout = setTimeout(() => {
       if (val) {
         this.goBottom()
       }
-      this.showScroll = true
     }, 300)
   }
 
@@ -337,7 +334,6 @@ export default class ChatContainer extends Vue {
   timeDivideShow: boolean = false
   contentUtil: any = contentUtil
   stickerChoosing: boolean = false
-  showScroll: any = true
   chooseStickerTimeout: any = null
   lastEnter: any = null
   goSearchPos: boolean = false
@@ -480,7 +476,6 @@ export default class ChatContainer extends Vue {
   }
   goSearchMessagePos(item: any, keyword: string) {
     this.goSearchPos = true
-    this.showScroll = false
     setTimeout(() => {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
@@ -489,7 +484,6 @@ export default class ChatContainer extends Vue {
       setTimeout(() => {
         this.searchKeyword = keyword
         this.goSearchPos = false
-        this.showScroll = true
       })
     })
   }

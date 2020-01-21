@@ -30,7 +30,8 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
   name: 'FileContainer'
 })
 export default class FileContainer extends Vue {
-  @Prop(File) readonly file: any
+  // @ts-ignore
+  @Prop(File | Object) readonly file: any
   @Prop(Boolean) readonly dragging: any
 
   getPath() {

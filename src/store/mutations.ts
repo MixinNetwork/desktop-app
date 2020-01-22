@@ -6,6 +6,8 @@ import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
+const stopLoadingTimeout: any = {}
+
 function refreshConversations(state: any) {
   const conversations = conversationDao.getConversations()
   const conversationKeys: any = []
@@ -280,9 +282,17 @@ export default {
   },
   startLoading(state: { attachment: any[] }, messageId: any) {
     state.attachment.push(messageId)
+    clearTimeout(stopLoadingTimeout[messageId])
+    const arr = state.attachment
+    stopLoadingTimeout[messageId] = setTimeout(() => {
+      state.attachment = arr.filter((item: any) => {
+        return item !== messageId
+      })
+    }, 5000)
   },
   stopLoading(state: { attachment: any }, messageId: any) {
-    let arr = state.attachment
+    clearTimeout(stopLoadingTimeout[messageId])
+    const arr = state.attachment
     state.attachment = arr.filter((item: any) => {
       return item !== messageId
     })

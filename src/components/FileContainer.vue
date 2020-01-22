@@ -64,7 +64,7 @@ export default class FileContainer extends Vue {
   display: flex;
   flex-direction: column;
   height: 100%;
-  z-index: 20;
+  z-index: 200;
   .content {
     flex: 1;
     display: flex;

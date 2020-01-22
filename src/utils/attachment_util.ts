@@ -159,35 +159,39 @@ export async function putAttachment(imagePath: any, mimeType: any, category: str
     })
   }
   processCallback(message)
-  const result = await conversationAPI.requestAttachment()
-  if (result.status !== 200) {
-    errorCallback(`Error ${result.status}`)
-    return
-  }
-  const url = result.data.data.upload_url
-  const attachmentId = result.data.data.attachment_id
-  fetch(url, putHeader(buffer)).then(
-    function(resp: { status: number }) {
-      if (resp.status === 200) {
-        sendCallback({
-          attachment_id: attachmentId,
-          mime_type: mimeType,
-          size: buffer.byteLength,
-          width: mediaWidth,
-          height: mediaHeight,
-          name: name,
-          thumbnail: thumbImage,
-          digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
-          key: btoa(String.fromCharCode(...new Uint8Array(key)))
-        })
-      } else {
-        errorCallback(resp.status)
-      }
-    },
-    (error: any) => {
-      errorCallback(error)
+  try {
+    const result = await conversationAPI.requestAttachment()
+    if (result.status !== 200) {
+      errorCallback(`Error ${result.status}`)
+      return
     }
-  )
+    const url = result.data.data.upload_url
+    const attachmentId = result.data.data.attachment_id
+    fetch(url, putHeader(buffer)).then(
+      function(resp: { status: number }) {
+        if (resp.status === 200) {
+          sendCallback({
+            attachment_id: attachmentId,
+            mime_type: mimeType,
+            size: buffer.byteLength,
+            width: mediaWidth,
+            height: mediaHeight,
+            name: name,
+            thumbnail: thumbImage,
+            digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
+            key: btoa(String.fromCharCode(...new Uint8Array(key)))
+          })
+        } else {
+          errorCallback(resp.status)
+        }
+      },
+      (error: any) => {
+        errorCallback(error)
+      }
+    )
+  } catch (error) {
+    errorCallback(error)
+  }
 }
 
 export async function uploadAttachment(localPath: string | number | Buffer | import('url').URL, category: string, sendCallback: { (attachmentId: any, key: any, digest: any): void; (arg0: any, arg1: string, arg2: string): void }, errorCallback: { (e: any): void; (arg0: string | number): void }) {
@@ -203,29 +207,33 @@ export async function uploadAttachment(localPath: string | number | Buffer | imp
       digest = result.digest
     })
   }
-  const result = await conversationAPI.requestAttachment()
-  if (result.status !== 200) {
-    errorCallback(`Error ${result.status}`)
-    return
-  }
-  const url = result.data.data.upload_url
-  const attachmentId = result.data.data.attachment_id
-  fetch(url, putHeader(buffer)).then(
-    function(resp: { status: number }) {
-      if (resp.status === 200) {
-        sendCallback(
-          attachmentId,
-          btoa(String.fromCharCode(...new Uint8Array(key))),
-          btoa(String.fromCharCode(...new Uint8Array(digest)))
-        )
-      } else {
-        errorCallback(resp.status)
-      }
-    },
-    (error: any) => {
-      errorCallback(error)
+  try {
+    const result = await conversationAPI.requestAttachment()
+    if (result.status !== 200) {
+      errorCallback(`Error ${result.status}`)
+      return
     }
-  )
+    const url = result.data.data.upload_url
+    const attachmentId = result.data.data.attachment_id
+    fetch(url, putHeader(buffer)).then(
+      function(resp: { status: number }) {
+        if (resp.status === 200) {
+          sendCallback(
+            attachmentId,
+            btoa(String.fromCharCode(...new Uint8Array(key))),
+            btoa(String.fromCharCode(...new Uint8Array(digest)))
+          )
+        } else {
+          errorCallback(resp.status)
+        }
+      },
+      (error: any) => {
+        errorCallback(error)
+      }
+    )
+  } catch (error) {
+    errorCallback(error)
+  }
 }
 
 function generateName(fileName: string, mimeType: string, category: string, id: string) {

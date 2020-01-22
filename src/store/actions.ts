@@ -411,6 +411,7 @@ export default {
   },
   upload: ({ commit }: any, message: { messageId: any; mediaUrl: string; type: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaName: any; thumbImage: any; conversationId: any }) => {
     commit('startLoading', message.messageId)
+    if (!message.mediaUrl) return
     uploadAttachment(
       message.mediaUrl.replace('file://', ''),
       message.type,
@@ -521,6 +522,7 @@ export default {
       async(message: any) => {
         try {
           const ret: any = await downloadAttachment(message)
+          if (!ret) return
           const m = ret[0]
           const filePath = ret[1]
           messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)

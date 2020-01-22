@@ -1,6 +1,6 @@
 <template>
   <div class="accachment" @click="$emit('mediaClick')">
-    <svg-icon icon-class="arrow-up" v-if="isMe" />
+    <svg-icon icon-class="arrow-up" v-if="isMe && message.mediaUrl" />
     <svg-icon icon-class="arrow-down" v-else />
   </div>
 </template>

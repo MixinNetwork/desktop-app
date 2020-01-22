@@ -45,7 +45,11 @@ export default class Home extends Vue {
       }
     )
     const self = this
-
+    if (window.navigator.onLine) {
+      self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
+    } else {
+      self.$store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
+    }
     window.addEventListener('offline', function(e) {
       self.$store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
       console.log('----offline')

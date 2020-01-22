@@ -556,7 +556,16 @@ export default class ChatContainer extends Vue {
           this.messages.push(...newMessages)
           this.actionSetCurrentMessages(this.messages)
         } else {
-          this.messages.unshift(...messages)
+          const newMessages = []
+          const firstMessageId = this.messages[0].messageId
+          for (let i = 0; i < messages.length; i++) {
+            const temp = messages[i]
+            if (temp.messageId === firstMessageId) {
+              break
+            }
+            newMessages.push(temp)
+          }
+          this.messages.unshift(...newMessages)
           this.actionSetCurrentMessages(this.messages)
           this.infiniteUpLock = false
         }

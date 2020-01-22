@@ -79,7 +79,7 @@ export default class Details extends Vue {
 
     // @ts-ignore
     const account = JSON.parse(localStorage.getItem('account'))
-    if (user.user_id === account.user_id || user.role === 'OWNER') {
+    if (user.user_id === account.user_id) {
       return
     }
 
@@ -89,11 +89,13 @@ export default class Details extends Vue {
       return item.user_id === account.user_id
     })[0]
     menu.push(participantMenu.send_message)
-    if (me.role === 'OWNER' && user.role !== 'ADMIN') {
-      menu.push(participantMenu.set_as_admin)
-    }
-    if (['OWNER', 'ADMIN'].indexOf(me.role) > -1) {
-      menu.push(participantMenu.remove)
+    if (user.role !== 'OWNER') {
+      if (me.role === 'OWNER' && user.role !== 'ADMIN') {
+        menu.push(participantMenu.set_as_admin)
+      }
+      if (['OWNER', 'ADMIN'].indexOf(me.role) > -1) {
+        menu.push(participantMenu.remove)
+      }
     }
 
     // @ts-ignore

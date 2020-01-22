@@ -1,6 +1,8 @@
 const { app, dialog, BrowserWindow } = require('electron')
 const { autoUpdater } = require('electron-updater')
 
+const lang = app.getLocale().split('-')[0]
+
 let updater: any, focusedWindow: any
 autoUpdater.autoDownload = false
 
@@ -9,14 +11,23 @@ autoUpdater.on('error', (error: { stack: any } | null) => {
 })
 
 autoUpdater.on('update-available', () => {
+  let infoObj = {
+    type: 'info',
+    title: 'Found Updates',
+    message: 'Found updates, do you want update now?',
+    buttons: ['Sure', 'No']
+  }
+  if (lang === 'zh') {
+    infoObj = {
+      type: 'info',
+      title: '发现更新',
+      message: '已发现更新，您现在要进行更新吗？',
+      buttons: ['确定', '取消']
+    }
+  }
   dialog.showMessageBox(
     focusedWindow,
-    {
-      type: 'info',
-      title: 'Found Updates',
-      message: 'Found updates, do you want update now?',
-      buttons: ['Sure', 'No']
-    },
+    infoObj,
     // @ts-ignore
     (buttonIndex: number) => {
       if (buttonIndex === 0) {
@@ -32,10 +43,17 @@ autoUpdater.on('update-available', () => {
 })
 
 autoUpdater.on('update-not-available', () => {
-  dialog.showMessageBox(focusedWindow, {
+  let infoObj = {
     title: 'No Updates',
     message: 'There are currently no updates available.'
-  })
+  }
+  if (lang === 'zh') {
+    infoObj = {
+      title: '无需更新',
+      message: '当前没有可用的更新'
+    }
+  }
+  dialog.showMessageBox(focusedWindow, infoObj)
   if (updater) {
     updater.enabled = true
     updater = null
@@ -43,12 +61,19 @@ autoUpdater.on('update-not-available', () => {
 })
 
 autoUpdater.on('update-downloaded', () => {
+  let infoObj = {
+    title: 'Install Updates',
+    message: 'Updates downloaded, application will be quit for update...'
+  }
+  if (lang === 'zh') {
+    infoObj = {
+      title: '安装更新',
+      message: '已下载更新，应用程序将退出以进行更新...'
+    }
+  }
   dialog.showMessageBox(
     focusedWindow,
-    {
-      title: 'Install Updates',
-      message: 'Updates downloaded, application will be quit for update...'
-    },
+    infoObj,
     // @ts-ignore
     () => {
       setImmediate(() => {

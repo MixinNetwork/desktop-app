@@ -30,6 +30,9 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
+    setTimeout(() => {
+      store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+    })
     this.ws = new RobustWebSocket(API_URL.WS + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)

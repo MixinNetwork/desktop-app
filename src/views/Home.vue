@@ -7,37 +7,40 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import ChatContainer from '@/components/ChatContainer.vue'
 import Navigation from '@/components/Navigation.vue'
 import accountApi from '@/api/account'
 import workerManager from '@/workers/worker_manager'
 import { LinkStatus } from '@/utils/constants'
-export default {
-  name: 'home',
-  data() {
-    return {
-      select: 0
-    }
-  },
+
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'Home',
   components: {
     ChatContainer,
     Navigation
-  },
+  }
+})
+export default class Home extends Vue {
+  select: any = 0
+  $blaze: any
+
   beforeMount() {
     this.$store.dispatch('init')
-  },
-  created: async function() {
+  }
+  async created() {
     this.$blaze.connect()
     workerManager.start()
     accountApi.getFriends().then(
-      resp => {
+      (resp: any) => {
         const friends = resp.data.data
         if (friends && friends.length > 0) {
           this.$store.dispatch('refreshFriends', friends)
         }
       },
-      err => {
+      (err: any) => {
         console.log(err.data)
       }
     )
@@ -52,12 +55,16 @@ export default {
       console.log('----offline')
     })
 
+    let emitLock = false
     window.addEventListener('online', function(e) {
       console.log('----online')
-      if (!self.$blaze.isConnect()) {
+      if (!self.$blaze.isConnect() && !emitLock) {
+        emitLock = true
+        setTimeout(() => {
+          emitLock = false
+        })
         self.$blaze.connect()
       }
-
       self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
     })
   }

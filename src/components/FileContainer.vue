@@ -30,7 +30,8 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
   name: 'FileContainer'
 })
 export default class FileContainer extends Vue {
-  @Prop(File) readonly file: any
+  // @ts-ignore
+  @Prop(File | Object) readonly file: any
   @Prop(Boolean) readonly dragging: any
 
   getPath() {
@@ -63,7 +64,7 @@ export default class FileContainer extends Vue {
   display: flex;
   flex-direction: column;
   height: 100%;
-  z-index: 20;
+  z-index: 200;
   .content {
     flex: 1;
     display: flex;

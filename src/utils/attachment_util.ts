@@ -120,6 +120,11 @@ function putHeader(buffer: any) {
   }
 }
 
+function getRandomBytes(bit: number) {
+  // @ts-ignore
+  return libsignal.crypto.getRandomBytes(bit)
+}
+
 export async function putAttachment(imagePath: any, mimeType: any, category: string, id: any, processCallback: any, sendCallback: any, errorCallback: any) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
   let mediaWidth: number = 0
@@ -131,8 +136,6 @@ export async function putAttachment(imagePath: any, mimeType: any, category: str
     mediaWidth = dimensions.width
     mediaHeight = dimensions.height
     thumbImage = base64Thumbnail(localPath, mediaWidth, mediaHeight)
-    // thumbImage =
-    //   'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAA3NCSVQICAjb4U/gAAAAYUlEQVRoge3PQQ0AIBDAMMC/tBOFCB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAub6QLkWqfRyQAAAABJRU5ErkJggg=='
   }
   let buffer = fs.readFileSync(localPath)
   let key: Iterable<number>
@@ -147,10 +150,8 @@ export async function putAttachment(imagePath: any, mimeType: any, category: str
     thumbImage: thumbImage
   }
   if (category.startsWith('SIGNAL_')) {
-    // @ts-ignore
-    key = libsignal.crypto.getRandomBytes(64)
-    // @ts-ignore
-    const iv = libsignal.crypto.getRandomBytes(16)
+    key = getRandomBytes(64)
+    const iv = getRandomBytes(16)
     const buf = toArrayBuffer(buffer)
     await cryptoAttachment.encryptAttachment(buf, key, iv).then((result: { ciphertext: Buffer; digest: any }) => {
       buffer = result.ciphertext
@@ -158,35 +159,39 @@ export async function putAttachment(imagePath: any, mimeType: any, category: str
     })
   }
   processCallback(message)
-  const result = await conversationAPI.requestAttachment()
-  if (result.status !== 200) {
-    errorCallback(`Error ${result.status}`)
-    return
-  }
-  const url = result.data.data.upload_url
-  const attachmentId = result.data.data.attachment_id
-  fetch(url, putHeader(buffer)).then(
-    function(resp: { status: number }) {
-      if (resp.status === 200) {
-        sendCallback({
-          attachment_id: attachmentId,
-          mime_type: mimeType,
-          size: buffer.byteLength,
-          width: mediaWidth,
-          height: mediaHeight,
-          name: name,
-          thumbnail: thumbImage,
-          digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
-          key: btoa(String.fromCharCode(...new Uint8Array(key)))
-        })
-      } else {
-        errorCallback(resp.status)
-      }
-    },
-    (error: any) => {
-      errorCallback(error)
+  try {
+    const result = await conversationAPI.requestAttachment()
+    if (result.status !== 200) {
+      errorCallback(`Error ${result.status}`)
+      return
     }
-  )
+    const url = result.data.data.upload_url
+    const attachmentId = result.data.data.attachment_id
+    fetch(url, putHeader(buffer)).then(
+      function(resp: { status: number }) {
+        if (resp.status === 200) {
+          sendCallback({
+            attachment_id: attachmentId,
+            mime_type: mimeType,
+            size: buffer.byteLength,
+            width: mediaWidth,
+            height: mediaHeight,
+            name: name,
+            thumbnail: thumbImage,
+            digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
+            key: btoa(String.fromCharCode(...new Uint8Array(key)))
+          })
+        } else {
+          errorCallback(resp.status)
+        }
+      },
+      (error: any) => {
+        errorCallback(error)
+      }
+    )
+  } catch (error) {
+    errorCallback(error)
+  }
 }
 
 export async function uploadAttachment(localPath: string | number | Buffer | import('url').URL, category: string, sendCallback: { (attachmentId: any, key: any, digest: any): void; (arg0: any, arg1: string, arg2: string): void }, errorCallback: { (e: any): void; (arg0: string | number): void }) {
@@ -194,39 +199,41 @@ export async function uploadAttachment(localPath: string | number | Buffer | imp
   let digest: Iterable<number>
   let buffer = fs.readFileSync(localPath)
   if (category.startsWith('SIGNAL_')) {
-    // @ts-ignore
-    key = libsignal.crypto.getRandomBytes(64)
-    // @ts-ignore
-    const iv = libsignal.crypto.getRandomBytes(16)
+    key = getRandomBytes(64)
+    const iv = getRandomBytes(16)
     const buf = toArrayBuffer(buffer)
     await cryptoAttachment.encryptAttachment(buf, key, iv).then((result: { ciphertext: Buffer; digest: any }) => {
       buffer = result.ciphertext
       digest = result.digest
     })
   }
-  const result = await conversationAPI.requestAttachment()
-  if (result.status !== 200) {
-    errorCallback(`Error ${result.status}`)
-    return
-  }
-  const url = result.data.data.upload_url
-  const attachmentId = result.data.data.attachment_id
-  fetch(url, putHeader(buffer)).then(
-    function(resp: { status: number }) {
-      if (resp.status === 200) {
-        sendCallback(
-          attachmentId,
-          btoa(String.fromCharCode(...new Uint8Array(key))),
-          btoa(String.fromCharCode(...new Uint8Array(digest)))
-        )
-      } else {
-        errorCallback(resp.status)
-      }
-    },
-    (error: any) => {
-      errorCallback(error)
+  try {
+    const result = await conversationAPI.requestAttachment()
+    if (result.status !== 200) {
+      errorCallback(`Error ${result.status}`)
+      return
     }
-  )
+    const url = result.data.data.upload_url
+    const attachmentId = result.data.data.attachment_id
+    fetch(url, putHeader(buffer)).then(
+      function(resp: { status: number }) {
+        if (resp.status === 200) {
+          sendCallback(
+            attachmentId,
+            btoa(String.fromCharCode(...new Uint8Array(key))),
+            btoa(String.fromCharCode(...new Uint8Array(digest)))
+          )
+        } else {
+          errorCallback(resp.status)
+        }
+      },
+      (error: any) => {
+        errorCallback(error)
+      }
+    )
+  } catch (error) {
+    errorCallback(error)
+  }
 }
 
 function generateName(fileName: string, mimeType: string, category: string, id: string) {

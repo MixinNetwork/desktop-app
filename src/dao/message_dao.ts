@@ -300,8 +300,7 @@ class MessageDao {
     return message ? message.message_id : message
   }
   findUnreadMessage(conversationId: any) {
-    // @ts-ignore
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    const userId = this.me().user_id
     return db
       .prepare(
         `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
@@ -309,8 +308,7 @@ class MessageDao {
       .all(conversationId)
   }
   getUnreadMessage(conversationId: any) {
-    // @ts-ignore
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    const userId = this.me().user_id
     return db
       .prepare(
         `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
@@ -318,8 +316,7 @@ class MessageDao {
       .get(conversationId)
   }
   markRead(conversationId: any) {
-    // @ts-ignore
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    const userId = this.me().user_id
     db.prepare(`UPDATE conversations SET unseen_message_count = 0 WHERE conversation_id = ?`).run(conversationId)
     db.prepare(
       `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`

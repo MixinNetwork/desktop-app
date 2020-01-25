@@ -1,21 +1,21 @@
 import { ipcMain, screen, BrowserWindow } from 'electron'
 import path from 'path'
-function createPlayerWindow(w, h, pin) {
+function createPlayerWindow(w: any, h: any, pin: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
   if (w > h) {
-    ww = parseInt(width / 2)
-    wh = parseInt((ww * h) / w)
+    ww = Math.floor(width / 2)
+    wh = Math.floor((ww * h) / w)
   } else {
-    wh = parseInt(height / 2)
-    ww = parseInt((wh * w) / h)
+    wh = Math.floor(height / 2)
+    ww = Math.floor((wh * w) / h)
   }
   let playerWindow = new BrowserWindow({
     width: ww,
     height: wh,
-    minWidth: parseInt(ww / 2),
-    minHeight: parseInt(wh / 2),
-    // eslint-disable-next-line no-undef
+    minWidth: Math.floor(ww / 2),
+    minHeight: Math.floor(wh / 2),
+    // @ts-ignore
     icon: path.join(__static, 'icon.png'),
     frame: process.platform !== 'darwin',
     webPreferences: {
@@ -24,6 +24,7 @@ function createPlayerWindow(w, h, pin) {
     },
     show: false
   })
+  // @ts-ignore
   playerWindow.setAspectRatio(w / h)
   if (pin === 'true') {
     playerWindow.setAlwaysOnTop(true, 'floating', 1)
@@ -38,7 +39,7 @@ function createPlayerWindow(w, h, pin) {
   return playerWindow
 }
 
-export function initPlayer(id) {
+export function initPlayer(id: number) {
   ipcMain.on('pinToggle', (event, pin) => {
     BrowserWindow.getAllWindows().forEach(item => {
       if (item.id !== id) {
@@ -72,7 +73,7 @@ export function initPlayer(id) {
     })
   }
 
-  let currentURL = null
+  let currentURL: any = null
   ipcMain.on('play', (event, args) => {
     let playerWindow = getPlayerWindow()
     if (args.url !== currentURL) {

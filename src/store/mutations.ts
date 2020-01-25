@@ -282,10 +282,12 @@ export default {
     state.attachment.push(messageId)
   },
   stopLoading(state: { attachment: any }, messageId: any) {
-    let arr = state.attachment
-    state.attachment = arr.filter((item: any) => {
-      return item !== messageId
-    })
+    setTimeout(() => {
+      const arr = state.attachment
+      state.attachment = arr.filter((item: any) => {
+        return item !== messageId
+      })
+    }, 1000)
   },
   toggleEditor(state: { editing: boolean }) {
     state.editing = !state.editing

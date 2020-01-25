@@ -26,53 +26,57 @@
     </div>
   </div>
 </template>
-<script>
-import BadgeItem from './BadgeItem'
-import TimeAndStatus from './TimeAndStatus'
+<script lang="ts">
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
+
+import { Vue, Prop, Component } from 'vue-property-decorator'
 let maxWidth = convertRemToPixels(10)
 let maxHeight = convertRemToPixels(15)
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+
+@Component({
   components: {
     BadgeItem,
     TimeAndStatus
-  },
-  data: function() {
-    return {
-      MessageStatus: MessageStatus
-    }
-  },
-  methods: {
-    messageOwnership() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor(id) {
-      return getNameColorById(id)
-    },
-    borderSet() {
-      let { message } = this
-      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return 'width-set'
-      }
-      return 'height-set'
-    },
+  }
+})
+export default class LiveItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
 
-    borderSetObject() {
-      const { message } = this
-      const width = Math.min(message.mediaWidth, maxWidth)
-      const scale = message.mediaWidth / message.mediaHeight
-      if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-        return { width: `${width}px`, height: `${width / scale}px`, backgroundImage: `url(${message.thumbUrl})` }
-      }
-      const height = Math.min(message.mediaHeight, maxHeight)
-      return { width: `${height * scale}px`, height: `${height}px`, backgroundImage: `url(${message.thumbUrl})` }
+  MessageStatus:any = MessageStatus
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
+  }
+  getColor(id: string) {
+    return getNameColorById(id)
+  }
+  borderSet() {
+    let { message } = this
+    if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+      return 'width-set'
+    }
+    return 'height-set'
+  }
+
+  borderSetObject() {
+    const { message } = this
+    const width = Math.min(message.mediaWidth, maxWidth)
+    const scale = message.mediaWidth / message.mediaHeight
+    if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+      return { width: `${width}px`, height: `${width / scale}px`, backgroundImage: `url(${message.thumbUrl})` }
+    }
+    const height = Math.min(message.mediaHeight, maxHeight)
+    return { width: `${height * scale}px`, height: `${height}px`, backgroundImage: `url(${message.thumbUrl})` }
   }
 }
 </script>

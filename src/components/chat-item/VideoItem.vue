@@ -18,47 +18,49 @@
     </div>
   </div>
 </template>
-<script>
-import BadgeItem from './BadgeItem'
-import TimeAndStatus from './TimeAndStatus'
+<script lang="ts">
+import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
-export default {
-  props: ['conversation', 'message', 'me', 'showName'],
+
+import { Vue, Prop, Component } from 'vue-property-decorator'
+
+@Component({
   components: {
     BadgeItem,
     TimeAndStatus
-  },
-  data: function() {
+  }
+})
+export default class VideoItem extends Vue {
+  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly message: any
+  @Prop(Object) readonly me: any
+  @Prop(Boolean) readonly showName: any
+
+  MessageStatus: any = MessageStatus
+
+  messageOwnership() {
+    let { message, me } = this
     return {
-      MessageStatus: MessageStatus
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
     }
-  },
-  methods: {
-    messageOwnership: function() {
-      let { message, me } = this
-      return {
-        send: message.userId === me.user_id,
-        receive: message.userId !== me.user_id
-      }
-    },
-    getColor: function(id) {
-      return getNameColorById(id)
+  }
+  getColor(id: any) {
+    return getNameColorById(id)
+  }
+  get video() {
+    let { mediaWidth, mediaHeight } = this.message
+    let width = 200
+    let height = (200 / mediaWidth) * mediaHeight
+    if (height > 400) {
+      height = 400
+      width = (400 / mediaHeight) * mediaWidth
     }
-  },
-  computed: {
-    video: function() {
-      let { mediaWidth, mediaHeight } = this.message
-      let width = 200
-      let height = (200 / mediaWidth) * mediaHeight
-      if (height > 400) {
-        height = 400
-        width = (400 / mediaHeight) * mediaWidth
-      }
-      return {
-        width: `${width}px`,
-        height: `${height}px`
-      }
+    return {
+      width: `${width}px`,
+      height: `${height}px`
     }
   }
 }

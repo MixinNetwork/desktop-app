@@ -244,7 +244,7 @@ export default class MessageItem extends Vue {
     if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
       return
     }
-    if (this.message.userId === this.me.user_id) {
+    if (this.message.userId === this.me.user_id && this.message.mediaUrl) {
       this.$store.dispatch('upload', this.message)
     } else {
       this.$store.dispatch('download', this.message.messageId)

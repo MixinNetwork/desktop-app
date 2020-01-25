@@ -10,12 +10,16 @@
           <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
         </div>
       </div>
-      <div class="signal" v-show="linkStatus!=LinkStatus.CONNECTED">
+      <div class="signal" v-if="linkStatus === LinkStatus.NOT_CONNECTED">
         <svg-icon icon-class="ic_signal" class="signal_icon" />
         <div class="content">
           <label class="title">{{getLinkTitle()}}</label>
           <label class="info">{{getLinkContent()}}</label>
         </div>
+      </div>
+      <div v-else-if="linkStatus === LinkStatus.CONNECTING">
+        <spinner class="loading" />
+        <label style="line-height: 2.4rem">{{getConnectingTitle()}}</label>
       </div>
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
         <svg-icon icon-class="ic_back" />
@@ -172,6 +176,7 @@
 <script lang="ts">
 import ConversationItem from '@/components/ConversationItem.vue'
 import Search from '@/components/Search.vue'
+import spinner from '@/components/Spinner.vue'
 import GroupContainer from '@/components/GroupContainer.vue'
 import ProfileContainer from '@/components/ProfileContainer.vue'
 import SettingContainer from '@/components/SettingContainer.vue'
@@ -194,6 +199,7 @@ import { Getter } from 'vuex-class'
   components: {
     ConversationItem,
     Search,
+    spinner,
     GroupContainer,
     NewConversation,
     Dropdown,
@@ -512,6 +518,9 @@ export default class Navigation extends Vue {
   getLinkTitle() {
     return this.$t('not_connected_title')
   }
+  getConnectingTitle() {
+    return this.$t('connecting_title')
+  }
   getLinkContent() {
     return this.$t('not_connected_content')
   }
@@ -533,6 +542,12 @@ export default class Navigation extends Vue {
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  .loading {
+    width: 1.375rem;
+    height: 1.375rem;
+    vertical-align: top;
+    margin: 0.5rem 0.5rem 0.5rem 1.45rem;
+  }
 
   .root {
     width: 100%;

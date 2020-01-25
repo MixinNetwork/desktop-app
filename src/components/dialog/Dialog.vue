@@ -29,36 +29,35 @@
     </div>
   </transition>
 </template>
-<script>
-export default {
-  data() {
-    return {
-      picked: 0,
-      show: false,
-      closable: true,
-      title: {
-        content: ''
-      },
-      message: {
-        content: '',
-        cssClass: '',
-        style: {}
-      },
-      buttons: {},
-      options: []
+<script lang="ts">
+
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component
+export default class Dialog extends Vue {
+  picked: any = 0
+  show: any = false
+  closable: any = true
+  title: any = {
+    content: ''
+  }
+  message: any = {
+    content: '',
+    cssClass: '',
+    style: {}
+  }
+  buttons:any= {}
+  options:any= []
+
+  dismiss(event: any) {
+    if (!this.closable && event.target.getAttribute('role') !== 'close-button') {
+      return
     }
-  },
-  methods: {
-    dismiss(event) {
-      if (!this.closable && event.target.getAttribute('role') !== 'close-button') {
-        return
-      }
-      this.show = false
-      document.body.style.overflow = 'auto'
-    },
-    notAllowTouchMove(event) {
-      event.preventDefault()
-    }
+    this.show = false
+    document.body.style.overflow = 'auto'
+  }
+  notAllowTouchMove(event: any) {
+    event.preventDefault()
   }
 }
 </script>

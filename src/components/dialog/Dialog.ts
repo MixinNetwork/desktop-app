@@ -11,9 +11,9 @@ let globalOptions = {
   }
 }
 
-let instance
+let instance: { $data: { [x: string]: any; show: boolean }; $mount: () => { (): any; new(): any; $el: any } }
 
-const Dialog = function(config = {}) {
+const Dialog = function(this: any, config = {}) {
   let Tpl = this.extend(Template)
   instance = new Tpl()
   config = {
@@ -22,6 +22,7 @@ const Dialog = function(config = {}) {
   }
   for (let key in config) {
     if (config.hasOwnProperty(key)) {
+      // @ts-ignore
       instance.$data[key] = config[key]
     }
   }
@@ -30,7 +31,7 @@ const Dialog = function(config = {}) {
   document.body.appendChild(instance.$mount().$el)
 }
 
-const Alert = function(message, positiveTitle, positiveCallback, negativeTitle, negativeCallback) {
+const Alert = function(message: any, positiveTitle: any, positiveCallback: () => void, negativeTitle: any, negativeCallback: () => void) {
   let alertConfig = {
     type: 'info',
     title: {
@@ -56,14 +57,14 @@ const Alert = function(message, positiveTitle, positiveCallback, negativeTitle, 
       }
     }
   }
-
+  // @ts-ignore
   Dialog.call(this, {
     ...globalOptions,
     ...alertConfig
   })
 }
 
-const Options = function(title, options, positiveTitle, positiveCallback, negativeTitle, negativeCallback) {
+const Options = function(title: any, options: any, positiveTitle: any, positiveCallback: (arg0: any) => void, negativeTitle: any, negativeCallback: () => void) {
   let alertConfig = {
     type: 'info',
     title: {
@@ -80,14 +81,14 @@ const Options = function(title, options, positiveTitle, positiveCallback, negati
       },
       positive: {
         title: positiveTitle,
-        callback: picked => {
+        callback: (picked: any) => {
           Dismiss()
           positiveCallback(picked)
         }
       }
     }
   }
-
+  // @ts-ignore
   Dialog.call(this, {
     ...globalOptions,
     ...alertConfig
@@ -100,7 +101,7 @@ const Dismiss = () => {
 }
 
 export default {
-  install(Vue) {
+  install(Vue: any) {
     Vue.prototype.$Dialog = Dialog.bind(Vue)
     Vue.prototype.$Dialog.alert = Alert.bind(Vue)
     Vue.prototype.$Dialog.options = Options.bind(Vue)

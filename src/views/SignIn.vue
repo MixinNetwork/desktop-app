@@ -25,14 +25,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+// @ts-ignore
 import QRious from 'qrious'
 import interval from 'interval-promise'
+// @ts-ignore
 import platformInfo from 'platform'
 import accountAPI from '@/api/account'
 import signalAPI from '@/api/signal'
 import signalProtocol from '@/crypto/signal'
 import spinner from '@/components/Spinner.vue'
+// @ts-ignore
 import Bot from 'bot-api-js-client'
 import signalDao from '@/crypto/signal_dao'
 import { base64ToUint8Array } from '@/utils/util'
@@ -41,169 +44,172 @@ import { clearAllTables as clearSignal } from '@/persistence/signal_db'
 import userDao from '@/dao/user_dao'
 import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
-export default {
+
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component({
+  name: 'SignIn',
   components: {
     spinner
-  },
-  data() {
-    return {
-      provisioningCipher: Object,
-      keyPair: Object,
-      isLoading: true,
-      showRetry: true
-    }
-  },
-  mounted: function() {
+  }
+})
+export default class SignIn extends Vue {
+  provisioningCipher: any = Object
+  keyPair: any = Object
+  isLoading: any = true
+  showRetry: any = true
+  $electron: any
+
+  mounted() {
     this.refresh()
-  },
-  methods: {
-    refresh: function() {
-      this.showRetry = false
-      // eslint-disable-next-line no-undef
-      wasmObject.then(() => {
-        this.keyPair = signalProtocol.generateKeyPair()
-        const pubKey = base64ToUint8Array(this.keyPair.pub)
-        const base64PubKey = encodeURIComponent(btoa(String.fromCharCode(...pubKey)))
-        accountAPI
-          .getProvisioningId(platformInfo.os.toString())
-          .then(response => {
-            const deviceId = response.data.data.device_id
-            const qrcodeUrl = 'mixin://device/auth?id=' + deviceId + '&pub_key=' + base64PubKey
-            this.generateQrcode(qrcodeUrl)
-            this.getSecret(deviceId)
-            this.isLoading = false
+  }
+
+  refresh() {
+    this.showRetry = false
+    // @ts-ignore
+    wasmObject.then(() => {
+      this.keyPair = signalProtocol.generateKeyPair()
+      const pubKey = base64ToUint8Array(this.keyPair.pub)
+      const base64PubKey = encodeURIComponent(btoa(String.fromCharCode(...pubKey)))
+      accountAPI
+        .getProvisioningId(platformInfo.os.toString())
+        .then((response: any) => {
+          const deviceId = response.data.data.device_id
+          const qrcodeUrl = 'mixin://device/auth?id=' + deviceId + '&pub_key=' + base64PubKey
+          this.generateQrcode(qrcodeUrl)
+          this.getSecret(deviceId)
+          this.isLoading = false
+        })
+        .catch((e: any) => {
+          this.showRetry = true
+          this.isLoading = false
+          console.log(e)
+        })
+    })
+  }
+  generateQrcode(url: string) {
+    const qrious = new QRious({
+      element: this.$refs.qr,
+      backgroundAlpha: 0,
+      foreground: '#00B0E9',
+      level: 'H',
+      size: 300
+    })
+    qrious.value = url
+  }
+  getSecret(deviceId: any) {
+    interval(
+      async(iteration: any, stop: any) => {
+        await accountAPI
+          .getProvisioning(deviceId)
+          .then((resp: any) => {
+            if (resp.data.data.secret) {
+              stop()
+              this.isLoading = true
+              this.decryptProvision(resp.data.data.secret)
+            }
           })
-          .catch(e => {
-            this.showRetry = true
-            this.isLoading = false
+          .catch((e: any) => {
             console.log(e)
           })
-      })
-    },
-    generateQrcode: function(url) {
-      const qrious = new QRious({
-        element: this.$refs.qr,
-        backgroundAlpha: 0,
-        foreground: '#00B0E9',
-        level: 'H',
-        size: 300
-      })
-      qrious.value = url
-    },
-    getSecret: function(deviceId) {
-      interval(
-        async(iteration, stop) => {
-          await accountAPI
-            .getProvisioning(deviceId)
-            .then(resp => {
-              if (resp.data.data.secret) {
-                stop()
-                this.isLoading = true
-                this.decryptProvision(resp.data.data.secret)
-              }
-            })
-            .catch(e => {
-              console.log(e)
-            })
-          if (iteration === 60) {
-            this.showRetry = true
-          }
-        },
-        1000,
-        { iterations: 60 }
-      )
-    },
-    decryptProvision: function(envelopeDecoded) {
-      const messageStr = signalProtocol.decryptProvision(this.keyPair.priv, envelopeDecoded)
-      if (!messageStr) {
-        this.showRetry = true
-        return
-      }
-      const message = JSON.parse(messageStr)
-      const keyPair = signalProtocol.createKeyPair(message.identity_key_private)
-      const code = message.provisioning_code
-      const userId = message.user_id
-      const primarySessionId = message.session_id
-      const platform = 'Desktop'
-      const purpose = 'SESSION'
-      const platformVersion = platformInfo.os.toString()
-      const appVersion = this.$electron.remote.app.getVersion()
-      const registrationId = signalProtocol.generateRegId()
-      const sessionKeyPair = new Bot().generateSessionKeypair()
-      clearSignal()
-      accountAPI
-        .verifyProvisioning({
-          code: code,
-          user_id: userId,
-          session_id: primarySessionId,
-          platform: platform,
-          platform_version: platformVersion,
-          app_version: appVersion,
-          purpose: purpose,
-          registration_id: registrationId,
-          session_secret: sessionKeyPair.public
-        })
-        .then(resp => {
-          const account = resp.data.data
-          localStorage.account = JSON.stringify(account)
-          if (!userDao.isMe(account.user_id)) {
-            clearMixin()
-          }
-          localStorage.sessionToken = sessionKeyPair.private
-          localStorage.primaryPlatform = message.platform
-          signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
-          this.pushSignalKeys().then(resp => {
-            const deviceId = signalProtocol.convertToDeviceId(account.session_id)
-            localStorage.deviceId = deviceId
-            localStorage.primarySessionId = primarySessionId
-            localStorage.sessionId = account.session_id
-            localStorage.newVersion = true
-            this.$store.dispatch('saveAccount', account)
-            this.updateParticipantSession(account.user_id, account.session_id)
-            this.$router.push('/')
-          })
-        })
-    },
-    pushSignalKeys: function() {
-      // eslint-disable-next-line no-undef
-      return wasmObject.then(() => {
-        const identityKeyPair = signalDao.getIdentityKeyPair()
-        const preKeys = signalProtocol.generatePreKeys()
-        const signedPreKey = signalProtocol.generateSignedPreKey()
-        let otpks = []
-        for (let i in preKeys) {
-          const p = JSON.parse(preKeys[i].record)
-          otpks.push({ key_id: p.ID, pub_key: p.PublicKey })
+        if (iteration === 60) {
+          this.showRetry = true
         }
-        const body = {
-          identity_key: identityKeyPair.public_key,
-          signed_pre_key: {
-            key_id: signedPreKey.ID,
-            pub_key: signedPreKey.PublicKey,
-            signature: signedPreKey.Signature
-          },
-          one_time_pre_keys: otpks
-        }
-        return signalAPI.postSignalKeys(body)
-      })
-    },
-    updateParticipantSession: function(userId, sessionId) {
-      const s = conversationDao.getConversationsByUserId(userId)
-      if (!s || s.length === 0) {
-        return
-      }
-      participantSessionDao.insertAll(
-        s.map(item => {
-          return {
-            conversation_id: item.conversation_id,
-            user_id: userId,
-            session_id: sessionId,
-            sent_to_server: 0,
-            created_at: new Date().toISOString()
-          }
-        })
-      )
+      },
+      1000,
+      { iterations: 60 }
+    )
+  }
+  decryptProvision(envelopeDecoded: any) {
+    const messageStr = signalProtocol.decryptProvision(this.keyPair.priv, envelopeDecoded)
+    if (!messageStr) {
+      this.showRetry = true
+      return
     }
+    const message = JSON.parse(messageStr)
+    const keyPair = signalProtocol.createKeyPair(message.identity_key_private)
+    const code = message.provisioning_code
+    const userId = message.user_id
+    const primarySessionId = message.session_id
+    const platform = 'Desktop'
+    const purpose = 'SESSION'
+    const platformVersion = platformInfo.os.toString()
+    const appVersion = this.$electron.remote.app.getVersion()
+    const registrationId = signalProtocol.generateRegId()
+    const sessionKeyPair = new Bot().generateSessionKeypair()
+    clearSignal()
+    accountAPI
+      .verifyProvisioning({
+        code: code,
+        user_id: userId,
+        session_id: primarySessionId,
+        platform: platform,
+        platform_version: platformVersion,
+        app_version: appVersion,
+        purpose: purpose,
+        registration_id: registrationId,
+        session_secret: sessionKeyPair.public
+      })
+      .then((resp: any) => {
+        const account = resp.data.data
+        localStorage.account = JSON.stringify(account)
+        if (!userDao.isMe(account.user_id)) {
+          clearMixin()
+        }
+        localStorage.sessionToken = sessionKeyPair.private
+        localStorage.primaryPlatform = message.platform
+        signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
+        this.pushSignalKeys().then((resp: any) => {
+          const deviceId = signalProtocol.convertToDeviceId(account.session_id)
+          localStorage.deviceId = deviceId
+          localStorage.primarySessionId = primarySessionId
+          localStorage.sessionId = account.session_id
+          localStorage.newVersion = true
+          this.$store.dispatch('saveAccount', account)
+          this.updateParticipantSession(account.user_id, account.session_id)
+          this.$router.push('/')
+        })
+      })
+  }
+  pushSignalKeys() {
+    // @ts-ignore
+    return wasmObject.then(() => {
+      const identityKeyPair = signalDao.getIdentityKeyPair()
+      const preKeys = signalProtocol.generatePreKeys()
+      const signedPreKey = signalProtocol.generateSignedPreKey()
+      let otpks = []
+      for (let i in preKeys) {
+        const p = JSON.parse(preKeys[i].record)
+        otpks.push({ key_id: p.ID, pub_key: p.PublicKey })
+      }
+      const body = {
+        identity_key: identityKeyPair.public_key,
+        signed_pre_key: {
+          key_id: signedPreKey.ID,
+          pub_key: signedPreKey.PublicKey,
+          signature: signedPreKey.Signature
+        },
+        one_time_pre_keys: otpks
+      }
+      return signalAPI.postSignalKeys(body)
+    })
+  }
+  updateParticipantSession(userId: string, sessionId: string) {
+    const s = conversationDao.getConversationsByUserId(userId)
+    if (!s || s.length === 0) {
+      return
+    }
+    participantSessionDao.insertAll(
+      s.map((item: any) => {
+        return {
+          conversation_id: item.conversation_id,
+          user_id: userId,
+          session_id: sessionId,
+          sent_to_server: 0,
+          created_at: new Date().toISOString()
+        }
+      })
+    )
   }
 }
 </script>

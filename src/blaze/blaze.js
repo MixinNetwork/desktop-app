@@ -16,11 +16,11 @@ class Blaze {
     this.ws = null
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.ping = false
+    this.reconnecting = false
   }
 
   connect() {
-    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
+    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       return
     }
     if (this.ws) {
@@ -30,6 +30,9 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
+    setTimeout(() => {
+      store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+    })
     this.ws = new RobustWebSocket(API_URL.WS + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
@@ -59,18 +62,19 @@ class Blaze {
     }
   }
   _onClose(event) {
+    if (this.reconnecting) return
     console.log('---onclose--')
-    console.log(event)
-    this.ping = false
-    if (event.code === 1006) {
-      console.log('---should reconnect--')
-      this.reconnectBlaze()
-    }
+    this.reconnecting = true
+    setTimeout(() => {
+      this.reconnecting = false
+    })
+    if (event.code === 1008) return
+    console.log('---should reconnect--')
+    this.reconnectBlaze()
   }
   _onError(event) {
     console.log('-------onerrror--')
     console.log(event)
-    this.ping = false
   }
   _sendGzip(data, result) {
     this.transactions[data.id] = result
@@ -87,6 +91,7 @@ class Blaze {
     if (this.ws) {
       this.ws.close(1000, 'Normal close, should reconnect')
     }
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     this.connect()
   }
   isConnect() {
@@ -176,6 +181,7 @@ class Blaze {
         }, 5000)
       })
     } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
+      store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
       this.connect()
     }
   }

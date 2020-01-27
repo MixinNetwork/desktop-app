@@ -11,8 +11,8 @@
         <div class="content">
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
-              <svg-icon class="arrow" icon-class="arrow-down" v-if="audioStatus === 'wait' && message.userId !== me.user_id" @click="downloadOrUploadAudio" />
-              <svg-icon class="arrow" icon-class="arrow-up" v-if="audioStatus === 'wait' && message.userId === me.user_id" @click="downloadOrUploadAudio" />
+              <svg-icon class="arrow" icon-class="arrow-down" v-if="audioStatus === 'wait' && (message.userId !== me.user_id || !message.mediaUrl)" @click="downloadOrUploadAudio" />
+              <svg-icon class="arrow" icon-class="arrow-up" v-else-if="audioStatus === 'wait' && message.userId === me.user_id" @click="downloadOrUploadAudio" />
               <spinner class="loading" v-if="audioStatus === 'loading'"></spinner>
               <svg-icon icon-class="ic_audio_play" v-if="audioStatus === 'play'" @click="playAudio" />
               <svg-icon icon-class="ic_audio_pause" v-if="audioStatus === 'pause'" @click="playAudio" />

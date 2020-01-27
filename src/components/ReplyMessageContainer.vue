@@ -100,7 +100,7 @@ export default class ReplyMessageContainer extends Vue {
     } else if (this.message.type.endsWith('_VIDEO')) {
       return this.$t('chat.chat_video')
     } else if (this.message.type.endsWith('_AUDIO')) {
-      return this.$moment(Math.ceil((this.message.mediaDuration - 0) / 1000) * 1000).format('mm:ss')
+      return this.$moment((Math.round((this.message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss')
     } else if (this.message.type.endsWith('_DATA')) {
       return this.message.mediaName
     } else if (this.message.type.startsWith('APP_CARD')) {

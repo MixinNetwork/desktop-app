@@ -48,7 +48,6 @@ import participantSessionDao from '@/dao/participant_session_dao'
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'SignIn',
   components: {
     spinner
   }

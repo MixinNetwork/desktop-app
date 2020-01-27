@@ -7,9 +7,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 
-@Component({
-  name: 'SvgIcon'
-})
+@Component
 export default class SvgIcon extends Vue {
   @Prop({ default: '', type: String })
   private iconClass!: string;

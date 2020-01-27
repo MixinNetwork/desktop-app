@@ -19,7 +19,6 @@ import contentUtil from '@/utils/content_util'
 import Avatar from '@/components/Avatar.vue'
 
 @Component({
-  name: 'SearchItem',
   components: {
     Avatar
   }

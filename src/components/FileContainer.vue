@@ -26,9 +26,7 @@ import { isImage } from '@/utils/attachment_util'
 import path from 'path'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
-@Component({
-  name: 'FileContainer'
-})
+@Component
 export default class FileContainer extends Vue {
   // @ts-ignore
   @Prop(File | Object) readonly file: any

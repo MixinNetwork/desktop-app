@@ -61,7 +61,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
-  name: 'group',
   components: {
     Search,
     UserItem,

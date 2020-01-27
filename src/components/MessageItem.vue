@@ -205,7 +205,6 @@ import contentUtil from '@/utils/content_util'
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'MessageItem',
   components: {
     ReplyMessageItem,
     TransferItem,

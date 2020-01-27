@@ -29,9 +29,7 @@
 <script lang="ts">
 import { Vue, Watch, Component } from 'vue-property-decorator'
 
-@Component({
-  name: 'Search'
-})
+@Component
 export default class Search extends Vue {
   focus: any = false
   keyword: any = ''

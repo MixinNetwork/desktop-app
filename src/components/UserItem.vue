@@ -27,7 +27,6 @@ import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
 
 @Component({
-  name: 'UserItem',
   components: {
     Avatar
   }

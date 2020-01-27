@@ -43,7 +43,6 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
-  name: 'ChatSearch',
   components: {
     SearchItem,
     Search

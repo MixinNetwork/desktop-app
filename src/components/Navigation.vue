@@ -195,7 +195,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
-  name: 'navigation',
   components: {
     ConversationItem,
     Search,

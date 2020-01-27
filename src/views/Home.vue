@@ -17,7 +17,6 @@ import { LinkStatus } from '@/utils/constants'
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'Home',
   components: {
     ChatContainer,
     Navigation

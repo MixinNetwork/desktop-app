@@ -30,7 +30,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
-  name: 'NewConversation',
   components: {
     UserItem,
     Search

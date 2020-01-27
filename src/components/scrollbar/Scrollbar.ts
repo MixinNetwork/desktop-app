@@ -5,7 +5,7 @@ const install = (Vue: any, options: any) => {
     // @ts-ignore
     Scrollbar.props.globalOptions.default = () => options
   }
-  Vue.component(Scrollbar.name, Scrollbar)
+  Vue.component('mixin-scrollbar', Scrollbar)
 }
 
 const MixinScrollbar = { install }

@@ -26,7 +26,6 @@ import { MessageStatus } from '@/utils/constants'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'Editor',
   components: {
     VueMarkdown
   }

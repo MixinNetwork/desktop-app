@@ -19,7 +19,6 @@ import { Vue, Component } from 'vue-property-decorator'
 import VueMarkdown from 'vue-markdown'
 
 @Component({
-  name: 'postViewer',
   components: {
     VueMarkdown
   }

@@ -15,7 +15,6 @@ import { clearDb } from '@/persistence/db_util'
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'Loading',
   components: {
     spinner
   }

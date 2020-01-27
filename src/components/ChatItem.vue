@@ -19,7 +19,6 @@ import contentUtil from '@/utils/content_util'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'ChatItem',
   components: {
     Avatar
   }

@@ -22,9 +22,7 @@
 <script lang="ts">
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
-@Component({
-  name: 'mixin-scrollbar'
-})
+@Component
 export default class MixinScrollbar extends Vue {
   @Prop(Boolean) readonly goBottom: any
   @Prop(Boolean) readonly isBottom: any

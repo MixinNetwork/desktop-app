@@ -70,7 +70,6 @@ import Avatar from '@/components/Avatar.vue'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
-  name: 'ConversationItem',
   components: {
     Avatar
   }

@@ -11,7 +11,8 @@
         <div class="content">
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
-              <svg-icon icon-class="arrow-down" v-if="audioStatus === 'wait'" @click="downloadAudio" />
+              <svg-icon class="arrow" icon-class="arrow-down" v-if="audioStatus === 'wait' && message.userId !== me.user_id" @click="downloadOrUploadAudio" />
+              <svg-icon class="arrow" icon-class="arrow-up" v-if="audioStatus === 'wait' && message.userId === me.user_id" @click="downloadOrUploadAudio" />
               <spinner class="loading" v-if="audioStatus === 'loading'"></spinner>
               <svg-icon icon-class="ic_audio_play" v-if="audioStatus === 'play'" @click="playAudio" />
               <svg-icon icon-class="ic_audio_pause" v-if="audioStatus === 'pause'" @click="playAudio" />
@@ -119,7 +120,7 @@ export default class AudioItem extends Vue {
   getColor(id: string) {
     return getNameColorById(id)
   }
-  downloadAudio() {
+  downloadOrUploadAudio() {
     this.audioStatus = 'loading'
     this.$emit('mediaClick')
   }
@@ -229,6 +230,9 @@ export default class AudioItem extends Vue {
       display: flex;
       align-items: center;
       .audio-status {
+        .arrow {
+          font-size: 1.5rem;
+        }
         cursor: pointer;
         width: 1.875rem;
         height: 1.875rem;

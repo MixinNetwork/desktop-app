@@ -84,7 +84,6 @@ function createWindow() {
   setFocusWindow(win)
   if (process.platform === 'darwin') {
     require('./menu')
-    app.dock.setIcon(path.join(__dirname, '../public/icon.png'))
   } else if (process.platform === 'linux') {
     win.setMenuBarVisibility(false)
     win.setAutoHideMenuBar(true)

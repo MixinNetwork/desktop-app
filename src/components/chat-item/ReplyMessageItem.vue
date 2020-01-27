@@ -103,7 +103,7 @@ export default class ReplyMessageItem extends Vue {
     } else if (this.message.type.endsWith('_LIVE')) {
       return this.$t('chat.chat_live')
     } else if (this.message.type.endsWith('_AUDIO')) {
-      return this.$moment(Math.ceil((this.message.mediaDuration - 0) / 1000) * 1000).format('mm:ss')
+      return this.$moment((Math.round((this.message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss')
     } else if (this.message.type.startsWith('APP_CARD')) {
       return JSON.parse(this.message.content).description
     } else if (this.message.type.endsWith('_DATA')) {

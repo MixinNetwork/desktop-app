@@ -184,7 +184,7 @@ export default class AudioItem extends Vue {
     }
   }
   transTime(value: any) {
-    return this.$moment(Math.ceil(value - 0) * 1000).format('mm:ss')
+    return this.$moment((Math.round(value - 0) || 1) * 1000).format('mm:ss')
   }
 
   get loading() {

@@ -11,10 +11,11 @@
         <div class="content">
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
-              <svg-icon icon-class="arrow-down" v-if="audioStatus === 'wait'" @click="downloadAudio" />
-              <spinner class="loading" v-if="audioStatus === 'loading'"></spinner>
-              <svg-icon icon-class="ic_audio_play" v-if="audioStatus === 'play'" @click="playAudio" />
-              <svg-icon icon-class="ic_audio_pause" v-if="audioStatus === 'pause'" @click="playAudio" />
+              <spinner class="loading" v-if="loading"></spinner>
+              <svg-icon class="arrow" icon-class="arrow-down" v-else-if="waitStatus && (message.userId !== me.user_id || !message.mediaUrl)" @click="downloadOrUploadAudio" />
+              <svg-icon class="arrow" icon-class="arrow-up" v-else-if="waitStatus && message.userId === me.user_id" @click="downloadOrUploadAudio" />
+              <svg-icon icon-class="ic_audio_play" v-else-if="audioStatus === 'play'" @click="playAudio" />
+              <svg-icon icon-class="ic_audio_pause" v-else-if="audioStatus === 'pause'" @click="playAudio" />
             </span>
             <!-- <span class="audio-time">{{time}}</span> -->
             <div class="progress-box">
@@ -72,7 +73,7 @@ export default class AudioItem extends Vue {
   duration: string= '00:00'
   progressStyle: any = { width: '' }
   dotStyle: any = { left: '' }
-  audioStatus: string= 'wait'
+  audioStatus: string = 'play'
   $moment: any
 
   @Getter('attachment') attachment: any
@@ -119,8 +120,7 @@ export default class AudioItem extends Vue {
   getColor(id: string) {
     return getNameColorById(id)
   }
-  downloadAudio() {
-    this.audioStatus = 'loading'
+  downloadOrUploadAudio() {
     this.$emit('mediaClick')
   }
   playAudio() {
@@ -187,6 +187,10 @@ export default class AudioItem extends Vue {
     return this.$moment((Math.round(value - 0) || 1) * 1000).format('mm:ss')
   }
 
+  get waitStatus() {
+    const { message } = this
+    return (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+  }
   get loading() {
     return this.attachment.includes(this.message.messageId)
   }
@@ -229,6 +233,9 @@ export default class AudioItem extends Vue {
       display: flex;
       align-items: center;
       .audio-status {
+        .arrow {
+          font-size: 1.5rem;
+        }
         cursor: pointer;
         width: 1.875rem;
         height: 1.875rem;

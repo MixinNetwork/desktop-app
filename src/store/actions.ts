@@ -366,7 +366,7 @@ export default {
     })
     commit('refreshMessage', conversationId)
   },
-  sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, category }: any) => {
+  sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, mediaDuration, category }: any) => {
     const messageId = uuidv4().toLowerCase()
     putAttachment(
       mediaUrl,
@@ -384,6 +384,7 @@ export default {
           media_size: data.mediaSize,
           media_width: data.mediaWidth,
           media_height: data.mediaHeight,
+          media_duration: mediaDuration,
           thumb_image: data.thumbImage,
           media_status: 'PENDING',
           status: MessageStatus.SENDING,

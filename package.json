@@ -38,7 +38,7 @@
     "qrious": "^4.0.2",
     "robust-websocket": "1.0.0",
     "sequential-task-queue": "^1.2.1",
-    "svg-sprite-loader": "^4.1.6",
+    "svg-sprite-loader": "^4.2.0",
     "urijs": "^1.19.2",
     "url-parse": "^1.4.7",
     "uuid": "^3.4.0",

@@ -91,7 +91,6 @@ class Blaze {
     if (this.ws) {
       this.ws.close(1000, 'Normal close, should reconnect')
     }
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     this.connect()
   }
   isConnect() {
@@ -181,7 +180,6 @@ class Blaze {
         }, 5000)
       })
     } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
-      store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
       this.connect()
     }
   }

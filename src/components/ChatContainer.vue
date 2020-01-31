@@ -668,28 +668,9 @@ export default class ChatContainer extends Vue {
   changeContactRelationship(action: string) {
     userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res: any) => {
       if (res.data) {
-        this.updateMenu(this.conversation)
         const user = res.data.data
         this.actionSetCurrentUser(user)
-        const chatMenu = this.$t('menu.chat')
-        const menu = []
-        menu.push(chatMenu.contact_info)
-        if (this.user.relationship !== 'FRIEND') {
-          menu.push(chatMenu.add_contact)
-        } else {
-          menu.push(chatMenu.remove_contact)
-        }
-        menu.push(chatMenu.clear)
-
-        if (this.conversation.status !== ConversationStatus.QUIT) {
-          if (this.isMute(this.conversation)) {
-            menu.push(chatMenu.cancel_mute)
-          } else {
-            menu.push(chatMenu.mute)
-          }
-        }
-        // menu.push(chatMenu.create_post)
-        this.menus = menu
+        this.updateMenu(this.conversation)
       }
     })
   }

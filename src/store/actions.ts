@@ -279,9 +279,10 @@ export default {
     if (response.data.data) {
       let user = userDao.findUserById(userId)
       let u = response.data.data
-      if (!user) {
+      if (u) {
         userDao.insertUser(u)
-      } else {
+      }
+      if (user) {
         if (!u.mute_until) {
           u.mute_until = user.mute_until
         }

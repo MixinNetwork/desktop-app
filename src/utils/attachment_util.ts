@@ -47,7 +47,6 @@ export async function downloadAttachment(message: any) {
           fs.writeFileSync(filePath, buffer)
           return [m, filePath]
         } catch (e) {
-          console.log('downloadAttachment err:', e)
           return [m, filePath]
         }
       } else {

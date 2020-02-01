@@ -527,11 +527,14 @@ export default {
           if (!ret) return
           const m = ret[0]
           const filePath = ret[1]
-          messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+          const updateRet = messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+          if (updateRet.changes !== 1) {
+            console.log('downloadAttachment retry:', m.message_id, message.message_id)
+            messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+          }
           commit('stopLoading', m.message_id)
           commit('refreshMessage', m.conversation_id)
         } catch (e) {
-          console.log('downloadQueue err:', e)
           messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
           commit('stopLoading', message.message_id)
           commit('refreshMessage', message.conversation_id)

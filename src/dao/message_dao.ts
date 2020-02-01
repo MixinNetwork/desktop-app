@@ -323,7 +323,7 @@ class MessageDao {
     ).run(conversationId)
   }
   updateMediaMessage(path: any, status: any, id: any) {
-    db.prepare(
+    return db.prepare(
       `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
     ).run([path, status, id])
   }

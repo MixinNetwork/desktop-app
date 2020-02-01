@@ -531,7 +531,7 @@ export default {
           commit('stopLoading', m.message_id)
           commit('refreshMessage', m.conversation_id)
         } catch (e) {
-          console.log(e)
+          console.log('downloadQueue err:', e)
           messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
           commit('stopLoading', message.message_id)
           commit('refreshMessage', message.conversation_id)

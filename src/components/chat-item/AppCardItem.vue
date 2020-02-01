@@ -1,20 +1,32 @@
 <template>
   <div class="layout">
-    <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-      <div class="app-card" @click="$emit('action-click', messageContent.action)">
-        <MessageItemIcon :url="messageContent.icon_url" />
-        <div class="content">
-          <span class="title">{{messageContent.title}}</span>
-          <div class="desc">{{messageContent.description}}</div>
+    <div>
+      <span
+        class="username"
+        v-if="showName"
+        :style="{color: getColor(message.userId)}"
+        @click="$emit('user-click')"
+      >
+        {{message.userFullName}}
+        <svg-icon style="width: 0.75rem" icon-class="ic_robot" />
+      </span>
+      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+        <div class="app-card" @click="$emit('action-click', messageContent.action)">
+          <MessageItemIcon :url="messageContent.icon_url" />
+          <div class="content">
+            <span class="title">{{messageContent.title}}</span>
+            <div class="desc">{{messageContent.description}}</div>
+          </div>
         </div>
-      </div>
-    </BadgeItem>
+      </BadgeItem>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import BadgeItem from './BadgeItem.vue'
 import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import { getNameColorById } from '@/utils/util'
 
 @Component({
   components: {
@@ -24,6 +36,11 @@ import MessageItemIcon from '@/components/MessageItemIcon.vue'
 })
 export default class AppCardItem extends Vue {
   @Prop(Object) readonly message: any
+  @Prop(Boolean) readonly showName: any
+
+  getColor(id: string) {
+    return getNameColorById(id)
+  }
 
   get messageContent() {
     return JSON.parse(this.message.content)
@@ -36,6 +53,20 @@ export default class AppCardItem extends Vue {
   margin-left: 0.4rem;
   margin-right: 0.4rem;
 }
+.username {
+  margin-left: 0.4rem;
+  display: inline-block;
+  font-size: 0.85rem;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 2rem;
+  min-height: 0.85rem;
+  .svg-icon {
+    margin-top: 0.075rem;
+  }
+}
 .app-card {
   display: flex;
   cursor: pointer;
@@ -45,17 +76,20 @@ export default class AppCardItem extends Vue {
   padding: 0.75rem;
   .content {
     max-width: 14rem;
-    &, * {
+    &,
+    * {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
     .title {
       font-size: 1rem;
+      line-height: 1.4rem;
     }
     .desc {
       color: #888888cc;
       font-size: 0.8rem;
+      margin-top: 0.05rem;
     }
   }
 }

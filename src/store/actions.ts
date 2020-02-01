@@ -279,9 +279,10 @@ export default {
     if (response.data.data) {
       let user = userDao.findUserById(userId)
       let u = response.data.data
-      if (!user) {
+      if (u) {
         userDao.insertUser(u)
-      } else {
+      }
+      if (user) {
         if (!u.mute_until) {
           u.mute_until = user.mute_until
         }
@@ -530,7 +531,7 @@ export default {
           commit('stopLoading', m.message_id)
           commit('refreshMessage', m.conversation_id)
         } catch (e) {
-          console.log(e)
+          console.log('downloadQueue err:', e)
           messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
           commit('stopLoading', message.message_id)
           commit('refreshMessage', message.conversation_id)

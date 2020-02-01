@@ -114,6 +114,7 @@
     <AppCardItem
       v-else-if="message.type.startsWith('APP_CARD')"
       :message="message"
+      :showName="this.showUserName()"
       @action-click="actionClick"
       @handleMenuClick="handleMenuClick"
     ></AppCardItem>
@@ -121,6 +122,7 @@
     <AppButtonItem
       v-else-if="message.type.startsWith('APP_BUTTON')"
       :message="message"
+      :showName="this.showUserName()"
       @action-click="actionClick"
       @handleMenuClick="handleMenuClick"
     ></AppButtonItem>
@@ -491,6 +493,7 @@ li {
   cursor: pointer;
   &.reply {
     margin-left: 0.8rem;
+    margin-bottom: 0;
   }
 }
 .system {

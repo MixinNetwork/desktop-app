@@ -251,38 +251,7 @@ export default class ChatContainer extends Vue {
           this.file = null
         }
       }
-      const chatMenu = this.$t('menu.chat')
-      let menu = []
-      if (newC.category === ConversationCategory.CONTACT) {
-        menu.push(chatMenu.contact_info)
-        if (this.user.relationship !== 'FRIEND') {
-          menu.push(chatMenu.add_contact)
-        } else {
-          menu.push(chatMenu.remove_contact)
-        }
-        menu.push(chatMenu.clear)
-        this.identity = newC.ownerIdentityNumber
-        this.participant = true
-      } else {
-        if (newC.status !== ConversationStatus.QUIT) {
-          menu.push(chatMenu.exit_group)
-        }
-        menu.push(chatMenu.clear)
-        this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
-        this.participant = newC.participants.some((item: any) => {
-          return item.user_id === this.me.user_id
-        })
-      }
-
-      if (newC.status !== ConversationStatus.QUIT) {
-        if (this.isMute(newC)) {
-          menu.push(chatMenu.cancel_mute)
-        } else {
-          menu.push(chatMenu.mute)
-        }
-      }
-      // menu.push(chatMenu.create_post)
-      this.menus = menu
+      this.updateMenu(newC)
     }
   }
 
@@ -454,6 +423,40 @@ export default class ChatContainer extends Vue {
   }
   hideStickerChoose() {
     this.stickerChoosing = false
+  }
+  updateMenu(newC: any) {
+    const chatMenu = this.$t('menu.chat')
+    let menu = []
+    if (newC.category === ConversationCategory.CONTACT) {
+      menu.push(chatMenu.contact_info)
+      if (this.user.relationship !== 'FRIEND') {
+        menu.push(chatMenu.add_contact)
+      } else {
+        menu.push(chatMenu.remove_contact)
+      }
+      menu.push(chatMenu.clear)
+      this.identity = newC.ownerIdentityNumber
+      this.participant = true
+    } else {
+      if (newC.status !== ConversationStatus.QUIT) {
+        menu.push(chatMenu.exit_group)
+      }
+      menu.push(chatMenu.clear)
+      this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
+      this.participant = newC.participants.some((item: any) => {
+        return item.user_id === this.me.user_id
+      })
+    }
+
+    if (newC.status !== ConversationStatus.QUIT) {
+      if (this.isMute(newC)) {
+        menu.push(chatMenu.cancel_mute)
+      } else {
+        menu.push(chatMenu.mute)
+      }
+    }
+    // menu.push(chatMenu.create_post)
+    this.menus = menu
   }
   sendSticker(stickerId: string) {
     const { conversationId } = this.conversation
@@ -660,31 +663,14 @@ export default class ChatContainer extends Vue {
   }
   hideDetails() {
     this.details = false
+    this.updateMenu(this.conversation)
   }
   changeContactRelationship(action: string) {
     userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res: any) => {
       if (res.data) {
         const user = res.data.data
         this.actionSetCurrentUser(user)
-        const chatMenu = this.$t('menu.chat')
-        const menu = []
-        menu.push(chatMenu.contact_info)
-        if (this.user.relationship !== 'FRIEND') {
-          menu.push(chatMenu.add_contact)
-        } else {
-          menu.push(chatMenu.remove_contact)
-        }
-        menu.push(chatMenu.clear)
-
-        if (this.conversation.status !== ConversationStatus.QUIT) {
-          if (this.isMute(this.conversation)) {
-            menu.push(chatMenu.cancel_mute)
-          } else {
-            menu.push(chatMenu.mute)
-          }
-        }
-        // menu.push(chatMenu.create_post)
-        this.menus = menu
+        this.updateMenu(this.conversation)
       }
     })
   }

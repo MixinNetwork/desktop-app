@@ -255,7 +255,11 @@ export default class MessageItem extends Vue {
     this.$emit('action-click', action)
   }
   showUserName() {
-    if (!this.conversation) {
+    if (!this.conversation || ((
+      this.message.type.startsWith('APP_CARD') ||
+      this.message.type.startsWith('APP_BUTTON')) &&
+      this.conversation.category === ConversationCategory.CONTACT
+    )) {
       return false
     }
     if (

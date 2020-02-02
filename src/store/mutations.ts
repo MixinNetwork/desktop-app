@@ -36,9 +36,10 @@ let keywordCache: any = null
 
 let messageSearchTimer: any = null
 function messageSearch(state: any, type: string, keyword: any) {
-  let message: any = []
-  let messageAll: any = []
-  let num = 0
+  const message: any = []
+  const messageAll: any = []
+  let num: number = 0
+  let isEmpty: boolean = true
 
   function action(conversations: any, limit: any, i: number) {
     if (i < conversations.length) {
@@ -46,16 +47,19 @@ function messageSearch(state: any, type: string, keyword: any) {
       const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
       let waitTime = 0
       if (count > 0) {
+        isEmpty = false
         num++
         const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
         temp.records = count
 
         messageAll.push(temp)
-        state.search.messageAll = messageAll
-        if (num <= limit) {
-          message.push(temp)
-          state.search.message = message
-        }
+        setTimeout(() => {
+          state.search.messageAll = messageAll
+          if (num <= limit) {
+            message.push(temp)
+            state.search.message = message
+          }
+        })
         if (limit > 0 && num > limit) {
           return
         }
@@ -66,10 +70,6 @@ function messageSearch(state: any, type: string, keyword: any) {
         } else {
           waitTime = 100
         }
-      }
-      if (i === conversations.length - 1 && num === 0) {
-        state.search.message = []
-        state.search.messageAll = []
       }
       messageSearchTimer = setTimeout(() => {
         action(conversations, limit, ++i)
@@ -84,6 +84,12 @@ function messageSearch(state: any, type: string, keyword: any) {
       limit = 3
     }
     action(conversations, limit, 0)
+    setTimeout(() => {
+      if (isEmpty) {
+        state.search.message = []
+        state.search.messageAll = []
+      }
+    }, 200)
   }
 }
 

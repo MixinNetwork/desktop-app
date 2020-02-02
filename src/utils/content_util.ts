@@ -93,13 +93,17 @@ export default {
     let i = 0
     let content = ''
     while (i < text.length) {
-      if (!/[a-zA-Z0-9]/.test(text[i])) {
+      const spFlag = !/[a-zA-Z0-9]/.test(text[i])
+      if (spFlag) {
         content += ` `
       }
       content += text[i]
+      if (spFlag) {
+        content += ` `
+      }
       i++
     }
-    return content.trim()
+    return content.replace(/ {2}/g, ' ').trim()
   },
   highlight(content: any, keyword: string, highlight: string) {
     if (!keyword) return content

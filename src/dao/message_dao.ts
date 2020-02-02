@@ -14,10 +14,12 @@ class MessageDao {
   insertOrReplaceMessageFts(messageId: string, content: string) {
     if (!content) return
     const contentFinal = contentUtil.fts5ContentFilter(content)
-    const insert = db.prepare(
-      'INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (?,?)'
-    )
-    insert.run([messageId, contentFinal])
+    setTimeout(() => {
+      const insert = db.prepare(
+        'INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (?,?)'
+      )
+      insert.run([messageId, contentFinal])
+    })
   }
 
   deleteMessageFts(msgIds: string[]) {

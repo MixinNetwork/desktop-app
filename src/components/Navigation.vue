@@ -494,7 +494,6 @@ export default class Navigation extends Vue {
     })
   }
   onSearchChatClick(conversation: any) {
-    if (this.currentConversationId === conversation.conversationId && this.searching) return
     this.conversationShow = false
     this.$store.dispatch('setCurrentConversation', conversation)
     let searchKey = ''

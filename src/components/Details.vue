@@ -93,7 +93,7 @@ export default class Details extends Vue {
       if (me.role === 'OWNER' && user.role !== 'ADMIN') {
         menu.push(participantMenu.set_as_admin)
       }
-      if (['OWNER', 'ADMIN'].indexOf(me.role) > -1) {
+      if (me.role === 'OWNER' || (me.role === 'ADMIN' && user.role !== 'ADMIN')) {
         menu.push(participantMenu.remove)
       }
     }

@@ -90,14 +90,16 @@ export default {
   },
   fts5ContentFilter(text: string) {
     text = text.trim()
-    const charArr = []
     let i = 0
+    let content = ''
     while (i < text.length) {
-      charArr.push(text[i])
+      if (!/[a-zA-Z0-9]/.test(text[i])) {
+        content += ` `
+      }
+      content += text[i]
       i++
     }
-    const content = charArr.join(' ')
-    return content
+    return content.trim()
   },
   highlight(content: any, keyword: string, highlight: string) {
     if (!keyword) return content

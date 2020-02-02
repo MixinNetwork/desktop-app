@@ -69,7 +69,10 @@ export default {
     ]
     for (let i = 0; i < text.length; i++) {
       const code = text.charCodeAt(i)
-      let temp = `${text[i]} `
+      let temp = text[i]
+      if (!/[a-zA-Z0-9]/.test(temp)) {
+        temp = `${text[i]} `
+      }
       for (let j = 0; j < preventList.length; j++) {
         if (preventList[j][0] <= code && code <= preventList[j][1]) {
           temp = '* '

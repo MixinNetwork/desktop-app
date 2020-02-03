@@ -75,6 +75,9 @@ export default class AppCardItem extends Vue {
   border-radius: 0.2rem;
   padding: 0.75rem;
   .content {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
     max-width: 14rem;
     &,
     * {
@@ -84,12 +87,13 @@ export default class AppCardItem extends Vue {
     }
     .title {
       font-size: 1rem;
-      line-height: 1.4rem;
+      margin-bottom: .625rem;
+      line-height: 1;
     }
     .desc {
       color: #888888cc;
       font-size: 0.8rem;
-      line-height: 1.1rem;
+      line-height: 1;
     }
   }
 }

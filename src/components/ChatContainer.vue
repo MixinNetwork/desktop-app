@@ -116,6 +116,7 @@
     <transition name="slide-bottom">
       <FileContainer
         class="media"
+        :style="dragging?'pointer-events: none;':''"
         v-show="(dragging&&conversation) || file"
         :file="file"
         :dragging="dragging"
@@ -888,6 +889,7 @@ export default class ChatContainer extends Vue {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  z-index: 0;
 
   header {
     background: white;
@@ -1107,7 +1109,6 @@ export default class ChatContainer extends Vue {
     left: 18rem;
     right: 0;
     bottom: 0;
-    pointer-events: none;
   }
 
   .fade-enter-active,

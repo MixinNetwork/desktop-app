@@ -89,7 +89,7 @@ export default class AppCardItem extends Vue {
     .desc {
       color: #888888cc;
       font-size: 0.8rem;
-      margin-top: 0.05rem;
+      line-height: 1.1rem;
     }
   }
 }

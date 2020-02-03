@@ -473,6 +473,10 @@ img {
 }
 li {
   margin-bottom: 0.6rem;
+  pointer-events: none;
+  * {
+    pointer-events: all;
+  }
 }
 .unread-divide {
   background: white;

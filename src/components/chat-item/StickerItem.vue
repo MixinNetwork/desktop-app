@@ -56,6 +56,7 @@ export default class StickerItem extends Vue {
   .root {
     max-width: 18rem;
     display: flex;
+    overflow: hidden;
     flex-direction: column;
     .username {
       display: inline-block;

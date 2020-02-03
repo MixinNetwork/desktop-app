@@ -889,7 +889,6 @@ export default class ChatContainer extends Vue {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-  z-index: 0;
 
   header {
     background: white;

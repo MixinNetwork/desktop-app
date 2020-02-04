@@ -98,6 +98,11 @@ function createWindow() {
       win.show()
     }
   })
+  ipcMain.on('openDevTools', (event, _) => {
+    if (win) {
+      win.webContents.openDevTools()
+    }
+  })
 }
 
 // Quit when all windows are closed.

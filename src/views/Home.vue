@@ -40,7 +40,7 @@ export default class Home extends Vue {
         }
       },
       (err: any) => {
-        console.log(err.data)
+        console.log(err)
       }
     )
     const self = this

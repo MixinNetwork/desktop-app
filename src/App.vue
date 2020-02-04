@@ -35,7 +35,7 @@ export default class App extends Vue {
         this.isLoading = false
       },
       (err: any) => {
-        console.log(err.data)
+        console.log(err)
         this.isLoading = false
       }
     )

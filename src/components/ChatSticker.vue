@@ -124,11 +124,11 @@ export default class ChatSticker extends Vue {
     } else {
       stickerApi.getStickersByAlbumId(id).then((res: any) => {
         if (res.data.data) {
-          this.stickers = res.data.data
-          this.resezeSticker()
-          this.stickers.forEach((item: any) => {
+          res.data.data.forEach((item: any) => {
             stickerDao.insertUpdate(item)
           })
+          this.stickers = stickerDao.getStickersByAlbumId(id)
+          this.resezeSticker()
         }
       })
     }
@@ -148,7 +148,19 @@ export default class ChatSticker extends Vue {
         this.resezeSticker()
       } else if (id === 'like') {
         const albums = stickerDao.getStickerAlbums('PERSONAL')
-        this.getStickers(albums[0].album_id)
+        if (albums[0]) {
+          this.getStickers(albums[0].album_id)
+        } else {
+          stickerApi.getStickerAlbums().then((res: any) => {
+            if (res.data.data) {
+              const albums = res.data.data
+              albums.forEach((item: any) => {
+                stickerDao.insertAlbum(item)
+              })
+              this.getStickers(albums[0].album_id)
+            }
+          })
+        }
       } else if (id) {
         this.getStickers(id)
       }

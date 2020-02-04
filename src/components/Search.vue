@@ -15,6 +15,7 @@
           ref="box"
           type="text"
           placeholder="Search"
+          @keyup="keyup"
           @focus="onFocus"
           @blur="onBlur"
           @compositionstart="inputFlag = true"
@@ -77,6 +78,15 @@ export default class Search extends Vue {
     this.focus = false
     this.keyword = ''
     this.$emit('input', '')
+  }
+  keyup(e: any) {
+    if (e.keyCode === 27) {
+      this.back()
+      setTimeout(() => {
+        // @ts-ignore
+        this.$refs.box.blur()
+      })
+    }
   }
 }
 </script>

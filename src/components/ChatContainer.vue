@@ -541,7 +541,7 @@ export default class ChatContainer extends Vue {
     this.goBottom()
     setTimeout(() => {
       this.showMessages = true
-    })
+    }, 10)
   }
   infiniteScroll(direction: any) {
     messageBox.nextPage(direction).then((messages: any) => {

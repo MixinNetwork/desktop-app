@@ -83,6 +83,7 @@ export default class AudioItem extends Vue {
   @Watch('currentAudio')
   onCurrentAudioChange(data: any) {
     const mixinAudio: any = this.$refs.mixinAudio
+    if (!mixinAudio) return
     if (data.messageId !== this.message.messageId) {
       if (!mixinAudio.paused) {
         mixinAudio.pause()
@@ -125,6 +126,7 @@ export default class AudioItem extends Vue {
   }
   playAudio() {
     const mixinAudio: any = this.$refs.mixinAudio
+    if (!mixinAudio) return
     if (mixinAudio.paused) {
       this.audioStatus = 'pause'
       this.$store.dispatch('setCurrentAudio', this.message)
@@ -136,6 +138,7 @@ export default class AudioItem extends Vue {
   }
   timeUpdate() {
     const audio: any = this.$refs.mixinAudio
+    if (!audio) return
     this.duration = this.transTime(audio.duration)
     let timeStr = parseInt(audio.currentTime)
     this.time = this.transTime(timeStr)
@@ -170,12 +173,14 @@ export default class AudioItem extends Vue {
   }
   canPlay() {
     const audio: any = this.$refs.mixinAudio
+    if (!audio) return
     this.duration = this.transTime(audio.duration)
   }
   controlAudioProgress(event: any) {
     const audio: any = this.$refs.mixinAudio
-    let audioProgress = this.$refs.audioProgress
+    if (!audio) return
     if (!audio.paused || audio.currentTime !== 0) {
+      const audioProgress = this.$refs.audioProgress
       // @ts-ignore
       let pgsWidth = parseFloat(window.getComputedStyle(audioProgress, null).width.replace('px', ''))
       let rate = event.offsetX / pgsWidth

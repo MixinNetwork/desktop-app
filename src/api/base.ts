@@ -10,15 +10,14 @@ import Vue from 'vue'
 
 const axiosApi: any = axios.create({
   baseURL: API_URL.HTTP,
-  timeout: 8000,
-  // @ts-ignore
-  retry: 2 ** 31
+  timeout: 8000
 })
 
 axiosApi.interceptors.request.use(
   (config: any) => {
     const url = new Url(config.url)
     const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+    config.retry = 2 ** 31
     config.headers.common['Authorization'] = 'Bearer ' + token
     // @ts-ignore
     config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage

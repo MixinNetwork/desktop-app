@@ -154,6 +154,7 @@
           </div>
           <ReplyMessageItem
             v-if="message.quoteContent"
+            @reply-click="$emit('reply-click',message)"
             :message="JSON.parse(message.quoteContent)"
             :me="me"
             class="reply"
@@ -516,6 +517,7 @@ li {
   }
 }
 .message.reply {
+  cursor: pointer;
   margin: -0.4rem -0.6rem 0.2rem -0.6rem;
 }
 .bubble {

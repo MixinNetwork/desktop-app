@@ -30,7 +30,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :style="(showMessages && !goSearchPos) ? '' : 'opacity: 0'"
+        :style="showMessages ? '' : 'opacity: 0'"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -54,6 +54,7 @@
           :conversation="conversation"
           :me="me"
           :searchKeyword="searchKeyword"
+          @reply-click="goSearchMessagePos"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -483,7 +484,7 @@ export default class ChatContainer extends Vue {
     setTimeout(() => {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id)
+      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id || item.quoteId)
       messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
       setTimeout(() => {
         this.searchKeyword = keyword
@@ -516,11 +517,9 @@ export default class ChatContainer extends Vue {
         } else {
           goDone = true
           list.scrollTop = targetDom.offsetTop
-          setTimeout(() => {
-            this.showMessages = true
-          }, 10)
+          this.showMessages = true
         }
-      }, 10)
+      })
     }
     action(beforeScrollTop)
   }
@@ -542,7 +541,7 @@ export default class ChatContainer extends Vue {
     this.goBottom()
     setTimeout(() => {
       this.showMessages = true
-    }, 10)
+    })
   }
   infiniteScroll(direction: any) {
     messageBox.nextPage(direction).then((messages: any) => {

@@ -72,9 +72,7 @@ export default class ChatSearch extends Vue {
       clearTimeout(this.timeoutListener)
       this.timeoutListener = setTimeout(() => {
         this.searching = false
-        console.time('ftsQuery')
         const data = messageDao.ftsMessageQuery(this.conversation.conversationId, this.keyword)
-        console.timeEnd('ftsQuery')
         if (data) {
           const list: any = []
           const keys: any = []

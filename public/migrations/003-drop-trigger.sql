@@ -1,0 +1,6 @@
+-- Up
+DROP TRIGGER IF EXISTS `messages_fts_BEFORE_DELETE`;
+DROP TRIGGER IF EXISTS `messages_fts_AFTER_INSERT`;
+
+
+-- Down

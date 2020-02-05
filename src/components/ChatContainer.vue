@@ -212,11 +212,11 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation')
   onConversationChanged(newC: any, oldC: any) {
-    this.boxMessage = false
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.goBottom()
+      this.boxMessage = false
       if (this.$refs.box) {
         this.$refs.box.innerHTML = this.conversation.draft || ''
       }

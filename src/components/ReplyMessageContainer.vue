@@ -4,16 +4,54 @@
     <div class="layout">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
-        <svg-icon icon-class="if_recall" class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
-        <svg-icon icon-class="ic_message_audio" class="replay_icon" v-else-if="messageType() === 'audio'" />
-        <svg-icon icon-class="ic_message_photo" class="replay_icon" v-else-if="messageType() === 'image'" />
-        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'video'" />
-        <svg-icon icon-class="ic_message_file" class="replay_icon" v-else-if="messageType() === 'file'" />
-        <svg-icon icon-class="ic_message_contact" class="replay_icon" v-else-if="messageType() === 'contact'" />
-        <svg-icon icon-class="ic_message_transfer" class="replay_icon" v-else-if="messageType() === 'transfer'" />
-        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'live'" />
-        <svg-icon icon-class="ic_message_bot_menu"
-          class="replay_icon"
+        <svg-icon
+          icon-class="if_recall"
+          class="reply_icon"
+          v-if="message.type === 'MESSAGE_RECALL'"
+        />
+        <svg-icon
+          icon-class="ic_message_audio"
+          class="reply_icon"
+          v-else-if="messageType() === 'audio'"
+        />
+        <svg-icon
+          icon-class="ic_message_photo"
+          class="reply_icon"
+          v-else-if="messageType() === 'image'"
+        />
+        <svg-icon
+          icon-class="ic_message_video"
+          class="reply_icon"
+          v-else-if="messageType() === 'video'"
+        />
+        <svg-icon
+          icon-class="ic_message_file"
+          class="reply_icon"
+          v-else-if="messageType() === 'file'"
+        />
+        <svg-icon
+          icon-class="ic_message_contact"
+          class="reply_icon"
+          v-else-if="messageType() === 'contact'"
+        />
+        <svg-icon
+          icon-class="ic_message_transfer"
+          class="reply_icon"
+          v-else-if="messageType() === 'transfer'"
+        />
+        <svg-icon
+          icon-class="ic_message_video"
+          class="reply_icon"
+          v-else-if="messageType() === 'live'"
+        />
+        <svg-icon
+          icon-class="ic_message_file"
+          class="reply_icon"
+          v-else-if="messageType() === 'post'"
+        />
+        <svg-icon
+          icon-class="ic_message_bot_menu"
+          class="reply_icon"
           v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
         />
         {{getContent}}
@@ -109,6 +147,8 @@ export default class ReplyMessageContainer extends Vue {
       return this.message.sharedUserIdentityNumber
     } else if (this.message.type.endsWith('_LIVE')) {
       return this.$t('chat.chat_live')
+    } else if (this.message.type.endsWith('_POST')) {
+      return this.$t('chat.chat_post')
     } else {
       return null
     }
@@ -168,7 +208,7 @@ export default class ReplyMessageContainer extends Vue {
     align-self: center;
     margin-right: 0.4rem;
   }
-  .replay_icon {
+  .reply_icon {
     height: 1.1rem;
     vertical-align: text-top;
   }

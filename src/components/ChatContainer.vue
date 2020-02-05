@@ -62,7 +62,7 @@
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
-      <div class="floating" v-show="conversation && !isBottom" @click="goBottomClick">
+      <div class="floating" :style="boxMessage ? 'margin-bottom: 3rem' : ''" v-show="conversation && !isBottom" @click="goBottomClick">
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <svg-icon style="font-size: 1.8rem" icon-class="chevron-down" />
       </div>

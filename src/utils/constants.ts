@@ -127,6 +127,8 @@ export function messageType(type: string) {
     return 'file'
   } else if (type.endsWith('_CONTACT')) {
     return 'contact'
+  } else if (type.endsWith('_POST')) {
+    return 'post'
   } else if (type.startsWith('APP_')) {
     if (type === 'APP_CARD') {
       return 'app_card'

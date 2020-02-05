@@ -144,10 +144,22 @@ b.highlight {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #333;
   outline: none;
-  p {
+  p,
+  pre {
     margin: 0 0 1rem;
     img {
       max-width: 100%;
+    }
+  }
+  pre {
+    background: #f6f7fa;
+    word-break: break-all;
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    overflow: hidden;
+    code {
+      white-space: normal;
+      word-break: break-word;
     }
   }
 }

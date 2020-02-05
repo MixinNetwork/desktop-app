@@ -4,7 +4,7 @@
       <a class="badge" href="javascript:void(0)">
         <transition name="slide-right">
           <a
-            @click="$emit('handleMenuClick')"
+            @click.stop="$emit('handleMenuClick')"
             @focus="onFocus"
             @blur="onBlur"
             href="javascript:void(0)"

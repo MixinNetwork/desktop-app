@@ -7,7 +7,7 @@
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImage" />
       <div class="file" v-else>
-        <svg-icon icon-class="ic_file" />
+        <svg-icon style="font-size: 2.5rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
       </div>
     </div>

@@ -2,8 +2,8 @@
   <div class="root" @click="$emit('onAvatarClick')" ref="root">
     <div class="avatar-group" :data-group-size="users.length">
       <div class="empty" v-if="users.length<=0"></div>
-      <div v-else v-for="user in users" :key="user.user_id" class="avatar" :style="user.color">
-        <img v-show="user.has_avatar" :src="user.avatar_url" />
+      <div v-else v-for="user in users" :key="user.user_id" class="avatar" :class="{unload: !loaded}" :style="user.color">
+        <img v-if="user.has_avatar && loaded" :src="user.avatar_url" @error="imgError" />
         <span v-if="!user.has_avatar && user.emoji" class="emoji" :style="font">{{user.emoji}}</span>
         <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier.toUpperCase()}}</span>
       </div>
@@ -11,9 +11,10 @@
   </div>
 </template>
 <script lang="ts">
-import { ConversationCategory } from '@/utils/constants'
+import { ConversationCategory, LinkStatus } from '@/utils/constants'
 import { getAvatarColorById } from '@/utils/util'
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 
 const ranges = [
   '\ud83c[\udf00-\udfff]', // U+1F300 to U+1F3FF
@@ -39,6 +40,8 @@ export default class Avatar extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly user: any
 
+  @Getter('linkStatus') linkStatus: any
+
   @Watch('conversation')
   onConversationChange(newConversation: any, oldConversation: any) {
     if (newConversation) {
@@ -51,7 +54,17 @@ export default class Avatar extends Vue {
       this.onChange()
     }
   }
+  @Watch('linkStatus')
+  onLinkStatus(status: any) {
+    if (status === LinkStatus.CONNECTED) {
+      this.loaded = false
+      setTimeout(() => {
+        this.loaded = true
+      })
+    }
+  }
 
+  loaded: boolean = true
   users: any = []
   font: any = {}
 
@@ -61,6 +74,11 @@ export default class Avatar extends Vue {
 
   mounted() {
     this.onChange()
+  }
+
+  imgError(e: any) {
+    e.onerror = null
+    this.loaded = false
   }
 
   onChange() {
@@ -103,7 +121,7 @@ export default class Avatar extends Vue {
   .empty {
     width: 100%;
     height: 100%;
-    background: #999999;
+    background: #eee;
   }
 
   .avatar-group {
@@ -129,6 +147,9 @@ export default class Avatar extends Vue {
     align-items: center;
     justify-content: center;
     font-size: 1em !important;
+    &.unload {
+      background: #eee;
+    }
     span {
       color: white;
     }

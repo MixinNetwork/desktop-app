@@ -37,6 +37,13 @@ export default class SettingContainer extends Vue {
   }
 
   checkUpdate() {
+    document.onkeydown = function(e) {
+      let keyCode = e.keyCode
+      let ctrlKey = e.ctrlKey || e.metaKey
+      if (ctrlKey && keyCode === 69) {
+        ipcRenderer.send('openDevTools')
+      }
+    }
     ipcRenderer.send('checkUp')
   }
   open(url: string) {

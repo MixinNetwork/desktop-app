@@ -53,7 +53,7 @@ export default class NewConversation extends Vue {
         }
       },
       (err: any) => {
-        console.log(err.data)
+        console.log(err)
       }
     )
   }

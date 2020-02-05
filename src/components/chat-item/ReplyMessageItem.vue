@@ -1,7 +1,7 @@
 <template>
   <div class="message" :style="abg">
     <div class="diver" :style="bg"></div>
-    <div class="layout">
+    <div class="layout" @click="$emit('reply-click', message)">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
         <svg-icon icon-class="if_recall" class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
@@ -137,6 +137,7 @@ export default class ReplyMessageItem extends Vue {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  user-select: none;
   .diver {
     width: 0.4rem;
   }

@@ -10,14 +10,35 @@ class MessageDao {
     // @ts-ignore
     return JSON.parse(localStorage.getItem('account'))
   }
+
+  insertOrReplaceMessageFts(messageId: string, content: string) {
+    if (!content) return
+    const contentFinal = contentUtil.fts5ContentFilter(content)
+    setTimeout(() => {
+      const insert = db.prepare(
+        'INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (?,?)'
+      )
+      insert.run([messageId, contentFinal])
+    })
+  }
+
+  deleteMessageFts(msgIds: string[]) {
+    return db
+      .prepare(
+        'DELETE FROM messages_fts WHERE message_id = ?'
+      )
+      .run(msgIds)
+  }
+
   insertTextMessage(message: { conversationId: any; category: any; content: any; status: any }) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,category,content,status,created_at) VALUES (?,?,?,?,?,?,?)'
     )
     const senderId = this.me().user_id
     const createdAt = new Date().toISOString()
+    const messageId = uuidv4().toLowerCase()
     stmt.run([
-      uuidv4().toLowerCase(),
+      messageId,
       message.conversationId,
       senderId,
       message.category,
@@ -25,15 +46,18 @@ class MessageDao {
       message.status,
       createdAt
     ])
+    this.insertOrReplaceMessageFts(messageId, message.content)
   }
+
   insertContactMessage(message: { conversationId: any; sharedUserId: any; category: any; content: any; status: any }) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,shared_user_id,category,content,status,created_at) VALUES (?,?,?,?,?,?,?,?)'
     )
     const senderId = this.me().user_id
     const createdAt = new Date().toISOString()
+    const messageId = uuidv4().toLowerCase()
     stmt.run([
-      uuidv4().toLowerCase(),
+      messageId,
       message.conversationId,
       senderId,
       message.sharedUserId,
@@ -42,15 +66,18 @@ class MessageDao {
       message.status,
       createdAt
     ])
+    this.insertOrReplaceMessageFts(messageId, message.content)
   }
+
   insertRelyMessage(message: { conversationId: any; category: any; content: any; status: any }, quoteMessageId: any, quoteContent: any) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,category,content,status,created_at,quote_message_id,quote_content) VALUES (?,?,?,?,?,?,?,?,?)'
     )
     const senderId = this.me().user_id
     const createdAt = new Date().toISOString()
+    const messageId = uuidv4().toLowerCase()
     stmt.run([
-      uuidv4().toLowerCase(),
+      messageId,
       message.conversationId,
       senderId,
       message.category,
@@ -60,7 +87,9 @@ class MessageDao {
       quoteMessageId,
       quoteContent
     ])
+    this.insertOrReplaceMessageFts(messageId, message.content)
   }
+
   insertMessage(message: any) {
     const finalMsg = {
       message_id: null,
@@ -100,6 +129,7 @@ class MessageDao {
       'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
     )
     stmt.run(finalMsg)
+    this.insertOrReplaceMessageFts(message.message_id, message.content)
   }
 
   deleteMessagesById(mIds: any) {
@@ -110,6 +140,7 @@ class MessageDao {
       }
     })
     insertMany(mIds)
+    this.deleteMessageFts(mIds)
   }
 
   ftsMessagesDelete(conversationId: any) {
@@ -144,14 +175,19 @@ class MessageDao {
       if (!keywordFinal) return 0
       const data = db
         .prepare(
-          'SELECT count(m.message_id) FROM messages_fts m_fts ' +
+          'SELECT m.message_id FROM messages_fts m_fts ' +
             'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
             'LEFT JOIN users u ON m.user_id = u.user_id ' +
             'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA") ' +
             'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ?'
         )
-        .get(conversationId, keywordFinal)
-      return data['count(m.message_id)']
+        .all(conversationId, keywordFinal)
+      if (!data) return 0
+      const msgIdMap: any = {}
+      data.forEach((item: any) => {
+        msgIdMap[item.message_id] = 1
+      })
+      return Object.keys(msgIdMap).length
     }
     const data = db.prepare('SELECT count(message_id) FROM messages_fts').get()
     return data['count(message_id)']
@@ -162,7 +198,7 @@ class MessageDao {
       .prepare('SELECT message_id,category,content FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
     const insert = db.prepare(
-      'INSERT OR REPLACE INTO messages_fts (message_id, content) ' + 'VALUES (@message_id, @content)'
+      'INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (@message_id, @content)'
     )
     const insertMany = db.transaction((messages: any[]) => {
       messages.forEach((message: any) => {
@@ -223,9 +259,11 @@ class MessageDao {
     })
     return data
   }
+
   getMessagesCount(conversationId: any) {
     return db.prepare('SELECT count(m.message_id) FROM messages m WHERE m.conversation_id = ?').get(conversationId)
   }
+
   getSendingMessages() {
     const stmt = db.prepare(`
       SELECT m.message_id, m.conversation_id, m.user_id, m.category, m.content, m.media_url, m.media_mime_type,
@@ -238,9 +276,11 @@ class MessageDao {
     const data = stmt.get()
     return data
   }
+
   updateMessageStatusById(status: any, messageId: any) {
     return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
   }
+
   updateMessageContent(content: any, messageId: any) {
     return db
       .prepare('UPDATE messages SET content = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
@@ -257,6 +297,7 @@ class MessageDao {
     const message = db.prepare('SELECT conversation_id FROM messages WHERE message_id = ?').get(messageId)
     return message.conversation_id
   }
+
   getMessageById(messageId: any) {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
@@ -299,6 +340,7 @@ class MessageDao {
     const message = db.prepare('SELECT message_id FROM messages WHERE message_id = ?').get(messageId)
     return message ? message.message_id : message
   }
+
   findUnreadMessage(conversationId: any) {
     const userId = this.me().user_id
     return db
@@ -307,6 +349,7 @@ class MessageDao {
       )
       .all(conversationId)
   }
+
   getUnreadMessage(conversationId: any) {
     const userId = this.me().user_id
     return db
@@ -315,6 +358,7 @@ class MessageDao {
       )
       .get(conversationId)
   }
+
   markRead(conversationId: any) {
     const userId = this.me().user_id
     db.prepare(`UPDATE conversations SET unseen_message_count = 0 WHERE conversation_id = ?`).run(conversationId)
@@ -322,11 +366,13 @@ class MessageDao {
       `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
     ).run(conversationId)
   }
+
   updateMediaMessage(path: any, status: any, id: any) {
     return db.prepare(
       `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
     ).run([path, status, id])
   }
+
   findImages(conversationId: any, messageId: any) {
     return db
       .prepare(
@@ -335,6 +381,7 @@ class MessageDao {
       )
       .all(conversationId, messageId)
   }
+
   findMessageItemById(conversationId: any, messageId: any) {
     return db
       .prepare(

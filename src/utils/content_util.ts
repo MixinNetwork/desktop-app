@@ -70,6 +70,9 @@ export default {
     for (let i = 0; i < text.length; i++) {
       const code = text.charCodeAt(i)
       let temp = text[i]
+      if (!/[a-zA-Z0-9]/.test(temp)) {
+        temp = `${text[i]} `
+      }
       for (let j = 0; j < preventList.length; j++) {
         if (preventList[j][0] <= code && code <= preventList[j][1]) {
           temp = '* '
@@ -85,11 +88,28 @@ export default {
     keyword = keyword.replace(/['* ']+/g, '* ').replace(/^\* /, '')
     return keyword
   },
+  fts5ContentFilter(text: string) {
+    text = text.trim()
+    let i = 0
+    let content = ''
+    while (i < text.length) {
+      const spFlag = !/[a-zA-Z0-9]/.test(text[i])
+      if (spFlag) {
+        content += ` `
+      }
+      content += text[i]
+      if (spFlag) {
+        content += ` `
+      }
+      i++
+    }
+    return content.replace(/ {2}/g, ' ').trim()
+  },
   highlight(content: any, keyword: string, highlight: string) {
     if (!keyword) return content
     let result: any = content
     highlight = highlight || 'default'
-    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&').replace(/ /g, '')
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
       result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)

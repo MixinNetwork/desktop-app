@@ -135,7 +135,7 @@ class Blaze {
             this.reconnectBlaze()
           },
           err => {
-            console.log(err.data)
+            console.log(err)
           }
         )
       } else {

@@ -49,6 +49,12 @@ export default class AppButtonItem extends Vue {
 </script>
 <style lang="scss" scoped>
 .app-button {
+  & > div {
+    position: relative;
+  }
+  .layout {
+    position: initial;
+  }
   display: flex;
   margin-left: 0.8rem;
   margin-right: 0.8rem;

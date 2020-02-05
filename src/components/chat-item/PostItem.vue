@@ -11,7 +11,10 @@
     <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
       <div class="content">
         <div class="markdown" @click="preview">
-          <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
+          <VueMarkdown
+            :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+            class="inner"
+          >{{message.content}}</VueMarkdown>
         </div>
         <div class="bottom">
           <TimeAndStatus :relative="true" :message="message" />
@@ -22,9 +25,7 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import {
-  Getter
-} from 'vuex-class'
+import { Getter } from 'vuex-class'
 
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
@@ -93,7 +94,8 @@ export default class PostItem extends Vue {
     min-width: 2rem;
     min-height: 0.85rem;
   }
-  .item-title, .layout {
+  .item-title,
+  .layout {
     width: 100%;
     flex: 1;
   }

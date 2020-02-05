@@ -14,7 +14,11 @@
         <textarea class="textarea ul" v-model="post" ref="box" :placeholder="$t('editor_hold')"></textarea>
       </mixin-scrollbar>
       <mixin-scrollbar>
-        <VueMarkdown class="markdown ul" :source="post"></VueMarkdown>
+        <VueMarkdown
+          :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+          class="markdown ul"
+          :source="post"
+        ></VueMarkdown>
       </mixin-scrollbar>
     </div>
   </div>

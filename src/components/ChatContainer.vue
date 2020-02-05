@@ -497,6 +497,8 @@ export default class ChatContainer extends Vue {
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
+    this.infiniteScroll('up')
+    this.infiniteScroll('down')
     const action = (beforeScrollTop: any) => {
       setTimeout(() => {
         this.infiniteDownLock = false

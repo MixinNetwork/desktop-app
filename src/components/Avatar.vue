@@ -95,7 +95,15 @@ export default class Avatar extends Vue {
       } else if (user) {
         users = [user]
       }
-      users = users.slice(0, 4)
+      if (users.length >= 4) {
+        const temp = []
+        let i = 0
+        while (i < 4) {
+          i++
+          temp.push(users[users.length - i])
+        }
+        users = temp
+      }
       users.map((u: any) => {
         u.has_avatar = false
 

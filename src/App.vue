@@ -162,5 +162,10 @@ b.highlight {
       word-break: break-word;
     }
   }
+  blockquote {
+    border-left: 0.2rem solid #ddd;
+    margin-left: 0;
+    padding-left: 0.8rem;
+  }
 }
 </style>

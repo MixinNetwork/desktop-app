@@ -5,18 +5,26 @@
         <svg-icon style="font-size: 1.5rem" v-if="visible" icon-class="ic_close_white" />
       </div>
       <div class="image-viewer-content" v-if="images.length">
-        <div class="scorll" :style="scorllStyle">
+        <div class="scorll" ref="box" :style="scrollStyle">
           <img
             :src="images[index].url"
             :alt="images[index].name?images[index].name:''"
             :style="imgSize"
-            @dblclick="zoom"
+            @mousedown="mousedown"
+            @mousemove="mousemove"
+            @mouseout="mouseout"
+            @mouseup="zoom"
             v-show="imgVisible"
+            ondragstart="return false;"
           />
         </div>
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
-          <svg-icon style="font-size: 1.5rem" icon-class="download" @click="openFile(images[index])" />
+          <svg-icon
+            style="font-size: 1.5rem"
+            icon-class="download"
+            @click="openFile(images[index])"
+          />
         </div>
         <div class="image-viewer-content-prev" @click="imgChange('prev')"></div>
         <div class="image-viewer-content-next" @click="imgChange('next')"></div>
@@ -57,6 +65,8 @@ export default {
       images: [],
       scale: 1,
       scrollStyle: {},
+      moved: false,
+      tempPos: {},
       limit: 100
     }
   },
@@ -145,19 +155,53 @@ export default {
           size.width = imgMaxWidth / 2
           size.height = imgMaxWidth / 2 / ratio
         }
-        this.imgSize = {
-          width: size.width * scale + 'px',
-          height: size.height * scale + 'px'
-        }
-        if (size.height < imgMaxHeight) {
-          this.scorllStyle = { 'align-items': 'center' }
-        } else {
-          this.scorllStyle = {}
-        }
-        this.imgVisible = true
+        setTimeout(() => {
+          const $box = this.$refs.box
+
+          this.scrollStyle.alignItems = size.height * scale < $box.clientHeight ? 'center' : ''
+          this.scrollStyle.justifyContent = size.width * scale < $box.clientWidth ? 'center' : ''
+
+          this.imgSize = {
+            width: size.width * scale + 'px',
+            height: size.height * scale + 'px',
+            cursor: scale < 3 ? 'zoom-in' : 'zoom-out'
+          }
+
+          this.imgVisible = true
+        })
+      }
+    },
+    mousedown(e) {
+      this.imgSize.cursor = 'move'
+      const { scrollLeft, scrollTop } = this.$refs.box
+      this.tempPos = {
+        x: e.clientX,
+        y: e.clientY,
+        scrollLeft,
+        scrollTop
+      }
+    },
+    mousemove(e) {
+      if (this.imgSize.cursor === 'move') {
+        this.moved = true
+        const { x, y, scrollLeft, scrollTop } = this.tempPos
+        const $box = this.$refs.box
+        $box.scrollLeft = scrollLeft - (e.clientX - x)
+        $box.scrollTop = scrollTop - (e.clientY - y)
+      }
+    },
+    mouseout() {
+      this.imgSize.cursor = this.scale < 3 ? 'zoom-in' : 'zoom-out'
+      if (this.moved) {
+        this.moved = false
       }
     },
     zoom() {
+      this.imgSize.cursor = this.scale < 3 ? 'zoom-in' : 'zoom-out'
+      if (this.moved) {
+        this.moved = false
+        return
+      }
       if (this.scale === 1) {
         this.scale = 2
       } else if (this.scale === 2) {
@@ -188,7 +232,6 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
   img {
     flex: 0 0 auto;
   }
@@ -269,8 +312,9 @@ export default {
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 2.5rem;
-  padding: 0 3% 0.625rem;
+  height: 2rem;
+  padding: 0 3%;
+  margin-bottom: 0.75rem;
   display: flex;
   cursor: pointer;
   > *,

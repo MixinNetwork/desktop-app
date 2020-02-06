@@ -1,5 +1,5 @@
 <template>
-  <div class="post-item layout" :class="messageOwnership()">
+  <div class="post-item layout" :style="{maxWidth: `${maxWidth}px`}" :class="messageOwnership()">
     <div class="item-title">
       <span
         class="username"
@@ -10,8 +10,11 @@
     </div>
     <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
       <div class="content">
-        <div class="post" @click="preview">
-          <VueMarkdown class="inner">{{message.content}}</VueMarkdown>
+        <div class="markdown" @click="preview">
+          <VueMarkdown
+            :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+            class="inner"
+          >{{message.content}}</VueMarkdown>
         </div>
         <div class="bottom">
           <TimeAndStatus :relative="true" :message="message" />
@@ -22,9 +25,7 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import {
-  Getter
-} from 'vuex-class'
+import { Getter } from 'vuex-class'
 
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
@@ -47,9 +48,18 @@ export default class PostItem extends Vue {
 
   @Getter('attachment') attachment: any
 
-  $postViewer: any
+  maxWidth: any = 480
   MessageStatus: any = MessageStatus
+  $postViewer: any
+  $selectNes: any
 
+  mounted() {
+    // @ts-ignore
+    const chatWidth = document.querySelector('.chat.container').clientWidth
+    if (chatWidth * 0.8 > this.maxWidth) {
+      this.maxWidth = chatWidth * 0.8
+    }
+  }
   messageOwnership() {
     let { message, me } = this
     return {
@@ -61,6 +71,7 @@ export default class PostItem extends Vue {
     return getNameColorById(id)
   }
   preview() {
+    if (this.$selectNes.baseOffset !== this.$selectNes.extentOffset) return
     this.$postViewer.setPost(this.message.content)
     this.$postViewer.show()
   }
@@ -72,7 +83,7 @@ export default class PostItem extends Vue {
   margin-left: 0.8rem;
   margin-right: 0.8rem;
   flex-direction: column;
-  cursor: pointer;
+  user-select: text;
   .username {
     display: inline-block;
     font-size: 0.85rem;
@@ -83,8 +94,8 @@ export default class PostItem extends Vue {
     min-width: 2rem;
     min-height: 0.85rem;
   }
-  .item-title, .layout {
-    max-width: 30rem;
+  .item-title,
+  .layout {
     width: 100%;
     flex: 1;
   }
@@ -92,11 +103,13 @@ export default class PostItem extends Vue {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
+    cursor: pointer;
 
-    .post {
+    .markdown {
+      * {
+        cursor: initial;
+      }
       box-sizing: border-box;
-      max-height: 10rem;
-
       font-size: 0.75rem;
       border-radius: 0.2rem;
       background-color: white;
@@ -106,6 +119,9 @@ export default class PostItem extends Vue {
         max-height: 8.5rem;
         word-break: break-word;
         overflow: hidden;
+        pre {
+          margin: 0;
+        }
       }
     }
     .bottom {

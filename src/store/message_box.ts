@@ -13,7 +13,7 @@ class MessageBox {
   callback: any
   count: any
 
-  setConversationId(conversationId: string, messagePositionIndex: number) {
+  async setConversationId(conversationId: string, messagePositionIndex: number) {
     if (conversationId) {
       this.conversationId = conversationId
       this.messagePositionIndex = messagePositionIndex
@@ -29,6 +29,13 @@ class MessageBox {
       let posMessage = null
       if (messagePositionIndex > 0) {
         posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
+      }
+      let newMessages: any = await this.nextPage('up')
+      this.messages.unshift(...newMessages)
+
+      if (this.page > 0) {
+        newMessages = await this.nextPage('down')
+        this.messages.push(...newMessages)
       }
 
       this.count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']

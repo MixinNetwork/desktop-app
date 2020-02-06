@@ -112,7 +112,17 @@ export default {
     keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&').replace(/ /g, '')
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
+      const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')
       result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
+      let resultTemp = ''
+      let linkArr
+      while ((linkArr = regxLink.exec(content)) !== null) {
+        const temp = linkArr[3].replace(regx, `<b class="highlight ${highlight}">$1</b>`)
+        resultTemp += `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`
+      }
+      if (resultTemp) {
+        result = resultTemp
+      }
     }
     return result
   }

@@ -25,7 +25,7 @@
     <mixin-scrollbar
       :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
       v-if="conversation"
-      :goBottom="!showMessages"
+      :goBottom="!showScroll"
     >
       <ul
         class="messages"
@@ -62,7 +62,7 @@
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
-      <div class="floating" v-show="conversation && !isBottom" @click="goBottomClick">
+      <div class="floating" :style="boxMessage ? 'margin-bottom: 3rem' : ''" v-show="conversation && !isBottom" @click="goBottomClick">
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <svg-icon style="font-size: 1.8rem" icon-class="chevron-down" />
       </div>
@@ -215,6 +215,8 @@ export default class ChatContainer extends Vue {
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+      this.goBottom()
+      this.boxMessage = false
       if (this.$refs.box) {
         this.$refs.box.innerHTML = this.conversation.draft || ''
       }
@@ -299,6 +301,7 @@ export default class ChatContainer extends Vue {
   beforeUnseenMessageCount: any = 0
   oldMsgLen: any = 0
   showMessages: any = true
+  showScroll: any = true
   infiniteUpLock: any = false
   infiniteDownLock: any = true
   searchKeyword: any = ''
@@ -358,8 +361,6 @@ export default class ChatContainer extends Vue {
       },
       function(force: any, message: any) {
         if (force) {
-          self.showMessages = false
-          self.goBottom()
           setTimeout(() => {
             self.goMessagePos(message)
           })
@@ -483,12 +484,14 @@ export default class ChatContainer extends Vue {
   }
   goSearchMessagePos(item: any, keyword: string) {
     this.goSearchPos = true
+    if (keyword) {
+      this.showMessages = false
+    }
     setTimeout(() => {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
       const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id || item.quoteId)
-      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
-      setTimeout(() => {
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1).then(() => {
         this.searchKeyword = keyword
         this.goSearchPos = false
       })
@@ -497,14 +500,17 @@ export default class ChatContainer extends Vue {
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
-    this.infiniteScroll('up')
-    this.infiniteScroll('down')
     const action = (beforeScrollTop: any) => {
       setTimeout(() => {
         this.infiniteDownLock = false
         let targetDom: any = document.querySelector('.unread-divide')
+        let messageDom: any
         if (posMessage && posMessage.messageId) {
           targetDom = document.getElementById(`m-${posMessage.messageId}`)
+          messageDom = targetDom
+          if (!this.searchKeyword) {
+            messageDom.className = 'notice'
+          }
         }
         if (!targetDom) {
           return (this.showMessages = true)
@@ -520,13 +526,20 @@ export default class ChatContainer extends Vue {
           goDone = true
           list.scrollTop = targetDom.offsetTop
           this.showMessages = true
+          if (messageDom) {
+            setTimeout(() => {
+              messageDom.className = ''
+            }, 200)
+          }
         }
       })
     }
     action(beforeScrollTop)
   }
   goBottom() {
+    this.showScroll = false
     setTimeout(() => {
+      this.showScroll = true
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
       let list = this.$refs.messagesUl
@@ -534,16 +547,12 @@ export default class ChatContainer extends Vue {
       let scrollHeight = list.scrollHeight
       list.scrollTop = scrollHeight
       this.searchKeyword = ''
-    })
+    }, 10)
   }
   goBottomClick() {
-    this.showMessages = false
     messageBox.refreshConversation(this.conversation.conversationId)
     this.beforeUnseenMessageCount = 0
     this.goBottom()
-    setTimeout(() => {
-      this.showMessages = true
-    }, 10)
   }
   infiniteScroll(direction: any) {
     messageBox.nextPage(direction).then((messages: any) => {

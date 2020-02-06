@@ -4,19 +4,57 @@
     <div class="layout" @click="$emit('reply-click', message)">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
-        <svg-icon icon-class="if_recall" class="replay_icon" v-if="message.type === 'MESSAGE_RECALL'" />
-        <svg-icon icon-class="ic_message_audio" class="replay_icon" v-else-if="messageType() === 'audio'" />
-        <svg-icon icon-class="ic_message_photo" class="replay_icon" v-else-if="messageType() === 'image'" />
-        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'video'" />
-        <svg-icon icon-class="ic_message_video" class="replay_icon" v-else-if="messageType() === 'live'" />
-        <svg-icon icon-class="ic_message_file" class="replay_icon" v-else-if="messageType() === 'file'" />
-        <svg-icon icon-class="ic_message_contact" class="replay_icon" v-else-if="messageType() === 'contact'" />
-        <svg-icon icon-class="ic_message_transfer" class="replay_icon" v-else-if="messageType() === 'transfer'" />
-        <svg-icon icon-class="ic_message_bot_menu"
-          class="replay_icon"
-          v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
+        <svg-icon
+          icon-class="if_recall"
+          class="reply_icon"
+          v-if="message.type === 'MESSAGE_RECALL'"
         />
-        {{getContent}}
+        <svg-icon
+          icon-class="ic_message_audio"
+          class="reply_icon"
+          v-else-if="messageType() === 'audio'"
+        />
+        <svg-icon
+          icon-class="ic_message_photo"
+          class="reply_icon"
+          v-else-if="messageType() === 'image'"
+        />
+        <svg-icon
+          icon-class="ic_message_video"
+          class="reply_icon"
+          v-else-if="messageType() === 'video'"
+        />
+        <svg-icon
+          icon-class="ic_message_video"
+          class="reply_icon"
+          v-else-if="messageType() === 'live'"
+        />
+        <svg-icon
+          icon-class="ic_message_file"
+          class="reply_icon"
+          v-else-if="messageType() === 'file'"
+        />
+        <svg-icon
+          icon-class="ic_message_contact"
+          class="reply_icon"
+          v-else-if="messageType() === 'contact'"
+        />
+        <svg-icon
+          icon-class="ic_message_transfer"
+          class="reply_icon"
+          v-else-if="messageType() === 'transfer'"
+        />
+        <svg-icon
+          icon-class="ic_message_bot_menu"
+          class="reply_icon"
+          v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
+        />
+        <VueMarkdown
+          :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+          class="markdown"
+          v-if="messageType() === 'post'"
+        >{{getContent}}</VueMarkdown>
+        <div v-else>{{getContent}}</div>
       </span>
     </div>
     <img
@@ -50,12 +88,14 @@ import { getNameColorById } from '@/utils/util'
 import Avatar from '@/components/Avatar.vue'
 import userDao from '@/dao/user_dao'
 import { messageType } from '@/utils/constants'
+import VueMarkdown from 'vue-markdown'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
   components: {
-    Avatar
+    Avatar,
+    VueMarkdown
   }
 })
 export default class ReplyMessageItem extends Vue {
@@ -110,6 +150,8 @@ export default class ReplyMessageItem extends Vue {
       return this.message.mediaName
     } else if (this.message.type.endsWith('_CONTACT')) {
       return this.message.sharedUserIdentityNumber
+    } else if (this.message.type.endsWith('_POST')) {
+      return this.message.content
     } else {
       return null
     }
@@ -162,6 +204,12 @@ export default class ReplyMessageItem extends Vue {
       font-size: 0.8rem;
     }
   }
+  .markdown {
+    color: #9b9b9b;
+    transform: scale(0.5);
+    transform-origin: 0 0;
+    max-height: 2rem;
+  }
   .image {
     width: 2.5rem;
     height: 2.5rem;
@@ -174,7 +222,7 @@ export default class ReplyMessageItem extends Vue {
     margin: 0.25rem;
     margin-left: 0.4rem;
   }
-  .replay_icon {
+  .reply_icon {
     height: 0.875rem;
     vertical-align: text-top;
   }

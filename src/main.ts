@@ -39,6 +39,9 @@ Vue.prototype.$blaze = blaze
 moment.locale(navigator.language)
 Vue.prototype.$moment = moment
 Vue.prototype.$electron = electron
+document.onselectstart = () => {
+  Vue.prototype.$selectNes = document.getSelection()
+}
 
 new Vue({
   i18n,

@@ -7,7 +7,11 @@
           <svg-icon @click="close" icon-class="ic_close" />
         </div>
         <mixin-scrollbar>
-          <VueMarkdown class="markdown ul" :source="post"></VueMarkdown>
+          <VueMarkdown
+            class="markdown ul"
+            :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+            :source="post"
+          ></VueMarkdown>
         </mixin-scrollbar>
       </div>
     </div>

@@ -504,8 +504,13 @@ export default class ChatContainer extends Vue {
       setTimeout(() => {
         this.infiniteDownLock = false
         let targetDom: any = document.querySelector('.unread-divide')
+        let messageDom: any
         if (posMessage && posMessage.messageId) {
           targetDom = document.getElementById(`m-${posMessage.messageId}`)
+          messageDom = targetDom
+          if (!this.searchKeyword) {
+            messageDom.className = 'notice'
+          }
         }
         if (!targetDom) {
           return (this.showMessages = true)
@@ -521,6 +526,11 @@ export default class ChatContainer extends Vue {
           goDone = true
           list.scrollTop = targetDom.offsetTop
           this.showMessages = true
+          if (messageDom) {
+            setTimeout(() => {
+              messageDom.className = ''
+            }, 200)
+          }
         }
       })
     }

@@ -256,35 +256,35 @@ export default class MessageItem extends Vue {
     this.$emit('action-click', action)
   }
   showUserName() {
-    if (!this.conversation || ((
-      this.message.type.startsWith('APP_CARD') ||
-      this.message.type.startsWith('APP_BUTTON')) &&
-      this.conversation.category === ConversationCategory.CONTACT
-    )) {
+    if (
+      !this.conversation ||
+      ((this.message.type.startsWith('APP_CARD') || this.message.type.startsWith('APP_BUTTON')) &&
+        this.conversation.category === ConversationCategory.CONTACT)
+    ) {
       return false
     }
     if (
       this.conversation.category === ConversationCategory.CONTACT &&
-        this.message.userId !== this.conversation.ownerId &&
-        this.message.userId !== this.me.user_id &&
-        (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
+      this.message.userId !== this.conversation.ownerId &&
+      this.message.userId !== this.me.user_id &&
+      (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
     ) {
       return true
     }
     if (
       this.prev &&
-        this.message.userId !== this.me.user_id &&
-        ((this.prev.type === MessageCategories.SYSTEM_CONVERSATION ||
-          this.prev.type === MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT) &&
-          (this.message.type !== MessageCategories.SYSTEM_CONVERSATION &&
-            this.message.type !== MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT))
+      this.message.userId !== this.me.user_id &&
+      (this.prev.type === MessageCategories.SYSTEM_CONVERSATION ||
+        this.prev.type === MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT) &&
+      this.message.type !== MessageCategories.SYSTEM_CONVERSATION &&
+      this.message.type !== MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT
     ) {
       return true
     }
     return (
       this.conversation.category === ConversationCategory.GROUP &&
-        this.message.userId !== this.me.user_id &&
-        (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
+      this.message.userId !== this.me.user_id &&
+      (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
     )
   }
   liveClick() {
@@ -477,6 +477,28 @@ li {
   pointer-events: none;
   * {
     pointer-events: all;
+  }
+  &.notice {
+    .layout, .bubble {
+      transition: transform 0.2s;
+      transform: scale(1.05);
+      transform-origin: 50% 50%;
+    }
+    .layout {
+      transform: scale(1.02);
+    }
+    .bubble {
+      transform: scale(1.05);
+    }
+    // .bubble {
+    //   transition: all 0.3s;
+    //   background: #fafafa !important;
+    // }
+    // .bubble.text::after {
+    //   transition: all 0.3s;
+    //   border-right-color: #fafafa !important;
+    //   border-left-color: #fafafa !important;
+    // }
   }
 }
 .unread-divide {

@@ -365,11 +365,13 @@ export default {
     })
     commit('refreshMessage', conversationId)
   },
-  sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, mediaDuration, category }: any) => {
+  sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, mediaDuration, category, mediaSize, mediaWidth, mediaHeight, thumbUrl }: any) => {
     const messageId = uuidv4().toLowerCase()
     putAttachment(
       mediaUrl,
       mediaMimeType,
+      mediaWidth,
+      mediaHeight,
       category,
       messageId,
       (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; thumbImage: any; name: any }) => {
@@ -381,8 +383,8 @@ export default {
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,
           media_size: data.mediaSize,
-          media_width: data.mediaWidth,
-          media_height: data.mediaHeight,
+          media_width: mediaWidth,
+          media_height: mediaHeight,
           media_duration: mediaDuration,
           thumb_image: data.thumbImage,
           media_status: 'PENDING',

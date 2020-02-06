@@ -43,7 +43,7 @@ axiosApi.interceptors.response.use(
       const backOff = new Promise(resolve => {
         setTimeout(() => {
           resolve()
-        }, 1000)
+        }, 1500)
       })
       return backOff.then(() => {
         return axiosApi(config)
@@ -78,7 +78,7 @@ axiosApi.interceptors.response.use(
     const backOff = new Promise(resolve => {
       setTimeout(() => {
         resolve()
-      }, 200)
+      }, 2000)
     })
     return backOff.then(() => {
       return axiosApi(config)

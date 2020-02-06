@@ -104,11 +104,11 @@ export default class MixinScrollbar extends Vue {
 
     document.onmousemove = event => {
       if (!this.dragging) return
-      const offest = event.clientY - this.tempThumb.y
+      const offset = event.clientY - this.tempThumb.y
       const scrollBox = this.scrollBox
       const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
       scrollBox.scrollTop =
-          ((this.tempThumb.top + offest) / (scrollBox.clientHeight - this.thumbHeight)) * maxScrollTop
+          ((this.tempThumb.top + offset) / (scrollBox.clientHeight - this.thumbHeight)) * maxScrollTop
     }
     document.onmouseup = () => {
       this.dragging = false

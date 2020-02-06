@@ -10,8 +10,12 @@
             :src="images[index].url"
             :alt="images[index].name?images[index].name:''"
             :style="imgSize"
-            @click="zoom"
+            @mousedown="mousedown"
+            @mousemove="mousemove"
+            @mouseout="mouseout"
+            @mouseup="zoom"
             v-show="imgVisible"
+            ondragstart="return false;"
           />
         </div>
         <div class="image-viewer-info">
@@ -61,6 +65,8 @@ export default {
       images: [],
       scale: 1,
       scrollStyle: {},
+      moved: false,
+      tempPos: {},
       limit: 100
     }
   },
@@ -152,8 +158,8 @@ export default {
         setTimeout(() => {
           const $box = this.$refs.box
 
-          this.scrollStyle.alignItems = (size.height * scale < $box.clientHeight) ? 'center' : ''
-          this.scrollStyle.justifyContent = (size.width * scale < $box.clientWidth) ? 'center' : ''
+          this.scrollStyle.alignItems = size.height * scale < $box.clientHeight ? 'center' : ''
+          this.scrollStyle.justifyContent = size.width * scale < $box.clientWidth ? 'center' : ''
 
           this.imgSize = {
             width: size.width * scale + 'px',
@@ -165,7 +171,37 @@ export default {
         })
       }
     },
+    mousedown(e) {
+      this.imgSize.cursor = 'move'
+      const { scrollLeft, scrollTop } = this.$refs.box
+      this.tempPos = {
+        x: e.clientX,
+        y: e.clientY,
+        scrollLeft,
+        scrollTop
+      }
+    },
+    mousemove(e) {
+      if (this.imgSize.cursor === 'move') {
+        this.moved = true
+        const { x, y, scrollLeft, scrollTop } = this.tempPos
+        const $box = this.$refs.box
+        $box.scrollLeft = scrollLeft - (e.clientX - x)
+        $box.scrollTop = scrollTop - (e.clientY - y)
+      }
+    },
+    mouseout() {
+      this.imgSize.cursor = this.scale < 3 ? 'zoom-in' : 'zoom-out'
+      if (this.moved) {
+        this.moved = false
+      }
+    },
     zoom() {
+      this.imgSize.cursor = this.scale < 3 ? 'zoom-in' : 'zoom-out'
+      if (this.moved) {
+        this.moved = false
+        return
+      }
       if (this.scale === 1) {
         this.scale = 2
       } else if (this.scale === 2) {

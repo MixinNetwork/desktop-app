@@ -484,12 +484,14 @@ export default class ChatContainer extends Vue {
   }
   goSearchMessagePos(item: any, keyword: string) {
     this.goSearchPos = true
+    if (keyword) {
+      this.showMessages = false
+    }
     setTimeout(() => {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
       const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id || item.quoteId)
-      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
-      setTimeout(() => {
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1).then(() => {
         this.searchKeyword = keyword
         this.goSearchPos = false
       })
@@ -498,8 +500,6 @@ export default class ChatContainer extends Vue {
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
-    this.infiniteScroll('up')
-    this.infiniteScroll('down')
     const action = (beforeScrollTop: any) => {
       setTimeout(() => {
         this.infiniteDownLock = false

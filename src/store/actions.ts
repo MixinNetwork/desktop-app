@@ -372,9 +372,10 @@ export default {
       mediaMimeType,
       mediaWidth,
       mediaHeight,
+      mediaDuration,
       category,
       messageId,
-      (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; thumbImage: any; name: any }) => {
+      (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaDuration: any; thumbImage: any; name: any }) => {
         messageDao.insertMessage({
           message_id: messageId,
           conversation_id: conversationId,
@@ -383,9 +384,9 @@ export default {
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,
           media_size: data.mediaSize,
-          media_width: mediaWidth,
-          media_height: mediaHeight,
-          media_duration: mediaDuration,
+          media_width: data.mediaWidth,
+          media_height: data.mediaHeight,
+          media_duration: data.mediaDuration,
           thumb_image: data.thumbImage,
           media_status: 'PENDING',
           status: MessageStatus.SENDING,

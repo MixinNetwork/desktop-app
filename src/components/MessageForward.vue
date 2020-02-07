@@ -127,7 +127,7 @@ export default class MessageForward extends Vue {
         }
         this.actionSendLiveMessage(msg)
       } else if (this.isFileType(message.type)) {
-        let { mediaUrl, mediaMimeType, mediaDuration, mediaSize, mediaWidth, mediaHeight, thumbUrl, name, mediaWaveform } = message
+        let { mediaUrl, mediaMimeType, mediaDuration, mediaSize, mediaWidth, mediaHeight, thumbUrl, thumbImage, name, mediaWaveform } = message
         if (/^file:\/\//.test(mediaUrl)) {
           mediaUrl = mediaUrl.split('file://')[1]
         }
@@ -143,6 +143,7 @@ export default class MessageForward extends Vue {
           mediaHeight,
           mediaSize,
           thumbUrl,
+          thumbImage,
           category,
           mediaWaveform
         }

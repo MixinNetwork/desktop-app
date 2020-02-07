@@ -125,9 +125,8 @@ function getRandomBytes(bit: number) {
   return libsignal.crypto.getRandomBytes(bit)
 }
 
-export async function putAttachment(imagePath: any, mimeType: any, width: number, height: number, mediaDuration: any, category: string, id: any, processCallback: any, sendCallback: any, errorCallback: any) {
+export async function putAttachment(imagePath: any, mimeType: any, width: number, height: number, mediaDuration: any, thumbImage: string, category: string, id: any, processCallback: any, sendCallback: any, errorCallback: any) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
-  let thumbImage: string | null = null
   let mediaWidth: number = width
   let mediaHeight: number = height
   if (category.endsWith('_IMAGE')) {

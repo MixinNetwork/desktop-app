@@ -1,26 +1,28 @@
 <template>
-  <div class="post-item layout" :style="{maxWidth: `${maxWidth}px`}" :class="messageOwnership()">
-    <div class="item-title">
-      <span
-        class="username"
-        v-if="showName"
-        :style="{color: getColor(message.userId)}"
-        @click="$emit('user-click')"
-      >{{message.userFullName}}</span>
-    </div>
-    <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-      <div class="content">
-        <div class="markdown" @click="preview">
-          <VueMarkdown
-            :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
-            class="inner"
-          >{{message.content}}</VueMarkdown>
-        </div>
-        <div class="bottom">
-          <TimeAndStatus :relative="true" :message="message" />
-        </div>
+  <div class="post-item" :class="messageOwnership()">
+    <div class="layout" :style="{maxWidth: `${maxWidth}px`}">
+      <div class="item-title">
+        <span
+          class="username"
+          v-if="showName"
+          :style="{color: getColor(message.userId)}"
+          @click="$emit('user-click')"
+        >{{message.userFullName}}</span>
       </div>
-    </BadgeItem>
+      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+        <div class="content">
+          <div class="markdown" @click="preview">
+            <VueMarkdown
+              :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+              class="inner"
+            >{{message.content}}</VueMarkdown>
+          </div>
+          <div class="bottom">
+            <TimeAndStatus :relative="true" :message="message" />
+          </div>
+        </div>
+      </BadgeItem>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -98,12 +100,17 @@ export default class PostItem extends Vue {
   .layout {
     width: 100%;
     flex: 1;
+    .layout {
+      display: flex;
+      width: 100%;
+    }
   }
   .content {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
     cursor: pointer;
+    width: 100%;
 
     .markdown {
       * {

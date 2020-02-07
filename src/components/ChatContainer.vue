@@ -526,7 +526,9 @@ export default class ChatContainer extends Vue {
           goDone = true
           this.showMessages = true
           if (messageDom) {
-            list.scrollTop = messageDom.offsetTop
+            if (list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
+              list.scrollTop = messageDom.offsetTop
+            }
             setTimeout(() => {
               messageDom.className = ''
             }, 200)

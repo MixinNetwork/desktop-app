@@ -483,6 +483,7 @@ export default class ChatContainer extends Vue {
     }
   }
   goSearchMessagePos(item: any, keyword: string) {
+    this.unreadMessageId = ''
     this.goSearchPos = true
     if (keyword) {
       this.showMessages = false

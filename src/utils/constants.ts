@@ -1,6 +1,6 @@
 export const API_URL = {
   HTTP: ['https://mixin-api.zeromesh.net/', 'https://api.mixin.one/'],
-  WS: 'wss://mixin-blaze.zeromesh.net'
+  WS: ['wss://mixin-blaze.zeromesh.net', 'wss://blaze.mixin.one']
 }
 
 export const PerPageMessageCount = 20

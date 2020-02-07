@@ -482,14 +482,13 @@ li {
   &.notice {
     .layout, .bubble {
       transition: transform 0.2s;
-      transform: scale(1.05);
       transform-origin: 50% 50%;
     }
     .layout {
       transform: scale(1.02);
     }
     .bubble {
-      transform: scale(1.05);
+      transform: scale(1.03);
     }
     // .bubble {
     //   transition: all 0.3s;

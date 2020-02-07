@@ -14,6 +14,7 @@ class Blaze {
   constructor() {
     this.transactions = {}
     this.ws = null
+    this.retryCount = 0
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
     this.reconnecting = false
@@ -44,7 +45,8 @@ class Blaze {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
       this.resetLinkStatus()
     })
-    this.ws = new RobustWebSocket(API_URL.WS + '?access_token=' + token, 'Mixin-Blaze-1')
+    this.ws = new RobustWebSocket(API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token, 'Mixin-Blaze-1')
+    this.retryCount += 1
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)

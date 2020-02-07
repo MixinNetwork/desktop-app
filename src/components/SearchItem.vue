@@ -7,7 +7,7 @@
         <div class="time">{{renderTime(item.created_at)}}</div>
       </div>
       <div class="content">
-        <div v-html="highlight(item.content)"></div>
+        <div v-html="highlight(content)"></div>
       </div>
     </div>
   </li>
@@ -32,6 +32,13 @@ export default class SearchItem extends Vue {
   }
   highlight(content: string) {
     return contentUtil.highlight(content, this.keyword, '')
+  }
+  get content() {
+    let content = this.item.content
+    if (this.item.category.endsWith('_DATA')) {
+      content = this.item.name
+    }
+    return content
   }
 }
 </script>

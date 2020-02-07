@@ -43,6 +43,7 @@
       :me="me"
       :showName="this.showUserName()"
       :conversation="conversation"
+      :searchKeyword="searchKeyword"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"

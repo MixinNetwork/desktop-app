@@ -128,7 +128,12 @@ class MessageDao {
       'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
     )
     stmt.run(finalMsg)
-    this.insertOrReplaceMessageFts(message.message_id, message.content)
+    if (message.category.endsWith('_TEXT')) {
+      this.insertOrReplaceMessageFts(message.message_id, message.content)
+    }
+    if (message.category.endsWith('_DATA')) {
+      this.insertOrReplaceMessageFts(message.message_id, message.name)
+    }
   }
 
   deleteMessagesById(mIds: any) {
@@ -212,7 +217,7 @@ class MessageDao {
     if (!keywordFinal) return []
     return db
       .prepare(
-        'SELECT m.message_id,m.conversation_id,m.content,m.created_at,u.full_name,m.user_id,u.avatar_url ' +
+        'SELECT m.message_id,m.conversation_id,m.content,m.category,m.name,m.created_at,u.full_name,m.user_id,u.avatar_url ' +
           'FROM messages_fts m_fts ' +
           'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
           'LEFT JOIN users u ON m.user_id = u.user_id ' +

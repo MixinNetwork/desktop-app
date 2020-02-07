@@ -20,7 +20,7 @@
             <span class="text">FILE</span>
           </div>
           <div class="content">
-            <span class="name">{{fileName}}</span>
+            <span class="name" v-html="fileName"></span>
             <div class="bottom">
               <span class="number">{{fileSize}}</span>
               <TimeAndStatus :message="message" />
@@ -37,6 +37,7 @@ import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
+import contentUtil from '@/utils/content_util'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
@@ -56,6 +57,7 @@ export default class FileItem extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Object) readonly me: any
   @Prop(Boolean) readonly showName: any
+  @Prop(String) readonly searchKeyword: any
 
   @Getter('attachment') attachment: any
 
@@ -95,8 +97,10 @@ export default class FileItem extends Vue {
   }
   get fileName() {
     let name = this.message.mediaName
+    const str1 = contentUtil.highlight(name.substring(0, 7), this.searchKeyword, 'in-bubble')
+    const str2 = contentUtil.highlight(name.substring(name.length - 8, name.length), this.searchKeyword, 'in-bubble')
     if (name && name.length > 18) {
-      return `${name.substring(0, 7)}…${name.substring(name.length - 8, name.length)}`
+      return `${str1}…${str2}`
     } else {
       return name
     }

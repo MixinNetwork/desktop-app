@@ -128,6 +128,7 @@ class MessageDao {
       'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
     )
     stmt.run(finalMsg)
+    this.insertOrReplaceMessageFts(message.message_id, message.content)
   }
 
   deleteMessagesById(mIds: any) {

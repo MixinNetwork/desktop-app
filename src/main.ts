@@ -17,7 +17,6 @@ import i18n from '@/utils/i18n'
 import moment from 'moment'
 import { faArrowLeft, faArrowRight, faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
-import { API_URL } from '@/utils/constants'
 import './assets'
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
@@ -31,8 +30,6 @@ Vue.use(ImageViewer)
 Vue.use(Scrollbar)
 Vue.use(PostViewer)
 
-Vue.axios.defaults.baseURL = API_URL.HTTP
-Vue.axios.defaults.headers.post['Content-Type'] = 'application/json'
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false
 Vue.prototype.$blaze = blaze

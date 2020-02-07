@@ -1,5 +1,5 @@
 export const API_URL = {
-  HTTP: 'https://mixin-api.zeromesh.net/',
+  HTTP: ['https://mixin-api.zeromesh.net/', 'https://api.mixin.one/'],
   WS: 'wss://mixin-blaze.zeromesh.net'
 }
 

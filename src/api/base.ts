@@ -8,8 +8,10 @@ import store from '@/store/store'
 import router from '@/router'
 import Vue from 'vue'
 
-const axiosApi: any = axios.create({
-  baseURL: API_URL.HTTP,
+axios.defaults.headers.post['Content-Type'] = 'application/json'
+
+const axiosApi = axios.create({
+  baseURL: API_URL.HTTP[0],
   timeout: 8000
 })
 
@@ -46,6 +48,7 @@ axiosApi.interceptors.response.use(
         }, 1500)
       })
       return backOff.then(() => {
+        config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
         return axiosApi(config)
       })
     }
@@ -74,6 +77,10 @@ axiosApi.interceptors.response.use(
     if (!config || !config.retry) {
       return Promise.reject(error)
     }
+    config.__retryCount = config.__retryCount || 0
+    if (config.__retryCount >= config.retry) {
+      return Promise.reject(error)
+    }
     config.__retryCount += 1
     const backOff = new Promise(resolve => {
       setTimeout(() => {
@@ -81,6 +88,7 @@ axiosApi.interceptors.response.use(
       }, 2000)
     })
     return backOff.then(() => {
+      config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
       return axiosApi(config)
     })
   }

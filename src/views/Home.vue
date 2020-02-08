@@ -13,6 +13,8 @@ import Navigation from '@/components/Navigation.vue'
 import accountApi from '@/api/account'
 import workerManager from '@/workers/worker_manager'
 import { LinkStatus } from '@/utils/constants'
+import { clearDb } from '@/persistence/db_util'
+import userDao from '@/dao/user_dao'
 
 import { Vue, Component } from 'vue-property-decorator'
 
@@ -30,6 +32,15 @@ export default class Home extends Vue {
     this.$store.dispatch('init')
   }
   async created() {
+    // @ts-ignore
+    if (!userDao.isMe(JSON.parse(localStorage.getItem('account')).user_id)) {
+      accountApi.logout().then((resp: any) => {
+        this.$blaze.closeBlaze()
+        this.$router.push('/sign_in')
+        clearDb()
+      })
+    }
+
     this.$blaze.connect()
     workerManager.start()
     accountApi.getFriends().then(

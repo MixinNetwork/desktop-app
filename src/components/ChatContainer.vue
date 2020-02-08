@@ -508,7 +508,7 @@ export default class ChatContainer extends Vue {
         let messageDom: any
         if (posMessage && posMessage.messageId && !targetDom) {
           messageDom = document.getElementById(`m-${posMessage.messageId}`)
-          if (!this.searchKeyword) {
+          if (!this.searchKeyword && messageDom) {
             messageDom.className = 'notice'
           }
         }

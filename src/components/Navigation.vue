@@ -29,7 +29,7 @@
         messages: 'chat.chat_messages' }[showMoreType])
         }}
       </div>
-      <Search class="nav" @input="onInput" />
+      <Search id="navigationSearch" class="nav" @input="onInput" />
 
       <h5
         v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"

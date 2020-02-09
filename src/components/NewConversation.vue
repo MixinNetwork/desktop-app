@@ -4,7 +4,7 @@
       <font-awesome-icon class="back" icon="arrow-left" @click="$emit('conversation-back')" />
       <h3>{{$t('chat.new_conversation')}}</h3>
     </div>
-    <Search class="nav" @input="onInput" />
+    <Search id="newConversationSearch" class="nav" @input="onInput" />
     <div class="create" @click="$emit('newGroup')">
       <img src="../assets/logo.png" class="avatar" />
       <h3>{{$t('group.group_new_title')}}</h3>

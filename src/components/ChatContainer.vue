@@ -62,7 +62,12 @@
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
-      <div class="floating" :style="boxMessage ? 'margin-bottom: 3rem' : ''" v-show="conversation && !isBottom" @click="goBottomClick">
+      <div
+        class="floating"
+        :style="boxMessage ? 'margin-bottom: 3rem' : ''"
+        v-show="conversation && !isBottom"
+        @click="goBottomClick"
+      >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <svg-icon style="font-size: 1.8rem" icon-class="chevron-down" />
       </div>
@@ -89,7 +94,8 @@
             <div
               class="box"
               contenteditable="true"
-              :placeholder="$t('home.input')"
+              @focus="onFocus"
+              @blur="onBlur"
               @input="saveMessageDraft"
               @keydown.enter="sendMessage"
               @compositionstart="inputFlag = true"
@@ -105,7 +111,12 @@
       </div>
     </div>
 
-    <MessageForward v-if="forwardMessage" :me="me" :message="forwardMessage" @close="handleHideMessageForward" />
+    <MessageForward
+      v-if="forwardMessage"
+      :me="me"
+      :message="forwardMessage"
+      @close="handleHideMessageForward"
+    />
 
     <div class="empty" v-if="!conversation">
       <span>
@@ -129,7 +140,12 @@
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
-      <ChatSearch class="overlay" v-if="searching" @close="hideSearch" @search="goSearchMessagePos" />
+      <ChatSearch
+        class="overlay"
+        v-if="searching"
+        @close="hideSearch"
+        @search="goSearchMessagePos"
+      />
     </transition>
     <transition name="slide-right">
       <Editor
@@ -144,10 +160,7 @@
 
 <script lang="ts">
 import { Vue, Watch, Component } from 'vue-property-decorator'
-import {
-  Getter,
-  Action
-} from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 import {
   ConversationCategory,
   ConversationStatus,
@@ -217,9 +230,7 @@ export default class ChatContainer extends Vue {
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.goBottom()
       this.boxMessage = false
-      if (this.$refs.box) {
-        this.$refs.box.innerHTML = this.conversation.draft || ''
-      }
+      this.boxFocusAction()
       this.showMessages = false
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
       this.messages = messageBox.messages
@@ -242,11 +253,7 @@ export default class ChatContainer extends Vue {
           this.name = newC.name
         }
         if (!oldC || newC.conversationId !== oldC.conversationId) {
-          setTimeout(() => {
-            if (this.$refs.box) {
-              this.$refs.box.innerHTML = this.conversation.draft || ''
-            }
-          })
+          this.boxFocusAction()
           this.details = false
           if (!this.searching.replace(/^key:/, '')) {
             this.actionSetSearching('')
@@ -264,6 +271,7 @@ export default class ChatContainer extends Vue {
   @Getter('currentUser') user: any
   @Getter('me') me: any
   @Getter('editing') editing: any
+  @Getter('inputFocusing') inputFocusing: any
 
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
@@ -275,6 +283,7 @@ export default class ChatContainer extends Vue {
   @Action('exitGroup') actionExitGroup: any
   @Action('conversationClear') actionConversationClear: any
   @Action('toggleEditor') actionToggleEditor: any
+  @Action('setInputFocusing') actionSetInputFocusing: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
 
@@ -311,6 +320,7 @@ export default class ChatContainer extends Vue {
   chooseStickerTimeout: any = null
   lastEnter: any = null
   goSearchPos: boolean = false
+  boxFocus: boolean = false
 
   mounted() {
     let self = this
@@ -382,6 +392,36 @@ export default class ChatContainer extends Vue {
         })
       }
     )
+  }
+
+  onFocus() {
+    this.boxFocus = true
+    this.actionSetInputFocusing({ focusing: 'chat' })
+  }
+
+  onBlur() {
+    this.boxFocus = false
+    const $target = this.$refs.box
+    setTimeout(() => {
+      if (this.inputFocusing === 'chat') {
+        $target.focus()
+      }
+    })
+  }
+
+  boxFocusAction() {
+    if (this.$refs.box) {
+      const $target = this.$refs.box
+      $target.innerHTML = this.conversation.draft || ''
+      try {
+        // @ts-ignore
+        window.getSelection().collapse($target, 1)
+      } catch (error) {
+      }
+      setTimeout(() => {
+        $target.focus()
+      })
+    }
   }
 
   onScroll() {
@@ -496,6 +536,7 @@ export default class ChatContainer extends Vue {
         this.searchKeyword = keyword
         this.goSearchPos = false
       })
+      this.boxFocusAction()
     })
   }
   goMessagePos(posMessage: any) {
@@ -681,13 +722,15 @@ export default class ChatContainer extends Vue {
     this.updateMenu(this.conversation)
   }
   changeContactRelationship(action: string) {
-    userApi.updateRelationship({user_id: this.user.user_id, full_name: this.user.full_name, action}).then((res: any) => {
-      if (res.data) {
-        const user = res.data.data
-        this.actionSetCurrentUser(user)
-        this.updateMenu(this.conversation)
-      }
-    })
+    userApi
+      .updateRelationship({ user_id: this.user.user_id, full_name: this.user.full_name, action })
+      .then((res: any) => {
+        if (res.data) {
+          const user = res.data.data
+          this.actionSetCurrentUser(user)
+          this.updateMenu(this.conversation)
+        }
+      })
   }
   onItemClick(index: number) {
     const chatMenu = this.$t('menu.chat')
@@ -709,8 +752,7 @@ export default class ChatContainer extends Vue {
           this.changeContactRelationship('REMOVE')
         },
         this.$t('cancel'),
-        () => {
-        }
+        () => {}
       )
     } else if (key === 'clear') {
       this.$Dialog.alert(
@@ -891,7 +933,6 @@ export default class ChatContainer extends Vue {
     this.boxMessage = null
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

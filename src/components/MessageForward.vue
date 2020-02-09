@@ -8,7 +8,7 @@
           {{$t('chat.share_with')}}
         </div>
         <div class="forward-search">
-          <Search @input="onSearch" />
+          <Search id="messageForwardSearch" @input="onSearch" />
         </div>
         <div
           class="title"

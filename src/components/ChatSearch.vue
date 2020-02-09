@@ -7,7 +7,7 @@
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
     <header class="search-bar">
-      <Search class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
+      <Search id="chatSearch" class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
     </header>
     <mixin-scrollbar>
       <div class="ul">

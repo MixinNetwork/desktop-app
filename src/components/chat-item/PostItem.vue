@@ -73,7 +73,7 @@ export default class PostItem extends Vue {
     return getNameColorById(id)
   }
   preview() {
-    if (this.$selectNes.baseOffset !== this.$selectNes.extentOffset) return
+    if (this.$selectNes && this.$selectNes.baseOffset !== this.$selectNes.extentOffset) return
     this.$postViewer.setPost(this.message.content)
     this.$postViewer.show()
   }

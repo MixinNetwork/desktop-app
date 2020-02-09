@@ -292,6 +292,7 @@ export default class ChatContainer extends Vue {
   $toast: any
   $refs: any
   $moment: any
+  $selectNes: any
   name: any = ''
   identity: any = ''
   participant: any = true
@@ -401,12 +402,12 @@ export default class ChatContainer extends Vue {
 
   onBlur() {
     this.boxFocus = false
-    const $target = this.$refs.box
     setTimeout(() => {
+      if (this.$selectNes) return
       if (this.inputFocusing === 'chat') {
-        $target.focus()
+        this.boxFocusAction()
       }
-    })
+    }, 50)
   }
 
   boxFocusAction() {

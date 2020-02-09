@@ -520,6 +520,7 @@ export default class ChatContainer extends Vue {
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
     if (this.$refs.box) {
+      this.conversation.draft = this.$refs.box.innerHTML
       conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
     }
   }

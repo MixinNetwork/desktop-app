@@ -142,7 +142,7 @@
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
       <ChatSearch
         class="overlay"
-        v-if="searching"
+        v-if="searching && conversation"
         @close="hideSearch"
         @search="goSearchMessagePos"
       />

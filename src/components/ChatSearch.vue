@@ -7,7 +7,7 @@
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
     <header class="search-bar">
-      <Search id="chatSearch" class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
+      <Search id="chatSearch" :autofocus="true" class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
     </header>
     <mixin-scrollbar>
       <div class="ul">
@@ -49,8 +49,8 @@ import { Getter } from 'vuex-class'
   }
 })
 export default class ChatSearch extends Vue {
-@Getter('searching') readonly searchingBefore: any
-@Getter('currentConversation') readonly conversation: any
+  @Getter('searching') readonly searchingBefore: any
+  @Getter('currentConversation') readonly conversation: any
 
   timeoutListener: any = null
   keyword: any = ''

@@ -34,6 +34,7 @@ import { Getter, Action } from 'vuex-class'
 @Component
 export default class Search extends Vue {
   @Prop(String) readonly id: any
+  @Prop(Boolean) readonly autofocus: any
 
   focus: any = false
   keyword: any = ''
@@ -72,6 +73,15 @@ export default class Search extends Vue {
   @Getter('inputFocusing') inputFocusing: any
 
   @Action('setInputFocusing') actionSetInputFocusing: any
+
+  mounted() {
+    if (this.autofocus) {
+      setTimeout(() => {
+        // @ts-ignore
+        this.$refs.box.focus()
+      }, 100)
+    }
+  }
 
   onFocus() {
     this.focus = true

@@ -16,7 +16,8 @@ import { Component, Vue } from 'vue-property-decorator'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
+import { ipcRenderer } from 'electron'
 
 @Component({
   components: {
@@ -26,8 +27,22 @@ import { Getter } from 'vuex-class'
 export default class App extends Vue {
   @Getter('showTime') showTime: any
 
+  @Action('setSearching') actionSetSearching: any
+
   isLoading = false
 
+  created() {
+    ipcRenderer.on(
+      'menu-event',
+      (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
+        switch (name) {
+          case 'find':
+            return this.actionSetSearching('key:')
+          default:;
+        }
+      }
+    )
+  }
   ping() {
     this.isLoading = true
     accountApi.checkPing().then(

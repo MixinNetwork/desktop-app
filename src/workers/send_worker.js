@@ -255,7 +255,8 @@ class SendWorker extends BaseWorker {
   }
 
   async checkSignalSession(recipientId, sessionId) {
-    if (!signalProtocol.containsSession(recipientId, signalProtocol.convertToDeviceId(sessionId))) {
+    const deviceId = signalProtocol.convertToDeviceId(sessionId)
+    if (!signalProtocol.containsSession(recipientId, deviceId)) {
       const blazeMessage = {
         id: uuidv4(),
         action: 'CONSUME_SESSION_SIGNAL_KEYS',
@@ -268,7 +269,7 @@ class SendWorker extends BaseWorker {
         const key = data[0]
         signalProtocol.processSession(
           key.user_id,
-          signalProtocol.convertToDeviceId(key.session_id),
+          deviceId,
           JSON.stringify(key)
         )
       } else {

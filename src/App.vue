@@ -32,16 +32,13 @@ export default class App extends Vue {
   isLoading = false
 
   created() {
-    ipcRenderer.on(
-      'menu-event',
-      (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
-        switch (name) {
-          case 'find':
-            return this.actionSetSearching('key:')
-          default:;
-        }
+    ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
+      switch (name) {
+        case 'find':
+          return this.actionSetSearching('key:')
+        default:
       }
-    )
+    })
   }
   ping() {
     this.isLoading = true
@@ -164,6 +161,12 @@ b.highlight {
     margin: 0 0 1rem;
     img {
       max-width: 100%;
+    }
+  }
+  .inner {
+    p,
+    pre {
+      margin: 0;
     }
   }
   pre {

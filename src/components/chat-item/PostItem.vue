@@ -129,9 +129,6 @@ export default class PostItem extends Vue {
         max-height: 8.5rem;
         word-break: break-word;
         overflow: hidden;
-        pre {
-          margin: 0;
-        }
       }
     }
     .bottom {

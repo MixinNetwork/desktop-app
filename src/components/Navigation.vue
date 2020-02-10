@@ -240,13 +240,14 @@ export default class Navigation extends Vue {
 
   created() {
     this.menus = this.$t('menu.personal')
-    document.onkeydown = (e) => {
+    document.onkeyup = (e) => {
       const cLen = this.conversations.length
       if (cLen < 2 || !this.currentConversationId) return
       if (e.keyCode === 38 && this.conversations[0].conversationId !== this.currentConversationId) {
         for (let i = 1; i < cLen; i++) {
           if (this.conversations[i].conversationId === this.currentConversationId) {
             this.onConversationClick(this.conversations[i - 1])
+            this.goConversationPos(i - 1)
             break
           }
         }
@@ -255,6 +256,7 @@ export default class Navigation extends Vue {
         for (let i = 0; i < cLen - 1; i++) {
           if (this.conversations[i].conversationId === this.currentConversationId) {
             this.onConversationClick(this.conversations[i + 1])
+            this.goConversationPos(i + 1)
             break
           }
         }
@@ -475,7 +477,6 @@ export default class Navigation extends Vue {
     if (!keyword) {
       this.$store.dispatch('setSearching', '')
       setTimeout(() => {
-        const container = document.querySelector('.conversations.ul')
         let index = 0
         const { conversations, currentConversationId } = this
         for (let i = 0; i < conversations.length; i++) {
@@ -484,9 +485,7 @@ export default class Navigation extends Vue {
             break
           }
         }
-        if (container) {
-          container.scrollTop = 73.6 * index
-        }
+        this.goConversationPos(index)
       }, 100)
     }
     clearTimeout(this.inputTimer)
@@ -531,6 +530,19 @@ export default class Navigation extends Vue {
     this.$store.dispatch('createUserConversation', {
       user
     })
+  }
+  goConversationPos(index: number) {
+    const container = document.querySelector('.conversations.ul')
+    if (container) {
+      let itemHeight = 73.6
+      const outUp = itemHeight * index <= container.scrollTop
+      const outDown = container.clientHeight + container.scrollTop <= itemHeight * (index + 1)
+      if (outUp) {
+        container.scrollTop = itemHeight * index
+      } else if (outDown) {
+        container.scrollTop = itemHeight * (index + 1) - container.clientHeight
+      }
+    }
   }
 
   getLinkTitle() {

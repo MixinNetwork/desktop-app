@@ -73,6 +73,7 @@ export default class Search extends Vue {
   @Getter('inputFocusing') inputFocusing: any
 
   @Action('setInputFocusing') actionSetInputFocusing: any
+  @Action('setSearching') actionSetSearching: any
 
   mounted() {
     if (this.autofocus) {
@@ -88,9 +89,9 @@ export default class Search extends Vue {
     this.actionSetInputFocusing({ focusing: this.id })
   }
   onBlur() {
+    this.focus = false
     setTimeout(() => {
       if (this.keyword === '') {
-        this.focus = false
         this.actionSetInputFocusing({ focusing: '' })
       } else if (this.inputFocusing === this.id && this.$refs.box) {
         // @ts-ignore
@@ -107,11 +108,10 @@ export default class Search extends Vue {
   }
   keyup(e: any) {
     if (e.keyCode === 27 && this.focus) {
+      if (this.autofocus) {
+        return this.actionSetSearching('')
+      }
       this.back()
-      setTimeout(() => {
-        // @ts-ignore
-        this.$refs.box.blur()
-      })
     }
   }
 }

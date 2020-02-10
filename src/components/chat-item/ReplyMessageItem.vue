@@ -54,7 +54,7 @@
           class="markdown"
           v-if="messageType() === 'post'"
         >{{getContent}}</VueMarkdown>
-        <div v-else>{{getContent}}</div>
+        <span v-else>{{getContent}}</span>
       </span>
     </div>
     <img
@@ -224,6 +224,7 @@ export default class ReplyMessageItem extends Vue {
   }
   .reply_icon {
     height: 0.875rem;
+    margin-right: 0.2rem;
     vertical-align: text-top;
   }
 }

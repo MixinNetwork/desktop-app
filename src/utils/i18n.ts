@@ -44,7 +44,7 @@ let transactions = {
         set_as_admin: 'Set As Administrator',
         remove: 'Remove'
       },
-      personal: ['New Group', 'Profile', 'Setting', 'Logout'],
+      personal: ['New Group', 'Profile', 'Settings', 'Logout'],
       chat_operation: {
         reply: 'Reply',
         forward: 'Forward',

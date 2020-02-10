@@ -108,7 +108,7 @@ export default class ChatSticker extends Vue {
 
   albumPos() {
     const list = stickerDao.getLastUseStickers()
-    if (!list || (list && list.length === 0)) {
+    if ((!list || list.length === 0) && (this.albums && this.albums.length > 0)) {
       setTimeout(() => {
         const albumId = this.albums[0].album_id
         this.getStickers(albumId)

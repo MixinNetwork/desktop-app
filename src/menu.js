@@ -1,5 +1,5 @@
 import { checkForUpdates } from './updater'
-const { app, Menu } = require('electron')
+import { app, Menu } from 'electron'
 
 const lang = app.getLocale().split('-')[0]
 
@@ -23,7 +23,7 @@ let template = [
     submenu: [
       { role: 'reload' },
       { role: 'forcereload' },
-      { role: 'toggledevtools' },
+      { role: 'toggledevtools', accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I' },
       { type: 'separator' },
       { role: 'resetzoom' },
       { role: 'zoomin' },
@@ -106,7 +106,7 @@ if (lang === 'zh') {
       submenu: [
         { role: 'reload', label: '重新加载此页' },
         { role: 'forcereload', label: '强制重新加载' },
-        { role: 'toggledevtools', label: '切换开发者工具' },
+        { role: 'toggledevtools', accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I', label: '切换开发者工具' },
         { type: 'separator' },
         { role: 'resetzoom', label: '重设缩放' },
         { role: 'zoomin', label: '放大' },

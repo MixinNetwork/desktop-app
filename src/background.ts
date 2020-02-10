@@ -82,14 +82,14 @@ function createWindow() {
     shell.openExternal(url)
   })
   setFocusWindow(win)
-  if (process.platform === 'darwin') {
-    require('./menu')
-  } else if (process.platform === 'linux') {
-    win.setMenuBarVisibility(false)
-    win.setAutoHideMenuBar(true)
-  } else {
-    win.setMenu(null)
-  }
+  // if (process.platform === 'darwin') {
+  require('./menu')
+  // } else if (process.platform === 'linux') {
+  //   win.setMenuBarVisibility(false)
+  //   win.setAutoHideMenuBar(true)
+  // } else {
+  //   win.setMenu(null)
+  // }
   initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
 

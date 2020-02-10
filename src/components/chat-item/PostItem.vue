@@ -27,7 +27,7 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
@@ -49,6 +49,8 @@ export default class PostItem extends Vue {
   @Prop(Boolean) readonly showName: any
 
   @Getter('attachment') attachment: any
+
+  @Action('setInputFocusing') actionSetInputFocusing: any
 
   maxWidth: any = 480
   MessageStatus: any = MessageStatus
@@ -74,6 +76,7 @@ export default class PostItem extends Vue {
   }
   preview() {
     if (this.$selectNes && this.$selectNes.baseOffset !== this.$selectNes.extentOffset) return
+    this.actionSetInputFocusing({ focusing: 'chat' })
     this.$postViewer.setPost(this.message.content)
     this.$postViewer.show()
   }

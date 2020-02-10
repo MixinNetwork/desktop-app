@@ -86,7 +86,7 @@ export default class Search extends Vue {
         // @ts-ignore
         this.$refs.box.focus()
       }
-    })
+    }, 30)
   }
   back() {
     this.focus = false
@@ -96,7 +96,7 @@ export default class Search extends Vue {
     this.$refs.box.blur()
   }
   keyup(e: any) {
-    if (e.keyCode === 27) {
+    if (e.keyCode === 27 && this.focus) {
       this.back()
       setTimeout(() => {
         // @ts-ignore

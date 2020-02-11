@@ -83,11 +83,13 @@ export default class LiveItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .username {
     display: inline-block;
     font-size: 0.85rem;
     max-width: 80%;
-    margin-left: 0.8rem;
+    margin-left: 0.4rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -138,8 +140,6 @@ export default class LiveItem extends Vue {
     .set {
       max-width: 10rem;
       max-height: 15rem;
-      margin-left: 0.8rem;
-      margin-right: 0.8rem;
       overflow: hidden;
       position: relative;
       cursor: pointer;
@@ -152,7 +152,6 @@ export default class LiveItem extends Vue {
     .bottom {
       display: flex;
       justify-content: flex-end;
-      margin-right: 0.8rem;
     }
   }
 }

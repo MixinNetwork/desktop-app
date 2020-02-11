@@ -54,7 +54,6 @@
           :conversation="conversation"
           :me="me"
           :searchKeyword="searchKeyword"
-          @reply-click="goSearchMessagePos"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -393,6 +392,14 @@ export default class ChatContainer extends Vue {
         })
       }
     )
+    this.$root.$on('goSearchMessagePos', (item: any) => {
+      const { message, keyword } = item
+      this.goSearchMessagePos(message, keyword)
+    })
+  }
+
+  beforeDestroy() {
+    this.$root.$off('goSearchMessagePos')
   }
 
   onFocus() {
@@ -417,8 +424,7 @@ export default class ChatContainer extends Vue {
       try {
         // @ts-ignore
         window.getSelection().collapse($target, 1)
-      } catch (error) {
-      }
+      } catch (error) {}
       setTimeout(() => {
         $target.focus()
       })

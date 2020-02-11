@@ -115,16 +115,18 @@ export default class PostItem extends Vue {
 
     .markdown {
       * {
-        cursor: initial;
+        cursor: pointer;
+        :last-child {
+          margin-bottom: 0;
+        }
       }
       box-sizing: border-box;
-      font-size: 0.75rem;
       border-radius: 0.2rem;
       background-color: white;
-      padding: 1rem;
+      padding: 0.8rem 1rem;
       .inner {
         height: 100%;
-        max-height: 8.5rem;
+        max-height: 16rem;
         word-break: break-word;
         overflow: hidden;
       }

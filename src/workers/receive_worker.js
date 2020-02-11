@@ -16,6 +16,7 @@ import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util'
+import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
 
@@ -405,6 +406,7 @@ class ReceiveWorker extends BaseWorker {
         quote_content: quoteContent
       }
       messageDao.insertMessage(message)
+      plain = contentUtil.renderMdToText(plain)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)

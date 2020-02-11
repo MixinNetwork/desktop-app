@@ -121,14 +121,16 @@ export default {
     if (result) {
       const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')
       result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
-      let resultTemp = ''
+      let linkTemp = []
       let linkArr
       while ((linkArr = regxLink.exec(content)) !== null) {
         const temp = linkArr[3].replace(regx, `<b class="highlight ${highlight}">$1</b>`)
-        resultTemp += `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`
+        linkTemp.push([linkArr[0], `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`])
       }
-      if (resultTemp) {
-        result = resultTemp
+      if (linkTemp.length > 0) {
+        linkTemp.forEach(item => {
+          result = result.replace(item[0], item[1])
+        })
       }
     }
     return result

@@ -39,6 +39,19 @@ export default class App extends Vue {
         default:
       }
     })
+
+    document.onkeydown = (e) => {
+      let keyCode = e.keyCode
+      let ctrlKey = e.ctrlKey || e.metaKey
+      if (ctrlKey) {
+        if (keyCode === 69) {
+          ipcRenderer.send('openDevTools')
+        }
+        if (keyCode === 70) {
+          this.actionSetSearching('key:')
+        }
+      }
+    }
   }
   ping() {
     this.isLoading = true

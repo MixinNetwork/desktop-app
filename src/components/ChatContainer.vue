@@ -824,6 +824,7 @@ export default class ChatContainer extends Vue {
         }
       )
     } else if (key === 'create_post') {
+      this.actionSetInputFocusing({ focusing: '' })
       this.actionToggleEditor()
     }
   }

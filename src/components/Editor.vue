@@ -14,26 +14,21 @@
         <textarea class="textarea ul" v-model="post" ref="box" :placeholder="$t('editor_hold')"></textarea>
       </mixin-scrollbar>
       <mixin-scrollbar>
-        <VueMarkdown
+        <vue-markdown
           :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
           class="markdown ul"
           :source="post"
-        ></VueMarkdown>
+        ></vue-markdown>
       </mixin-scrollbar>
     </div>
   </div>
 </template>
 <script lang="ts">
-import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
-@Component({
-  components: {
-    VueMarkdown
-  }
-})
+@Component
 export default class Editor extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(String) readonly category: any

@@ -12,10 +12,10 @@
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
           <div class="markdown" @click="preview">
-            <VueMarkdown
+            <vue-markdown
               :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
               class="inner"
-            >{{message.content}}</VueMarkdown>
+            >{{message.content}}</vue-markdown>
           </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />
@@ -31,15 +31,13 @@ import { Getter, Action } from 'vuex-class'
 
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import VueMarkdown from 'vue-markdown'
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
 @Component({
   components: {
     BadgeItem,
-    TimeAndStatus,
-    VueMarkdown
+    TimeAndStatus
   }
 })
 export default class PostItem extends Vue {

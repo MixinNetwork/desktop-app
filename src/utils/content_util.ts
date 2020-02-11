@@ -2,6 +2,9 @@
 import URI from 'urijs'
 import moment from 'moment'
 import i18n from '@/utils/i18n'
+// @ts-ignore
+import MarkdownIt from 'markdown-it'
+const md = new MarkdownIt()
 
 export default {
   messageFilteredText(e: { innerHTML: string; innerText: string }) {
@@ -23,6 +26,10 @@ export default {
       return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
     })
     return result
+  },
+  renderMdToText(content: string) {
+    const html = md.render(content)
+    return html.replace(/<\/?[^>]*>/g, '')
   },
   renderTime(timeStr: any, showDetail: any) {
     const t = moment(timeStr)

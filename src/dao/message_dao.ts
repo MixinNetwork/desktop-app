@@ -46,7 +46,11 @@ class MessageDao {
       message.status,
       createdAt
     ])
-    this.insertOrReplaceMessageFts(messageId, message.content)
+    let content = message.content
+    if (message.category.endsWith('_POST')) {
+      content = contentUtil.renderMdToText(content)
+    }
+    this.insertOrReplaceMessageFts(messageId, content)
   }
 
   insertContactMessage(message: { conversationId: any; sharedUserId: any; category: any; content: any; status: any }) {
@@ -133,6 +137,10 @@ class MessageDao {
     }
     if (message.category.endsWith('_DATA')) {
       this.insertOrReplaceMessageFts(message.message_id, message.name)
+    }
+    if (message.category.endsWith('_POST')) {
+      const content = contentUtil.renderMdToText(message.content)
+      this.insertOrReplaceMessageFts(message.message_id, content)
     }
   }
 
@@ -221,7 +229,7 @@ class MessageDao {
           'FROM messages_fts m_fts ' +
           'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
           'LEFT JOIN users u ON m.user_id = u.user_id ' +
-          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA") ' +
+          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA" OR m.category = "SIGNAL_POST" OR m.category = "PLAIN_POST") ' +
           'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
       )
       .all(conversationId, keywordFinal)

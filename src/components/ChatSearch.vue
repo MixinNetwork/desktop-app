@@ -37,6 +37,7 @@
 import Search from '@/components/Search.vue'
 import SearchItem from '@/components/SearchItem.vue'
 import messageDao from '@/dao/message_dao'
+import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
@@ -65,6 +66,10 @@ export default class ChatSearch extends Vue {
     this.onInput(keyword)
   }
 
+  renderMdToText(content: string) {
+    return contentUtil.renderMdToText(content)
+  }
+
   onInput(keyword: any) {
     this.keyword = keyword
     if (this.keyword.length > 0) {
@@ -78,6 +83,9 @@ export default class ChatSearch extends Vue {
           const keys: any = []
           data.forEach((item: any) => {
             if (keys.indexOf(item.message_id) === -1) {
+              if (item.category.endsWith('_POST')) {
+                item.content = this.renderMdToText(item.content)
+              }
               list.push(item)
             }
             keys.push(item.message_id)

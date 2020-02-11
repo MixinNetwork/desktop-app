@@ -16,7 +16,8 @@ import { Component, Vue } from 'vue-property-decorator'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
+import { ipcRenderer } from 'electron'
 
 @Component({
   components: {
@@ -26,8 +27,36 @@ import { Getter } from 'vuex-class'
 export default class App extends Vue {
   @Getter('showTime') showTime: any
 
-  isLoading = false
+  @Action('setSearching') actionSetSearching: any
 
+  isLoading: boolean = false
+  $postViewer: any
+
+  created() {
+    ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
+      switch (name) {
+        case 'find':
+          return this.actionSetSearching('key:')
+        default:
+      }
+    })
+
+    document.onkeydown = (e) => {
+      let keyCode = e.keyCode
+      let ctrlKey = e.ctrlKey || e.metaKey
+      if (ctrlKey) {
+        if (keyCode === 69) {
+          ipcRenderer.send('openDevTools')
+        }
+        if (keyCode === 70) {
+          this.actionSetSearching('key:')
+        }
+      }
+      if (keyCode === 27) {
+        this.$postViewer.hide()
+      }
+    }
+  }
   ping() {
     this.isLoading = true
     accountApi.checkPing().then(
@@ -149,6 +178,12 @@ b.highlight {
     margin: 0 0 1rem;
     img {
       max-width: 100%;
+    }
+  }
+  .inner {
+    p,
+    pre {
+      margin: 0;
     }
   }
   pre {

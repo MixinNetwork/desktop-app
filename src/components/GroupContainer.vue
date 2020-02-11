@@ -14,7 +14,7 @@
           @user-click-a="cancel"
         ></UserSelectItem>
       </div>
-      <Search class="nav" @input="onInput" />
+      <Search id="groupContainerSearch" class="nav" @input="onInput" />
       <mixin-scrollbar>
         <ul class="list">
           <UserItem

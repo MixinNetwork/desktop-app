@@ -9,6 +9,12 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="file" @click="openFile">
+          <ReplyMessageItem
+            v-if="message.quoteContent"
+            :message="JSON.parse(message.quoteContent)"
+            :me="me"
+            class="reply"
+          ></ReplyMessageItem>
           <spinner class="loading" v-if="loading"></spinner>
           <AttachmentIcon
             v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus"
@@ -33,6 +39,7 @@
 </template>
 <script lang="ts">
 import fs from 'fs'
+import ReplyMessageItem from './ReplyMessageItem.vue'
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import BadgeItem from './BadgeItem.vue'
@@ -46,6 +53,7 @@ import { Getter } from 'vuex-class'
 
 @Component({
   components: {
+    ReplyMessageItem,
     spinner,
     AttachmentIcon,
     BadgeItem,
@@ -142,7 +150,6 @@ export default class FileItem extends Vue {
     min-height: 0.85rem;
   }
   .file {
-    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -150,13 +157,18 @@ export default class FileItem extends Vue {
     width: 12rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
+    flex-wrap: wrap;
+    .reply {
+      width: 100%;
+      margin-bottom: 0;
+    }
     .loading {
       width: 2.5rem;
       height: 2.5rem;
-      margin-right: 0.75rem;
+      margin: 0.75rem;
     }
     .ic {
-      margin-right: 0.75rem;
+      margin: 0.75rem;
       background: #f2f2f6;
       border-radius: 1.25rem;
       display: flex;
@@ -172,6 +184,7 @@ export default class FileItem extends Vue {
       }
     }
     .content {
+      padding: 0.75rem 0.75rem 0.75rem 0;
       display: flex;
       flex: 1;
       flex-direction: column;

@@ -16,6 +16,7 @@ import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util'
+import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
 
@@ -95,31 +96,8 @@ class ReceiveWorker extends BaseWorker {
       user_id: data.user_id,
       category: data.category,
       content: decoded,
-      media_url: null,
-      media_mime_type: null,
-      media_size: null,
-      media_duration: null,
-      media_width: null,
-      media_height: null,
-      media_hash: null,
-      thumb_image: null,
-      media_key: null,
-      media_digest: null,
-      media_status: null,
       status: status,
-      created_at: data.created_at,
-      action: null,
-      participant_id: null,
-      snapshot_id: null,
-      hyperlink: null,
-      name: null,
-      album_id: null,
-      sticker_id: null,
-      shared_user_id: null,
-      media_waveform: null,
-      quote_message_id: null,
-      quote_content: null,
-      thumb_url: null
+      created_at: data.created_at
     }
     messageDao.insertMessage(message)
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
@@ -218,31 +196,9 @@ class ReceiveWorker extends BaseWorker {
       user_id: data.user_id,
       category: data.category,
       content: decoded,
-      media_url: null,
-      media_mime_type: null,
-      media_size: null,
-      media_duration: null,
-      media_width: null,
-      media_height: null,
-      media_hash: null,
-      thumb_image: null,
-      media_key: null,
-      media_digest: null,
-      media_status: null,
       status: status,
       created_at: data.created_at,
-      action: null,
-      participant_id: null,
-      snapshot_id: decodedData.snapshot_id,
-      hyperlink: null,
-      name: null,
-      album_id: null,
-      sticker_id: null,
-      shared_user_id: null,
-      media_waveform: null,
-      quote_message_id: null,
-      quote_content: null,
-      thumb_url: null
+      snapshot_id: decodedData.snapshot_id
     }
     messageDao.insertMessage(message)
     store.dispatch('refreshMessage', data.conversation_id)
@@ -277,31 +233,10 @@ class ReceiveWorker extends BaseWorker {
       user_id: userId,
       category: data.category,
       content: '',
-      media_url: null,
-      media_mime_type: null,
-      media_size: null,
-      media_duration: null,
-      media_width: null,
-      media_height: null,
-      media_hash: null,
-      thumb_image: null,
-      media_key: null,
-      media_digest: null,
-      media_status: null,
       status: status,
       created_at: data.created_at,
       action: systemMessage.action,
-      participant_id: systemMessage.participant_id,
-      snapshot_id: null,
-      hyperlink: null,
-      name: null,
-      album_id: null,
-      sticker_id: null,
-      shared_user_id: null,
-      media_waveform: null,
-      quote_message_id: null,
-      quote_content: null,
-      thumb_url: null
+      participant_id: systemMessage.participant_id
     }
     const accountId = JSON.parse(localStorage.getItem('account')).user_id
     if (
@@ -431,15 +366,15 @@ class ReceiveWorker extends BaseWorker {
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
+    let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
+    let quoteContent = null
+    if (quoteMessage) {
+      quoteContent = JSON.stringify(quoteMessage)
+    }
     if (data.category.endsWith('_TEXT')) {
       let plain = plaintext
       if (data.category === 'PLAIN_TEXT') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
-      }
-      let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
-      let quoteContent = null
-      if (quoteMessage) {
-        quoteContent = JSON.stringify(quoteMessage)
       }
       const message = {
         message_id: data.message_id,
@@ -447,31 +382,10 @@ class ReceiveWorker extends BaseWorker {
         user_id: data.user_id,
         category: data.category,
         content: plain,
-        media_url: null,
-        media_mime_type: null,
-        media_size: null,
-        media_duration: null,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
-        media_key: null,
-        media_digest: null,
-        media_status: null,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
         quote_message_id: data.quote_message_id,
-        quote_content: quoteContent,
-        thumb_url: null
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
@@ -480,44 +394,19 @@ class ReceiveWorker extends BaseWorker {
       if (data.category === 'PLAIN_POST') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
       }
-      let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
-      let quoteContent = null
-      if (quoteMessage) {
-        quoteContent = JSON.stringify(quoteMessage)
-      }
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
         user_id: data.user_id,
         category: data.category,
         content: plain,
-        media_url: null,
-        media_mime_type: null,
-        media_size: null,
-        media_duration: null,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
-        media_key: null,
-        media_digest: null,
-        media_status: null,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
         quote_message_id: data.quote_message_id,
-        quote_content: quoteContent,
-        thumb_url: null
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
+      plain = contentUtil.renderMdToText(plain)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)
@@ -531,31 +420,19 @@ class ReceiveWorker extends BaseWorker {
         user_id: data.user_id,
         category: data.category,
         content: mediaData.attachment_id,
-        media_url: null,
         media_mime_type: mediaData.mime_type,
         media_size: mediaData.size,
         media_duration: mediaData.duration,
         media_width: mediaData.width,
         media_height: mediaData.height,
-        media_hash: null,
         thumb_image: mediaData.thumbnail,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: null
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       store.dispatch('startLoading', message.message_id)
@@ -576,31 +453,20 @@ class ReceiveWorker extends BaseWorker {
         user_id: data.user_id,
         category: data.category,
         content: mediaData.attachment_id,
-        media_url: null,
         media_mime_type: mediaData.mime_type,
         media_size: mediaData.size,
         media_duration: mediaData.duration,
         media_width: mediaData.width,
         media_height: mediaData.height,
-        media_hash: null,
         thumb_image: mediaData.thumbnail,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
         name: data.name,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: null
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, {
@@ -618,31 +484,16 @@ class ReceiveWorker extends BaseWorker {
         user_id: data.user_id,
         category: data.category,
         content: mediaData.attachment_id,
-        media_url: null,
         media_mime_type: mediaData.mime_type,
         media_size: mediaData.size,
-        media_duration: null,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
         name: mediaData.name,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: null
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, {
@@ -660,31 +511,16 @@ class ReceiveWorker extends BaseWorker {
         user_id: data.user_id,
         category: data.category,
         content: mediaData.attachment_id,
-        media_url: null,
-        media_mime_type: null,
         media_size: mediaData.size,
         media_duration: mediaData.duration,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
         media_key: mediaData.key,
         media_digest: mediaData.digest,
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: new Date().toISOString(),
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
         media_waveform: mediaData.waveform,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: null
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, {
@@ -701,32 +537,13 @@ class ReceiveWorker extends BaseWorker {
         conversation_id: data.conversation_id,
         user_id: data.user_id,
         category: data.category,
-        content: null,
-        media_url: null,
-        media_mime_type: null,
-        media_size: null,
-        media_duration: null,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
-        media_key: null,
-        media_digest: null,
-        media_status: null,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
         name: stickerData.name,
         album_id: stickerData.album_id,
         sticker_id: stickerData.sticker_id,
-        shared_user_id: null,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: null
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
@@ -744,31 +561,11 @@ class ReceiveWorker extends BaseWorker {
         user_id: data.user_id,
         category: data.category,
         content: plaintext,
-        media_url: null,
-        media_mime_type: null,
-        media_size: null,
-        media_duration: null,
-        media_width: null,
-        media_height: null,
-        media_hash: null,
-        thumb_image: null,
-        media_key: null,
-        media_digest: null,
-        media_status: null,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
         shared_user_id: contactData.user_id,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: null
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       await this.syncUser(contactData.user_id)
@@ -784,30 +581,13 @@ class ReceiveWorker extends BaseWorker {
         category: data.category,
         content: plaintext,
         media_url: liveData.url,
-        media_mime_type: null,
-        media_size: null,
-        media_duration: null,
         media_width: liveData.width,
         media_height: liveData.height,
-        media_hash: null,
-        thumb_image: null,
-        media_key: null,
-        media_digest: null,
-        media_status: null,
         status: status,
         created_at: data.created_at,
-        action: null,
-        participant_id: null,
-        snapshot_id: null,
-        hyperlink: null,
-        name: null,
-        album_id: null,
-        sticker_id: null,
-        shared_user_id: null,
-        media_waveform: null,
-        quote_message_id: null,
-        quote_content: null,
-        thumb_url: liveData.thumb_url
+        thumb_url: liveData.thumb_url,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendLive')

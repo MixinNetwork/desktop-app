@@ -9,13 +9,37 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
+          <ReplyMessageItem
+            v-if="message.quoteContent"
+            :message="JSON.parse(message.quoteContent)"
+            :me="me"
+            class="reply"
+          ></ReplyMessageItem>
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
               <spinner class="loading" v-if="loading"></spinner>
-              <svg-icon class="arrow" icon-class="arrow-down" v-else-if="waitStatus && (message.userId !== me.user_id || !message.mediaUrl)" @click="downloadOrUploadAudio" />
-              <svg-icon class="arrow" icon-class="arrow-up" v-else-if="waitStatus && message.userId === me.user_id" @click="downloadOrUploadAudio" />
-              <svg-icon icon-class="ic_audio_play" v-else-if="audioStatus === 'play'" @click="playAudio" />
-              <svg-icon icon-class="ic_audio_pause" v-else-if="audioStatus === 'pause'" @click="playAudio" />
+              <svg-icon
+                class="arrow"
+                icon-class="arrow-down"
+                v-else-if="waitStatus && (message.userId !== me.user_id || !message.mediaUrl)"
+                @click="downloadOrUploadAudio"
+              />
+              <svg-icon
+                class="arrow"
+                icon-class="arrow-up"
+                v-else-if="waitStatus && message.userId === me.user_id"
+                @click="downloadOrUploadAudio"
+              />
+              <svg-icon
+                icon-class="ic_audio_play"
+                v-else-if="audioStatus === 'play'"
+                @click="playAudio"
+              />
+              <svg-icon
+                icon-class="ic_audio_pause"
+                v-else-if="audioStatus === 'pause'"
+                @click="playAudio"
+              />
             </span>
             <!-- <span class="audio-time">{{time}}</span> -->
             <div class="progress-box">
@@ -45,6 +69,7 @@
   </div>
 </template>
 <script lang="ts">
+import ReplyMessageItem from './ReplyMessageItem.vue'
 import spinner from '@/components/Spinner.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
@@ -56,6 +81,7 @@ import { Getter } from 'vuex-class'
 
 @Component({
   components: {
+    ReplyMessageItem,
     spinner,
     BadgeItem,
     TimeAndStatus
@@ -69,8 +95,8 @@ export default class AudioItem extends Vue {
 
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
-  time: string= '00:00'
-  duration: string= '00:00'
+  time: string = '00:00'
+  duration: string = '00:00'
   progressStyle: any = { width: '' }
   dotStyle: any = { left: '' }
   audioStatus: string = 'play'
@@ -194,7 +220,7 @@ export default class AudioItem extends Vue {
 
   get waitStatus() {
     const { message } = this
-    return (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
   }
   get loading() {
     return this.attachment.includes(this.message.messageId)
@@ -226,7 +252,6 @@ export default class AudioItem extends Vue {
     overflow: hidden;
     background: rgba(255, 255, 255, 1);
     border-radius: 0.2rem;
-    padding: 0.6rem 1.5rem 0.6rem 0.6rem;
     box-shadow: 0px 1px 1px #aaaaaa33;
     .name {
       font-size: 1rem;
@@ -235,6 +260,7 @@ export default class AudioItem extends Vue {
       text-overflow: ellipsis;
     }
     .mixin-audio {
+      padding: 0.6rem 1.5rem 0.6rem 0.6rem;
       display: flex;
       align-items: center;
       .audio-status {

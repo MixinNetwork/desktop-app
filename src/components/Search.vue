@@ -28,10 +28,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Watch, Component } from 'vue-property-decorator'
+import { Vue, Watch, Prop, Component } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
 
 @Component
 export default class Search extends Vue {
+  @Prop(String) readonly id: any
+  @Prop(Boolean) readonly autofocus: any
+
   focus: any = false
   keyword: any = ''
   inputFlag: any = false
@@ -66,26 +70,48 @@ export default class Search extends Vue {
     }
   }
 
+  @Getter('inputFocusing') inputFocusing: any
+
+  @Action('setInputFocusing') actionSetInputFocusing: any
+  @Action('setSearching') actionSetSearching: any
+
+  mounted() {
+    if (this.autofocus) {
+      setTimeout(() => {
+        // @ts-ignore
+        this.$refs.box.focus()
+      }, 100)
+    }
+  }
+
   onFocus() {
     this.focus = true
+    this.actionSetInputFocusing({ focusing: this.id })
   }
   onBlur() {
-    if (this.keyword === '') {
-      this.focus = false
-    }
+    this.focus = false
+    setTimeout(() => {
+      if (this.keyword === '') {
+        this.actionSetInputFocusing({ focusing: '' })
+      } else if (this.inputFocusing === this.id && this.$refs.box) {
+        // @ts-ignore
+        this.$refs.box.focus()
+      }
+    }, 30)
   }
   back() {
     this.focus = false
     this.keyword = ''
     this.$emit('input', '')
+    // @ts-ignore
+    this.$refs.box.blur()
   }
   keyup(e: any) {
-    if (e.keyCode === 27) {
+    if (e.keyCode === 27 && this.focus) {
+      if (this.autofocus) {
+        return this.actionSetSearching('')
+      }
       this.back()
-      setTimeout(() => {
-        // @ts-ignore
-        this.$refs.box.blur()
-      })
     }
   }
 }

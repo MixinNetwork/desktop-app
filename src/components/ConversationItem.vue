@@ -211,7 +211,6 @@ li.conversation.item {
   display: flex;
   align-items: stretch;
   padding: 0.8rem 0.8rem;
-  &:hover,
   &.current {
     background: #f7f7f7;
   }

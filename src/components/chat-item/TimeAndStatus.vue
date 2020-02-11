@@ -33,7 +33,7 @@ export default class TimeAndStatus extends Vue {
     float: right;
     position: absolute;
     bottom: 0.3rem;
-    right: 0.2rem;
+    right: 0.5rem;
     align-items: flex-end;
   }
   &.relative {

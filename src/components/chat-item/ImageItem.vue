@@ -7,25 +7,37 @@
         :style="{color: getColor(message.userId)}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :style="{maxWidth: `calc(${borderSetObject(true)}px + 1.6rem)`}" :type="message.type">
-        <div class="content" :class="{zoom: !waitStatus}">
-          <div class="set" :style="borderSet()">
-            <img
-              class="image"
-              :src="media()"
-              :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-              :style="borderSetObject()"
-              @click="preview"
-            />
+      <BadgeItem
+        @handleMenuClick="$emit('handleMenuClick')"
+        :style="{maxWidth: `calc(${borderSetObject(true)}px + 1.6rem)`}"
+        :type="message.type"
+      >
+        <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
+          <div class="content-in">
+            <div class="set" :style="borderSet()">
+              <ReplyMessageItem
+                v-if="message.quoteContent"
+                :message="JSON.parse(message.quoteContent)"
+                :me="me"
+                class="reply"
+              ></ReplyMessageItem>
+              <img
+                class="image"
+                :src="media()"
+                :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+                :style="borderSetObject()"
+                @click="preview"
+              />
+            </div>
+            <spinner class="loading" v-if="loading"></spinner>
+            <AttachmentIcon
+              v-else-if="waitStatus"
+              class="loading"
+              :me="me"
+              :message="message"
+              @mediaClick="$emit('mediaClick')"
+            ></AttachmentIcon>
           </div>
-          <spinner class="loading" v-if="loading"></spinner>
-          <AttachmentIcon
-            v-else-if="waitStatus"
-            class="loading"
-            :me="me"
-            :message="message"
-            @mediaClick="$emit('mediaClick')"
-          ></AttachmentIcon>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />
           </div>
@@ -36,12 +48,11 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import {
-  Getter
-} from 'vuex-class'
+import { Getter } from 'vuex-class'
 
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
@@ -54,6 +65,7 @@ let maxHeight = convertRemToPixels(15)
 
 @Component({
   components: {
+    ReplyMessageItem,
     BadgeItem,
     spinner,
     AttachmentIcon,
@@ -147,7 +159,7 @@ export default class ImageItem extends Vue {
 
   get waitStatus() {
     const { message } = this
-    return (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
   }
   get loading() {
     return this.attachment.includes(this.message.messageId)
@@ -157,11 +169,13 @@ export default class ImageItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   .username {
     display: inline-block;
     font-size: 0.85rem;
     max-width: 80%;
-    margin-left: 0.8rem;
+    margin-left: 0.4rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
@@ -175,6 +189,19 @@ export default class ImageItem extends Vue {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
+    .content-in {
+      font-size: 0;
+    }
+    &.reply {
+      .content-in {
+        background: #fff;
+        padding: 0.15rem 0.2rem 0.2rem;
+        border-radius: 0.2rem;
+      }
+    }
+    .reply {
+      margin-bottom: 0.15rem;
+    }
     &.zoom {
       cursor: zoom-in;
     }
@@ -190,18 +217,17 @@ export default class ImageItem extends Vue {
     .set {
       max-width: 10rem;
       max-height: 15rem;
-      margin-left: 0.8rem;
-      margin-right: 0.8rem;
       overflow: hidden;
       position: relative;
       .image {
         border-radius: 0.2rem;
       }
+      font-size: 0;
     }
     .bottom {
       display: flex;
       justify-content: flex-end;
-      margin-right: 0.8rem;
+      padding: 0.15rem 0;
     }
   }
 }

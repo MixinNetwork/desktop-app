@@ -1,7 +1,7 @@
 <template>
   <div class="message" :style="abg">
     <div class="diver" :style="bg"></div>
-    <div class="layout" @click="$emit('reply-click', message)">
+    <div class="layout" @click="reply">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
         <svg-icon
@@ -54,7 +54,7 @@
           class="markdown"
           v-if="messageType() === 'post'"
         >{{getContent}}</VueMarkdown>
-        <div v-else>{{getContent}}</div>
+        <span v-else>{{getContent}}</span>
       </span>
     </div>
     <img
@@ -160,6 +160,13 @@ export default class ReplyMessageItem extends Vue {
     return userDao.findUserById(this.message.sharedUserId)
   }
 
+  reply() {
+    this.$root.$emit('goSearchMessagePos', {
+      message: this.message,
+      keyword: ''
+    })
+  }
+
   media(message: any) {
     if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
       return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
@@ -189,6 +196,7 @@ export default class ReplyMessageItem extends Vue {
     display: flex;
     overflow: hidden;
     flex-direction: column;
+    cursor: pointer;
 
     .name {
       font-size: 0.7rem;
@@ -224,6 +232,7 @@ export default class ReplyMessageItem extends Vue {
   }
   .reply_icon {
     height: 0.875rem;
+    margin-right: 0.2rem;
     vertical-align: text-top;
   }
 }

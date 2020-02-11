@@ -110,6 +110,45 @@ export const MessageStatus = {
   FAILED: 'FAILED'
 }
 
+const BaseMessage = {
+  message_id: null,
+  conversation_id: null,
+  user_id: null,
+  category: null,
+  content: null,
+  media_url: null,
+  media_mime_type: null,
+  media_size: null,
+  media_duration: null,
+  media_width: null,
+  media_height: null,
+  media_hash: null,
+  thumb_image: null,
+  media_key: null,
+  media_digest: null,
+  media_status: null,
+  status: null,
+  created_at: null,
+  action: null,
+  participant_id: null,
+  snapshot_id: null,
+  hyperlink: null,
+  name: null,
+  album_id: null,
+  sticker_id: null,
+  shared_user_id: null,
+  media_waveform: null,
+  quote_message_id: null,
+  quote_content: null,
+  thumb_url: null
+}
+
+export function getCompleteMessage(message: any) {
+  const initMessage = JSON.parse(JSON.stringify(BaseMessage))
+  Object.assign(initMessage, message)
+  return initMessage
+}
+
 export function messageType(type: string) {
   if (type.endsWith('_STICKER')) {
     return 'sticker'

@@ -3,7 +3,7 @@ import moment from 'moment'
 import uuidv4 from 'uuid/v4'
 import db from '@/persistence/db'
 import contentUtil from '@/utils/content_util'
-import { PerPageMessageCount } from '@/utils/constants'
+import { PerPageMessageCount, getCompleteMessage } from '@/utils/constants'
 
 class MessageDao {
   me() {
@@ -46,7 +46,11 @@ class MessageDao {
       message.status,
       createdAt
     ])
-    this.insertOrReplaceMessageFts(messageId, message.content)
+    let content = message.content
+    if (message.category.endsWith('_POST')) {
+      content = contentUtil.renderMdToText(content)
+    }
+    this.insertOrReplaceMessageFts(messageId, content)
   }
 
   insertContactMessage(message: { conversationId: any; sharedUserId: any; category: any; content: any; status: any }) {
@@ -90,39 +94,7 @@ class MessageDao {
   }
 
   insertMessage(message: any) {
-    const finalMsg = {
-      message_id: null,
-      conversation_id: null,
-      user_id: null,
-      category: null,
-      content: null,
-      media_url: null,
-      media_mime_type: null,
-      media_size: null,
-      media_duration: null,
-      media_width: null,
-      media_height: null,
-      media_hash: null,
-      thumb_image: null,
-      media_key: null,
-      media_digest: null,
-      media_status: null,
-      status: null,
-      created_at: null,
-      action: null,
-      participant_id: null,
-      snapshot_id: null,
-      hyperlink: null,
-      name: null,
-      album_id: null,
-      sticker_id: null,
-      shared_user_id: null,
-      media_waveform: null,
-      quote_message_id: null,
-      quote_content: null,
-      thumb_url: null
-    }
-    Object.assign(finalMsg, message)
+    const finalMsg = getCompleteMessage(message)
 
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
@@ -133,6 +105,10 @@ class MessageDao {
     }
     if (message.category.endsWith('_DATA')) {
       this.insertOrReplaceMessageFts(message.message_id, message.name)
+    }
+    if (message.category.endsWith('_POST')) {
+      const content = contentUtil.renderMdToText(message.content)
+      this.insertOrReplaceMessageFts(message.message_id, content)
     }
   }
 
@@ -182,7 +158,7 @@ class MessageDao {
           'SELECT m.message_id FROM messages_fts m_fts ' +
             'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
             'LEFT JOIN users u ON m.user_id = u.user_id ' +
-            'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA") ' +
+            'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA" OR m.category = "SIGNAL_POST" OR m.category = "PLAIN_POST") ' +
             'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ?'
         )
         .all(conversationId, keywordFinal)
@@ -221,7 +197,7 @@ class MessageDao {
           'FROM messages_fts m_fts ' +
           'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
           'LEFT JOIN users u ON m.user_id = u.user_id ' +
-          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA") ' +
+          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA" OR m.category = "SIGNAL_POST" OR m.category = "PLAIN_POST") ' +
           'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
       )
       .all(conversationId, keywordFinal)

@@ -40,6 +40,13 @@ export default class Editor extends Vue {
 
   post: any = ''
 
+  mounted() {
+    setTimeout(() => {
+      // @ts-ignore
+      this.$refs.box.focus()
+    }, 100)
+  }
+
   sendPost() {
     let { conversation, category } = this
     const message = {

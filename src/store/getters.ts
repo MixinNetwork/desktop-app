@@ -68,5 +68,8 @@ export default {
   },
   editing: (state: { editing: boolean }) => {
     return state.editing
+  },
+  inputFocusing: (state: { inputFocusing: string }) => {
+    return state.inputFocusing
   }
 }

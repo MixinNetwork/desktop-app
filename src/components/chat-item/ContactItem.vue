@@ -9,11 +9,21 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="contact" @click="$emit('user-share-click')">
+          <ReplyMessageItem
+            v-if="message.quoteContent"
+            :message="JSON.parse(message.quoteContent)"
+            :me="me"
+            class="reply"
+          ></ReplyMessageItem>
           <Avatar id="avatar" :user="user" />
           <div class="content">
             <span class="name">
               <span>{{message.sharedUserFullName}}</span>
-              <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="message.sharedUserAppId" />
+              <svg-icon
+                style="font-size: 0.875rem"
+                icon-class="ic_robot"
+                v-if="message.sharedUserAppId"
+              />
             </span>
             <div class="bottom">
               <span class="number">{{message.sharedUserIdentityNumber}}</span>
@@ -26,6 +36,7 @@
   </div>
 </template>
 <script lang="ts">
+import ReplyMessageItem from './ReplyMessageItem.vue'
 import Avatar from '@/components/Avatar.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
@@ -37,6 +48,7 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
   components: {
+    ReplyMessageItem,
     Avatar,
     BadgeItem,
     TimeAndStatus
@@ -84,7 +96,6 @@ export default class ContactItem extends Vue {
   }
   .contact {
     cursor: pointer;
-    padding: 0.75rem;
     background: white;
     display: flex;
     flex-direction: row;
@@ -93,13 +104,18 @@ export default class ContactItem extends Vue {
     max-width: 14rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
+    flex-wrap: wrap;
+    .reply {
+      margin-bottom: 0;
+    }
     #avatar {
       width: 2.625rem;
       height: 2.625rem;
-      margin-right: 0.75rem;
       flex-shrink: 0;
+      margin: 0.75rem;
     }
     .content {
+      padding: 0.75rem 0.75rem 0.75rem 0;
       display: flex;
       flex: 1;
       flex-direction: column;

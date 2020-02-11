@@ -7,7 +7,7 @@
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
     <header class="search-bar">
-      <Search class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
+      <Search id="chatSearch" :autofocus="true" class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
     </header>
     <mixin-scrollbar>
       <div class="ul">
@@ -37,6 +37,7 @@
 import Search from '@/components/Search.vue'
 import SearchItem from '@/components/SearchItem.vue'
 import messageDao from '@/dao/message_dao'
+import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
@@ -49,8 +50,8 @@ import { Getter } from 'vuex-class'
   }
 })
 export default class ChatSearch extends Vue {
-@Getter('searching') readonly searchingBefore: any
-@Getter('currentConversation') readonly conversation: any
+  @Getter('searching') readonly searchingBefore: any
+  @Getter('currentConversation') readonly conversation: any
 
   timeoutListener: any = null
   keyword: any = ''
@@ -63,6 +64,10 @@ export default class ChatSearch extends Vue {
     this.searching = true
     const keyword = this.searchingBefore.replace(/^key:/, '')
     this.onInput(keyword)
+  }
+
+  renderMdToText(content: string) {
+    return contentUtil.renderMdToText(content)
   }
 
   onInput(keyword: any) {
@@ -78,6 +83,9 @@ export default class ChatSearch extends Vue {
           const keys: any = []
           data.forEach((item: any) => {
             if (keys.indexOf(item.message_id) === -1) {
+              if (item.category.endsWith('_POST')) {
+                item.content = this.renderMdToText(item.content)
+              }
               list.push(item)
             }
             keys.push(item.message_id)

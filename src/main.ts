@@ -36,8 +36,26 @@ Vue.prototype.$blaze = blaze
 moment.locale(navigator.language)
 Vue.prototype.$moment = moment
 Vue.prototype.$electron = electron
-document.onselectstart = () => {
-  Vue.prototype.$selectNes = document.getSelection()
+let mouseMoveFlag = false
+document.onmousedown = () => {
+  Vue.prototype.$selectNes = null
+  mouseMoveFlag = true
+  setTimeout(() => {
+    if (mouseMoveFlag) {
+      Vue.prototype.$selectNes = document.getSelection()
+    } else {
+      Vue.prototype.$selectNes = null
+    }
+  }, 30)
+}
+document.onmouseup = () => {
+  const selectNes = document.getSelection()
+  // @ts-ignore
+  if (selectNes && selectNes.baseOffset !== selectNes.extentOffset) {
+    mouseMoveFlag = true
+  } else {
+    mouseMoveFlag = false
+  }
 }
 
 new Vue({

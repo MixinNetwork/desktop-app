@@ -8,8 +8,16 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content">
-          <video class="media" :src="message.mediaUrl" controls="controls" :style="video"></video>
+        <div class="content" :class="{reply: message.quoteContent}">
+          <div class="content-in">
+            <ReplyMessageItem
+              v-if="message.quoteContent"
+              :message="JSON.parse(message.quoteContent)"
+              :me="me"
+              class="reply"
+            ></ReplyMessageItem>
+            <video class="media" :src="message.mediaUrl" controls="controls" :style="video"></video>
+          </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />
           </div>
@@ -19,6 +27,7 @@
   </div>
 </template>
 <script lang="ts">
+import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus } from '@/utils/constants'
@@ -28,6 +37,7 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
   components: {
+    ReplyMessageItem,
     BadgeItem,
     TimeAndStatus
   }
@@ -88,6 +98,19 @@ export default class VideoItem extends Vue {
     flex-direction: column;
     text-align: start;
     overflow: hidden;
+    .content-in {
+      font-size: 0;
+    }
+    &.reply {
+      .content-in {
+        background: #fff;
+        padding: 0.15rem 0.2rem 0.2rem;
+        border-radius: 0.2rem;
+      }
+    }
+    .reply {
+      margin-bottom: 0.15rem;
+    }
     .media {
       font-size: 1rem;
       overflow: hidden;
@@ -97,6 +120,7 @@ export default class VideoItem extends Vue {
     }
     .bottom {
       display: flex;
+      padding: 0.15rem 0;
       justify-content: flex-end;
     }
   }

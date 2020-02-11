@@ -365,15 +365,15 @@ class ReceiveWorker extends BaseWorker {
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
+    let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
+    let quoteContent = null
+    if (quoteMessage) {
+      quoteContent = JSON.stringify(quoteMessage)
+    }
     if (data.category.endsWith('_TEXT')) {
       let plain = plaintext
       if (data.category === 'PLAIN_TEXT') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
-      }
-      let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
-      let quoteContent = null
-      if (quoteMessage) {
-        quoteContent = JSON.stringify(quoteMessage)
       }
       const message = {
         message_id: data.message_id,
@@ -392,11 +392,6 @@ class ReceiveWorker extends BaseWorker {
       let plain = plaintext
       if (data.category === 'PLAIN_POST') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
-      }
-      let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
-      let quoteContent = null
-      if (quoteMessage) {
-        quoteContent = JSON.stringify(quoteMessage)
       }
       const message = {
         message_id: data.message_id,
@@ -433,7 +428,9 @@ class ReceiveWorker extends BaseWorker {
         media_digest: mediaData.digest,
         media_status: MediaStatus.CANCELED,
         status: status,
-        created_at: data.created_at
+        created_at: data.created_at,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       store.dispatch('startLoading', message.message_id)
@@ -465,7 +462,9 @@ class ReceiveWorker extends BaseWorker {
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
-        name: data.name
+        name: data.name,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, {
@@ -490,7 +489,9 @@ class ReceiveWorker extends BaseWorker {
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: data.created_at,
-        name: mediaData.name
+        name: mediaData.name,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, {
@@ -515,7 +516,9 @@ class ReceiveWorker extends BaseWorker {
         media_status: MediaStatus.CANCELED,
         status: status,
         created_at: new Date().toISOString(),
-        media_waveform: mediaData.waveform
+        media_waveform: mediaData.waveform,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       store.dispatch('startLoading', message.message_id)
       downloadQueue.push(this.download, {
@@ -536,7 +539,9 @@ class ReceiveWorker extends BaseWorker {
         created_at: data.created_at,
         name: stickerData.name,
         album_id: stickerData.album_id,
-        sticker_id: stickerData.sticker_id
+        sticker_id: stickerData.sticker_id,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
@@ -556,7 +561,9 @@ class ReceiveWorker extends BaseWorker {
         content: plaintext,
         status: status,
         created_at: data.created_at,
-        shared_user_id: contactData.user_id
+        shared_user_id: contactData.user_id,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       await this.syncUser(contactData.user_id)
@@ -576,7 +583,9 @@ class ReceiveWorker extends BaseWorker {
         media_height: liveData.height,
         status: status,
         created_at: data.created_at,
-        thumb_url: liveData.thumb_url
+        thumb_url: liveData.thumb_url,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
       }
       messageDao.insertMessage(message)
       const body = i18n.t('notification.sendLive')

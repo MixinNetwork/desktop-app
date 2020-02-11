@@ -1,17 +1,7 @@
 import { checkForUpdates } from './updater'
-import { app, Menu } from 'electron'
+const { app, Menu } = require('electron')
 
 const lang = app.getLocale().split('-')[0]
-
-function emit(name) {
-  return (menuItem, window) => {
-    if (window) {
-      window.webContents.send('menu-event', { name })
-    } else {
-      ipcMain.emit('menu-event', { name })
-    }
-  }
-}
 
 let template = [
   {
@@ -25,8 +15,7 @@ let template = [
       { role: 'paste' },
       { role: 'pasteandmatchstyle' },
       { role: 'delete' },
-      { role: 'selectall' },
-      { accelerator: process.platform === 'darwin' ? 'Cmd+F' : 'Ctrl+F', click: emit('find') }
+      { role: 'selectall' }
     ]
   },
   {
@@ -34,11 +23,7 @@ let template = [
     submenu: [
       { role: 'reload' },
       { role: 'forcereload' },
-      { accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I', click(item, focusedWindow) {
-        if (focusedWindow) {
-          focusedWindow.webContents.toggleDevTools()
-        }
-      }},
+      { role: 'toggledevtools' },
       { type: 'separator' },
       { role: 'resetzoom' },
       { role: 'zoomin' },
@@ -113,8 +98,7 @@ if (lang === 'zh') {
         { role: 'paste', label: '粘贴' },
         { role: 'pasteandmatchstyle', label: '粘贴并匹配样式' },
         { role: 'delete', label: '删除' },
-        { role: 'selectall', label: '全选' },
-        { accelerator: process.platform === 'darwin' ? 'Cmd+F' : 'Ctrl+F', label: '查找', click: emit('find') }
+        { role: 'selectall', label: '全选' }
       ]
     },
     {
@@ -122,11 +106,7 @@ if (lang === 'zh') {
       submenu: [
         { role: 'reload', label: '重新加载此页' },
         { role: 'forcereload', label: '强制重新加载' },
-        { accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Ctrl+Shift+I', label: '切换开发者工具', click(item, focusedWindow) {
-          if (focusedWindow) {
-            focusedWindow.webContents.toggleDevTools()
-          }
-        }},
+        { role: 'toggledevtools', label: '切换开发者工具' },
         { type: 'separator' },
         { role: 'resetzoom', label: '重设缩放' },
         { role: 'zoomin', label: '放大' },

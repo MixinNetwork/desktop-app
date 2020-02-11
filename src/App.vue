@@ -41,7 +41,7 @@ export default class App extends Vue {
       }
     })
 
-    document.onkeydown = (e) => {
+    document.onkeydown = e => {
       let keyCode = e.keyCode
       let ctrlKey = e.ctrlKey || e.metaKey
       if (ctrlKey) {
@@ -192,10 +192,8 @@ b.highlight {
     padding: 0.5rem;
     border-radius: 0.2rem;
     overflow: hidden;
-    code {
-      white-space: normal;
-      word-break: break-word;
-    }
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
   blockquote {
     border-left: 0.2rem solid #ddd;

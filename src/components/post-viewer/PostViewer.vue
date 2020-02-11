@@ -31,14 +31,6 @@ export default class PostViewer extends Vue {
   post: any = ''
   visible: boolean = false
 
-  created() {
-    document.onkeydown = (e) => {
-      if (e.keyCode === 27) {
-        this.close()
-      }
-    }
-  }
-
   close() {
     this.visible = false
   }

@@ -29,7 +29,8 @@ export default class App extends Vue {
 
   @Action('setSearching') actionSetSearching: any
 
-  isLoading = false
+  isLoading: boolean = false
+  $postViewer: any
 
   created() {
     ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
@@ -50,6 +51,9 @@ export default class App extends Vue {
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }
+      }
+      if (keyCode === 27) {
+        this.$postViewer.hide()
       }
     }
   }

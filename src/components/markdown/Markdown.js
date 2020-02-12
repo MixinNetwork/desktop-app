@@ -14,7 +14,6 @@ import hljs from 'highlight.js'
 const md = new MarkdownIt()
 
 export default {
-
   template: '<div><slot></slot></div>',
 
   data() {

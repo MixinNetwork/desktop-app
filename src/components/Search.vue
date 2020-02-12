@@ -3,10 +3,10 @@
     <div class="layout" :style="layoutStyle">
       <div class="icon" @click="back">
         <transition name="fade-rote">
-          <font-awesome-icon icon="arrow-left" id="ic_arrow" v-show="focus" />
+          <font-awesome-icon icon="arrow-left" id="ic_arrow" v-show="focus || keyword" />
         </transition>
         <transition name="fade">
-          <font-awesome-icon icon="search" id="ic_search" v-show="!focus" />
+          <font-awesome-icon icon="search" id="ic_search" v-show="!focus && !keyword" />
         </transition>
       </div>
       <keep-alive>
@@ -82,6 +82,13 @@ export default class Search extends Vue {
         this.$refs.box.focus()
       }, 100)
     }
+    this.$root.$on('resetSearch', () => {
+      this.back()
+    })
+  }
+
+  beforeDestroy() {
+    this.$root.$off('resetSearch')
   }
 
   onFocus() {

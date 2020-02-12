@@ -520,6 +520,7 @@ export default class ChatContainer extends Vue {
       category,
       status
     }
+    this.$root.$emit('resetSearch')
     this.actionSendStickerMessage(msg)
     this.goBottom()
   }
@@ -701,6 +702,7 @@ export default class ChatContainer extends Vue {
         mediaMimeType: mimeType,
         category: category
       }
+      this.$root.$emit('resetSearch')
       this.actionSendAttachmentMessage(message)
       this.goBottom()
     }
@@ -897,6 +899,7 @@ export default class ChatContainer extends Vue {
       this.boxMessage = null
     }
     msg.msg = message
+    this.$root.$emit('resetSearch')
     this.actionSendMessage(msg)
     this.goBottom()
   }

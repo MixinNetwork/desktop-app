@@ -7,11 +7,11 @@
           <svg-icon @click="close" icon-class="ic_close" />
         </div>
         <mixin-scrollbar>
-          <VueMarkdown
+          <vue-markdown
             class="markdown ul"
-            :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+            :anchorAttributes="{rel: 'nofollow', onclick: 'linkClick(this.href)'}"
             :source="post"
-          ></VueMarkdown>
+          ></vue-markdown>
         </mixin-scrollbar>
       </div>
     </div>
@@ -20,13 +20,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 
-import VueMarkdown from 'vue-markdown'
-
-@Component({
-  components: {
-    VueMarkdown
-  }
-})
+@Component
 export default class PostViewer extends Vue {
   post: any = ''
   visible: boolean = false

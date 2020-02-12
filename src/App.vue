@@ -11,13 +11,24 @@
   </div>
 </template>
 <script lang="ts">
+
 import { Component, Vue } from 'vue-property-decorator'
 
+import browser from '@/utils/browser'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
+
+// @ts-ignore
+window.linkClick = (href) => {
+  browser.loadURL(href)
+  // @ts-ignore
+  event.preventDefault()
+  // @ts-ignore
+  event.stopPropagation()
+}
 
 @Component({
   components: {
@@ -41,7 +52,7 @@ export default class App extends Vue {
       }
     })
 
-    document.onkeydown = (e) => {
+    document.onkeydown = e => {
       let keyCode = e.keyCode
       let ctrlKey = e.ctrlKey || e.metaKey
       if (ctrlKey) {
@@ -173,34 +184,42 @@ b.highlight {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #333;
   outline: none;
-  p,
-  pre {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  h7 {
     margin: 0 0 1rem;
-    img {
-      max-width: 100%;
-    }
+    padding: 0;
   }
-  .inner {
-    p,
-    pre {
-      margin: 0;
-    }
+  p,
+  pre,
+  blockquote {
+    margin: 0 0 0.5rem;
+    padding: 0;
+  }
+  img {
+    max-width: 100%;
   }
   pre {
-    background: #f6f7fa;
+    background: #f4f4f4;
     word-break: break-all;
-    padding: 0.5rem;
+    padding: 0.2rem 0.4rem;
     border-radius: 0.2rem;
     overflow: hidden;
-    code {
-      white-space: normal;
-      word-break: break-word;
-    }
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
   blockquote {
     border-left: 0.2rem solid #ddd;
-    margin-left: 0;
-    padding-left: 0.8rem;
+    padding-left: 0.6rem;
+    margin-left: 0.2rem;
+  }
+  a {
+    color: #4b7ed2;
   }
 }
 </style>

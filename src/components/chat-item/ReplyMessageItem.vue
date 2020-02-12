@@ -49,11 +49,11 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
         />
-        <VueMarkdown
-          :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+        <vue-markdown
+          :anchorAttributes="{rel: 'nofollow', onclick: 'linkClick(this.href)'}"
           class="markdown"
           v-if="messageType() === 'post'"
-        >{{getContent}}</VueMarkdown>
+        >{{getContent}}</vue-markdown>
         <span v-else>{{getContent}}</span>
       </span>
     </div>
@@ -88,14 +88,12 @@ import { getNameColorById } from '@/utils/util'
 import Avatar from '@/components/Avatar.vue'
 import userDao from '@/dao/user_dao'
 import { messageType } from '@/utils/constants'
-import VueMarkdown from 'vue-markdown'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
   components: {
-    Avatar,
-    VueMarkdown
+    Avatar
   }
 })
 export default class ReplyMessageItem extends Vue {

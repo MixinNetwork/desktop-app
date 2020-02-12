@@ -18,6 +18,8 @@ import moment from 'moment'
 import { faArrowLeft, faArrowRight, faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import './assets'
+import 'highlight.js/styles/default.css'
+import Markdown from '@/components/markdown'
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
@@ -29,6 +31,7 @@ Vue.use(Toast)
 Vue.use(ImageViewer)
 Vue.use(Scrollbar)
 Vue.use(PostViewer)
+Vue.use(Markdown)
 
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

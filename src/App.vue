@@ -11,13 +11,24 @@
   </div>
 </template>
 <script lang="ts">
+
 import { Component, Vue } from 'vue-property-decorator'
 
+import browser from '@/utils/browser'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
+
+// @ts-ignore
+window.linkClick = (href) => {
+  browser.loadURL(href)
+  // @ts-ignore
+  event.preventDefault()
+  // @ts-ignore
+  event.stopPropagation()
+}
 
 @Component({
   components: {

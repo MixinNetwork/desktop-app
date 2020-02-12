@@ -15,7 +15,7 @@
       </mixin-scrollbar>
       <mixin-scrollbar>
         <vue-markdown
-          :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+          :anchorAttributes="{rel: 'nofollow', onclick: 'linkClick(this.href)'}"
           class="markdown ul"
           :source="post"
         ></vue-markdown>

@@ -13,7 +13,7 @@
         <div class="content">
           <div class="markdown" @click="preview">
             <vue-markdown
-              :anchorAttributes="{target: '_blank', rel: 'nofollow'}"
+              :anchorAttributes="{rel: 'nofollow', onclick: 'linkClick(this.href)'}"
               class="inner"
             >{{message.content}}</vue-markdown>
           </div>

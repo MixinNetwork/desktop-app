@@ -50,7 +50,7 @@
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
         />
         <vue-markdown
-          :anchorAttributes="{rel: 'nofollow', onclick: 'linkClick(this.href)'}"
+          :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
           class="markdown"
           v-if="messageType() === 'post'"
         >{{getContent}}</vue-markdown>
@@ -212,9 +212,7 @@ export default class ReplyMessageItem extends Vue {
   }
   .markdown {
     color: #9b9b9b;
-    transform: scale(0.5);
-    transform-origin: 0 0;
-    max-height: 2rem;
+    max-height: 2.5rem;
   }
   .image {
     width: 2.5rem;

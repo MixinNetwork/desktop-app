@@ -101,12 +101,13 @@ export default class ContactItem extends Vue {
     flex-direction: row;
     align-content: center;
     min-width: 12rem;
-    max-width: 14rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     flex-wrap: wrap;
+    max-width: 15rem;
     .reply {
       margin-bottom: 0;
+      width: 100%;
     }
     #avatar {
       width: 2.625rem;
@@ -115,12 +116,12 @@ export default class ContactItem extends Vue {
       margin: 0.75rem;
     }
     .content {
+      max-width: 10rem;
       padding: 0.75rem 0.75rem 0.75rem 0;
       display: flex;
       flex: 1;
       flex-direction: column;
       text-align: start;
-      max-width: calc(100% - 54px);
       .name {
         font-size: 1rem;
         overflow: hidden;

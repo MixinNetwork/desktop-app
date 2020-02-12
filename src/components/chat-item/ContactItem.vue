@@ -101,7 +101,6 @@ export default class ContactItem extends Vue {
     flex-direction: row;
     align-content: center;
     min-width: 12rem;
-    max-width: 14rem;
     border-radius: 0.4rem;
     box-shadow: 0px 1px 1px #77777733;
     flex-wrap: wrap;
@@ -115,12 +114,12 @@ export default class ContactItem extends Vue {
       margin: 0.75rem;
     }
     .content {
+      max-width: 14rem;
       padding: 0.75rem 0.75rem 0.75rem 0;
       display: flex;
       flex: 1;
       flex-direction: column;
       text-align: start;
-      max-width: calc(100% - 54px);
       .name {
         font-size: 1rem;
         overflow: hidden;

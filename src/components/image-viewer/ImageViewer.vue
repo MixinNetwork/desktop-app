@@ -54,10 +54,6 @@ export default {
   name: 'imageViewer',
   data() {
     return {
-      config: {
-        imgMaxWidth: window.innerWidth * 0.8,
-        imgMaxHeight: window.innerHeight * 0.8
-      },
       visible: false,
       imgVisible: false,
       imgSize: {},
@@ -138,23 +134,25 @@ export default {
       }
     },
     imgStyle() {
-      let { images, config, index, scale } = this
+      let { images, index, scale } = this
       let item = images[index]
       if (item && item.width && item.height) {
-        let size = {}
-        let imgMaxWidth = config.imgMaxWidth
-        let imgMaxHeight = config.imgMaxHeight
+        let size = {
+          width: item.width,
+          height: item.height
+        }
+        let imgMaxWidth = window.innerWidth * 0.8
+        let imgMaxHeight = window.innerHeight * 0.8
         let ratio = item.width / item.height
 
-        size.height = imgMaxHeight
-        size.width = imgMaxHeight * ratio
-        if (size.width > imgMaxWidth) {
+        if (imgMaxWidth > imgMaxHeight * ratio && item.height > imgMaxHeight) {
+          size.height = imgMaxHeight
+          size.width = imgMaxHeight * ratio
+        } else if (item.width > imgMaxWidth) {
           size.width = imgMaxWidth
           size.height = imgMaxWidth / ratio
-        } else if (size.width < imgMaxWidth / 2) {
-          size.width = imgMaxWidth / 2
-          size.height = imgMaxWidth / 2 / ratio
         }
+
         setTimeout(() => {
           const $box = this.$refs.box
 

@@ -50,7 +50,7 @@
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
         />
         <vue-markdown
-          :anchorAttributes="{rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
+          :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
           class="markdown"
           v-if="messageType() === 'post'"
         >{{getContent}}</vue-markdown>

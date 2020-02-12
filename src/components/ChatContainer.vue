@@ -420,7 +420,7 @@ export default class ChatContainer extends Vue {
   boxFocusAction() {
     if (this.$refs.box) {
       const $target = this.$refs.box
-      $target.innerHTML = this.conversation.draft || ''
+      $target.innerHTML = this.conversation ? this.conversation.draft : ''
       try {
         // @ts-ignore
         window.getSelection().collapse($target, 1)

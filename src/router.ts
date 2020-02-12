@@ -4,6 +4,13 @@ import Home from './views/Home.vue'
 import SignIn from './views/SignIn.vue'
 import Loading from './views/Loading.vue'
 import Player from './views/Player.vue'
+const originalPush = Router.prototype.push
+// @ts-ignore
+Router.prototype.push = function push(location, onResolve, onReject) {
+  if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
+  // @ts-ignore
+  return originalPush.call(this, location).catch(err => err)
+}
 Vue.use(Router)
 const router = new Router({
   base: process.env.BASE_URL,

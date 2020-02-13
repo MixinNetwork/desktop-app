@@ -323,14 +323,12 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
 
   mounted() {
-    document.onkeydown = e => {
-      if (e.keyCode === 27) {
-        this.handleHideMessageForward()
-        this.hideDetails()
-        this.hideSearch()
-        this.closeFile()
-      }
-    }
+    this.$root.$on('escKeydown', () => {
+      this.handleHideMessageForward()
+      this.hideDetails()
+      this.hideSearch()
+      this.closeFile()
+    })
     let self = this
     document.onpaste = function(event: any) {
       if (!self.conversation) return
@@ -408,6 +406,7 @@ export default class ChatContainer extends Vue {
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
+    this.$root.$off('escKeydown')
   }
 
   onFocus() {
@@ -732,7 +731,9 @@ export default class ChatContainer extends Vue {
   }
   hideDetails() {
     this.details = false
-    this.updateMenu(this.conversation)
+    if (this.conversation) {
+      this.updateMenu(this.conversation)
+    }
   }
   changeContactRelationship(action: string) {
     userApi

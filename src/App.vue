@@ -63,6 +63,7 @@ export default class App extends Vue {
       }
       if (keyCode === 27) {
         this.$postViewer.hide()
+        this.$root.$emit('escKeydown')
       }
     }
   }

@@ -131,7 +131,7 @@
         v-show="(dragging&&conversation) || file"
         :file="file"
         :dragging="dragging"
-        @onClose="onClose"
+        @close="closeFile"
         @sendFile="sendFile"
       ></FileContainer>
     </transition>
@@ -323,6 +323,12 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
 
   mounted() {
+    this.$root.$on('escKeydown', () => {
+      this.handleHideMessageForward()
+      this.hideDetails()
+      this.hideSearch()
+      this.closeFile()
+    })
     let self = this
     document.onpaste = function(event: any) {
       if (!self.conversation) return
@@ -400,6 +406,7 @@ export default class ChatContainer extends Vue {
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
+    this.$root.$off('escKeydown')
   }
 
   onFocus() {
@@ -420,7 +427,7 @@ export default class ChatContainer extends Vue {
   boxFocusAction() {
     if (this.$refs.box) {
       const $target = this.$refs.box
-      $target.innerHTML = this.conversation ? this.conversation.draft : ''
+      $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
       try {
         // @ts-ignore
         window.getSelection().collapse($target, 1)
@@ -675,10 +682,6 @@ export default class ChatContainer extends Vue {
       this.dragging = false
     }
   }
-  onClose() {
-    this.file = null
-    this.dragging = false
-  }
   sendFile() {
     if (!this.file) return
     let size = this.file.size
@@ -706,8 +709,7 @@ export default class ChatContainer extends Vue {
       this.actionSendAttachmentMessage(message)
       this.goBottom()
     }
-    this.file = null
-    this.dragging = false
+    this.closeFile()
   }
   onDragOver(e: any) {
     e.preventDefault()
@@ -729,7 +731,9 @@ export default class ChatContainer extends Vue {
   }
   hideDetails() {
     this.details = false
-    this.updateMenu(this.conversation)
+    if (this.conversation) {
+      this.updateMenu(this.conversation)
+    }
   }
   changeContactRelationship(action: string) {
     userApi
@@ -962,7 +966,7 @@ export default class ChatContainer extends Vue {
     border-bottom: 1px solid $border-color;
     padding: 0rem 1rem;
     display: flex;
-    height: 3.6rem;
+    height: 3.625rem;
     box-sizing: border-box;
     align-items: center;
     background: #ffffff;

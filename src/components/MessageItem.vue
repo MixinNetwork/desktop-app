@@ -395,10 +395,10 @@ export default class MessageItem extends Vue {
   handleMenuClick() {
     let menu: any = this.$t('menu.chat_operation')
     let messageMenu: any[] = []
-    if (canForward(this.message.type)) {
+    if (canForward(this.message)) {
       messageMenu.push(menu.forward)
     }
-    if (canReply(this.message.type)) {
+    if (canReply(this.message)) {
       messageMenu.push(menu.reply)
     }
     messageMenu.push(menu.delete)
@@ -479,15 +479,18 @@ li {
     pointer-events: all;
   }
   &.notice {
-    .layout, .bubble {
+    .send, .receive {
       transition: transform 0.2s;
-      transform-origin: 50% 50%;
+      transform-origin: 65% 50%;
     }
-    .layout {
-      transform: scale(1.02);
+    .receive {
+      transform-origin: 35% 50%;
+    }
+    .send, .receive {
+      transform: scale(1.015);
     }
     .bubble {
-      transform: scale(1.03);
+      transform: scale(1.02);
     }
     // .bubble {
     //   transition: all 0.3s;

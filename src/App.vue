@@ -11,7 +11,6 @@
   </div>
 </template>
 <script lang="ts">
-
 import { Component, Vue } from 'vue-property-decorator'
 
 import spinner from '@/components/Spinner.vue'
@@ -21,7 +20,7 @@ import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 
 // @ts-ignore
-window.linkClick = (href) => {
+window.linkClick = href => {
   // browser.loadURL(href)
   // // @ts-ignore
   // event.preventDefault()
@@ -64,6 +63,7 @@ export default class App extends Vue {
       }
       if (keyCode === 27) {
         this.$postViewer.hide()
+        this.$root.$emit('escKeydown')
       }
     }
   }
@@ -191,15 +191,26 @@ b.highlight {
   h3,
   h4,
   h5,
-  h6 {
+  h6,
+  ul {
     margin: 0 0 1rem;
     padding: 0;
   }
+
+  li,
+  dl,
+  ol,
   p,
   pre,
   blockquote {
     margin: 0 0 0.5rem;
     padding: 0;
+  }
+  li {
+    list-style: initial;
+  }
+  ul {
+    margin-left: 1.4rem;
   }
   img {
     max-width: 100%;

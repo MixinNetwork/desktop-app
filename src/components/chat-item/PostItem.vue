@@ -13,6 +13,7 @@
         <div class="content">
           <div class="markdown" @click="preview">
             <vue-markdown
+              v-if="loaded"
               :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
               class="inner"
             >{{message.content}}</vue-markdown>
@@ -50,6 +51,7 @@ export default class PostItem extends Vue {
 
   @Action('setInputFocusing') actionSetInputFocusing: any
 
+  loaded: boolean = false
   maxWidth: any = 480
   MessageStatus: any = MessageStatus
   $postViewer: any
@@ -61,6 +63,7 @@ export default class PostItem extends Vue {
     if (chatWidth * 0.8 > this.maxWidth) {
       this.maxWidth = chatWidth * 0.8
     }
+    this.loaded = true
   }
   messageOwnership() {
     let { message, me } = this

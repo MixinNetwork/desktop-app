@@ -38,7 +38,7 @@ axiosApi.interceptors.response.use(
     const tokenStr = response.config.headers.Authorization
     if (tokenStr) {
       const tokenJson = jwt.decode(tokenStr.split(' ')[1])
-      if (tokenJson.iat * 1000 < new Date().getTime() - 60000) {
+      if (tokenJson && tokenJson.iat * 1000 < new Date().getTime() - 60000) {
         tokenExpired = true
       }
     }

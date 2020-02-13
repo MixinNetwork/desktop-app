@@ -181,7 +181,29 @@ export function messageType(type: string) {
   }
 }
 
-export function canReply(type: string) {
+function mediaCheck(type: string, status: string) {
+  let mediaStatusCheck: boolean = true
+  if (status !== MediaStatus.DONE) {
+    if (
+      type === MessageCategories.SIGNAL_IMAGE ||
+      type === MessageCategories.SIGNAL_VIDEO ||
+      type === MessageCategories.SIGNAL_AUDIO ||
+      type === MessageCategories.SIGNAL_CONTACT ||
+      type === MessageCategories.SIGNAL_LIVE ||
+      type === MessageCategories.PLAIN_IMAGE ||
+      type === MessageCategories.PLAIN_VIDEO ||
+      type === MessageCategories.PLAIN_AUDIO ||
+      type === MessageCategories.PLAIN_DATA ||
+      type === MessageCategories.PLAIN_LIVE
+    ) {
+      mediaStatusCheck = false
+    }
+  }
+  return mediaStatusCheck
+}
+
+export function canReply(message: any) {
+  const { type } = message
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||
@@ -205,30 +227,36 @@ export function canReply(type: string) {
   )
 }
 
-export function canForward(type: string) {
+export function canForward(message: any) {
+  const { type, mediaStatus } = message
+  const status = mediaCheck(type, mediaStatus)
   return (
-    type === MessageCategories.SIGNAL_TEXT ||
-    type === MessageCategories.SIGNAL_IMAGE ||
-    type === MessageCategories.SIGNAL_VIDEO ||
-    type === MessageCategories.SIGNAL_AUDIO ||
-    type === MessageCategories.SIGNAL_DATA ||
-    type === MessageCategories.SIGNAL_STICKER ||
-    type === MessageCategories.SIGNAL_CONTACT ||
-    type === MessageCategories.SIGNAL_LIVE ||
-    type === MessageCategories.SIGNAL_POST ||
-    type === MessageCategories.PLAIN_TEXT ||
-    type === MessageCategories.PLAIN_IMAGE ||
-    type === MessageCategories.PLAIN_VIDEO ||
-    type === MessageCategories.PLAIN_AUDIO ||
-    type === MessageCategories.PLAIN_DATA ||
-    type === MessageCategories.PLAIN_STICKER ||
-    type === MessageCategories.PLAIN_CONTACT ||
-    type === MessageCategories.PLAIN_LIVE ||
-    type === MessageCategories.PLAIN_POST
+    (type === MessageCategories.SIGNAL_TEXT ||
+      type === MessageCategories.SIGNAL_IMAGE ||
+      type === MessageCategories.SIGNAL_VIDEO ||
+      type === MessageCategories.SIGNAL_AUDIO ||
+      type === MessageCategories.SIGNAL_DATA ||
+      type === MessageCategories.SIGNAL_STICKER ||
+      type === MessageCategories.SIGNAL_CONTACT ||
+      type === MessageCategories.SIGNAL_LIVE ||
+      type === MessageCategories.SIGNAL_POST ||
+      type === MessageCategories.PLAIN_TEXT ||
+      type === MessageCategories.PLAIN_IMAGE ||
+      type === MessageCategories.PLAIN_VIDEO ||
+      type === MessageCategories.PLAIN_AUDIO ||
+      type === MessageCategories.PLAIN_DATA ||
+      type === MessageCategories.PLAIN_STICKER ||
+      type === MessageCategories.PLAIN_CONTACT ||
+      type === MessageCategories.PLAIN_LIVE ||
+      type === MessageCategories.PLAIN_POST) &&
+    status
   )
 }
 
-export function canRecall(message: { createdAt: string | number | Date; userId: any; type: any; status: string }, userId: any) {
+export function canRecall(
+  message: { createdAt: string | number | Date; userId: any; type: any; status: string },
+  userId: any
+) {
   let offset = new Date().valueOf() - new Date(message.createdAt).valueOf()
   if (offset > 3600000) {
     return false

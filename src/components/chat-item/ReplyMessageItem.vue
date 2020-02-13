@@ -1,7 +1,7 @@
 <template>
   <div class="message" :style="abg">
     <div class="diver" :style="bg"></div>
-    <div class="layout" @click="reply">
+    <div class="layout" @click.stop="reply">
       <span class="name" :style="font">{{message.userFullName}}</span>
       <span class="content">
         <svg-icon

@@ -131,7 +131,7 @@
         v-show="(dragging&&conversation) || file"
         :file="file"
         :dragging="dragging"
-        @onClose="onClose"
+        @close="closeFile"
         @sendFile="sendFile"
       ></FileContainer>
     </transition>
@@ -323,6 +323,14 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
 
   mounted() {
+    document.onkeydown = e => {
+      if (e.keyCode === 27) {
+        this.handleHideMessageForward()
+        this.hideDetails()
+        this.hideSearch()
+        this.closeFile()
+      }
+    }
     let self = this
     document.onpaste = function(event: any) {
       if (!self.conversation) return
@@ -675,10 +683,6 @@ export default class ChatContainer extends Vue {
       this.dragging = false
     }
   }
-  onClose() {
-    this.file = null
-    this.dragging = false
-  }
   sendFile() {
     if (!this.file) return
     let size = this.file.size
@@ -706,8 +710,7 @@ export default class ChatContainer extends Vue {
       this.actionSendAttachmentMessage(message)
       this.goBottom()
     }
-    this.file = null
-    this.dragging = false
+    this.closeFile()
   }
   onDragOver(e: any) {
     e.preventDefault()

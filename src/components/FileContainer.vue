@@ -1,12 +1,12 @@
 <template>
   <div class="file_layout">
-    <div class="header" @click="$emit('onClose')">
+    <div class="header" @click="$emit('close')">
       <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImage" />
-      <div class="file" v-else>
+      <div class="file" v-else-if="fileName">
         <svg-icon style="font-size: 2.5rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
       </div>

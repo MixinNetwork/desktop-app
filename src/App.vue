@@ -184,33 +184,43 @@ b.highlight {
   color: #333;
   * {
     outline: none;
+    &:last-child {
+      margin-bottom: 0 !important;
+    }
+    &:first-child {
+      margin-top: 0 !important;
+    }
   }
-
   h1,
   h2,
   h3,
   h4,
   h5,
-  h6,
-  ul {
-    margin: 0 0 1rem;
+  h6 {
+    margin: 1rem 0;
     padding: 0;
   }
-
-  li,
   dl,
   ol,
+  ul,
+  li,
   p,
   pre,
   blockquote {
     margin: 0 0 0.5rem;
     padding: 0;
   }
-  li {
-    list-style: initial;
-  }
   ul {
-    margin-left: 1.4rem;
+    margin-left: 2rem;
+    li {
+      list-style: disc;
+    }
+  }
+  ol {
+    margin-left: 2rem;
+    li {
+      list-style: decimal;
+    }
   }
   img {
     max-width: 100%;

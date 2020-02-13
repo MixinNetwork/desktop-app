@@ -119,9 +119,6 @@ export default class PostItem extends Vue {
     .markdown {
       * {
         cursor: pointer;
-        :last-child {
-          margin-bottom: 0;
-        }
       }
       box-sizing: border-box;
       border-radius: 0.2rem;

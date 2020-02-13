@@ -479,15 +479,18 @@ li {
     pointer-events: all;
   }
   &.notice {
-    .layout, .bubble {
+    .send, .receive {
       transition: transform 0.2s;
-      transform-origin: 50% 50%;
+      transform-origin: 65% 50%;
     }
-    .layout {
-      transform: scale(1.02);
+    .receive {
+      transform-origin: 35% 50%;
+    }
+    .send, .receive {
+      transform: scale(1.015);
     }
     .bubble {
-      transform: scale(1.03);
+      transform: scale(1.02);
     }
     // .bubble {
     //   transition: all 0.3s;

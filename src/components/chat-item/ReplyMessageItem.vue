@@ -149,7 +149,7 @@ export default class ReplyMessageItem extends Vue {
     } else if (this.message.type.endsWith('_CONTACT')) {
       return this.message.sharedUserIdentityNumber
     } else if (this.message.type.endsWith('_POST')) {
-      return this.message.content
+      return this.message.content.substr(0, 500)
     } else {
       return null
     }

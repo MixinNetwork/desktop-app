@@ -1,5 +1,7 @@
 import axios from 'axios'
 import Url from 'url-parse'
+// @ts-ignore
+import jwt from 'jsonwebtoken'
 import { getToken } from '@/utils/util'
 import { clearDb } from '@/persistence/db_util'
 import { API_URL } from '@/utils/constants'
@@ -32,7 +34,15 @@ axiosApi.interceptors.request.use(
 
 axiosApi.interceptors.response.use(
   function(response: any) {
-    if (response.data.error && response.data.error.code === 500) {
+    let tokenExpired = false
+    const tokenStr = response.config.headers.Authorization
+    if (tokenStr) {
+      const tokenJson = jwt.decode(tokenStr.split(' ')[1])
+      if (tokenJson.iat * 1000 < new Date().getTime() - 60000) {
+        tokenExpired = true
+      }
+    }
+    if (response.data.error && (response.data.error.code === 500 || tokenExpired)) {
       const config: any = response.config
       if (!config || !config.retry) {
         return Promise.reject(response)

@@ -85,7 +85,11 @@ class MessageBox {
         this.messages.push(temp)
       }
       for (let i = 1; i <= lastMsgLen; i++) {
-        this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
+        const index = this.messages.length - i
+        const newMessage = lastMessages[lastMsgLen - i]
+        if (this.messages[index] && this.messages[index].messageId === newMessage.messageId) {
+          this.messages[index] = newMessage
+        }
       }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']

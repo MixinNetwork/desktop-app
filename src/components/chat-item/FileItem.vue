@@ -167,6 +167,9 @@ export default class FileItem extends Vue {
       height: 2.5rem;
       margin: 0.75rem;
     }
+    .accachment {
+      margin: 0.75rem;
+    }
     .ic {
       margin: 0.75rem;
       background: #f2f2f6;

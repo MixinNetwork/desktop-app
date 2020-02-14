@@ -326,6 +326,7 @@ export default class ChatContainer extends Vue {
       this.hideDetails()
       this.hideSearch()
       this.closeFile()
+      this.hidenReplyBox()
     })
     let self = this
     document.onpaste = function(event: any) {
@@ -916,6 +917,7 @@ export default class ChatContainer extends Vue {
     }
   }
   handleReply(message: any) {
+    this.boxFocusAction()
     this.boxMessage = message
   }
   handleForward(message: any) {

@@ -270,7 +270,6 @@ export default class ChatContainer extends Vue {
   @Getter('currentUser') user: any
   @Getter('me') me: any
   @Getter('editing') editing: any
-  @Getter('inputFocusing') inputFocusing: any
 
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
@@ -282,7 +281,6 @@ export default class ChatContainer extends Vue {
   @Action('exitGroup') actionExitGroup: any
   @Action('conversationClear') actionConversationClear: any
   @Action('toggleEditor') actionToggleEditor: any
-  @Action('setInputFocusing') actionSetInputFocusing: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
 
@@ -411,17 +409,10 @@ export default class ChatContainer extends Vue {
 
   onFocus() {
     this.boxFocus = true
-    this.actionSetInputFocusing({ focusing: 'chat' })
   }
 
   onBlur() {
     this.boxFocus = false
-    setTimeout(() => {
-      if (this.$selectNes) return
-      if (this.inputFocusing === 'chat') {
-        this.boxFocusAction()
-      }
-    }, 50)
   }
 
   boxFocusAction() {
@@ -836,7 +827,6 @@ export default class ChatContainer extends Vue {
         }
       )
     } else if (key === 'create_post') {
-      this.actionSetInputFocusing({ focusing: '' })
       this.actionToggleEditor()
     }
   }

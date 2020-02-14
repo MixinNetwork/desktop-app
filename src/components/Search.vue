@@ -71,9 +71,6 @@ export default class Search extends Vue {
     }
   }
 
-  @Getter('inputFocusing') inputFocusing: any
-
-  @Action('setInputFocusing') actionSetInputFocusing: any
   @Action('setSearching') actionSetSearching: any
 
   mounted() {
@@ -101,18 +98,9 @@ export default class Search extends Vue {
 
   onFocus() {
     this.focus = true
-    this.actionSetInputFocusing({ focusing: this.id })
   }
   onBlur() {
     this.focus = false
-    setTimeout(() => {
-      if (this.keyword === '') {
-        this.actionSetInputFocusing({ focusing: '' })
-      } else if (this.inputFocusing === this.id && this.$refs.box) {
-        // @ts-ignore
-        this.$refs.box.focus()
-      }
-    }, 30)
   }
   back() {
     this.focus = false

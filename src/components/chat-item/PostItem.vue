@@ -49,8 +49,6 @@ export default class PostItem extends Vue {
 
   @Getter('attachment') attachment: any
 
-  @Action('setInputFocusing') actionSetInputFocusing: any
-
   loaded: boolean = false
   maxWidth: any = 480
   MessageStatus: any = MessageStatus
@@ -77,7 +75,6 @@ export default class PostItem extends Vue {
   }
   preview() {
     if (this.$selectNes && this.$selectNes.baseOffset !== this.$selectNes.extentOffset) return
-    this.actionSetInputFocusing({ focusing: 'chat' })
     this.$postViewer.setPost(this.message.content)
     this.$postViewer.show()
   }

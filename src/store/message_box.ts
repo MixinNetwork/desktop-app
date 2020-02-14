@@ -12,6 +12,7 @@ class MessageBox {
   page: any
   callback: any
   count: any
+  duringRefreshMessage: boolean = false
 
   async setConversationId(conversationId: string, messagePositionIndex: number) {
     if (conversationId) {
@@ -56,6 +57,7 @@ class MessageBox {
   }
   refreshMessage(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
+      this.duringRefreshMessage = true
       const lastMessages = messageDao.getMessages(conversationId, 0)
       if (this.messagePositionIndex >= PerPageMessageCount) {
         let newCount = 0
@@ -70,6 +72,7 @@ class MessageBox {
           this.pageDown = Math.ceil(newCount / PerPageMessageCount)
           this.tempCount += newCount % PerPageMessageCount
         }
+        this.duringRefreshMessage = false
 
         return this.callback(null, newCount)
       }
@@ -85,11 +88,7 @@ class MessageBox {
         this.messages.push(temp)
       }
       for (let i = 1; i <= lastMsgLen; i++) {
-        const index = this.messages.length - i
-        const newMessage = lastMessages[lastMsgLen - i]
-        if (this.messages[index] && this.messages[index].messageId === newMessage.messageId) {
-          this.messages[index] = newMessage
-        }
+        this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
       }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
@@ -97,6 +96,7 @@ class MessageBox {
         this.scrollAction(false)
       }
       this.count = count
+      this.duringRefreshMessage = false
     }
   }
   deleteMessages(messageIds: any[]) {
@@ -118,9 +118,14 @@ class MessageBox {
       } else {
         data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
       }
-      setTimeout(() => {
-        resolve(data)
-      })
+      if (this.duringRefreshMessage) {
+        console.log('nextPage duringRefreshMessage')
+        this.nextPage(direction)
+      } else {
+        setTimeout(() => {
+          resolve(data)
+        })
+      }
     })
   }
   bindData(callback: any, scrollAction: any) {

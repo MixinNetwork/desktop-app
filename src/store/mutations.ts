@@ -152,7 +152,6 @@ export default {
     state.me = {}
     state.currentConversationId = null
     state.editing = false
-    state.inputFocusing = ''
     state.conversations = {}
     state.conversationKeys = []
     state.friends = []
@@ -298,8 +297,5 @@ export default {
   },
   toggleEditor(state: { editing: boolean }) {
     state.editing = !state.editing
-  },
-  setInputFocusing(state: { inputFocusing: string }, focusing: string) {
-    state.inputFocusing = focusing
   }
 }

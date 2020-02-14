@@ -29,7 +29,6 @@ const state = {
   currentAudio: null,
   showTime: false,
   editing: false,
-  inputFocusing: '',
   linkStatus: LinkStatus.CONNECTED
 }
 

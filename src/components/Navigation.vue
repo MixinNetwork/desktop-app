@@ -265,7 +265,7 @@ export default class Navigation extends Vue {
   }
 
   beforeDestory() {
-    this.$root.$off('keyDown')
+    this.$root.$off('directionKeyDown')
   }
 
   onItemClick(index: number) {

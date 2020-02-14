@@ -577,8 +577,5 @@ export default {
   },
   toggleEditor: ({ commit }: any) => {
     commit('toggleEditor')
-  },
-  setInputFocusing: ({ commit }: any, { focusing }: any) => {
-    commit('setInputFocusing', focusing)
   }
 }

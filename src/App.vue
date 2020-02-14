@@ -50,10 +50,14 @@ export default class App extends Vue {
       }
     })
 
-    let directionKeyDownTimeout: any = null
+    // let directionKeyDownTimeout: any = null
     document.onkeydown = e => {
       let keyCode = e.keyCode
       let ctrlKey = e.ctrlKey || e.metaKey
+      if (keyCode === 9) {
+        e.preventDefault()
+        this.$root.$emit('tabKeyDown', 'navigationSearch')
+      }
       if (ctrlKey) {
         if (keyCode === 69) {
           ipcRenderer.send('openDevTools')
@@ -61,17 +65,17 @@ export default class App extends Vue {
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }
-        clearTimeout(directionKeyDownTimeout)
-        if (keyCode === 38) {
-          directionKeyDownTimeout = setTimeout(() => {
-            this.$root.$emit('directionKeyDown', 'up')
-          }, 200)
-        }
-        if (keyCode === 40) {
-          directionKeyDownTimeout = setTimeout(() => {
-            this.$root.$emit('directionKeyDown', 'down')
-          }, 200)
-        }
+        // clearTimeout(directionKeyDownTimeout)
+        // if (keyCode === 38) {
+        //   directionKeyDownTimeout = setTimeout(() => {
+        //     this.$root.$emit('directionKeyDown', 'up')
+        //   }, 10)
+        // }
+        // if (keyCode === 40) {
+        //   directionKeyDownTimeout = setTimeout(() => {
+        //     this.$root.$emit('directionKeyDown', 'down')
+        //   }, 10)
+        // }
       }
       if (keyCode === 27) {
         this.$postViewer.hide()

@@ -14,6 +14,7 @@
           class="box"
           ref="box"
           type="text"
+          :id="id"
           placeholder="Search"
           @keyup="keyup"
           @focus="onFocus"
@@ -85,10 +86,17 @@ export default class Search extends Vue {
     this.$root.$on('resetSearch', () => {
       this.back()
     })
+    this.$root.$on('tabKeyDown', (id: string) => {
+      if (id === this.id) {
+        // @ts-ignore
+        this.$refs.box.focus()
+      }
+    })
   }
 
   beforeDestroy() {
     this.$root.$off('resetSearch')
+    this.$root.$off('tabKeyDown')
   }
 
   onFocus() {

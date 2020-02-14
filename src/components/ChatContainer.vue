@@ -20,7 +20,11 @@
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
         <svg-icon icon-class="ic_bot" />
       </div>
-      <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
+      <ChatContainerMenu
+        :conversation="conversation"
+        @showDetails="showDetails"
+        @menuCallback="menuCallback"
+      />
     </header>
     <mixin-scrollbar
       :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
@@ -162,16 +166,11 @@
 <script lang="ts">
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import {
-  ConversationCategory,
-  ConversationStatus,
-  MessageCategories,
-  MessageStatus,
-  MuteDuration
-} from '@/utils/constants'
+import { MessageCategories, MessageStatus } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
+import ChatContainerMenu from '@/components/ChatContainerMenu.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
@@ -185,17 +184,15 @@ import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
-import conversationAPI from '@/api/conversation'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
-import userApi from '@/api/user'
 
 @Component({
   components: {
-    Dropdown,
     Avatar,
     Details,
+    ChatContainerMenu,
     ChatSearch,
     ChatSticker,
     TimeDivide,
@@ -263,7 +260,7 @@ export default class ChatContainer extends Vue {
           this.file = null
         }
       }
-      this.updateMenu(newC)
+      this.$root.$emit('updateMenu', newC)
     }
   }
 
@@ -275,27 +272,20 @@ export default class ChatContainer extends Vue {
 
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
-  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
-  @Action('exitGroup') actionExitGroup: any
-  @Action('conversationClear') actionConversationClear: any
-  @Action('toggleEditor') actionToggleEditor: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
 
   $t: any
-  $Dialog: any
   $toast: any
   $refs: any
-  $moment: any
   $selectNes: any
   name: any = ''
   identity: any = ''
   participant: any = true
-  menus: any = []
   details: any = false
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
@@ -552,42 +542,6 @@ export default class ChatContainer extends Vue {
   hideStickerChoose() {
     this.stickerChoosing = false
   }
-  updateMenu(newC: any) {
-    const chatMenu = this.$t('menu.chat')
-    let menu = []
-    if (newC.category === ConversationCategory.CONTACT) {
-      menu.push(chatMenu.contact_info)
-      if (this.user.relationship !== 'FRIEND') {
-        menu.push(chatMenu.add_contact)
-      } else {
-        menu.push(chatMenu.remove_contact)
-      }
-      menu.push(chatMenu.clear)
-      this.identity = newC.ownerIdentityNumber
-      this.participant = true
-    } else {
-      if (newC.status !== ConversationStatus.QUIT) {
-        menu.push(chatMenu.exit_group)
-      }
-      menu.push(chatMenu.clear)
-      this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
-      this.participant = newC.participants.some((item: any) => {
-        return item.user_id === this.me.user_id
-      })
-    }
-
-    if (newC.status !== ConversationStatus.QUIT) {
-      if (this.isMute(newC)) {
-        menu.push(chatMenu.cancel_mute)
-      } else {
-        menu.push(chatMenu.mute)
-      }
-    }
-    if (process.env.NODE_ENV !== 'production') {
-      menu.push(chatMenu.create_post)
-    }
-    this.menus = menu
-  }
   sendSticker(stickerId: string) {
     const { conversationId } = this.conversation
     const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
@@ -618,7 +572,10 @@ export default class ChatContainer extends Vue {
     setTimeout(() => {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id || item.messageId)
+      const messageIndex = messageDao.ftsMessageIndex(
+        this.conversation.conversationId,
+        item.message_id || item.messageId
+      )
       messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1).then(() => {
         this.searchKeyword = keyword
         this.goSearchPos = false
@@ -730,19 +687,6 @@ export default class ChatContainer extends Vue {
     if (this.infiniteDownLock) return
     this.infiniteScroll('down')
   }
-  isMute(conversation: any) {
-    if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-      if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
-        return true
-      }
-    }
-    if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-      if (this.$moment().isBefore(conversation.muteUntil)) {
-        return true
-      }
-    }
-    return false
-  }
   onDragEnter(e: any) {
     this.lastEnter = e.target
     e.preventDefault()
@@ -809,112 +753,12 @@ export default class ChatContainer extends Vue {
   hideDetails() {
     this.details = false
     if (this.conversation) {
-      this.updateMenu(this.conversation)
+      this.$root.$emit('updateMenu', this.conversation)
     }
   }
-  changeContactRelationship(action: string) {
-    userApi
-      .updateRelationship({ user_id: this.user.user_id, full_name: this.user.full_name, action })
-      .then((res: any) => {
-        if (res.data) {
-          const user = res.data.data
-          this.actionSetCurrentUser(user)
-          this.updateMenu(this.conversation)
-        }
-      })
-  }
-  onItemClick(index: number) {
-    const chatMenu = this.$t('menu.chat')
-    const option = this.menus[index]
-    const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
-
-    if (key === 'contact_info') {
-      this.details = true
-    } else if (key === 'exit_group') {
-      this.actionExitGroup(this.conversation.conversationId)
-    } else if (key === 'add_contact') {
-      this.changeContactRelationship('ADD')
-    } else if (key === 'remove_contact') {
-      const userId = this.user.user_id
-      this.$Dialog.alert(
-        this.$t('chat.remove_contact'),
-        this.$t('ok'),
-        () => {
-          this.changeContactRelationship('REMOVE')
-        },
-        this.$t('cancel'),
-        () => {}
-      )
-    } else if (key === 'clear') {
-      this.$Dialog.alert(
-        this.$t('chat.chat_clear'),
-        this.$t('ok'),
-        () => {
-          this.actionConversationClear(this.conversation.conversationId)
-        },
-        this.$t('cancel'),
-        () => {
-          console.log('cancel')
-        }
-      )
-    } else if (key === 'mute') {
-      let self = this
-      let ownerId = this.conversation.ownerId
-      this.$Dialog.options(
-        this.$t('chat.mute_title'),
-        this.$t('chat.mute_menu'),
-        this.$t('ok'),
-        (picked: any) => {
-          let duration = MuteDuration.HOURS
-          if (picked === 0) {
-            duration = MuteDuration.HOURS
-          } else if (picked === 1) {
-            duration = MuteDuration.WEEK
-          } else {
-            duration = MuteDuration.YEAR
-          }
-          conversationAPI.mute(self.conversation.conversationId, duration).then((resp: any) => {
-            if (resp.data.data) {
-              const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-              if (picked === 0) {
-                this.$toast(this.$t('chat.mute_hours'))
-              } else if (picked === 1) {
-                this.$toast(this.$t('chat.mute_week'))
-              } else {
-                this.$toast(this.$t('chat.mute_year'))
-              }
-            }
-          })
-        },
-        this.$t('cancel'),
-        () => {
-          console.log('cancel')
-        }
-      )
-    } else if (key === 'cancel_mute') {
-      let self = this
-      let ownerId = this.conversation.ownerId
-      this.$Dialog.alert(
-        this.$t('chat.chat_mute_cancel'),
-        this.$t('ok'),
-        () => {
-          conversationAPI.mute(self.conversation.conversationId, 0).then((resp: any) => {
-            if (resp.data.data) {
-              const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-              this.$toast(this.$t('chat.mute_cancel'))
-            }
-          })
-        },
-        this.$t('cancel'),
-        () => {
-          console.log('cancel')
-        }
-      )
-    } else if (key === 'create_post') {
-      this.actionToggleEditor()
-    }
+  menuCallback(obj: any) {
+    this.identity = obj.identity
+    this.participant = obj.participant
   }
   onUserClick(userId: any) {
     let user = userDao.findUserById(userId)

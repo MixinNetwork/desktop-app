@@ -15,7 +15,10 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <spinner class="loading" v-if="loading"></spinner>
+          <div v-if="loading" class="loading" @click="stopLoading">
+            <svg-icon class="stop" icon-class="loading-stop" />
+            <spinner class="circle" color="rgb(75, 126, 210)"></spinner>
+          </div>
           <AttachmentIcon
             v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus || MediaStatus.PENDING === message.mediaStatus"
             @mediaClick="$emit('mediaClick')"
@@ -99,6 +102,9 @@ export default class FileItem extends Vue {
   getColor(id: string) {
     return getNameColorById(id)
   }
+  stopLoading() {
+    this.$store.dispatch('stopLoading', this.message.messageId)
+  }
 
   get loading() {
     return this.attachment.includes(this.message.messageId)
@@ -163,9 +169,26 @@ export default class FileItem extends Vue {
       margin-bottom: 0;
     }
     .loading {
+      position: relative;
       width: 2.5rem;
       height: 2.5rem;
       margin: 0.75rem;
+      .stop {
+        width: 100%;
+        height: 100%;
+        left: 0;
+        z-index: 0;
+        position: absolute;
+        line-height: 100%;
+        cursor: pointer;
+      }
+      .circle {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
     }
     .accachment {
       margin: 0.75rem;

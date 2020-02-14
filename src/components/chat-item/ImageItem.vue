@@ -29,7 +29,7 @@
                 @click="preview"
               />
             </div>
-            <div v-if="loading" class="loading" @click="stopLoading">
+            <div v-if="loading" class="loading" @click.stop="stopLoading">
               <svg-icon class="stop" icon-class="loading-stop-black" />
               <spinner class="circle"></spinner>
             </div>

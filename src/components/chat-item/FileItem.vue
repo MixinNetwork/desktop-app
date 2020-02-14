@@ -15,7 +15,7 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <div v-if="loading" class="loading" @click="stopLoading">
+          <div v-if="loading" class="loading" @click.stop="stopLoading">
             <svg-icon class="stop" icon-class="loading-stop" />
             <spinner class="circle" color="rgb(75, 126, 210)"></spinner>
           </div>

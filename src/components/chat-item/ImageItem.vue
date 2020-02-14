@@ -159,7 +159,7 @@ export default class ImageItem extends Vue {
 
   get waitStatus() {
     const { message } = this
-    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
+    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus || MediaStatus.PENDING === message.mediaStatus
   }
   get loading() {
     return this.attachment.includes(this.message.messageId)

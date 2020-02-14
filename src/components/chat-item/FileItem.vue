@@ -17,7 +17,7 @@
           ></ReplyMessageItem>
           <spinner class="loading" v-if="loading"></spinner>
           <AttachmentIcon
-            v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus"
+            v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus || MediaStatus.PENDING === message.mediaStatus"
             @mediaClick="$emit('mediaClick')"
             :me="me"
             :message="message"

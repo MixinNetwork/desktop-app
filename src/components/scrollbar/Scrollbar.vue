@@ -35,14 +35,14 @@ export default class MixinScrollbar extends Vue {
   thumbShowTimeout: any = null
   thumbTop: any = 0
   thumbHeight: any = 25
-  thumbShow: any = false
-  thumbShowForce: any = true
-  thumbShowLock: any = false
+  thumbShow: boolean = false
+  thumbShowForce: boolean = true
+  thumbShowLock: boolean = false
   tempThumb: any = {
     top: 0,
     y: 0
   }
-  dragging: any = false
+  dragging: boolean = false
 
   @Watch('goBottom')
   onGoBottomChange() {
@@ -107,8 +107,7 @@ export default class MixinScrollbar extends Vue {
       const offset = event.clientY - this.tempThumb.y
       const scrollBox = this.scrollBox
       const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
-      scrollBox.scrollTop =
-          ((this.tempThumb.top + offset) / (scrollBox.clientHeight - this.thumbHeight)) * maxScrollTop
+      scrollBox.scrollTop = ((this.tempThumb.top + offset) / (scrollBox.clientHeight - this.thumbHeight)) * maxScrollTop
     }
     document.onmouseup = () => {
       this.dragging = false
@@ -136,6 +135,7 @@ export default class MixinScrollbar extends Vue {
 
     this.$emit('init', this.scrollBox)
   }
+
   destroyed() {
     this.scrollBox = null
     this.scrollThumb = null

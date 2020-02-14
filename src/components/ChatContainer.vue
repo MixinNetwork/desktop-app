@@ -37,6 +37,7 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
+        <div id="virtual-top" :style="`height:${virtualDom.paddingTop}px`"></div>
         <li v-show="!user.app_id" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
@@ -46,7 +47,7 @@
           :messageTime="contentUtil.renderTime(messages[0].createdAt)"
         />
         <MessageItem
-          v-for="(item, index) in messages"
+          v-for="(item, index) in messagesVisible"
           :key="item.messageId"
           :message="item"
           :prev="messages[index-1]"
@@ -58,6 +59,7 @@
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
+        <div id="virtual-bottom" :style="`height:${virtualDom.paddingBottom}px`"></div>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -319,6 +321,12 @@ export default class ChatContainer extends Vue {
   goSearchPos: boolean = false
   boxFocus: boolean = false
 
+  observer: any = null
+  firstIndex: number = 0
+  lastIndex: number = 0
+  virtualDom: any = { paddingTop: 0, paddingBottom: 0 }
+  visibleCount: number = 60
+
   mounted() {
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
@@ -420,6 +428,84 @@ export default class ChatContainer extends Vue {
       } catch (error) {}
       setTimeout(() => {
         $target.focus()
+      })
+    }
+  }
+
+  get messagesVisible() {
+    const { firstIndex, lastIndex } = this.virtualDom
+    if (lastIndex) {
+      const finalList = []
+      for (let i = 0; i < this.messages.length; i++) {
+        if (i >= firstIndex) {
+          if (i >= lastIndex) {
+            break
+          }
+          finalList.push(this.messages[i])
+        }
+      }
+      return finalList
+    }
+
+    return this.messages
+  }
+
+  updateVirtualDom(offset: number) {
+    if (!this.messages.length) return
+
+    if (offset) {
+      this.firstIndex += offset
+      this.lastIndex += offset
+    }
+
+    const listLen = this.messages.length
+    if (this.lastIndex > listLen) {
+      this.lastIndex = listLen
+      this.firstIndex = listLen - this.visibleCount
+    }
+
+    if (!offset || this.firstIndex <= 0) {
+      this.firstIndex = 0
+      this.lastIndex = this.visibleCount
+    }
+
+    let { firstIndex, lastIndex } = this
+
+    const paddingTop = 0
+    const paddingBottom = 0
+
+    this.virtualDom = {
+      firstIndex,
+      lastIndex,
+      paddingTop,
+      paddingBottom
+    }
+  }
+
+  observerInit() {
+    if (this.observer) {
+      this.observer.disconnect()
+    }
+    const list: any = this.messages
+
+    if (list.length > 0) {
+      setTimeout(() => {
+        const firstItemId = `virtual-top`
+        const lastItemId = `virtual-bottom`
+        const callback = (entries: any) => {
+          entries.forEach((entry: any) => {
+            if (entry.isIntersecting) {
+              if (entry.target.id === firstItemId) {
+                this.updateVirtualDom(-10)
+              } else if (entry.target.id === lastItemId) {
+                this.updateVirtualDom(10)
+              }
+            }
+          })
+        }
+        this.observer = new IntersectionObserver(callback)
+        this.observer.observe(document.getElementById(firstItemId))
+        this.observer.observe(document.getElementById(lastItemId))
       })
     }
   }

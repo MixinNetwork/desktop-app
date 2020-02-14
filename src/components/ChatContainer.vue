@@ -41,7 +41,7 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <div id="virtual-top" :style="`height:${virtualDom.paddingTop}px`"></div>
+        <div id="virtualTop" :style="`height:${virtualDom.paddingTop}px`"></div>
         <li v-show="!user.app_id" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
@@ -63,7 +63,7 @@
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
-        <div id="virtual-bottom" :style="`height:${virtualDom.paddingBottom}px`"></div>
+        <div id="virtualBottom" :style="`height:${virtualDom.paddingBottom}px`"></div>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -480,8 +480,8 @@ export default class ChatContainer extends Vue {
 
     if (list.length > 0) {
       setTimeout(() => {
-        const firstItemId = `virtual-top`
-        const lastItemId = `virtual-bottom`
+        const firstItemId = 'virtualTop'
+        const lastItemId = 'virtualBottom'
         const callback = (entries: any) => {
           entries.forEach((entry: any) => {
             if (entry.isIntersecting) {

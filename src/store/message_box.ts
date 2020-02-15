@@ -57,6 +57,12 @@ class MessageBox {
   }
   refreshMessage(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
+      if (this.duringRefreshMessage) {
+        setTimeout(() => {
+          this.refreshMessage(conversationId)
+        }, 100)
+        return
+      }
       this.duringRefreshMessage = true
       const lastMessages = messageDao.getMessages(conversationId, 0)
       if (this.messagePositionIndex >= PerPageMessageCount) {
@@ -72,19 +78,22 @@ class MessageBox {
           this.pageDown = Math.ceil(newCount / PerPageMessageCount)
           this.tempCount += newCount % PerPageMessageCount
         }
-        this.duringRefreshMessage = false
+        setTimeout(() => {
+          this.duringRefreshMessage = false
+        })
 
         return this.callback(null, newCount)
       }
       const lastMsgLen = lastMessages.length
       const msgLen = this.messages.length
       const beforeMessageId = this.messages[msgLen - 1] && this.messages[msgLen - 1].messageId
+      let addTempCount = 0
       for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
         if (temp && msgLen > 0 && temp.messageId === beforeMessageId) {
           break
         }
-        this.tempCount += 1
+        addTempCount++
         this.messages.push(temp)
       }
       for (let i = 1; i <= lastMsgLen; i++) {
@@ -96,7 +105,10 @@ class MessageBox {
         this.scrollAction(false)
       }
       this.count = count
-      this.duringRefreshMessage = false
+      this.tempCount += addTempCount
+      setTimeout(() => {
+        this.duringRefreshMessage = false
+      })
     }
   }
   deleteMessages(messageIds: any[]) {

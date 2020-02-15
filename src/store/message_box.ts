@@ -64,7 +64,8 @@ class MessageBox {
         return
       }
       this.duringRefreshMessage = true
-      const lastMessages = messageDao.getMessages(conversationId, 0)
+      const syncMessageCount = 21
+      const lastMessages = messageDao.getMessages(conversationId, 0, 0, syncMessageCount)
       if (this.messagePositionIndex >= PerPageMessageCount) {
         let newCount = 0
         for (let i = PerPageMessageCount - 1; i >= 0; i--) {
@@ -96,8 +97,13 @@ class MessageBox {
         addTempCount++
         this.messages.push(temp)
       }
-      for (let i = 1; i <= lastMsgLen; i++) {
-        this.messages[this.messages.length - i] = lastMessages[lastMsgLen - i]
+      for (let i = 1; i < lastMsgLen; i++) {
+        const lastMessage = lastMessages[lastMsgLen - i]
+        if (lastMessage.messageId === lastMessages[lastMsgLen - i - 1].messageId) {
+          console.log('message duplicate')
+          break
+        }
+        this.messages[this.messages.length - i] = lastMessage
       }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
@@ -120,20 +126,20 @@ class MessageBox {
       }
     }
   }
-  nextPage(direction: string) {
+  nextPage(direction: string): any {
     return new Promise(resolve => {
-      let data: unknown = []
-      if (direction === 'down') {
-        if (this.pageDown > 0) {
-          data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
-        }
-      } else {
-        data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
-      }
       if (this.duringRefreshMessage) {
         console.log('nextPage duringRefreshMessage')
-        this.nextPage(direction)
+        return this.nextPage(direction)
       } else {
+        let data: unknown = []
+        if (direction === 'down') {
+          if (this.pageDown > 0) {
+            data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
+          }
+        } else {
+          data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+        }
         setTimeout(() => {
           resolve(data)
         })

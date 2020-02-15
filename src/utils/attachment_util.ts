@@ -16,6 +16,40 @@ import signalProtocol from '@/crypto/signal'
 import { SequentialTaskQueue } from 'sequential-task-queue'
 export let downloadQueue = new SequentialTaskQueue()
 
+const cancelMap: any = {}
+const controllerMap: any = {}
+
+const cancelPromise = (id: string) => {
+  cancelMap[id] = false
+  return new Promise((resolve, reject) => {
+    const action = () => {
+      if (cancelMap[id]) {
+        cancelMap[id] = false
+        resolve(new Response('timeout', { status: 504, statusText: 'timeout ' }))
+        controllerMap[id].abort()
+      } else {
+        setTimeout(() => {
+          action()
+        }, 100)
+      }
+    }
+    action()
+  })
+}
+const requestPromise = (url: string, id: string, opt: any) => {
+  const controller = new AbortController()
+  const signal = controller.signal
+  controllerMap[id] = controller
+  Object.assign(opt, {
+    signal
+  })
+  return fetch(url, opt)
+}
+
+export async function updateCancelMap(id: string) {
+  cancelMap[id] = true
+}
+
 export async function downloadAttachment(message: any) {
   try {
     const response = await attachmentApi.getAttachment(message.content)
@@ -33,8 +67,8 @@ export async function downloadAttachment(message: any) {
         return null
       }
       if (message.category.startsWith('SIGNAL_')) {
-        const data = await getAttachment(response.data.data.view_url)
         const m = message
+        const data = await getAttachment(response.data.data.view_url, m.message_id)
         const mediaKey = base64ToUint8Array(m.media_key).buffer
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
@@ -50,8 +84,8 @@ export async function downloadAttachment(message: any) {
           return [m, filePath]
         }
       } else {
-        const data: any = await getAttachment(response.data.data.view_url)
         const m = message
+        const data: any = await getAttachment(response.data.data.view_url, m.message_id)
         const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
         const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(data))
@@ -71,7 +105,7 @@ export async function downloadAttachment(message: any) {
 
 function processAttachment(imagePath: any, mimeType: string, category: any, id: any) {
   const fileName = path.parse(imagePath).base
-  let type :string = mimeType
+  let type: string = mimeType
   // @ts-ignore
   if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
   const destination = path.join(getImagePath(), generateName(fileName, type, category, id))
@@ -125,7 +159,19 @@ function getRandomBytes(bit: number) {
   return libsignal.crypto.getRandomBytes(bit)
 }
 
-export async function putAttachment(imagePath: any, mimeType: any, width: number, height: number, mediaDuration: any, thumbImage: string, category: string, id: any, processCallback: any, sendCallback: any, errorCallback: any) {
+export async function putAttachment(
+  imagePath: any,
+  mimeType: any,
+  width: number,
+  height: number,
+  mediaDuration: any,
+  thumbImage: string,
+  category: string,
+  id: any,
+  processCallback: any,
+  sendCallback: any,
+  errorCallback: any
+) {
   const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
   let mediaWidth: number = width
   let mediaHeight: number = height
@@ -167,8 +213,9 @@ export async function putAttachment(imagePath: any, mimeType: any, width: number
     }
     const url = result.data.data.upload_url
     const attachmentId = result.data.data.attachment_id
-    fetch(url, putHeader(buffer)).then(
-      function(resp: { status: number }) {
+    const opt = putHeader(buffer)
+    Promise.race([cancelPromise(id), requestPromise(url, id, opt)])
+      .then(function(resp: any) {
         if (resp.status === 200) {
           sendCallback({
             attachment_id: attachmentId,
@@ -185,17 +232,22 @@ export async function putAttachment(imagePath: any, mimeType: any, width: number
         } else {
           errorCallback(resp.status)
         }
-      },
-      (error: any) => {
+      })
+      .catch(error => {
         errorCallback(error)
-      }
-    )
+      })
   } catch (error) {
     errorCallback(error)
   }
 }
 
-export async function uploadAttachment(localPath: string | number | Buffer | import('url').URL, category: string, sendCallback: { (attachmentId: any, key: any, digest: any): void; (arg0: any, arg1: string, arg2: string): void }, errorCallback: { (e: any): void; (arg0: string | number): void }) {
+export async function uploadAttachment(
+  messageId: string,
+  localPath: string | number | Buffer | import('url').URL,
+  category: string,
+  sendCallback: { (attachmentId: any, key: any, digest: any): void; (arg0: any, arg1: string, arg2: string): void },
+  errorCallback: { (e: any): void; (arg0: string | number): void }
+) {
   let key: Iterable<number>
   let digest: Iterable<number>
   let buffer = fs.readFileSync(localPath)
@@ -216,22 +268,24 @@ export async function uploadAttachment(localPath: string | number | Buffer | imp
     }
     const url = result.data.data.upload_url
     const attachmentId = result.data.data.attachment_id
-    fetch(url, putHeader(buffer)).then(
-      function(resp: { status: number }) {
-        if (resp.status === 200) {
-          sendCallback(
-            attachmentId,
-            btoa(String.fromCharCode(...new Uint8Array(key))),
-            btoa(String.fromCharCode(...new Uint8Array(digest)))
-          )
-        } else {
-          errorCallback(resp.status)
+    const opt = putHeader(buffer)
+    Promise.race([cancelPromise(messageId), requestPromise(url, messageId, opt)])
+      .then(function(resp: any) {
+        if (!cancelMap[messageId]) {
+          if (resp.status === 200) {
+            sendCallback(
+              attachmentId,
+              btoa(String.fromCharCode(...new Uint8Array(key))),
+              btoa(String.fromCharCode(...new Uint8Array(digest)))
+            )
+          } else {
+            errorCallback(resp.status)
+          }
         }
-      },
-      (error: any) => {
+      })
+      .catch(error => {
         errorCallback(error)
-      }
-    )
+      })
   } catch (error) {
     errorCallback(error)
   }
@@ -310,13 +364,16 @@ function parseFile(blob: Blob) {
   })
 }
 
-function getAttachment(url: RequestInfo) {
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/octet-stream'
-    }
-  })
+function getAttachment(url: string, id: string) {
+  Promise.race([
+    cancelPromise(id),
+    requestPromise(url, id, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/octet-stream'
+      }
+    })
+  ])
     .then(function(resp: any) {
       let code: any = parseInt(resp.status)
       if (code !== 200) {
@@ -329,6 +386,9 @@ function getAttachment(url: RequestInfo) {
         throw Error('Error data')
       }
       return parseFile(blob)
+    })
+    .catch(error => {
+      console.log('getAttachment err:', error)
     })
 }
 

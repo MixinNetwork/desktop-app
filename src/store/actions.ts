@@ -417,6 +417,7 @@ export default {
     commit('startLoading', message.messageId)
     if (!message.mediaUrl) return
     uploadAttachment(
+      message.messageId,
       message.mediaUrl.replace('file://', ''),
       message.type,
       (attachmentId: any, key: any, digest: any) => {

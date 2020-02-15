@@ -365,7 +365,7 @@ function parseFile(blob: Blob) {
 }
 
 function getAttachment(url: string, id: string) {
-  Promise.race([
+  return Promise.race([
     cancelPromise(id),
     requestPromise(url, id, {
       method: 'GET',

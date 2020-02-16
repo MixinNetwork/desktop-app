@@ -60,7 +60,7 @@ class MessageBox {
       if (this.duringRefreshMessage) {
         setTimeout(() => {
           this.refreshMessage(conversationId)
-        }, 100)
+        }, 500)
         return
       }
       this.duringRefreshMessage = true

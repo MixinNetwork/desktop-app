@@ -327,6 +327,13 @@ export default class ChatContainer extends Vue {
       this.hideSearch()
       this.closeFile()
       this.hidenReplyBox()
+      this.hideStickerChoose()
+      this.boxFocusAction()
+    })
+    this.$root.$on('enterKeydown', () => {
+      if (!this.boxFocus) {
+        this.boxFocusAction()
+      }
     })
     let self = this
     document.onpaste = function(event: any) {
@@ -406,6 +413,7 @@ export default class ChatContainer extends Vue {
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
+    this.$root.$off('enterKeydown')
   }
 
   onFocus() {

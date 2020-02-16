@@ -93,6 +93,9 @@ export default class App extends Vue {
         this.$postViewer.hide()
         this.$root.$emit('escKeydown')
       }
+      if (keyCode === 13) {
+        this.$root.$emit('enterKeydown')
+      }
     }
   }
   ping() {

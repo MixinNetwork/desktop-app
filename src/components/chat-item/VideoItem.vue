@@ -28,7 +28,7 @@
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
               ></AttachmentIcon>
-              <video class="media" :src="message.mediaUrl" controls="controls" :style="video"></video>
+              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading" :style="video"></video>
             </div>
           </div>
           <div class="bottom">
@@ -87,10 +87,11 @@ export default class VideoItem extends Vue {
     this.$store.dispatch('stopLoading', this.message.messageId)
   }
 
-  created() {
-    setTimeout(() => {
+  mounted() {
+    // @ts-ignore
+    this.$refs.videoPlayer.oncanplaythrough = () => {
       this.showLoading = true
-    }, 1500)
+    }
   }
 
   get waitStatus() {

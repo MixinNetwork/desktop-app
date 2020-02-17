@@ -40,7 +40,7 @@ module.exports = {
       builderOptions: {
         productName: 'Mixin',
         appId: 'one.mixin.messenger',
-        copyright: 'Copyright © 2019 Mixin Team',
+        copyright: 'Copyright © 2020 Mixin Team',
         mac: {
           category: 'public.app-category.social-networking'
         },
@@ -48,10 +48,21 @@ module.exports = {
         linux: {
           executableName: 'mixin-desktop'
         },
+        appx: {
+          displayName: 'Mixin Desktop'
+        },
         win: {
           target: [
             {
               target: 'nsis',
+              arch: ['x64']
+            },
+            {
+              target: 'msi',
+              arch: ['x64']
+            },
+            {
+              target: 'appx',
               arch: ['x64']
             }
           ]

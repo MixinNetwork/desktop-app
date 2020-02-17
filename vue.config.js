@@ -42,7 +42,17 @@ module.exports = {
         appId: 'one.mixin.messenger',
         copyright: 'Copyright © 2020 Mixin Team',
         mac: {
-          category: 'public.app-category.social-networking'
+          category: 'public.app-category.social-networking',
+          target: [
+            {
+              target: 'default',
+              arch: ['x64']
+            },
+            {
+              target: 'pkg',
+              arch: ['x64']
+            }
+          ]
         },
         afterSign: 'scripts/notarize',
         linux: {

@@ -128,21 +128,17 @@ class MessageBox {
   }
   nextPage(direction: string): any {
     return new Promise(resolve => {
-      if (this.duringRefreshMessage) {
-        return this.nextPage(direction)
-      } else {
-        let data: unknown = []
-        if (direction === 'down') {
-          if (this.pageDown > 0) {
-            data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
-          }
-        } else {
-          data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+      let data: unknown = []
+      if (direction === 'down') {
+        if (this.pageDown > 0) {
+          data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
         }
-        setTimeout(() => {
-          resolve(data)
-        })
+      } else {
+        data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
       }
+      setTimeout(() => {
+        resolve(data)
+      })
     })
   }
   bindData(callback: any, scrollAction: any) {

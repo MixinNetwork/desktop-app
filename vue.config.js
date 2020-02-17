@@ -35,6 +35,7 @@ module.exports = {
   },
   pluginOptions: {
     electronBuilder: {
+      nodeIntegration: true,
       externals: ['better-sqlite3', 'bytebuffer'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
       builderOptions: {

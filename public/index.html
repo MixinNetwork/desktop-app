@@ -10,9 +10,12 @@
     <script type="text/javascript" src="<%= BASE_URL %>libsignal-protocol.js"></script>
     <script>
       const go = new Go()
-      const wasmObject = WebAssembly.instantiateStreaming(fetch('libsignal.wasm'), go.importObject).then(result => {
-        go.run(result.instance)
-      })
+      const wasmObject = fetch('libsignal.wasm')
+        .then(response => response.arrayBuffer())
+        .then(bytes => WebAssembly.instantiate(bytes, go.importObject))
+        .then(result => {
+          go.run(result.instance)
+        })
     </script>
   </head>
   <body>

@@ -347,6 +347,17 @@ class ReceiveWorker extends BaseWorker {
     })
   }
 
+  insertDownloadMessage(message) {
+    messageDao.insertMessage(message)
+    const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+    if (offset <= 7200000) {
+      store.dispatch('startLoading', message.message_id)
+      downloadQueue.push(this.download, {
+        args: message
+      })
+    }
+  }
+
   async download(message) {
     try {
       const [m, filePath] = await downloadAttachment(message)
@@ -434,11 +445,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
-      messageDao.insertMessage(message)
-      store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, {
-        args: message
-      })
+      this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_VIDEO')) {
@@ -468,11 +475,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
-      store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, {
-        args: message
-      })
-      messageDao.insertMessage(message)
+      this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendVideo')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_DATA')) {
@@ -495,11 +498,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
-      store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, {
-        args: message
-      })
-      messageDao.insertMessage(message)
+      this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendFile')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_AUDIO')) {
@@ -517,16 +516,12 @@ class ReceiveWorker extends BaseWorker {
         media_digest: mediaData.digest,
         media_status: MediaStatus.CANCELED,
         status: status,
-        created_at: new Date().toISOString(),
+        created_at: data.created_at,
         media_waveform: mediaData.waveform,
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
-      store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, {
-        args: message
-      })
-      messageDao.insertMessage(message)
+      this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendAudio')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     } else if (data.category.endsWith('_STICKER')) {

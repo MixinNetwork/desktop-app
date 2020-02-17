@@ -328,7 +328,9 @@ export default class ChatContainer extends Vue {
       this.closeFile()
       this.hidenReplyBox()
       this.hideStickerChoose()
-      this.boxFocusAction()
+      setTimeout(() => {
+        this.boxFocusAction()
+      }, 200)
     })
     this.$root.$on('enterKeydown', () => {
       if (!this.boxFocus) {

@@ -78,7 +78,9 @@ export default {
       }
       setTimeout(() => {
         const img = document.querySelector('.image-viewer-nav-thumb > img')
-        this.$refs.scroll.scrollLeft = img.width * this.index
+        if (img) {
+          this.$refs.scroll.scrollLeft = img.width * this.index
+        }
       }, 100)
     },
     index(value) {

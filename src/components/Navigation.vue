@@ -264,7 +264,7 @@ export default class Navigation extends Vue {
     })
   }
 
-  beforeDestory() {
+  beforeDestroy() {
     this.$root.$off('directionKeyDown')
   }
 

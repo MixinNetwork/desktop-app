@@ -406,7 +406,6 @@ export default {
         commit('stopLoading', messageId)
       },
       (e: any) => {
-        console.log(e)
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
         commit('stopLoading', messageId)
         commit('refreshMessage', conversationId)
@@ -417,6 +416,7 @@ export default {
     commit('startLoading', message.messageId)
     if (!message.mediaUrl) return
     uploadAttachment(
+      message.messageId,
       message.mediaUrl.replace('file://', ''),
       message.type,
       (attachmentId: any, key: any, digest: any) => {
@@ -439,7 +439,6 @@ export default {
         commit('stopLoading', message.messageId)
       },
       (e: any) => {
-        console.log(e)
         messageDao.updateMediaStatus(MediaStatus.CANCELED, message.messageId)
         commit('stopLoading', message.messageId)
         commit('refreshMessage', message.conversationId)

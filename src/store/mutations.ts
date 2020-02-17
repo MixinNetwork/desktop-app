@@ -4,6 +4,7 @@ import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
+import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
 function refreshConversations(state: any) {
@@ -289,6 +290,7 @@ export default {
   },
   stopLoading(state: { attachment: any }, messageId: any) {
     setTimeout(() => {
+      updateCancelMap(messageId)
       const arr = state.attachment
       state.attachment = arr.filter((item: any) => {
         return item !== messageId

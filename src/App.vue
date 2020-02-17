@@ -50,10 +50,22 @@ export default class App extends Vue {
       }
     })
 
-    // let directionKeyDownTimeout: any = null
+    let directionKeyDownTimeout: any = null
     document.onkeydown = e => {
       let keyCode = e.keyCode
       let ctrlKey = e.ctrlKey || e.metaKey
+      const maskDom = document.querySelector('.mask')
+      if (maskDom) {
+        if (!ctrlKey || (ctrlKey && keyCode >= 37 && keyCode <= 40)) {
+          if (keyCode === 38) {
+            this.$root.$emit('directionKeyDownInMenu', 'up')
+          }
+          if (keyCode === 40) {
+            this.$root.$emit('directionKeyDownInMenu', 'down')
+          }
+        }
+        return e.preventDefault()
+      }
       if (keyCode === 9) {
         e.preventDefault()
         this.$root.$emit('tabKeyDown', 'navigationSearch')
@@ -65,21 +77,24 @@ export default class App extends Vue {
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }
-        // clearTimeout(directionKeyDownTimeout)
-        // if (keyCode === 38) {
-        //   directionKeyDownTimeout = setTimeout(() => {
-        //     this.$root.$emit('directionKeyDown', 'up')
-        //   }, 10)
-        // }
-        // if (keyCode === 40) {
-        //   directionKeyDownTimeout = setTimeout(() => {
-        //     this.$root.$emit('directionKeyDown', 'down')
-        //   }, 10)
-        // }
+        clearTimeout(directionKeyDownTimeout)
+        if (keyCode === 38) {
+          directionKeyDownTimeout = setTimeout(() => {
+            this.$root.$emit('directionKeyDown', 'up')
+          }, 10)
+        }
+        if (keyCode === 40) {
+          directionKeyDownTimeout = setTimeout(() => {
+            this.$root.$emit('directionKeyDown', 'down')
+          }, 10)
+        }
       }
       if (keyCode === 27) {
         this.$postViewer.hide()
         this.$root.$emit('escKeydown')
+      }
+      if (keyCode === 13) {
+        this.$root.$emit('enterKeydown')
       }
     }
   }

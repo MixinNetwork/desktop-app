@@ -29,7 +29,10 @@
                 @click="preview"
               />
             </div>
-            <spinner class="loading" v-if="loading"></spinner>
+            <div v-if="loading" class="loading" @click.stop="stopLoading">
+              <svg-icon class="stop" icon-class="loading-stop-black" />
+              <spinner class="circle"></spinner>
+            </div>
             <AttachmentIcon
               v-else-if="waitStatus"
               class="loading"
@@ -157,9 +160,16 @@ export default class ImageItem extends Vue {
     return { width: `${height * scale}px`, height: `${height}px` }
   }
 
+  stopLoading() {
+    this.$store.dispatch('stopLoading', this.message.messageId)
+  }
   get waitStatus() {
     const { message } = this
-    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
+    return (
+      MediaStatus.CANCELED === message.mediaStatus ||
+      MediaStatus.EXPIRED === message.mediaStatus ||
+      MediaStatus.PENDING === message.mediaStatus
+    )
   }
   get loading() {
     return this.attachment.includes(this.message.messageId)
@@ -213,6 +223,22 @@ export default class ImageItem extends Vue {
       position: absolute;
       transform: translate(-50%, -50%);
       z-index: 3;
+      .stop {
+        width: 100%;
+        height: 100%;
+        left: 0;
+        z-index: 0;
+        position: absolute;
+        line-height: 100%;
+        cursor: pointer;
+      }
+      .circle {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
     }
     .set {
       max-width: 10rem;

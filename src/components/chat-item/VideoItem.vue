@@ -16,7 +16,20 @@
               :me="me"
               class="reply"
             ></ReplyMessageItem>
-            <video class="media" :src="message.mediaUrl" controls="controls" :style="video"></video>
+            <div class="video-box">
+              <div v-if="loading" v-show="showLoading" class="loading" @click.stop="stopLoading">
+                <svg-icon class="stop" icon-class="loading-stop-black" />
+                <spinner class="circle"></spinner>
+              </div>
+              <AttachmentIcon
+                v-else-if="waitStatus"
+                class="loading"
+                :me="me"
+                :message="message"
+                @mediaClick="$emit('mediaClick')"
+              ></AttachmentIcon>
+              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading" :style="video"></video>
+            </div>
           </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />
@@ -30,14 +43,19 @@
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import { MessageStatus } from '@/utils/constants'
+import spinner from '@/components/Spinner.vue'
+import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 
 @Component({
   components: {
+    AttachmentIcon,
     ReplyMessageItem,
+    spinner,
     BadgeItem,
     TimeAndStatus
   }
@@ -48,7 +66,11 @@ export default class VideoItem extends Vue {
   @Prop(Object) readonly me: any
   @Prop(Boolean) readonly showName: any
 
+  @Getter('attachment') attachment: any
+
+  MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
+  showLoading: boolean = false
 
   messageOwnership() {
     let { message, me } = this
@@ -60,6 +82,26 @@ export default class VideoItem extends Vue {
   getColor(id: any) {
     return getNameColorById(id)
   }
+
+  stopLoading() {
+    this.$store.dispatch('stopLoading', this.message.messageId)
+  }
+
+  mounted() {
+    // @ts-ignore
+    this.$refs.videoPlayer.oncanplaythrough = () => {
+      this.showLoading = true
+    }
+  }
+
+  get waitStatus() {
+    const { message } = this
+    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
+  }
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
+  }
+
   get video() {
     let { mediaWidth, mediaHeight } = this.message
     let width = 200
@@ -111,12 +153,40 @@ export default class VideoItem extends Vue {
     .reply {
       margin-bottom: 0.15rem;
     }
-    .media {
-      font-size: 1rem;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      border-radius: 0.2rem;
+    .video-box {
+      position: relative;
+      .loading {
+        width: 2rem;
+        height: 2rem;
+        left: 50%;
+        top: calc(50% - 0.75rem);
+        position: absolute;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        .stop {
+          width: 100%;
+          height: 100%;
+          left: 0;
+          z-index: 0;
+          position: absolute;
+          line-height: 100%;
+          cursor: pointer;
+        }
+        .circle {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+        }
+      }
+      .media {
+        font-size: 1rem;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        border-radius: 0.2rem;
+      }
     }
     .bottom {
       display: flex;

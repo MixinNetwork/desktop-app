@@ -1,7 +1,7 @@
 <template>
   <transition name="modal">
     <div class="root" v-if="visible">
-      <div class="mask"></div>
+      <div class="bg"></div>
       <div class="post-viewer">
         <div class="header">
           <svg-icon @click="close" icon-class="ic_close" />
@@ -45,7 +45,7 @@ export default class PostViewer extends Vue {
   justify-content: center;
   user-select: text;
 }
-.mask {
+.bg {
   position: absolute;
   top: 0;
   left: 0;

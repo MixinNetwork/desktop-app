@@ -17,7 +17,10 @@
           ></ReplyMessageItem>
           <div class="mixin-audio" onselectstart="return false">
             <span class="audio-status">
-              <spinner class="loading" v-if="loading"></spinner>
+              <div v-if="loading" class="loading" @click.stop="stopLoading">
+                <svg-icon class="stop" icon-class="loading-stop" />
+                <spinner class="circle" color="rgb(75, 126, 210)"></spinner>
+              </div>
               <svg-icon
                 class="arrow"
                 icon-class="arrow-down"
@@ -135,6 +138,10 @@ export default class AudioItem extends Vue {
     if (this.message.mediaStatus === MediaStatus.DONE) {
       this.audioStatus = 'play'
     }
+  }
+
+  stopLoading() {
+    this.$store.dispatch('stopLoading', this.message.messageId)
   }
 
   messageOwnership() {
@@ -263,6 +270,27 @@ export default class AudioItem extends Vue {
       padding: 0.6rem 1.5rem 0.6rem 0.6rem;
       display: flex;
       align-items: center;
+      .loading {
+        position: relative;
+        width: 2.5rem;
+        height: 2.5rem;
+        .stop {
+          width: 100%;
+          height: 100%;
+          left: 0;
+          z-index: 0;
+          position: absolute;
+          line-height: 100%;
+          cursor: pointer;
+        }
+        .circle {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+        }
+      }
       .audio-status {
         .arrow {
           font-size: 1.5rem;

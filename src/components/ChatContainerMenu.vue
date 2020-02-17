@@ -38,7 +38,7 @@ export default class ChatContainerMenu extends Vue {
       this.updateMenu(conversation)
     })
   }
-  beforeDestory() {
+  beforeDestroy() {
     this.$root.$off('updateMenu')
   }
 

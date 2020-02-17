@@ -12,6 +12,7 @@ class MessageBox {
   page: any
   callback: any
   count: any
+  duringRefreshMessage: boolean = false
 
   async setConversationId(conversationId: string, messagePositionIndex: number) {
     if (conversationId) {
@@ -56,7 +57,15 @@ class MessageBox {
   }
   refreshMessage(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
-      const lastMessages = messageDao.getMessages(conversationId, 0)
+      if (this.duringRefreshMessage) {
+        setTimeout(() => {
+          this.refreshMessage(conversationId)
+        }, 500)
+        return
+      }
+      this.duringRefreshMessage = true
+      const syncMessageCount = 21
+      const lastMessages = messageDao.getMessages(conversationId, 0, 0, syncMessageCount)
       if (this.messagePositionIndex >= PerPageMessageCount) {
         let newCount = 0
         for (let i = PerPageMessageCount - 1; i >= 0; i--) {
@@ -70,26 +79,31 @@ class MessageBox {
           this.pageDown = Math.ceil(newCount / PerPageMessageCount)
           this.tempCount += newCount % PerPageMessageCount
         }
+        setTimeout(() => {
+          this.duringRefreshMessage = false
+        })
 
         return this.callback(null, newCount)
       }
       const lastMsgLen = lastMessages.length
       const msgLen = this.messages.length
       const beforeMessageId = this.messages[msgLen - 1] && this.messages[msgLen - 1].messageId
+      let addTempCount = 0
       for (let i = lastMsgLen - 1; i >= 0; i--) {
         const temp = lastMessages[i]
         if (temp && msgLen > 0 && temp.messageId === beforeMessageId) {
           break
         }
-        this.tempCount += 1
+        addTempCount++
         this.messages.push(temp)
       }
-      for (let i = 1; i <= lastMsgLen; i++) {
-        const index = this.messages.length - i
-        const newMessage = lastMessages[lastMsgLen - i]
-        if (this.messages[index] && this.messages[index].messageId === newMessage.messageId) {
-          this.messages[index] = newMessage
+      for (let i = 1; i < lastMsgLen; i++) {
+        const lastMessage = lastMessages[lastMsgLen - i]
+        if (lastMessage.messageId === lastMessages[lastMsgLen - i - 1].messageId) {
+          console.log('message duplicate')
+          break
         }
+        this.messages[this.messages.length - i] = lastMessage
       }
       this.callback(this.messages)
       let count = messageDao.getMessagesCount(conversationId)['count(m.message_id)']
@@ -97,6 +111,10 @@ class MessageBox {
         this.scrollAction(false)
       }
       this.count = count
+      this.tempCount += addTempCount
+      setTimeout(() => {
+        this.duringRefreshMessage = false
+      })
     }
   }
   deleteMessages(messageIds: any[]) {
@@ -108,19 +126,24 @@ class MessageBox {
       }
     }
   }
-  nextPage(direction: string) {
+  nextPage(direction: string): any {
     return new Promise(resolve => {
-      let data: unknown = []
-      if (direction === 'down') {
-        if (this.pageDown > 0) {
-          data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
-        }
+      if (this.duringRefreshMessage) {
+        console.log('nextPage duringRefreshMessage')
+        return this.nextPage(direction)
       } else {
-        data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+        let data: unknown = []
+        if (direction === 'down') {
+          if (this.pageDown > 0) {
+            data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
+          }
+        } else {
+          data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+        }
+        setTimeout(() => {
+          resolve(data)
+        })
       }
-      setTimeout(() => {
-        resolve(data)
-      })
     })
   }
   bindData(callback: any, scrollAction: any) {

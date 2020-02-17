@@ -66,6 +66,7 @@
       :showName="this.showUserName()"
       :conversation="conversation"
       v-else-if="message.type.endsWith('_VIDEO')"
+      @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
     ></VideoItem>

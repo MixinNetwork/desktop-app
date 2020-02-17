@@ -129,7 +129,6 @@ class MessageBox {
   nextPage(direction: string): any {
     return new Promise(resolve => {
       if (this.duringRefreshMessage) {
-        console.log('nextPage duringRefreshMessage')
         return this.nextPage(direction)
       } else {
         let data: unknown = []

@@ -20,14 +20,14 @@ const axiosApi = axios.create({
 
 function newToken(config: any) {
   const url = new Url(config.url)
-  return getToken(config.method.toUpperCase(), url.pathname, config.data)
+  return 'Bearer ' + getToken(config.method.toUpperCase(), url.pathname, config.data)
 }
 
 axiosApi.interceptors.request.use(
   (config: any) => {
     const token = newToken(config)
     config.retry = 2 ** 31
-    config.headers.common['Authorization'] = 'Bearer ' + token
+    config.headers.common['Authorization'] = token
     // @ts-ignore
     config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage
     return config

@@ -26,7 +26,6 @@ function newToken(config: any) {
 axiosApi.interceptors.request.use(
   (config: any) => {
     const token = newToken(config)
-    config.__token = token
     config.retry = 2 ** 31
     config.headers.common['Authorization'] = 'Bearer ' + token
     // @ts-ignore
@@ -41,9 +40,9 @@ axiosApi.interceptors.request.use(
 axiosApi.interceptors.response.use(
   function(response: any) {
     let tokenExpired = false
-    const tokenStr = response.config.__token
+    const tokenStr = response.config.headers.Authorization
     if (tokenStr) {
-      const tokenJson = jwt.decode(tokenStr)
+      const tokenJson = jwt.decode(tokenStr.split(' ')[1])
       if (tokenJson && tokenJson.iat * 1000 < new Date().getTime() - 60000) {
         tokenExpired = true
       }

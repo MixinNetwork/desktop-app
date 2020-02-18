@@ -8,6 +8,7 @@ import { API_URL } from '@/utils/constants'
 import store from '@/store/store'
 // @ts-ignore
 import router from '@/router'
+// @ts-ignore
 import Vue from 'vue'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -21,6 +22,7 @@ axiosApi.interceptors.request.use(
   (config: any) => {
     const url = new Url(config.url)
     const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+    config.__token = token
     config.retry = 2 ** 31
     config.headers.common['Authorization'] = 'Bearer ' + token
     // @ts-ignore
@@ -35,14 +37,14 @@ axiosApi.interceptors.request.use(
 axiosApi.interceptors.response.use(
   function(response: any) {
     let tokenExpired = false
-    const tokenStr = response.config.headers.Authorization
+    const tokenStr = response.config.__token
     if (tokenStr) {
-      const tokenJson = jwt.decode(tokenStr.split(' ')[1])
+      const tokenJson = jwt.decode(tokenStr)
       if (tokenJson && tokenJson.iat * 1000 < new Date().getTime() - 60000) {
         tokenExpired = true
       }
     }
-    if (response.data.error && (response.data.error.code === 500 || tokenExpired)) {
+    if ((response.data.error && response.data.error.code === 500) || tokenExpired) {
       const config: any = response.config
       if (!config || !config.retry) {
         return Promise.reject(response)

@@ -8,6 +8,7 @@ import { API_URL } from '@/utils/constants'
 import store from '@/store/store'
 // @ts-ignore
 import router from '@/router'
+// @ts-ignore
 import Vue from 'vue'
 
 axios.defaults.headers.post['Content-Type'] = 'application/json'
@@ -17,12 +18,16 @@ const axiosApi = axios.create({
   timeout: 8000
 })
 
+function newToken(config: any) {
+  const url = new Url(config.url)
+  const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+  config.headers.common['Authorization'] = 'Bearer ' + token
+}
+
 axiosApi.interceptors.request.use(
   (config: any) => {
-    const url = new Url(config.url)
-    const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+    newToken(config)
     config.retry = 2 ** 31
-    config.headers.common['Authorization'] = 'Bearer ' + token
     // @ts-ignore
     config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage
     return config
@@ -59,6 +64,7 @@ axiosApi.interceptors.response.use(
       })
       return backOff.then(() => {
         config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
+        newToken(config)
         return axiosApi(config)
       })
     }
@@ -99,6 +105,7 @@ axiosApi.interceptors.response.use(
     })
     return backOff.then(() => {
       config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
+      newToken(config)
       return axiosApi(config)
     })
   }

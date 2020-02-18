@@ -19,6 +19,7 @@ class AckWorker extends BaseWorker {
     const messages = jobs.map(function(item) {
       return JSON.parse(item.blaze_message)
     })
+
     await messageApi.acknowledgements(messages).then(
       async resp => {
         await jobDao.delete(jobs)

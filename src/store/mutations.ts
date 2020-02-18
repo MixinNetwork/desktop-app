@@ -221,8 +221,9 @@ export default {
   setCurrentMessages(state: { currentMessages: any }, messages: any) {
     state.currentMessages = messages
   },
-  refreshMessage(state: any, conversationId: string) {
-    messageBox.refreshMessage(conversationId)
+  refreshMessage(state: any, payload: any) {
+    messageBox.refreshMessage(payload)
+    const { conversationId } = payload
     if (
       !state.conversationKeys.some((item: any) => {
         return item === conversationId
@@ -239,7 +240,7 @@ export default {
   refreshConversations(state: any) {
     refreshConversations(state)
   },
-  conversationClear(state: { conversationKeys: any[]; conversations: { [x: string]: any }; currentConversationId: null; editing: boolean }, conversationId: string) {
+  conversationClear(state: any, conversationId: string) {
     const index = state.conversationKeys.indexOf(conversationId)
     if (index > -1) {
       state.conversationKeys.splice(index, 1)
@@ -266,7 +267,7 @@ export default {
   search(state: any, keyword: any) {
     search(state, keyword)
   },
-  searchClear(state: { search: { contact: null; chats: null; message: null; contactAll: null; chatsAll: null; messageAll: null } }) {
+  searchClear(state: any) {
     keywordCache = null
     state.search = {
       contact: null,

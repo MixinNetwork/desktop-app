@@ -300,20 +300,22 @@ export default {
   },
   sendMessage: ({ commit }: any, { msg, quoteId }: any) => {
     markRead(msg.conversationId)
+
+    let messageId = ''
     if (quoteId) {
       let quoteItem = messageDao.findMessageItemById(msg.conversationId, quoteId)
       if (quoteItem) {
-        messageDao.insertRelyMessage(msg, quoteId, JSON.stringify(quoteItem))
-        commit('refreshMessage', msg.conversationId)
+        messageId = messageDao.insertRelyMessage(msg, quoteId, JSON.stringify(quoteItem))
+        commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
         return
       }
     }
     if (msg.category.endsWith('_CONTACT')) {
-      messageDao.insertContactMessage(msg)
+      messageId = messageDao.insertContactMessage(msg)
     } else {
-      messageDao.insertTextMessage(msg)
+      messageId = messageDao.insertTextMessage(msg)
     }
-    commit('refreshMessage', msg.conversationId)
+    commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
   },
   sendStickerMessage: ({ commit }: any, msg: { conversationId: any; stickerId?: any; category?: any; status?: any }) => {
     const { conversationId, stickerId, category, status } = msg
@@ -333,7 +335,7 @@ export default {
     const sticker = stickerDao.getStickerByUnique(stickerId)
     sticker.last_use_at = new Date().toISOString()
     stickerDao.insertUpdate(sticker)
-    commit('refreshMessage', msg.conversationId)
+    commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
   },
   sendLiveMessage: ({ commit }: any, msg: { conversationId: any; mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; thumbUrl: any; name: any; category: any }) => {
     const { conversationId, mediaUrl, mediaMimeType,
@@ -363,7 +365,7 @@ export default {
       created_at: new Date().toISOString(),
       name
     })
-    commit('refreshMessage', conversationId)
+    commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, mediaDuration, thumbImage, category, mediaSize, mediaWidth, mediaHeight, thumbUrl }: any) => {
     const messageId = uuidv4().toLowerCase()
@@ -395,7 +397,7 @@ export default {
           name: data.name
         })
         commit('startLoading', messageId)
-        commit('refreshMessage', conversationId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
       (transferAttachmentData: any) => {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
@@ -408,7 +410,7 @@ export default {
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
         commit('stopLoading', messageId)
-        commit('refreshMessage', conversationId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       }
     )
   },
@@ -441,7 +443,7 @@ export default {
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, message.messageId)
         commit('stopLoading', message.messageId)
-        commit('refreshMessage', message.conversationId)
+        commit('refreshMessage', { conversationId: message.conversationId, messageIds: [message.messageId] })
       }
     )
   },
@@ -475,7 +477,7 @@ export default {
   makeMessageStatus: ({ commit }: any, payload: { status: any; messageId: any }) => {
     messageDao.updateMessageStatusById(payload.status, payload.messageId)
     const conversationId = messageDao.getConversationIdById(payload.messageId)
-    commit('refreshMessage', conversationId)
+    commit('refreshMessage', { conversationId, messageIds: [payload.messageId] })
   },
   search: ({ commit }: any, payload: any) => {
     commit('search', payload)
@@ -486,8 +488,8 @@ export default {
   refreshParticipants: ({ commit }: any, conversationId: any) => {
     commit('refreshParticipants', conversationId)
   },
-  refreshMessage: ({ commit }: any, conversationId: any) => {
-    commit('refreshMessage', conversationId)
+  refreshMessage: ({ commit }: any, payload: any) => {
+    commit('refreshMessage', payload)
   },
   exit: ({ commit }: any) => {
     commit('exit')
@@ -534,16 +536,16 @@ export default {
             messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
           }
           commit('stopLoading', m.message_id)
-          commit('refreshMessage', m.conversation_id)
+          commit('refreshMessage', { conversationId: m.conversation_id, messageIds: [message.message_id] })
         } catch (e) {
           messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
           commit('stopLoading', message.message_id)
-          commit('refreshMessage', message.conversation_id)
+          commit('refreshMessage', { conversationId: message.conversation_id, messageIds: [message.message_id] })
         }
       },
       { args: message }
     )
-    commit('refreshMessage', message.conversation_id)
+    commit('refreshMessage', { conversationId: message.conversation_id, messageIds: [message.message_id] })
   },
   syncConversation: async({ commit }: any, conversationId: any) => {
     await refreshConversation(conversationId, function() {
@@ -572,7 +574,7 @@ export default {
       resend_message_id: null,
       run_count: 0
     })
-    commit('refreshMessage', conversationId)
+    commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   toggleEditor: ({ commit }: any) => {
     commit('toggleEditor')

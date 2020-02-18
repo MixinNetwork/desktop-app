@@ -101,7 +101,10 @@ class ReceiveWorker extends BaseWorker {
     }
     messageDao.insertMessage(message)
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
-    store.dispatch('refreshMessage', data.conversation_id)
+    store.dispatch('refreshMessage', {
+      conversationId: data.conversation_id,
+      messageIds: [data.message_id]
+    })
   }
 
   async processRecallMessage(data) {
@@ -120,7 +123,10 @@ class ReceiveWorker extends BaseWorker {
     }
 
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
-    store.dispatch('refreshMessage', data.conversation_id)
+    store.dispatch('refreshMessage', {
+      conversationId: data.conversation_id,
+      messageIds: [data.message_id]
+    })
   }
 
   async processSystemMessage(data) {
@@ -131,7 +137,10 @@ class ReceiveWorker extends BaseWorker {
     } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
       this.processSystemSnapshotMessage(data)
     }
-    store.dispatch('refreshMessage', data.conversation_id)
+    store.dispatch('refreshMessage', {
+      conversationId: data.conversation_id,
+      messageIds: [data.message_id]
+    })
   }
 
   async processSystemSnapshotMessage(data) {
@@ -201,7 +210,10 @@ class ReceiveWorker extends BaseWorker {
       snapshot_id: decodedData.snapshot_id
     }
     messageDao.insertMessage(message)
-    store.dispatch('refreshMessage', data.conversation_id)
+    store.dispatch('refreshMessage', {
+      conversationId: data.conversation_id,
+      messageIds: [data.message_id]
+    })
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 
@@ -329,21 +341,32 @@ class ReceiveWorker extends BaseWorker {
 
   makeMessageStatus(messages) {
     const conversationSet = new Set()
-    messages.filter(message => {
-      const messageId = message.message_id
-      const simple = messageDao.findSimpleMessageById(messageId)
-      if (simple && simple.status && simple.status !== MessageStatus.READ) {
-        conversationSet.add(simple.conversation_id)
-        return true
-      } else {
-        return false
-      }
-    }).forEach(msg => {
-      messageDao.updateMessageStatusById(msg.status, msg.message_id)
-    })
+    const messageIdsMap = {}
+    messages
+      .filter(message => {
+        const messageId = message.message_id
+        const simple = messageDao.findSimpleMessageById(messageId)
+        if (simple && simple.status && simple.status !== MessageStatus.READ) {
+          const conversationId = simple.conversation_id
+          conversationSet.add(conversationId)
+          if (!messageIdsMap[conversationId]) {
+            messageIdsMap[conversationId] = []
+          }
+          messageIdsMap[conversationId].push(messageId)
+          return true
+        } else {
+          return false
+        }
+      })
+      .forEach(msg => {
+        messageDao.updateMessageStatusById(msg.status, msg.message_id)
+      })
     conversationSet.forEach(conversationId => {
       messageDao.takeUnseen(this.getAccountId(), conversationId)
-      store.dispatch('refreshMessage', conversationId)
+      store.dispatch('refreshMessage', {
+        conversationId,
+        messageIds: messageIdsMap[conversationId]
+      })
     })
   }
 
@@ -363,11 +386,17 @@ class ReceiveWorker extends BaseWorker {
       const [m, filePath] = await downloadAttachment(message)
       messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
       store.dispatch('stopLoading', m.message_id)
-      store.dispatch('refreshMessage', m.conversation_id)
+      store.dispatch('refreshMessage', {
+        conversationId: m.conversation_id,
+        messageIds: [m.message_id]
+      })
     } catch (e) {
       messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
       store.dispatch('stopLoading', message.message_id)
-      store.dispatch('refreshMessage', message.conversation_id)
+      store.dispatch('refreshMessage', {
+        conversationId: message.conversation_id,
+        messageIds: [message.message_id]
+      })
     }
   }
 
@@ -589,7 +618,10 @@ class ReceiveWorker extends BaseWorker {
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
-    store.dispatch('refreshMessage', data.conversation_id)
+    store.dispatch('refreshMessage', {
+      conversationId: data.conversation_id,
+      messageIds: [data.message_id]
+    })
   }
 
   showNotification(conversationId, userId, fullName, content, source, createdAt) {

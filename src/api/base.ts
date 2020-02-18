@@ -18,10 +18,14 @@ const axiosApi = axios.create({
   timeout: 8000
 })
 
+function newToken(config: any) {
+  const url = new Url(config.url)
+  return getToken(config.method.toUpperCase(), url.pathname, config.data)
+}
+
 axiosApi.interceptors.request.use(
   (config: any) => {
-    const url = new Url(config.url)
-    const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+    const token = newToken(config)
     config.__token = token
     config.retry = 2 ** 31
     config.headers.common['Authorization'] = 'Bearer ' + token
@@ -61,6 +65,7 @@ axiosApi.interceptors.response.use(
       })
       return backOff.then(() => {
         config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
+        config.headers.Authorization = newToken(config)
         return axiosApi(config)
       })
     }
@@ -101,6 +106,7 @@ axiosApi.interceptors.response.use(
     })
     return backOff.then(() => {
       config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
+      config.headers.Authorization = newToken(config)
       return axiosApi(config)
     })
   }

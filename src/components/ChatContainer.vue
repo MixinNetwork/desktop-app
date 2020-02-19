@@ -373,6 +373,9 @@ export default class ChatContainer extends Vue {
       },
       function(force: any, message: any) {
         if (force) {
+          if (!message) {
+            self.goBottom()
+          }
           setTimeout(() => {
             self.goMessagePos(message)
           })

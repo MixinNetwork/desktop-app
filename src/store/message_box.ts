@@ -95,20 +95,19 @@ class MessageBox {
               if (!findMessage) return
               findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
 
-              this.newCount++
               if (this.pageDown === 0) {
+                this.newCount++
                 this.messages.push(findMessage)
                 this.callback(this.messages, this.newCount)
-                this.scrollAction(false)
+                this.scrollAction(this.isMine(findMessage))
               } else {
                 if (this.isMine(findMessage)) {
                   if (findMessage.status === MessageStatus.SENT) {
                     this.setConversationId(conversationId, 0)
-                    setTimeout(() => {
-                      this.scrollAction(false)
-                    })
+                    this.scrollAction(false)
                   }
                 } else {
+                  this.newCount++
                   this.callback(null, this.newCount)
                   this.tempCount = this.newCount % PerPageMessageCount
                   const lastCount = this.messagePositionIndex % PerPageMessageCount

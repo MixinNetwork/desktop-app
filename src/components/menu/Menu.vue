@@ -6,7 +6,7 @@
       @touchmove="notAllowTouchMove($event)"
       @contextmenu.prevent="dismiss($event)"
     >
-      <div class="mask" @click="dismiss($event)"></div>
+      <div class="mask sp" @click="dismiss($event)"></div>
       <ul class="dropdown-menu" :style="position">
         <li v-for="(menu,index) in menus" :key="index" @click="onItemClick(index)">
           <a>{{ menu }}</a>

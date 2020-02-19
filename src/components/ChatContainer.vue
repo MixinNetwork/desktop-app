@@ -321,7 +321,6 @@ export default class ChatContainer extends Vue {
 
   mounted() {
     this.$root.$on('escKeydown', () => {
-      this.handleHideMessageForward()
       this.hideDetails()
       this.hideSearch()
       this.closeFile()

@@ -14,8 +14,6 @@ class MessageBox {
   page: any
   callback: any
   count: any
-  // @ts-ignore
-  account: any = JSON.parse(localStorage.getItem('account'))
 
   async setConversationId(conversationId: string, messagePositionIndex: number) {
     if (conversationId) {
@@ -54,7 +52,9 @@ class MessageBox {
     this.newCount = index
   }
   isMine(findMessage: any) {
-    return findMessage.userId === this.account.user_id
+    // @ts-ignore
+    const account: any = JSON.parse(localStorage.getItem('account'))
+    return findMessage.userId === account.user_id
   }
   refreshConversation(conversationId: any) {
     this.page = 0

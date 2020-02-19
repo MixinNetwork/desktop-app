@@ -18,22 +18,12 @@ const axiosApi = axios.create({
   timeout: 8000
 })
 
-function newToken(config: any) {
-  const url = new Url(config.url)
-  const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
-  if (!token) {
-    return ''
-  }
-  return 'Bearer ' + token
-}
-
 axiosApi.interceptors.request.use(
   (config: any) => {
-    const token = newToken(config)
+    const url = new Url(config.url)
+    const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+    config.headers.common['Authorization'] = 'Bearer ' + token
     config.retry = 2 ** 31
-    if (token) {
-      config.headers.common['Authorization'] = token
-    }
     // @ts-ignore
     config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage
     return config
@@ -70,10 +60,9 @@ axiosApi.interceptors.response.use(
       })
       return backOff.then(() => {
         config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
-        const token = newToken(config)
-        if (token) {
-          config.headers.Authorization = token
-        }
+        const url = new Url(config.url)
+        const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+        config.headers.Authorization = 'Bearer ' + token
         return axiosApi(config)
       })
     }
@@ -114,10 +103,9 @@ axiosApi.interceptors.response.use(
     })
     return backOff.then(() => {
       config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
-      const token = newToken(config)
-      if (token) {
-        config.headers.Authorization = token
-      }
+      const url = new Url(config.url)
+      const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+      config.headers.Authorization = 'Bearer ' + token
       return axiosApi(config)
     })
   }

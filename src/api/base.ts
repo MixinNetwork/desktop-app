@@ -52,8 +52,7 @@ axiosApi.interceptors.request.use(
   (config: any) => {
     const url = new Url(config.url)
     config.retry = 2 ** 31
-    const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
-    config.headers.common['Authorization'] = token
+    config.headers.common['Authorization'] = newToken(config)
     config.headers.common['Accept-Language'] = navigator.language
     return config
   },

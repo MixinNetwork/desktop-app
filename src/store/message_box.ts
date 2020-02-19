@@ -98,7 +98,11 @@ class MessageBox {
               if (this.pageDown === 0) {
                 this.newCount++
                 this.messages.push(findMessage)
-                this.callback(this.messages, this.newCount)
+                let newCount = this.newCount
+                if (this.isMine(findMessage)) {
+                  newCount = 0
+                }
+                this.callback(this.messages, newCount)
                 this.scrollAction(this.isMine(findMessage))
               } else {
                 if (this.isMine(findMessage)) {

@@ -364,7 +364,7 @@ export default class ChatContainer extends Vue {
         if (messages) {
           self.messages = messages
         }
-        if (num) {
+        if (num || num === 0) {
           self.currentUnreadNum = num
           setTimeout(() => {
             self.infiniteDownLock = false
@@ -427,9 +427,7 @@ export default class ChatContainer extends Vue {
     if (!list) return
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {
-      this.currentUnreadNum = 0
       this.infiniteDown()
-      messageBox.clearUnreadNum(0)
     }
     if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
       this.infiniteUp()

@@ -135,6 +135,9 @@ class MessageBox {
       if (direction === 'down') {
         if (this.pageDown > 0) {
           data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
+        } else {
+          this.newCount = 0
+          this.callback(null, this.newCount)
         }
       } else {
         data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)

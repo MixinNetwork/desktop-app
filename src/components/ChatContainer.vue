@@ -370,7 +370,10 @@ export default class ChatContainer extends Vue {
           })
         }
       },
-      function(force: any, message: any) {
+      function(force: any, message: any, clearUnreadMsgId: boolean) {
+        if (clearUnreadMsgId) {
+          self.unreadMessageId = ''
+        }
         if (force) {
           if (!message) {
             self.goBottom()

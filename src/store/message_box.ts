@@ -1,6 +1,6 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
-import { PerPageMessageCount } from '@/utils/constants'
+import { PerPageMessageCount, MessageStatus } from '@/utils/constants'
 
 class MessageBox {
   conversationId: any
@@ -92,23 +92,28 @@ class MessageBox {
 
             if (matchIds.indexOf(id) < 0) {
               const findMessage = messageDao.getConversationMessageById(conversationId, id)
+              if (!findMessage) return
               findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
 
-              if (this.isMine(findMessage)) {
-                this.setConversationId(conversationId, 0)
-                this.scrollAction(true)
+              this.newCount++
+              if (this.pageDown === 0) {
+                this.messages.push(findMessage)
+                this.callback(this.messages, this.newCount)
+                this.scrollAction(false)
               } else {
-                this.newCount++
-                if (this.pageDown === 0) {
-                  this.messages.push(findMessage)
-                  this.callback(this.messages, this.newCount)
-                  this.scrollAction(false)
+                if (this.isMine(findMessage)) {
+                  if (findMessage.status === MessageStatus.SENT) {
+                    this.setConversationId(conversationId, 0)
+                    setTimeout(() => {
+                      this.scrollAction(false)
+                    })
+                  }
                 } else {
                   this.callback(null, this.newCount)
+                  this.tempCount = this.newCount % PerPageMessageCount
+                  const lastCount = this.messagePositionIndex % PerPageMessageCount
+                  this.pageDown += Math.floor((this.newCount + lastCount) / PerPageMessageCount)
                 }
-                this.tempCount = this.newCount % PerPageMessageCount
-                const lastCount = this.messagePositionIndex % PerPageMessageCount
-                this.pageDown += Math.floor((this.newCount + lastCount) / PerPageMessageCount)
               }
             }
           }

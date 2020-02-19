@@ -20,14 +20,20 @@ const axiosApi = axios.create({
 
 function newToken(config: any) {
   const url = new Url(config.url)
-  return 'Bearer ' + getToken(config.method.toUpperCase(), url.pathname, config.data)
+  const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+  if (!token) {
+    return ''
+  }
+  return 'Bearer ' + token
 }
 
 axiosApi.interceptors.request.use(
   (config: any) => {
     const token = newToken(config)
     config.retry = 2 ** 31
-    config.headers.common['Authorization'] = token
+    if (token) {
+      config.headers.common['Authorization'] = token
+    }
     // @ts-ignore
     config.headers.common['Accept-Language'] = navigator.language || navigator.userLanguage
     return config
@@ -64,7 +70,10 @@ axiosApi.interceptors.response.use(
       })
       return backOff.then(() => {
         config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
-        config.headers.Authorization = newToken(config)
+        const token = newToken(config)
+        if (token) {
+          config.headers.Authorization = token
+        }
         return axiosApi(config)
       })
     }
@@ -105,7 +114,10 @@ axiosApi.interceptors.response.use(
     })
     return backOff.then(() => {
       config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
-      config.headers.Authorization = newToken(config)
+      const token = newToken(config)
+      if (token) {
+        config.headers.Authorization = token
+      }
       return axiosApi(config)
     })
   }

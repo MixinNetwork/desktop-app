@@ -80,7 +80,7 @@ class ReceiveWorker extends BaseWorker {
     if (plaintext) {
       await this.processDecryptSuccess(data, plaintext)
     } else {
-      console.log('decrypt failed')
+      console.log('decrypt failed: ' + data.category)
       console.log(data)
     }
   }

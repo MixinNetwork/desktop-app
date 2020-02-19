@@ -300,6 +300,7 @@ export default class BaseWorker {
       const key = data[0]
       signalProtocol.processSession(key.user_id, signalProtocol.convertToDeviceId(key.session_id), JSON.stringify(key))
     } else {
+      console.log('No signal key in server' + recipientId + ':' + sessionId)
       return
     }
     let cipherText = signalProtocol.encryptSenderKey(

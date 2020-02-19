@@ -268,10 +268,6 @@ class MessageDao {
       'WHERE m.conversation_id = ? AND m.message_id = ?)').get(cid, mid)
   }
 
-  getMessagesCount(conversationId: string) {
-    return db.prepare('SELECT count(m.message_id) FROM messages m WHERE m.conversation_id = ?').get(conversationId)
-  }
-
   getSendingMessages() {
     const stmt = db.prepare(`
       SELECT m.message_id, m.conversation_id, m.user_id, m.category, m.content, m.media_url, m.media_mime_type,

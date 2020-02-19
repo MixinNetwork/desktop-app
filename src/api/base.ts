@@ -47,7 +47,7 @@ axiosApi.interceptors.response.use(
         tokenExpired = true
       }
     }
-    if ((response.data.error && response.data.error.code === 500) || tokenExpired) {
+    if (response.data.error && (response.data.error.code === 500 || (response.data.error.code === 401 && tokenExpired))) {
       const config: any = response.config
       if (!config || !config.retry) {
         return Promise.reject(response)

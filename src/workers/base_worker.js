@@ -328,6 +328,7 @@ export default class BaseWorker {
           conversation_checksum: this.getCheckSum(conversationId)
         }
       }
+      const self = this
       await Vue.prototype.$blaze.sendMessagePromise(bm).then(
         _ => {},
         async error => {

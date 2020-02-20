@@ -19,8 +19,9 @@ const axiosApi = axios.create({
 })
 
 function newToken(config: any) {
-  const url = new Url(config.url)
-  const token = getToken(config.method.toUpperCase(), url.pathname, config.data)
+  const { url, method, data } = config
+  const urlObj = new Url(url)
+  const token = getToken(method.toUpperCase(), urlObj.pathname, data)
   return 'Bearer ' + token
 }
 
@@ -41,16 +42,12 @@ async function retry(config: any, response: any) {
   config.__retryCount += 1
   await backOff
   config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
-  const token = newToken(config)
-  if (token) {
-    config.headers.Authorization = token
-  }
+  config.headers.Authorization = newToken(config)
   return axiosApi(config)
 }
 
 axiosApi.interceptors.request.use(
   (config: any) => {
-    const url = new Url(config.url)
     config.retry = 2 ** 31
     config.headers.common['Authorization'] = newToken(config)
     config.headers.common['Accept-Language'] = navigator.language

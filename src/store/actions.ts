@@ -378,7 +378,7 @@ export default {
       thumbImage,
       category,
       messageId,
-      (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaDuration: any; thumbImage: any; name: any }) => {
+      (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaDuration: number; thumbImage: any; name: any }) => {
         messageDao.insertMessage({
           message_id: messageId,
           conversation_id: conversationId,

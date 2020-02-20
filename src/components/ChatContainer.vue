@@ -41,20 +41,20 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <div id="virtualTop" :style="`height:${virtualDom.paddingTop}px`"></div>
+        <div id="virtualTop" :style="`height:${virtualPlaceholder.paddingTop}px`"></div>
         <li v-show="!user.app_id" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
         <TimeDivide
           ref="timeDivide"
-          v-if="messages[0] && showMessages && timeDivideShow"
-          :messageTime="contentUtil.renderTime(messages[0].createdAt)"
+          v-if="messagesVisible[0] && showMessages && timeDivideShow"
+          :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
         />
         <MessageItem
           v-for="(item, index) in messagesVisible"
           :key="item.messageId"
           :message="item"
-          :prev="messages[index-1]"
+          :prev="messages[visibleFirstIndex + index - 1]"
           :unread="unreadMessageId"
           :conversation="conversation"
           :me="me"
@@ -64,7 +64,7 @@
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
-        <div id="virtualBottom" :style="`height:${virtualDom.paddingBottom}px`"></div>
+        <div id="virtualBottom" :style="`height:${virtualPlaceholder.paddingBottom}px`"></div>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -216,10 +216,26 @@ export default class ChatContainer extends Vue {
   }
 
   @Watch('currentUnreadNum')
-  onCurrentUnreadNumChanged(val: number, oldVal: string) {
+  onCurrentUnreadNumChanged(val: number, oldVal: number) {
     if (val === 0) {
       messageBox.clearMessagePositionIndex(0)
     }
+  }
+
+  @Watch('messages.length')
+  onMessagesLengthChanged(val: number, oldVal: number) {
+    let { firstIndex, lastIndex } = this.virtualDom
+    const ret = this.visibleIndexLimit(firstIndex, lastIndex)
+    this.virtualDom = ret
+
+    this.firstIndexLock = false
+    this.lastIndexLock = false
+  }
+
+  @Watch('virtualDom')
+  onVirtualDomChanged(vd: any, oldVd: any) {
+    let { firstIndex, lastIndex } = vd
+    this.observerInit(firstIndex, lastIndex)
   }
 
   @Watch('conversation')
@@ -228,6 +244,8 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.messageHeightMap = {}
+      this.virtualDom = { firstIndex: 0, lastIndex: 0 }
+      this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
       this.$root.$emit('updateMenu', newC)
       this.goBottom()
       this.boxMessage = false
@@ -313,7 +331,11 @@ export default class ChatContainer extends Vue {
 
   observer: any = null
   messageHeightMap: any = {}
-  virtualDom: any = { firstIndex: 0, lastIndex: 0, paddingTop: 0, paddingBottom: 0 }
+  virtualDom: any = { firstIndex: 0, lastIndex: 0 }
+  virtualPlaceholder: any = {
+    paddingTop: 0,
+    paddingBottom: 0
+  }
   visibleCount: number = 60
 
   mounted() {
@@ -395,6 +417,10 @@ export default class ChatContainer extends Vue {
   }
 
   beforeDestroy() {
+    if (this.observer) {
+      this.observer.disconnect()
+      this.observer = null
+    }
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
   }
@@ -421,13 +447,22 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  visibleFirstIndex: number = 0
   get messagesVisible() {
-    const { firstIndex, lastIndex } = this.virtualDom
+    let { firstIndex, lastIndex } = this.virtualDom
+    const ret = this.visibleIndexLimit(firstIndex - this.visibleCount / 2, lastIndex + this.visibleCount / 2)
+    firstIndex = ret.firstIndex
+    lastIndex = ret.lastIndex
+
+    this.visibleFirstIndex = firstIndex
+
+    this.updateVirtualPlaceholder(firstIndex, lastIndex)
+
     if (lastIndex) {
       const finalList = []
       for (let i = 0; i < this.messages.length; i++) {
         if (i >= firstIndex) {
-          if (i >= lastIndex) {
+          if (i > lastIndex) {
             break
           }
           finalList.push(this.messages[i])
@@ -444,52 +479,93 @@ export default class ChatContainer extends Vue {
     this.messageHeightMap[messageId] = height
   }
 
-  updateVirtualDom(offset: number) {
-    if (!this.messages.length) return
+  visibleIndexLimit(firstIndex: number, lastIndex: number) {
+    const { messages, visibleCount } = this
+    const listLen = messages.length
 
-    if (offset) {
-      this.virtualDom.firstIndex += offset
-      this.virtualDom.lastIndex += offset
+    if (lastIndex < visibleCount) {
+      lastIndex = visibleCount - 1
+    }
+    if (lastIndex >= listLen) {
+      lastIndex = listLen - 1
+    }
+    if (firstIndex <= 0) {
+      firstIndex = 0
     }
 
-    const listLen = this.messages.length
-    if (this.virtualDom.lastIndex > listLen) {
-      this.virtualDom.lastIndex = listLen
-      this.virtualDom.firstIndex = listLen - this.visibleCount
+    return {
+      firstIndex,
+      lastIndex
     }
-
-    if (!offset || this.virtualDom.firstIndex <= 0) {
-      this.virtualDom.firstIndex = 0
-      this.virtualDom.lastIndex = this.visibleCount
-    }
-
-    const paddingTop = 0
-    const paddingBottom = 0
-
-    this.virtualDom.paddingTop = 0
-    this.virtualDom.paddingBottom = 0
   }
 
-  observerInit() {
-    if (this.observer) {
-      this.observer.disconnect()
+  updateVirtualPlaceholder(firstIndex: number, lastIndex: number) {
+    const { messages, messageHeightMap } = this
+    let paddingTop = 0
+    let paddingBottom = 0
+
+    for (let i = 0; i < firstIndex; i++) {
+      paddingTop += messageHeightMap[messages[i].messageId]
     }
+    for (let i = lastIndex + 1; i < messages.length; i++) {
+      paddingBottom += messageHeightMap[messages[i].messageId]
+    }
+    this.virtualPlaceholder = {
+      paddingTop,
+      paddingBottom
+    }
+  }
+
+  updateVirtualDom(firstIndex: number, lastIndex: number, messageId: string) {
+    const { messages } = this
+    if (!messages) return
+
+    if (messageId === messages[0].messageId || messageId === messages[messages.length - 1].messageId) return
+
+    const ret = this.visibleIndexLimit(firstIndex, lastIndex)
+    firstIndex = ret.firstIndex
+    lastIndex = ret.lastIndex
+
+    this.firstIndexLock = false
+    this.lastIndexLock = false
+
+    this.virtualDom = {
+      firstIndex,
+      lastIndex
+    }
+  }
+
+  firstIndexLock: boolean = false
+  lastIndexLock: boolean = false
+
+  observerInit(firstIndex: number, lastIndex: number) {
     const list: any = this.messages
+    if (!list) return
 
     if (list.length > 0) {
-      setTimeout(() => {
-        const firstItemId = 'virtualTop'
-        const lastItemId = 'virtualBottom'
-        const callback = (entries: any) => {
-          entries.forEach((entry: any) => {
-            if (entry.isIntersecting) {
-              if (entry.target.id === firstItemId) {
-                this.updateVirtualDom(-10)
-              } else if (entry.target.id === lastItemId) {
-                this.updateVirtualDom(10)
-              }
+      const firstItemId = `m-${list[firstIndex].messageId}`
+      const lastItemId = `m-${list[lastIndex].messageId}`
+
+      const callback = (entries: any) => {
+        entries.forEach((entry: any) => {
+          if (entry.target.id === firstItemId) {
+            if (entry.isIntersecting && !this.firstIndexLock) {
+              this.firstIndexLock = true
+              this.updateVirtualDom(firstIndex - 30, lastIndex - 30, firstItemId.substring(2, firstItemId.length))
             }
-          })
+          } else if (entry.target.id === lastItemId) {
+            if (entry.isIntersecting && !this.lastIndexLock) {
+              this.lastIndexLock = true
+              this.updateVirtualDom(firstIndex + 30, lastIndex + 30, lastItemId.substring(2, firstItemId.length))
+            }
+          }
+        })
+      }
+
+      this.$nextTick(() => {
+        if (this.observer) {
+          this.observer.disconnect()
+          this.observer = null
         }
         this.observer = new IntersectionObserver(callback)
         this.observer.observe(document.getElementById(firstItemId))
@@ -498,9 +574,10 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  onScroll() {
+  onScroll(e: any) {
     let list = this.$refs.messagesUl
     if (!list) return
+
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {
       this.infiniteDown()

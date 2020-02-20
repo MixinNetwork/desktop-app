@@ -59,6 +59,7 @@
           :conversation="conversation"
           :me="me"
           :searchKeyword="searchKeyword"
+          @loaded="onMessageLoaded"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -226,6 +227,8 @@ export default class ChatContainer extends Vue {
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
+      this.messageHeightMap = {}
+      this.$root.$emit('updateMenu', newC)
       this.goBottom()
       this.boxMessage = false
       this.boxFocusAction()
@@ -243,24 +246,21 @@ export default class ChatContainer extends Vue {
       }
       this.actionMarkRead(newC.conversationId)
     }
-    if (newC) {
-      if (newC !== oldC) {
-        if (newC.groupName) {
-          this.name = newC.groupName
-        } else if (newC.name) {
-          this.name = newC.name
-        }
-        if (!oldC || newC.conversationId !== oldC.conversationId) {
-          this.boxFocusAction()
-          this.details = false
-          if (!this.searching.replace(/^key:/, '')) {
-            this.actionSetSearching('')
-          }
-          this.stickerChoosing = false
-          this.file = null
-        }
+    if (newC && newC !== oldC) {
+      if (newC.groupName) {
+        this.name = newC.groupName
+      } else if (newC.name) {
+        this.name = newC.name
       }
-      this.$root.$emit('updateMenu', newC)
+      if (!oldC || newC.conversationId !== oldC.conversationId) {
+        this.boxFocusAction()
+        this.details = false
+        if (!this.searching.replace(/^key:/, '')) {
+          this.actionSetSearching('')
+        }
+        this.stickerChoosing = false
+        this.file = null
+      }
     }
   }
 
@@ -312,9 +312,8 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
 
   observer: any = null
-  firstIndex: number = 0
-  lastIndex: number = 0
-  virtualDom: any = { paddingTop: 0, paddingBottom: 0 }
+  messageHeightMap: any = {}
+  virtualDom: any = { firstIndex: 0, lastIndex: 0, paddingTop: 0, paddingBottom: 0 }
   visibleCount: number = 60
 
   mounted() {
@@ -440,36 +439,35 @@ export default class ChatContainer extends Vue {
     return this.messages
   }
 
+  onMessageLoaded(dom: any) {
+    const { messageId, height } = dom
+    this.messageHeightMap[messageId] = height
+  }
+
   updateVirtualDom(offset: number) {
     if (!this.messages.length) return
 
     if (offset) {
-      this.firstIndex += offset
-      this.lastIndex += offset
+      this.virtualDom.firstIndex += offset
+      this.virtualDom.lastIndex += offset
     }
 
     const listLen = this.messages.length
-    if (this.lastIndex > listLen) {
-      this.lastIndex = listLen
-      this.firstIndex = listLen - this.visibleCount
+    if (this.virtualDom.lastIndex > listLen) {
+      this.virtualDom.lastIndex = listLen
+      this.virtualDom.firstIndex = listLen - this.visibleCount
     }
 
-    if (!offset || this.firstIndex <= 0) {
-      this.firstIndex = 0
-      this.lastIndex = this.visibleCount
+    if (!offset || this.virtualDom.firstIndex <= 0) {
+      this.virtualDom.firstIndex = 0
+      this.virtualDom.lastIndex = this.visibleCount
     }
-
-    let { firstIndex, lastIndex } = this
 
     const paddingTop = 0
     const paddingBottom = 0
 
-    this.virtualDom = {
-      firstIndex,
-      lastIndex,
-      paddingTop,
-      paddingBottom
-    }
+    this.virtualDom.paddingTop = 0
+    this.virtualDom.paddingBottom = 0
   }
 
   observerInit() {

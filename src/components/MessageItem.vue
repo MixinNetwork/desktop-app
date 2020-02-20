@@ -1,5 +1,5 @@
 <template>
-  <li :id="`m-${message.messageId}`">
+  <li ref="messageItem" :id="`m-${message.messageId}`">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -243,6 +243,12 @@ export default class MessageItem extends Vue {
   $Dialog: any
   $Menu: any
 
+  mounted() {
+    const { messageId } = this.message
+    const dom: any = this.$refs.messageItem
+    const height = dom.getBoundingClientRect().height
+    this.$emit('loaded', { messageId, height })
+  }
   mediaClick() {
     if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
       return
@@ -480,14 +486,16 @@ li {
     pointer-events: all;
   }
   &.notice {
-    .send, .receive {
+    .send,
+    .receive {
       transition: transform 0.2s;
       transform-origin: 65% 50%;
     }
     .receive {
       transform-origin: 35% 50%;
     }
-    .send, .receive {
+    .send,
+    .receive {
       transform: scale(1.015);
     }
     .bubble {

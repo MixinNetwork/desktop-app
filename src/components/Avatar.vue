@@ -129,7 +129,7 @@ export default class Avatar extends Vue {
   .empty {
     width: 100%;
     height: 100%;
-    background: #eee;
+    background: #f2f2f2;
   }
 
   .avatar-group {

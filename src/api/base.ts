@@ -19,17 +19,22 @@ const axiosApi = axios.create({
 })
 
 function newToken(config: any) {
-  const { url, method, data } = config
+  let { url, method, data } = config
+  if (typeof data === 'string') {
+    data = JSON.parse(data)
+  }
   const urlObj = new Url(url)
   const token = getToken(method.toUpperCase(), urlObj.pathname, data)
   return 'Bearer ' + token
 }
 
-const backOff = new Promise(resolve => {
-  setTimeout(() => {
-    resolve()
-  }, 1500)
-})
+const backOff = () => {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, 1500)
+  })
+}
 
 async function retry(config: any, response: any) {
   if (!config || !config.retry) {
@@ -40,7 +45,7 @@ async function retry(config: any, response: any) {
     return Promise.reject(response)
   }
   config.__retryCount += 1
-  await backOff
+  await backOff()
   config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
   config.headers.Authorization = newToken(config)
   return axiosApi(config)

@@ -32,6 +32,7 @@ import {
 } from '@/utils/constants'
 class ReceiveWorker extends BaseWorker {
   async doWork() {
+    await wasmObject.then(result => { })
     const fms = floodMessageDao.findFloodMessage()
     if (!fms) {
       return

@@ -8,7 +8,7 @@
           {{$t('chat.share_with')}}
         </div>
         <div class="forward-search">
-          <Search id="messageForwardSearch" @input="onSearch" />
+          <Search id="messageForwardSearch" @input="onSearch" :autofocus="true" />
         </div>
         <div
           class="title"
@@ -80,6 +80,7 @@ export default class MessageForward extends Vue {
   beforeContactTitleTop: number = 0
   showContactTitleFixed: boolean = false
   MessageStatus: any = MessageStatus
+  hasEscKeyListener: boolean = false
 
   sendMessage() {
     setTimeout(() => {
@@ -127,7 +128,18 @@ export default class MessageForward extends Vue {
         }
         this.actionSendLiveMessage(msg)
       } else if (this.isFileType(message.type)) {
-        let { mediaUrl, mediaMimeType, mediaDuration, mediaSize, mediaWidth, mediaHeight, thumbUrl, thumbImage, name, mediaWaveform } = message
+        let {
+          mediaUrl,
+          mediaMimeType,
+          mediaDuration,
+          mediaSize,
+          mediaWidth,
+          mediaHeight,
+          thumbUrl,
+          thumbImage,
+          name,
+          mediaWaveform
+        } = message
         if (/^file:\/\//.test(mediaUrl)) {
           mediaUrl = mediaUrl.split('file://')[1]
         }
@@ -167,6 +179,20 @@ export default class MessageForward extends Vue {
 
   onSearch(keyword: string) {
     this.keyword = keyword
+    if (!this.keyword) {
+      setTimeout(() => {
+        if (!this.hasEscKeyListener) {
+          this.hasEscKeyListener = true
+          this.$root.$on('escKeydown', () => {
+            this.$emit('close')
+          })
+        }
+      }, 500)
+    } else {
+      this.hasEscKeyListener = false
+      this.$root.$off('escKeydown')
+    }
+
     const chats = conversationDao.fuzzySearchConversation(keyword)
     chats.forEach((item: any, index: number) => {
       const participants = participantDao.getParticipantsByConversationId(item.conversationId)
@@ -213,7 +239,9 @@ export default class MessageForward extends Vue {
     this.observer = new IntersectionObserver(callback)
     this.observer.observe(document.getElementById('contactTitle'))
   }
-  destroy() {
+
+  beforeDestroy() {
+    this.$root.$off('escKeydown')
     this.observer = null
   }
 

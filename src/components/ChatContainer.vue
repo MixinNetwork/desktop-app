@@ -306,7 +306,6 @@ export default class ChatContainer extends Vue {
   forwardMessage: any = null
   currentUnreadNum: any = 0
   beforeUnseenMessageCount: any = 0
-  oldMsgLen: any = 0
   showMessages: any = true
   showScroll: any = true
   infiniteUpLock: any = false
@@ -322,7 +321,6 @@ export default class ChatContainer extends Vue {
 
   mounted() {
     this.$root.$on('escKeydown', () => {
-      this.handleHideMessageForward()
       this.hideDetails()
       this.hideSearch()
       this.closeFile()
@@ -331,11 +329,6 @@ export default class ChatContainer extends Vue {
       setTimeout(() => {
         this.boxFocusAction()
       }, 200)
-    })
-    this.$root.$on('enterKeydown', () => {
-      if (!this.boxFocus) {
-        this.boxFocusAction()
-      }
     })
     let self = this
     document.onpaste = function(event: any) {
@@ -366,25 +359,25 @@ export default class ChatContainer extends Vue {
       }
     }
     messageBox.bindData(
-      function(messages: any, data: any) {
+      function(messages: any, num: any) {
         if (messages) {
           self.messages = messages
         }
-        if (data) {
-          if (!messages) {
-            self.currentUnreadNum = data
-            setTimeout(() => {
-              self.infiniteDownLock = false
-            })
-          } else {
-            setTimeout(() => {
-              self.searchKeyword = data
-            }, 100)
-          }
+        if (num || num === 0) {
+          self.currentUnreadNum = num
+          setTimeout(() => {
+            self.infiniteDownLock = false
+          })
         }
       },
-      function(force: any, message: any) {
+      function(force: any, message: any, clearUnreadMsgId: boolean) {
+        if (clearUnreadMsgId) {
+          self.unreadMessageId = ''
+        }
         if (force) {
+          if (!message) {
+            self.goBottom()
+          }
           setTimeout(() => {
             self.goMessagePos(message)
           })
@@ -395,14 +388,6 @@ export default class ChatContainer extends Vue {
           if (!force) {
             self.showMessages = true
           }
-          const newMsgLen = self.messages.length
-          if (message) {
-            self.oldMsgLen = 0
-          }
-          if (!self.isBottom && self.oldMsgLen) {
-            self.currentUnreadNum += newMsgLen - self.oldMsgLen
-          }
-          self.oldMsgLen = newMsgLen
         })
       }
     )
@@ -415,7 +400,6 @@ export default class ChatContainer extends Vue {
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
-    this.$root.$off('enterKeydown')
   }
 
   onFocus() {
@@ -445,7 +429,6 @@ export default class ChatContainer extends Vue {
     if (!list) return
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {
-      this.currentUnreadNum = 0
       this.infiniteDown()
     }
     if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
@@ -611,11 +594,14 @@ export default class ChatContainer extends Vue {
       list.scrollTop = scrollHeight
       this.searchKeyword = ''
     }, 10)
+    messageBox.clearUnreadNum(0)
   }
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
     this.beforeUnseenMessageCount = 0
-    this.goBottom()
+    setTimeout(() => {
+      this.goBottom()
+    }, 100)
   }
   infiniteScroll(direction: any) {
     messageBox.nextPage(direction).then((messages: any) => {
@@ -646,7 +632,6 @@ export default class ChatContainer extends Vue {
           this.actionSetCurrentMessages(this.messages)
           this.infiniteUpLock = false
         }
-        this.oldMsgLen += messages.length
       }
     })
   }

@@ -25,7 +25,7 @@
           >{{buttons.negative.title}}</button>
         </div>
       </div>
-      <div class="mask" @click="dismiss($event)"></div>
+      <div class="mask sp" @click="dismiss($event)"></div>
     </div>
   </transition>
 </template>

@@ -54,7 +54,7 @@ export default class App extends Vue {
     document.onkeydown = e => {
       let keyCode = e.keyCode
       let ctrlKey = e.ctrlKey || e.metaKey
-      const maskDom = document.querySelector('.mask')
+      const maskDom = document.querySelector('.mask.sp')
       if (maskDom) {
         if (!ctrlKey || (ctrlKey && keyCode >= 37 && keyCode <= 40)) {
           if (keyCode === 38) {
@@ -89,12 +89,12 @@ export default class App extends Vue {
           }, 10)
         }
       }
+    }
+    document.onkeyup = e => {
+      let keyCode = e.keyCode
       if (keyCode === 27) {
         this.$postViewer.hide()
         this.$root.$emit('escKeydown')
-      }
-      if (keyCode === 13) {
-        this.$root.$emit('enterKeydown')
       }
     }
   }

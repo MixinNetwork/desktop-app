@@ -41,6 +41,7 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
+    if (!token) return
     setTimeout(() => {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
       this.resetLinkStatus()

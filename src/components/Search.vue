@@ -112,6 +112,8 @@ export default class Search extends Vue {
   keyup(e: any) {
     if (e.keyCode === 27 && this.focus) {
       if (this.autofocus) {
+        this.keyword = ''
+        this.$emit('input', '')
         return this.actionSetSearching('')
       }
       this.back()

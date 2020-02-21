@@ -87,12 +87,11 @@ class MessageBox {
         }
 
         if (matchIds.length !== messageIds.length) {
-          for (let i = 0; i < messageIds.length; i++) {
-            const id = messageIds[i]
-
+          messageIds.forEach((id: string) => {
             if (matchIds.indexOf(id) < 0) {
               const findMessage = messageDao.getConversationMessageById(conversationId, id)
               if (!findMessage) return
+              if (findMessage.createdAt < this.messages[0].createdAt) return
               findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
 
               const isMyMsg = this.isMine(findMessage)
@@ -121,7 +120,7 @@ class MessageBox {
                 }
               }
             }
-          }
+          })
         }
       }
     }

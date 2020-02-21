@@ -245,7 +245,7 @@ export default class ChatContainer extends Vue {
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-      this.resetStatus()
+      this.showMessages = false
       this.goBottom()
       this.boxFocusAction()
       this.$root.$emit('updateMenu', newC)
@@ -427,7 +427,6 @@ export default class ChatContainer extends Vue {
     this.virtualDom = { firstIndex: 0, lastIndex: 0 }
     this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
     this.boxMessage = false
-    this.showMessages = false
     this.beforeUnseenMessageCount = 0
   }
 
@@ -688,6 +687,7 @@ export default class ChatContainer extends Vue {
     action(beforeScrollTop)
   }
   goBottom() {
+    this.resetStatus()
     this.showScroll = false
     setTimeout(() => {
       this.showScroll = true
@@ -704,7 +704,6 @@ export default class ChatContainer extends Vue {
   }
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
-    this.resetStatus()
     setTimeout(() => {
       this.goBottom()
     }, 100)

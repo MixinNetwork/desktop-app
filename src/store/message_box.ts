@@ -122,7 +122,7 @@ class MessageBox {
             }
           })
         } else {
-          this.callback(this.messages, -1)
+          this.callback(this.messages)
         }
       }
     }

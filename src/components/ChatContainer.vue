@@ -228,6 +228,11 @@ export default class ChatContainer extends Vue {
     let { firstIndex, lastIndex } = this.virtualDom
     const ret = this.visibleIndexLimit(firstIndex, lastIndex)
     this.virtualDom = ret
+    const messageIds: any = []
+    this.messages.forEach(item => {
+      messageIds.push(item.messageId)
+    })
+    this.messageIds = messageIds
   }
 
   @Watch('conversation')
@@ -318,6 +323,8 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
 
   messageHeightMap: any = {}
+  messageIds: any = []
+  bfTargetMessageIndex: number =0
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
   virtualPlaceholder: any = {
     paddingTop: 0,
@@ -525,18 +532,25 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  onIntersect({ target, intersectionRatio }: any) {
-    const { messages } = this
+  onIntersect({ target, isIntersecting }: any) {
+    if (!isIntersecting) return
+    const { messages, visibleCount, messageIds } = this
     if (!messages) return
     let { firstIndex, lastIndex } = this.virtualDom
     const firstMessageId = messages[firstIndex].messageId
     const lastMessageId = messages[lastIndex].messageId
-    if (target.id === `m-${firstMessageId}`) {
-      this.updateVirtualDom(-20, firstMessageId)
+
+    const targetMessageId = target.id.substring(2, target.id.length)
+    const targetMessageIndex = messageIds.indexOf(targetMessageId)
+
+    const goDown = targetMessageIndex > this.bfTargetMessageIndex
+
+    if (targetMessageId === firstMessageId && !goDown) {
+      this.updateVirtualDom(-visibleCount / 2, firstMessageId)
+    } else if (targetMessageId === lastMessageId && goDown) {
+      this.updateVirtualDom(visibleCount / 2, lastMessageId)
     }
-    if (target.id === `m-${lastMessageId}`) {
-      this.updateVirtualDom(20, lastMessageId)
-    }
+    this.bfTargetMessageIndex = targetMessageIndex
   }
 
   onScroll(e: any) {

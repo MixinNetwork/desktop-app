@@ -41,11 +41,11 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
-    if (!token) return
     setTimeout(() => {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
       this.resetLinkStatus()
     })
+    if (!token) return
     this.ws = new RobustWebSocket(API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token, 'Mixin-Blaze-1')
     this.retryCount += 1
     this.ws.onmessage = this._onMessage.bind(this)

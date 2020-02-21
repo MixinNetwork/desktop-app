@@ -66,8 +66,7 @@ axiosApi.interceptors.request.use(
 axiosApi.interceptors.response.use(
   function(response: any) {
     if (response.data.error && response.data.error.code === 500) {
-      const config: any = response.config
-      return retry(config, response)
+      return retry(response.config, response)
     }
     // @ts-ignore
     const timeLag = Math.abs(response.headers['x-server-time'] / 1000000 - Date.parse(new Date()))
@@ -83,14 +82,13 @@ axiosApi.interceptors.response.use(
       if (tokenStr) {
         const tokenJson = jwt.decode(tokenStr.split(' ')[1])
         if (tokenJson && tokenJson.iat * 1000 < new Date().getTime() - 60000) {
-          Vue.prototype.$blaze.closeBlaze()
-          clearDb()
-          router.push('/sign_in')
-          return Promise.reject(response)
-        } else {
           return retry(response.config, response)
         }
       }
+      Vue.prototype.$blaze.closeBlaze()
+      clearDb()
+      router.push('/sign_in')
+      return Promise.reject(response)
     }
     return response
   },

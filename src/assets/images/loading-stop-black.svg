@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="50px" height="50px" viewBox="0 0 38 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <g id="Conversation" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle fill="#000000B6" cx="19" cy="19" r="19"></circle>
         <g transform="translate(-267.000000, -548.000000)">
             <g id="Group-6" transform="translate(267.000000, 548.000000)">
                 <path d="M19,38 C29.4934102,38 38,29.4934102 38,19 C38,8.50658975 29.4934102,0 19,0 C14.6430968,0 10.6287099,1.46648628 7.42351568,3.93278226 C2.90914026,7.40645199 0,12.8634929 0,19 C0,29.4934102 8.50658975,38 19,38 Z" id="Oval-4-Copy"></path>
-                <path d="M15,14 L23,14 C23.5522847,14 24,14.4477153 24,15 L24,23 C24,23.5522847 23.5522847,24 23,24 L15,24 C14.4477153,24 14,23.5522847 14,23 L14,15 C14,14.4477153 14.4477153,14 15,14 Z" id="Rectangle-10-Copy" fill="#333"></path>
+                <path d="M15,14 L23,14 C23.5522847,14 24,14.4477153 24,15 L24,23 C24,23.5522847 23.5522847,24 23,24 L15,24 C14.4477153,24 14,23.5522847 14,23 L14,15 C14,14.4477153 14.4477153,14 15,14 Z" id="Rectangle-10-Copy" fill="#fff"></path>
             </g>
         </g>
     </g>

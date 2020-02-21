@@ -59,6 +59,7 @@
           :conversation="conversation"
           :me="me"
           :searchKeyword="searchKeyword"
+          v-intersect="onIntersect"
           @loaded="onMessageLoaded"
           @user-click="onUserClick"
           @action-click="handleAction"
@@ -227,15 +228,6 @@ export default class ChatContainer extends Vue {
     let { firstIndex, lastIndex } = this.virtualDom
     const ret = this.visibleIndexLimit(firstIndex, lastIndex)
     this.virtualDom = ret
-
-    this.firstIndexLock = false
-    this.lastIndexLock = false
-  }
-
-  @Watch('virtualDom')
-  onVirtualDomChanged(vd: any, oldVd: any) {
-    let { firstIndex, lastIndex } = vd
-    this.observerInit(firstIndex, lastIndex)
   }
 
   @Watch('conversation')
@@ -456,7 +448,7 @@ export default class ChatContainer extends Vue {
 
     this.visibleFirstIndex = firstIndex
 
-    this.updateVirtualPlaceholder(firstIndex, lastIndex)
+    // this.updateVirtualPlaceholder(firstIndex, lastIndex)
 
     if (lastIndex) {
       const finalList = []
@@ -516,18 +508,16 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  updateVirtualDom(firstIndex: number, lastIndex: number, messageId: string) {
+  updateVirtualDom(offset: number, messageId: string) {
     const { messages } = this
     if (!messages) return
 
     if (messageId === messages[0].messageId || messageId === messages[messages.length - 1].messageId) return
 
-    const ret = this.visibleIndexLimit(firstIndex, lastIndex)
+    let {firstIndex, lastIndex} = this.virtualDom
+    const ret = this.visibleIndexLimit(firstIndex + offset, lastIndex + offset)
     firstIndex = ret.firstIndex
     lastIndex = ret.lastIndex
-
-    this.firstIndexLock = false
-    this.lastIndexLock = false
 
     this.virtualDom = {
       firstIndex,
@@ -535,42 +525,17 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  firstIndexLock: boolean = false
-  lastIndexLock: boolean = false
-
-  observerInit(firstIndex: number, lastIndex: number) {
-    const list: any = this.messages
-    if (!list) return
-
-    if (list.length > 0) {
-      const firstItemId = `m-${list[firstIndex].messageId}`
-      const lastItemId = `m-${list[lastIndex].messageId}`
-
-      const callback = (entries: any) => {
-        entries.forEach((entry: any) => {
-          if (entry.target.id === firstItemId) {
-            if (entry.isIntersecting && !this.firstIndexLock) {
-              this.firstIndexLock = true
-              this.updateVirtualDom(firstIndex - 30, lastIndex - 30, firstItemId.substring(2, firstItemId.length))
-            }
-          } else if (entry.target.id === lastItemId) {
-            if (entry.isIntersecting && !this.lastIndexLock) {
-              this.lastIndexLock = true
-              this.updateVirtualDom(firstIndex + 30, lastIndex + 30, lastItemId.substring(2, firstItemId.length))
-            }
-          }
-        })
-      }
-
-      this.$nextTick(() => {
-        if (this.observer) {
-          this.observer.disconnect()
-          this.observer = null
-        }
-        this.observer = new IntersectionObserver(callback)
-        this.observer.observe(document.getElementById(firstItemId))
-        this.observer.observe(document.getElementById(lastItemId))
-      })
+  onIntersect({target, intersectionRatio}: any) {
+    const { messages } = this
+    if (!messages) return
+    let { firstIndex, lastIndex } = this.virtualDom
+    const firstMessageId = messages[firstIndex].messageId
+    const lastMessageId = messages[lastIndex].messageId
+    if (target.id === `m-${firstMessageId}`) {
+      this.updateVirtualDom(-20, firstMessageId)
+    }
+    if (target.id === `m-${lastMessageId}`) {
+      this.updateVirtualDom(20, lastMessageId)
     }
   }
 

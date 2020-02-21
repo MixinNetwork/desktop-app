@@ -20,6 +20,7 @@ import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
 import './assets'
 import 'highlight.js/styles/default.css'
 import Markdown from '@/components/markdown'
+import VueIntersect from '@/components/intersect'
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
@@ -32,6 +33,7 @@ Vue.use(ImageViewer)
 Vue.use(Scrollbar)
 Vue.use(PostViewer)
 Vue.use(Markdown)
+Vue.use(VueIntersect)
 
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

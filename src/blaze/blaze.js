@@ -22,6 +22,7 @@ class Blaze {
 
   resetLinkStatus() {
     setTimeout(() => {
+      if (!this.ws) return
       if (this.ws.readyState === WebSocket.CONNECTING) {
         this.resetLinkStatus()
       } else {

@@ -235,14 +235,10 @@ export default class ChatContainer extends Vue {
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-      this.messageHeightMap = {}
-      this.virtualDom = { firstIndex: 0, lastIndex: 0 }
-      this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
-      this.$root.$emit('updateMenu', newC)
+      this.resetStatus()
       this.goBottom()
-      this.boxMessage = false
       this.boxFocusAction()
-      this.showMessages = false
+      this.$root.$emit('updateMenu', newC)
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
       this.messages = messageBox.messages
       this.actionSetCurrentMessages(this.messages)
@@ -410,6 +406,15 @@ export default class ChatContainer extends Vue {
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
+  }
+
+  resetStatus() {
+    this.messageHeightMap = {}
+    this.virtualDom = { firstIndex: 0, lastIndex: 0 }
+    this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
+    this.boxMessage = false
+    this.showMessages = false
+    this.beforeUnseenMessageCount = 0
   }
 
   onFocus() {
@@ -664,6 +669,7 @@ export default class ChatContainer extends Vue {
     this.showScroll = false
     setTimeout(() => {
       this.showScroll = true
+      this.showMessages = true
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
       let list = this.$refs.messagesUl
@@ -676,7 +682,7 @@ export default class ChatContainer extends Vue {
   }
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
-    this.beforeUnseenMessageCount = 0
+    this.resetStatus()
     setTimeout(() => {
       this.goBottom()
     }, 100)

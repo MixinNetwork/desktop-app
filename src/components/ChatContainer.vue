@@ -235,6 +235,11 @@ export default class ChatContainer extends Vue {
     this.messageIds = messageIds
   }
 
+  @Watch('virtualDom')
+  onVirtualDomChanged(val: number, oldVal: number) {
+    this.getMessagesVisible()
+  }
+
   @Watch('conversation')
   onConversationChanged(newC: any, oldC: any) {
     this.infiniteDownLock = true
@@ -322,9 +327,10 @@ export default class ChatContainer extends Vue {
   goSearchPos: boolean = false
   boxFocus: boolean = false
 
+  messagesVisible: any = []
   messageHeightMap: any = {}
   messageIds: any = []
-  bfTargetMessageIndex: number =0
+  bfTargetMessageIndex: number = 0
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
   virtualPlaceholder: any = {
     paddingTop: 0,
@@ -375,8 +381,9 @@ export default class ChatContainer extends Vue {
       function(messages: any, num: any) {
         if (messages) {
           self.messages = messages
+          self.getMessagesVisible()
         }
-        if (num || num === 0) {
+        if (num > 0 || num === 0) {
           self.currentUnreadNum = num
           setTimeout(() => {
             self.infiniteDownLock = false
@@ -447,7 +454,7 @@ export default class ChatContainer extends Vue {
   }
 
   visibleFirstIndex: number = 0
-  get messagesVisible() {
+  getMessagesVisible() {
     let { firstIndex, lastIndex } = this.virtualDom
     const ret = this.visibleIndexLimit(firstIndex - this.visibleCount / 2, lastIndex + this.visibleCount / 2)
     firstIndex = ret.firstIndex
@@ -467,10 +474,11 @@ export default class ChatContainer extends Vue {
           finalList.push(this.messages[i])
         }
       }
-      return finalList
+      this.messagesVisible = finalList
+      return
     }
 
-    return this.messages
+    this.messagesVisible = this.messages
   }
 
   onMessageLoaded(dom: any) {

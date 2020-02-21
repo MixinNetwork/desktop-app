@@ -321,7 +321,6 @@ export default class ChatContainer extends Vue {
   goSearchPos: boolean = false
   boxFocus: boolean = false
 
-  observer: any = null
   messageHeightMap: any = {}
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
   virtualPlaceholder: any = {
@@ -409,10 +408,6 @@ export default class ChatContainer extends Vue {
   }
 
   beforeDestroy() {
-    if (this.observer) {
-      this.observer.disconnect()
-      this.observer = null
-    }
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
   }
@@ -448,7 +443,7 @@ export default class ChatContainer extends Vue {
 
     this.visibleFirstIndex = firstIndex
 
-    // this.updateVirtualPlaceholder(firstIndex, lastIndex)
+    this.updateVirtualPlaceholder(firstIndex, lastIndex)
 
     if (lastIndex) {
       const finalList = []
@@ -514,7 +509,7 @@ export default class ChatContainer extends Vue {
 
     if (messageId === messages[0].messageId || messageId === messages[messages.length - 1].messageId) return
 
-    let {firstIndex, lastIndex} = this.virtualDom
+    let { firstIndex, lastIndex } = this.virtualDom
     const ret = this.visibleIndexLimit(firstIndex + offset, lastIndex + offset)
     firstIndex = ret.firstIndex
     lastIndex = ret.lastIndex
@@ -525,7 +520,7 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  onIntersect({target, intersectionRatio}: any) {
+  onIntersect({ target, intersectionRatio }: any) {
     const { messages } = this
     if (!messages) return
     let { firstIndex, lastIndex } = this.virtualDom

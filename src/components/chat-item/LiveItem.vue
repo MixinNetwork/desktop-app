@@ -106,7 +106,7 @@ export default class LiveItem extends Vue {
     overflow: hidden;
     .tag {
       position: absolute;
-      margin-left: 1rem;
+      margin-left: 0.4rem;
       margin-top: 0.2rem;
       padding-left: 0.1875rem;
       padding-right: 0.1875rem;

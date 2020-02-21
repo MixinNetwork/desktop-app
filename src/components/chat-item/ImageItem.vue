@@ -31,7 +31,7 @@
             </div>
             <div v-if="loading" class="loading" @click.stop="stopLoading">
               <svg-icon class="stop" icon-class="loading-stop-black" />
-              <spinner class="circle"></spinner>
+              <spinner class="circle" color="#fff"></spinner>
             </div>
             <AttachmentIcon
               v-else-if="waitStatus"

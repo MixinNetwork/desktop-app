@@ -19,7 +19,7 @@
             <div class="video-box">
               <div v-if="loading" v-show="showLoading" class="loading" @click.stop="stopLoading">
                 <svg-icon class="stop" icon-class="loading-stop-black" />
-                <spinner class="circle"></spinner>
+                <spinner class="circle" color="#fff"></spinner>
               </div>
               <AttachmentIcon
                 v-else-if="waitStatus"

@@ -13,7 +13,7 @@
         opacity: thumbShow ? 1 : 0,
         transform: `translate3d(0, ${thumbTop}px, 0)`,
         height: thumbHeight + 'px',
-        transition: 'transform 0.05s ease-out, width 0.15s, opacity 0.5s, height 0.55s'
+        transition: 'transform 0.15s ease-out, width 0.15s, opacity 0.5s, height 0.55s'
       }"
     ></div>
   </div>

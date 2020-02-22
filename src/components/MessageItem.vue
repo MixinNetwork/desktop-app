@@ -246,7 +246,10 @@ export default class MessageItem extends Vue {
   mounted() {
     const { messageId } = this.message
     const dom: any = this.$refs.messageItem
-    const height = dom.getBoundingClientRect().height
+    let height = dom.getBoundingClientRect().height
+    // @ts-ignore
+    const marginBottom = document.defaultView.getComputedStyle(dom, null)['marginBottom']
+    height += parseInt(marginBottom.split('px')[0])
     this.$emit('loaded', { messageId, height })
   }
   mediaClick() {

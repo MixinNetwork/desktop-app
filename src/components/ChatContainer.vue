@@ -41,8 +41,7 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <div id="virtualTop" :style="{ height: virtualPlaceholder.paddingTop }"></div>
-        <li v-show="!user.app_id" class="encryption tips">
+        <li v-show="!user.app_id && showTopTips" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
         <TimeDivide
@@ -50,6 +49,7 @@
           v-if="messagesVisible[0] && showMessages && timeDivideShow"
           :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
         />
+        <div id="virtualTop" :style="{ height: `${virtualPlaceholder.paddingTop}px` }"></div>
         <MessageItem
           v-for="(item, index) in messagesVisible"
           :key="item.messageId"
@@ -65,7 +65,7 @@
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
-        <div id="virtualBottom" :style="{ height: virtualPlaceholder.paddingBottom }"></div>
+        <div id="virtualBottom" :style="{ height: `${virtualPlaceholder.paddingBottom}px` }"></div>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -225,8 +225,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('messages.length')
   onMessagesLengthChanged(val: number, oldVal: number) {
-    let { firstIndex, lastIndex } = this.virtualDom
-    const ret = this.visibleIndexLimit(firstIndex, lastIndex)
+    const ret = this.visibleIndexLimit(this.virtualDom)
     this.virtualDom = ret
     const messageIds: any = []
     this.messages.forEach(item => {
@@ -236,8 +235,8 @@ export default class ChatContainer extends Vue {
   }
 
   @Watch('virtualDom')
-  onVirtualDomChanged(val: number, oldVal: number) {
-    this.getMessagesVisible()
+  onVirtualDomChanged(obj: any, oldObj: any) {
+    this.getMessagesVisible(obj, oldObj)
   }
 
   @Watch('conversation')
@@ -326,18 +325,19 @@ export default class ChatContainer extends Vue {
   lastEnter: any = null
   goSearchPos: boolean = false
   boxFocus: boolean = false
+  showTopTips: boolean = false
 
   goDown: boolean = false
   messagesVisible: any = []
   messageHeightMap: any = {}
   messageIds: any = []
-  windowVisible: any = { firstIndex: 0, lastIndex: 0 }
+  viewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
   virtualPlaceholder: any = {
     paddingTop: 0,
     paddingBottom: 0
   }
-  visibleCount: number = 100
+  threshold: number = 100
 
   mounted() {
     this.$root.$on('escKeydown', () => {
@@ -382,7 +382,7 @@ export default class ChatContainer extends Vue {
       function(messages: any, num: any) {
         if (messages) {
           self.messages = messages
-          self.getMessagesVisible()
+          self.getMessagesVisible(self.virtualDom, null)
         }
         if (num > 0 || num === 0) {
           self.currentUnreadNum = num
@@ -423,14 +423,6 @@ export default class ChatContainer extends Vue {
     this.$root.$off('escKeydown')
   }
 
-  resetStatus() {
-    this.messageHeightMap = {}
-    this.virtualDom = { firstIndex: 0, lastIndex: 0 }
-    this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
-    this.boxMessage = false
-    this.beforeUnseenMessageCount = 0
-  }
-
   onFocus() {
     this.boxFocus = true
   }
@@ -454,31 +446,36 @@ export default class ChatContainer extends Vue {
   }
 
   visibleFirstIndex: number = 0
-  getMessagesVisible() {
-    let { firstIndex, lastIndex } = this.virtualDom
-    const ret = this.visibleIndexLimit(firstIndex, lastIndex)
-    firstIndex = ret.firstIndex
-    lastIndex = ret.lastIndex
+  getMessagesVisible(obj: any, oldObj: any) {
+    const ret = this.visibleIndexLimit(obj)
+    let { firstIndex, lastIndex } = ret
 
     this.visibleFirstIndex = firstIndex
 
-    this.updateVirtualPlaceholder(firstIndex, lastIndex)
+    const { messages, messageHeightMap, messagesVisible } = this
 
-    if (lastIndex) {
-      const finalList = []
-      for (let i = 0; i < this.messages.length; i++) {
-        if (i >= firstIndex) {
-          if (i > lastIndex) {
-            break
-          }
-          finalList.push(this.messages[i])
-        }
-      }
-      this.messagesVisible = finalList
-      return
+    if (!messagesVisible.length) {
+      this.messagesVisible = this.messages
     }
 
-    this.messagesVisible = this.messages
+    let paddingTop = 0
+    let paddingBottom = 0
+
+    for (let i = 0; i < firstIndex; i++) {
+      paddingTop += messageHeightMap[messages[i].messageId] || 0
+    }
+
+    for (let i = lastIndex + 1; i < messages.length; i++) {
+      paddingBottom += messageHeightMap[messages[i].messageId] || 0
+    }
+
+    const finalList = []
+    for (let i = firstIndex; i <= lastIndex; i++) {
+      const msg = this.messages[i]
+      finalList.push(msg)
+    }
+    this.virtualPlaceholder = { paddingTop, paddingBottom }
+    this.messagesVisible = finalList
   }
 
   onMessageLoaded(dom: any) {
@@ -486,18 +483,19 @@ export default class ChatContainer extends Vue {
     this.messageHeightMap[messageId] = height
   }
 
-  visibleIndexLimit(firstIndex: number, lastIndex: number) {
-    const { messages, visibleCount } = this
+  visibleIndexLimit(obj: any) {
+    const { messages, threshold } = this
     const listLen = messages.length
+    let { firstIndex, lastIndex } = obj
 
-    if (lastIndex < visibleCount) {
-      lastIndex = visibleCount - 1
+    if (lastIndex < threshold) {
+      lastIndex = threshold - 1
     }
     if (lastIndex >= listLen) {
       lastIndex = listLen - 1
     }
     if (firstIndex >= lastIndex) {
-      firstIndex = lastIndex - visibleCount
+      firstIndex = lastIndex - threshold
     }
     if (firstIndex <= 0) {
       firstIndex = 0
@@ -509,23 +507,9 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  updateVirtualPlaceholder(firstIndex: number, lastIndex: number) {
-    const { messages, messageHeightMap } = this
-    let paddingTop = 0
-    let paddingBottom = 0
-
-    for (let i = 0; i < firstIndex; i++) {
-      paddingTop += messageHeightMap[messages[i].messageId] || 0
-    }
-    for (let i = lastIndex + 1; i < messages.length; i++) {
-      paddingBottom += messageHeightMap[messages[i].messageId] || 0
-    }
-    this.virtualPlaceholder = { paddingTop: `${paddingTop}px`, paddingBottom: `${paddingBottom}px` }
-  }
-
   onIntersect({ target, isIntersecting }: any) {
-    const { messages, visibleCount, messageIds, goDown } = this
-    if (!messages) return
+    const { messages, showScroll, threshold, messageIds, goDown } = this
+    if (!messages || !showScroll) return
 
     const targetMessageId = target.id.substring(2, target.id.length)
 
@@ -533,28 +517,28 @@ export default class ChatContainer extends Vue {
 
     let { firstIndex, lastIndex } = this.virtualDom
 
-    const offset = visibleCount
+    const offset = threshold
     if (isIntersecting) {
       if (goDown) {
-        this.windowVisible.lastIndex = index
+        this.viewport.lastIndex = index
         if (index + offset >= lastIndex && targetMessageId !== messageIds[messageIds.length - 1]) {
           firstIndex += offset
           lastIndex += offset
 
-          if (this.windowVisible.firstIndex < firstIndex) {
-            firstIndex = this.windowVisible.firstIndex - offset
+          if (this.viewport.firstIndex < firstIndex) {
+            firstIndex = this.viewport.firstIndex - offset
           }
 
           this.virtualDom = { firstIndex, lastIndex }
         }
       } else {
-        this.windowVisible.firstIndex = index
+        this.viewport.firstIndex = index
         if (index - offset <= firstIndex && targetMessageId !== messageIds[0]) {
           firstIndex -= offset
           lastIndex -= offset
 
-          if (this.windowVisible.lastIndex > lastIndex) {
-            lastIndex = this.windowVisible.lastIndex + offset
+          if (this.viewport.lastIndex > lastIndex) {
+            lastIndex = this.viewport.lastIndex + offset
           }
 
           this.virtualDom = { firstIndex, lastIndex }
@@ -562,15 +546,16 @@ export default class ChatContainer extends Vue {
       }
     } else {
       if (goDown) {
-        this.windowVisible.firstIndex = index
+        this.viewport.firstIndex = index
       } else {
-        this.windowVisible.lastIndex = index
+        this.viewport.lastIndex = index
       }
     }
   }
 
   beforeScrollTop: number = 0
   goDownBuffer: any = []
+  scrollTimeout: any = false
   onScroll(e: any) {
     let list = this.$refs.messagesUl
     if (!list) return
@@ -587,15 +572,19 @@ export default class ChatContainer extends Vue {
     if (this.isBottom) {
       this.infiniteDown()
     }
-    if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
+    const toTop = 400 + 20 * (list.scrollHeight / list.clientHeight)
+    if (list.scrollTop < toTop) {
       this.infiniteUp()
-      if (list.scrollTop < 30) {
-        setTimeout(() => {
+      clearTimeout(this.scrollTimeout)
+      this.scrollTimeout = setTimeout(() => {
+        if (list.scrollTop < toTop) {
           if (!this.infiniteUpLock) {
-            list.scrollTop = 30
+            list.scrollTop = toTop
+          } else {
+            this.showTopTips = true
           }
-        })
-      }
+        }
+      }, 100)
     }
     if (!this.isBottom && list.scrollTop > 130) {
       this.timeDivideShow = true
@@ -706,10 +695,16 @@ export default class ChatContainer extends Vue {
     action(beforeScrollTop)
   }
   goBottom() {
-    this.resetStatus()
     this.showScroll = false
+    this.showTopTips = false
+    this.messageHeightMap = {}
+    const msgLen = this.messages.length
+    this.virtualDom = { firstIndex: msgLen - this.threshold, lastIndex: msgLen - 1 }
+    this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
+    this.boxMessage = false
+    this.beforeUnseenMessageCount = 0
+
     setTimeout(() => {
-      this.showScroll = true
       this.showMessages = true
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
@@ -718,6 +713,9 @@ export default class ChatContainer extends Vue {
       let scrollHeight = list.scrollHeight
       list.scrollTop = scrollHeight
       this.searchKeyword = ''
+      setTimeout(() => {
+        this.showScroll = true
+      }, 200)
     }, 10)
     messageBox.clearUnreadNum(0)
   }

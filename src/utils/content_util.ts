@@ -5,6 +5,7 @@ import i18n from '@/utils/i18n'
 // @ts-ignore
 import MarkdownIt from 'markdown-it'
 const md = new MarkdownIt()
+URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
 
 export default {
   messageFilteredText(e: { innerHTML: string; innerText: string }) {

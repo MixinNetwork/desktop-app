@@ -232,6 +232,9 @@ export default class ChatContainer extends Vue {
       messageIds.push(item.messageId)
     })
     this.messageIds = messageIds
+    if (messageIds.length > 1000) {
+      this.threshold = 100
+    }
   }
 
   @Watch('virtualDom')
@@ -337,7 +340,7 @@ export default class ChatContainer extends Vue {
     paddingTop: 0,
     paddingBottom: 0
   }
-  threshold: number = 100
+  threshold: number = 1000
 
   mounted() {
     this.$root.$on('escKeydown', () => {
@@ -553,9 +556,13 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  scrollStop() {
+    this.scrollTimeout = null
+  }
+
   beforeScrollTop: number = 0
   goDownBuffer: any = []
-  scrollTimeout: any = false
+  scrollTimeout: any = null
   onScroll(e: any) {
     let list = this.$refs.messagesUl
     if (!list) return
@@ -575,17 +582,19 @@ export default class ChatContainer extends Vue {
     const toTop = 400 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
       this.infiniteUp()
-      clearTimeout(this.scrollTimeout)
-      this.scrollTimeout = setTimeout(() => {
-        if (list.scrollTop < toTop) {
-          if (!this.infiniteUpLock) {
-            list.scrollTop = toTop
-          } else {
-            this.showTopTips = true
-          }
-        }
-      }, 100)
     }
+    clearTimeout(this.scrollTimeout)
+    this.scrollTimeout = setTimeout(() => {
+      if (list.scrollTop < toTop) {
+        if (!this.infiniteUpLock) {
+          list.scrollTop = toTop
+        } else {
+          this.showTopTips = true
+        }
+      }
+      this.scrollStop()
+    }, 100)
+
     if (!this.isBottom && list.scrollTop > 130) {
       this.timeDivideShow = true
     } else {

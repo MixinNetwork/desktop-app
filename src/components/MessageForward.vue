@@ -118,14 +118,16 @@ export default class MessageForward extends Vue {
         let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name } = message
         const msg = {
           conversationId,
-          mediaUrl,
-          mediaMimeType,
-          mediaSize,
-          mediaWidth,
-          mediaHeight,
-          thumbUrl,
-          name,
-          category
+          payload: {
+            mediaUrl,
+            mediaMimeType,
+            mediaSize,
+            mediaWidth,
+            mediaHeight,
+            thumbUrl,
+            mediaName: name,
+            category
+          }
         }
         this.actionSendLiveMessage(msg)
       } else if (this.isFileType(message.type)) {

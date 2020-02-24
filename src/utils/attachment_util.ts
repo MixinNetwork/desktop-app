@@ -168,8 +168,8 @@ export interface AttachmentMessagePayload {
   thumbImage?: string
   category: string
   id?: any
-  mediaSize?: string
-  name?: string
+  mediaSize?: number
+  mediaName?: string
   thumbUrl?: string
   mediaWaveform?: string
 }
@@ -201,9 +201,9 @@ export async function putAttachment(
   let buffer = fs.readFileSync(localPath)
   let key: Iterable<number>
   let digest: Iterable<number>
-  const message = {
+  const message: AttachmentMessagePayload = {
     category,
-    name,
+    mediaName: name,
     mediaSize: buffer.byteLength,
     mediaWidth,
     mediaHeight,

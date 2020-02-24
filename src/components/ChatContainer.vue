@@ -168,7 +168,7 @@ import {
   MuteDuration
 } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
-import { isImage, base64ToImage } from '@/utils/attachment_util'
+import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
@@ -686,11 +686,15 @@ export default class ChatContainer extends Vue {
       if (!mimeType) {
         mimeType = 'text/plain'
       }
-      const message = {
-        conversationId: this.conversation.conversationId,
+      const payload: AttachmentMessagePayload = {
         mediaUrl: this.file.path,
         mediaMimeType: mimeType,
-        category: category
+        category
+      }
+      const {conversationId} = this.conversation
+      const message = {
+        conversationId,
+        payload
       }
       this.$root.$emit('resetSearch')
       this.actionSendAttachmentMessage(message)

@@ -51,6 +51,7 @@ import participantDao from '@/dao/participant_dao'
 
 import { Getter, Action } from 'vuex-class'
 import { MessageStatus, ConversationCategory } from '@/utils/constants'
+import { AttachmentMessagePayload } from '@/utils/attachment_util'
 
 @Component({
   components: {
@@ -146,8 +147,7 @@ export default class MessageForward extends Vue {
 
         const typeEnds = message.type.split('_')[1]
         const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
-        const msg = {
-          conversationId,
+        const payload: AttachmentMessagePayload = {
           mediaUrl,
           mediaMimeType,
           mediaDuration,
@@ -158,6 +158,10 @@ export default class MessageForward extends Vue {
           thumbImage,
           category,
           mediaWaveform
+        }
+        const msg = {
+          conversationId,
+          payload
         }
         this.actionSendAttachmentMessage(msg)
       } else if (message.type.endsWith('_POST') || message.type.endsWith('_TEXT')) {

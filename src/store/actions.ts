@@ -10,7 +10,7 @@ import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } 
 // @ts-ignore
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
-import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } from '@/utils/attachment_util'
+import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment, AttachmentMessagePayload } from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId: any) {
@@ -367,23 +367,16 @@ export default {
     })
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
-  sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, mediaDuration, thumbImage, category, mediaSize, mediaWidth, mediaHeight, thumbUrl }: any) => {
+  sendAttachmentMessage: ({ commit }: any, { conversationId, payload }: any) => {
     const messageId = uuidv4().toLowerCase()
     putAttachment(
-      mediaUrl,
-      mediaMimeType,
-      mediaWidth,
-      mediaHeight,
-      mediaDuration,
-      thumbImage,
-      category,
-      messageId,
-      (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaDuration: number; thumbImage: any; name: any }) => {
+      payload,
+      (data: AttachmentMessagePayload) => {
         messageDao.insertMessage({
           message_id: messageId,
           conversation_id: conversationId,
           user_id: getAccount().user_id,
-          category: category,
+          category: data.category,
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,
           media_size: data.mediaSize,

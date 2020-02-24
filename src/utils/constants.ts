@@ -188,13 +188,10 @@ function mediaCheck(type: string, status: string) {
       type === MessageCategories.SIGNAL_IMAGE ||
       type === MessageCategories.SIGNAL_VIDEO ||
       type === MessageCategories.SIGNAL_AUDIO ||
-      type === MessageCategories.SIGNAL_CONTACT ||
-      type === MessageCategories.SIGNAL_LIVE ||
       type === MessageCategories.PLAIN_IMAGE ||
       type === MessageCategories.PLAIN_VIDEO ||
       type === MessageCategories.PLAIN_AUDIO ||
-      type === MessageCategories.PLAIN_DATA ||
-      type === MessageCategories.PLAIN_LIVE
+      type === MessageCategories.PLAIN_DATA
     ) {
       mediaStatusCheck = false
     }

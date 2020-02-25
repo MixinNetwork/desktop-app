@@ -39,6 +39,7 @@ export default class BaseWorker {
         last_message_id: null,
         last_read_message_id: null,
         unseen_message_count: 0,
+        unseen_mention_count: 0,
         status: ConversationStatus.START,
         draft: null,
         mute_until: null

@@ -11,12 +11,12 @@
       </div>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <div class="markdown" @click="preview">
+          <div class="markdown" :style="loaded ? {} : { minHeight }" @click="preview">
             <vue-markdown
               v-if="loaded"
               :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
               class="inner"
-            >{{message.content}}</vue-markdown>
+            >{{content}}</vue-markdown>
           </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />
@@ -54,6 +54,8 @@ export default class PostItem extends Vue {
   MessageStatus: any = MessageStatus
   $postViewer: any
   $selectNes: any
+  minHeight: string = '3rem'
+  content: string = ''
 
   mounted() {
     // @ts-ignore
@@ -61,8 +63,28 @@ export default class PostItem extends Vue {
     if (chatWidth * 0.8 > this.maxWidth) {
       this.maxWidth = chatWidth * 0.8
     }
-    this.loaded = true
+    const content = this.message.content.substr(0, 5000)
+    let line = 0
+    content.split('\n').forEach((piece: string) => {
+      if (piece) {
+        line++
+      }
+    })
+    let minHeight = line * 1.5 + 4.6
+    if (minHeight > 16) {
+      minHeight = 16
+    }
+    this.minHeight = minHeight + 'rem'
+    this.content = content
+    if (this.message.fastLoad) {
+      this.loaded = true
+    } else {
+      requestAnimationFrame(() => {
+        this.loaded = true
+      })
+    }
   }
+
   messageOwnership() {
     let { message, me } = this
     return {

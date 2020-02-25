@@ -10,7 +10,13 @@ import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } 
 // @ts-ignore
 import uuidv4 from 'uuid/v4'
 import jobDao from '@/dao/job_dao'
-import { downloadAttachment, downloadQueue, uploadAttachment, putAttachment } from '@/utils/attachment_util'
+import {
+  downloadAttachment,
+  downloadQueue,
+  uploadAttachment,
+  putAttachment,
+  AttachmentMessagePayload
+} from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId: any) {
@@ -317,7 +323,10 @@ export default {
     }
     commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
   },
-  sendStickerMessage: ({ commit }: any, msg: { conversationId: any; stickerId?: any; category?: any; status?: any }) => {
+  sendStickerMessage: (
+    { commit }: any,
+    msg: { conversationId: any; stickerId?: any; category?: any; status?: any }
+  ) => {
     const { conversationId, stickerId, category, status } = msg
     markRead(conversationId)
     const messageId = uuidv4().toLowerCase()
@@ -337,17 +346,17 @@ export default {
     stickerDao.insertUpdate(sticker)
     commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
   },
-  sendLiveMessage: ({ commit }: any, msg: { conversationId: any; mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; thumbUrl: any; name: any; category: any }) => {
-    const { conversationId, mediaUrl, mediaMimeType,
-      mediaSize, mediaWidth, mediaHeight, thumbUrl, name, category } = msg
+  sendLiveMessage: ({ commit }: any, msg: { conversationId: any; payload: AttachmentMessagePayload }) => {
+    const { conversationId, payload } = msg
+    const { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, mediaName, category } = payload
     const messageId = uuidv4().toLowerCase()
-    const payload = {
+    const data = {
       width: mediaWidth,
       height: mediaHeight,
       thumb_url: thumbUrl,
       url: mediaUrl
     }
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))))
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
@@ -363,27 +372,20 @@ export default {
       media_status: 'PENDING',
       status: MessageStatus.SENDING,
       created_at: new Date().toISOString(),
-      name
+      name: mediaName
     })
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
-  sendAttachmentMessage: ({ commit }: any, { conversationId, mediaUrl, mediaMimeType, mediaDuration, thumbImage, category, mediaSize, mediaWidth, mediaHeight, thumbUrl }: any) => {
+  sendAttachmentMessage: ({ commit }: any, { conversationId, payload }: any) => {
     const messageId = uuidv4().toLowerCase()
     putAttachment(
-      mediaUrl,
-      mediaMimeType,
-      mediaWidth,
-      mediaHeight,
-      mediaDuration,
-      thumbImage,
-      category,
-      messageId,
-      (data: { mediaUrl: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaDuration: number; thumbImage: any; name: any }) => {
+      payload,
+      (data: AttachmentMessagePayload) => {
         messageDao.insertMessage({
           message_id: messageId,
           conversation_id: conversationId,
           user_id: getAccount().user_id,
-          category: category,
+          category: data.category,
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,
           media_size: data.mediaSize,
@@ -394,7 +396,7 @@ export default {
           media_status: 'PENDING',
           status: MessageStatus.SENDING,
           created_at: new Date().toISOString(),
-          name: data.name
+          name: data.mediaName
         })
         commit('startLoading', messageId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
@@ -414,36 +416,48 @@ export default {
       }
     )
   },
-  upload: ({ commit }: any, message: { messageId: any; mediaUrl: string; type: any; mediaMimeType: any; mediaSize: any; mediaWidth: any; mediaHeight: any; mediaName: any; thumbImage: any; conversationId: any }) => {
+  upload: (
+    { commit }: any,
+    message: {
+      messageId: any
+      type: any
+      conversationId: any
+      payload: AttachmentMessagePayload
+    }
+  ) => {
+    const { messageId, type, conversationId, payload } = message
     commit('startLoading', message.messageId)
-    if (!message.mediaUrl) return
+
+    const { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, mediaName, thumbImage } = payload
+
+    if (!mediaUrl) return
     uploadAttachment(
-      message.messageId,
-      message.mediaUrl.replace('file://', ''),
-      message.type,
+      messageId,
+      mediaUrl.replace('file://', ''),
+      type,
       (attachmentId: any, key: any, digest: any) => {
         let msg = {
           attachment_id: attachmentId,
-          mime_type: message.mediaMimeType,
-          size: message.mediaSize,
-          width: message.mediaWidth,
-          height: message.mediaHeight,
-          name: message.mediaName,
-          thumbnail: message.thumbImage,
+          mime_type: mediaMimeType,
+          size: mediaSize,
+          width: mediaWidth,
+          height: mediaHeight,
+          name: mediaName,
+          thumbnail: thumbImage,
           digest: digest,
           key: key
         }
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
-        messageDao.updateMessageContent(content, message.messageId)
-        messageDao.updateMediaStatus(MediaStatus.DONE, message.messageId)
+        messageDao.updateMessageContent(content, messageId)
+        messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         // Todo
-        messageDao.updateMessageStatusById(MessageStatus.SENDING, message.messageId)
-        commit('stopLoading', message.messageId)
+        messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+        commit('stopLoading', messageId)
       },
       (e: any) => {
-        messageDao.updateMediaStatus(MediaStatus.CANCELED, message.messageId)
-        commit('stopLoading', message.messageId)
-        commit('refreshMessage', { conversationId: message.conversationId, messageIds: [message.messageId] })
+        messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
+        commit('stopLoading', messageId)
+        commit('refreshMessage', { conversationId: conversationId, messageIds: [messageId] })
       }
     )
   },

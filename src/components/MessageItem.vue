@@ -1,5 +1,5 @@
 <template>
-  <li :id="`m-${message.messageId}`">
+  <li ref="messageItem" :id="`m-${message.messageId}`">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -480,14 +480,16 @@ li {
     pointer-events: all;
   }
   &.notice {
-    .send, .receive {
+    .send,
+    .receive {
       transition: transform 0.2s;
       transform-origin: 65% 50%;
     }
     .receive {
       transform-origin: 35% 50%;
     }
-    .send, .receive {
+    .send,
+    .receive {
       transform: scale(1.015);
     }
     .bubble {

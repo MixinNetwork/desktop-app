@@ -121,6 +121,8 @@ class MessageBox {
               }
             }
           })
+        } else {
+          this.callback(this.messages)
         }
       }
     }

@@ -159,22 +159,38 @@ function getRandomBytes(bit: number) {
   return libsignal.crypto.getRandomBytes(bit)
 }
 
+export interface AttachmentMessagePayload {
+  mediaUrl?: string
+  mediaMimeType: string
+  mediaWidth?: number
+  mediaHeight?: number
+  mediaDuration?: number
+  thumbImage?: string
+  category: string
+  id?: any
+  mediaSize?: number
+  mediaName?: string
+  thumbUrl?: string
+  mediaWaveform?: string
+}
+
 export async function putAttachment(
-  imagePath: any,
-  mimeType: any,
-  width: number,
-  height: number,
-  mediaDuration: number,
-  thumbImage: string,
-  category: string,
-  id: any,
+  payload: AttachmentMessagePayload,
   processCallback: any,
   sendCallback: any,
   errorCallback: any
 ) {
-  const { localPath, name } = processAttachment(imagePath, mimeType, category, id)
-  let mediaWidth: number = width
-  let mediaHeight: number = height
+  let {
+    mediaUrl,
+    mediaMimeType,
+    category,
+    id,
+    mediaWidth = 0,
+    mediaHeight = 0,
+    thumbImage = '',
+    mediaDuration = 0
+  } = payload
+  const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id)
   if (category.endsWith('_IMAGE')) {
     // @ts-ignore
     const dimensions = sizeOf(localPath)
@@ -185,15 +201,16 @@ export async function putAttachment(
   let buffer = fs.readFileSync(localPath)
   let key: Iterable<number>
   let digest: Iterable<number>
-  const message = {
-    name: name,
+  const message: AttachmentMessagePayload = {
+    category,
+    mediaName: name,
     mediaSize: buffer.byteLength,
-    mediaWidth: mediaWidth,
-    mediaHeight: mediaHeight,
+    mediaWidth,
+    mediaHeight,
     mediaUrl: `file://${localPath}`,
-    mediaMimeType: mimeType,
-    mediaDuration: mediaDuration,
-    thumbImage: thumbImage
+    mediaMimeType,
+    mediaDuration,
+    thumbImage
   }
   if (category.startsWith('SIGNAL_')) {
     key = getRandomBytes(64)
@@ -219,11 +236,11 @@ export async function putAttachment(
         if (resp.status === 200) {
           sendCallback({
             attachment_id: attachmentId,
-            mime_type: mimeType,
+            mime_type: mediaMimeType,
             size: buffer.byteLength,
             width: mediaWidth,
             height: mediaHeight,
-            duration: mediaDuration.toFixed(),
+            duration: mediaDuration,
             name: name,
             thumbnail: thumbImage,
             digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
@@ -245,8 +262,8 @@ export async function uploadAttachment(
   messageId: string,
   localPath: string | number | Buffer | import('url').URL,
   category: string,
-  sendCallback: { (attachmentId: any, key: any, digest: any): void; (arg0: any, arg1: string, arg2: string): void },
-  errorCallback: { (e: any): void; (arg0: string | number): void }
+  sendCallback: any,
+  errorCallback: any
 ) {
   let key: Iterable<number>
   let digest: Iterable<number>

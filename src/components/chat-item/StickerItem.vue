@@ -8,7 +8,9 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <img :height="message.assetHeight < 96 ? message.assetHeight : 96" :src="message.assetUrl" />
+        <div class="img-box" :style="getStyle">
+          <img v-if="loaded" :src="message.assetUrl" />
+        </div>
       </BadgeItem>
       <TimeAndStatus :relative="true" style="padding-right: .4rem" :message="message" />
     </span>
@@ -34,7 +36,26 @@ export default class StickerItem extends Vue {
   @Prop(Object) readonly me: any
   @Prop(Boolean) readonly showName: any
 
+  loaded: boolean = false
   MessageStatus: any = MessageStatus
+
+  get getStyle() {
+    const { assetWidth, assetHeight } = this.message
+    const scale = assetWidth / assetHeight
+    const height = assetHeight < 96 ? assetHeight : 96
+    const width = height * scale
+    return { height: `${height}px`, width: `${width}px` }
+  }
+
+  mounted() {
+    if (this.message.fastLoad) {
+      this.loaded = true
+    } else {
+      requestAnimationFrame(() => {
+        this.loaded = true
+      })
+    }
+  }
 
   messageOwnership() {
     let { message, me } = this
@@ -43,6 +64,7 @@ export default class StickerItem extends Vue {
       receive: message.userId !== me.user_id
     }
   }
+
   getColor(id: string) {
     return getNameColorById(id)
   }
@@ -70,9 +92,13 @@ export default class StickerItem extends Vue {
       min-width: 2rem;
       min-height: 0.85rem;
     }
-    img {
+    .img-box {
       max-height: 6rem;
       border-radius: 0.3rem;
+      overflow: hidden;
+      img {
+        height: 100%;
+      }
     }
   }
 }

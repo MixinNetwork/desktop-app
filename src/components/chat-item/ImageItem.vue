@@ -4,12 +4,12 @@
       <span
         class="username"
         v-if="showName"
-        :style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId), maxWidth: `calc(${borderSetObject(true)}px)`}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem
         @handleMenuClick="$emit('handleMenuClick')"
-        :style="{maxWidth: `calc(${borderSetObject(true)}px + 1.6rem)`}"
+        :style="{maxWidth: `calc(${borderSetObject(true)}px)`}"
         :type="message.type"
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
@@ -21,13 +21,16 @@
                 :me="me"
                 class="reply"
               ></ReplyMessageItem>
-              <img
-                class="image"
-                :src="media()"
-                :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
-                :style="borderSetObject()"
-                @click="preview"
-              />
+              <div :style="borderSetObject()">
+                <img
+                  v-if="loaded"
+                  class="image"
+                  style="width: 100%"
+                  :src="media()"
+                  :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+                  @click="preview"
+                />
+              </div>
             </div>
             <div v-if="loading" class="loading" @click.stop="stopLoading">
               <svg-icon class="stop" icon-class="loading-stop-black" />
@@ -84,6 +87,7 @@ export default class ImageItem extends Vue {
   @Getter('attachment') attachment: any
   @Getter('currentMessages') currentMessages: any
 
+  loaded: boolean = false
   $imageViewer: any
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
@@ -93,6 +97,16 @@ export default class ImageItem extends Vue {
     return {
       send: message.userId === me.user_id,
       receive: message.userId !== me.user_id
+    }
+  }
+
+  mounted() {
+    if (this.message.fastLoad) {
+      this.loaded = true
+    } else {
+      requestAnimationFrame(() => {
+        this.loaded = true
+      })
     }
   }
 
@@ -184,7 +198,6 @@ export default class ImageItem extends Vue {
   .username {
     display: inline-block;
     font-size: 0.85rem;
-    max-width: 80%;
     margin-left: 0.4rem;
     text-overflow: ellipsis;
     overflow: hidden;

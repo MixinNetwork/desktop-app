@@ -4,17 +4,17 @@
       <span
         class="username"
         v-if="showName"
-        :style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId), maxWidth: `calc(${borderSetObject(true)}px)`}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
-      <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
+      <BadgeItem
+        @handleMenuClick="$emit('handleMenuClick')"
+        :style="{maxWidth: `calc(${borderSetObject(true)}px)`}"
+        :type="message.type"
+      >
         <div class="content">
           <div class="set" :style="borderSet()">
-            <div
-              class="image"
-              :style="borderSetObject()"
-              @click="$emit('liveClick')"
-            ></div>
+            <div class="image" :style="borderSetObject()" @click="$emit('liveClick')"></div>
             <svg-icon icon-class="ic_play" class="play" @click="$emit('liveClick')" />
           </div>
           <span class="tag">LIVE</span>
@@ -48,7 +48,7 @@ export default class LiveItem extends Vue {
   @Prop(Object) readonly me: any
   @Prop(Boolean) readonly showName: any
 
-  MessageStatus:any = MessageStatus
+  MessageStatus: any = MessageStatus
 
   messageOwnership() {
     let { message, me } = this
@@ -68,14 +68,20 @@ export default class LiveItem extends Vue {
     return 'height-set'
   }
 
-  borderSetObject() {
+  borderSetObject(getWidth: boolean) {
     const { message } = this
     const width = Math.min(message.mediaWidth, maxWidth)
     const scale = message.mediaWidth / message.mediaHeight
     if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
+      if (getWidth) {
+        return width
+      }
       return { width: `${width}px`, height: `${width / scale}px`, backgroundImage: `url(${message.thumbUrl})` }
     }
     const height = Math.min(message.mediaHeight, maxHeight)
+    if (getWidth) {
+      return height * scale
+    }
     return { width: `${height * scale}px`, height: `${height}px`, backgroundImage: `url(${message.thumbUrl})` }
   }
 }
@@ -88,7 +94,6 @@ export default class LiveItem extends Vue {
   .username {
     display: inline-block;
     font-size: 0.85rem;
-    max-width: 80%;
     margin-left: 0.4rem;
     text-overflow: ellipsis;
     overflow: hidden;

@@ -20,7 +20,11 @@
       <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
         <svg-icon icon-class="ic_bot" />
       </div>
-      <Dropdown :menus="menus" @onItemClick="onItemClick"></Dropdown>
+      <ChatContainerMenu
+        :conversation="conversation"
+        @showDetails="showDetails"
+        @menuCallback="menuCallback"
+      />
     </header>
     <mixin-scrollbar
       :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
@@ -37,23 +41,24 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <li v-show="!user.app_id" class="encryption tips">
+        <li v-show="!user.app_id && showTopTips" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
         <TimeDivide
           ref="timeDivide"
-          v-if="messages[0] && showMessages && timeDivideShow"
-          :messageTime="contentUtil.renderTime(messages[0].createdAt)"
+          v-if="messagesVisible[0] && showMessages && timeDivideShow"
+          :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
         />
         <MessageItem
-          v-for="(item, index) in messages"
+          v-for="(item, index) in messagesVisible"
           :key="item.messageId"
           :message="item"
-          :prev="messages[index-1]"
+          :prev="messages[visibleFirstIndex + index - 1]"
           :unread="unreadMessageId"
           :conversation="conversation"
           :me="me"
           :searchKeyword="searchKeyword"
+          v-intersect="onIntersect"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -160,16 +165,11 @@
 <script lang="ts">
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import {
-  ConversationCategory,
-  ConversationStatus,
-  MessageCategories,
-  MessageStatus,
-  MuteDuration
-} from '@/utils/constants'
+import { MessageCategories, MessageStatus } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
-import { isImage, base64ToImage } from '@/utils/attachment_util'
+import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
+import ChatContainerMenu from '@/components/ChatContainerMenu.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
@@ -183,17 +183,15 @@ import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
-import conversationAPI from '@/api/conversation'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
-import userApi from '@/api/user'
 
 @Component({
   components: {
-    Dropdown,
     Avatar,
     Details,
+    ChatContainerMenu,
     ChatSearch,
     ChatSticker,
     TimeDivide,
@@ -216,10 +214,29 @@ export default class ChatContainer extends Vue {
   }
 
   @Watch('currentUnreadNum')
-  onCurrentUnreadNumChanged(val: number, oldVal: string) {
+  onCurrentUnreadNumChanged(val: number, oldVal: number) {
     if (val === 0) {
       messageBox.clearMessagePositionIndex(0)
     }
+  }
+
+  @Watch('messages.length')
+  onMessagesLengthChanged(val: number, oldVal: number) {
+    const ret = this.visibleIndexLimit(this.virtualDom)
+    this.virtualDom = ret
+    const messageIds: any = []
+    this.messages.forEach(item => {
+      messageIds.push(item.messageId)
+    })
+    this.messageIds = messageIds
+    if (messageIds.length > this.threshold) {
+      this.threshold = 200
+    }
+  }
+
+  @Watch('virtualDom')
+  onVirtualDomChanged(obj: any, oldObj: any) {
+    this.getMessagesVisible(obj, oldObj)
   }
 
   @Watch('conversation')
@@ -227,11 +244,23 @@ export default class ChatContainer extends Vue {
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-      this.goBottom()
-      this.boxMessage = false
-      this.boxFocusAction()
       this.showMessages = false
+      this.goBottom(true)
+      this.boxFocusAction()
+      this.$root.$emit('updateMenu', newC)
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      let markdownCount = 5
+      for (let i = messageBox.messages.length - 1; i >= 0; i--) {
+        const type = messageBox.messages[i].type
+        if (type.endsWith('_POST') || type.endsWith('_IMAGE') || type.endsWith('_STICKER')) {
+          const type = messageBox.messages[i].type
+          messageBox.messages[i].fastLoad = true
+          markdownCount--
+        }
+        if (markdownCount < 0) {
+          break
+        }
+      }
       this.messages = messageBox.messages
       this.actionSetCurrentMessages(this.messages)
       if (newC) {
@@ -244,24 +273,21 @@ export default class ChatContainer extends Vue {
       }
       this.actionMarkRead(newC.conversationId)
     }
-    if (newC) {
-      if (newC !== oldC) {
-        if (newC.groupName) {
-          this.name = newC.groupName
-        } else if (newC.name) {
-          this.name = newC.name
-        }
-        if (!oldC || newC.conversationId !== oldC.conversationId) {
-          this.boxFocusAction()
-          this.details = false
-          if (!this.searching.replace(/^key:/, '')) {
-            this.actionSetSearching('')
-          }
-          this.stickerChoosing = false
-          this.file = null
-        }
+    if (newC && newC !== oldC) {
+      if (newC.groupName) {
+        this.name = newC.groupName
+      } else if (newC.name) {
+        this.name = newC.name
       }
-      this.updateMenu(newC)
+      if (!oldC || newC.conversationId !== oldC.conversationId) {
+        this.boxFocusAction()
+        this.details = false
+        if (!this.searching.replace(/^key:/, '')) {
+          this.actionSetSearching('')
+        }
+        this.stickerChoosing = false
+        this.file = null
+      }
     }
   }
 
@@ -273,27 +299,20 @@ export default class ChatContainer extends Vue {
 
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
-  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
-  @Action('exitGroup') actionExitGroup: any
-  @Action('conversationClear') actionConversationClear: any
-  @Action('toggleEditor') actionToggleEditor: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
 
   $t: any
-  $Dialog: any
   $toast: any
   $refs: any
-  $moment: any
   $selectNes: any
   name: any = ''
   identity: any = ''
   participant: any = true
-  menus: any = []
   details: any = false
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
@@ -318,6 +337,15 @@ export default class ChatContainer extends Vue {
   lastEnter: any = null
   goSearchPos: boolean = false
   boxFocus: boolean = false
+  showTopTips: boolean = false
+
+  goDown: boolean = false
+  messagesVisible: any = []
+
+  messageIds: any = []
+  viewport: any = { firstIndex: 0, lastIndex: 0 }
+  virtualDom: any = { firstIndex: 0, lastIndex: 0 }
+  threshold: number = 600
 
   mounted() {
     this.$root.$on('escKeydown', () => {
@@ -362,8 +390,9 @@ export default class ChatContainer extends Vue {
       function(messages: any, num: any) {
         if (messages) {
           self.messages = messages
+          self.getMessagesVisible(self.virtualDom, null)
         }
-        if (num || num === 0) {
+        if (num > 0 || num === 0) {
           self.currentUnreadNum = num
           setTimeout(() => {
             self.infiniteDownLock = false
@@ -377,18 +406,12 @@ export default class ChatContainer extends Vue {
         if (force) {
           if (!message) {
             self.goBottom()
-          }
-          setTimeout(() => {
+          } else {
             self.goMessagePos(message)
-          })
+          }
         } else if (self.isBottom) {
           self.goBottom()
         }
-        setTimeout(() => {
-          if (!force) {
-            self.showMessages = true
-          }
-        })
       }
     )
     this.$root.$on('goSearchMessagePos', (item: any) => {
@@ -424,23 +447,136 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  onScroll() {
+  visibleFirstIndex: number = 0
+  getMessagesVisible(obj: any, oldObj: any) {
+    const ret = this.visibleIndexLimit(obj)
+    let { firstIndex, lastIndex } = ret
+
+    this.visibleFirstIndex = firstIndex
+
+    const { messages, messagesVisible } = this
+
+    if (!messagesVisible.length) {
+      this.messagesVisible = this.messages
+    }
+
+    const finalList = []
+    for (let i = firstIndex; i <= lastIndex; i++) {
+      const msg = this.messages[i]
+      finalList.push(msg)
+    }
+    this.messagesVisible = finalList
+  }
+
+  visibleIndexLimit(obj: any) {
+    const { messages, threshold } = this
+    const listLen = messages.length
+    let { firstIndex, lastIndex } = obj
+
+    if (lastIndex < threshold) {
+      lastIndex = threshold - 1
+    }
+    if (lastIndex >= listLen) {
+      lastIndex = listLen - 1
+    }
+    if (firstIndex >= lastIndex) {
+      firstIndex = lastIndex - threshold
+    }
+    if (firstIndex <= 0) {
+      firstIndex = 0
+    }
+
+    return {
+      firstIndex,
+      lastIndex
+    }
+  }
+
+  onIntersect({ target, isIntersecting }: any) {
+    const { messages, showScroll, threshold, messageIds, goDown } = this
+    if (!messages || !showScroll) return
+
+    const targetMessageId = target.id.substring(2, target.id.length)
+
+    const index = messageIds.indexOf(targetMessageId)
+
+    let { firstIndex, lastIndex } = this.virtualDom
+
+    const offset = threshold
+    if (isIntersecting) {
+      if (goDown) {
+        this.viewport.lastIndex = index
+        if (index + offset >= lastIndex && targetMessageId !== messageIds[messageIds.length - 1]) {
+          firstIndex += offset
+          lastIndex += offset
+
+          if (this.viewport.firstIndex < firstIndex) {
+            firstIndex = this.viewport.firstIndex - offset
+          }
+
+          this.virtualDom = { firstIndex, lastIndex }
+        }
+      } else {
+        this.viewport.firstIndex = index
+        if (index - offset <= firstIndex && targetMessageId !== messageIds[0]) {
+          firstIndex -= offset
+          lastIndex -= offset
+
+          if (this.viewport.lastIndex > lastIndex) {
+            lastIndex = this.viewport.lastIndex + offset
+          }
+
+          this.virtualDom = { firstIndex, lastIndex }
+        }
+      }
+    } else {
+      if (goDown) {
+        this.viewport.firstIndex = index
+      } else {
+        this.viewport.lastIndex = index
+      }
+    }
+  }
+
+  scrollStop() {
+    this.scrollTimeout = null
+  }
+
+  beforeScrollTop: number = 0
+  goDownBuffer: any = []
+  scrollTimeout: any = null
+  onScroll(e: any) {
     let list = this.$refs.messagesUl
     if (!list) return
+
+    const goDown = this.beforeScrollTop < list.scrollTop
+    this.goDownBuffer.unshift(goDown)
+    this.goDownBuffer = this.goDownBuffer.splice(0, 3)
+    if (this.goDownBuffer[0] !== undefined && this.goDownBuffer[0] === this.goDownBuffer[1]) {
+      this.goDown = this.goDownBuffer[1]
+    }
+    this.beforeScrollTop = list.scrollTop
+
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {
       this.infiniteDown()
     }
-    if (list.scrollTop < 400 + 20 * (list.scrollHeight / list.clientHeight)) {
+    const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
+    if (list.scrollTop < toTop) {
       this.infiniteUp()
-      if (list.scrollTop < 30) {
-        setTimeout(() => {
-          if (!this.infiniteUpLock) {
-            list.scrollTop = 30
-          }
-        })
-      }
     }
+    clearTimeout(this.scrollTimeout)
+    this.scrollTimeout = setTimeout(() => {
+      if (list.scrollTop < toTop) {
+        if (!this.infiniteUpLock) {
+          list.scrollTop = toTop
+        } else {
+          this.showTopTips = true
+        }
+      }
+      this.scrollStop()
+    }, 100)
+
     if (!this.isBottom && list.scrollTop > 130) {
       this.timeDivideShow = true
     } else {
@@ -465,42 +601,6 @@ export default class ChatContainer extends Vue {
   }
   hideStickerChoose() {
     this.stickerChoosing = false
-  }
-  updateMenu(newC: any) {
-    const chatMenu = this.$t('menu.chat')
-    let menu = []
-    if (newC.category === ConversationCategory.CONTACT) {
-      menu.push(chatMenu.contact_info)
-      if (this.user.relationship !== 'FRIEND') {
-        menu.push(chatMenu.add_contact)
-      } else {
-        menu.push(chatMenu.remove_contact)
-      }
-      menu.push(chatMenu.clear)
-      this.identity = newC.ownerIdentityNumber
-      this.participant = true
-    } else {
-      if (newC.status !== ConversationStatus.QUIT) {
-        menu.push(chatMenu.exit_group)
-      }
-      menu.push(chatMenu.clear)
-      this.identity = this.$t('chat.title_participants', { '0': newC.participants.length })
-      this.participant = newC.participants.some((item: any) => {
-        return item.user_id === this.me.user_id
-      })
-    }
-
-    if (newC.status !== ConversationStatus.QUIT) {
-      if (this.isMute(newC)) {
-        menu.push(chatMenu.cancel_mute)
-      } else {
-        menu.push(chatMenu.mute)
-      }
-    }
-    if (process.env.NODE_ENV !== 'production') {
-      menu.push(chatMenu.create_post)
-    }
-    this.menus = menu
   }
   sendSticker(stickerId: string) {
     const { conversationId } = this.conversation
@@ -532,7 +632,10 @@ export default class ChatContainer extends Vue {
     setTimeout(() => {
       this.hideSearch()
       const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-      const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id || item.messageId)
+      const messageIndex = messageDao.ftsMessageIndex(
+        this.conversation.conversationId,
+        item.message_id || item.messageId
+      )
       messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1).then(() => {
         this.searchKeyword = keyword
         this.goSearchPos = false
@@ -540,52 +643,64 @@ export default class ChatContainer extends Vue {
       this.boxFocusAction()
     })
   }
+  goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
+    setTimeout(() => {
+      this.infiniteDownLock = false
+      let targetDom: any = document.querySelector('.unread-divide')
+      let messageDom: any
+      if (posMessage && posMessage.messageId && !targetDom) {
+        messageDom = document.getElementById(`m-${posMessage.messageId}`)
+        if (!this.searchKeyword && messageDom) {
+          messageDom.className = 'notice'
+        }
+      }
+      if (!targetDom && !messageDom) {
+        return (this.showMessages = true)
+      }
+      let list = this.$refs.messagesUl
+      if (!list) {
+        return this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+      }
+      if (!goDone && beforeScrollTop !== list.scrollTop) {
+        beforeScrollTop = list.scrollTop
+        this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+      } else {
+        goDone = true
+        if (messageDom) {
+          if (list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
+            list.scrollTop = messageDom.offsetTop
+          }
+          setTimeout(() => {
+            messageDom.className = ''
+          }, 200)
+        } else {
+          list.scrollTop = targetDom.offsetTop
+        }
+        setTimeout(() => {
+          this.showMessages = true
+        })
+      }
+    })
+  }
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
-    const action = (beforeScrollTop: any) => {
-      setTimeout(() => {
-        this.infiniteDownLock = false
-        let targetDom: any = document.querySelector('.unread-divide')
-        let messageDom: any
-        if (posMessage && posMessage.messageId && !targetDom) {
-          messageDom = document.getElementById(`m-${posMessage.messageId}`)
-          if (!this.searchKeyword && messageDom) {
-            messageDom.className = 'notice'
-          }
-        }
-        if (!targetDom && !messageDom) {
-          return (this.showMessages = true)
-        }
-        let list = this.$refs.messagesUl
-        if (!list) {
-          return action(beforeScrollTop)
-        }
-        if (!goDone && beforeScrollTop !== list.scrollTop) {
-          beforeScrollTop = list.scrollTop
-          action(beforeScrollTop)
-        } else {
-          goDone = true
-          this.showMessages = true
-          if (messageDom) {
-            if (list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
-              list.scrollTop = messageDom.offsetTop
-            }
-            setTimeout(() => {
-              messageDom.className = ''
-            }, 200)
-          } else {
-            list.scrollTop = targetDom.offsetTop
-          }
-        }
-      })
-    }
-    action(beforeScrollTop)
+
+    this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
   }
-  goBottom() {
+  goBottom(wait?: boolean) {
     this.showScroll = false
+    this.showTopTips = false
+
+    const msgLen = this.messages.length
+    this.virtualDom = { firstIndex: msgLen - this.threshold, lastIndex: msgLen - 1 }
+    this.boxMessage = false
+    this.beforeUnseenMessageCount = 0
+
     setTimeout(() => {
-      this.showScroll = true
+      if (!wait) {
+        this.showMessages = true
+      }
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
       let list = this.$refs.messagesUl
@@ -593,12 +708,14 @@ export default class ChatContainer extends Vue {
       let scrollHeight = list.scrollHeight
       list.scrollTop = scrollHeight
       this.searchKeyword = ''
-    }, 10)
+      setTimeout(() => {
+        this.showScroll = true
+      }, 200)
+    })
     messageBox.clearUnreadNum(0)
   }
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
-    this.beforeUnseenMessageCount = 0
     setTimeout(() => {
       this.goBottom()
     }, 100)
@@ -644,19 +761,6 @@ export default class ChatContainer extends Vue {
     if (this.infiniteDownLock) return
     this.infiniteScroll('down')
   }
-  isMute(conversation: any) {
-    if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-      if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
-        return true
-      }
-    }
-    if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-      if (this.$moment().isBefore(conversation.muteUntil)) {
-        return true
-      }
-    }
-    return false
-  }
   onDragEnter(e: any) {
     this.lastEnter = e.target
     e.preventDefault()
@@ -686,11 +790,15 @@ export default class ChatContainer extends Vue {
       if (!mimeType) {
         mimeType = 'text/plain'
       }
-      const message = {
-        conversationId: this.conversation.conversationId,
+      const payload: AttachmentMessagePayload = {
         mediaUrl: this.file.path,
         mediaMimeType: mimeType,
-        category: category
+        category
+      }
+      const { conversationId } = this.conversation
+      const message = {
+        conversationId,
+        payload
       }
       this.$root.$emit('resetSearch')
       this.actionSendAttachmentMessage(message)
@@ -719,112 +827,12 @@ export default class ChatContainer extends Vue {
   hideDetails() {
     this.details = false
     if (this.conversation) {
-      this.updateMenu(this.conversation)
+      this.$root.$emit('updateMenu', this.conversation)
     }
   }
-  changeContactRelationship(action: string) {
-    userApi
-      .updateRelationship({ user_id: this.user.user_id, full_name: this.user.full_name, action })
-      .then((res: any) => {
-        if (res.data) {
-          const user = res.data.data
-          this.actionSetCurrentUser(user)
-          this.updateMenu(this.conversation)
-        }
-      })
-  }
-  onItemClick(index: number) {
-    const chatMenu = this.$t('menu.chat')
-    const option = this.menus[index]
-    const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
-
-    if (key === 'contact_info') {
-      this.details = true
-    } else if (key === 'exit_group') {
-      this.actionExitGroup(this.conversation.conversationId)
-    } else if (key === 'add_contact') {
-      this.changeContactRelationship('ADD')
-    } else if (key === 'remove_contact') {
-      const userId = this.user.user_id
-      this.$Dialog.alert(
-        this.$t('chat.remove_contact'),
-        this.$t('ok'),
-        () => {
-          this.changeContactRelationship('REMOVE')
-        },
-        this.$t('cancel'),
-        () => {}
-      )
-    } else if (key === 'clear') {
-      this.$Dialog.alert(
-        this.$t('chat.chat_clear'),
-        this.$t('ok'),
-        () => {
-          this.actionConversationClear(this.conversation.conversationId)
-        },
-        this.$t('cancel'),
-        () => {
-          console.log('cancel')
-        }
-      )
-    } else if (key === 'mute') {
-      let self = this
-      let ownerId = this.conversation.ownerId
-      this.$Dialog.options(
-        this.$t('chat.mute_title'),
-        this.$t('chat.mute_menu'),
-        this.$t('ok'),
-        (picked: any) => {
-          let duration = MuteDuration.HOURS
-          if (picked === 0) {
-            duration = MuteDuration.HOURS
-          } else if (picked === 1) {
-            duration = MuteDuration.WEEK
-          } else {
-            duration = MuteDuration.YEAR
-          }
-          conversationAPI.mute(self.conversation.conversationId, duration).then((resp: any) => {
-            if (resp.data.data) {
-              const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-              if (picked === 0) {
-                this.$toast(this.$t('chat.mute_hours'))
-              } else if (picked === 1) {
-                this.$toast(this.$t('chat.mute_week'))
-              } else {
-                this.$toast(this.$t('chat.mute_year'))
-              }
-            }
-          })
-        },
-        this.$t('cancel'),
-        () => {
-          console.log('cancel')
-        }
-      )
-    } else if (key === 'cancel_mute') {
-      let self = this
-      let ownerId = this.conversation.ownerId
-      this.$Dialog.alert(
-        this.$t('chat.chat_mute_cancel'),
-        this.$t('ok'),
-        () => {
-          conversationAPI.mute(self.conversation.conversationId, 0).then((resp: any) => {
-            if (resp.data.data) {
-              const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
-              this.$toast(this.$t('chat.mute_cancel'))
-            }
-          })
-        },
-        this.$t('cancel'),
-        () => {
-          console.log('cancel')
-        }
-      )
-    } else if (key === 'create_post') {
-      this.actionToggleEditor()
-    }
+  menuCallback(obj: any) {
+    this.identity = obj.identity
+    this.participant = obj.participant
   }
   onUserClick(userId: any) {
     let user = userDao.findUserById(userId)

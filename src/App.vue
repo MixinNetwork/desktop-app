@@ -273,5 +273,45 @@ b.highlight {
   a {
     color: #4b7ed2;
   }
+  table {
+    position: relative;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+    word-wrap: break-word;
+    word-break: normal;
+    margin: 0;
+    font-weight: 400;
+    box-sizing: border-box;
+    border: 1px solid #e2e2e2;
+    cursor: default;
+    width: 96%;
+  }
+  tbody,
+  tr,
+  th,
+  td {
+    margin: 0;
+    font-weight: 400;
+    box-sizing: border-box;
+  }
+  table tr td,
+  table tr th {
+    margin: 0;
+    font-weight: 400;
+    box-sizing: border-box;
+    min-width: 90px;
+    font-size: 14px;
+    white-space: normal;
+    word-wrap: break-word;
+    border: 1px solid #e2e2e2;
+    vertical-align: top;
+    padding: 4px 8px;
+    cursor: default;
+  }
+  th {
+    background-color: #f6f6f6;
+    font-weight: bold;
+  }
 }
 </style>

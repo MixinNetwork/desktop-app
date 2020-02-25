@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import BaseWorker from './base_worker'
 import jobDao from '@/dao/job_dao'
 import messageApi from '@/api/message'

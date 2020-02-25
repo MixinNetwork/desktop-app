@@ -12,7 +12,7 @@ import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/co
 import { generateConversationChecksum } from '@/utils/util'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 
 export default class BaseWorker {

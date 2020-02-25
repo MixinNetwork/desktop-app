@@ -8,7 +8,7 @@ import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
 // @ts-ignore
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import jobDao from '@/dao/job_dao'
 import {
   downloadAttachment,

@@ -1,6 +1,6 @@
 import moment from 'moment'
 // @ts-ignore
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import db from '@/persistence/db'
 import contentUtil from '@/utils/content_util'
 import { PerPageMessageCount, getCompleteMessage } from '@/utils/constants'
@@ -359,7 +359,7 @@ class MessageDao {
     const userId = this.me().user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .get(conversationId)
   }

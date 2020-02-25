@@ -2,7 +2,7 @@ import attachmentApi from '@/api/attachment'
 import { remote, nativeImage } from 'electron'
 import { MimeType } from '@/utils/constants'
 // @ts-ignore
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 // @ts-ignore
 import jo from 'jpeg-autorotate'
 import fs from 'fs'

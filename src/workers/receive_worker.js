@@ -1,4 +1,4 @@
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import conversationDao from '@/dao/conversation_dao'
 import floodMessageDao from '@/dao/flood_message_dao'
 import messageDao from '@/dao/message_dao'

@@ -463,7 +463,9 @@ export default class ChatContainer extends Vue {
     const finalList = []
     for (let i = firstIndex; i <= lastIndex; i++) {
       const msg = this.messages[i]
-      finalList.push(msg)
+      if (msg) {
+        finalList.push(msg)
+      }
     }
     this.messagesVisible = finalList
   }
@@ -484,6 +486,9 @@ export default class ChatContainer extends Vue {
     }
     if (firstIndex <= 0) {
       firstIndex = 0
+    }
+    if (lastIndex <= 0) {
+      lastIndex = 0
     }
 
     return {

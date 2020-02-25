@@ -91,7 +91,7 @@ class MessageBox {
             if (matchIds.indexOf(id) < 0) {
               const findMessage = messageDao.getConversationMessageById(conversationId, id)
               if (!findMessage) return
-              if (findMessage.createdAt < this.messages[0].createdAt) return
+              if (this.messages[0] && findMessage.createdAt < this.messages[0].createdAt) return
               findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
 
               const isMyMsg = this.isMine(findMessage)

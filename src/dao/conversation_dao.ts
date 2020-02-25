@@ -2,7 +2,7 @@ import db from '@/persistence/db'
 
 class ConversationDao {
   getConversationByUserId(userId: any) {
-    const stmt = db.prepare('SELECT * FROM conversations WHERE owner_id=? AND category = "CONTACT"')
+    const stmt = db.prepare(`SELECT * FROM conversations WHERE owner_id=? AND category = 'CONTACT'`)
     return stmt.get(userId)
   }
 

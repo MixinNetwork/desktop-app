@@ -158,11 +158,11 @@ class MessageDao {
       if (!keywordFinal) return 0
       const data = db
         .prepare(
-          'SELECT m.message_id FROM messages_fts m_fts ' +
-            'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
-            'LEFT JOIN users u ON m.user_id = u.user_id ' +
-            'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA" OR m.category = "SIGNAL_POST" OR m.category = "PLAIN_POST") ' +
-            'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ?'
+          `SELECT m.message_id FROM messages_fts m_fts
+            INNER JOIN messages m ON m.message_id = m_fts.message_id
+            LEFT JOIN users u ON m.user_id = u.user_id
+            WHERE (m.category = 'SIGNAL_TEXT' OR m.category = 'PLAIN_TEXT' OR m.category = 'SIGNAL_DATA' OR m.category = 'PLAIN_DATA' OR m.category = 'SIGNAL_POST' OR m.category = 'PLAIN_POST')
+            AND m.status != 'FAILED' AND m.conversation_id = ? AND m_fts.content MATCH ?`
         )
         .all(conversationId, keywordFinal)
       if (!data) return 0
@@ -196,12 +196,12 @@ class MessageDao {
     if (!keywordFinal) return []
     return db
       .prepare(
-        'SELECT m.message_id,m.conversation_id,m.content,m.category,m.name,m.created_at,u.full_name,m.user_id,u.avatar_url ' +
-          'FROM messages_fts m_fts ' +
-          'INNER JOIN messages m ON m.message_id = m_fts.message_id ' +
-          'LEFT JOIN users u ON m.user_id = u.user_id ' +
-          'WHERE (m.category = "SIGNAL_TEXT" OR m.category = "PLAIN_TEXT" OR m.category = "SIGNAL_DATA" OR m.category = "PLAIN_DATA" OR m.category = "SIGNAL_POST" OR m.category = "PLAIN_POST") ' +
-          'AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100'
+        `SELECT m.message_id,m.conversation_id,m.content,m.category,m.name,m.created_at,u.full_name,m.user_id,u.avatar_url
+        FROM messages_fts m_fts
+        INNER JOIN messages m ON m.message_id = m_fts.message_id
+        LEFT JOIN users u ON m.user_id = u.user_id
+        WHERE (m.category = 'SIGNAL_TEXT' OR m.category = 'PLAIN_TEXT' OR m.category = 'SIGNAL_DATA' OR m.category = 'PLAIN_DATA' OR m.category = 'SIGNAL_POST' OR m.category = 'PLAIN_POST')
+        AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100`
       )
       .all(conversationId, keywordFinal)
   }
@@ -288,13 +288,13 @@ class MessageDao {
 
   updateMessageContent(content: any, messageId: any) {
     return db
-      .prepare('UPDATE messages SET content = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .prepare(`UPDATE messages SET content = ? WHERE message_id = ? AND category != 'MESSAGE_RECALL'`)
       .run(content, messageId)
   }
 
   updateMediaStatus(mediaStatus: any, messageId: any) {
     return db
-      .prepare('UPDATE messages SET media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"')
+      .prepare(`UPDATE messages SET media_status = ? WHERE message_id = ? AND category != 'MESSAGE_RECALL'`)
       .run(mediaStatus, messageId)
   }
 
@@ -350,7 +350,7 @@ class MessageDao {
     const userId = this.me().user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = "SENT"  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = 'SENT'  AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .all(conversationId)
   }
@@ -374,7 +374,7 @@ class MessageDao {
 
   updateMediaMessage(path: any, status: any, id: any) {
     return db.prepare(
-      `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != "MESSAGE_RECALL"`
+      `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != 'MESSAGE_RECALL'`
     ).run([path, status, id])
   }
 

@@ -1,5 +1,5 @@
 <template>
-  <main class="chat container" @click="hideStickerChoose">
+  <main class="chat container" @click="hideChoosePannel">
     <header v-show="conversation">
       <div>
         <Avatar style="font-size: 1rem" :conversation="conversation" @onAvatarClick="showDetails" />
@@ -26,8 +26,9 @@
         @menuCallback="menuCallback"
       />
     </header>
+
     <mixin-scrollbar
-      :style="'transition: 0.3s all ease;' + (stickerChoosing ? 'margin-bottom: 15rem;' : '')"
+      :style="'transition: 0.3s all ease;' + ((stickerChoosing || mentionChoosing) ? 'margin-bottom: 15rem;' : '')"
       v-if="conversation"
       :goBottom="!showScroll"
     >
@@ -65,6 +66,7 @@
         />
       </ul>
     </mixin-scrollbar>
+
     <transition name="fade">
       <div
         class="floating mention"
@@ -76,6 +78,7 @@
         <span class="mention-icon">@</span>
       </div>
     </transition>
+
     <transition name="fade">
       <div
         class="floating"
@@ -87,6 +90,7 @@
         <svg-icon style="font-size: 1.8rem" icon-class="chevron-down" />
       </div>
     </transition>
+
     <ReplyMessageContainer
       v-if="boxMessage"
       :message="boxMessage"
@@ -97,6 +101,17 @@
     <transition name="slide-up">
       <ChatSticker v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
     </transition>
+
+    <transition name="slide-up">
+      <MentionPanel
+        v-show="mentionChoosing"
+        :keyword="mentionKeywords[0]"
+        :conversation="conversation"
+        @choose="chooseMentionUser"
+        @update="updateMentionUsers"
+      ></MentionPanel>
+    </transition>
+
     <div v-show="conversation" class="action" @click.stop>
       <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-if="participant" class="input">
@@ -140,6 +155,7 @@
         <label>{{$t('chat.keep_des')}}</label>
       </span>
     </div>
+
     <transition name="slide-bottom">
       <FileContainer
         class="media"
@@ -151,6 +167,7 @@
         @sendFile="sendFile"
       ></FileContainer>
     </transition>
+
     <transition name="slide-right">
       <Details class="overlay" v-if="details" @close="hideDetails"></Details>
     </transition>
@@ -162,6 +179,7 @@
         @search="goSearchMessagePos"
       />
     </transition>
+
     <transition name="slide-right">
       <Editor
         class="overlay"
@@ -185,6 +203,7 @@ import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
 import ChatSticker from '@/components/ChatSticker.vue'
+import MentionPanel from '@/components/MentionPanel.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
 import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
@@ -206,6 +225,7 @@ import appDao from '@/dao/app_dao'
     ChatSearch,
     ChatSticker,
     TimeDivide,
+    MentionPanel,
     MessageItem,
     FileContainer,
     ReplyMessageContainer,
@@ -367,7 +387,7 @@ export default class ChatContainer extends Vue {
       this.hideSearch()
       this.closeFile()
       this.hidenReplyBox()
-      this.hideStickerChoose()
+      this.hideChoosePannel()
       setTimeout(() => {
         this.boxFocusAction()
       }, 200)
@@ -619,9 +639,11 @@ export default class ChatContainer extends Vue {
   }
   chooseSticker() {
     this.boxMessage = false
+    this.mentionChoosing = false
     this.stickerChoosing = !this.stickerChoosing
   }
-  hideStickerChoose() {
+  hideChoosePannel() {
+    this.mentionChoosing = false
     this.stickerChoosing = false
   }
   sendSticker(stickerId: string) {
@@ -638,9 +660,47 @@ export default class ChatContainer extends Vue {
     this.actionSendStickerMessage(msg)
     this.goBottom()
   }
+
+  chooseMentionUser(user: any) {
+    this.mentionChoosing = false
+  }
+
+  updateMentionUsers(result: any) {
+    if (result.length) {
+      this.mentionChoosing = true
+    } else {
+      this.mentionChoosing = false
+    }
+  }
+
+  mentionKeywords: string[] = []
+  mentionChoosing: boolean = false
+  handleMention(content: string) {
+    if (/@/.test(content)) {
+      if (!this.mentionChoosing) {
+        this.boxMessage = false
+        this.stickerChoosing = false
+        this.mentionChoosing = true
+      }
+      let pieces: any = []
+      const mentionKeywords = []
+      const regxMention = new RegExp(/@(.+)/, 'g')
+      while ((pieces = regxMention.exec(content)) !== null) {
+        mentionKeywords.unshift(pieces[1])
+        this.mentionKeywords = mentionKeywords
+      }
+      if (!mentionKeywords.length) {
+        this.mentionKeywords = ['']
+      }
+    } else {
+      this.mentionChoosing = false
+    }
+  }
+
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
     if (this.$refs.box) {
+      this.handleMention(this.$refs.box.innerText)
       this.conversation.draft = this.$refs.box.innerHTML
       conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
     }

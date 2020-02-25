@@ -201,7 +201,7 @@ class MessageDao {
         INNER JOIN messages m ON m.message_id = m_fts.message_id
         LEFT JOIN users u ON m.user_id = u.user_id
         WHERE (m.category = 'SIGNAL_TEXT' OR m.category = 'PLAIN_TEXT' OR m.category = 'SIGNAL_DATA' OR m.category = 'PLAIN_DATA' OR m.category = 'SIGNAL_POST' OR m.category = 'PLAIN_POST')
-        AND m.status != "FAILED" AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100`
+        AND m.status != 'FAILED' AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100`
       )
       .all(conversationId, keywordFinal)
   }

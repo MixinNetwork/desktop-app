@@ -49,7 +49,6 @@
           v-if="messagesVisible[0] && showMessages && timeDivideShow"
           :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
         />
-        <div id="virtualTop" :style="{ height: `${virtualPlaceholder.paddingTop}px` }"></div>
         <MessageItem
           v-for="(item, index) in messagesVisible"
           :key="item.messageId"
@@ -60,12 +59,10 @@
           :me="me"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
-          @loaded="onMessageLoaded"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
-        <div id="virtualBottom" :style="{ height: `${virtualPlaceholder.paddingBottom}px` }"></div>
       </ul>
     </mixin-scrollbar>
     <transition name="fade">
@@ -233,7 +230,7 @@ export default class ChatContainer extends Vue {
     })
     this.messageIds = messageIds
     if (messageIds.length > this.threshold) {
-      this.threshold = 100
+      this.threshold = 200
     }
   }
 
@@ -252,9 +249,11 @@ export default class ChatContainer extends Vue {
       this.boxFocusAction()
       this.$root.$emit('updateMenu', newC)
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-      let markdownCount = 10
+      let markdownCount = 5
       for (let i = messageBox.messages.length - 1; i >= 0; i--) {
-        if (messageBox.messages[i].type.endsWith('_POST')) {
+        const type = messageBox.messages[i].type
+        if (type.endsWith('_POST') || type.endsWith('_IMAGE') || type.endsWith('_STICKER')) {
+          const type = messageBox.messages[i].type
           messageBox.messages[i].fastLoad = true
           markdownCount--
         }
@@ -342,14 +341,10 @@ export default class ChatContainer extends Vue {
 
   goDown: boolean = false
   messagesVisible: any = []
-  messageHeightMap: any = {}
+
   messageIds: any = []
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
-  virtualPlaceholder: any = {
-    paddingTop: 0,
-    paddingBottom: 0
-  }
   threshold: number = 600
 
   mounted() {
@@ -459,21 +454,10 @@ export default class ChatContainer extends Vue {
 
     this.visibleFirstIndex = firstIndex
 
-    const { messages, messageHeightMap, messagesVisible } = this
+    const { messages, messagesVisible } = this
 
     if (!messagesVisible.length) {
       this.messagesVisible = this.messages
-    }
-
-    let paddingTop = 0
-    let paddingBottom = 0
-
-    for (let i = 0; i < firstIndex; i++) {
-      paddingTop += messageHeightMap[messages[i].messageId] || 0
-    }
-
-    for (let i = lastIndex + 1; i < messages.length; i++) {
-      paddingBottom += messageHeightMap[messages[i].messageId] || 0
     }
 
     const finalList = []
@@ -481,13 +465,7 @@ export default class ChatContainer extends Vue {
       const msg = this.messages[i]
       finalList.push(msg)
     }
-    this.virtualPlaceholder = { paddingTop, paddingBottom }
     this.messagesVisible = finalList
-  }
-
-  onMessageLoaded(dom: any) {
-    const { messageId, height } = dom
-    this.messageHeightMap[messageId] = height
   }
 
   visibleIndexLimit(obj: any) {
@@ -583,7 +561,7 @@ export default class ChatContainer extends Vue {
     if (this.isBottom) {
       this.infiniteDown()
     }
-    const toTop = 400 + 20 * (list.scrollHeight / list.clientHeight)
+    const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
       this.infiniteUp()
     }
@@ -713,10 +691,9 @@ export default class ChatContainer extends Vue {
   goBottom(wait?: boolean) {
     this.showScroll = false
     this.showTopTips = false
-    this.messageHeightMap = {}
+
     const msgLen = this.messages.length
     this.virtualDom = { firstIndex: msgLen - this.threshold, lastIndex: msgLen - 1 }
-    this.virtualPlaceholder = { paddingTop: 0, paddingBottom: 0 }
     this.boxMessage = false
     this.beforeUnseenMessageCount = 0
 
@@ -818,7 +795,7 @@ export default class ChatContainer extends Vue {
         mediaMimeType: mimeType,
         category
       }
-      const {conversationId} = this.conversation
+      const { conversationId } = this.conversation
       const message = {
         conversationId,
         payload

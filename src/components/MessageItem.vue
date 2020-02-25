@@ -243,15 +243,6 @@ export default class MessageItem extends Vue {
   $Dialog: any
   $Menu: any
 
-  mounted() {
-    const { messageId } = this.message
-    const dom: any = this.$refs.messageItem
-    let height = dom.getBoundingClientRect().height
-    // @ts-ignore
-    const marginBottom = document.defaultView.getComputedStyle(dom, null)['marginBottom']
-    height += parseInt(marginBottom.split('px')[0])
-    this.$emit('loaded', { messageId, height })
-  }
   mediaClick() {
     if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
       return

@@ -79,8 +79,7 @@ export default class PostItem extends Vue {
     if (this.message.fastLoad) {
       this.loaded = true
     } else {
-      // @ts-ignore
-      requestIdleCallback(() => {
+      requestAnimationFrame(() => {
         this.loaded = true
       })
     }

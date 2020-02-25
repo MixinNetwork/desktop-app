@@ -72,6 +72,7 @@ export default class StickerItem extends Vue {
     }
     img {
       max-height: 6rem;
+      min-width: 3rem;
       border-radius: 0.3rem;
     }
   }

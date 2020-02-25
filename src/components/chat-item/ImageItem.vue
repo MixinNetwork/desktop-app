@@ -4,12 +4,12 @@
       <span
         class="username"
         v-if="showName"
-        :style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId), maxWidth: `calc(${borderSetObject(true)}px)`}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem
         @handleMenuClick="$emit('handleMenuClick')"
-        :style="{maxWidth: `calc(${borderSetObject(true)}px + 1.6rem)`}"
+        :style="{maxWidth: `calc(${borderSetObject(true)}px)`}"
         :type="message.type"
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
@@ -184,7 +184,6 @@ export default class ImageItem extends Vue {
   .username {
     display: inline-block;
     font-size: 0.85rem;
-    max-width: 80%;
     margin-left: 0.4rem;
     text-overflow: ellipsis;
     overflow: hidden;

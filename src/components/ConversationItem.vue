@@ -40,6 +40,10 @@
         </div>
         <div class="content">{{description}}</div>
         <span
+          class="badge mention"
+          v-if="conversation.unseenMentionCount && conversation.unseenMentionCount!=0"
+        >@</span>
+        <span
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
@@ -297,6 +301,10 @@ li.conversation.item {
         font-size: 0.65rem;
         padding: 0.23rem 0.45rem;
         margin-right: 0.1875rem;
+        &.mention {
+          padding: 0.12rem 0.3rem;
+          font-size: 0.8rem;
+        }
       }
     }
   }

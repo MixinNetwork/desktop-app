@@ -67,8 +67,19 @@
     </mixin-scrollbar>
     <transition name="fade">
       <div
+        class="floating mention"
+        :class="{ 'box-message': boxMessage }"
+        v-show="conversation && !isBottom && currentMentionNum>0"
+        @click="mentionClick"
+      >
+        <span class="badge" v-if="currentMentionNum>0">{{currentMentionNum}}</span>
+        <span class="mention-icon">@</span>
+      </div>
+    </transition>
+    <transition name="fade">
+      <div
         class="floating"
-        :style="boxMessage ? 'margin-bottom: 3rem' : ''"
+        :class="{ 'box-message': boxMessage }"
         v-show="conversation && !isBottom"
         @click="goBottomClick"
       >
@@ -340,6 +351,8 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
   showTopTips: boolean = false
 
+  currentMentionNum: number = 0
+
   goDown: boolean = false
   messagesVisible: any = []
 
@@ -388,16 +401,19 @@ export default class ChatContainer extends Vue {
       }
     }
     messageBox.bindData(
-      function(messages: any, num: any) {
+      function(messages: any, unreadNum: any, mentionNum: any) {
         if (messages) {
           self.messages = messages
           self.getMessagesVisible(self.virtualDom, null)
         }
-        if (num > 0 || num === 0) {
-          self.currentUnreadNum = num
+        if (unreadNum > 0 || unreadNum === 0) {
+          self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
+        }
+        if (mentionNum > 0) {
+          self.currentMentionNum = mentionNum
         }
       },
       function(force: any, message: any, clearUnreadMsgId: boolean) {
@@ -708,6 +724,7 @@ export default class ChatContainer extends Vue {
       }
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
+      this.currentMentionNum = 0
       let list = this.$refs.messagesUl
       if (!list) return
       let scrollHeight = list.scrollHeight
@@ -719,6 +736,11 @@ export default class ChatContainer extends Vue {
     })
     messageBox.clearUnreadNum(0)
   }
+
+  mentionClick() {
+    messageBox.clearMentionNum(0)
+  }
+
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
@@ -1143,7 +1165,7 @@ export default class ChatContainer extends Vue {
     background: #fafafa;
     right: 1.25rem;
     position: absolute;
-    bottom: 72px;
+    bottom: 4.5rem;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     .badge {
       position: absolute;
@@ -1154,6 +1176,18 @@ export default class ChatContainer extends Vue {
       color: #fff;
       font-size: 13px;
       padding: 1px 0.3125rem;
+    }
+
+    &.box-message {
+      margin-bottom: 3rem;
+    }
+
+    &.mention {
+      bottom: 7.75rem;
+      .mention-icon {
+        font-size: 1.45rem;
+        font-weight: 500;
+      }
     }
   }
 

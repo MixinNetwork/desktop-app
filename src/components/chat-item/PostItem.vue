@@ -11,7 +11,7 @@
       </div>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
-          <div class="markdown" :style="{ minHeight }" @click="preview">
+          <div class="markdown" :style="loaded ? {} : { minHeight }" @click="preview">
             <vue-markdown
               v-if="loaded"
               :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
@@ -70,15 +70,20 @@ export default class PostItem extends Vue {
         line++
       }
     })
-    let minHeight = line * 1.5
+    let minHeight = line * 1.5 + 4.6
     if (minHeight > 16) {
       minHeight = 16
     }
     this.minHeight = minHeight + 'rem'
     this.content = content
-    setTimeout(() => {
+    if (this.message.fastLoad) {
       this.loaded = true
-    })
+    } else {
+      // @ts-ignore
+      requestIdleCallback(() => {
+        this.loaded = true
+      })
+    }
   }
 
   messageOwnership() {

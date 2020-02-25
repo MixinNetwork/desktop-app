@@ -232,7 +232,7 @@ export default class ChatContainer extends Vue {
       messageIds.push(item.messageId)
     })
     this.messageIds = messageIds
-    if (messageIds.length > 1000) {
+    if (messageIds.length > this.threshold) {
       this.threshold = 100
     }
   }
@@ -248,10 +248,20 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.showMessages = false
-      this.goBottom()
+      this.goBottom(true)
       this.boxFocusAction()
       this.$root.$emit('updateMenu', newC)
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      let markdownCount = 10
+      for (let i = messageBox.messages.length - 1; i >= 0; i--) {
+        if (messageBox.messages[i].type.endsWith('_POST')) {
+          messageBox.messages[i].fastLoad = true
+          markdownCount--
+        }
+        if (markdownCount < 0) {
+          break
+        }
+      }
       this.messages = messageBox.messages
       this.actionSetCurrentMessages(this.messages)
       if (newC) {
@@ -340,7 +350,7 @@ export default class ChatContainer extends Vue {
     paddingTop: 0,
     paddingBottom: 0
   }
-  threshold: number = 1000
+  threshold: number = 600
 
   mounted() {
     this.$root.$on('escKeydown', () => {
@@ -401,18 +411,12 @@ export default class ChatContainer extends Vue {
         if (force) {
           if (!message) {
             self.goBottom()
-          }
-          setTimeout(() => {
+          } else {
             self.goMessagePos(message)
-          })
+          }
         } else if (self.isBottom) {
           self.goBottom()
         }
-        setTimeout(() => {
-          if (!force) {
-            self.showMessages = true
-          }
-        })
       }
     )
     this.$root.$on('goSearchMessagePos', (item: any) => {
@@ -661,49 +665,52 @@ export default class ChatContainer extends Vue {
       this.boxFocusAction()
     })
   }
+  goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
+    setTimeout(() => {
+      this.infiniteDownLock = false
+      let targetDom: any = document.querySelector('.unread-divide')
+      let messageDom: any
+      if (posMessage && posMessage.messageId && !targetDom) {
+        messageDom = document.getElementById(`m-${posMessage.messageId}`)
+        if (!this.searchKeyword && messageDom) {
+          messageDom.className = 'notice'
+        }
+      }
+      if (!targetDom && !messageDom) {
+        return (this.showMessages = true)
+      }
+      let list = this.$refs.messagesUl
+      if (!list) {
+        return this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+      }
+      if (!goDone && beforeScrollTop !== list.scrollTop) {
+        beforeScrollTop = list.scrollTop
+        this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+      } else {
+        goDone = true
+        if (messageDom) {
+          if (list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
+            list.scrollTop = messageDom.offsetTop
+          }
+          setTimeout(() => {
+            messageDom.className = ''
+          }, 200)
+        } else {
+          list.scrollTop = targetDom.offsetTop
+        }
+        setTimeout(() => {
+          this.showMessages = true
+        })
+      }
+    })
+  }
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
-    const action = (beforeScrollTop: any) => {
-      setTimeout(() => {
-        this.infiniteDownLock = false
-        let targetDom: any = document.querySelector('.unread-divide')
-        let messageDom: any
-        if (posMessage && posMessage.messageId && !targetDom) {
-          messageDom = document.getElementById(`m-${posMessage.messageId}`)
-          if (!this.searchKeyword && messageDom) {
-            messageDom.className = 'notice'
-          }
-        }
-        if (!targetDom && !messageDom) {
-          return (this.showMessages = true)
-        }
-        let list = this.$refs.messagesUl
-        if (!list) {
-          return action(beforeScrollTop)
-        }
-        if (!goDone && beforeScrollTop !== list.scrollTop) {
-          beforeScrollTop = list.scrollTop
-          action(beforeScrollTop)
-        } else {
-          goDone = true
-          this.showMessages = true
-          if (messageDom) {
-            if (list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
-              list.scrollTop = messageDom.offsetTop
-            }
-            setTimeout(() => {
-              messageDom.className = ''
-            }, 200)
-          } else {
-            list.scrollTop = targetDom.offsetTop
-          }
-        }
-      })
-    }
-    action(beforeScrollTop)
+
+    this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
   }
-  goBottom() {
+  goBottom(wait?: boolean) {
     this.showScroll = false
     this.showTopTips = false
     this.messageHeightMap = {}
@@ -714,7 +721,9 @@ export default class ChatContainer extends Vue {
     this.beforeUnseenMessageCount = 0
 
     setTimeout(() => {
-      this.showMessages = true
+      if (!wait) {
+        this.showMessages = true
+      }
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
       let list = this.$refs.messagesUl
@@ -725,7 +734,7 @@ export default class ChatContainer extends Vue {
       setTimeout(() => {
         this.showScroll = true
       }, 200)
-    }, 10)
+    })
     messageBox.clearUnreadNum(0)
   }
   goBottomClick() {

@@ -206,7 +206,8 @@ class MessageDao {
       .all(conversationId, keywordFinal)
   }
 
-  getMessages(conversationId: any, page = 0, tempCount = 0, perPageCount = PerPageMessageCount) {
+  getMessages(conversationId: any, page = 0, tempCount = 0) {
+    const perPageCount = PerPageMessageCount
     const offset = page * perPageCount + tempCount
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +

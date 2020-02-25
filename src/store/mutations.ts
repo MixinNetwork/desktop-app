@@ -33,58 +33,57 @@ function refreshConversation(state: { conversations: object; conversationKeys: a
   })
 }
 
-let keywordCache: any = null
-
 let messageSearchTimer: any = null
-function messageSearch(state: any, type: string, keyword: any) {
+
+function messageSearchAction(state: any, conversations: any, keyword: string, limit: any, i: number) {
   const message: any = []
   const messageAll: any = []
   let num: number = 0
-  let isEmpty: boolean = true
+  if (i < conversations.length) {
+    const conversation = conversations[i]
+    const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+    let waitTime = 0
+    if (count > 0) {
+      num++
+      const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
+      temp.records = count
 
-  function action(conversations: any, limit: any, i: number) {
-    if (i < conversations.length) {
-      const conversation = conversations[i]
-      const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
-      let waitTime = 0
-      if (count > 0) {
-        isEmpty = false
-        num++
-        const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
-        temp.records = count
-
-        messageAll.push(temp)
-        setTimeout(() => {
-          state.search.messageAll = messageAll
-          if (num <= limit) {
-            message.push(temp)
-            state.search.message = message
-          }
-        })
-        if (limit > 0 && num > limit) {
-          return
+      messageAll.push(temp)
+      setTimeout(() => {
+        state.search.messageAll = messageAll
+        if (num <= limit) {
+          message.push(temp)
+          state.search.message = message
         }
-        if (num < 10) {
-          waitTime = 0
-        } else if (num < 50) {
-          waitTime = 50
-        } else {
-          waitTime = 100
-        }
+      })
+      if (limit > 0 && num > limit) {
+        return false
       }
-      messageSearchTimer = setTimeout(() => {
-        action(conversations, limit, ++i)
-      }, waitTime)
+      if (num < 10) {
+        waitTime = 0
+      } else if (num < 50) {
+        waitTime = 50
+      } else {
+        waitTime = 100
+      }
     }
+    messageSearchTimer = setTimeout(() => {
+      messageSearchAction(state, conversations, keyword, limit, ++i)
+    }, waitTime)
   }
+  return true
+}
 
+let keywordCache: any = null
+
+function messageSearch(state: any, type: string, keyword: any) {
   if (!type || type === 'messages') {
     const conversations = conversationDao.getConversations()
     let limit = 0
     if (!type) {
       limit = 3
     }
-    action(conversations, limit, 0)
+    let isEmpty: boolean = messageSearchAction(state, conversations, keyword, limit, 0)
     setTimeout(() => {
       if (isEmpty) {
         state.search.message = []

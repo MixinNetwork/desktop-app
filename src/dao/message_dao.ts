@@ -185,6 +185,7 @@ class MessageDao {
     )
     const insertMany = db.transaction((messages: any[]) => {
       messages.forEach((message: any) => {
+        message.content = contentUtil.fts5ContentFilter(message.content)
         insert.run(message)
       })
     })

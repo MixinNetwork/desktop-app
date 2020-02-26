@@ -1,7 +1,7 @@
 <template>
   <div class="mention-panel" @click.stop>
     <mixin-scrollbar>
-      <div class="ul">
+      <div ref="ul" class="ul">
         <UserItem
           v-for="user in contacts"
           :key="user.user_id"
@@ -40,6 +40,8 @@ export default class MentionPanel extends Vue {
       })
       this.contacts = contacts
       this.$emit('update', contacts)
+      const ul: any = this.$refs.ul
+      ul.scrollTop = 0
     }, 10)
   }
 

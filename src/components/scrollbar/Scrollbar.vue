@@ -43,6 +43,7 @@ export default class MixinScrollbar extends Vue {
     y: 0
   }
   dragging: boolean = false
+  observer: any = null
 
   @Watch('goBottom')
   onGoBottomChange() {
@@ -56,9 +57,21 @@ export default class MixinScrollbar extends Vue {
     }, 500)
   }
 
-  scroll() {
+  scrollInit() {
     const scrollBox = this.scrollBox
-    this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
+
+    scrollBox.scrollTop = 0
+
+    const targetNode: any = this.$refs.scroll
+    this.observer = new MutationObserver((mutationsList, observer) => {
+      for (let mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+          this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
+        }
+      }
+    })
+    this.observer.observe(targetNode, { childList: true, subtree: true })
+
     scrollBox.onscroll = (e: any) => {
       requestAnimationFrame(() => {
         if (!this.thumbShowLock && !this.thumbShow) {
@@ -73,6 +86,7 @@ export default class MixinScrollbar extends Vue {
           }, 1000)
         }
         const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
+        this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
         let thumbTop: number = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
         if (thumbTop > scrollBox.clientHeight - this.thumbHeight - 25) {
           thumbTop = Math.floor(thumbTop)
@@ -134,7 +148,7 @@ export default class MixinScrollbar extends Vue {
     }
     this.scrollThumb = this.querySelector('.scrollbar-thumb')
 
-    this.scroll()
+    this.scrollInit()
 
     this.$emit('init', this.scrollBox)
   }
@@ -142,6 +156,8 @@ export default class MixinScrollbar extends Vue {
   destroyed() {
     this.scrollBox = null
     this.scrollThumb = null
+    this.observer.disconnect()
+    this.observer = null
   }
 }
 </script>

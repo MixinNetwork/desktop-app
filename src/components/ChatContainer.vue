@@ -724,6 +724,7 @@ export default class ChatContainer extends Vue {
     ids.forEach((id: any, index: number) => {
       removeMentionIds.forEach((removeId: any) => {
         if (removeId.startsWith(id)) {
+          ids.splice(index, 1)
           html = html.replace(id, '')
           input.innerHTML = html
           try {

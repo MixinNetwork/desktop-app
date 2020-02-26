@@ -52,7 +52,7 @@ export default class MentionPanel extends Vue {
             if (
               keyword === '@' ||
               `@${item.identity_number}`.startsWith(keyword) ||
-              `@${item.full_name}`.startsWith(keyword)
+              `@${item.full_name.toLowerCase()}`.startsWith(keyword.toLowerCase())
             ) {
               contacts.push(item)
             }

@@ -1,5 +1,5 @@
 <template>
-  <div class="mention-panel" @click.stop>
+  <div class="mention-panel" :style="{ height: `${height}rem`}" @click.stop>
     <mixin-scrollbar>
       <div ref="ul" class="ul">
         <UserItem
@@ -30,6 +30,7 @@ export default class MentionPanel extends Vue {
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly conversation: any
   @Prop(Array) readonly mentions: any
+  @Prop(Number) readonly height: any
 
   @Getter('me') me: any
 
@@ -60,10 +61,9 @@ export default class MentionPanel extends Vue {
         })
         this.$emit('update', contacts)
         this.contacts = contacts
-
-        const ul: any = this.$refs.ul
-        ul.scrollTop = 0
       }
+      const ul: any = this.$refs.ul
+      ul.scrollTop = 0
     }, 10)
   }
 
@@ -78,7 +78,8 @@ export default class MentionPanel extends Vue {
   border-top: 1px solid #f0f0f0;
   display: flex;
   flex-flow: column nowrap;
-  height: 15.1rem;
+  height: 15rem;
+  padding-bottom: 0.1rem;
   left: 18rem;
   bottom: 3rem;
   right: 0;

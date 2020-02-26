@@ -28,7 +28,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="'transition: 0.3s all ease;' + ((stickerChoosing || mentionChoosing) ? 'margin-bottom: 15rem;' : '')"
+      :style="(panelHeight < 15 ? '' : 'transition: 0.3s all ease;') + ((stickerChoosing || mentionChoosing) ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
     >
@@ -99,12 +99,13 @@
     ></ReplyMessageContainer>
 
     <transition name="slide-up">
-      <ChatSticker v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
+      <ChatSticker :height="panelHeight" v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
     </transition>
 
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
+        :height="panelHeight"
         :keyword="mentionKeyword"
         :mentions="mentions"
         :conversation="conversation"
@@ -683,14 +684,21 @@ export default class ChatContainer extends Vue {
     this.boxFocusAction()
   }
 
+  panelHeight: number = 15
   updateMentionUsers(result: any) {
-    if (result.length) {
+    const len = result.length
+    if (len) {
+      if (len < 4) {
+        this.panelHeight = 4.2 * len
+      } else {
+        this.panelHeight = 15
+      }
       if (!this.mentionChoosing) {
         this.boxMessage = false
         this.stickerChoosing = false
         this.mentionChoosing = true
       } else if (
-        result.length === 1 &&
+        len === 1 &&
         (`@${result[0].identity_number}` === this.mentionKeyword || `@${result[0].full_name}` === this.mentionKeyword)
       ) {
         this.chooseMentionUser(result[0])

@@ -1,5 +1,5 @@
 <template>
-  <div class="chat-sticker" @click.stop>
+  <div class="chat-sticker" :style="{ height: `${height}rem`}" @click.stop>
     <div class="title-bar">
       <div>
         <div class="album" :class="{on: 'history' === currentAlbumId}">
@@ -43,11 +43,13 @@
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
 
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component
 export default class ChatSticker extends Vue {
+  @Prop(Number) readonly height: any
+
   @Getter('currentConversation') conversation: any
 
   albums: any = []
@@ -177,7 +179,8 @@ export default class ChatSticker extends Vue {
   border-top: 1px solid #f0f0f0;
   display: flex;
   flex-flow: column nowrap;
-  height: 15.1rem;
+  height: 15rem;
+  padding-bottom: 0.1rem;
   left: 18rem;
   bottom: 3rem;
   right: 0;

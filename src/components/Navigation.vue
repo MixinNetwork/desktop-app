@@ -538,7 +538,7 @@ export default class Navigation extends Vue {
   goConversationPos(index: number) {
     const container: any = document.querySelector('.conversations.ul')
     const item: any = document.querySelector('.conversation.item')
-    if (container) {
+    if (container && item) {
       const itemHeight = item.getBoundingClientRect().height
       const outUp = itemHeight * index <= container.scrollTop
       const outDown = container.clientHeight + container.scrollTop <= itemHeight * (index + 1)

@@ -58,6 +58,7 @@ export default class MixinScrollbar extends Vue {
 
   scroll() {
     const scrollBox = this.scrollBox
+    this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
     scrollBox.onscroll = (e: any) => {
       requestAnimationFrame(() => {
         if (!this.thumbShowLock && !this.thumbShow) {
@@ -71,7 +72,6 @@ export default class MixinScrollbar extends Vue {
             }
           }, 1000)
         }
-        this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
         const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
         let thumbTop: number = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
         if (thumbTop > scrollBox.clientHeight - this.thumbHeight - 25) {
@@ -115,6 +115,7 @@ export default class MixinScrollbar extends Vue {
       this.dragging = false
       this.thumbMouseOut()
     }
+    e.preventDefault()
   }
   trackHover(flag: any) {
     if (this.dragging) return

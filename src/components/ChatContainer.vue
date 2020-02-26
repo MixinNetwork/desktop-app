@@ -245,6 +245,7 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.showMessages = false
+      this.boxMessage = false
       this.goBottom(true)
       this.boxFocusAction()
       this.$root.$emit('updateMenu', newC)
@@ -699,7 +700,6 @@ export default class ChatContainer extends Vue {
 
     const msgLen = this.messages.length
     this.virtualDom = { firstIndex: msgLen - this.threshold, lastIndex: msgLen - 1 }
-    this.boxMessage = false
     this.beforeUnseenMessageCount = 0
 
     setTimeout(() => {

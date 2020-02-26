@@ -59,7 +59,7 @@ export default class ChatSticker extends Vue {
     h: 80,
     m: 5
   }
-  resezeStickerTimeout: any
+  resizeStickerTimeout: any
 
   created() {
     const findAlbums = stickerDao.getStickerAlbums()
@@ -83,14 +83,14 @@ export default class ChatSticker extends Vue {
     setTimeout(() => {
       this.changeTab('history')
       window.onresize = () => {
-        this.resezeSticker()
+        this.resizeSticker()
       }
     })
   }
 
-  resezeSticker() {
-    clearTimeout(this.resezeStickerTimeout)
-    this.resezeStickerTimeout = setTimeout(() => {
+  resizeSticker() {
+    clearTimeout(this.resizeStickerTimeout)
+    this.resizeStickerTimeout = setTimeout(() => {
       const element = document.querySelector('.container')
       let { m } = this.stickerStyle
       // @ts-ignore
@@ -120,7 +120,7 @@ export default class ChatSticker extends Vue {
     let stickers = stickerDao.getStickersByAlbumId(id)
     if (stickers && stickers.length) {
       this.stickers = stickers
-      this.resezeSticker()
+      this.resizeSticker()
     } else {
       stickerApi.getStickersByAlbumId(id).then((res: any) => {
         if (res.data.data) {
@@ -128,7 +128,7 @@ export default class ChatSticker extends Vue {
             stickerDao.insertUpdate(item)
           })
           this.stickers = stickerDao.getStickersByAlbumId(id)
-          this.resezeSticker()
+          this.resizeSticker()
         }
       })
     }
@@ -145,7 +145,7 @@ export default class ChatSticker extends Vue {
         } else {
           this.stickers = []
         }
-        this.resezeSticker()
+        this.resizeSticker()
       } else if (id === 'like') {
         const albums = stickerDao.getStickerAlbums('PERSONAL')
         if (albums[0]) {

@@ -14,7 +14,7 @@
   </div>
 </template>
 <script lang="ts">
-import userDao from '@/dao/user_dao'
+import participantDao from '@/dao/participant_dao'
 
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -29,19 +29,41 @@ import UserItem from '@/components/UserItem.vue'
 export default class MentionPanel extends Vue {
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly conversation: any
+  @Prop(Array) readonly mentions: any
+
+  @Getter('me') me: any
 
   contacts: any[] = []
+  participants: any[] = []
 
   @Watch('keyword')
-  onKeyworChanged(keyword: string) {
+  onKeywordChanged(keyword: string) {
+    const { conversationId } = this.conversation
+    this.participants = participantDao.getParticipantsByConversationId(conversationId)
     setTimeout(() => {
-      const contacts = userDao.fuzzySearchUser(keyword).filter((item: any) => {
-        return true
-      })
-      this.contacts = contacts
-      this.$emit('update', contacts)
-      const ul: any = this.$refs.ul
-      ul.scrollTop = 0
+      if (keyword && this.participants.length > 2) {
+        let contacts: any = []
+        const mentionIds: any = []
+        this.mentions.forEach((item: any) => {
+          mentionIds.push(item.identity_number)
+        })
+        this.participants.forEach(item => {
+          if (item.identity_number !== this.me.identity_number && mentionIds.indexOf(item.identity_number) < 0) {
+            if (
+              keyword === '@' ||
+              `@${item.identity_number}`.startsWith(keyword) ||
+              `@${item.full_name}`.startsWith(keyword)
+            ) {
+              contacts.push(item)
+            }
+          }
+        })
+        this.$emit('update', contacts)
+        this.contacts = contacts
+
+        const ul: any = this.$refs.ul
+        ul.scrollTop = 0
+      }
     }, 10)
   }
 

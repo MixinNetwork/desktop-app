@@ -1,5 +1,5 @@
 <template>
-  <main class="chat container" @click="hideChoosePannel">
+  <main class="chat container" @click="hideChoosePanel">
     <header v-show="conversation">
       <div>
         <Avatar style="font-size: 1rem" :conversation="conversation" @onAvatarClick="showDetails" />
@@ -105,7 +105,8 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
-        :keyword="mentionKeywords[0]"
+        :keyword="mentionKeyword"
+        :mentions="mentions"
         :conversation="conversation"
         @choose="chooseMentionUser"
         @update="updateMentionUsers"
@@ -277,6 +278,7 @@ export default class ChatContainer extends Vue {
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.showMessages = false
       this.boxMessage = false
+      this.mentions = []
       this.goBottom(true)
       this.boxFocusAction()
       this.$root.$emit('updateMenu', newC)
@@ -387,7 +389,7 @@ export default class ChatContainer extends Vue {
       this.hideSearch()
       this.closeFile()
       this.hidenReplyBox()
-      this.hideChoosePannel()
+      this.hideChoosePanel()
       setTimeout(() => {
         this.boxFocusAction()
       }, 200)
@@ -642,7 +644,7 @@ export default class ChatContainer extends Vue {
     this.mentionChoosing = false
     this.stickerChoosing = !this.stickerChoosing
   }
-  hideChoosePannel() {
+  hideChoosePanel() {
     this.mentionChoosing = false
     this.stickerChoosing = false
   }
@@ -661,50 +663,115 @@ export default class ChatContainer extends Vue {
     this.goBottom()
   }
 
+  mentions: string[] = []
   chooseMentionUser(user: any) {
+    this.mentions.push(user)
+    const $target = this.$refs.box
+    $target.innerHTML = $target.innerHTML.replace(/@(.+)?/, '')
+    let mentionIds = ''
+    this.mentions.forEach((item: any) => {
+      const id = `@${item.identity_number}`
+      mentionIds += `${id}&nbsp;`
+    })
+
+    $target.innerHTML = mentionIds + $target.innerHTML
     this.mentionChoosing = false
+
+    const { html } = this.mentionHtmlFilter($target)
+    this.conversation.draft = html
+
+    this.boxFocusAction()
   }
 
   updateMentionUsers(result: any) {
     if (result.length) {
-      this.mentionChoosing = true
+      if (!this.mentionChoosing) {
+        this.boxMessage = false
+        this.stickerChoosing = false
+        this.mentionChoosing = true
+      } else if (
+        result.length === 1 &&
+        (`@${result[0].identity_number}` === this.mentionKeyword || `@${result[0].full_name}` === this.mentionKeyword)
+      ) {
+        this.chooseMentionUser(result[0])
+      }
     } else {
       this.mentionChoosing = false
     }
   }
 
-  mentionKeywords: string[] = []
+  splitSpace: string = ' '
+  mentionHtmlFilter(input: any) {
+    let content = input.innerText.replace(' ', this.splitSpace)
+    let html = input.innerHTML
+
+    const regxMention = new RegExp('@(.*?)?' + this.splitSpace, 'g')
+    const ids: any = []
+    let pieces: any = []
+    while ((pieces = regxMention.exec(`${content}${this.splitSpace}`)) !== null) {
+      ids.push(pieces[0].trim())
+    }
+
+    const removeMentionIds: any = []
+    this.mentions.forEach((item: any, index: number) => {
+      const id = `@${item.identity_number}`
+      if (ids.indexOf(id) < 0) {
+        this.mentions.splice(index, 1)
+        removeMentionIds.push(id)
+      }
+    })
+
+    ids.forEach((id: any, index: number) => {
+      removeMentionIds.forEach((removeId: any) => {
+        if (removeId.startsWith(id)) {
+          html = html.replace(id, '')
+          input.innerHTML = html
+          try {
+            // @ts-ignore
+            window.getSelection().collapse(input, 1)
+          } catch (error) {}
+          setTimeout(() => {
+            input.focus()
+          })
+        }
+      })
+    })
+
+    // // TODO
+    // // mentionIds += `${contentUtil.highlight(id, id, '')} `
+
+    return {
+      html,
+      ids
+    }
+  }
+
+  mentionKeyword: string = ''
   mentionChoosing: boolean = false
-  handleMention(content: string) {
-    if (/@/.test(content)) {
-      if (!this.mentionChoosing) {
-        this.boxMessage = false
-        this.stickerChoosing = false
-        this.mentionChoosing = true
-      }
-      let pieces: any = []
-      const mentionKeywords = []
-      const regxMention = new RegExp(/@(.+)/, 'g')
-      while ((pieces = regxMention.exec(content)) !== null) {
-        mentionKeywords.unshift(pieces[1])
-        this.mentionKeywords = mentionKeywords
-      }
-      if (!mentionKeywords.length) {
-        this.mentionKeywords = ['']
-      }
+  handleMention(input: any) {
+    let content = input.innerText
+
+    let { html, ids } = this.mentionHtmlFilter(input)
+    // input.innerHTML = html
+
+    if (ids.length > 0) {
+      this.mentionKeyword = ids[ids.length - 1]
     } else {
       this.mentionChoosing = false
+      this.mentionKeyword = ''
     }
+    return html
   }
 
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
     if (this.$refs.box) {
-      this.handleMention(this.$refs.box.innerText)
-      this.conversation.draft = this.$refs.box.innerHTML
-      conversationDao.updateConversationDraftById(conversationId, this.$refs.box.innerHTML)
+      const html = this.handleMention(this.$refs.box)
+      this.conversation.draft = html
+      conversationDao.updateConversationDraftById(conversationId, html)
     }
   }
+
   goSearchMessagePos(item: any, keyword: string) {
     this.unreadMessageId = ''
     this.goSearchPos = true

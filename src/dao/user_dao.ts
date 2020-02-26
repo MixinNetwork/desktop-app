@@ -63,7 +63,7 @@ class UserDao {
       .all()
   }
   findUserById(userId: any) {
-    return db.prepare('SELECT * FROM users WHERE user_id == ?').get(userId)
+    return db.prepare('SELECT * FROM users WHERE user_id = ?').get(userId)
   }
   updateMute(muteUntil: any, userId: any) {
     return db.prepare('UPDATE users SET mute_until = ? WHERE user_id = ?').run(muteUntil, userId)
@@ -72,6 +72,11 @@ class UserDao {
     db.prepare(
       `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${u.is_verified}, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
     ).run()
+  }
+  findUserIdByAppNumber(conversationId: string, botNumber: string) {
+    return db.prepare(
+      `SELECT u.user_id FROM users u INNER JOIN participants p ON p.user_id = u.user_id WHERE p.conversation_id = ? AND u.identity_number = ?`
+    ).get(conversationId, botNumber)
   }
 }
 

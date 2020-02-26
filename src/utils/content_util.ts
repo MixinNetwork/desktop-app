@@ -6,8 +6,18 @@ import i18n from '@/utils/i18n'
 import MarkdownIt from 'markdown-it'
 const md = new MarkdownIt()
 URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
+const botNumberReg = /@7000\d*\s/
 
 export default {
+  getBotNumber(content: string) {
+    if (content.startsWith('@7000')) {
+      const result = content.match(botNumberReg)
+      if (result && result.length > 0) {
+        return result[0].substring(1, result[0].length - 1)
+      }
+    }
+    return ''
+  },
   messageFilteredText(e: { innerHTML: string; innerText: string }) {
     e.innerHTML = e.innerHTML.replace(/<br><br><\/div>/g, '<br></div>').replace(/<div><br><\/div>/g, '<div>　</div>')
     // eslint-disable-next-line

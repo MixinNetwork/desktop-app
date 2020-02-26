@@ -1,4 +1,5 @@
 import messageDao from '@/dao/message_dao'
+import userDao from '@/dao/user_dao'
 import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
@@ -7,6 +8,7 @@ import signalProtocol from '@/crypto/signal'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
 import { MessageStatus, MessageCategories } from '@/utils/constants'
+import contentUtil from '@/utils/content_util'
 
 class SendWorker extends BaseWorker {
   async doWork() {
@@ -14,21 +16,32 @@ class SendWorker extends BaseWorker {
     if (!message) {
       return
     }
+    let recipientId = ''
+    if (message.category.endsWith('_TEXT')) {
+      const botNumber = contentUtil.getBotNumber(message.content)
+      if (botNumber) {
+        const recipient = userDao.findUserIdByAppNumber(message.conversation_id, botNumber)
+        if (recipient && recipient.user_id) {
+          recipientId = recipient.user_id
+          message.category = 'PLAIN_TEXT'
+        }
+      }
+    }
     if (message.category.startsWith('PLAIN_')) {
-      await this.sendPlainMessage(message)
+      await this.sendPlainMessage(message, recipientId)
     } else {
       await this.sendSignalMessage(message)
     }
   }
 
-  async sendPlainMessage(message) {
+  async sendPlainMessage(message, recipientId) {
     const conversation = conversationDao.getConversationById(message.conversation_id)
     await this.checkConversationExist(conversation)
     let content = message.content
     if (message.category === MessageCategories.PLAIN_TEXT || message.category === MessageCategories.PLAIN_POST) {
       content = btoa(unescape(encodeURIComponent(message.content)))
     }
-    const blazeMessage = this.createBlazeMessage(message, content)
+    const blazeMessage = this.createBlazeMessage(message, content, recipientId)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
   }
 
@@ -107,7 +120,7 @@ class SendWorker extends BaseWorker {
     return result
   }
 
-  createBlazeMessage(message, data) {
+  createBlazeMessage(message, data, recipientId) {
     const blazeParam = {
       conversation_id: message.conversation_id,
       message_id: message.message_id,
@@ -121,6 +134,9 @@ class SendWorker extends BaseWorker {
       blazeParam.session_id = message.resend_session_id
     } else {
       blazeParam.conversation_checksum = this.getCheckSum(message.conversation_id)
+    }
+    if (recipientId) {
+      blazeParam.recipient_id = recipientId
     }
     const blazeMessage = {
       id: uuidv4(),

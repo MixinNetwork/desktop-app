@@ -16,8 +16,8 @@
             class="button-item"
             @click="$emit('action-click', item.action)"
             :style="{color: item.color}"
-            v-for="item in messageContent"
-            :key="item.action"
+            v-for="(item, index) in messageContent"
+            :key="index"
           >{{item.label}}</div>
         </div>
       </BadgeItem>

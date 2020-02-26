@@ -79,9 +79,9 @@ export default class PostItem extends Vue {
     if (this.message.fastLoad) {
       this.loaded = true
     } else {
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         this.loaded = true
-      })
+      }, 200)
     }
   }
 

@@ -284,7 +284,6 @@ b.highlight {
     font-weight: 400;
     box-sizing: border-box;
     border: 1px solid #e2e2e2;
-    cursor: default;
     width: 96%;
   }
   tbody,
@@ -307,7 +306,6 @@ b.highlight {
     border: 1px solid #e2e2e2;
     vertical-align: top;
     padding: 4px 8px;
-    cursor: default;
   }
   th {
     background-color: #f6f6f6;

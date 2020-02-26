@@ -7,11 +7,13 @@
           <svg-icon @click="close" icon-class="ic_close" />
         </div>
         <mixin-scrollbar>
-          <vue-markdown
-            class="markdown ul"
-            :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
-            :source="post"
-          ></vue-markdown>
+          <div class="ul">
+            <vue-markdown
+              class="markdown"
+              :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
+              :source="post"
+            ></vue-markdown>
+          </div>
         </mixin-scrollbar>
       </div>
     </div>

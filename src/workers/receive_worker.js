@@ -126,7 +126,7 @@ class ReceiveWorker extends BaseWorker {
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     store.dispatch('refreshMessage', {
       conversationId: data.conversation_id,
-      messageIds: [data.message_id]
+      messageIds: [recallMassage.message_id]
     })
   }
 

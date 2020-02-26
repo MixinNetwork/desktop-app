@@ -92,7 +92,9 @@ class MessageDao {
       quoteMessageId,
       quoteContent
     ])
-    this.insertOrReplaceMessageFts(messageId, message.content)
+    if (message.category.endsWith('_TEXT')) {
+      this.insertOrReplaceMessageFts(messageId, message.content)
+    }
     return messageId
   }
 
@@ -185,8 +187,19 @@ class MessageDao {
     )
     const insertMany = db.transaction((messages: any[]) => {
       messages.forEach((message: any) => {
-        message.content = contentUtil.fts5ContentFilter(message.content)
-        insert.run(message)
+        if (message.content && message.category.endsWith('_TEXT')) {
+          message.content = contentUtil.fts5ContentFilter(message.content)
+          insert.run(message)
+        }
+        if (message.name && message.category.endsWith('_DATA')) {
+          message.content = contentUtil.fts5ContentFilter(message.name)
+          insert.run(message)
+        }
+        if (message.content && message.category.endsWith('_POST')) {
+          message.content = contentUtil.renderMdToText(message.content)
+          message.content = contentUtil.fts5ContentFilter(message.content)
+          insert.run(message)
+        }
       })
     })
     insertMany(messages)

@@ -62,6 +62,9 @@ class UserDao {
       )
       .all()
   }
+  findUserByIdentityNumber(id: any) {
+    return db.prepare('SELECT * FROM users WHERE identity_number = ?').get(id)
+  }
   findUserById(userId: any) {
     return db.prepare('SELECT * FROM users WHERE user_id = ?').get(userId)
   }

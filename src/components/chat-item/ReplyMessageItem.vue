@@ -186,7 +186,7 @@ export default class ReplyMessageItem extends Vue {
   justify-content: flex-start;
   user-select: none;
   .diver {
-    width: 0.4rem;
+    width: 0.3rem;
   }
   .layout {
     flex: 1;

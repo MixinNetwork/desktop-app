@@ -173,7 +173,7 @@ export default class ReplyMessageContainer extends Vue {
   background: white;
   justify-content: flex-start;
   .diver {
-    width: 0.4rem;
+    width: 0.3rem;
   }
   .layout {
     flex: 1;

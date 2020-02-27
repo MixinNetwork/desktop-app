@@ -474,13 +474,17 @@ export default class ChatContainer extends Vue {
     this.boxFocus = false
   }
 
-  boxFocusAction() {
+  boxFocusAction(keep?: boolean) {
     if (this.$refs.box) {
       const $target = this.$refs.box
-      $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
+      if (!keep) {
+        $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
+      }
       try {
         // @ts-ignore
         window.getSelection().collapse($target, 1)
+        // @ts-ignore
+        window.getSelection().collapse($target, $target.childNodes.length)
       } catch (error) {}
       setTimeout(() => {
         $target.focus()
@@ -674,7 +678,8 @@ export default class ChatContainer extends Vue {
     let mentionIds = ''
     this.mentions.forEach((item: any) => {
       const id = `@${item.identity_number}`
-      mentionIds += `${id}&nbsp;`
+      const hl = contentUtil.highlight(id, id, '')
+      mentionIds += `${hl}<span>&nbsp;</span>`
     })
 
     $target.innerHTML = mentionIds + $target.innerHTML
@@ -739,19 +744,10 @@ export default class ChatContainer extends Vue {
           ids.splice(index, 1)
           html = html.replace(id, '')
           input.innerHTML = html
-          try {
-            // @ts-ignore
-            window.getSelection().collapse(input, 1)
-          } catch (error) {}
-          setTimeout(() => {
-            input.focus()
-          })
+          this.boxFocusAction(true)
         }
       })
     })
-
-    // // TODO
-    // // mentionIds += `${contentUtil.highlight(id, id, '')} `
 
     return {
       content,

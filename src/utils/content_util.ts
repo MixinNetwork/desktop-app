@@ -131,7 +131,6 @@ class ContentUtil {
     keyword = keyword
       .trim()
       .replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
-      .replace(/ /g, '')
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
       const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')

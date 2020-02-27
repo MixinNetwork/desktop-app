@@ -127,7 +127,7 @@ export default class ConversationItem extends Vue {
     } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
       return this.getMessageName() + this.$t('chat.chat_sticker')
     } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
-      return this.getMessageName() + contentUtil.mentionIdToName(this.conversation.content, '')
+      return this.getMessageName() + contentUtil.parseMention(this.conversation.content, 'normal')
     } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
       return this.getMessageName() + this.$t('chat.chat_contact')
     } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {

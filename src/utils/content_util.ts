@@ -149,13 +149,13 @@ class ContentUtil {
     }
     return result
   }
-  mentionIdToName(content: string, highlight: string) {
+  parseMention(content: string, type?: string) {
     // eslint-disable-next-line no-irregular-whitespace
     content = content.replace(/ /g, ' ')
-    const regxMention = new RegExp('@(.*?)? ', 'g')
+    const regx = new RegExp('@(.*?)? ', 'g')
     const mentionIds: any = []
     let pieces: any = []
-    while ((pieces = regxMention.exec(`${content} `)) !== null) {
+    while ((pieces = regx.exec(`${content} `)) !== null) {
       mentionIds.push(pieces[1].trim())
     }
     mentionIds.forEach((id: any) => {
@@ -163,11 +163,13 @@ class ContentUtil {
       if (user) {
         const mentionName = `@${user.full_name}`
         const regx = new RegExp(`@${id}`, 'g')
-        if (highlight) {
+        if (type === 'highlight') {
           const hl = this.highlight(mentionName, mentionName, '')
           content = content.replace(regx, hl)
-        } else {
+        } else if (type === 'normal') {
           content = content.replace(regx, mentionName)
+        } else {
+          content = content.replace(regx, `<b>${mentionName}</b>`)
         }
       }
     })

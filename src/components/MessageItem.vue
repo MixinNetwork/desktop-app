@@ -336,7 +336,7 @@ export default class MessageItem extends Vue {
     if (this.searchKeyword) {
       content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
     }
-    content = contentUtil.mentionIdToName(content, 'highlight')
+    content = contentUtil.parseMention(content, 'highlight')
     return content
   }
 

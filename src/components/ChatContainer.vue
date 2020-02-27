@@ -479,6 +479,7 @@ export default class ChatContainer extends Vue {
       const $target = this.$refs.box
       if (!keep) {
         $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
+        this.handleMention($target)
       }
       try {
         // @ts-ignore
@@ -729,6 +730,15 @@ export default class ChatContainer extends Vue {
       ids.push(pieces[0].trim())
     }
 
+    if (!this.mentions.length) {
+      ids.forEach((id:string) => {
+        const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
+        if (user) {
+          this.mentions.push(user)
+        }
+      })
+    }
+
     const mentionIds: any = []
     const removeMentionIds: any = []
     this.mentions.forEach((item: any, index: number) => {
@@ -754,7 +764,7 @@ export default class ChatContainer extends Vue {
 
     const selection: any = window.getSelection()
     const currentNode: any = selection.anchorNode
-    const parentNode = currentNode.parentNode
+    const parentNode = currentNode && currentNode.parentNode
     if (parentNode && /highlight/.test(parentNode.className)) {
       if (currentNode.data.length !== currentNode.data.trim().length) {
         const highlightRegx = new RegExp(`<b class="highlight default">${currentNode.data}</b>`, 'g')

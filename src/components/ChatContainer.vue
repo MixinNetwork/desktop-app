@@ -479,7 +479,7 @@ export default class ChatContainer extends Vue {
       const $target = this.$refs.box
       if (!keep) {
         $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
-        this.handleMention($target)
+        this.handleMention($target, true)
       }
       try {
         // @ts-ignore
@@ -718,7 +718,7 @@ export default class ChatContainer extends Vue {
   splitSpace: string = ' '
   mentionKeyword: string = ''
   mentionChoosing: boolean = false
-  handleMention(input: any) {
+  handleMention(input: any, initMention?: boolean) {
     // eslint-disable-next-line no-irregular-whitespace
     let content = input.innerText.replace(/ /g, this.splitSpace)
     let html = input.innerHTML
@@ -730,7 +730,7 @@ export default class ChatContainer extends Vue {
       ids.push(pieces[0].trim())
     }
 
-    if (!this.mentions.length) {
+    if (initMention && !this.mentions.length) {
       ids.forEach((id:string) => {
         const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
         if (user) {
@@ -766,9 +766,10 @@ export default class ChatContainer extends Vue {
     const currentNode: any = selection.anchorNode
     const parentNode = currentNode && currentNode.parentNode
     if (parentNode && /highlight/.test(parentNode.className)) {
-      if (currentNode.data.length !== currentNode.data.trim().length) {
-        const highlightRegx = new RegExp(`<b class="highlight default">${currentNode.data}</b>`, 'g')
-        html = html.replace(highlightRegx, currentNode.data)
+      const content = currentNode.data
+      if (content.length !== content.trim().length) {
+        const highlightRegx = new RegExp(`<b class="highlight default">${content.trim()}(.*)?</b>`, 'g')
+        html = html.replace(highlightRegx, content)
         input.innerHTML = html
         this.boxFocusAction(true)
       }

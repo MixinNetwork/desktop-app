@@ -3,6 +3,7 @@ import moment from 'moment'
 import { v4 as uuidv4 } from 'uuid'
 import db from '@/persistence/db'
 import contentUtil from '@/utils/content_util'
+import messageMentionDao from '@/dao/message_mention_dao'
 import { PerPageMessageCount, getCompleteMessage } from '@/utils/constants'
 
 class MessageDao {
@@ -49,6 +50,11 @@ class MessageDao {
     let content = message.content
     if (message.category.endsWith('_POST')) {
       content = contentUtil.renderMdToText(content)
+    } else if (message.category.endsWith('_TEXT')) {
+      let result = contentUtil.parseMention(message.content)
+      if (result !== null) {
+        messageMentionDao.insert(message.conversationId, messageId, result, 1)
+      }
     }
     this.insertOrReplaceMessageFts(messageId, content)
     return messageId

@@ -19,6 +19,7 @@ import { sendNotification } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
+import messageMentionDao from '@/dao/message_mention_dao'
 
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
 
@@ -432,6 +433,11 @@ class ReceiveWorker extends BaseWorker {
         created_at: data.created_at,
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
+      }
+      let result = contentUtil.parseMention(message.plain)
+      if (result !== null) {
+        // todo has_read 
+        messageMentionDao.insert(message.conversationId, messageId, result, 0)
       }
       messageDao.insertMessage(message)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)

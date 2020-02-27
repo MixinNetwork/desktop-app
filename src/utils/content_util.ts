@@ -158,6 +158,7 @@ class ContentUtil {
     while ((pieces = regx.exec(`${content} `)) !== null) {
       mentionIds.push(pieces[1].trim())
     }
+    if (mentionIds.length === 0 && type === undefined) { return null }
     mentionIds.forEach((id: any) => {
       const user = userDao.findUserByIdentityNumber(id)
       if (user) {

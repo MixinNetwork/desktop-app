@@ -345,6 +345,11 @@ class ReceiveWorker extends BaseWorker {
     const messageIdsMap = {}
     messages
       .filter(message => {
+        if (message.status === 'MENTION_READ') {
+          messageMentionDao.markMentionRead(message.messageId)
+          // todo refresh ui
+          return
+        }
         const messageId = message.message_id
         const simple = messageDao.findSimpleMessageById(messageId)
         if (simple && simple.status && simple.status !== MessageStatus.READ) {

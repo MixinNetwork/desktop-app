@@ -181,7 +181,6 @@ export default {
         last_message_id: null,
         last_read_message_id: null,
         unseen_message_count: 0,
-        unseen_mention_count: 0,
         status: ConversationStatus.START,
         draft: null,
         mute_until: null
@@ -222,7 +221,6 @@ export default {
         last_message_id: null,
         last_read_message_id: null,
         unseen_message_count: 0,
-        unseen_mention_count: 0,
         status: ConversationStatus.SUCCESS,
         draft: null,
         mute_until: conversation.mute_until

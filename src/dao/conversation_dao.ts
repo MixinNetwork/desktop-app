@@ -11,7 +11,7 @@ class ConversationDao {
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
           'c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
-          'c.unseen_message_count AS unseenMessageCount, c.unseen_mention_count AS unseenMentionCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
+          'c.unseen_message_count AS unseenMessageCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId, ' +
           'm.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl, ' +
@@ -47,7 +47,7 @@ class ConversationDao {
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
           'c.draft AS draft, c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
-          'c.unseen_message_count AS unseenMessageCount, c.unseen_mention_count AS unseenMentionCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
+          'c.unseen_message_count AS unseenMessageCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.biography AS biography, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId, ' +
           'm.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl, ' +
@@ -70,7 +70,7 @@ class ConversationDao {
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
           'c.draft AS draft, c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
-          'c.unseen_message_count AS unseenMessageCount, c.unseen_mention_count AS unseenMentionCount, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
+          'c.unseen_message_count AS unseenMessageCount, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil ' +
           'FROM conversations c ' +
@@ -104,7 +104,7 @@ class ConversationDao {
       .prepare(
         'SELECT c.conversation_id AS conversationId, c.icon_url AS groupIconUrl, c.category AS category, ' +
           'c.name AS groupName, c.status AS status, c.last_read_message_id AS lastReadMessageId, ' +
-          'c.unseen_message_count AS unseenMessageCount, c.unseen_mention_count AS unseenMentionCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
+          'c.unseen_message_count AS unseenMessageCount, c.announcement AS announcement, c.owner_id AS ownerId, c.pin_time AS pinTime, c.mute_until AS muteUntil, ' +
           'ou.avatar_url AS avatarUrl, ou.full_name AS name, ou.is_verified AS ownerVerified, ' +
           'ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId, ' +
           'm.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl, ' +
@@ -133,7 +133,7 @@ class ConversationDao {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO conversations VALUES (@conversation_id, @owner_id, @category, ' +
         '@name, @icon_url, @announcement, @code_url, @pay_type, @created_at, @pin_time, ' +
-        '@last_message_id, @last_read_message_id, @unseen_message_count, @unseen_mention_count, @status, @draft, @mute_until)'
+        '@last_message_id, @last_read_message_id, @unseen_message_count, @status, @draft, @mute_until)'
     )
     stmt.run(conversation)
   }

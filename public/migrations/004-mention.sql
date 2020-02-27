@@ -7,8 +7,6 @@ CREATE TABLE `messages_mention` (
 	PRIMARY KEY(`conversation_id`, `message_id`)
 );
 
-ALTER TABLE conversations ADD COLUMN unseen_mention_count INTEGER;
-
 -- Down
 
 

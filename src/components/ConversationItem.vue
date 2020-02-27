@@ -39,10 +39,10 @@
           />
         </div>
         <div class="content">{{description}}</div>
-        <span
+        <!-- <span
           class="badge mention"
           v-if="conversation.unseenMentionCount && conversation.unseenMentionCount!=0"
-        >@</span>
+        >@</span> -->
         <span
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"

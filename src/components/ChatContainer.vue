@@ -686,9 +686,7 @@ export default class ChatContainer extends Vue {
     this.mentionChoosing = false
     this.mentionKeyword = ''
 
-    const { html } = this.mentionHtmlFilter($target)
-    this.conversation.draft = html
-
+    this.saveMessageDraft()
     this.boxFocusAction()
   }
 
@@ -717,7 +715,9 @@ export default class ChatContainer extends Vue {
   }
 
   splitSpace: string = ' '
-  mentionHtmlFilter(input: any) {
+  mentionKeyword: string = ''
+  mentionChoosing: boolean = false
+  handleMention(input: any) {
     // eslint-disable-next-line no-irregular-whitespace
     let content = input.innerText.replace(/ /g, this.splitSpace)
     let html = input.innerHTML
@@ -729,9 +729,11 @@ export default class ChatContainer extends Vue {
       ids.push(pieces[0].trim())
     }
 
+    const mentionIds: any = []
     const removeMentionIds: any = []
     this.mentions.forEach((item: any, index: number) => {
       const id = `@${item.identity_number}`
+      mentionIds.push(id)
       if (ids.indexOf(id) < 0) {
         this.mentions.splice(index, 1)
         removeMentionIds.push(id)
@@ -739,30 +741,32 @@ export default class ChatContainer extends Vue {
     })
 
     ids.forEach((id: any, index: number) => {
+      const highlightRegx = new RegExp(`<b class="highlight default">${id}</b>`, 'g')
       removeMentionIds.forEach((removeId: any) => {
         if (removeId.startsWith(id)) {
           ids.splice(index, 1)
-          html = html.replace(id, '')
+          html = html.replace(highlightRegx, '')
           input.innerHTML = html
           this.boxFocusAction(true)
         }
       })
     })
 
-    return {
-      content,
-      html,
-      ids
+    const selection: any = window.getSelection()
+    const currentNode: any = selection.anchorNode
+    const parentNode = currentNode.parentNode
+    if (parentNode && /highlight/.test(parentNode.className)) {
+      if (currentNode.data.length !== currentNode.data.trim().length) {
+        const highlightRegx = new RegExp(`<b class="highlight default">${currentNode.data}</b>`, 'g')
+        html = html.replace(highlightRegx, currentNode.data)
+        input.innerHTML = html
+        this.boxFocusAction(true)
+      }
     }
-  }
 
-  mentionKeyword: string = ''
-  mentionChoosing: boolean = false
-  handleMention(input: any) {
-    let { html, ids, content } = this.mentionHtmlFilter(input)
-    const pieces = content.split(this.splitSpace)
+    const idPieces = content.split(this.splitSpace)
 
-    if (ids.length > 0 && ['@', pieces[pieces.length - 1].trim()].indexOf(ids[ids.length - 1]) > -1) {
+    if (ids.length > 0 && ['@', idPieces[idPieces.length - 1].trim()].indexOf(ids[ids.length - 1]) > -1) {
       this.mentionKeyword = ids[ids.length - 1]
     } else {
       this.mentionChoosing = false

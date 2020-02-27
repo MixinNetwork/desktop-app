@@ -206,8 +206,6 @@ import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
 import contentUtil from '@/utils/content_util'
 
-import userDao from '@/dao/user_dao'
-
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 @Component({
@@ -338,21 +336,7 @@ export default class MessageItem extends Vue {
     if (this.searchKeyword) {
       content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
     }
-    const regxMention = new RegExp('@(.*?)? ', 'g')
-    const mentionIds: any = []
-    let pieces: any = []
-    while ((pieces = regxMention.exec(`${content} `)) !== null) {
-      mentionIds.push(pieces[1].trim())
-    }
-    mentionIds.forEach((id: any) => {
-      const user = userDao.findUserByIdentityNumber(id)
-      if (user) {
-        const mentionName = `@${user.full_name}`
-        const hl = contentUtil.highlight(mentionName, mentionName, '')
-        const regx = new RegExp(`@${id}`, 'g')
-        content = content.replace(regx, hl)
-      }
-    })
+    content = contentUtil.mentionIdToName(content, 'highlight')
     return content
   }
 

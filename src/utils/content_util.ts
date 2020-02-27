@@ -4,11 +4,12 @@ import moment from 'moment'
 import i18n from '@/utils/i18n'
 // @ts-ignore
 import MarkdownIt from 'markdown-it'
+import userDao from '@/dao/user_dao'
 const md = new MarkdownIt()
 URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
 const botNumberReg = /@7000\d*\s/
 
-export default {
+class ContentUtil {
   getBotNumber(content: string) {
     if (content.startsWith('@7000')) {
       const result = content.match(botNumberReg)
@@ -17,12 +18,12 @@ export default {
       }
     }
     return ''
-  },
+  }
   messageFilteredText(e: { innerHTML: string; innerText: string }) {
     e.innerHTML = e.innerHTML.replace(/<br><br><\/div>/g, '<br></div>').replace(/<div><br><\/div>/g, '<div>　</div>')
     // eslint-disable-next-line
     return e.innerText.replace(/\n　\n/g, '\n\n')
-  },
+  }
   renderUrl(content: string) {
     const h = content
       .replace(/&/g, '&amp;')
@@ -37,11 +38,11 @@ export default {
       return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
     })
     return result
-  },
+  }
   renderMdToText(content: string) {
     const html = md.render(content)
     return html.replace(/<\/?[^>]*>/g, '')
-  },
+  }
   renderTime(timeStr: any, showDetail: any) {
     const t = moment(timeStr)
     const td = t.format('YYYY-MM-DD')
@@ -74,7 +75,7 @@ export default {
       }
       return `${dateStr}${weekStr}`
     }
-  },
+  }
   fts5KeywordFilter(text: string) {
     text = text.trim()
     text = text.replace(/[' ']+/g, '.')
@@ -105,7 +106,7 @@ export default {
     }
     keyword = keyword.replace(/['* ']+/g, '* ').replace(/^\* /, '')
     return keyword
-  },
+  }
   fts5ContentFilter(text: string) {
     text = text.trim()
     let i = 0
@@ -122,12 +123,15 @@ export default {
       i++
     }
     return content.replace(/ {2}/g, ' ').trim()
-  },
+  }
   highlight(content: any, keyword: string, highlight: string) {
     if (!keyword) return content
     let result: any = content
     highlight = highlight || 'default'
-    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&').replace(/ /g, '')
+    keyword = keyword
+      .trim()
+      .replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+      .replace(/ /g, '')
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
       const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')
@@ -146,4 +150,28 @@ export default {
     }
     return result
   }
+  mentionIdToName(content: string, highlight: string) {
+    const regxMention = new RegExp('@(.*?)? ', 'g')
+    const mentionIds: any = []
+    let pieces: any = []
+    while ((pieces = regxMention.exec(`${content} `)) !== null) {
+      mentionIds.push(pieces[1].trim())
+    }
+    mentionIds.forEach((id: any) => {
+      const user = userDao.findUserByIdentityNumber(id)
+      if (user) {
+        const mentionName = `@${user.full_name}`
+        const regx = new RegExp(`@${id}`, 'g')
+        if (highlight) {
+          const hl = this.highlight(mentionName, mentionName, '')
+          content = content.replace(regx, hl)
+        } else {
+          content = content.replace(regx, mentionName)
+        }
+      }
+    })
+    return content
+  }
 }
+
+export default new ContentUtil()

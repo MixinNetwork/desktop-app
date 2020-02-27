@@ -17,13 +17,15 @@ class ConversationDao {
           'm.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl, ' +
           'm.user_id AS senderId, m.action AS actionName, m.status AS messageStatus, ' +
           'mu.full_name AS senderFullName, s.type AS SnapshotType,  ' +
-          'pu.full_name AS participantFullName, pu.user_id AS participantUserId ' +
+          'pu.full_name AS participantFullName, pu.user_id AS participantUserId, ' +
+          'mm.mentions AS mentions ' +
           'FROM conversations c ' +
           'INNER JOIN users ou ON ou.user_id = c.owner_id ' +
           'LEFT JOIN messages m ON c.last_message_id = m.message_id ' +
           'LEFT JOIN users mu ON mu.user_id = m.user_id ' +
           'LEFT JOIN snapshots s ON s.snapshot_id = m.snapshot_id ' +
           'LEFT JOIN users pu ON pu.user_id = m.participant_id ' +
+          'LEFT JOIN message_mentions mm ON c.last_message_id = mm.message_id '+
           'WHERE c.category IS NOT NULL ' +
           'ORDER BY c.pin_time DESC, m.created_at DESC'
       )

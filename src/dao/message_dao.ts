@@ -239,8 +239,8 @@ class MessageDao {
         's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
         'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, st.sticker_id AS stickerId, ' +
         'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
-        'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, ' +
-        'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
+        'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
+	      'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
         'c.name AS groupName ' +
         'FROM messages m ' +
         'INNER JOIN users u ON m.user_id = u.user_id ' +
@@ -251,7 +251,8 @@ class MessageDao {
         'LEFT JOIN hyperlinks h ON m.hyperlink = h.hyperlink ' +
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
-        'WHERE m.conversation_id = ? ' +
+        'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id '+
+		    'WHERE m.conversation_id = ? ' +
         'ORDER BY m.created_at DESC LIMIT ' +
         perPageCount +
         ' OFFSET ?) ORDER BY createdAt ASC'

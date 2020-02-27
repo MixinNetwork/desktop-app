@@ -81,6 +81,10 @@ class UserDao {
       `SELECT u.user_id FROM users u INNER JOIN participants p ON p.user_id = u.user_id WHERE p.conversation_id = ? AND u.identity_number = ?`
     ).get(conversationId, botNumber)
   }
+  findUsersByIdentityNumber(uid: any) {
+    const sql = `SELECT user_id FROM users WHERE identity_number IN (${uid.map(() => '?').join(',')})`
+    return db.prepare(sql).all(uid)
+  }
 }
 
 export default new UserDao()

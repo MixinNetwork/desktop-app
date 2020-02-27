@@ -2,6 +2,7 @@ import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
+import messageMentionDao from '@/dao/message_metion_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
 import { v4 as uuidv4 } from 'uuid'
 import signalProtocol from '@/crypto/signal'
@@ -293,6 +294,20 @@ class SendWorker extends BaseWorker {
       }
     }
     return true
+  }
+
+  getMentionParam(messageId) {
+    const data = messageMentionDao.getMentionData(messageId)
+    if (data || data.metions) {
+      const metions = JSON.parse(data.metions)
+      let keySet = new Set()
+      metions.forEach((item) => {
+        keySet.add(item.identity_number)
+      })
+      const users = userDao.findUsersByIdentityNumber(Array.from(keySet))
+      return users
+    }
+    return ''
   }
 }
 

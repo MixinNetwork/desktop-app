@@ -151,6 +151,8 @@ class ContentUtil {
     return result
   }
   mentionIdToName(content: string, highlight: string) {
+    // eslint-disable-next-line no-irregular-whitespace
+    content = content.replace(/ /g, ' ')
     const regxMention = new RegExp('@(.*?)? ', 'g')
     const mentionIds: any = []
     let pieces: any = []

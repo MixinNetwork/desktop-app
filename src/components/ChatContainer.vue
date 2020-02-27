@@ -280,6 +280,7 @@ export default class ChatContainer extends Vue {
       this.showMessages = false
       this.boxMessage = false
       this.mentions = []
+      this.hideChoosePanel()
       this.goBottom(true)
       this.boxFocusAction()
       this.$root.$emit('updateMenu', newC)
@@ -320,7 +321,7 @@ export default class ChatContainer extends Vue {
         if (!this.searching.replace(/^key:/, '')) {
           this.actionSetSearching('')
         }
-        this.stickerChoosing = false
+        this.hideChoosePanel()
         this.file = null
       }
     }
@@ -646,6 +647,7 @@ export default class ChatContainer extends Vue {
     this.stickerChoosing = !this.stickerChoosing
   }
   hideChoosePanel() {
+    this.mentionKeyword = ''
     this.mentionChoosing = false
     this.stickerChoosing = false
   }
@@ -677,6 +679,7 @@ export default class ChatContainer extends Vue {
 
     $target.innerHTML = mentionIds + $target.innerHTML
     this.mentionChoosing = false
+    this.mentionKeyword = ''
 
     const { html } = this.mentionHtmlFilter($target)
     this.conversation.draft = html
@@ -710,7 +713,8 @@ export default class ChatContainer extends Vue {
 
   splitSpace: string = ' '
   mentionHtmlFilter(input: any) {
-    let content = input.innerText.replace(' ', this.splitSpace)
+    // eslint-disable-next-line no-irregular-whitespace
+    let content = input.innerText.replace(/ /g, this.splitSpace)
     let html = input.innerHTML
 
     const regxMention = new RegExp('@(.*?)?' + this.splitSpace, 'g')
@@ -750,6 +754,7 @@ export default class ChatContainer extends Vue {
     // // mentionIds += `${contentUtil.highlight(id, id, '')} `
 
     return {
+      content,
       html,
       ids
     }
@@ -758,12 +763,10 @@ export default class ChatContainer extends Vue {
   mentionKeyword: string = ''
   mentionChoosing: boolean = false
   handleMention(input: any) {
-    let content = input.innerText
+    let { html, ids, content } = this.mentionHtmlFilter(input)
+    const pieces = content.split(this.splitSpace)
 
-    let { html, ids } = this.mentionHtmlFilter(input)
-    // input.innerHTML = html
-
-    if (ids.length > 0) {
+    if (ids.length > 0 && ['@', pieces[pieces.length - 1].trim()].indexOf(ids[ids.length - 1]) > -1) {
       this.mentionKeyword = ids[ids.length - 1]
     } else {
       this.mentionChoosing = false
@@ -1041,7 +1044,7 @@ export default class ChatContainer extends Vue {
     if (text.trim().length <= 0) {
       return
     }
-    this.stickerChoosing = false
+    this.hideChoosePanel()
     conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
     this.$refs.box.innerText = ''
     const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'

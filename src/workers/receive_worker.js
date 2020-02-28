@@ -342,7 +342,6 @@ class ReceiveWorker extends BaseWorker {
   }
 
   makeMessageStatus(messages) {
-    const messageIdsMap = {}
     const messageIds = []
     for (let m of messages) {
       if (m.status !== 'READ' && m.status !== 'MENTION_READ') {
@@ -359,11 +358,11 @@ class ReceiveWorker extends BaseWorker {
     }
     if (messageIds.length > 0) {
       messageDao.markMessageRead(messageIds)
-      const conversations = messageDao.findConversationsByMessages(messgeIds)
-      conversations.forEach(conversationId => {
-        messageDao.takeUnseen(this.getAccountId(), conversationId)
+      const conversations = messageDao.findConversationsByMessages(messageIds)
+      conversations.forEach(c => {
+        messageDao.takeUnseen(this.getAccountId(), c.conversation_id)
         store.dispatch('refreshMessage', {
-          conversationId,
+          conversationId: c.conversation_id,
           messageIds: messageIds
         })
       })

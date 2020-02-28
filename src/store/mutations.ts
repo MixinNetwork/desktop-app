@@ -38,7 +38,7 @@ function refreshConversation(
   })
   const mentionMessages: any = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
   mentionsMap[conversationId] = mentionMessages
-  state.conversationUnseenMentionsMap = mentionsMap
+  state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
 }
 
 let keywordCache: any = null
@@ -240,7 +240,7 @@ export default {
       }
     }
     mentionsMap[conversationId] = messages
-    state.conversationUnseenMentionsMap = mentionsMap
+    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
   },
   refreshMessage(state: any, payload: any) {
     messageBox.refreshMessage(payload)

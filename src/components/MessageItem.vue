@@ -203,8 +203,6 @@ import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
 import contentUtil from '@/utils/content_util'
 
-import { Action } from 'vuex-class'
-
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 @Component({
@@ -234,8 +232,6 @@ export default class MessageItem extends Vue {
   @Prop(String) readonly unread: any
   @Prop(String) readonly searchKeyword: any
 
-  @Action('markMentionRead') actionMarkMentionRead: any
-
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
   fouse: boolean = false
@@ -256,7 +252,6 @@ export default class MessageItem extends Vue {
           if (id) {
             mention.onclick = () => {
               this.actionClick('mention:' + id)
-              this.actionMarkMentionRead({ conversationId: this.conversation.conversationId, messageId: id })
             }
           }
         }

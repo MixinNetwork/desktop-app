@@ -38,7 +38,7 @@
             class="icon"
           />
         </div>
-        <div class="content">{{description}}</div>
+        <div class="content" v-html="description"></div>
         <!-- <span
           class="badge mention"
           v-if="conversation.unseenMentionCount && conversation.unseenMentionCount!=0"
@@ -290,6 +290,9 @@ li.conversation.item {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        /deep/ .highlight {
+          color: #aaa;
+        }
       }
       .down {
         color: #a7a7a7;

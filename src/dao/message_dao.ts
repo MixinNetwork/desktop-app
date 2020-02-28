@@ -16,19 +16,13 @@ class MessageDao {
     if (!content) return
     const contentFinal = contentUtil.fts5ContentFilter(content)
     setTimeout(() => {
-      const insert = db.prepare(
-        'INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (?,?)'
-      )
+      const insert = db.prepare('INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (?,?)')
       insert.run([messageId, contentFinal])
     })
   }
 
   deleteMessageFts(msgIds: string[]) {
-    return db
-      .prepare(
-        'DELETE FROM messages_fts WHERE message_id = ?'
-      )
-      .run(msgIds)
+    return db.prepare('DELETE FROM messages_fts WHERE message_id = ?').run(msgIds)
   }
 
   insertTextMessage(message: { conversationId: any; category: any; content: any; status: any }) {
@@ -80,7 +74,11 @@ class MessageDao {
     return messageId
   }
 
-  insertRelyMessage(message: { conversationId: any; category: any; content: any; status: any }, quoteMessageId: any, quoteContent: any) {
+  insertRelyMessage(
+    message: { conversationId: any; category: any; content: any; status: any },
+    quoteMessageId: any,
+    quoteContent: any
+  ) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO messages(message_id,conversation_id,user_id,category,content,status,created_at,quote_message_id,quote_content) VALUES (?,?,?,?,?,?,?,?,?)'
     )
@@ -240,7 +238,7 @@ class MessageDao {
         'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, st.sticker_id AS stickerId, ' +
         'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
         'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
-	      'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
+        'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
         'c.name AS groupName ' +
         'FROM messages m ' +
         'INNER JOIN users u ON m.user_id = u.user_id ' +
@@ -251,8 +249,8 @@ class MessageDao {
         'LEFT JOIN hyperlinks h ON m.hyperlink = h.hyperlink ' +
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
-        'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id '+
-		    'WHERE m.conversation_id = ? ' +
+        'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id ' +
+        'WHERE m.conversation_id = ? ' +
         'ORDER BY m.created_at DESC LIMIT ' +
         perPageCount +
         ' OFFSET ?) ORDER BY createdAt ASC'
@@ -265,29 +263,33 @@ class MessageDao {
   }
 
   getConversationMessageById(cid: string, mid: string) {
-    return db.prepare(
-      'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
-      'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
-      'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
-      'm.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
-      'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
-      'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
-      's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
-      'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, st.sticker_id AS stickerId, ' +
-      'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
-      'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, ' +
-      'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
-      'c.name AS groupName ' +
-      'FROM messages m ' +
-      'INNER JOIN users u ON m.user_id = u.user_id ' +
-      'LEFT JOIN users u1 ON m.participant_id = u1.user_id ' +
-      'LEFT JOIN snapshots s ON m.snapshot_id = s.snapshot_id ' +
-      'LEFT JOIN assets a ON s.asset_id = a.asset_id ' +
-      'LEFT JOIN stickers st ON st.sticker_id = m.sticker_id ' +
-      'LEFT JOIN hyperlinks h ON m.hyperlink = h.hyperlink ' +
-      'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
-      'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
-      'WHERE m.conversation_id = ? AND m.message_id = ?)').get(cid, mid)
+    return db
+      .prepare(
+        'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
+          'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
+          'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
+          'm.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
+          'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
+          'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
+          's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
+          'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, st.sticker_id AS stickerId, ' +
+          'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
+          'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
+          'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
+          'c.name AS groupName ' +
+          'FROM messages m ' +
+          'INNER JOIN users u ON m.user_id = u.user_id ' +
+          'LEFT JOIN users u1 ON m.participant_id = u1.user_id ' +
+          'LEFT JOIN snapshots s ON m.snapshot_id = s.snapshot_id ' +
+          'LEFT JOIN assets a ON s.asset_id = a.asset_id ' +
+          'LEFT JOIN stickers st ON st.sticker_id = m.sticker_id ' +
+          'LEFT JOIN hyperlinks h ON m.hyperlink = h.hyperlink ' +
+          'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
+          'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
+          'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id ' +
+          'WHERE m.conversation_id = ? AND m.message_id = ?)'
+      )
+      .get(cid, mid)
   }
 
   getSendingMessages() {
@@ -356,9 +358,11 @@ class MessageDao {
   }
 
   takeUnseen(userId: any, conversationId: any) {
-    return db.prepare(
-      `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE  m.conversation_id = '${conversationId}' AND m.user_id != '${userId}'
-        AND m.status IN ('SENT', 'DELIVERED')) WHERE conversation_id = '${conversationId}'`)
+    return db
+      .prepare(
+        `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE  m.conversation_id = '${conversationId}' AND m.user_id != '${userId}'
+        AND m.status IN ('SENT', 'DELIVERED')) WHERE conversation_id = '${conversationId}'`
+      )
       .run()
   }
 
@@ -394,9 +398,11 @@ class MessageDao {
   }
 
   updateMediaMessage(path: any, status: any, id: any) {
-    return db.prepare(
-      `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != 'MESSAGE_RECALL'`
-    ).run([path, status, id])
+    return db
+      .prepare(
+        `UPDATE messages SET media_url = ?, media_status = ? WHERE message_id = ? AND category != 'MESSAGE_RECALL'`
+      )
+      .run([path, status, id])
   }
 
   findImages(conversationId: any, messageId: any) {
@@ -418,10 +424,11 @@ class MessageDao {
         m.media_height AS mediaHeight, m.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration,
         m.quote_message_id as quoteId, m.quote_content as quoteContent, st.asset_url AS assetUrl, st.asset_width AS assetWidth,
         st.asset_height AS assetHeight, st.sticker_id AS stickerId, st.name AS assetName, st.asset_type AS assetType,
-        m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber,
+        m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions,
         su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId
         FROM messages m INNER JOIN users u ON m.user_id = u.user_id LEFT JOIN stickers st ON st.sticker_id = m.sticker_id
         LEFT JOIN users su ON m.shared_user_id = su.user_id
+        LEFT JOIN message_mentions mm ON m.message_id = mm.message_id
         WHERE m.conversation_id = ? AND m.message_id = ? AND m.status != 'FAILED'`
       )
       .get([conversationId, messageId])

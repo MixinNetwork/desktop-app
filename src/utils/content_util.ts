@@ -30,7 +30,7 @@ class ContentUtil {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-    const result = URI.withinString(h, function (url: string) {
+    const result = URI.withinString(h, function(url: string) {
       let l = url
       if (!url.startsWith('http')) {
         l = 'https://' + url
@@ -150,8 +150,8 @@ class ContentUtil {
     return result
   }
   parseMention(content: string) {
-    // eslint-disable-next-line no-irregular-whitespace
     if (!content) return null
+    // eslint-disable-next-line no-irregular-whitespace
     content = content.replace(/ /g, ' ')
     const regx = new RegExp('@(.*?)? ', 'g')
     const mentionIds: any = []

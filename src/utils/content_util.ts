@@ -151,13 +151,17 @@ class ContentUtil {
     }
     return result
   }
-  parseMention(content: string) {
+  parseMention(content: string, conversationId: string, messageId: string, messageMentionDao: any, ignore: boolean = true) {
     if (!content) return null
+    const account = localStorage.getItem('account')!!
+    const accountId = JSON.parse(account).user_id
+
     // eslint-disable-next-line no-irregular-whitespace
     content = content.replace(/ /g, ' ')
     const regx = new RegExp('@(.*?)? ', 'g')
     const mentionIds: any = []
     let pieces: any = []
+    let remind = 0
     while ((pieces = regx.exec(`${content} `)) !== null) {
       mentionIds.push(pieces[1].trim())
     }
@@ -167,13 +171,16 @@ class ContentUtil {
     mentionIds.forEach((id: any) => {
       const user = userDao.findUserByIdentityNumber(id)
       if (user) {
+        if (!ignore && user.user_id === accountId) {
+          remind = 1
+        }
         const mentionName = `@${user.full_name}`
         const regx = new RegExp(`@${id}`, 'g')
         const hl = this.highlight(mentionName, mentionName, `mention id-${id}`)
         content = content.replace(regx, hl)
       }
     })
-    return content
+    messageMentionDao.insert(conversationId, messageId, content, remind)
   }
 }
 

@@ -45,10 +45,7 @@ class MessageDao {
     if (message.category.endsWith('_POST')) {
       content = contentUtil.renderMdToText(content)
     } else if (message.category.endsWith('_TEXT')) {
-      let result = contentUtil.parseMention(message.content)
-      if (result !== null) {
-        messageMentionDao.insert(message.conversationId, messageId, result, 1)
-      }
+      contentUtil.parseMention(message.content, message.conversationId, messageId, messageMentionDao)
     }
     this.insertOrReplaceMessageFts(messageId, content)
     return messageId

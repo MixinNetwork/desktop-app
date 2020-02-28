@@ -25,19 +25,22 @@ class ContentUtil {
     return e.innerText.replace(/\n　\n/g, '\n\n')
   }
   renderUrl(content: string) {
+    content = content.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+
+    if (/highlight mention/.test(content)) {
+      const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+)?&quot;&gt;(.+)?&lt;/b&gt;`)
+      content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
+    }
+
     return URI.withinString(content, function(url: string) {
-      let preH = url
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-      return URI.withinString(preH, function(url: string) {
-        let l = url
-        if (!url.startsWith('http')) {
-          l = 'https://' + url
-        }
-        return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
-      })
+      let l = url
+      if (!url.startsWith('http')) {
+        l = 'https://' + url
+      }
+      return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
     })
   }
   renderMdToText(content: string) {

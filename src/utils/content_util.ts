@@ -8,6 +8,7 @@ import userDao from '@/dao/user_dao'
 const md = new MarkdownIt()
 URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
 const botNumberReg = /@7000\d*\s/
+const mentionReg = /@\d{4,}\s/g
 
 class ContentUtil {
   getBotNumber(content: string) {
@@ -156,16 +157,15 @@ class ContentUtil {
     const account = localStorage.getItem('account')!!
     const accountId = JSON.parse(account).user_id
 
-    // eslint-disable-next-line no-irregular-whitespace
-    content = content.replace(/ /g, ' ')
-    const regx = new RegExp('@(.*?)? ', 'g')
-    const mentionIds: any = []
-    let pieces: any = []
     let remind = 1
-    while ((pieces = regx.exec(`${content} `)) !== null) {
-      mentionIds.push(pieces[1].trim())
+    const pieces = content.match(mentionReg)
+    const mentionIds = new Set()
+    if (pieces && pieces.length > 0) {
+      pieces.forEach(piece => {
+        mentionIds.add(piece.replace('@', '').trim())
+      })
     }
-    if (mentionIds.length === 0) {
+    if (mentionIds.size === 0) {
       return null
     }
     mentionIds.forEach((id: any) => {

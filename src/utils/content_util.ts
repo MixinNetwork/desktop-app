@@ -31,7 +31,7 @@ class ContentUtil {
       .replace(/"/g, '&quot;')
 
     if (/highlight mention/.test(content)) {
-      const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+)?&quot;&gt;(.+)?&lt;/b&gt;`)
+      const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+?)?&quot;&gt;(.+?)?&lt;/b&gt;`, 'g')
       content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
     }
 

@@ -246,11 +246,13 @@ export default class MessageItem extends Vue {
       if (!target) return
       const mentionList: any = target.getElementsByClassName('mention')
       if (mentionList.length) {
-        const mention = mentionList[0]
-        const id = mention.className.split('-')[1]
-        if (id) {
-          mention.onclick = () => {
-            this.actionClick('mention:' + id)
+        for (let i = 0; i < mentionList.length; i++) {
+          const mention = mentionList[i]
+          const id = mention.className.split('-')[1]
+          if (id) {
+            mention.onclick = () => {
+              this.actionClick('mention:' + id)
+            }
           }
         }
       }

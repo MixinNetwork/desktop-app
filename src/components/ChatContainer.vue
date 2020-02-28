@@ -892,9 +892,10 @@ export default class ChatContainer extends Vue {
     const { conversationId } = this.conversation
     const messtions = this.conversationUnseenMentionsMap[conversationId]
     if (messtions && messtions.length > 0) {
-      const messageId = messtions[0].message_id
-      this.goMessagePos(messtions[0])
-      console.log(987, messageId, messtions[0])
+      const message = messtions[0]
+      const messageId = message.message_id
+      message.messageId = messageId
+      this.goMessagePos(message)
       this.actionMarkMentionRead({ conversationId, messageId })
     }
   }

@@ -18,6 +18,7 @@ class SendWorker extends BaseWorker {
       return
     }
     let recipientId = ''
+    let mentions
     if (message.category.endsWith('_TEXT')) {
       const botNumber = contentUtil.getBotNumber(message.content)
       if (botNumber) {
@@ -27,33 +28,36 @@ class SendWorker extends BaseWorker {
           message.category = 'PLAIN_TEXT'
         }
       }
+      else {
+        mentions = this.getMentionParam(message.content)
+      }
     }
     if (message.category.startsWith('PLAIN_')) {
-      await this.sendPlainMessage(message, recipientId)
+      await this.sendPlainMessage(message, recipientId, mentions)
     } else {
-      await this.sendSignalMessage(message)
+      await this.sendSignalMessage(message, mentions)
     }
   }
 
-  async sendPlainMessage(message, recipientId) {
+  async sendPlainMessage(message, recipientId, mentions) {
     const conversation = conversationDao.getConversationById(message.conversation_id)
     await this.checkConversationExist(conversation)
     let content = message.content
     if (message.category === MessageCategories.PLAIN_TEXT || message.category === MessageCategories.PLAIN_POST) {
       content = btoa(unescape(encodeURIComponent(message.content)))
     }
-    const blazeMessage = this.createBlazeMessage(message, content, recipientId)
+    const blazeMessage = this.createBlazeMessage(message, content, recipientId, mentions)
     await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
   }
 
-  async sendSignalMessage(message) {
+  async sendSignalMessage(message, mentions) {
     // eslint-disable-next-line no-undef
     await wasmObject.then(result => { })
 
     if (message.resend_status) {
       if (message.resend_status === 1) {
         if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
-          const bm = this.encryptNormalMessage(message)
+          const bm = this.encryptNormalMessage(message, mentions)
           if (bm) {
             const result = await this.deliver(message, bm)
             if (result) {
@@ -70,13 +74,13 @@ class SendWorker extends BaseWorker {
     }
 
     await this.checkSessionSenderKey(message.conversation_id)
-    const bm = this.encryptNormalMessage(message)
+    const bm = this.encryptNormalMessage(message, mentions)
     if (bm) {
       await this.deliver(message, bm)
     }
   }
 
-  encryptNormalMessage(message) {
+  encryptNormalMessage(message, mentions) {
     if (message.resend_status && message.resend_status === 1) {
       const content = signalProtocol.encryptSessionMessage(
         message.resend_user_id,
@@ -84,7 +88,7 @@ class SendWorker extends BaseWorker {
         message.content,
         message.message_id
       )
-      return this.createBlazeMessage(message, content)
+      return this.createBlazeMessage(message, content, null, mentions)
     } else {
       const content = signalProtocol.encryptGroupMessage(
         message.conversation_id,
@@ -96,7 +100,7 @@ class SendWorker extends BaseWorker {
         console.log('encrypt group message failed, empty data')
         return
       }
-      return this.createBlazeMessage(message, content)
+      return this.createBlazeMessage(message, content, null, mentions)
     }
   }
 
@@ -121,7 +125,7 @@ class SendWorker extends BaseWorker {
     return result
   }
 
-  createBlazeMessage(message, data, recipientId) {
+  createBlazeMessage(message, data, recipientId, mentions) {
     const blazeParam = {
       conversation_id: message.conversation_id,
       message_id: message.message_id,
@@ -138,6 +142,9 @@ class SendWorker extends BaseWorker {
     }
     if (recipientId) {
       blazeParam.recipient_id = recipientId
+    }
+    if (mentions) {
+      blazeParam.mentions = mentions
     }
     const blazeMessage = {
       id: uuidv4(),
@@ -296,18 +303,27 @@ class SendWorker extends BaseWorker {
     return true
   }
 
-  getMentionParam(messageId) {
-    const data = messageMentionDao.getMentionData(messageId)
-    if (data || data.metions) {
-      const metions = JSON.parse(data.metions)
-      let keySet = new Set()
-      metions.forEach((item) => {
-        keySet.add(item.identity_number)
-      })
-      const users = userDao.findUsersByIdentityNumber(Array.from(keySet))
-      return users
+  getMentionParam(content) {
+    if (!content) return null
+    // eslint-disable-next-line no-irregular-whitespace
+    content = content.replace(/ /g, ' ')
+    const regx = new RegExp('@(.*?)? ', 'g')
+    const numbers = []
+    let pieces = []
+    const mentionIds = new Set()
+    while ((pieces = regx.exec(`${content} `)) !== null) {
+      numbers.push(pieces[1].trim())
     }
-    return ''
+    if (numbers.length === 0) {
+      return null
+    }
+    numbers.forEach((id) => {
+      const user = userDao.findUserByIdentityNumber(id)
+      if (user) {
+        mentionIds.add(user.user_id)
+      }
+    })
+    return Array.from(mentionIds)
   }
 }
 

@@ -382,6 +382,7 @@ export default class ChatContainer extends Vue {
   threshold: number = 600
 
   get currentMentionNum() {
+    if (!this.conversation) return
     const mentions = this.conversationUnseenMentionsMap[this.conversation.conversationId]
     if (mentions) {
       return mentions.length
@@ -888,8 +889,14 @@ export default class ChatContainer extends Vue {
   }
 
   mentionClick() {
-    // TODO
-    // this.actionMarkMentionRead({ conversationId: this.conversation.conversationId, messageId: id })
+    const { conversationId } = this.conversation
+    const messtions = this.conversationUnseenMentionsMap[conversationId]
+    if (messtions && messtions.length > 0) {
+      const messageId = messtions[0].message_id
+      this.goMessagePos(messtions[0])
+      console.log(987, messageId, messtions[0])
+      this.actionMarkMentionRead({ conversationId, messageId })
+    }
   }
 
   goBottomClick() {

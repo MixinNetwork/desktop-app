@@ -26,6 +26,7 @@ function refreshConversation(
   state: { conversations: object; conversationKeys: any; conversationUnseenMentionsMap: any },
   conversationId: string
 ) {
+  const mentionsMap = state.conversationUnseenMentionsMap
   const conversation = conversationDao.getConversationItemByConversationId(conversationId)
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
@@ -36,7 +37,8 @@ function refreshConversation(
     return item.conversationId
   })
   const mentionMessages: any = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
-  state.conversationUnseenMentionsMap[conversationId] = mentionMessages
+  mentionsMap[conversationId] = mentionMessages
+  state.conversationUnseenMentionsMap = mentionsMap
 }
 
 let keywordCache: any = null
@@ -229,14 +231,16 @@ export default {
     state.currentMessages = messages
   },
   markMentionRead(state: any, { conversationId, messageId }: any) {
-    const messages = state.conversationUnseenMentionsMap[conversationId]
+    const mentionsMap = state.conversationUnseenMentionsMap
+    const messages = mentionsMap[conversationId]
     for (let i = 0; i < messages.length; i++) {
       if (messages[i].messageId === messageId) {
         messages.splice(i, 1)
         break
       }
     }
-    state.conversationUnseenMentionsMap[conversationId] = messages
+    mentionsMap[conversationId] = messages
+    state.conversationUnseenMentionsMap = mentionsMap
   },
   refreshMessage(state: any, payload: any) {
     messageBox.refreshMessage(payload)

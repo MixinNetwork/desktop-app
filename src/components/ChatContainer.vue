@@ -484,7 +484,7 @@ export default class ChatContainer extends Vue {
       const $target = this.$refs.box
       if (!keep) {
         $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
-        this.handleMention($target, true)
+        this.handleMention($target)
       }
       try {
         // @ts-ignore
@@ -721,6 +721,17 @@ export default class ChatContainer extends Vue {
         this.chooseMentionUser(result[0])
       }
     } else {
+      const selection: any = window.getSelection()
+      const currentNode: any = selection.anchorNode
+      const parentNode = currentNode && currentNode.parentNode
+      if (parentNode && /highlight/.test(parentNode.className)) {
+        const content = currentNode.data
+        let html = this.$refs.box.innerHTML
+        const highlightRegx = new RegExp(`<b class="highlight default">${content.trim()}(.*)?</b>`, 'g')
+        html = html.replace(highlightRegx, content)
+        this.$refs.box.innerHTML = html
+        this.boxFocusAction(true)
+      }
       this.currentSelectMention = null
       this.mentionChoosing = false
     }
@@ -730,62 +741,25 @@ export default class ChatContainer extends Vue {
   mentionKeyword: string = ''
   mentionChoosing: boolean = false
   currentSelectMention: any = null
-  handleMention(input: any, initMention?: boolean) {
+  handleMention(input: any) {
     // eslint-disable-next-line no-irregular-whitespace
     let content = input.innerText.replace(/ /g, this.splitSpace)
-    let html = input.innerHTML
 
-    const regxMention = new RegExp('@(.*?)?' + this.splitSpace, 'g')
+    const regxMention = new RegExp('@(.+?)?' + this.splitSpace, 'g')
     const ids: any = []
     let pieces: any = []
     while ((pieces = regxMention.exec(`${content}${this.splitSpace}`)) !== null) {
       ids.push(pieces[0].trim())
     }
 
-    if (initMention && !this.mentions.length) {
-      ids.forEach((id: string) => {
-        const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
-        if (user) {
-          this.mentions.push(user)
-        }
-      })
-    }
-
-    const mentionIds: any = []
-    const removeMentionIds: any = []
-    this.mentions.forEach((item: any, index: number) => {
-      const id = `@${item.identity_number}`
-      mentionIds.push(id)
-      if (ids.indexOf(id) < 0) {
-        this.mentions.splice(index, 1)
-        removeMentionIds.push(id)
+    const mentions: any = []
+    ids.forEach((id: string) => {
+      const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
+      if (user) {
+        mentions.push(user)
       }
     })
-
-    ids.forEach((id: any, index: number) => {
-      const highlightRegx = new RegExp(`<b class="highlight default">${id}</b>`, 'g')
-      removeMentionIds.forEach((removeId: any) => {
-        if (removeId.startsWith(id)) {
-          ids.splice(index, 1)
-          html = html.replace(highlightRegx, '')
-          input.innerHTML = html
-          this.boxFocusAction(true)
-        }
-      })
-    })
-
-    const selection: any = window.getSelection()
-    const currentNode: any = selection.anchorNode
-    const parentNode = currentNode && currentNode.parentNode
-    if (parentNode && /highlight/.test(parentNode.className)) {
-      const content = currentNode.data
-      if (content.length !== content.trim().length) {
-        const highlightRegx = new RegExp(`<b class="highlight default">${content.trim()}(.*)?</b>`, 'g')
-        html = html.replace(highlightRegx, content)
-        input.innerHTML = html
-        this.boxFocusAction(true)
-      }
-    }
+    this.mentions = mentions
 
     const idPieces = content.split(this.splitSpace)
 
@@ -795,13 +769,13 @@ export default class ChatContainer extends Vue {
       this.mentionChoosing = false
       this.mentionKeyword = ''
     }
-    return html
   }
 
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
     if (this.$refs.box) {
-      const html = this.handleMention(this.$refs.box)
+      const html = this.$refs.box.innerHTML
+      this.handleMention(this.$refs.box)
       this.conversation.draft = html
       conversationDao.updateConversationDraftById(conversationId, html)
     }

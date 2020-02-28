@@ -35,7 +35,7 @@ class ContentUtil {
       content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
     }
 
-    return URI.withinString(content, function (url: string) {
+    return URI.withinString(content, function(url: string) {
       let l = url
       if (!url.startsWith('http')) {
         l = 'https://' + url

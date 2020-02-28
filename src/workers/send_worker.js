@@ -27,8 +27,7 @@ class SendWorker extends BaseWorker {
           recipientId = recipient.user_id
           message.category = 'PLAIN_TEXT'
         }
-      }
-      else {
+      } else {
         mentions = this.getMentionParam(message.content)
       }
     }

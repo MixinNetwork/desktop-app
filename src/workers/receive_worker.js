@@ -342,39 +342,32 @@ class ReceiveWorker extends BaseWorker {
   }
 
   makeMessageStatus(messages) {
-    const conversationSet = new Set()
     const messageIdsMap = {}
-    messages
-      .filter(message => {
-        if (message.status === 'MENTION_READ') {
-          messageMentionDao.markMentionRead(message.messageId)
-          // todo refresh ui
-          return
-        }
-        const messageId = message.message_id
-        const simple = messageDao.findSimpleMessageById(messageId)
-        if (simple && simple.status && simple.status !== MessageStatus.READ) {
-          const conversationId = simple.conversation_id
-          conversationSet.add(conversationId)
-          if (!messageIdsMap[conversationId]) {
-            messageIdsMap[conversationId] = []
-          }
-          messageIdsMap[conversationId].push(messageId)
-          return true
-        } else {
-          return false
-        }
+    const messageIds = []
+    for (let m of messages) {
+      if (m.status !== 'READ' && m.status !== 'MENTION_READ') {
+        continue
+      }
+      if (m.status === 'MENTION_READ') {
+        messageMentionDao.markMentionRead(m.message_id)
+        // todo refresh ui
+        continue
+      }
+      if (m.status === 'READ') {
+        messageIds.push(m.message_id)
+      }
+    }
+    if (messageIds.length > 0) {
+      messageDao.markMessageRead(messageIds)
+      const conversations = messageDao.findConversationsByMessages(messgeIds)
+      conversations.forEach(conversationId => {
+        messageDao.takeUnseen(this.getAccountId(), conversationId)
+        store.dispatch('refreshMessage', {
+          conversationId,
+          messageIds: messageIds
+        })
       })
-      .forEach(msg => {
-        messageDao.updateMessageStatusById(msg.status, msg.message_id)
-      })
-    conversationSet.forEach(conversationId => {
-      messageDao.takeUnseen(this.getAccountId(), conversationId)
-      store.dispatch('refreshMessage', {
-        conversationId,
-        messageIds: messageIdsMap[conversationId]
-      })
-    })
+    }
   }
 
   insertDownloadMessage(message) {

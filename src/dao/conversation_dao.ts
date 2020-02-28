@@ -19,7 +19,7 @@ class ConversationDao {
           'mu.full_name AS senderFullName, s.type AS SnapshotType,  ' +
           'pu.full_name AS participantFullName, pu.user_id AS participantUserId, ' +
           '(SELECT count(*) FROM message_mentions me WHERE me.conversation_id = c.conversation_id AND me.has_read = 0) as mentionCount,' +
-  		 'mm.mentions AS mentions ' +
+          'mm.mentions AS mentions ' +
           'FROM conversations c ' +
           'INNER JOIN users ou ON ou.user_id = c.owner_id ' +
           'LEFT JOIN messages m ON c.last_message_id = m.message_id ' +

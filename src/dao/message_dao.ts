@@ -302,8 +302,18 @@ class MessageDao {
     return data
   }
 
+  findConversationsByMessages(messageIds: any) {
+    const sql = `SELECT DISTINCT conversation_id FROM messages WHERE message_id IN (${messageIds.map(() => '?').join(',')})`
+    return db.prepare(sql).all()
+  }
+
   updateMessageStatusById(status: any, messageId: any) {
     return db.prepare('UPDATE messages SET status = ? WHERE message_id = ?').run(status, messageId)
+  }
+
+  markMessageRead(messageIds: any) {
+    const sql = `UPDATE messages SET status = 'READ' WHERE message_id IN (${messageIds.map(() => '?').join(',')}) AND status != 'FAILED'`
+    db.prepare(sql).run()
   }
 
   updateMessageContent(content: any, messageId: any) {

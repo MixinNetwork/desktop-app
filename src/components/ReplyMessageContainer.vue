@@ -172,6 +172,8 @@ export default class ReplyMessageContainer extends Vue {
   flex-direction: row;
   background: white;
   justify-content: flex-start;
+  position: relative;
+  z-index: 10;
   .diver {
     width: 0.3rem;
   }
@@ -187,9 +189,11 @@ export default class ReplyMessageContainer extends Vue {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      line-height: 1.5rem;
     }
     .content {
       font-size: 1rem;
+      line-height: 1.125rem;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;

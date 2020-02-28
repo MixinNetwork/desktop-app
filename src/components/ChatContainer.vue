@@ -94,7 +94,6 @@
     <ReplyMessageContainer
       v-if="boxMessage"
       :message="boxMessage"
-      class="reply"
       @hidenReplyBox="hidenReplyBox"
     ></ReplyMessageContainer>
 
@@ -105,6 +104,7 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
+        :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
         :mentions="mentions"
@@ -701,7 +701,6 @@ export default class ChatContainer extends Vue {
         this.panelHeight = 15
       }
       if (!this.mentionChoosing) {
-        this.boxMessage = false
         this.stickerChoosing = false
         this.mentionChoosing = true
       } else if (
@@ -1279,9 +1278,6 @@ export default class ChatContainer extends Vue {
     .bot {
       padding: 0 1rem 0 0;
     }
-  }
-  .reply_box {
-    position: relative;
   }
   .empty {
     width: 100%;

@@ -85,5 +85,8 @@ export default class MentionPanel extends Vue {
   right: 0;
   position: absolute;
   z-index: 1;
+  &.box-message {
+    margin-bottom: 3rem;
+  }
 }
 </style>

@@ -243,6 +243,7 @@ export default class MessageItem extends Vue {
   mounted() {
     if (this.messageType() === 'text') {
       const target: any = this.$refs.messageItem
+      if (!target) return
       const mentionList: any = target.getElementsByClassName('mention')
       if (mentionList.length) {
         const mention = mentionList[0]

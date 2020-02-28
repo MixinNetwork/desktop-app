@@ -35,7 +35,7 @@ class ContentUtil {
       content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
     }
 
-    return URI.withinString(content, function(url: string) {
+    return URI.withinString(content, function (url: string) {
       let l = url
       if (!url.startsWith('http')) {
         l = 'https://' + url
@@ -161,7 +161,7 @@ class ContentUtil {
     const regx = new RegExp('@(.*?)? ', 'g')
     const mentionIds: any = []
     let pieces: any = []
-    let remind = 0
+    let remind = 1
     while ((pieces = regx.exec(`${content} `)) !== null) {
       mentionIds.push(pieces[1].trim())
     }
@@ -172,7 +172,7 @@ class ContentUtil {
       const user = userDao.findUserByIdentityNumber(id)
       if (user) {
         if (!ignore && user.user_id === accountId) {
-          remind = 1
+          remind = 0
         }
         const mentionName = `@${user.full_name}`
         const regx = new RegExp(`@${id}`, 'g')

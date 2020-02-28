@@ -649,6 +649,7 @@ export default class ChatContainer extends Vue {
   chooseSticker() {
     this.boxMessage = false
     this.mentionChoosing = false
+    this.panelHeight = 15
     this.stickerChoosing = !this.stickerChoosing
   }
   hideChoosePanel() {

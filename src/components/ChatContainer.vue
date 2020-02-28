@@ -91,11 +91,7 @@
       </div>
     </transition>
 
-    <ReplyMessageContainer
-      v-if="boxMessage"
-      :message="boxMessage"
-      @hidenReplyBox="hidenReplyBox"
-    ></ReplyMessageContainer>
+    <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="hidenReplyBox"></ReplyMessageContainer>
 
     <transition name="slide-up">
       <ChatSticker :height="panelHeight" v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
@@ -332,7 +328,9 @@ export default class ChatContainer extends Vue {
   @Getter('currentUser') user: any
   @Getter('me') me: any
   @Getter('editing') editing: any
+  @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
+  @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
@@ -375,8 +373,6 @@ export default class ChatContainer extends Vue {
   boxFocus: boolean = false
   showTopTips: boolean = false
 
-  currentMentionNum: number = 0
-
   goDown: boolean = false
   messagesVisible: any = []
 
@@ -384,6 +380,14 @@ export default class ChatContainer extends Vue {
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
   threshold: number = 600
+
+  get currentMentionNum() {
+    const mentions = this.conversationUnseenMentionsMap[this.conversation.conversationId]
+    if (mentions) {
+      return mentions.length
+    }
+    return 0
+  }
 
   mounted() {
     this.$root.$on('escKeydown', () => {
@@ -425,7 +429,7 @@ export default class ChatContainer extends Vue {
       }
     }
     messageBox.bindData(
-      function(messages: any, unreadNum: any, mentionNum: any) {
+      function(messages: any, unreadNum: any) {
         if (messages) {
           self.messages = messages
           self.getMessagesVisible(self.virtualDom, null)
@@ -435,9 +439,6 @@ export default class ChatContainer extends Vue {
           setTimeout(() => {
             self.infiniteDownLock = false
           })
-        }
-        if (mentionNum > 0) {
-          self.currentMentionNum = mentionNum
         }
       },
       function(force: any, message: any, clearUnreadMsgId: boolean) {
@@ -731,7 +732,7 @@ export default class ChatContainer extends Vue {
     }
 
     if (initMention && !this.mentions.length) {
-      ids.forEach((id:string) => {
+      ids.forEach((id: string) => {
         const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
         if (user) {
           this.mentions.push(user)
@@ -874,7 +875,6 @@ export default class ChatContainer extends Vue {
       }
       this.infiniteUpLock = false
       this.currentUnreadNum = 0
-      this.currentMentionNum = 0
       let list = this.$refs.messagesUl
       if (!list) return
       let scrollHeight = list.scrollHeight
@@ -888,7 +888,8 @@ export default class ChatContainer extends Vue {
   }
 
   mentionClick() {
-    messageBox.clearMentionNum(0)
+    // TODO
+    // this.actionMarkMentionRead({ conversationId: this.conversation.conversationId, messageId: id })
   }
 
   goBottomClick() {

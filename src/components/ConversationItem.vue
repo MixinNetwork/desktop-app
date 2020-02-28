@@ -39,10 +39,10 @@
           />
         </div>
         <div class="content" v-html="description"></div>
-        <!-- <span
+        <span
           class="badge mention"
-          v-if="conversation.unseenMentionCount && conversation.unseenMentionCount!=0"
-        >@</span> -->
+          v-if="showMention"
+        >@</span>
         <span
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
@@ -72,6 +72,7 @@ import { MessageStatus, SystemConversationAction, ConversationCategory } from '@
 import Avatar from '@/components/Avatar.vue'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 
 @Component({
   components: {
@@ -80,6 +81,8 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 })
 export default class ConversationItem extends Vue {
   @Prop(Object) readonly conversation: any
+
+  @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
   show: boolean = false
   fouse: boolean = false
@@ -169,6 +172,14 @@ export default class ConversationItem extends Vue {
   }
   get isSelf() {
     return this.conversation.senderId === this.getAccount().user_id
+  }
+
+  get showMention() {
+    const mentions = this.conversationUnseenMentionsMap[this.conversation.conversationId]
+    if (mentions && mentions.length > 0) {
+      return true
+    }
+    return false
   }
 
   getAccount() {

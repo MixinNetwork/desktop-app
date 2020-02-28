@@ -11,7 +11,6 @@ class MessageBox {
   pageDown: any
   tempCount: any
   newCount: any
-  mentionCount: any
   page: any
   callback: any
   count: any
@@ -30,7 +29,6 @@ class MessageBox {
       this.pageDown = page
       this.tempCount = 0
       this.newCount = 0
-      this.mentionCount = messageDao.getMessages(conversationId, page)
 
       let posMessage = null
       if (messagePositionIndex > 0) {
@@ -44,7 +42,7 @@ class MessageBox {
         this.messages.push(...newMessages)
       }
 
-      this.callback(this.messages, 0, this.mentionCount)
+      this.callback(this.messages, 0)
       this.scrollAction(true, posMessage)
     }
   }
@@ -53,9 +51,6 @@ class MessageBox {
   }
   clearUnreadNum(count: any) {
     this.newCount = count
-  }
-  clearMentionNum(count: any) {
-    this.mentionCount = count
   }
   isMine(findMessage: any) {
     // @ts-ignore
@@ -109,7 +104,7 @@ class MessageBox {
                 if (isMyMsg) {
                   newCount = 0
                 }
-                this.callback(this.messages, newCount, this.mentionCount)
+                this.callback(this.messages, newCount)
                 this.scrollAction(isMyMsg, null, isMyMsg)
               } else {
                 if (isMyMsg) {
@@ -119,7 +114,7 @@ class MessageBox {
                   }
                 } else {
                   this.newCount++
-                  this.callback(null, this.newCount, this.mentionCount)
+                  this.callback(null, this.newCount)
                   this.tempCount = this.newCount % PerPageMessageCount
                   const lastCount = this.messagePositionIndex % PerPageMessageCount
                   this.pageDown += Math.floor((this.newCount + lastCount) / PerPageMessageCount)
@@ -150,7 +145,7 @@ class MessageBox {
           data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
         } else {
           this.newCount = 0
-          this.callback(null, this.newCount, this.mentionCount)
+          this.callback(null, this.newCount)
         }
       } else {
         data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)

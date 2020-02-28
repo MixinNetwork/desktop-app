@@ -17,6 +17,7 @@ const state = {
   currentUser: {},
   searching: '',
   currentMessages: [],
+  conversationUnseenMentionsMap: {},
   attachment: [],
   search: {
     contact: null,

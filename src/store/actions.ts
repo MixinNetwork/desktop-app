@@ -3,6 +3,7 @@ import messageDao from '@/dao/message_dao'
 import stickerDao from '@/dao/sticker_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
+import messageMentionDao from '@/dao/message_mention_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
@@ -257,6 +258,10 @@ export default {
   markRead: ({ commit }: any, conversationId: any) => {
     markRead(conversationId)
     commit('refreshConversation', conversationId)
+  },
+  markMentionRead: ({ commit }: any, { conversationId, messageId }: any) => {
+    messageMentionDao.markMentionRead(messageId)
+    commit('markMentionRead', { conversationId, messageId })
   },
   updateConversationMute: ({ commit }: any, { conversation, ownerId }: any) => {
     if (conversation.category === ConversationCategory.CONTACT) {

@@ -4,6 +4,7 @@ import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
+import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
@@ -21,7 +22,10 @@ function refreshConversations(state: any) {
   state.conversationKeys = conversationKeys
 }
 
-function refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string) {
+function refreshConversation(
+  state: { conversations: object; conversationKeys: any; conversationUnseenMentionsMap: any },
+  conversationId: string
+) {
   const conversation = conversationDao.getConversationItemByConversationId(conversationId)
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
@@ -31,6 +35,8 @@ function refreshConversation(state: { conversations: object; conversationKeys: a
   state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
     return item.conversationId
   })
+  const mentionMessages: any = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+  state.conversationUnseenMentionsMap[conversationId] = mentionMessages
 }
 
 let keywordCache: any = null
@@ -158,7 +164,8 @@ export default {
     state.friends = []
     state.currentUser = {}
     state.searching = ''
-    state.currentMessages = {}
+    state.currentMessages = []
+    state.conversationUnseenMentionsMap = {}
     state.search = {
       contact: null,
       chats: null,
@@ -221,6 +228,16 @@ export default {
   setCurrentMessages(state: { currentMessages: any }, messages: any) {
     state.currentMessages = messages
   },
+  markMentionRead(state: any, { conversationId, messageId }: any) {
+    const messages = state.conversationUnseenMentionsMap[conversationId]
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].messageId === messageId) {
+        messages.splice(i, 1)
+        break
+      }
+    }
+    state.conversationUnseenMentionsMap[conversationId] = messages
+  },
   refreshMessage(state: any, payload: any) {
     messageBox.refreshMessage(payload)
     const { conversationId } = payload
@@ -234,7 +251,7 @@ export default {
       refreshConversation(state, conversationId)
     }
   },
-  refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string) {
+  refreshConversation(state: any, conversationId: string) {
     refreshConversation(state, conversationId)
   },
   refreshConversations(state: any) {

@@ -302,7 +302,7 @@ li.conversation.item {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        /deep/ .highlight {
+        /deep/ * {
           color: #aaa;
         }
       }

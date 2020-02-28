@@ -240,7 +240,7 @@ export default class Navigation extends Vue {
 
   created() {
     this.menus = this.$t('menu.personal')
-    this.$root.$on('directionKeyDown', (direction: string) => {
+    this.$root.$on('directionKeyDownWithCtrl', (direction: string) => {
       const cLen = this.conversations.length
       if (cLen < 2 || !this.currentConversationId) return
       if (direction === 'up' && this.conversations[0].conversationId !== this.currentConversationId) {
@@ -265,7 +265,7 @@ export default class Navigation extends Vue {
   }
 
   beforeDestroy() {
-    this.$root.$off('directionKeyDown')
+    this.$root.$off('directionKeyDownWithCtrl')
   }
 
   onItemClick(index: number) {
@@ -302,12 +302,7 @@ export default class Navigation extends Vue {
   openMenu(conversation: any) {
     const isContact = conversation.category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
-    const menu = this.getMenu(
-      isContact,
-      conversation.status === ConversationStatus.QUIT,
-      conversation.pinTime,
-      isMute
-    )
+    const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime, isMute)
     // @ts-ignore
     this.$Menu.alert(event.clientX, event.clientY, menu, index => {
       const option = menu[index]
@@ -324,12 +319,7 @@ export default class Navigation extends Vue {
   openDownMenu(conversation: any, index: number) {
     const isContact = conversation.category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
-    const menu = this.getMenu(
-      isContact,
-      conversation.status === ConversationStatus.QUIT,
-      conversation.pinTime,
-      isMute
-    )
+    const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime, isMute)
     // @ts-ignore
     this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
       const option = menu[index]

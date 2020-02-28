@@ -103,8 +103,10 @@
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
+        :currentUid="currentSelectMention && currentSelectMention.identity_number"
         :mentions="mentions"
         :conversation="conversation"
+        @currentSelect="udpateCurrentSelectMention"
         @choose="chooseMentionUser"
         @update="updateMentionUsers"
       ></MentionPanel>
@@ -126,6 +128,7 @@
               @blur="onBlur"
               @input="saveMessageDraft"
               @keydown.enter="sendMessage"
+              @keydown="inputKeydown"
               @compositionstart="inputFlag = true"
               @compositionend="inputFlag = false"
               ref="box"
@@ -689,9 +692,14 @@ export default class ChatContainer extends Vue {
     $target.innerHTML = mentionIds + $target.innerHTML
     this.mentionChoosing = false
     this.mentionKeyword = ''
+    this.currentSelectMention = null
 
     this.saveMessageDraft()
     this.boxFocusAction()
+  }
+
+  udpateCurrentSelectMention(mention: any) {
+    this.currentSelectMention = mention
   }
 
   panelHeight: number = 15
@@ -713,6 +721,7 @@ export default class ChatContainer extends Vue {
         this.chooseMentionUser(result[0])
       }
     } else {
+      this.currentSelectMention = null
       this.mentionChoosing = false
     }
   }
@@ -720,6 +729,7 @@ export default class ChatContainer extends Vue {
   splitSpace: string = ' '
   mentionKeyword: string = ''
   mentionChoosing: boolean = false
+  currentSelectMention: any = null
   handleMention(input: any, initMention?: boolean) {
     // eslint-disable-next-line no-irregular-whitespace
     let content = input.innerText.replace(/ /g, this.splitSpace)
@@ -1062,12 +1072,22 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  inputKeydown(event: any) {
+    if (this.mentionChoosing && [38, 40].indexOf(event.keyCode) > -1) {
+      event.preventDefault()
+    }
+  }
+
   sendMessage(event: any) {
+    event.stopPropagation()
+    event.preventDefault()
+    if (this.currentSelectMention) {
+      this.chooseMentionUser(this.currentSelectMention)
+      return
+    }
     if (this.inputFlag === true || event.shiftKey) {
       return
     }
-    event.stopPropagation()
-    event.preventDefault()
     const text = contentUtil.messageFilteredText(this.$refs.box)
     if (text.trim().length <= 0) {
       return

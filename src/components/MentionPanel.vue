@@ -7,6 +7,7 @@
           :key="user.user_id"
           :user="user"
           :keyword="keyword"
+          :class="{ current: user.identity_number === currentUidTemp }"
           @user-click="onUserClick"
         ></UserItem>
       </div>
@@ -27,6 +28,7 @@ import UserItem from '@/components/UserItem.vue'
   }
 })
 export default class MentionPanel extends Vue {
+  @Prop(String) readonly currentUid: any
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly conversation: any
   @Prop(Array) readonly mentions: any
@@ -36,6 +38,12 @@ export default class MentionPanel extends Vue {
 
   contacts: any[] = []
   participants: any[] = []
+  currentUidTemp: string = ''
+
+  @Watch('currentUid')
+  onCurrentUidChange(currentUid: string) {
+    this.currentUidTemp = currentUid
+  }
 
   @Watch('keyword')
   onKeywordChanged(keyword: string) {
@@ -60,11 +68,58 @@ export default class MentionPanel extends Vue {
           }
         })
         this.$emit('update', contacts)
+        this.$emit('currentSelect', contacts[0])
         this.contacts = contacts
       }
       const ul: any = this.$refs.ul
       ul.scrollTop = 0
     }, 10)
+  }
+
+  goItemPos(index: number) {
+    const container: any = document.querySelector('.mention-panel .ul')
+    const item: any = document.querySelector('.mention-panel .user_item_layout')
+    if (container && item) {
+      const itemHeight = item.getBoundingClientRect().height
+      const outUp = itemHeight * index <= container.scrollTop
+      const outDown = container.clientHeight + container.scrollTop <= itemHeight * (index + 1)
+      if (outUp) {
+        container.scrollTop = itemHeight * index
+      } else if (outDown) {
+        container.scrollTop = itemHeight * (index + 1) - container.clientHeight
+      }
+    }
+  }
+
+  mounted() {
+    this.$root.$on('directionKeyDown', (direction: string) => {
+      const { contacts, currentUidTemp } = this
+      let currentIndex = 0
+      if (contacts.length) {
+        for (let i = 0; i < contacts.length; i++) {
+          if (contacts[i].identity_number === currentUidTemp) {
+            currentIndex = i
+            break
+          }
+        }
+        if (direction === 'up' && currentIndex > 0) {
+          const mention = contacts[currentIndex - 1]
+          this.currentUidTemp = mention.identity_number
+          this.goItemPos(currentIndex - 1)
+          this.$emit('currentSelect', mention)
+        }
+        if (direction === 'down' && currentIndex < contacts.length - 1) {
+          const mention = contacts[currentIndex + 1]
+          this.currentUidTemp = mention.identity_number
+          this.goItemPos(currentIndex + 1)
+          this.$emit('currentSelect', mention)
+        }
+      }
+    })
+  }
+
+  beforeDestroy() {
+    this.$root.$off('directionKeyDown')
   }
 
   onUserClick(user: any) {

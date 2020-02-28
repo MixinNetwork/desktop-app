@@ -78,16 +78,16 @@ export default class App extends Vue {
           this.actionSetSearching('key:')
         }
         clearTimeout(directionKeyDownTimeout)
-        if (keyCode === 38) {
-          directionKeyDownTimeout = setTimeout(() => {
-            this.$root.$emit('directionKeyDown', 'up')
-          }, 10)
-        }
-        if (keyCode === 40) {
-          directionKeyDownTimeout = setTimeout(() => {
-            this.$root.$emit('directionKeyDown', 'down')
-          }, 10)
-        }
+      }
+      if (keyCode === 38) {
+        directionKeyDownTimeout = setTimeout(() => {
+          this.$root.$emit('directionKeyDown' + (ctrlKey ? 'WithCtrl' : ''), 'up')
+        }, 10)
+      }
+      if (keyCode === 40) {
+        directionKeyDownTimeout = setTimeout(() => {
+          this.$root.$emit('directionKeyDown' + (ctrlKey ? 'WithCtrl' : ''), 'down')
+        }, 10)
       }
     }
     document.onkeyup = e => {
@@ -198,7 +198,8 @@ video {
 }
 b.highlight {
   font-weight: normal;
-  &.default, &.mention {
+  &.default,
+  &.mention {
     color: #3d75e3;
   }
   &.mention {

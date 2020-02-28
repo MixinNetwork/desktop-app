@@ -304,9 +304,8 @@ class SendWorker extends BaseWorker {
 
   getMentionParam(content) {
     if (!content) return null
-    // eslint-disable-next-line no-irregular-whitespace
-    content = content.replace(/ /g, ' ')
-    const regx = new RegExp('@(.*?)? ', 'g')
+    content = content.replace(/\s/g, ' ')
+    const regx = new RegExp('@(.+?)? ', 'g')
     const numbers = []
     let pieces = []
     const mentionIds = new Set()

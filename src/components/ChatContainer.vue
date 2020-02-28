@@ -686,15 +686,32 @@ export default class ChatContainer extends Vue {
   chooseMentionUser(user: any) {
     this.mentions.push(user)
     const $target = this.$refs.box
-    $target.innerHTML = $target.innerHTML.replace(/@(.+)?/, '')
-    let mentionIds = ''
-    this.mentions.forEach((item: any) => {
-      const id = `@${item.identity_number}`
-      const hl = contentUtil.highlight(id, id, '')
-      mentionIds += `${hl}<span>&nbsp;</span>`
-    })
+    let html = $target.innerHTML
 
-    $target.innerHTML = mentionIds + $target.innerHTML
+    const regx = new RegExp(`<b class="highlight default">(.*?)</b>`, 'g')
+    let idsTemp: any = []
+    let idsArr
+    while ((idsArr = regx.exec(html)) !== null) {
+      idsTemp.push(idsArr[1])
+    }
+
+    const htmlPieces = html.split('&nbsp;')
+
+    for (let i = 0; i < htmlPieces.length; i++) {
+      if (htmlPieces[i] && regx.exec(htmlPieces[i]) === null) {
+        this.mentions.forEach((item: any) => {
+          const id = `@${item.identity_number}`
+          if (idsTemp.indexOf(id) < 0) {
+            const hl = contentUtil.highlight(id, id, '')
+            htmlPieces[i] = htmlPieces[i].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
+          }
+        })
+      }
+    }
+
+    html = htmlPieces.join(' ')
+    $target.innerHTML = html
+
     this.mentionChoosing = false
     this.mentionKeyword = ''
     this.currentSelectMention = null
@@ -751,8 +768,7 @@ export default class ChatContainer extends Vue {
   handleMention(input: any) {
     this.currentSelectMention = null
 
-    // eslint-disable-next-line no-irregular-whitespace
-    let content = input.innerText.replace(/ /g, this.splitSpace)
+    let content = input.innerText.replace(/\s/g, this.splitSpace)
 
     const regxMention = new RegExp('@(.+?)?' + this.splitSpace, 'g')
     const ids: any = []
@@ -777,6 +793,11 @@ export default class ChatContainer extends Vue {
     } else {
       this.mentionChoosing = false
       this.mentionKeyword = ''
+      const $target = this.$refs.box
+      try {
+        // @ts-ignore
+        window.getSelection().collapse($target, $target.childNodes.length)
+      } catch (error) {}
     }
   }
 

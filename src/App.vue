@@ -50,6 +50,10 @@ export default class App extends Vue {
       }
     })
 
+    document.onmousemove = event => {
+      this.$root.$emit('mousemove', event)
+    }
+
     let directionKeyDownTimeout: any = null
     document.onkeydown = e => {
       let keyCode = e.keyCode

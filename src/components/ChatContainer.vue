@@ -100,6 +100,7 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
+        :style="mentionHoverPrevent ? 'pointer-events: none;' : ''"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
@@ -394,6 +395,9 @@ export default class ChatContainer extends Vue {
   }
 
   mounted() {
+    this.$root.$on('mousemove', () => {
+      this.mentionHoverPrevent = false
+    })
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
       this.hideSearch()
@@ -469,6 +473,7 @@ export default class ChatContainer extends Vue {
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
+    this.$root.$off('mousemove')
   }
 
   onFocus() {
@@ -703,6 +708,7 @@ export default class ChatContainer extends Vue {
   }
 
   panelHeight: number = 15
+  mentionHoverPrevent: boolean = false
   updateMentionUsers(result: any) {
     const len = result.length
     if (len) {
@@ -713,6 +719,7 @@ export default class ChatContainer extends Vue {
       }
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
+        this.mentionHoverPrevent = true
         this.mentionChoosing = true
       } else if (
         len === 1 &&
@@ -742,6 +749,8 @@ export default class ChatContainer extends Vue {
   mentionChoosing: boolean = false
   currentSelectMention: any = null
   handleMention(input: any) {
+    this.currentSelectMention = null
+
     // eslint-disable-next-line no-irregular-whitespace
     let content = input.innerText.replace(/ /g, this.splitSpace)
 

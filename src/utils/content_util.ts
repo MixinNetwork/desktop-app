@@ -8,7 +8,7 @@ import userDao from '@/dao/user_dao'
 const md = new MarkdownIt()
 URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
 const botNumberReg = /@7000\d*\s/
-const mentionReg = /@\d{4,}\s/g
+const mentionReg = /@\d{4,}(?:\s|$|)/g
 
 class ContentUtil {
   getBotNumber(content: string) {

@@ -198,8 +198,11 @@ video {
 }
 b.highlight {
   font-weight: normal;
-  &.default {
+  &.default, &.mention {
     color: #3d75e3;
+  }
+  &.mention {
+    cursor: pointer;
   }
   &.in-bubble {
     background: #c4ed7a;

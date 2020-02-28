@@ -165,7 +165,7 @@ class ContentUtil {
       if (user) {
         const mentionName = `@${user.full_name}`
         const regx = new RegExp(`@${id}`, 'g')
-        const hl = this.highlight(mentionName, mentionName, '')
+        const hl = this.highlight(mentionName, mentionName, `mention id-${id}`)
         content = content.replace(regx, hl)
       }
     })

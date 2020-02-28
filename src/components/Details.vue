@@ -10,20 +10,25 @@
       <div class="ul content">
         <header class="content_header">
           <div>
-            <Avatar class="avatar" :user="user" :conversation="conversation" />
+            <Avatar v-if="isContact" class="avatar" :user="user" />
+            <Avatar v-else class="avatar" :conversation="conversation" />
           </div>
           <span class="name">{{name}}</span>
-          <span class="id" v-if="isContact">Mixin ID: {{conversation.ownerIdentityNumber}}</span>
+          <span class="id" v-if="isContact">Mixin ID: {{userId || conversation.ownerIdentityNumber}}</span>
           <span class="add" v-if="showAddContact" @click="addContact">
             <span>+</span>
             <small>{{$t('menu.chat.add_contact')}}</small>
           </span>
           <div
-            v-if="conversation.category === 'GROUP'"
+            v-if="!isContact && conversation.category === 'GROUP'"
             class="announcement"
             v-html="contentUtil.renderUrl(conversation.announcement)"
           ></div>
-          <div v-else-if="conversation.biography" class="biography">{{conversation.biography}}</div>
+          <div
+            v-else-if="conversation.biography"
+            class="biography"
+            v-html="user.biography || conversation.biography"
+          ></div>
         </header>
         <div class="participants" v-if="!isContact">
           <span class="title">{{participantTitle}}</span>
@@ -50,6 +55,7 @@ import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
 import { ConversationCategory } from '@/utils/constants'
 import userApi from '@/api/user'
+import userDao from '@/dao/user_dao'
 
 @Component({
   components: {
@@ -58,6 +64,8 @@ import userApi from '@/api/user'
   }
 })
 export default class Details extends Vue {
+  @Prop(String) readonly userId: any
+
   @Getter('currentConversation') conversation: any
   @Getter('currentUser') user: any
 
@@ -125,7 +133,7 @@ export default class Details extends Vue {
   addContact() {
     const userId = this.user.user_id
     const { conversationId } = this.conversation
-    userApi.updateRelationship({user_id: userId, full_name: this.user.full_name, action: 'ADD'}).then((res: any) => {
+    userApi.updateRelationship({ user_id: userId, full_name: this.user.full_name, action: 'ADD' }).then((res: any) => {
       if (res.data) {
         this.actionSetCurrentUser(res.data.data)
       }
@@ -142,6 +150,9 @@ export default class Details extends Vue {
   }
 
   get name() {
+    if (this.userId) {
+      return this.user.full_name
+    }
     const { conversation } = this
     if (conversation.groupName) {
       return conversation.groupName
@@ -153,15 +164,20 @@ export default class Details extends Vue {
   }
 
   get isContact() {
-    return this.conversation.category === ConversationCategory.CONTACT
+    return this.conversation.category === ConversationCategory.CONTACT || this.userId
   }
 
   mounted() {
     if (this.isContact) {
       this.actionRefreshUser({
-        userId: this.conversation.ownerId,
+        userId: this.userId || this.conversation.ownerId,
         conversationId: this.conversation.conversationId
       })
+      if (this.userId) {
+        const user = userDao.findUserByIdentityNumber(this.userId)
+        this.actionSetCurrentUser(user)
+        this.$forceUpdate()
+      }
     } else {
       this.actionSyncConversation(this.conversation.conversationId)
     }

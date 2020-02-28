@@ -171,7 +171,7 @@
     </transition>
 
     <transition name="slide-right">
-      <Details class="overlay" v-if="details" @close="hideDetails"></Details>
+      <Details class="overlay" :userId="detailUserId" v-if="details" @close="hideDetails"></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
       <ChatSearch
@@ -998,10 +998,15 @@ export default class ChatContainer extends Vue {
     this.dragging = false
     this.file = null
   }
-  showDetails() {
+  detailUserId: string = ''
+  showDetails(id?: string) {
+    if (id) {
+      this.detailUserId = id
+    }
     this.details = true
   }
   hideDetails() {
+    this.detailUserId = ''
     this.details = false
     if (this.conversation) {
       this.$root.$emit('updateMenu', this.conversation)
@@ -1028,6 +1033,9 @@ export default class ChatContainer extends Vue {
       }
       this.actionSendMessage({ msg })
       this.goBottom()
+    } else if (action.startsWith('mention:')) {
+      const id = action.split('mention:')[1]
+      this.showDetails(id)
     } else {
       browser.loadURL(action)
     }

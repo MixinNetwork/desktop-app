@@ -146,7 +146,7 @@
         :send="message.userId === me.user_id"
         :quote="message.quoteContent!==null"
       >
-        <div class="bubble" :class="messageType(message)">
+        <div class="bubble" :class="messageType()">
           <div v-if="this.showUserName()&&!message.quoteContent">
             <span
               class="username"
@@ -160,13 +160,10 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <span v-if="messageType(message) === 'text'" class="text">
+          <span v-if="messageType() === 'text'" class="text">
             <span v-html="textMessage(message)"></span>
           </span>
-          <span
-            v-else-if="messageType(message) === 'unknown'"
-            class="unknown"
-          >{{$t('chat.chat_unknown') }}</span>
+          <span v-else-if="messageType() === 'unknown'" class="unknown">{{$t('chat.chat_unknown') }}</span>
           <span class="time-place"></span>
           <TimeAndStatus :message="message" />
         </div>
@@ -243,6 +240,21 @@ export default class MessageItem extends Vue {
   $Dialog: any
   $Menu: any
 
+  mounted() {
+    if (this.messageType() === 'text') {
+      const target: any = this.$refs.messageItem
+      const mentionList: any = target.getElementsByClassName('mention')
+      if (mentionList.length) {
+        const mention = mentionList[0]
+        const id = mention.className.split('-')[1]
+        if (id) {
+          mention.onclick = () => {
+            this.actionClick('mention:' + id)
+          }
+        }
+      }
+    }
+  }
   mediaClick() {
     if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
       return
@@ -305,7 +317,8 @@ export default class MessageItem extends Vue {
       receive: message.userId !== me.user_id
     }
   }
-  messageType(message: any) {
+  messageType() {
+    let { message } = this
     let type = message.type
     if (type.endsWith('_STICKER')) {
       return 'sticker'

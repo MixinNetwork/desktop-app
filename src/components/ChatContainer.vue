@@ -793,11 +793,6 @@ export default class ChatContainer extends Vue {
     } else {
       this.mentionChoosing = false
       this.mentionKeyword = ''
-      const $target = this.$refs.box
-      try {
-        // @ts-ignore
-        window.getSelection().collapse($target, $target.childNodes.length)
-      } catch (error) {}
     }
   }
 

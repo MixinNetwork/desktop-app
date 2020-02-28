@@ -25,19 +25,20 @@ class ContentUtil {
     return e.innerText.replace(/\n　\n/g, '\n\n')
   }
   renderUrl(content: string) {
-    const h = content
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-    const result = URI.withinString(h, function(url: string) {
-      let l = url
-      if (!url.startsWith('http')) {
-        l = 'https://' + url
-      }
-      return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
+    return URI.withinString(content, function(url: string) {
+      let preH = url
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+      return URI.withinString(preH, function(url: string) {
+        let l = url
+        if (!url.startsWith('http')) {
+          l = 'https://' + url
+        }
+        return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
+      })
     })
-    return result
   }
   renderMdToText(content: string) {
     const html = md.render(content)
@@ -128,9 +129,7 @@ class ContentUtil {
     if (!keyword) return content
     let result: any = content
     highlight = highlight || 'default'
-    keyword = keyword
-      .trim()
-      .replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
+    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
       const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')
@@ -159,7 +158,9 @@ class ContentUtil {
     while ((pieces = regx.exec(`${content} `)) !== null) {
       mentionIds.push(pieces[1].trim())
     }
-    if (mentionIds.length === 0) { return null }
+    if (mentionIds.length === 0) {
+      return null
+    }
     mentionIds.forEach((id: any) => {
       const user = userDao.findUserByIdentityNumber(id)
       if (user) {

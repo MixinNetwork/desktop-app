@@ -100,7 +100,7 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
-        :style="`margin-bottom: ${inputBoxHeight-36}px` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
+        :style="`margin-bottom: ${inputBoxHeight-36}px;` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"

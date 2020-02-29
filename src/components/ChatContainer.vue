@@ -94,13 +94,13 @@
     <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="hidenReplyBox"></ReplyMessageContainer>
 
     <transition name="slide-up">
-      <ChatSticker :height="panelHeight" v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
+      <ChatSticker :height="panelHeight" :style="`margin-bottom: ${inputBoxHeight-36}px`" v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
     </transition>
 
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
-        :style="mentionHoverPrevent ? 'pointer-events: none;' : ''"
+        :style="`margin-bottom: ${inputBoxHeight-36}px` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
@@ -121,7 +121,7 @@
           <svg-icon icon-class="ic_emoticon" v-else />
         </div>
         <mixin-scrollbar style="margin-right: .2rem">
-          <div class="ul editable">
+          <div class="ul editable" ref="boxWrap">
             <div
               class="box"
               contenteditable="true"
@@ -698,7 +698,13 @@ export default class ChatContainer extends Vue {
     const htmlPieces = html.split('&nbsp;')
 
     for (let i = 0; i < htmlPieces.length; i++) {
-      if (htmlPieces[i] && regx.exec(htmlPieces[i]) === null) {
+      let includes = false
+      idsTemp.forEach((id: string) => {
+        if (htmlPieces[i].includes(id)) {
+          includes = true
+        }
+      })
+      if (!includes) {
         this.mentions.forEach((item: any) => {
           const id = `@${item.identity_number}`
           if (idsTemp.indexOf(id) < 0) {
@@ -709,7 +715,7 @@ export default class ChatContainer extends Vue {
       }
     }
 
-    html = htmlPieces.join(' ')
+    html = htmlPieces.join('&nbsp;')
     $target.innerHTML = html
 
     this.mentionChoosing = false
@@ -793,14 +799,24 @@ export default class ChatContainer extends Vue {
     } else {
       this.mentionChoosing = false
       this.mentionKeyword = ''
+      if (!input.innerText.trim()) {
+        try {
+          // @ts-ignore
+          window.getSelection().collapse(input, input.childNodes.length)
+        } catch (error) {}
+      }
     }
   }
 
+  inputBoxHeight: number = 36
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
-    if (this.$refs.box) {
-      const html = this.$refs.box.innerHTML
-      this.handleMention(this.$refs.box)
+    const $target = this.$refs.box
+    const $wrap = this.$refs.boxWrap
+    if ($target) {
+      this.inputBoxHeight = $wrap.getBoundingClientRect().height
+      const html = $target.innerHTML
+      this.handleMention($target)
       this.conversation.draft = html
       conversationDao.updateConversationDraftById(conversationId, html)
     }

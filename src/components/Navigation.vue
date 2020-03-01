@@ -217,6 +217,7 @@ export default class Navigation extends Vue {
   @Getter('me') me: any
   @Getter('search') searchResult: any
   @Getter('linkStatus') linkStatus: any
+  @Getter('currentConversation') conversation: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -241,6 +242,10 @@ export default class Navigation extends Vue {
   created() {
     this.menus = this.$t('menu.personal')
     this.$root.$on('directionKeyDownWithCtrl', (direction: string) => {
+      const { draftText } = this.conversation
+      if (draftText && draftText.trim()) {
+        return
+      }
       const cLen = this.conversations.length
       if (cLen < 2 || !this.currentConversationId) return
       if (direction === 'up' && this.conversations[0].conversationId !== this.currentConversationId) {

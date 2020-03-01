@@ -818,6 +818,7 @@ export default class ChatContainer extends Vue {
       const html = $target.innerHTML
       this.handleMention($target)
       this.conversation.draft = html
+      this.conversation.draftText = $target.innerText
       conversationDao.updateConversationDraftById(conversationId, html)
     }
   }

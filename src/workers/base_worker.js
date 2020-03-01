@@ -41,6 +41,7 @@ export default class BaseWorker {
         unseen_message_count: 0,
         status: ConversationStatus.START,
         draft: null,
+        draftText: null,
         mute_until: null
       }
       conversationDao.insertConversation(conversation)

@@ -920,6 +920,7 @@ export default class ChatContainer extends Vue {
       const message = messtions[0]
       const messageId = message.message_id
       message.messageId = messageId
+      this.unreadMessageId = ''
       this.goMessagePos(message)
       this.actionMarkMentionRead({ conversationId, messageId })
     }

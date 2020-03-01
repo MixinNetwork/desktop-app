@@ -85,17 +85,11 @@ export default class Details extends Vue {
     const participantMenu = this.$t('menu.participant')
     const menu: string[] = []
 
-    // @ts-ignore
-    const account = JSON.parse(localStorage.getItem('account'))
-    if (user.user_id === account.user_id) {
+    const { conversationId } = this.conversation
+    const me = this.me
+    if (user.user_id === me.user_id) {
       return
     }
-
-    // menu.push(participantMenu.profile)
-    const { participants, conversationId } = this.conversation
-    const me = participants.filter((item: any) => {
-      return item.user_id === account.user_id
-    })[0]
     menu.push(participantMenu.send_message)
     if (user.role !== 'OWNER') {
       if (me.role === 'OWNER' && user.role !== 'ADMIN') {
@@ -140,8 +134,17 @@ export default class Details extends Vue {
     })
   }
 
+  get me() {
+    // @ts-ignore
+    const account = JSON.parse(localStorage.getItem('account'))
+    const { participants, conversationId } = this.conversation
+    return participants.filter((item: any) => {
+      return item.user_id === account.user_id
+    })[0]
+  }
+
   get showAddContact() {
-    return this.isContact && this.user.relationship !== 'FRIEND'
+    return this.isContact && this.user.relationship !== 'FRIEND' && this.user.user_id !== this.me.user_id
   }
 
   get participantTitle() {

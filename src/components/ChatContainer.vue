@@ -70,8 +70,8 @@
     <transition name="fade">
       <div
         class="floating mention"
-        :class="{ 'box-message': boxMessage }"
-        v-show="conversation && !isBottom && currentMentionNum>0"
+        :class="{ 'box-message': boxMessage, 'is-bottom': isBottom }"
+        v-show="conversation && currentMentionNum>0"
         @click="mentionClick"
       >
         <span class="badge" v-if="currentMentionNum>0">{{currentMentionNum}}</span>
@@ -1396,6 +1396,10 @@ export default class ChatContainer extends Vue {
       .mention-icon {
         font-size: 1.45rem;
         font-weight: 500;
+      }
+      &.is-bottom {
+        bottom: 4.5rem;
+        transition: bottom 0.3s ease;
       }
     }
   }

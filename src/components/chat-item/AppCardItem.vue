@@ -1,5 +1,5 @@
 <template>
-  <div class="layout">
+  <div class="layout" :class="messageOwnership()">
     <div>
       <span
         class="username"
@@ -37,9 +37,18 @@ import { getNameColorById } from '@/utils/util'
 export default class AppCardItem extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Boolean) readonly showName: any
+  @Prop(Object) readonly me: any
 
   getColor(id: string) {
     return getNameColorById(id)
+  }
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
+    }
   }
 
   get messageContent() {
@@ -52,6 +61,12 @@ export default class AppCardItem extends Vue {
   display: flex;
   margin-left: 0.4rem;
   margin-right: 0.4rem;
+}
+.layout.send {
+  flex-direction: row-reverse;
+}
+.layout.receive {
+  flex-direction: row;
 }
 .username {
   margin-left: 0.4rem;
@@ -89,6 +104,7 @@ export default class AppCardItem extends Vue {
       font-size: 1rem;
       margin-bottom: .25rem;
       line-height: 1.2;
+      text-align: left;
     }
     .desc {
       color: #888888cc;

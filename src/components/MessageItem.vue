@@ -116,6 +116,7 @@
     <AppCardItem
       v-else-if="message.type.startsWith('APP_CARD')"
       :message="message"
+      :me="me"
       :showName="this.showUserName()"
       @action-click="actionClick"
       @handleMenuClick="handleMenuClick"

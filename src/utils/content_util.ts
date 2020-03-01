@@ -167,7 +167,7 @@ class ContentUtil {
     }
     if (mentionIds.size === 0) {
       if (quoteMe) {
-        messageMentionDao.insert(conversationId, messageId, "", 0)
+        messageMentionDao.insert(conversationId, messageId, '', 0)
       }
       return null
     }

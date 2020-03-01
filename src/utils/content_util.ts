@@ -152,7 +152,7 @@ class ContentUtil {
     }
     return result
   }
-  parseMention(content: string, conversationId: string, messageId: string, messageMentionDao: any, ignore: boolean = true) {
+  parseMention(content: string, conversationId: string, messageId: string, messageMentionDao: any, ignore: boolean = true, quoteMe: boolean = false) {
     if (!content) return null
     const account = localStorage.getItem('account')!!
     const accountId = JSON.parse(account).user_id
@@ -166,6 +166,9 @@ class ContentUtil {
       })
     }
     if (mentionIds.size === 0) {
+      if (quoteMe) {
+        messageMentionDao.insert(conversationId, messageId, "", 0)
+      }
       return null
     }
     mentionIds.forEach((id: any) => {
@@ -180,6 +183,9 @@ class ContentUtil {
         content = content.replace(regx, hl)
       }
     })
+    if (remind === 1 && quoteMe) {
+      remind = 0
+    }
     messageMentionDao.insert(conversationId, messageId, content, remind)
   }
 }

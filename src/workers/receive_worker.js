@@ -426,7 +426,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
-      let quoteMe = quoteMessage && quoteMessage.user_id !== this.getAccountId() && data.user_id !== this.getAccountId()
+      let quoteMe = quoteMessage && quoteMessage.user_id === this.getAccountId() && data.user_id !== this.getAccountId()
       contentUtil.parseMention(plain, data.conversation_id, data.message_id, messageMentionDao, this.getAccountId() === data.user_id, quoteMe)
       messageDao.insertMessage(message)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)

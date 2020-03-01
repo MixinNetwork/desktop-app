@@ -94,7 +94,12 @@
     <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="hidenReplyBox"></ReplyMessageContainer>
 
     <transition name="slide-up">
-      <ChatSticker :height="panelHeight" :style="`margin-bottom: ${inputBoxHeight-36}px`" v-show="stickerChoosing" @send="sendSticker"></ChatSticker>
+      <ChatSticker
+        :height="panelHeight"
+        :style="`margin-bottom: ${inputBoxHeight-36}px`"
+        v-show="stickerChoosing"
+        @send="sendSticker"
+      ></ChatSticker>
     </transition>
 
     <transition name="slide-up">
@@ -1304,6 +1309,9 @@ export default class ChatContainer extends Vue {
       max-height: 150px;
       overflow-y: auto;
       flex-grow: 1;
+      * {
+        word-break: break-all;
+      }
       .box {
         padding: 0.45rem 0.6rem;
         font-size: 1rem;

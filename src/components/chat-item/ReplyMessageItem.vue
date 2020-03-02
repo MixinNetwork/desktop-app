@@ -54,7 +54,7 @@
           class="markdown"
           v-if="messageType() === 'post'"
         >{{getContent}}</vue-markdown>
-        <span v-else>{{getContent}}</span>
+        <span v-else v-html="getContent"></span>
       </span>
     </div>
     <img
@@ -124,7 +124,11 @@ export default class ReplyMessageItem extends Vue {
   }
   get getContent() {
     if (this.message.type.endsWith('_TEXT')) {
-      return this.message.content
+      const { mentions, content } = this.message
+      if (mentions !== null) {
+        return mentions
+      }
+      return content
     } else if (this.message.type.endsWith('_STICKER')) {
       return this.$t('chat.chat_sticker')
     } else if (this.message.type.endsWith('_IMAGE')) {
@@ -208,6 +212,9 @@ export default class ReplyMessageItem extends Vue {
       overflow: hidden;
       color: #9b9b9b;
       font-size: 0.8rem;
+      /deep/ * {
+        color: #9b9b9b;
+      }
     }
   }
   .markdown {

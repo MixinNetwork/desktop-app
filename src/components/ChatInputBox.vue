@@ -5,7 +5,6 @@
     <transition name="slide-up">
       <ChatSticker
         :height="panelHeight"
-        :style="`margin-bottom: ${inputBoxHeight-36}px`"
         v-show="stickerChoosing"
         @send="sendSticker"
       ></ChatSticker>
@@ -14,7 +13,7 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
-        :style="`margin-bottom: ${inputBoxHeight-36}px;` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
+        :style="(mentionHoverPrevent ? 'pointer-events: none;' : '')"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
@@ -146,13 +145,11 @@ export default class ChatItem extends Vue {
     }
   }
 
-  inputBoxHeight: number = 36
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
     const $target: any = this.$refs.box
     const $wrap: any = this.$refs.boxWrap
     if ($target) {
-      this.inputBoxHeight = $wrap.getBoundingClientRect().height
       const html = $target.innerHTML
       this.handleMention($target)
       this.conversation.draft = html

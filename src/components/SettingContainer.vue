@@ -51,25 +51,25 @@ export default class SettingContainer extends Vue {
   align-items: center;
   background: #f5f7fa;
   .bar {
-    padding-top: 3.75rem;
+    padding-top: 3rem;
     width: 100%;
     display: flex;
-    height: 3.75rem;
+    height: 3rem;
     background: #ffffff;
     align-items: center;
     flex-flow: row nowrap;
     .back {
-      padding: 1rem;
+      padding: 0.8rem;
     }
     h3 {
-      padding: 0.5rem;
+      padding: 0.4rem;
     }
   }
   .layout {
     display: flex;
     width: 100%;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
     justify-content: center;
     #avatar {
       width: 225px;
@@ -81,11 +81,11 @@ export default class SettingContainer extends Vue {
     flex-direction: column;
     background: white;
     width: 100%;
-    margin-top: 1.25rem;
+    margin-top: 1rem;
 
     .item {
       font-weight: 500;
-      padding: 1rem;
+      padding: 0.8rem;
       border-bottom: 1px solid $border-color;
       &:hover,
       &.current {
@@ -95,7 +95,7 @@ export default class SettingContainer extends Vue {
   }
   .version {
     color: #99a5ab;
-    font-size: 0.92rem;
+    font-size: 0.7rem;
     font-weight: 500;
   }
 }

@@ -84,10 +84,10 @@ export default class NewConversation extends Vue {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 4rem 0 0 0;
+  padding: 3.2rem 0 0 0;
   width: 100%;
   .back {
-    padding: 1rem;
+    padding: 0.8rem;
     cursor: pointer;
   }
   h3 {
@@ -98,7 +98,7 @@ export default class NewConversation extends Vue {
 
 .nav {
   border-bottom: 1px solid $border-color;
-  padding: 0.45rem 0.75rem;
+  padding: 0.35rem 0.6rem;
   display: flex;
   align-items: center;
 }
@@ -108,12 +108,12 @@ export default class NewConversation extends Vue {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0.3rem 1.4rem;
+  padding: 0.2rem 1.1rem;
   cursor: pointer;
   .avatar {
-    width: 3rem;
-    height: 3rem;
-    margin-right: 0.8rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin-right: 0.6rem;
   }
   &:hover,
   &.current {

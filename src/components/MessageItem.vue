@@ -505,7 +505,7 @@ img {
   max-width: 100%;
 }
 li {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.45rem;
   pointer-events: none;
   * {
     pointer-events: all;
@@ -540,42 +540,42 @@ li {
 .unread-divide {
   background: white;
   color: #8799a5;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   text-align: center;
-  padding: 0.2rem;
-  margin-bottom: 0.6rem;
-  margin-left: -3rem;
-  margin-right: -3rem;
+  padding: 0.15rem;
+  margin-bottom: 0.45rem;
+  margin-left: -2.4rem;
+  margin-right: -2.4rem;
 }
 .username {
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: 0.65rem;
+  line-height: 1.5;
   max-width: 100%;
-  min-width: 2rem;
-  min-height: 0.85rem;
+  min-width: 1.6rem;
+  min-height: 0.65rem;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  margin-bottom: 0.2rem;
   cursor: pointer;
   &.reply {
-    margin-left: 0.8rem;
+    margin-left: 0.6rem;
     margin-bottom: 0;
   }
 }
 .system {
   text-align: center;
   .bubble {
-    border-radius: 0.2rem;
-    padding: 0.4rem 0.6rem;
+    border-radius: 0.15rem;
+    padding: 0.3rem 0.45rem;
     text-align: left;
     word-break: break-all;
-    font-size: 0.8rem;
+    font-size: 0.6rem;
     background: #def6ca;
   }
 }
 .message.reply {
-  margin: -0.4rem -0.6rem 0.2rem -0.6rem;
+  margin: -0.3rem -0.45rem 0.15rem -0.45rem;
 }
 .bubble {
   position: relative;
@@ -589,26 +589,26 @@ li {
   &.app_button,
   &.unknown,
   &.transfer {
-    border-radius: 0.2rem;
+    border-radius: 0.15rem;
     text-align: left;
     word-break: break-all;
     user-select: text;
-    font-size: 1rem;
-    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.45rem;
     white-space: pre-line;
   }
 
   .width-set {
-    max-width: 10rem;
+    max-width: 8rem;
   }
   .height-set {
-    max-height: 15rem;
+    max-height: 12rem;
   }
   .time-place {
     float: right;
-    margin-left: 0.6rem;
-    width: 4.5rem;
-    height: 1rem;
+    margin-left: 0.45rem;
+    width: 3.6rem;
+    height: 0.8rem;
   }
 }
 .receive {
@@ -620,20 +620,20 @@ li {
     &.unknown,
     &.transfer {
       background: white;
-      margin-left: 0.8rem;
+      margin-left: 0.6rem;
       .time-place {
-        width: 3rem;
+        width: 2.4rem;
       }
       &:after {
         content: '';
-        border-top: 0.4rem solid transparent;
-        border-right: 0.6rem solid white;
-        border-bottom: 0.4rem solid transparent;
+        border-top: 0.3rem solid transparent;
+        border-right: 0.45rem solid white;
+        border-bottom: 0.3rem solid transparent;
         width: 0;
         height: 0;
         position: absolute;
-        left: -0.4rem;
-        bottom: 0.3rem;
+        left: -0.3rem;
+        bottom: 0.2rem;
       }
     }
     &.app_card,
@@ -641,13 +641,13 @@ li {
     &.transfer {
       background: #fbdda7;
       &:after {
-        border-right: 0.6rem solid #fbdda7;
+        border-right: 0.45rem solid #fbdda7;
       }
     }
     &.unknown {
       background: #cbe9ca;
       &:after {
-        border-right: 0.6rem solid #cbe9ca;
+        border-right: 0.45rem solid #cbe9ca;
       }
     }
   }
@@ -660,19 +660,19 @@ li {
     &.app_button,
     &.unknown,
     &.transfer {
-      margin-right: 0.8rem;
+      margin-right: 0.6rem;
       background: #c5edff;
 
       &:after {
         content: '';
-        border-top: 0.4rem solid transparent;
-        border-left: 0.6rem solid #c5edff;
-        border-bottom: 0.4rem solid transparent;
+        border-top: 0.3rem solid transparent;
+        border-left: 0.45rem solid #c5edff;
+        border-bottom: 0.3rem solid transparent;
         width: 0;
         height: 0;
         position: absolute;
-        right: -0.4rem;
-        bottom: 0.3rem;
+        right: -0.3rem;
+        bottom: 0.2rem;
       }
     }
     &.app_card,
@@ -680,13 +680,13 @@ li {
     &.transfer {
       background: #fbdda7;
       &:after {
-        border-left: 0.6rem solid #fbdda7;
+        border-left: 0.45rem solid #fbdda7;
       }
     }
     &.unknown {
       background: #cbe9ca;
       &:after {
-        border-left: 0.6rem solid #cbe9ca;
+        border-left: 0.45rem solid #cbe9ca;
       }
     }
   }
@@ -697,7 +697,7 @@ li {
       background: white;
     }
     &:after {
-      border-left: 0.6rem solid white;
+      border-left: 0.45rem solid white;
     }
   }
 }

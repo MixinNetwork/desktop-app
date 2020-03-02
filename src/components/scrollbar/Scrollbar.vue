@@ -183,7 +183,7 @@ export default class MixinScrollbar extends Vue {
     width: 0;
   }
   .scrollbar-track {
-    width: 0.5625rem;
+    width: 0.45rem;
     position: absolute;
     top: 0;
     right: 0;
@@ -194,13 +194,13 @@ export default class MixinScrollbar extends Vue {
     top: 0;
     right: 0;
     background: rgba(0, 0, 0, 0.3);
-    border-radius: 0.3125rem;
-    min-height: 1.625rem;
-    width: 0.375rem;
+    border-radius: 0.25rem;
+    min-height: 1.3rem;
+    width: 0.3rem;
     &.dragging,
     &:hover {
-      border-radius: 0.5rem;
-      width: 0.5625rem;
+      border-radius: 0.4rem;
+      width: 0.45rem;
     }
   }
 }

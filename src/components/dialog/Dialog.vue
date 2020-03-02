@@ -71,38 +71,39 @@ export default class Dialog extends Vue {
   height: 100%;
   transition: opacity 0.3s ease;
   z-index: 9999;
+  font-size: 0.8rem;
 }
 .title {
   position: relative;
-  font-size: 1.25rem;
-  margin-bottom: 1.25rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
 }
 .message {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 22rem;
+  width: 17.5rem;
   background: #fff;
-  padding: 0.5rem;
+  padding: 0.4rem;
   z-index: 9999;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  border-radius: 0.25rem;
+  border-radius: 0.2rem;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  padding: 1.5rem;
+  padding: 1.2rem;
 }
 .options {
-  padding-bottom: 1.25rem;
+  padding-bottom: 1rem;
   display: flex;
   flex-direction: column;
   label {
     cursor: pointer;
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
     a {
-      margin-left: 0.5rem;
+      margin-left: 0.4rem;
     }
     input {
       cursor: pointer;
@@ -113,20 +114,20 @@ export default class Dialog extends Vue {
   display: flex;
   flex-direction: row-reverse;
   .button {
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
     border: none;
-    font-size: 0.875rem;
-    border-radius: 0.25rem;
+    font-size: 0.7rem;
+    border-radius: 0.2rem;
     transition: 0.1s all;
   }
   .positive {
     background: #3d75e3;
     cursor: pointer;
     color: white;
-    margin-left: 0.1875rem;
+    margin-left: 0.15rem;
     &:hover,
     &.current {
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);

@@ -2,7 +2,7 @@
   <div class="chat-search">
     <header class="title-bar">
       <div @click="$emit('close')">
-        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
+        <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
       </div>
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
@@ -111,31 +111,31 @@ export default class ChatSearch extends Vue {
   flex-flow: column nowrap;
   .title-bar {
     background: #ffffff;
-    height: 3.6rem;
+    height: 2.85rem;
     display: flex;
     align-items: center;
-    padding: 0px 1rem 0px 1rem;
+    padding: 0px 0.8rem 0px 0.8rem;
     line-height: 0;
 
     .title-content {
-      margin-left: 1rem;
+      margin-left: 0.8rem;
       font-weight: 500;
-      font-size: 1rem;
+      font-size: 0.8rem;
     }
   }
   .search-bar {
     background: #f5f7fa;
-    border-top: 1px solid #f0f0f0;
+    border-top: 0.05rem solid #f0f0f0;
     .input {
-      padding: 0.2rem 0;
+      padding: 0.15rem 0;
       border-bottom: 1px solid #f0f0f0;
-      width: calc(100% - 1.875rem);
+      width: calc(100% - 1.5rem);
     }
   }
   .notify {
     text-align: center;
     color: #ccc;
-    margin-top: 1.875rem;
+    margin-top: 1.5rem;
   }
 }
 </style>

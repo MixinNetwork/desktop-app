@@ -47,16 +47,16 @@ export default class TransferItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .transfer {
-    padding: 0.75rem;
+    padding: 0.6rem;
     background: white;
     display: flex;
     flex-direction: row;
     align-content: center;
-    min-width: 10rem;
-    border-radius: 0.4rem;
+    min-width: 8rem;
+    border-radius: 0.3rem;
     box-shadow: 0px 1px 1px #77777733;
     .content {
       display: flex;
@@ -69,18 +69,18 @@ export default class TransferItem extends Vue {
         justify-content: space-between;
         .symbol {
           color: #888888cc;
-          font-size: 0.8rem;
-          margin-top: 0.375rem;
-          min-height: 1rem;
+          font-size: 0.6rem;
+          margin-top: 0.3rem;
+          min-height: 0.8rem;
         }
         .time {
           position: absolute;
           color: #8799a5;
           display: flex;
           float: right;
-          font-size: 0.75rem;
-          bottom: 0.3rem;
-          right: 0.2rem;
+          font-size: 0.6rem;
+          bottom: 0.2rem;
+          right: 0.15rem;
           align-items: flex-end;
         }
       }

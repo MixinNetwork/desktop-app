@@ -89,18 +89,18 @@ export default class LiveItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .username {
     display: inline-block;
-    font-size: 0.85rem;
-    margin-left: 0.4rem;
+    font-size: 0.65rem;
+    margin-left: 0.3rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    margin-bottom: 0.15rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .content {
     display: flex;
@@ -111,20 +111,20 @@ export default class LiveItem extends Vue {
     overflow: hidden;
     .tag {
       position: absolute;
-      margin-left: 0.4rem;
-      margin-top: 0.2rem;
-      padding-left: 0.1875rem;
-      padding-right: 0.1875rem;
+      margin-left: 0.3rem;
+      margin-top: 0.15rem;
+      padding-left: 0.15rem;
+      padding-right: 0.15rem;
       padding-top: 1px;
       padding-bottom: 1px;
       color: white;
       background: #ec4f7d;
-      font-size: 0.6rem;
+      font-size: 0.45rem;
       border-radius: 0.1rem;
     }
     .play {
-      width: 1.875rem;
-      height: 1.875rem;
+      width: 1.5rem;
+      height: 1.5rem;
       position: absolute;
       margin: auto;
       left: 0;
@@ -134,17 +134,17 @@ export default class LiveItem extends Vue {
       z-index: 10;
     }
     .loading {
-      width: 2rem;
-      height: 2rem;
+      width: 1.6rem;
+      height: 1.6rem;
       left: 50%;
-      top: calc(50% - 0.5rem);
+      top: calc(50% - 0.4rem);
       position: absolute;
       transform: translate(-50%, -50%);
       z-index: 3;
     }
     .set {
-      max-width: 10rem;
-      max-height: 15rem;
+      max-width: 8rem;
+      max-height: 12rem;
       overflow: hidden;
       position: relative;
       cursor: pointer;
@@ -152,7 +152,7 @@ export default class LiveItem extends Vue {
         background: #333;
         background-size: cover;
         background-position: center;
-        border-radius: 0.2rem;
+        border-radius: 0.15rem;
       }
     }
     .bottom {

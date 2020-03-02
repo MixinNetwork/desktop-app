@@ -215,7 +215,7 @@ export default class SignIn extends Vue {
 
 <style lang="scss" scoped>
 h1 {
-  font-size: 1.2rem;
+  font-size: 0.95rem;
 }
 
 .sign_in {
@@ -228,7 +228,7 @@ h1 {
 }
 
 .qr_layout {
-  margin-top: 1.25rem;
+  margin-top: 1rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -257,8 +257,8 @@ h1 {
     .text {
       color: white;
       font-weight: 600;
-      margin-top: 1.25rem;
-      font-size: 1rem;
+      margin-top: 1rem;
+      font-size: 0.8rem;
     }
   }
 }

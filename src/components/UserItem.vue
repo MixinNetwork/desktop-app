@@ -5,7 +5,7 @@
       <div class="title">
         <div class="name">
           <span v-html="highlight(user.full_name, 'name', /^@/.test(keyword))"></span>
-          <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="user.app_id" />
+          <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
         </div>
         <span class="role" v-if="user.role">
           {{ $t({
@@ -57,7 +57,7 @@ export default class UserItem extends Vue {
   flex-direction: row;
   align-items: center;
   cursor: pointer;
-  padding: 0.6rem 1.4rem;
+  padding: 0.45rem 1.1rem;
   &:hover,
   &.current {
     background: #f7f7f7;
@@ -67,9 +67,9 @@ export default class UserItem extends Vue {
   background: white;
 
   .user_item_avatar {
-    width: 3rem;
-    height: 3rem;
-    margin-right: 0.8rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin-right: 0.6rem;
     flex-shrink: 0;
   }
   .content {
@@ -90,7 +90,7 @@ export default class UserItem extends Vue {
       svg {
         flex-shrink: 0;
         vertical-align: top;
-        margin: 0.2rem 0 0 0.4rem;
+        margin: 0.15rem 0 0 0.3rem;
       }
     }
     .title {
@@ -100,9 +100,9 @@ export default class UserItem extends Vue {
     .id {
       display: flex;
       flex: 1;
-      font-size: 0.8rem;
+      font-size: 0.6rem;
       color: #bbbec3;
-      margin-top: 0.2rem;
+      margin-top: 0.15rem;
       span {
         margin-right: 0.1rem;
       }
@@ -110,8 +110,8 @@ export default class UserItem extends Vue {
     .role {
       float: right;
       color: #bbbec3;
-      margin-top: 0.2rem;
-      font-size: 0.8rem;
+      margin-top: 0.15rem;
+      font-size: 0.6rem;
     }
   }
 }

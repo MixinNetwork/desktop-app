@@ -237,19 +237,19 @@ export default class AudioItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .username {
-    margin-left: 0.4rem;
+    margin-left: 0.3rem;
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    margin-bottom: 0.1rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .content {
     display: flex;
@@ -258,22 +258,22 @@ export default class AudioItem extends Vue {
     text-align: start;
     overflow: hidden;
     background: rgba(255, 255, 255, 1);
-    border-radius: 0.2rem;
-    box-shadow: 0px 1px 1px #aaaaaa33;
+    border-radius: 0.1rem;
+    box-shadow: 0px 0.05rem 0.05rem #aaaaaa33;
     .name {
-      font-size: 1rem;
+      font-size: 0.8rem;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
     .mixin-audio {
-      padding: 0.6rem 1.5rem 0.6rem 0.6rem;
+      padding: 0.45rem 1.2rem 0.45rem 0.45rem;
       display: flex;
       align-items: center;
       .loading {
         position: relative;
-        width: 2.5rem;
-        height: 2.5rem;
+        width: 2rem;
+        height: 2rem;
         .stop {
           width: 100%;
           height: 100%;
@@ -293,38 +293,38 @@ export default class AudioItem extends Vue {
       }
       .audio-status {
         .arrow {
-          font-size: 1.5rem;
+          font-size: 1.2rem;
         }
         cursor: pointer;
-        width: 1.875rem;
-        height: 1.875rem;
-        border-radius: 1.25rem;
-        font-size: 2rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 1rem;
+        font-size: 1.6rem;
         background: #f2f2f6;
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-right: 0.6rem;
+        margin-right: 0.45rem;
       }
       .audio-progress {
         cursor: pointer;
-        width: 11rem;
-        height: 0.125rem;
-        margin: 0.3rem 0 0.1rem;
+        width: 8.8rem;
+        height: 0.1rem;
+        margin: 0.2rem 0 0.1rem;
         background-color: #e6e5eb;
-        border-radius: 0.125rem;
+        border-radius: 0.1rem;
         position: relative;
       }
       .bar {
         height: 100%;
         background-color: #c6c9d3;
-        border-radius: 0.125rem;
+        border-radius: 0.1rem;
         display: inline-block;
         position: absolute;
       }
       .audio-time,
       .audio-duration {
-        font-size: 0.8rem;
+        font-size: 0.6rem;
         font-weight: 400;
         color: #777;
       }

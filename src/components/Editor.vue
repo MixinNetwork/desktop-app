@@ -2,7 +2,7 @@
   <div class="editor">
     <header class="title_bar">
       <div @click="closeEditor">
-        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
+        <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
       </div>
       <div class="title_content">{{$t('editor_title')}}</div>
       <div class="title_send" @click="sendPost">
@@ -66,19 +66,19 @@ export default class Editor extends Vue {
   display: flex;
   flex-flow: column nowrap;
   .title_bar {
-    height: 3.6rem;
+    height: 2.85rem;
     display: flex;
-    padding: 0px 1rem 0px 1rem;
+    padding: 0 0.8rem 0 0.8rem;
     flex-flow: row nowrap;
     line-height: 0;
     align-items: center;
     .title_content {
       flex: 1;
       font-weight: 500;
-      margin-left: 1rem;
+      margin-left: 0.8rem;
     }
     .title_send {
-      font-size: 1.2rem;
+      font-size: 0.95rem;
     }
   }
   .content {
@@ -89,10 +89,10 @@ export default class Editor extends Vue {
     .textarea {
       flex: 1;
       display: block;
-      font-size: 1rem;
+      font-size: 0.8rem;
       font-weight: 400;
       line-height: 1.5;
-      padding: 1rem;
+      padding: 0.8rem;
       font-family: 'Helvetica Neue', Arial, sans-serif;
       border: 3px solid #cccccc;
       color: #333;
@@ -106,7 +106,7 @@ export default class Editor extends Vue {
       display: block;
       background-color: #eeffef;
       border: none;
-      padding: 1rem;
+      padding: 0.8rem;
       width: 100%;
       height: 100%;
     }

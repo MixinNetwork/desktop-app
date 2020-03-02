@@ -8,7 +8,7 @@
         @click="$emit('user-click')"
       >
         {{message.userFullName}}
-        <svg-icon style="width: 0.75rem" icon-class="ic_robot" />
+        <svg-icon style="width: 0.6rem" icon-class="ic_robot" />
       </span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="app-card" @click="$emit('action-click', messageContent.action)">
@@ -59,8 +59,8 @@ export default class AppCardItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
 }
 .layout.send {
   flex-direction: row-reverse;
@@ -69,17 +69,17 @@ export default class AppCardItem extends Vue {
   flex-direction: row;
 }
 .username {
-  margin-left: 0.4rem;
+  margin-left: 0.3rem;
   display: inline-block;
-  font-size: 0.85rem;
+  font-size: 0.65rem;
   max-width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  min-width: 2rem;
-  min-height: 0.85rem;
+  min-width: 1.6rem;
+  min-height: 0.65rem;
   .svg-icon {
-    margin-top: 0.075rem;
+    margin-top: 0.05rem;
   }
 }
 .app-card {
@@ -87,13 +87,13 @@ export default class AppCardItem extends Vue {
   cursor: pointer;
   box-shadow: 0px 1px 1px #77777733;
   background-color: white;
-  border-radius: 0.2rem;
-  padding: 0.75rem;
+  border-radius: 0.1rem;
+  padding: 0.6rem;
   .content {
     display: flex;
     flex-direction: column;
     align-content: center;
-    max-width: 14rem;
+    max-width: 11.2rem;
     &,
     * {
       overflow: hidden;
@@ -101,14 +101,14 @@ export default class AppCardItem extends Vue {
       text-overflow: ellipsis;
     }
     .title {
-      font-size: 1rem;
-      margin-bottom: .25rem;
+      font-size: 0.8rem;
+      margin-bottom: 0.2rem;
       line-height: 1.2;
       text-align: left;
     }
     .desc {
       color: #888888cc;
-      font-size: 0.8rem;
+      font-size: 0.6rem;
       line-height: 1.4;
     }
   }

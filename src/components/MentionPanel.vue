@@ -136,15 +136,15 @@ export default class MentionPanel extends Vue {
   border-top: 1px solid #f0f0f0;
   display: flex;
   flex-flow: column nowrap;
-  height: 15rem;
-  padding-bottom: 0.1rem;
-  left: 18rem;
-  bottom: 3rem;
+  height: 12rem;
+  padding-bottom: 0.05rem;
+  left: 14.4rem;
+  bottom: 2.4rem;
   right: 0;
   position: absolute;
   z-index: 1;
   &.box-message {
-    margin-bottom: 3rem;
+    margin-bottom: 2.4rem;
   }
 }
 </style>

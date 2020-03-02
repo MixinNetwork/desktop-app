@@ -68,20 +68,20 @@ export default class Player extends Vue {
   width: 100%;
   height: 100%;
   background: black;
-  border-radius: 0.3125rem;
+  border-radius: 0.25rem;
   color: #fff;
   .bar {
     width: 100%;
     position: absolute;
     right: 0;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
     z-index: 10;
     display: flex;
     flex-direction: row-reverse;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.8) 100%);
     .icon {
-      margin-right: 0.75rem;
+      margin-right: 0.6rem;
     }
   }
 }

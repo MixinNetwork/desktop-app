@@ -2,7 +2,7 @@
   <transition name="image-viewer-fade">
     <div class="image-viewer" v-show="visible">
       <div class="image-viewer-close icon-close" @click="close">
-        <svg-icon style="font-size: 1.5rem" v-if="visible" icon-class="ic_close_white" />
+        <svg-icon style="font-size: 1.2rem" v-if="visible" icon-class="ic_close_white" />
       </div>
       <div class="image-viewer-content" v-if="images.length">
         <div class="scorll" ref="box" :style="scrollStyle">
@@ -21,7 +21,7 @@
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
           <svg-icon
-            style="font-size: 1.5rem"
+            style="font-size: 1.2rem"
             icon-class="download"
             @click="openFile(images[index])"
           />
@@ -312,9 +312,9 @@ export default {
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 2rem;
+  height: 1.6rem;
   padding: 0 3%;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.6rem;
   display: flex;
   cursor: pointer;
   > *,
@@ -325,17 +325,17 @@ export default {
   }
   > p {
     flex: 1;
-    line-height: 1.875rem;
-    font-size: 0.875rem;
+    line-height: 1.5rem;
+    font-size: 0.7rem;
     cursor: default;
   }
   .right {
-    width: 12.5rem;
+    width: 10rem;
     i {
-      width: 1.875rem;
-      height: 1.875rem;
-      margin-right: 1.25rem;
-      font-size: 1.25rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-right: 1rem;
+      font-size: 1rem;
       cursor: pointer;
       &:last-child {
         margin: 0;
@@ -391,10 +391,10 @@ export default {
   height: 100%;
   cursor: pointer;
   > i {
-    width: 1.25rem;
-    height: 1.25rem;
-    line-height: 1.25rem;
-    font-size: 1.25rem;
+    width: 1rem;
+    height: 1rem;
+    line-height: 1rem;
+    font-size: 1rem;
     color: #fff;
   }
 }
@@ -407,8 +407,8 @@ export default {
 
 .image-viewer-close {
   z-index: 1001;
-  top: 1.25rem;
-  right: 1.25rem;
+  top: 1rem;
+  right: 1rem;
   position: absolute;
   cursor: pointer;
 }
@@ -417,6 +417,6 @@ export default {
 .image-viewer-nav-prev:hover > i,
 .image-viewer-nav-next:hover > i,
 .image-viewer-close:hover {
-  text-shadow: 0 0 1.25rem #fff, 0 0 1.25rem #fff, 0 0 1.25rem #fff;
+  text-shadow: 0 0 1rem #fff, 0 0 1rem #fff, 0 0 1rem #fff;
 }
 </style>

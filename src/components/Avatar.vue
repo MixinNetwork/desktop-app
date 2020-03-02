@@ -123,9 +123,9 @@ export default class Avatar extends Vue {
 
 <style lang="scss" scoped>
 .root {
-  width: 2.5rem;
-  height: 2.5rem;
-  font-size: 1.2rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
   .empty {
     width: 100%;
     height: 100%;
@@ -162,7 +162,7 @@ export default class Avatar extends Vue {
       color: white;
     }
     .emoji {
-      margin-left: 0.3125rem;
+      margin-left: 0.25rem;
     }
   }
   .avatar-group[data-group-size='2'] .avatar:first-child,

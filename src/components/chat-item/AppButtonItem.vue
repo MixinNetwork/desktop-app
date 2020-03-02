@@ -8,7 +8,7 @@
         @click="$emit('user-click')"
       >
         {{message.userFullName}}
-        <svg-icon style="width: 0.75rem" icon-class="ic_robot" />
+        <svg-icon style="width: 0.6rem" icon-class="ic_robot" />
       </span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="button-group">
@@ -56,19 +56,19 @@ export default class AppButtonItem extends Vue {
     position: initial;
   }
   display: flex;
-  margin-left: 0.8rem;
-  margin-right: 0.8rem;
+  margin-left: 0.6rem;
+  margin-right: 0.6rem;
   .username {
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
     .svg-icon {
-      margin-top: 0.075rem;
+      margin-top: 0.05rem;
     }
   }
 
@@ -77,15 +77,15 @@ export default class AppButtonItem extends Vue {
     flex-wrap: wrap;
     .button-item {
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.75rem;
       font-weight: 500;
-      margin-right: 0.6rem;
-      margin-bottom: 0.4rem;
+      margin-right: 0.45rem;
+      margin-bottom: 0.3rem;
       white-space: nowrap;
-      border-radius: 0.4rem;
+      border-radius: 0.3rem;
       box-shadow: 0px 1px 1px #77777733;
       background-color: white;
-      padding: 0.45rem 0.75rem;
+      padding: 0.35rem 0.6rem;
       &:last-child {
         margin-right: 0;
       }

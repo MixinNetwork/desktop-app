@@ -12,7 +12,7 @@
           <img v-if="loaded" :src="message.assetUrl" />
         </div>
       </BadgeItem>
-      <TimeAndStatus :relative="true" style="padding-right: .4rem" :message="message" />
+      <TimeAndStatus :relative="true" style="padding-right: 0.3rem" :message="message" />
     </span>
   </span>
 </template>
@@ -73,28 +73,28 @@ export default class StickerItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .root {
-    max-width: 18rem;
+    max-width: 14.4rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;
     .username {
       display: inline-block;
-      font-size: 0.85rem;
+      font-size: 0.65rem;
       max-width: 100%;
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      margin-bottom: 0.2rem;
-      margin-left: 0.4rem;
-      min-width: 2rem;
-      min-height: 0.85rem;
+      margin-bottom: 0.15rem;
+      margin-left: 0.3rem;
+      min-width: 1.6rem;
+      min-height: 0.65rem;
     }
     .img-box {
-      max-height: 6rem;
-      border-radius: 0.3rem;
+      max-height: 4.8rem;
+      border-radius: 0.2rem;
       overflow: hidden;
       img {
         height: 100%;

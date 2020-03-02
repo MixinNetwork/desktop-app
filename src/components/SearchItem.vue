@@ -45,7 +45,7 @@ export default class SearchItem extends Vue {
 <style lang="scss" scoped>
 .search-item {
   display: flex;
-  padding: 0.625rem 1rem;
+  padding: 0.5rem 0.8rem;
   cursor: pointer;
   &:hover,
   &.current {
@@ -62,7 +62,7 @@ export default class SearchItem extends Vue {
     overflow: hidden;
   }
   .avatar {
-    margin-right: 0.7rem;
+    margin-right: 0.55rem;
   }
 
   .meta {
@@ -72,8 +72,8 @@ export default class SearchItem extends Vue {
       flex: 1;
     }
     .time {
-      font-size: 0.85rem;
-      padding-bottom: 0.25rem;
+      font-size: 0.65rem;
+      padding-bottom: 0.2rem;
       color: #999;
     }
   }
@@ -81,7 +81,7 @@ export default class SearchItem extends Vue {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     color: #777;
   }
 }

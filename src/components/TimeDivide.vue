@@ -48,19 +48,19 @@ export default class TimeDivide extends Vue {
 <style lang="scss">
 .time-divide {
   color: #333;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   text-align: center;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.45rem;
   span {
-    min-width: 5rem;
+    min-width: 4rem;
     background: #d5d3f3;
-    border-radius: 0.8rem;
+    border-radius: 0.6rem;
     display: inline-block;
-    padding: 0.1rem 0.6rem;
+    padding: 0.1rem 0.45rem;
   }
   &.fixed {
     position: absolute;
-    top: 0.6rem;
+    top: 0.45rem;
     z-index: 9999;
     left: 0;
     right: 0;

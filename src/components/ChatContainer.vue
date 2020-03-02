@@ -2,7 +2,7 @@
   <main class="chat container" @click="hideChoosePanel">
     <header v-show="conversation">
       <div>
-        <Avatar style="font-size: 1rem" :conversation="conversation" @onAvatarClick="showDetails" />
+        <Avatar style="font-size: 0.8rem" :conversation="conversation" @onAvatarClick="showDetails" />
       </div>
       <div class="title">
         <div @click="showDetails">
@@ -28,7 +28,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelHeight < 15 ? '' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
+      :style="(panelHeight < 12 ? '' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
     >
@@ -88,7 +88,7 @@
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
-        <svg-icon style="font-size: 1.8rem" icon-class="chevron-down" />
+        <svg-icon style="font-size: 1.4rem" icon-class="chevron-down" />
       </div>
     </transition>
 
@@ -427,7 +427,7 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  panelHeight: number = 15
+  panelHeight: number = 12
   panelHeightUpdate(data: any) {
     this.panelHeight = data
   }
@@ -944,13 +944,14 @@ export default class ChatContainer extends Vue {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  font-size: 0.8rem;
 
   header {
     background: white;
-    border-bottom: 1px solid $border-color;
-    padding: 0rem 1rem;
+    border-bottom: 0.05rem solid $border-color;
+    padding: 0 0.8rem;
     display: flex;
-    height: 3.625rem;
+    height: 2.9rem;
     box-sizing: border-box;
     align-items: center;
     background: #ffffff;
@@ -961,8 +962,8 @@ export default class ChatContainer extends Vue {
       text-align: left;
       cursor: pointer;
       & > div {
-        max-width: 12rem;
-        padding: 0 0.8rem;
+        max-width: 9.5rem;
+        padding: 0 0.6rem;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -973,9 +974,9 @@ export default class ChatContainer extends Vue {
     .search,
     .attachment {
       z-index: 1;
-      width: 2rem;
-      height: 2rem;
-      margin-right: 0.3rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      margin-right: 0.2rem;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -983,14 +984,14 @@ export default class ChatContainer extends Vue {
       flex-shrink: 0;
     }
     .search {
-      margin-right: 0.5rem;
+      margin-right: 0.4rem;
     }
     .bot {
-      font-size: 1.25rem;
+      font-size: 1rem;
     }
     .attachment {
-      font-size: 1.05rem;
-      margin-right: 0.4rem;
+      font-size: 0.8rem;
+      margin-right: 0.3rem;
       cursor: pointer;
       position: relative;
       overflow: hidden;
@@ -1002,12 +1003,13 @@ export default class ChatContainer extends Vue {
     }
     .username {
       max-width: 100%;
+      line-height: 1.4;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
     .identity.number {
-      font-size: 0.75rem;
+      font-size: 0.6rem;
       color: $light-font-color;
       margin: 0.1rem 0 0;
     }
@@ -1017,7 +1019,7 @@ export default class ChatContainer extends Vue {
     flex: 1;
     height: 100%;
     overflow-x: hidden;
-    padding: 0.8rem;
+    padding: 0.6rem;
     box-sizing: border-box;
   }
 
@@ -1025,11 +1027,11 @@ export default class ChatContainer extends Vue {
     text-align: center;
     .bubble {
       background: #fff7ad;
-      border-radius: 0.5rem;
+      border-radius: 0.4rem;
       display: inline-block;
-      font-size: 0.875rem;
-      padding: 0.3rem 0.8rem;
-      margin-bottom: 0.8rem;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      margin-bottom: 0.5rem;
     }
   }
 
@@ -1046,19 +1048,19 @@ export default class ChatContainer extends Vue {
       flex-direction: column;
       align-items: center;
       label {
-        max-width: 30rem;
+        max-width: 24rem;
         text-align: center;
-        margin-top: 2rem;
+        margin-top: 1.6rem;
         color: #93a0a7;
       }
       #title {
-        font-size: 1.875rem;
+        font-size: 1.5rem;
         color: #505d64;
         font-weight: 300;
       }
       img {
-        width: 16rem;
-        height: 16rem;
+        width: 12.8rem;
+        height: 12.8rem;
       }
     }
   }
@@ -1067,37 +1069,37 @@ export default class ChatContainer extends Vue {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border-radius: 1.75rem;
-    width: 2.5rem;
-    height: 2.5rem;
+    border-radius: 1.4rem;
+    width: 2rem;
+    height: 2rem;
     background: #fafafa;
-    right: 1.25rem;
+    right: 1rem;
     position: absolute;
-    bottom: 4.5rem;
+    bottom: 3.6rem;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
     .badge {
       position: absolute;
-      top: -0.375rem;
+      top: -0.35rem;
       background: #4b7ed2;
-      border-radius: 1.25rem;
+      border-radius: 1rem;
       box-sizing: border-box;
       color: #fff;
-      font-size: 13px;
-      padding: 1px 0.3125rem;
+      font-size: 0.65rem;
+      padding: 0.05rem 0.25rem;
     }
 
     &.box-message {
-      margin-bottom: 3rem;
+      margin-bottom: 2.4rem;
     }
 
     &.mention {
-      bottom: 7.75rem;
+      bottom: 6.2rem;
       .mention-icon {
-        font-size: 1.45rem;
+        font-size: 1.15rem;
         font-weight: 500;
       }
       &.is-bottom {
-        bottom: 4.5rem;
+        bottom: 3.6rem;
         transition: bottom 0.3s ease;
       }
     }
@@ -1105,7 +1107,7 @@ export default class ChatContainer extends Vue {
 
   .overlay {
     position: absolute;
-    left: 18rem;
+    left: 14.4rem;
     right: 0;
     height: 100%;
     z-index: 10;
@@ -1122,7 +1124,7 @@ export default class ChatContainer extends Vue {
   .media {
     position: absolute;
     height: 100%;
-    left: 18rem;
+    left: 14.4rem;
     right: 0;
     bottom: 0;
   }

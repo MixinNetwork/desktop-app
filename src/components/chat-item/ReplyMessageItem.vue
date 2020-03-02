@@ -181,26 +181,27 @@ export default class ReplyMessageItem extends Vue {
 </script>
 <style lang="scss" scoped>
 .message {
-  border-radius: 0.2rem;
+  border-radius: 0.15rem;
   overflow: hidden;
-  margin-bottom: 0.1875rem;
+  margin-bottom: 0.15rem;
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   user-select: none;
+
   .diver {
-    width: 0.3rem;
+    width: 0.2rem;
   }
   .layout {
     flex: 1;
-    padding: 0.1875rem;
+    padding: 0.15rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;
     cursor: pointer;
 
     .name {
-      font-size: 0.7rem;
+      font-size: 0.55rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -209,8 +210,8 @@ export default class ReplyMessageItem extends Vue {
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
+      font-size: 0.6rem;
       color: #9b9b9b;
-      font-size: 0.8rem;
       /deep/ * {
         color: #9b9b9b;
       }
@@ -218,23 +219,23 @@ export default class ReplyMessageItem extends Vue {
   }
   .markdown {
     color: #9b9b9b;
-    max-height: 2.5rem;
+    max-height: 2rem;
   }
   .image {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-left: 0.4rem;
+    width: 2rem;
+    height: 2rem;
+    margin-left: 0.3rem;
     object-fit: cover;
   }
   .avatar {
-    width: 2.25rem;
-    height: 2.25rem;
-    margin: 0.25rem;
-    margin-left: 0.4rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    margin: 0.2rem;
+    margin-left: 0.3rem;
   }
   .reply_icon {
-    height: 0.875rem;
-    margin-right: 0.2rem;
+    height: 0.7rem;
+    margin-right: 0.15rem;
     vertical-align: text-top;
   }
 }

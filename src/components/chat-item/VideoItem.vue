@@ -120,19 +120,19 @@ export default class VideoItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .username {
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    margin-left: 0.4rem;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    margin-bottom: 0.15rem;
+    margin-left: 0.3rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .content {
     display: flex;
@@ -146,20 +146,20 @@ export default class VideoItem extends Vue {
     &.reply {
       .content-in {
         background: #fff;
-        padding: 0.15rem 0.2rem 0.2rem;
-        border-radius: 0.2rem;
+        padding: 0.1rem 0.15rem 0.15rem;
+        border-radius: 0.15rem;
       }
     }
     .reply {
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.1rem;
     }
     .video-box {
       position: relative;
       .loading {
-        width: 2rem;
-        height: 2rem;
+        width: 1.6rem;
+        height: 1.6rem;
         left: 50%;
-        top: calc(50% - 0.75rem);
+        top: calc(50% - 0.6rem);
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: 3;
@@ -181,16 +181,16 @@ export default class VideoItem extends Vue {
         }
       }
       .media {
-        font-size: 1rem;
+        font-size: 0.8rem;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-        border-radius: 0.2rem;
+        border-radius: 0.15rem;
       }
     }
     .bottom {
       display: flex;
-      padding: 0.15rem 0;
+      padding: 0.1rem 0;
       justify-content: flex-end;
     }
   }

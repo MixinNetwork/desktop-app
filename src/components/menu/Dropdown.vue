@@ -67,7 +67,7 @@ export default class Dropdown extends Vue {
 }
 .dropdown-toggle {
   display: flex;
-  padding: 0.5rem;
-  border-radius: 1.25rem;
+  padding: 0.4rem;
+  border-radius: 1rem;
 }
 </style>

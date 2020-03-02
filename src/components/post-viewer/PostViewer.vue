@@ -4,7 +4,7 @@
       <div class="bg"></div>
       <div class="post-viewer">
         <div class="header">
-          <svg-icon @click="close" icon-class="ic_close" />
+          <svg-icon style="font-size: 1.3rem" @click="close" icon-class="ic_close" />
         </div>
         <mixin-scrollbar>
           <div class="ul">
@@ -59,21 +59,21 @@ export default class PostViewer extends Vue {
   position: absolute;
   top: 0;
   width: 100%;
-  height: calc(100vh - 2.6rem);
+  height: calc(100vh - 2.05rem);
   .header {
-    height: 2.6rem;
-    line-height: 2.6rem;
+    height: 2.05rem;
+    line-height: 2.05rem;
     .svg-icon {
-      font-size: 1.45rem;
+      font-size: 1.15rem;
       cursor: pointer;
-      margin: 0.75rem 1rem 0;
+      margin: 0.6rem 0.8rem 0;
       float: right;
     }
   }
   .markdown {
     margin: 0 auto;
-    max-width: 50rem;
-    padding: 0 1rem 2rem;
+    max-width: 40rem;
+    padding: 0 0.8rem 1.6rem;
   }
 }
 .modal-enter {

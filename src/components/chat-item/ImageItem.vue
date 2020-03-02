@@ -193,17 +193,17 @@ export default class ImageItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .username {
     display: inline-block;
-    font-size: 0.85rem;
-    margin-left: 0.4rem;
+    font-size: 0.65rem;
+    margin-left: 0.3rem;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .content {
     display: flex;
@@ -218,21 +218,21 @@ export default class ImageItem extends Vue {
     &.reply {
       .content-in {
         background: #fff;
-        padding: 0.15rem 0.2rem 0.2rem;
-        border-radius: 0.2rem;
+        padding: 0.1rem 0.15rem 0.15rem;
+        border-radius: 0.15rem;
       }
     }
     .reply {
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.1rem;
     }
     &.zoom {
       cursor: zoom-in;
     }
     .loading {
-      width: 2rem;
-      height: 2rem;
+      width: 1.6rem;
+      height: 1.6rem;
       left: 50%;
-      top: calc(50% - 0.5rem);
+      top: calc(50% - 0.4rem);
       position: absolute;
       transform: translate(-50%, -50%);
       z-index: 3;
@@ -254,19 +254,19 @@ export default class ImageItem extends Vue {
       }
     }
     .set {
-      max-width: 10rem;
-      max-height: 15rem;
+      max-width: 8rem;
+      max-height: 12rem;
       overflow: hidden;
       position: relative;
       .image {
-        border-radius: 0.2rem;
+        border-radius: 0.15rem;
       }
       font-size: 0;
     }
     .bottom {
       display: flex;
       justify-content: flex-end;
-      padding: 0.15rem 0;
+      padding: 0.1rem 0;
     }
   }
 }

@@ -299,6 +299,7 @@ li.conversation.item {
         flex: 1;
         color: $light-font-color;
         font-size: 0.8rem;
+        line-height: 1.2rem;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;

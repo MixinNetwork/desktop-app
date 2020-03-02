@@ -170,7 +170,6 @@ import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import MessageForward from '@/components/MessageForward.vue'
-import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
@@ -187,7 +186,6 @@ import appDao from '@/dao/app_dao'
     TimeDivide,
     MessageItem,
     FileContainer,
-    ReplyMessageContainer,
     MessageForward,
     Editor
   }
@@ -347,8 +345,8 @@ export default class ChatContainer extends Vue {
       this.hideDetails()
       this.hideSearch()
       this.closeFile()
-      this.hidenReplyBox()
       this.hideChoosePanel()
+      this.boxMessage = null
       setTimeout(() => {
         this.$refs.inputBox.boxFocusAction()
       }, 200)
@@ -895,9 +893,6 @@ export default class ChatContainer extends Vue {
       messageId: message.messageId,
       conversationId: message.conversationId
     })
-  }
-  hidenReplyBox() {
-    this.boxMessage = null
   }
 }
 </script>

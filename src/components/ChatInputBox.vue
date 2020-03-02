@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="hidenReplyBox"></ReplyMessageContainer>
+    <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="$emit('clearBoxMessage')"></ReplyMessageContainer>
 
     <transition name="slide-up">
       <ChatSticker
@@ -67,11 +67,13 @@ import { MessageCategories, MessageStatus } from '@/utils/constants'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 
+import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import MentionPanel from '@/components/MentionPanel.vue'
 import ChatSticker from '@/components/ChatSticker.vue'
 
 @Component({
   components: {
+    ReplyMessageContainer,
     MentionPanel,
     ChatSticker
   }

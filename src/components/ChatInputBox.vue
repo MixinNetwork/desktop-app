@@ -9,6 +9,7 @@
     <transition name="slide-up">
       <ChatSticker
         :style="`padding-bottom: ${inputBoxHeight-36}px`"
+        :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         v-show="stickerChoosing"
         @send="sendSticker"
@@ -136,6 +137,8 @@ export default class ChatItem extends Vue {
       const $target: any = this.$refs.box
       if (!keep) {
         $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
+        const $wrap: any = this.$refs.boxWrap
+        this.inputBoxHeight = $wrap.getBoundingClientRect().height
         this.handleMention($target)
       }
       try {

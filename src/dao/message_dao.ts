@@ -95,6 +95,7 @@ class MessageDao {
     ])
     if (message.category.endsWith('_TEXT')) {
       this.insertOrReplaceMessageFts(messageId, message.content)
+      contentUtil.parseMention(message.content, message.conversationId, messageId, messageMentionDao)
     }
     return messageId
   }

@@ -115,8 +115,8 @@ export default class LiveItem extends Vue {
       margin-top: 0.15rem;
       padding-left: 0.15rem;
       padding-right: 0.15rem;
-      padding-top: 1px;
-      padding-bottom: 1px;
+      padding-top: 0.05rem;
+      padding-bottom: 0.05rem;
       color: white;
       background: #ec4f7d;
       font-size: 0.45rem;

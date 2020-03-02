@@ -51,7 +51,7 @@ export default class SearchItem extends Vue {
   &.current {
     background: #f1f2f2;
   }
-  border-bottom: 1px solid $border-color;
+  border-bottom: 0.05rem solid $border-color;
 
   background: white;
 

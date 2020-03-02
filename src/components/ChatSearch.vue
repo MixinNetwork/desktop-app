@@ -114,7 +114,7 @@ export default class ChatSearch extends Vue {
     height: 2.85rem;
     display: flex;
     align-items: center;
-    padding: 0px 0.8rem 0px 0.8rem;
+    padding: 0 0.8rem 0 0.8rem;
     line-height: 0;
 
     .title-content {
@@ -128,7 +128,7 @@ export default class ChatSearch extends Vue {
     border-top: 0.05rem solid #f0f0f0;
     .input {
       padding: 0.15rem 0;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 0.05rem solid #f0f0f0;
       width: calc(100% - 1.5rem);
     }
   }

@@ -407,7 +407,7 @@ export default class ChatItem extends Vue {
     }
   }
   .editable {
-    max-height: 150px;
+    max-height: 7.5rem;
     overflow-y: auto;
     flex-grow: 1;
     * {

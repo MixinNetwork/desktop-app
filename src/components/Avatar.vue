@@ -179,15 +179,15 @@ export default class Avatar extends Vue {
   .avatar-group[data-group-size='4'] .avatar:nth-child(2),
   .avatar-group[data-group-size='4'] .avatar:nth-child(4) {
     left: 50%;
-    border-left: 1px solid white;
-    margin-left: -1px;
+    border-left: 0.05rem solid white;
+    margin-left: -0.05rem;
   }
   .avatar-group[data-group-size='3'] .avatar:nth-child(3),
   .avatar-group[data-group-size='4'] .avatar:nth-child(3),
   .avatar-group[data-group-size='4'] .avatar:nth-child(4) {
     top: 50%;
-    border-top: 1px solid white;
-    margin-top: -1px;
+    border-top: 0.05rem solid white;
+    margin-top: -0.05rem;
   }
   .avatar-group[data-group-size='3'] .avatar:nth-child(2),
   .avatar-group[data-group-size='3'] .avatar:nth-child(3),

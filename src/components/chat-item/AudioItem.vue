@@ -259,7 +259,7 @@ export default class AudioItem extends Vue {
     overflow: hidden;
     background: rgba(255, 255, 255, 1);
     border-radius: 0.1rem;
-    box-shadow: 0px 0.05rem 0.05rem #aaaaaa33;
+    box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
     .name {
       font-size: 0.8rem;
       overflow: hidden;

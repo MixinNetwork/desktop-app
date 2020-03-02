@@ -73,7 +73,7 @@ main {
     }
     .item-wrap {
       background: #fff;
-      padding: 12px 0 1rem;
+      padding: 0.6rem 0 1rem;
     }
     .item {
       width: 100%;

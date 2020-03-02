@@ -565,7 +565,7 @@ export default class Navigation extends Vue {
 <style lang="scss" scoped>
 .navigation {
   background: white;
-  border-right: 1px solid #dee2e9;
+  border-right: 0.05rem solid #dee2e9;
   flex: 0 0 14.4rem;
   display: flex;
   height: 100vh;
@@ -627,7 +627,7 @@ export default class Navigation extends Vue {
       & > div {
         padding: 0.6rem 0.6rem 1rem;
         background: #ffffff;
-        box-shadow: 0 2px 10px 0 rgba(195, 195, 195, 0.2);
+        box-shadow: 0 0.1rem 0.5rem 0 rgba(195, 195, 195, 0.2);
       }
       .search-button {
         background: #3d75e3;

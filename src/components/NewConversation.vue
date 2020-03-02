@@ -97,7 +97,7 @@ export default class NewConversation extends Vue {
 }
 
 .nav {
-  border-bottom: 1px solid $border-color;
+  border-bottom: 0.05rem solid $border-color;
   padding: 0.35rem 0.6rem;
   display: flex;
   align-items: center;
@@ -119,6 +119,6 @@ export default class NewConversation extends Vue {
   &.current {
     background: #f1f2f2;
   }
-  border-bottom: 1px solid $border-color;
+  border-bottom: 0.05rem solid $border-color;
 }
 </style>

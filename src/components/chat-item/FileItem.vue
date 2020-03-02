@@ -162,7 +162,7 @@ export default class FileItem extends Vue {
     align-content: center;
     width: 9.6rem;
     border-radius: 0.3rem;
-    box-shadow: 0px 1px 1px #77777733;
+    box-shadow: 0 0.05rem 0.05rem #77777733;
     flex-wrap: wrap;
     .reply {
       width: 100%;

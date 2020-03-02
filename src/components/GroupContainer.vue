@@ -145,7 +145,7 @@ main {
       }
     }
     .nav {
-      border-bottom: 1px solid $border-color;
+      border-bottom: 0.05rem solid $border-color;
       padding: 0.45rem 0.6rem;
       display: flex;
       align-items: center;
@@ -174,7 +174,7 @@ main {
       left: 0;
       right: 0;
       margin: auto;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.16), 0 0.15rem 0.3rem rgba(0, 0, 0, 0.23);
     }
   }
   .overlay {
@@ -232,7 +232,7 @@ main {
       left: 0;
       right: 0;
       margin: auto;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.16), 0 0.15rem 0.3rem rgba(0, 0, 0, 0.23);
     }
   }
   #group {

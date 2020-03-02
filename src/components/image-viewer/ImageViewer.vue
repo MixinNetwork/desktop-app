@@ -320,7 +320,7 @@ export default {
   > *,
   .right > * {
     height: 100%;
-    text-shadow: 0 0 2px #000, 0 0 2px #000;
+    text-shadow: 0 0 0.1rem #000, 0 0 0.1rem #000;
     color: #fff;
   }
   > p {
@@ -374,10 +374,10 @@ export default {
         margin-left: 0;
       }
       &.active {
-        border: 4px solid #333;
+        border: 0.2rem solid #333;
       }
       &:hover {
-        border: 4px solid #666;
+        border: 0.2rem solid #666;
       }
     }
   }

@@ -57,20 +57,23 @@ export default class TransferItem extends Vue {
     align-content: center;
     min-width: 8rem;
     border-radius: 0.3rem;
-    box-shadow: 0px 1px 1px #77777733;
+    box-shadow: 0 0.05rem 0.05rem #77777733;
     .content {
       display: flex;
       flex: 1;
       flex-direction: column;
       text-align: start;
       overflow: hidden;
+      .amount {
+        font-size: 0.95rem;
+      }
       .bottom {
         display: flex;
         justify-content: space-between;
         .symbol {
           color: #888888cc;
           font-size: 0.6rem;
-          margin-top: 0.3rem;
+          line-height: 1.5;
           min-height: 0.8rem;
         }
         .time {

@@ -91,7 +91,7 @@ export default class Dialog extends Vue {
   display: flex;
   flex-direction: column;
   border-radius: 0.2rem;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.175);
   padding: 1.2rem;
 }
 .options {
@@ -130,17 +130,17 @@ export default class Dialog extends Vue {
     margin-left: 0.15rem;
     &:hover,
     &.current {
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0.1rem 0.6rem rgba(0, 0, 0, 0.15);
     }
   }
   .negative {
-    border: 1px solid #ddd;
+    border: 0.05rem solid #ddd;
     cursor: pointer;
     color: #3d75e3;
     &:hover,
     &.current {
       background: #f8f8f8;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 0.1rem 0.3rem rgba(0, 0, 0, 0.05);
     }
   }
 }

@@ -291,7 +291,7 @@ b.highlight {
     margin: 0;
     font-weight: 400;
     box-sizing: border-box;
-    border: 1px solid #e2e2e2;
+    border: 0.05rem solid #e2e2e2;
     width: 96%;
   }
   tbody,
@@ -307,13 +307,13 @@ b.highlight {
     margin: 0;
     font-weight: 400;
     box-sizing: border-box;
-    min-width: 90px;
-    font-size: 14px;
+    min-width: 4.5rem;
+    font-size: 0.7rem;
     white-space: normal;
     word-wrap: break-word;
-    border: 1px solid #e2e2e2;
+    border: 0.05rem solid #e2e2e2;
     vertical-align: top;
-    padding: 4px 8px;
+    padding: 0.2rem 0.4rem;
   }
   th {
     background-color: #f6f6f6;

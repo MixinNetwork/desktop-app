@@ -290,7 +290,7 @@ li.conversation.item {
         }
       }
       .mute_icon, .icon {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         margin-right: 0.15rem;
       }
       .content {

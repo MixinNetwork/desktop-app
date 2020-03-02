@@ -62,7 +62,7 @@ export default class Dropdown extends Vue {
 .btn-group {
   position: relative;
   .afterLink > a:focus > span {
-    border-bottom: 2px solid green;
+    border-bottom: 0.1rem solid green;
   }
 }
 .dropdown-toggle {

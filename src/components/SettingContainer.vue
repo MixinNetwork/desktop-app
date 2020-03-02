@@ -72,8 +72,8 @@ export default class SettingContainer extends Vue {
     padding-bottom: 0.8rem;
     justify-content: center;
     #avatar {
-      width: 225px;
-      height: 168px;
+      width: 11.5rem;
+      height: 8.5rem;
     }
   }
   .linear {
@@ -86,7 +86,7 @@ export default class SettingContainer extends Vue {
     .item {
       font-weight: 500;
       padding: 0.8rem;
-      border-bottom: 1px solid $border-color;
+      border-bottom: 0.05rem solid $border-color;
       &:hover,
       &.current {
         background: #f1f2f2;

@@ -1076,7 +1076,7 @@ export default class ChatContainer extends Vue {
     right: 1rem;
     position: absolute;
     bottom: 3.6rem;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.175);
     .badge {
       position: absolute;
       top: -0.35rem;

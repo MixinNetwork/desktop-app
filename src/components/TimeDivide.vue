@@ -65,7 +65,7 @@ export default class TimeDivide extends Vue {
     left: 0;
     right: 0;
     span {
-      box-shadow: 0px 1px 1px #aaaaaa33;
+      box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
     }
   }
 }

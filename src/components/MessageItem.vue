@@ -582,7 +582,7 @@ li {
   display: inline-block;
   font-size: 0;
   max-width: 80%;
-  box-shadow: 0px 1px 1px #aaaaaa33;
+  box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
 
   &.text,
   &.app_card,

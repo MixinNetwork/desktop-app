@@ -196,7 +196,7 @@ export default class Details extends Vue {
     height: 2.85rem;
     display: flex;
     align-items: center;
-    padding: 0px 0.8rem 0px 0.8rem;
+    padding: 0 0.8rem 0 0.8rem;
     line-height: 0;
 
     .title_content {

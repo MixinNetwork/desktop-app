@@ -101,7 +101,7 @@ export default class FileContainer extends Vue {
     font-size: 1rem;
     background: #f5f7fa;
     border-radius: 0.5rem;
-    border: 1px dashed #c0cfe6;
+    border: 0.05rem dashed #c0cfe6;
   }
   .header {
     padding: 0.8rem;

@@ -10,7 +10,7 @@
         <div class="button">
           <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <g id="Page-1" fill="none" fill-rule="evenodd">
-              <g id="ic_refresh_black_24px" fill="#FFF" fill-rule="nonzero">
+              <g fill="#FFF" fill-rule="nonzero">
                 <path
                   d="M35.3 12.7C32.4 9.8 28.42 8 24 8 15.16 8 8.02 15.16 8.02 24S15.16 40 24 40c7.46 0 13.68-5.1 15.46-12H35.3c-1.64 4.66-6.08 8-11.3 8-6.62 0-12-5.38-12-12s5.38-12 12-12c3.32 0 6.28 1.38 8.44 3.56L26 22h14V8l-4.7 4.7z"
                   id="Shape"
@@ -232,23 +232,23 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 300px;
-  height: 300px;
+  width: 15rem;
+  height: 15rem;
 }
 
 .retry {
   z-index: 10;
-  width: 300px;
-  height: 300px;
+  width: 15rem;
+  height: 15rem;
   background: rgba(#ffffff, 0.8);
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
   .button {
-    width: 220px;
-    height: 220px;
-    border-radius: 130px;
+    width: 11rem;
+    height: 11rem;
+    border-radius: 6.5rem;
     background: #3a7ee4;
     display: flex;
     flex-direction: column;
@@ -269,7 +269,7 @@ h1 {
 
 .logo {
   position: absolute;
-  width: 64px;
-  height: 64px;
+  width: 3.2rem;
+  height: 3.2rem;
 }
 </style>

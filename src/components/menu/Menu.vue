@@ -69,15 +69,15 @@ export default class Menu extends Vue {
   position: absolute;
   z-index: 1000;
   min-width: 8rem;
-  padding: 5px 0;
-  margin: 2px 0 0;
+  padding: 0.25rem 0;
+  margin: 0.1rem 0 0;
   list-style: none;
   font-size: 0.7rem;
   text-align: left;
   background-color: #fff;
-  border: 1px solid #ddd;
+  border: 0.05rem solid #ddd;
   border-radius: 0.2rem;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.155);
+  box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.155);
   background-clip: padding-box;
 }
 .dropdown-menu > li > a {

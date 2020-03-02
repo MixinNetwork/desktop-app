@@ -414,7 +414,8 @@ export default class ChatItem extends Vue {
       word-break: break-all;
     }
     .box {
-      padding: 0.35rem 0.45rem;
+      padding: 0.35rem 0.15rem 0.35rem 0.45rem;
+      margin-right: 0.5rem;
       font-size: 0.8rem;
       min-height: 1.1rem;
       line-height: 1.3;

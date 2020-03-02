@@ -36,7 +36,7 @@ export default class MixinScrollbar extends Vue {
   thumbTop: any = 0
   thumbHeight: any = 25
   thumbShow: boolean = false
-  thumbShowForce: boolean = true
+  thumbShowForce: boolean = false
   thumbShowLock: boolean = false
   tempThumb: any = {
     top: 0,
@@ -58,6 +58,9 @@ export default class MixinScrollbar extends Vue {
   }
 
   scrollInit() {
+    setTimeout(() => {
+      this.thumbShowForce = true
+    }, 300)
     const scrollBox = this.scrollBox
 
     scrollBox.scrollTop = 0

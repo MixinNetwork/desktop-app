@@ -244,7 +244,7 @@ export default class ChatSticker extends Vue {
     }
   }
   &.box-message {
-    margin-bottom: 3rem;
+    margin-bottom: 2.4rem;
   }
 }
 </style>

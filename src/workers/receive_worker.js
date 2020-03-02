@@ -33,7 +33,7 @@ import {
 } from '@/utils/constants'
 class ReceiveWorker extends BaseWorker {
   async doWork() {
-    await wasmObject.then(result => { })
+    await wasmObject.then(result => {})
     const fms = floodMessageDao.findFloodMessage()
     if (!fms) {
       return
@@ -349,7 +349,10 @@ class ReceiveWorker extends BaseWorker {
       }
       if (m.status === 'MENTION_READ') {
         messageMentionDao.markMentionRead(m.message_id)
-        // todo refresh ui
+        store.dispatch('markMentionRead', {
+          conversationId: m.conversation_id,
+          messageId: m.message_id
+        })
         continue
       }
       if (m.status === 'READ') {
@@ -427,7 +430,14 @@ class ReceiveWorker extends BaseWorker {
         quote_content: quoteContent
       }
       let quoteMe = quoteMessage && quoteMessage.user_id === this.getAccountId() && data.user_id !== this.getAccountId()
-      contentUtil.parseMention(plain, data.conversation_id, data.message_id, messageMentionDao, this.getAccountId() === data.user_id, quoteMe)
+      contentUtil.parseMention(
+        plain,
+        data.conversation_id,
+        data.message_id,
+        messageMentionDao,
+        this.getAccountId() === data.user_id,
+        quoteMe
+      )
       messageDao.insertMessage(message)
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
     } else if (data.category.endsWith('_POST')) {

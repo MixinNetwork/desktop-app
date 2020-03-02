@@ -2391,7 +2391,8 @@ boolean@^3.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#4392798315deb69178a3696599e74d8dec298c6e"
+  uid a069c7f395fa6e57770660f0c5b984d6442fbc76
+  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#a069c7f395fa6e57770660f0c5b984d6442fbc76"
   dependencies:
     crypto "^1.0.1"
     int64-buffer "^0.99.1007"

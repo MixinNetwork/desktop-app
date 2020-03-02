@@ -1,9 +1,14 @@
 <template>
   <div>
-    <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="$emit('clearBoxMessage')"></ReplyMessageContainer>
+    <ReplyMessageContainer
+      v-if="boxMessage"
+      :message="boxMessage"
+      @hidenReplyBox="$emit('clearBoxMessage')"
+    ></ReplyMessageContainer>
 
     <transition name="slide-up">
       <ChatSticker
+        :style="`padding-bottom: ${inputBoxHeight-36}px`"
         :height="panelHeight"
         v-show="stickerChoosing"
         @send="sendSticker"
@@ -13,7 +18,7 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
-        :style="(mentionHoverPrevent ? 'pointer-events: none;' : '')"
+        :style="`padding-bottom: ${inputBoxHeight-36}px;` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
@@ -145,11 +150,13 @@ export default class ChatItem extends Vue {
     }
   }
 
+  inputBoxHeight: number = 36
   saveMessageDraft() {
     const conversationId = this.conversation.conversationId
     const $target: any = this.$refs.box
     const $wrap: any = this.$refs.boxWrap
     if ($target) {
+      this.inputBoxHeight = $wrap.getBoundingClientRect().height
       const html = $target.innerHTML
       this.handleMention($target)
       this.conversation.draft = html
@@ -254,12 +261,14 @@ export default class ChatItem extends Vue {
         }
       })
       if (!includes) {
+        const messageIds: any = []
         this.mentions.forEach((item: any) => {
           const id = `@${item.identity_number}`
-          if (idsTemp.indexOf(id) < 0) {
+          if (messageIds.indexOf(id) < 0 && idsTemp.indexOf(id) < 0) {
             const hl = contentUtil.highlight(id, id, '')
             htmlPieces[i] = htmlPieces[i].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
           }
+          messageIds.push(id)
         })
       }
     }
@@ -321,8 +330,6 @@ export default class ChatItem extends Vue {
   mentionKeyword: string = ''
   currentSelectMention: any = null
   handleMention(input: any) {
-    this.currentSelectMention = null
-
     let content = input.innerText.replace(/\s/g, this.splitSpace)
 
     const regxMention = new RegExp('@(.+?)?' + this.splitSpace, 'g')
@@ -345,6 +352,9 @@ export default class ChatItem extends Vue {
 
     if (ids.length > 0 && ['@', idPieces[idPieces.length - 1].trim()].indexOf(ids[ids.length - 1]) > -1) {
       this.mentionKeyword = ids[ids.length - 1]
+      if (this.currentSelectMention && this.mentionKeyword === `@${this.currentSelectMention.identity_number}`) {
+        this.chooseMentionUser(this.currentSelectMention)
+      }
     } else {
       this.mentionChoosing = false
       this.mentionKeyword = ''

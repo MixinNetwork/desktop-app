@@ -42,7 +42,9 @@ export default class MentionPanel extends Vue {
 
   @Watch('currentUid')
   onCurrentUidChange(currentUid: string) {
-    this.currentUidTemp = currentUid
+    if (currentUid) {
+      this.currentUidTemp = currentUid
+    }
   }
 
   @Watch('keyword')

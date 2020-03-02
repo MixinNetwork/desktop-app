@@ -28,7 +28,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelHeight < 15 ? '' : 'transition: 0.3s all ease;') + ((stickerChoosing || mentionChoosing) ? `margin-bottom: ${panelHeight}rem;` : '')"
+      :style="(panelHeight < 15 ? '' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
     >
@@ -91,62 +91,17 @@
       </div>
     </transition>
 
-    <ReplyMessageContainer v-if="boxMessage" :message="boxMessage" @hidenReplyBox="hidenReplyBox"></ReplyMessageContainer>
-
-    <transition name="slide-up">
-      <ChatSticker
-        :height="panelHeight"
-        :style="`margin-bottom: ${inputBoxHeight-36}px`"
-        v-show="stickerChoosing"
-        @send="sendSticker"
-      ></ChatSticker>
-    </transition>
-
-    <transition name="slide-up">
-      <MentionPanel
-        v-show="mentionChoosing"
-        :style="`margin-bottom: ${inputBoxHeight-36}px;` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
-        :class="{ 'box-message': boxMessage }"
-        :height="panelHeight"
-        :keyword="mentionKeyword"
-        :currentUid="currentSelectMention && currentSelectMention.identity_number"
-        :mentions="mentions"
-        :conversation="conversation"
-        @currentSelect="udpateCurrentSelectMention"
-        @choose="chooseMentionUser"
-        @update="updateMentionUsers"
-      ></MentionPanel>
-    </transition>
-
-    <div v-show="conversation" class="action" @click.stop>
-      <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
-      <div v-if="participant" class="input">
-        <div class="sticker" @click.stop="chooseSticker">
-          <svg-icon icon-class="ic_emoticon_on" v-if="stickerChoosing" />
-          <svg-icon icon-class="ic_emoticon" v-else />
-        </div>
-        <mixin-scrollbar style="margin-right: .2rem">
-          <div class="ul editable" ref="boxWrap">
-            <div
-              class="box"
-              contenteditable="true"
-              @focus="onFocus"
-              @blur="onBlur"
-              @input="saveMessageDraft"
-              @keydown.enter="sendMessage"
-              @keydown="inputKeydown"
-              @compositionstart="inputFlag = true"
-              @compositionend="inputFlag = false"
-              ref="box"
-            ></div>
-          </div>
-        </mixin-scrollbar>
-
-        <div class="send" @click="sendMessage">
-          <svg-icon icon-class="ic_send" />
-        </div>
-      </div>
-    </div>
+    <ChatInputBox
+      ref="inputBox"
+      v-if="conversation"
+      :participant="participant"
+      :conversation="conversation"
+      :boxMessage="boxMessage"
+      @goBottom="goBottom"
+      @clearBoxMessage="boxMessage=null"
+      @panelChoosing="panelChooseAction"
+      @panelHeightUpdate="panelHeightUpdate"
+    />
 
     <MessageForward
       v-if="forwardMessage"
@@ -205,12 +160,11 @@ import { MessageCategories, MessageStatus } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
+import ChatInputBox from '@/components/ChatInputBox.vue'
 import ChatContainerMenu from '@/components/ChatContainerMenu.vue'
 import Avatar from '@/components/Avatar.vue'
 import Details from '@/components/Details.vue'
 import ChatSearch from '@/components/ChatSearch.vue'
-import ChatSticker from '@/components/ChatSticker.vue'
-import MentionPanel from '@/components/MentionPanel.vue'
 import TimeDivide from '@/components/TimeDivide.vue'
 import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
@@ -218,7 +172,6 @@ import MessageItem from '@/components/MessageItem.vue'
 import MessageForward from '@/components/MessageForward.vue'
 import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
 import messageDao from '@/dao/message_dao'
-import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
@@ -228,11 +181,10 @@ import appDao from '@/dao/app_dao'
   components: {
     Avatar,
     Details,
+    ChatInputBox,
     ChatContainerMenu,
     ChatSearch,
-    ChatSticker,
     TimeDivide,
-    MentionPanel,
     MessageItem,
     FileContainer,
     ReplyMessageContainer,
@@ -241,16 +193,6 @@ import appDao from '@/dao/app_dao'
   }
 })
 export default class ChatContainer extends Vue {
-  @Watch('stickerChoosing')
-  onStickerChoosingChanged(val: string, oldVal: string) {
-    clearTimeout(this.chooseStickerTimeout)
-    this.chooseStickerTimeout = setTimeout(() => {
-      if (val) {
-        this.goBottom()
-      }
-    }, 300)
-  }
-
   @Watch('currentUnreadNum')
   onCurrentUnreadNumChanged(val: number, oldVal: number) {
     if (val === 0) {
@@ -283,11 +225,14 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.showMessages = false
-      this.boxMessage = false
-      this.mentions = []
-      this.hideChoosePanel()
+      this.boxMessage = null
       this.goBottom(true)
-      this.boxFocusAction()
+      this.hideChoosePanel()
+      this.$nextTick(() => {
+        if (this.$refs.inputBox) {
+          this.$refs.inputBox.boxFocusAction()
+        }
+      })
       this.$root.$emit('updateMenu', newC)
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
       let markdownCount = 5
@@ -321,10 +266,12 @@ export default class ChatContainer extends Vue {
         this.name = newC.name
       }
       if (!oldC || newC.conversationId !== oldC.conversationId) {
-        this.boxFocusAction()
         this.details = false
         if (!this.searching.replace(/^key:/, '')) {
           this.actionSetSearching('')
+        }
+        if (this.$refs.inputBox) {
+          this.$refs.inputBox.boxFocusAction()
         }
         this.hideChoosePanel()
         this.file = null
@@ -344,7 +291,6 @@ export default class ChatContainer extends Vue {
   @Action('setSearching') actionSetSearching: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
-  @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
@@ -355,11 +301,10 @@ export default class ChatContainer extends Vue {
   $selectNes: any
   name: any = ''
   identity: any = ''
-  participant: any = true
+  participant: boolean = true
   details: any = false
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
-  inputFlag: any = false
   dragging: any = false
   file: any = null
   messages: any[] = []
@@ -375,11 +320,9 @@ export default class ChatContainer extends Vue {
   searchKeyword: any = ''
   timeDivideShow: boolean = false
   contentUtil: any = contentUtil
-  stickerChoosing: boolean = false
-  chooseStickerTimeout: any = null
+  panelChoosing: boolean = false
   lastEnter: any = null
   goSearchPos: boolean = false
-  boxFocus: boolean = false
   showTopTips: boolean = false
 
   goDown: boolean = false
@@ -400,9 +343,6 @@ export default class ChatContainer extends Vue {
   }
 
   mounted() {
-    this.$root.$on('mousemove', () => {
-      this.mentionHoverPrevent = false
-    })
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
       this.hideSearch()
@@ -410,7 +350,7 @@ export default class ChatContainer extends Vue {
       this.hidenReplyBox()
       this.hideChoosePanel()
       setTimeout(() => {
-        this.boxFocusAction()
+        this.$refs.inputBox.boxFocusAction()
       }, 200)
     })
     let self = this
@@ -481,31 +421,20 @@ export default class ChatContainer extends Vue {
     this.$root.$off('mousemove')
   }
 
-  onFocus() {
-    this.boxFocus = true
-  }
-
-  onBlur() {
-    this.boxFocus = false
-  }
-
-  boxFocusAction(keep?: boolean) {
-    if (this.$refs.box) {
-      const $target = this.$refs.box
-      if (!keep) {
-        $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
-        this.handleMention($target)
-      }
-      try {
-        // @ts-ignore
-        window.getSelection().collapse($target, 1)
-        // @ts-ignore
-        window.getSelection().collapse($target, $target.childNodes.length)
-      } catch (error) {}
-      setTimeout(() => {
-        $target.focus()
-      })
+  hideChoosePanel() {
+    if (this.$refs.inputBox) {
+      this.$refs.inputBox.hideChoosePanel()
     }
+  }
+
+  panelHeight: number = 15
+  panelHeightUpdate(data: any) {
+    this.panelHeight = data
+  }
+
+  panelChooseAction(data: any) {
+    this.goBottom()
+    this.panelChoosing = /Open/.test(data)
   }
 
   visibleFirstIndex: number = 0
@@ -661,172 +590,6 @@ export default class ChatContainer extends Vue {
   chooseAttachmentDone(event: any) {
     this.file = event.target.files[0]
   }
-  chooseSticker() {
-    this.boxMessage = false
-    this.mentionChoosing = false
-    this.panelHeight = 15
-    this.stickerChoosing = !this.stickerChoosing
-  }
-  hideChoosePanel() {
-    this.mentionKeyword = ''
-    this.mentionChoosing = false
-    this.stickerChoosing = false
-  }
-  sendSticker(stickerId: string) {
-    const { conversationId } = this.conversation
-    const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
-    const status = MessageStatus.SENDING
-    const msg = {
-      conversationId,
-      stickerId,
-      category,
-      status
-    }
-    this.$root.$emit('resetSearch')
-    this.actionSendStickerMessage(msg)
-    this.goBottom()
-  }
-
-  mentions: string[] = []
-  chooseMentionUser(user: any) {
-    this.mentions.push(user)
-    const $target = this.$refs.box
-    let html = $target.innerHTML
-
-    const regx = new RegExp(`<b class="highlight default">(.*?)</b>`, 'g')
-    let idsTemp: any = []
-    let idsArr
-    while ((idsArr = regx.exec(html)) !== null) {
-      idsTemp.push(idsArr[1])
-    }
-
-    const htmlPieces = html.split('&nbsp;')
-
-    for (let i = 0; i < htmlPieces.length; i++) {
-      let includes = false
-      idsTemp.forEach((id: string) => {
-        if (htmlPieces[i].includes(id)) {
-          includes = true
-        }
-      })
-      if (!includes) {
-        this.mentions.forEach((item: any) => {
-          const id = `@${item.identity_number}`
-          if (idsTemp.indexOf(id) < 0) {
-            const hl = contentUtil.highlight(id, id, '')
-            htmlPieces[i] = htmlPieces[i].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
-          }
-        })
-      }
-    }
-
-    html = htmlPieces.join('&nbsp;')
-    $target.innerHTML = html
-
-    this.mentionChoosing = false
-    this.mentionKeyword = ''
-    this.currentSelectMention = null
-
-    this.saveMessageDraft()
-    this.boxFocusAction()
-  }
-
-  udpateCurrentSelectMention(mention: any) {
-    this.currentSelectMention = mention
-  }
-
-  panelHeight: number = 15
-  mentionHoverPrevent: boolean = false
-  updateMentionUsers(result: any) {
-    const len = result.length
-    if (len) {
-      if (len < 4) {
-        this.panelHeight = 4.2 * len
-      } else {
-        this.panelHeight = 15
-      }
-      if (!this.mentionChoosing) {
-        this.stickerChoosing = false
-        this.mentionHoverPrevent = true
-        this.mentionChoosing = true
-      } else if (
-        len === 1 &&
-        (`@${result[0].identity_number}` === this.mentionKeyword || `@${result[0].full_name}` === this.mentionKeyword)
-      ) {
-        this.chooseMentionUser(result[0])
-      }
-    } else {
-      const selection: any = window.getSelection()
-      const currentNode: any = selection.anchorNode
-      const parentNode = currentNode && currentNode.parentNode
-      if (parentNode && /highlight/.test(parentNode.className)) {
-        const content = currentNode.data
-        let html = this.$refs.box.innerHTML
-        const highlightRegx = new RegExp(`<b class="highlight default">${content.trim()}(.*)?</b>`, 'g')
-        html = html.replace(highlightRegx, content)
-        this.$refs.box.innerHTML = html
-        this.boxFocusAction(true)
-      }
-      this.currentSelectMention = null
-      this.mentionChoosing = false
-    }
-  }
-
-  splitSpace: string = ' '
-  mentionKeyword: string = ''
-  mentionChoosing: boolean = false
-  currentSelectMention: any = null
-  handleMention(input: any) {
-    this.currentSelectMention = null
-
-    let content = input.innerText.replace(/\s/g, this.splitSpace)
-
-    const regxMention = new RegExp('@(.+?)?' + this.splitSpace, 'g')
-    const ids: any = []
-    let pieces: any = []
-    while ((pieces = regxMention.exec(`${content}${this.splitSpace}`)) !== null) {
-      ids.push(pieces[0].trim())
-    }
-
-    const mentions: any = []
-    ids.forEach((id: string) => {
-      const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
-      if (user) {
-        mentions.push(user)
-      }
-    })
-    this.mentions = mentions
-
-    const idPieces = content.split(this.splitSpace)
-
-    if (ids.length > 0 && ['@', idPieces[idPieces.length - 1].trim()].indexOf(ids[ids.length - 1]) > -1) {
-      this.mentionKeyword = ids[ids.length - 1]
-    } else {
-      this.mentionChoosing = false
-      this.mentionKeyword = ''
-      if (!input.innerText.trim()) {
-        try {
-          // @ts-ignore
-          window.getSelection().collapse(input, input.childNodes.length)
-        } catch (error) {}
-      }
-    }
-  }
-
-  inputBoxHeight: number = 36
-  saveMessageDraft() {
-    const conversationId = this.conversation.conversationId
-    const $target = this.$refs.box
-    const $wrap = this.$refs.boxWrap
-    if ($target) {
-      this.inputBoxHeight = $wrap.getBoundingClientRect().height
-      const html = $target.innerHTML
-      this.handleMention($target)
-      this.conversation.draft = html
-      this.conversation.draftText = $target.innerText
-      conversationDao.updateConversationDraftById(conversationId, html)
-    }
-  }
 
   goSearchMessagePos(item: any, keyword: string) {
     this.unreadMessageId = ''
@@ -845,7 +608,7 @@ export default class ChatContainer extends Vue {
         this.searchKeyword = keyword
         this.goSearchPos = false
       })
-      this.boxFocusAction()
+      this.$refs.inputBox.boxFocusAction()
     })
   }
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
@@ -1094,49 +857,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  inputKeydown(event: any) {
-    if (this.mentionChoosing && [38, 40].indexOf(event.keyCode) > -1) {
-      event.preventDefault()
-    }
-  }
-
-  sendMessage(event: any) {
-    event.stopPropagation()
-    event.preventDefault()
-    if (this.currentSelectMention) {
-      this.chooseMentionUser(this.currentSelectMention)
-      return
-    }
-    if (this.inputFlag === true || event.shiftKey) {
-      return
-    }
-    const text = contentUtil.messageFilteredText(this.$refs.box)
-    if (text.trim().length <= 0) {
-      return
-    }
-    this.hideChoosePanel()
-    conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
-    this.$refs.box.innerText = ''
-    const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
-    const status = MessageStatus.SENDING
-    const message = {
-      conversationId: this.conversation.conversationId,
-      content: text.trim(),
-      category: category,
-      status: status
-    }
-    let msg: any = {
-      quoteId: ''
-    }
-    if (this.boxMessage) {
-      msg.quoteId = this.boxMessage.messageId
-      this.boxMessage = null
-    }
-    msg.msg = message
-    this.$root.$emit('resetSearch')
-    this.actionSendMessage(msg)
-    this.goBottom()
-  }
   handleItemClick({ type, message }: any) {
     switch (type) {
       case 'Reply':
@@ -1156,7 +876,7 @@ export default class ChatContainer extends Vue {
     }
   }
   handleReply(message: any) {
-    this.boxFocusAction()
+    this.$refs.inputBox.boxFocusAction()
     this.boxMessage = message
   }
   handleForward(message: any) {
@@ -1280,60 +1000,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  .action {
-    font-size: 1.2rem;
-    background: white;
-    z-index: 1;
-    .removed {
-      padding: 0.9rem 0.9rem;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-    .input {
-      box-sizing: border-box;
-      color: $light-font-color;
-      display: flex;
-      align-items: center;
-      padding: 0.4rem 0.6rem;
-
-      .sticker {
-        margin: 0.15rem 0.25rem 0 0.25rem;
-        cursor: pointer;
-      }
-      .send {
-        cursor: pointer;
-        margin: 0.1rem 0.15rem 0 0.25rem;
-      }
-    }
-    .editable {
-      max-height: 150px;
-      overflow-y: auto;
-      flex-grow: 1;
-      * {
-        word-break: break-all;
-      }
-      .box {
-        padding: 0.45rem 0.6rem;
-        font-size: 1rem;
-        min-height: 1.4rem;
-        line-height: 1.3rem;
-        color: black;
-        border: none;
-        outline: none;
-      }
-      .box[placeholder]:empty:before {
-        content: attr(placeholder);
-        color: #555;
-      }
-
-      .box[placeholder]:empty:focus:before {
-        content: '';
-      }
-    }
-    .bot {
-      padding: 0 1rem 0 0;
-    }
-  }
   .empty {
     width: 100%;
     height: 100%;
@@ -1458,14 +1124,6 @@ export default class ChatContainer extends Vue {
   }
   .slide-bottom-enter,
   .slide-bottom-leave-to {
-    transform: translateY(200%);
-  }
-  .slide-up-enter-active,
-  .slide-up-leave-active {
-    transition: all 0.3s ease;
-  }
-  .slide-up-enter,
-  .slide-up-leave-to {
     transform: translateY(200%);
   }
 }

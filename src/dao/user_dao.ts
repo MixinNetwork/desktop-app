@@ -82,7 +82,7 @@ class UserDao {
     ).get(conversationId, botNumber)
   }
   findUsersByIdentityNumber(uid: any) {
-    const sql = `SELECT user_id FROM users WHERE identity_number IN (${uid.map(() => '?').join(',')})`
+    const sql = `SELECT * FROM users WHERE identity_number IN (${uid.map(() => '?').join(',')})`
     return db.prepare(sql).all(uid)
   }
 }

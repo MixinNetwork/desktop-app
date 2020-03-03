@@ -219,6 +219,7 @@ export default class ChatItem extends Vue {
   chooseSticker() {
     this.$emit('clearBoxMessage')
     this.mentionChoosing = false
+    this.currentSelectMention = null
     this.panelHeight = 15
     setTimeout(() => {
       this.stickerChoosing = !this.stickerChoosing
@@ -227,6 +228,7 @@ export default class ChatItem extends Vue {
   hideChoosePanel() {
     this.mentionKeyword = ''
     this.mentionChoosing = false
+    this.currentSelectMention = null
     this.stickerChoosing = false
   }
   sendSticker(stickerId: string) {
@@ -338,31 +340,29 @@ export default class ChatItem extends Vue {
   handleMention(input: any) {
     let content = input.innerText.replace(/\s/g, this.splitSpace)
 
-    const regxMention = new RegExp('@(.+?)?' + this.splitSpace, 'g')
-    const ids: any = []
-    let pieces: any = []
-    while ((pieces = regxMention.exec(`${content}${this.splitSpace}`)) !== null) {
-      ids.push(pieces[0].trim())
+    const contentPieces = content.split(this.splitSpace)
+    let lastPiece = ''
+    let keyword = ''
+    if (contentPieces.length) {
+      lastPiece = contentPieces[contentPieces.length - 1]
+    }
+    if (/@(.*)?\S$/.test(lastPiece) || lastPiece === '@') {
+      keyword = lastPiece
     }
 
-    const mentions: any = []
-    ids.forEach((id: string) => {
-      const user = userDao.findUserByIdentityNumber(id.substring(1, id.length))
-      if (user) {
-        mentions.push(user)
-      }
-    })
-    this.mentions = mentions
+    const numbers = contentUtil.parseMentionIdentityNumber(content)
+    if (numbers.length > 0) {
+      this.mentions = userDao.findUsersByIdentityNumber(numbers)
+    }
 
-    const idPieces = content.split(this.splitSpace)
-
-    if (ids.length > 0 && ['@', idPieces[idPieces.length - 1].trim()].indexOf(ids[ids.length - 1]) > -1) {
-      this.mentionKeyword = ids[ids.length - 1]
+    if (keyword) {
+      this.mentionKeyword = keyword.trim()
       if (this.currentSelectMention && this.mentionKeyword === `@${this.currentSelectMention.identity_number}`) {
         this.chooseMentionUser(this.currentSelectMention)
       }
     } else {
       this.mentionChoosing = false
+      this.currentSelectMention = null
       this.mentionKeyword = ''
       if (!input.innerText.trim()) {
         try {

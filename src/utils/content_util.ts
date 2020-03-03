@@ -26,7 +26,8 @@ class ContentUtil {
     return e.innerText.replace(/\n　\n/g, '\n\n')
   }
   renderUrl(content: string) {
-    content = content.replace(/&/g, '&amp;')
+    content = content
+      .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
@@ -141,8 +142,10 @@ class ContentUtil {
       let linkTemp = []
       let linkArr
       while ((linkArr = regxLink.exec(content)) !== null) {
-        const temp = linkArr[3].replace(regx, `<b class="highlight ${highlight}">$1</b>`)
-        linkTemp.push([linkArr[0], `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`])
+        if (linkArr && linkArr[3]) {
+          const temp = linkArr[3].replace(regx, `<b class="highlight ${highlight}">$1</b>`)
+          linkTemp.push([linkArr[0], `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`])
+        }
       }
       if (linkTemp.length > 0) {
         linkTemp.forEach(item => {
@@ -162,7 +165,14 @@ class ContentUtil {
     }
     return Array.from(mentionIds)
   }
-  parseMention(content: string, conversationId: string, messageId: string, messageMentionDao: any, ignore: boolean = true, quoteMe: boolean = false) {
+  parseMention(
+    content: string,
+    conversationId: string,
+    messageId: string,
+    messageMentionDao: any,
+    ignore: boolean = true,
+    quoteMe: boolean = false
+  ) {
     if (!content) return null
     const account = localStorage.getItem('account')!!
     const accountId = JSON.parse(account).user_id

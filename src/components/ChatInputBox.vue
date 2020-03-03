@@ -248,6 +248,7 @@ export default class ChatItem extends Vue {
 
   mentions: string[] = []
   chooseMentionUser(user: any) {
+    console.log('------chooseMentionUser')
     this.mentions.push(user)
     const $target: any = this.$refs.box
     let html = $target.innerHTML
@@ -261,7 +262,7 @@ export default class ChatItem extends Vue {
 
     const htmlPieces = html.split('&nbsp;')
 
-    for (let i = 0; i < htmlPieces.length; i++) {
+    for (let i = htmlPieces.length - 1; i >= 0; i--) {
       let includes = false
       idsTemp.forEach((id: string) => {
         if (htmlPieces[i].includes(id)) {
@@ -270,14 +271,18 @@ export default class ChatItem extends Vue {
       })
       if (!includes) {
         const messageIds: any = []
-        this.mentions.forEach((item: any) => {
-          const id = `@${item.identity_number}`
-          if (messageIds.indexOf(id) < 0 && idsTemp.indexOf(id) < 0) {
-            const hl = contentUtil.highlight(id, id, '')
-            htmlPieces[i] = htmlPieces[i].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
-          }
-          messageIds.push(id)
-        })
+        const innerPieces = htmlPieces[i].split(' ')
+        for (let j = innerPieces.length - 1; j >= 0; j--) {
+          this.mentions.forEach((item: any) => {
+            const id = `@${item.identity_number}`
+            if (messageIds.indexOf(id) < 0 && idsTemp.indexOf(id) < 0) {
+              const hl = contentUtil.highlight(id, id, '')
+              innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
+            }
+            messageIds.push(id)
+          })
+        }
+        htmlPieces[i] = innerPieces.join(' ')
       }
     }
 
@@ -326,6 +331,12 @@ export default class ChatItem extends Vue {
         let html = $target.innerHTML
         const highlightRegx = new RegExp(`<b class="highlight default">${content.trim()}(.*)?</b>`, 'g')
         html = html.replace(highlightRegx, content)
+        for (let i = 0; i < this.mentions.length; i++) {
+          const item: any = this.mentions[i]
+          if (`@${item.identity_number}` === content.trim()) {
+            this.mentions.splice(i, 1)
+          }
+        }
         $target.innerHTML = html
         this.boxFocusAction(true)
       }
@@ -365,6 +376,7 @@ export default class ChatItem extends Vue {
       this.currentSelectMention = null
       this.mentionKeyword = ''
       if (!input.innerText.trim()) {
+        this.mentions = []
         try {
           // @ts-ignore
           window.getSelection().collapse(input, input.childNodes.length)

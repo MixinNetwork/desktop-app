@@ -304,19 +304,13 @@ class SendWorker extends BaseWorker {
 
   getMentionParam(content) {
     if (!content) return null
-    content = content.replace(/\s/g, ' ')
-    const regx = new RegExp('@(.+?)? ', 'g')
-    const numbers = []
-    let pieces = []
-    const mentionIds = new Set()
-    while ((pieces = regx.exec(`${content} `)) !== null) {
-      numbers.push(pieces[1].trim())
-    }
+    const numbers = contentUtil.parseMentionIdentityNumber(content)
     if (numbers.length === 0) {
       return null
     }
-    numbers.forEach((id) => {
-      const user = userDao.findUserByIdentityNumber(id)
+    const mentionIds = new Set()
+    const mentions = userDao.findUsersByIdentityNumber(numbers)
+    mentions.forEach((user) => {
       if (user) {
         mentionIds.add(user.user_id)
       }

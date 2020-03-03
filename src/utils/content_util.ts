@@ -152,12 +152,7 @@ class ContentUtil {
     }
     return result
   }
-  parseMention(content: string, conversationId: string, messageId: string, messageMentionDao: any, ignore: boolean = true, quoteMe: boolean = false) {
-    if (!content) return null
-    const account = localStorage.getItem('account')!!
-    const accountId = JSON.parse(account).user_id
-
-    let remind = 1
+  parseMentionIdentityNumber(content: string) {
     const pieces = content.match(mentionReg)
     const mentionIds = new Set()
     if (pieces && pieces.length > 0) {
@@ -165,15 +160,24 @@ class ContentUtil {
         mentionIds.add(piece.replace('@', '').trim())
       })
     }
-    if (mentionIds.size === 0) {
+    return Array.from(mentionIds)
+  }
+  parseMention(content: string, conversationId: string, messageId: string, messageMentionDao: any, ignore: boolean = true, quoteMe: boolean = false) {
+    if (!content) return null
+    const account = localStorage.getItem('account')!!
+    const accountId = JSON.parse(account).user_id
+    let remind = 1
+    const mentionIds = this.parseMentionIdentityNumber(content)
+    if (mentionIds.length === 0) {
       if (quoteMe) {
         messageMentionDao.insert(conversationId, messageId, '', 0)
       }
       return null
     }
-    mentionIds.forEach((id: any) => {
-      const user = userDao.findUserByIdentityNumber(id)
+    const users = userDao.findUsersByIdentityNumber(mentionIds)
+    users.forEach((user: any) => {
       if (user) {
+        const id = user.identity_number
         if (!ignore && user.user_id === accountId) {
           remind = 0
         }

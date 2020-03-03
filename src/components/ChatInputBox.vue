@@ -105,6 +105,9 @@ export default class ChatItem extends Vue {
 
   @Watch('mentionChoosing')
   onMentionChoosingChanged(val: string, oldVal: string) {
+    if (!val) {
+      this.currentSelectMention = null
+    }
     this.$emit('panelChoosing', 'mention' + (val ? 'Open' : 'Hide'))
   }
 

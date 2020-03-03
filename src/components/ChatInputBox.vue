@@ -114,6 +114,13 @@ export default class ChatItem extends Vue {
   @Watch('conversation')
   onConversationChanged(newC: any, oldC: any) {
     this.mentions = []
+    setTimeout(() => {
+      const $target: any = this.$refs.box
+      const numbers = contentUtil.parseMentionIdentityNumber($target.innerText)
+      if (numbers.length > 0) {
+        this.mentions = userDao.findUsersByIdentityNumber(numbers)
+      }
+    })
   }
 
   @Watch('panelHeight')
@@ -248,7 +255,6 @@ export default class ChatItem extends Vue {
 
   mentions: string[] = []
   chooseMentionUser(user: any) {
-    console.log('------chooseMentionUser')
     this.mentions.push(user)
     const $target: any = this.$refs.box
     let html = $target.innerHTML
@@ -359,11 +365,6 @@ export default class ChatItem extends Vue {
     }
     if (/@(.*)?\S$/.test(lastPiece) || lastPiece === '@') {
       keyword = lastPiece
-    }
-
-    const numbers = contentUtil.parseMentionIdentityNumber(content)
-    if (numbers.length > 0) {
-      this.mentions = userDao.findUsersByIdentityNumber(numbers)
     }
 
     if (keyword) {

@@ -160,7 +160,7 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <span v-if="messageType() === 'text'" class="text">
+          <span v-if="messageType() === 'text'" class="text" v-intersect="onIntersect">
             <span v-html="textMessage(message)"></span>
           </span>
           <span v-else-if="messageType() === 'unknown'" class="unknown">{{$t('chat.chat_unknown') }}</span>
@@ -256,6 +256,12 @@ export default class MessageItem extends Vue {
           }
         }
       }
+    }
+  }
+  onIntersect({ target, isIntersecting }: any) {
+    const { messageId, mentions } = this.message
+    if (mentions) {
+      this.$emit('mention-visible', { messageId, isIntersecting })
     }
   }
   mediaClick() {

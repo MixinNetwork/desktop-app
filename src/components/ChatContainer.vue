@@ -42,7 +42,7 @@
         @dragleave="onDragLeave"
         @scroll="onScroll"
       >
-        <li v-show="!user.app_id && showTopTips" class="encryption tips">
+        <li v-show="!user.app_id" :style="showTopTips ? '' : 'opacity:0'" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
         <TimeDivide
@@ -60,6 +60,7 @@
           :me="me"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
+          @mention-visible="mentionVisibleUpdate"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -71,10 +72,10 @@
       <div
         class="floating mention"
         :class="{ 'box-message': boxMessage, 'is-bottom': isBottom }"
-        v-show="conversation && currentMentionNum>0"
+        v-show="conversation && showMentionBottom"
         @click="mentionClick"
       >
-        <span class="badge" v-if="currentMentionNum>0">{{currentMentionNum}}</span>
+        <span class="badge" v-if="showMentionBottom">{{currentMentionNum}}</span>
         <span class="mention-icon">@</span>
       </div>
     </transition>
@@ -680,16 +681,42 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum(0)
   }
 
+  mentionVisibleIds: any = []
+  mentionVisibleUpdate(payload: any) {
+    const { messageId, isIntersecting } = payload
+    const { conversationId } = this.conversation
+    const mentions = this.conversationUnseenMentionsMap[conversationId]
+    if (mentions && mentions.length > 0) {
+      mentions.forEach((item: any) => {
+        if (item.message_id === messageId) {
+          if (isIntersecting) {
+            this.mentionVisibleIds.push(messageId)
+          } else {
+            const index = this.mentionVisibleIds.indexOf(messageId)
+            this.mentionVisibleIds.splice(index, 1)
+          }
+        }
+        // TODO
+        // this.actionMarkMentionRead({ conversationId, messageId })
+      })
+    }
+  }
+
+  get showMentionBottom() {
+    return this.currentMentionNum > 0 && this.mentionVisibleIds.length === 0
+  }
+
   mentionClick() {
     const { conversationId } = this.conversation
-    const messtions = this.conversationUnseenMentionsMap[conversationId]
-    if (messtions && messtions.length > 0) {
-      const message = messtions[0]
+    const mentions = this.conversationUnseenMentionsMap[conversationId]
+    if (mentions && mentions.length > 0) {
+      const message = mentions[0]
       const messageId = message.message_id
       message.messageId = messageId
       this.unreadMessageId = ''
       this.goMessagePos(message)
       this.actionMarkMentionRead({ conversationId, messageId })
+      this.$refs.inputBox.boxFocusAction(true)
     }
   }
 
@@ -697,6 +724,7 @@ export default class ChatContainer extends Vue {
     messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
       this.goBottom()
+      this.$refs.inputBox.boxFocusAction(true)
     }, 100)
   }
   infiniteScroll(direction: any) {

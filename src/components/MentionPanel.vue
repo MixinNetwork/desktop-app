@@ -52,7 +52,7 @@ export default class MentionPanel extends Vue {
     const { conversationId } = this.conversation
     this.participants = participantDao.getParticipantsByConversationId(conversationId)
     setTimeout(() => {
-      if (keyword && this.participants.length > 2) {
+      if (keyword && this.participants.length > 1) {
         let contacts: any = []
         const mentionIds: any = []
         this.mentions.forEach((item: any) => {

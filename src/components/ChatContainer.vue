@@ -225,6 +225,7 @@ export default class ChatContainer extends Vue {
     if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
       this.showMessages = false
       this.boxMessage = null
+      this.mentionMarkReadLock = false
       this.goBottom(true)
       this.hideChoosePanel()
       this.$nextTick(() => {
@@ -681,6 +682,7 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum(0)
   }
 
+  mentionMarkReadLock: boolean = false
   mentionVisibleIds: any = []
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
@@ -695,18 +697,23 @@ export default class ChatContainer extends Vue {
             const index = this.mentionVisibleIds.indexOf(messageId)
             this.mentionVisibleIds.splice(index, 1)
           }
+          if (!this.mentionMarkReadLock && isIntersecting) {
+            this.actionMarkMentionRead({ conversationId, messageId })
+          }
         }
-        // TODO
-        // this.actionMarkMentionRead({ conversationId, messageId })
       })
     }
+    setTimeout(() => {
+      this.mentionMarkReadLock = true
+    }, 200)
   }
 
   get showMentionBottom() {
-    return this.currentMentionNum > 0 && this.mentionVisibleIds.length === 0
+    return this.mentionVisibleIds.length === 0 && this.currentMentionNum > 0
   }
 
   mentionClick() {
+    this.mentionMarkReadLock = false
     const { conversationId } = this.conversation
     const mentions = this.conversationUnseenMentionsMap[conversationId]
     if (mentions && mentions.length > 0) {
@@ -715,7 +722,7 @@ export default class ChatContainer extends Vue {
       message.messageId = messageId
       this.unreadMessageId = ''
       this.goMessagePos(message)
-      this.actionMarkMentionRead({ conversationId, messageId })
+      // this.actionMarkMentionRead({ conversationId, messageId })
       this.$refs.inputBox.boxFocusAction(true)
     }
   }

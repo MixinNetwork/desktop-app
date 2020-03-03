@@ -31,14 +31,14 @@ function refreshConversation(
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
     conversation.participants = participants
+    const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+    mentionsMap[conversationId] = mentionMessages
+    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
     Vue.set(state.conversations, conversationId, conversation)
   }
   state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
     return item.conversationId
   })
-  const mentionMessages: any = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
-  mentionsMap[conversationId] = mentionMessages
-  state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
 }
 
 let keywordCache: any = null
@@ -183,13 +183,17 @@ export default {
   init(state: any) {
     const conversations = conversationDao.getConversations()
     const conversationKeys: any = []
+    const mentionsMap = state.conversationUnseenMentionsMap
     conversations.forEach((conversation: any, index: number) => {
       const conversationId = conversation.conversationId
       conversationKeys[index] = conversationId
       const participants = participantDao.getParticipantsByConversationId(conversationId)
       conversation.participants = participants
+      const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+      mentionsMap[conversationId] = mentionMessages
       Vue.set(state.conversations, conversationId, conversation)
     })
+    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
     const friends = userDao.findFriends()
     if (friends.length > 0) {
       state.friends = friends
@@ -232,8 +236,7 @@ export default {
   },
   markMentionRead(state: any, { conversationId, messageId }: any) {
     const mentionsMap = state.conversationUnseenMentionsMap
-    const messages = mentionsMap[conversationId]
-    if (!messages) return
+    const messages = mentionsMap[conversationId] || []
     for (let i = 0; i < messages.length; i++) {
       if (messages[i].messageId === messageId) {
         messages.splice(i, 1)

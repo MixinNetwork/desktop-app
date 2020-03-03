@@ -690,6 +690,7 @@ export default class ChatContainer extends Vue {
       this.unreadMessageId = ''
       this.goMessagePos(message)
       this.actionMarkMentionRead({ conversationId, messageId })
+      this.$refs.inputBox.boxFocusAction()
     }
   }
 
@@ -697,6 +698,7 @@ export default class ChatContainer extends Vue {
     messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
       this.goBottom()
+      this.$refs.inputBox.boxFocusAction()
     }, 100)
   }
   infiniteScroll(direction: any) {

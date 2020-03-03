@@ -350,7 +350,7 @@ class ReceiveWorker extends BaseWorker {
       if (m.status === 'MENTION_READ') {
         messageMentionDao.markMentionRead(m.message_id)
         store.dispatch('markMentionRead', {
-          conversationId: m.conversation_id,
+          conversationId: '',
           messageId: m.message_id
         })
         continue

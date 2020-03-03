@@ -236,9 +236,20 @@ export default {
   },
   markMentionRead(state: any, { conversationId, messageId }: any) {
     const mentionsMap = state.conversationUnseenMentionsMap
+    if (!conversationId) {
+      Object.keys(mentionsMap).forEach(cid => {
+        for (let i = 0; i < mentionsMap[cid].length; i++) {
+          if (mentionsMap[cid][i].message_id === messageId) {
+            conversationId = cid
+            break
+          }
+        }
+      })
+    }
     const messages = mentionsMap[conversationId] || []
     for (let i = 0; i < messages.length; i++) {
-      if (messages[i].messageId === messageId) {
+      const mId = messages[i].message_id
+      if (mId === messageId) {
         messages.splice(i, 1)
         break
       }

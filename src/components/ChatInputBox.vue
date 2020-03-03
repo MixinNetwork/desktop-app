@@ -178,15 +178,15 @@ export default class ChatItem extends Vue {
   }
 
   sendMessage(event: any) {
-    event.stopPropagation()
-    event.preventDefault()
     if (this.currentSelectMention) {
       this.chooseMentionUser(this.currentSelectMention)
+      event.preventDefault()
       return
     }
     if (this.inputFlag === true || event.shiftKey) {
       return
     }
+    event.preventDefault()
     const $target: any = this.$refs.box
     const text = contentUtil.messageFilteredText($target)
     if (text.trim().length <= 0) {

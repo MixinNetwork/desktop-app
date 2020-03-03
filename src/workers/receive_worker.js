@@ -439,6 +439,18 @@ class ReceiveWorker extends BaseWorker {
         quoteMe
       )
       messageDao.insertMessage(message)
+      const mentionIds = contentUtil.parseMentionIdentityNumber(plain)
+      if (mentionIds.length > 0) {
+        const users = userDao.findUsersByIdentityNumber(mentionIds)
+        users.forEach((user) => {
+          if (user) {
+            const id = user.identity_number
+            const mentionName = `@${user.full_name}`
+            const regx = new RegExp(`@${id}`, 'g')
+            plain = plain.replace(regx, mentionName)
+          }
+        })
+      }
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
     } else if (data.category.endsWith('_POST')) {
       let plain = plaintext

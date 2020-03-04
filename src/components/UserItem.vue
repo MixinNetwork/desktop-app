@@ -1,6 +1,6 @@
 <template>
-  <li class="user_item_layout" @click="$emit('user-click',user)">
-    <Avatar class="user_item_avatar" :user="user" />
+  <li class="user-item" @click="$emit('user-click',user)">
+    <Avatar class="user-item-avatar" :user="user" />
     <div class="content">
       <div class="title">
         <div class="name">
@@ -52,10 +52,11 @@ export default class UserItem extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.user_item_layout {
+.user-item {
   display: flex;
   flex-direction: row;
   align-items: center;
+  contain: layout;
   cursor: pointer;
   padding: 0.45rem 1.1rem;
   &:hover,
@@ -66,7 +67,7 @@ export default class UserItem extends Vue {
 
   background: white;
 
-  .user_item_avatar {
+  .user-item-avatar {
     width: 2.4rem;
     height: 2.4rem;
     margin-right: 0.6rem;

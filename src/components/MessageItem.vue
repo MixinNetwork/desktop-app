@@ -547,6 +547,7 @@ img {
   max-width: 100%;
 }
 li {
+  contain: layout;
   margin-bottom: 0.45rem;
   pointer-events: none;
   * {

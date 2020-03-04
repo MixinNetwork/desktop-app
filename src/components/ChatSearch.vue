@@ -109,6 +109,7 @@ export default class ChatSearch extends Vue {
   background: #fff;
   display: flex;
   flex-flow: column nowrap;
+  contain: layout;
   .title-bar {
     background: #ffffff;
     height: 2.85rem;

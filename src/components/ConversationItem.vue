@@ -227,6 +227,7 @@ $light-font-color: #aaa;
 li.conversation.item {
   cursor: pointer;
   display: flex;
+  contain: layout;
   align-items: stretch;
   padding: 0.6rem 0.6rem;
   &.current {

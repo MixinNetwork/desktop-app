@@ -1,14 +1,14 @@
 <template>
-  <div id="delails_root">
-    <header class="title_bar">
+  <div class="delails">
+    <header class="titlebar">
       <div @click="$emit('close')">
         <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
       </div>
-      <div class="title_content">{{$t('profile.title')}}</div>
+      <div class="title-content">{{$t('profile.title')}}</div>
     </header>
     <mixin-scrollbar>
       <div class="ul content">
-        <header class="content_header">
+        <header class="content-header">
           <div>
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
@@ -187,11 +187,12 @@ export default class Details extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-#delails_root {
+.delails {
+  contain: layout;
   background: #f5f7fa;
   display: flex;
   flex-flow: column nowrap;
-  .title_bar {
+  .titlebar {
     background: #ffffff;
     height: 2.85rem;
     display: flex;
@@ -199,7 +200,7 @@ export default class Details extends Vue {
     padding: 0 0.8rem 0 0.8rem;
     line-height: 0;
 
-    .title_content {
+    .title-content {
       margin-left: 0.8rem;
       font-weight: 500;
       font-size: 0.8rem;
@@ -210,7 +211,7 @@ export default class Details extends Vue {
     flex: 1;
     overflow: auto;
     flex-flow: column nowrap;
-    .content_header {
+    .content-header {
       background: white;
       display: flex;
       align-items: center;

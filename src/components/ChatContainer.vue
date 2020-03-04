@@ -1016,6 +1016,7 @@ export default class ChatContainer extends Vue {
   }
 
   .messages {
+    contain: layout;
     flex: 1;
     height: 100%;
     overflow-x: hidden;

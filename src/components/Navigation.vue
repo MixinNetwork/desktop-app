@@ -573,6 +573,7 @@ export default class Navigation extends Vue {
   overflow: hidden;
   box-sizing: border-box;
   font-size: 0.8rem;
+  contain: layout;
   .loading {
     width: 1.375rem;
     height: 1.375rem;

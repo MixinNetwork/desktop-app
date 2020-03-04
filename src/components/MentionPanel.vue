@@ -132,6 +132,7 @@ export default class MentionPanel extends Vue {
 </script>
 <style lang="scss" scoped>
 .mention-panel {
+  contain: layout;
   background: #ffffff;
   border-top: 0.05rem solid #f0f0f0;
   display: flex;

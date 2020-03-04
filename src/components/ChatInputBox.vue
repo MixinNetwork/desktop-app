@@ -228,7 +228,7 @@ export default class ChatItem extends Vue {
     this.mentionChoosing = false
     this.currentSelectMention = null
     this.panelHeight = 12
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       this.stickerChoosing = !this.stickerChoosing
     })
   }
@@ -320,7 +320,11 @@ export default class ChatItem extends Vue {
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
         this.mentionHoverPrevent = true
-        this.mentionChoosing = true
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            this.mentionChoosing = true
+          })
+        }, 150)
       }
     } else {
       const selection: any = window.getSelection()

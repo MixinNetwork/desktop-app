@@ -186,6 +186,7 @@ export default class ChatSticker extends Vue {
   right: 0;
   position: absolute;
   z-index: 1;
+  contain: layout;
 
   .title-bar {
     overflow-x: auto;

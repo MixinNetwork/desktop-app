@@ -94,6 +94,7 @@
 <script lang="ts">
 import { getNameColorById } from '@/utils/util'
 import { messageType } from '@/utils/constants'
+import contentUtil from '@/utils/content_util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
@@ -123,10 +124,8 @@ export default class ReplyMessageContainer extends Vue {
   }
   get getContent() {
     if (this.message.type.endsWith('_TEXT')) {
-      const { mentions, content } = this.message
-      if (mentions !== null) {
-        return mentions
-      }
+      let { mentions, content } = this.message
+      content = contentUtil.renderMention(content, mentions)
       return content
     } else if (this.message.type.endsWith('_STICKER')) {
       return this.$t('chat.chat_sticker')

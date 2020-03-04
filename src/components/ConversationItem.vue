@@ -131,9 +131,7 @@ export default class ConversationItem extends Vue {
       return this.getMessageName() + this.$t('chat.chat_sticker')
     } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
       let content = this.conversation.content
-      if (this.conversation.mentions !== null && this.conversation.mentions !== undefined) {
-        content = this.conversation.mentions
-      }
+      content = contentUtil.renderMention(content, this.conversation.mentions)
       content = contentUtil.renderUrl(content)
       return this.getMessageName() + content
     } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {

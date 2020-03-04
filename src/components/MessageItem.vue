@@ -355,13 +355,11 @@ export default class MessageItem extends Vue {
   }
   textMessage(message: any) {
     let content = message.content
-    if (message.mentions !== null) {
-      content = message.mentions
-    }
     content = contentUtil.renderUrl(content)
     if (this.searchKeyword) {
       content = contentUtil.highlight(content, this.searchKeyword, 'in-bubble')
     }
+    content = contentUtil.renderMention(content, message.mentions)
     return content
   }
 

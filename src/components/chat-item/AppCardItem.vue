@@ -93,7 +93,7 @@ export default class AppCardItem extends Vue {
     display: flex;
     flex-direction: column;
     align-content: center;
-    max-width: 11.2rem;
+    max-width: 10.2rem;
     &,
     * {
       overflow: hidden;

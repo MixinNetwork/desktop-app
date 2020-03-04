@@ -115,7 +115,7 @@ export default class MessageForward extends Vue {
         this.actionSendMessage(msg)
       } else if (message.type.endsWith('_LIVE')) {
         const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
-        let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name } = message
+        let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name, mediaName } = message
         const msg = {
           conversationId,
           payload: {
@@ -125,7 +125,7 @@ export default class MessageForward extends Vue {
             mediaWidth,
             mediaHeight,
             thumbUrl,
-            mediaName: name,
+            mediaName: mediaName || name,
             category
           }
         }
@@ -133,6 +133,7 @@ export default class MessageForward extends Vue {
       } else if (this.isFileType(message.type)) {
         let {
           mediaUrl,
+          mediaName,
           mediaMimeType,
           mediaDuration,
           mediaSize,
@@ -151,6 +152,7 @@ export default class MessageForward extends Vue {
         const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
         const payload: AttachmentMessagePayload = {
           mediaUrl,
+          mediaName: mediaName || name,
           mediaMimeType,
           mediaDuration,
           mediaWidth,

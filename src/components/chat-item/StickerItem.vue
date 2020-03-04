@@ -76,7 +76,7 @@ export default class StickerItem extends Vue {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
   .root {
-    max-width: 14.4rem;
+    max-width: 14rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;

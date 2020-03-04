@@ -104,7 +104,7 @@ export default class ContactItem extends Vue {
     border-radius: 0.3rem;
     box-shadow: 0 0.05rem 0.05rem #77777733;
     flex-wrap: wrap;
-    max-width: 12rem;
+    max-width: 14rem;
     .reply {
       margin-bottom: 0;
       width: 100%;

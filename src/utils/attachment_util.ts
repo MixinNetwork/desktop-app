@@ -183,6 +183,7 @@ export async function putAttachment(
   let {
     mediaUrl,
     mediaMimeType,
+    mediaName,
     category,
     id,
     mediaWidth = 0,
@@ -202,8 +203,9 @@ export async function putAttachment(
   let key: Iterable<number>
   let digest: Iterable<number>
   const message: AttachmentMessagePayload = {
+    id,
     category,
-    mediaName: name,
+    mediaName: mediaName || name,
     mediaSize: buffer.byteLength,
     mediaWidth,
     mediaHeight,

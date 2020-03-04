@@ -160,10 +160,11 @@ export default class FileItem extends Vue {
     display: flex;
     flex-direction: row;
     align-content: center;
-    width: 9.6rem;
+    min-width: 9.6rem;
     border-radius: 0.3rem;
     box-shadow: 0 0.05rem 0.05rem #77777733;
     flex-wrap: wrap;
+    max-width: 14rem;
     .reply {
       width: 100%;
       margin-bottom: 0;

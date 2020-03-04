@@ -2,7 +2,11 @@
   <main class="chat container" @click="hideChoosePanel">
     <header v-show="conversation">
       <div>
-        <Avatar style="font-size: 0.8rem" :conversation="conversation" @onAvatarClick="showDetails" />
+        <Avatar
+          style="font-size: 0.8rem"
+          :conversation="conversation"
+          @onAvatarClick="showDetails"
+        />
       </div>
       <div class="title">
         <div @click="showDetails">
@@ -28,7 +32,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelHeight < 12 ? '' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
+      :style="(panelHeight < 12 ? '' : 'transition: 0.3s all ease;')"
       v-if="conversation"
       :goBottom="!showScroll"
     >
@@ -58,6 +62,7 @@
           :unread="unreadMessageId"
           :conversation="conversation"
           :me="me"
+          :layout="showMessages"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @mention-visible="mentionVisibleUpdate"

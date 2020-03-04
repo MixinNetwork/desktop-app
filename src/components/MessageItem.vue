@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :id="`m-${message.messageId}`">
+  <li ref="messageItem" :style="layout ? 'contain: layout;' : ''" :id="`m-${message.messageId}`">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -233,6 +233,7 @@ export default class MessageItem extends Vue {
   @Prop(Object) readonly prev: any
   @Prop(String) readonly unread: any
   @Prop(String) readonly searchKeyword: any
+  @Prop(Boolean) readonly layout: any
 
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
@@ -547,7 +548,6 @@ img {
   max-width: 100%;
 }
 li {
-  contain: layout;
   margin-bottom: 0.45rem;
   pointer-events: none;
   * {

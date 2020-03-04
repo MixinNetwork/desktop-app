@@ -320,11 +320,13 @@ export default class ChatItem extends Vue {
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
         this.mentionHoverPrevent = true
-        setTimeout(() => {
-          requestAnimationFrame(() => {
+        // @ts-ignore
+        requestIdleCallback(
+          () => {
             this.mentionChoosing = true
-          })
-        }, 150)
+          },
+          { timeout: 30 }
+        )
       }
     } else {
       const selection: any = window.getSelection()

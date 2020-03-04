@@ -77,7 +77,7 @@ export default class FileItem extends Vue {
   $electron: any
 
   openFile() {
-    if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
+    if (!this.message.mediaUrl || this.message.mediaStatus !== MediaStatus.DONE) {
       return
     }
     const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {

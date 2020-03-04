@@ -203,6 +203,7 @@ import TimeAndStatus from './chat-item/TimeAndStatus.vue'
 import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
 import contentUtil from '@/utils/content_util'
+import { AttachmentMessagePayload } from '@/utils/attachment_util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
@@ -266,11 +267,52 @@ export default class MessageItem extends Vue {
     }
   }
   mediaClick() {
-    if (this.message.mediaStatus !== MediaStatus.CANCELED && this.message.mediaStatus !== MediaStatus.EXPIRED) {
+    if (this.message.mediaStatus === MediaStatus.DONE) {
       return
     }
     if (this.message.userId === this.me.user_id && this.message.mediaUrl) {
-      this.$store.dispatch('upload', this.message)
+      let {
+        appId,
+        type,
+        messageId,
+        conversationId,
+        mediaUrl,
+        mediaName,
+        mediaMimeType,
+        mediaDuration,
+        mediaSize,
+        mediaWidth,
+        mediaHeight,
+        thumbUrl,
+        thumbImage,
+        name,
+        mediaWaveform
+      } = this.message
+      if (/^file:\/\//.test(mediaUrl)) {
+        mediaUrl = mediaUrl.split('file://')[1]
+      }
+      const typeEnds = type.split('_')[1]
+      const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
+      const payload: AttachmentMessagePayload = {
+        mediaUrl,
+        mediaName: mediaName || name,
+        mediaMimeType,
+        mediaDuration,
+        mediaWidth,
+        mediaHeight,
+        mediaSize,
+        thumbUrl,
+        thumbImage,
+        category,
+        mediaWaveform
+      }
+      const msg = {
+        messageId,
+        type,
+        conversationId,
+        payload
+      }
+      this.$store.dispatch('upload', msg)
     } else {
       this.$store.dispatch('download', this.message.messageId)
     }

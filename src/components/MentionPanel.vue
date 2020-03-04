@@ -21,6 +21,7 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 import UserItem from '@/components/UserItem.vue'
+import { ConversationCategory } from '@/utils/constants'
 
 @Component({
   components: {
@@ -49,10 +50,10 @@ export default class MentionPanel extends Vue {
 
   @Watch('keyword')
   onKeywordChanged(keyword: string) {
-    const { conversationId } = this.conversation
+    const { conversationId, category } = this.conversation
     this.participants = participantDao.getParticipantsByConversationId(conversationId)
     setTimeout(() => {
-      if (keyword && this.participants.length > 1) {
+      if (keyword && this.participants.length > 1 && category === ConversationCategory.GROUP) {
         let contacts: any = []
         const mentionIds: any = []
         this.mentions.forEach((item: any) => {

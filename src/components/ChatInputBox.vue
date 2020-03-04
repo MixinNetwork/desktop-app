@@ -321,11 +321,6 @@ export default class ChatItem extends Vue {
         this.stickerChoosing = false
         this.mentionHoverPrevent = true
         this.mentionChoosing = true
-      } else if (
-        len === 1 &&
-        (`@${result[0].identity_number}` === this.mentionKeyword || `@${result[0].full_name}` === this.mentionKeyword)
-      ) {
-        this.chooseMentionUser(result[0])
       }
     } else {
       const selection: any = window.getSelection()
@@ -369,9 +364,6 @@ export default class ChatItem extends Vue {
 
     if (keyword) {
       this.mentionKeyword = keyword.trim()
-      if (this.currentSelectMention && this.mentionKeyword === `@${this.currentSelectMention.identity_number}`) {
-        this.chooseMentionUser(this.currentSelectMention)
-      }
     } else {
       this.mentionChoosing = false
       this.currentSelectMention = null

@@ -172,8 +172,8 @@ class ContentUtil {
     try {
       const mentionsList: any = JSON.parse(mentions)
       mentionsList.forEach((mention: any) => {
-        const id = Object.keys(mention)[0]
-        const mentionName = `@${mention[id]}`
+        const id = mention.identity_number
+        const mentionName = `@${mention.full_name}`
         const regx = new RegExp(`@${id}`, 'g')
         const hl = this.highlight(mentionName, mentionName, `mention id-${id}`)
         content = content.replace(regx, hl)
@@ -204,12 +204,13 @@ class ContentUtil {
     const users = userDao.findUsersByIdentityNumber(mentionIds)
     users.forEach((user: any) => {
       if (user) {
-        const id = user.identity_number
         if (!ignore && user.user_id === accountId) {
           remind = 0
         }
-        const mention: any = {}
-        mention[id] = user.full_name
+        const mention: any = {
+          identity_number: user.identity_number,
+          full_name: user.full_name
+        }
         mentions.push(mention)
       }
     })

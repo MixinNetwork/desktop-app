@@ -674,7 +674,7 @@ export default class ChatContainer extends Vue {
       if (!list) return
       let scrollHeight = list.scrollHeight
       list.scrollTop = scrollHeight
-      this.searchKeyword = ''
+      // this.searchKeyword = ''
       setTimeout(() => {
         this.showScroll = true
       }, 200)

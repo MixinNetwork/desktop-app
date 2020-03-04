@@ -7,6 +7,10 @@ CREATE TABLE IF NOT EXISTS `message_mentions` (
 	PRIMARY KEY(`message_id`)
 );
 
+CREATE INDEX IF NOT EXISTS `index_message_mentions_conversation_id` ON `message_mentions` (
+	`conversation_id`
+);
+
 -- Down
 
 

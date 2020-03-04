@@ -664,6 +664,12 @@ export default class ChatContainer extends Vue {
     this.virtualDom = { firstIndex: msgLen - this.threshold, lastIndex: msgLen - 1 }
     this.beforeUnseenMessageCount = 0
 
+    console.log(6667)
+    // if () {
+
+    //   // this.actionMarkMentionRead({ conversationId, messageId })
+    // }
+
     setTimeout(() => {
       if (!wait) {
         this.showMessages = true
@@ -704,6 +710,9 @@ export default class ChatContainer extends Vue {
       })
     }
     setTimeout(() => {
+      if (this.isBottom && isIntersecting) {
+        this.actionMarkMentionRead({ conversationId, messageId })
+      }
       this.mentionMarkReadLock = true
     }, 200)
   }

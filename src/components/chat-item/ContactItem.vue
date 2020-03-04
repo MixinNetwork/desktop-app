@@ -80,19 +80,19 @@ export default class ContactItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .username {
-    margin-left: 0.4rem;
+    margin-left: 0.3rem;
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    margin-bottom: 0.15rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .contact {
     cursor: pointer;
@@ -100,30 +100,30 @@ export default class ContactItem extends Vue {
     display: flex;
     flex-direction: row;
     align-content: center;
-    min-width: 12rem;
-    border-radius: 0.4rem;
-    box-shadow: 0px 1px 1px #77777733;
+    min-width: 9.6rem;
+    border-radius: 0.3rem;
+    box-shadow: 0 0.05rem 0.05rem #77777733;
     flex-wrap: wrap;
-    max-width: 15rem;
+    max-width: 14rem;
     .reply {
       margin-bottom: 0;
       width: 100%;
     }
     #avatar {
-      width: 2.625rem;
-      height: 2.625rem;
+      width: 2.1rem;
+      height: 2.1rem;
       flex-shrink: 0;
-      margin: 0.75rem;
+      margin: 0.6rem;
     }
     .content {
-      max-width: 10rem;
-      padding: 0.75rem 0.75rem 0.75rem 0;
+      max-width: 8rem;
+      padding: 0.6rem 0.6rem 0.6rem 0;
       display: flex;
       flex: 1;
       flex-direction: column;
       text-align: start;
       .name {
-        font-size: 1rem;
+        font-size: 0.8rem;
         overflow: hidden;
         display: flex;
         span {
@@ -134,7 +134,7 @@ export default class ContactItem extends Vue {
         svg {
           vertical-align: top;
           flex-shrink: 0;
-          margin: 0.2rem 0 0 0.4rem;
+          margin: 0.15rem 0 0 0.3rem;
         }
       }
       .bottom {
@@ -142,8 +142,8 @@ export default class ContactItem extends Vue {
         justify-content: space-between;
         .number {
           color: #888888cc;
-          font-size: 0.8rem;
-          margin-top: 0.375rem;
+          font-size: 0.6rem;
+          margin-top: 0.3rem;
         }
       }
     }

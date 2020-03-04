@@ -87,7 +87,7 @@
       :src="message.thumbUrl"
     />
     <span class="icon-close" @click="$emit('hidenReplyBox')">
-      <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
+      <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
     </span>
   </div>
 </template>
@@ -178,25 +178,25 @@ export default class ReplyMessageContainer extends Vue {
   position: relative;
   z-index: 10;
   .diver {
-    width: 0.3rem;
+    width: 0.2rem;
   }
   .layout {
     flex: 1;
-    padding: 0.1875rem;
+    padding: 0.15rem;
     display: flex;
     overflow: hidden;
     flex-direction: column;
 
     .name {
-      font-size: 1rem;
+      font-size: 0.8rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      line-height: 1.5rem;
+      line-height: 1.2rem;
     }
     .content {
-      font-size: 1rem;
-      line-height: 1.125rem;
+      font-size: 0.8rem;
+      line-height: 0.9rem;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
@@ -207,19 +207,19 @@ export default class ReplyMessageContainer extends Vue {
     }
   }
   .image {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-top: 0.2rem;
-    margin-left: 0.4rem;
+    width: 2rem;
+    height: 2rem;
+    margin-top: 0.15rem;
+    margin-left: 0.3rem;
     object-fit: cover;
   }
   .icon-close {
     cursor: pointer;
     align-self: center;
-    margin-right: 0.4rem;
+    margin-right: 0.3rem;
   }
   .reply_icon {
-    height: 1.1rem;
+    height: 0.85rem;
     vertical-align: text-top;
   }
 }

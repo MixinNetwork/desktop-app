@@ -1,13 +1,13 @@
 <template>
   <div class="file_layout">
     <div class="header" @click="$emit('close')">
-      <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
+      <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImage" />
       <div class="file" v-else-if="fileName">
-        <svg-icon style="font-size: 2.5rem" icon-class="ic_file" />
+        <svg-icon style="font-size: 2rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
       </div>
     </div>
@@ -81,9 +81,9 @@ export default class FileContainer extends Vue {
       justify-content: center;
       align-items: center;
       .info {
-        margin-top: 1rem;
+        margin-top: 0.8rem;
         word-break: break-all;
-        padding: 0 1rem;
+        padding: 0 0.8rem;
       }
     }
   }
@@ -94,40 +94,40 @@ export default class FileContainer extends Vue {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    top: 3.6rem;
-    left: 1rem;
-    right: 1rem;
-    bottom: 6rem;
-    font-size: 1.25rem;
+    top: 2.85rem;
+    left: 0.8rem;
+    right: 0.8rem;
+    bottom: 4.8rem;
+    font-size: 1rem;
     background: #f5f7fa;
-    border-radius: 0.625rem;
-    border: 1px dashed #c0cfe6;
+    border-radius: 0.5rem;
+    border: 0.05rem dashed #c0cfe6;
   }
   .header {
-    padding: 1rem;
+    padding: 0.8rem;
     display: flex;
     pointer-events: all;
     label {
       font-weight: 600;
-      font-size: 1.125rem;
-      margin-left: 0.375rem;
+      font-size: 0.9rem;
+      margin-left: 0.3rem;
     }
   }
 
   .create {
-    width: 1.75rem;
-    height: 1.75rem;
+    width: 1.4rem;
+    height: 1.4rem;
     background: #397ee4;
     cursor: pointer;
     color: white;
-    padding: 0.75rem;
-    border-radius: 1.75rem;
+    padding: 0.6rem;
+    border-radius: 1.4rem;
     position: absolute;
-    bottom: 1.5rem;
+    bottom: 1.2rem;
     left: 0;
     right: 0;
     margin: auto;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.16), 0 0.15rem 0.3rem rgba(0, 0, 0, 0.23);
     pointer-events: all;
     &.disabled {
       background: #e5e7ec;

@@ -176,41 +176,42 @@ export default class ChatSticker extends Vue {
 <style lang="scss" scoped>
 .chat-sticker {
   background: #f5f7fa;
-  border-top: 1px solid #f0f0f0;
+  border-top: 0.05rem solid #f0f0f0;
   display: flex;
   flex-flow: column nowrap;
-  height: 15rem;
-  padding-bottom: 0.1rem;
-  left: 18rem;
-  bottom: 3rem;
+  height: 12rem;
+  padding-bottom: 0.05rem;
+  left: 14.4rem;
+  bottom: 2.4rem;
   right: 0;
   position: absolute;
   z-index: 1;
+  contain: layout;
 
   .title-bar {
     overflow-x: auto;
     &::-webkit-scrollbar {
       height: 0;
     }
-    height: 3.6rem;
+    height: 2.85rem;
     display: flex;
     align-items: center;
-    padding: 0 0.6rem;
-    font-size: 1.125rem;
+    padding: 0 0.45rem;
+    font-size: 0.9rem;
     & > div {
-      padding-right: 0.5rem;
+      padding-right: 0.4rem;
       svg,
       img {
         cursor: pointer;
       }
       img {
-        width: 1.25rem;
+        width: 1rem;
       }
     }
     .album {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 0.2rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 0.15rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -220,8 +221,8 @@ export default class ChatSticker extends Vue {
     }
   }
   .ul {
-    padding: 0 10px 0.8rem;
-    height: 11.4rem;
+    padding: 0 0.5rem 0.6rem;
+    height: 9.1rem;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -244,7 +245,7 @@ export default class ChatSticker extends Vue {
     }
   }
   &.box-message {
-    margin-bottom: 3rem;
+    margin-bottom: 2.4rem;
   }
 }
 </style>

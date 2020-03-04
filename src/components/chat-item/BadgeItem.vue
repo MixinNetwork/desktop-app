@@ -47,33 +47,33 @@ export default class BadgeItem extends Vue {
     const style: any = {}
     if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
       if (this.send) {
-        style.right = '0.8rem'
+        style.right = '0.6rem'
         if (this.quote) {
-          style.width = '100px'
+          style.width = '5rem'
           style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
         } else {
-          style.width = '56px'
+          style.width = '2.8rem'
           style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(197, 237, 255, 1) 50%,rgba(197, 237, 255, 1) 100%`
         }
       } else {
         if (this.quote) {
-          style.width = '100px'
+          style.width = '5rem'
           style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
         } else {
-          style.width = '2.5rem'
+          style.width = '2rem'
           style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(255, 255, 255, 1)  50%,rgba(255, 255, 255, 1) 100%`
         }
       }
     } else if (this.type.endsWith('_IMAGE') || this.type.endsWith('_LIVE')) {
-      style.width = '100px'
+      style.width = '5rem'
       style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
     } else if (this.type.startsWith('APP_BUTTON')) {
-      style.width = '35px'
-      style.height = '16px'
-      style.padding = '0 2px'
+      style.width = '1.75rem'
+      style.height = '0.8rem'
+      style.padding = '0 0.1rem'
       style.background = `linear-gradient(26deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
     } else {
-      style.width = '100px'
+      style.width = '5rem'
       style.background = `linear-gradient(20deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
     }
     return style
@@ -82,7 +82,7 @@ export default class BadgeItem extends Vue {
     const color: any = { color: 'white' }
     if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
       if (this.send) {
-        color.right = '0.8rem'
+        color.right = '0.6rem'
         if (this.quote) {
           color.color = 'white'
         } else {
@@ -108,14 +108,14 @@ export default class BadgeItem extends Vue {
   .shadow {
     position: absolute;
     right: 0;
-    border-top-right-radius: 0.3rem;
+    border-top-right-radius: 0.2rem;
     z-index: 100;
-    height: 2rem;
+    height: 1.6rem;
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-start;
     align-items: center;
-    padding-right: 0.5rem;
+    padding-right: 0.4rem;
     pointer-events: none;
   }
   .badge {
@@ -123,7 +123,7 @@ export default class BadgeItem extends Vue {
     a {
       display: inline-block;
       vertical-align: top;
-      line-height: .8rem;
+      line-height: 0.6rem;
     }
   }
 }

@@ -1,14 +1,14 @@
 <template>
-  <div id="delails_root">
-    <header class="title_bar">
+  <div class="delails">
+    <header class="titlebar">
       <div @click="$emit('close')">
-        <svg-icon style="font-size: 1.5rem" icon-class="ic_close" />
+        <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
       </div>
-      <div class="title_content">{{$t('profile.title')}}</div>
+      <div class="title-content">{{$t('profile.title')}}</div>
     </header>
     <mixin-scrollbar>
       <div class="ul content">
-        <header class="content_header">
+        <header class="content-header">
           <div>
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
@@ -187,22 +187,23 @@ export default class Details extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-#delails_root {
+.delails {
+  contain: layout;
   background: #f5f7fa;
   display: flex;
   flex-flow: column nowrap;
-  .title_bar {
+  .titlebar {
     background: #ffffff;
-    height: 3.6rem;
+    height: 2.85rem;
     display: flex;
     align-items: center;
-    padding: 0px 1rem 0px 1rem;
+    padding: 0 0.8rem 0 0.8rem;
     line-height: 0;
 
-    .title_content {
-      margin-left: 1rem;
+    .title-content {
+      margin-left: 0.8rem;
       font-weight: 500;
-      font-size: 1rem;
+      font-size: 0.8rem;
     }
   }
   .content {
@@ -210,23 +211,23 @@ export default class Details extends Vue {
     flex: 1;
     overflow: auto;
     flex-flow: column nowrap;
-    .content_header {
+    .content-header {
       background: white;
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      padding-bottom: 2rem;
-      padding-left: 2rem;
-      padding-right: 2rem;
+      padding-bottom: 1.6rem;
+      padding-left: 1.6rem;
+      padding-right: 1.6rem;
       .avatar {
-        width: 10rem;
-        height: 10rem;
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-        font-size: 4rem;
+        width: 8rem;
+        height: 8rem;
+        margin-top: 1.6rem;
+        margin-bottom: 1.6rem;
+        font-size: 3.2rem;
       }
       .name {
-        font-size: 1.2rem;
+        font-size: 0.95rem;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
@@ -234,7 +235,7 @@ export default class Details extends Vue {
         user-select: text;
       }
       .id {
-        font-size: 1rem;
+        font-size: 0.8rem;
         font-weight: 300;
         text-align: center;
         width: 100%;
@@ -244,36 +245,37 @@ export default class Details extends Vue {
         cursor: pointer;
         color: #3a7ee4;
         font-weight: 400;
-        margin-top: 1rem;
-        padding: 0.2rem 0.6rem;
+        margin-top: 0.8rem;
+        padding: 0.15rem 0.45rem;
         background: #f2f2f2;
-        border-radius: 1rem;
+        border-radius: 0.8rem;
       }
     }
     .announcement,
     .biography {
       word-break: break-all;
-      margin-top: 1rem;
+      margin-top: 0.8rem;
       font-weight: 400;
-      font-size: 0.95rem;
+      font-size: 0.75rem;
       user-select: text;
     }
     .participants {
-      margin-top: 1rem;
+      margin-top: 0.8rem;
       background: white;
       display: flex;
       flex: 1;
       flex-direction: column;
+      font-size: 0.8rem;
       .title {
-        padding: 1rem;
+        padding: 0.8rem;
         color: #3a7ee4;
         font-weight: 500;
       }
       .participant {
-        padding-left: 1rem;
-        padding-right: 1rem;
-        min-height: 2.5rem;
-        height: 2.5rem;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        min-height: 2rem;
+        height: 2rem;
       }
     }
   }

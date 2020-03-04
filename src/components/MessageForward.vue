@@ -4,7 +4,7 @@
       <div class="mask"></div>
       <div class="message-forward">
         <div class="header">
-          <svg-icon @click="$emit('close')" icon-class="ic_close" />
+          <svg-icon style="font-size: 1.2rem" @click="$emit('close')" icon-class="ic_close" />
           {{$t('chat.share_with')}}
         </div>
         <div class="forward-search">
@@ -115,7 +115,7 @@ export default class MessageForward extends Vue {
         this.actionSendMessage(msg)
       } else if (message.type.endsWith('_LIVE')) {
         const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
-        let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name } = message
+        let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name, mediaName } = message
         const msg = {
           conversationId,
           payload: {
@@ -125,7 +125,7 @@ export default class MessageForward extends Vue {
             mediaWidth,
             mediaHeight,
             thumbUrl,
-            mediaName: name,
+            mediaName: mediaName || name,
             category
           }
         }
@@ -133,6 +133,7 @@ export default class MessageForward extends Vue {
       } else if (this.isFileType(message.type)) {
         let {
           mediaUrl,
+          mediaName,
           mediaMimeType,
           mediaDuration,
           mediaSize,
@@ -151,6 +152,7 @@ export default class MessageForward extends Vue {
         const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
         const payload: AttachmentMessagePayload = {
           mediaUrl,
+          mediaName: mediaName || name,
           mediaMimeType,
           mediaDuration,
           mediaWidth,
@@ -297,26 +299,26 @@ export default class MessageForward extends Vue {
 .message-forward {
   position: relative;
   z-index: 1000;
-  width: 28rem;
-  padding: 0.3rem 0 1rem;
+  width: 22.4rem;
+  padding: 0.2rem 0 0.8rem;
   max-height: 72vh;
   overflow: hidden;
   list-style: none;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   background-color: #fff;
-  border-radius: 0.25rem;
-  box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.195);
+  border-radius: 0.2rem;
+  box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.195);
   .forward-search {
-    width: calc(100% - 4rem);
-    margin-left: 1rem;
+    width: calc(100% - 3.2rem);
+    margin-left: 0.8rem;
     input {
-      border-radius: 0.2rem;
+      border-radius: 0.15rem;
     }
   }
   .header,
   .title {
-    padding: 1rem 1.6rem;
-    font-size: 1rem;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.8rem;
     font-weight: 500;
     .svg-icon {
       font-size: 1.45rem;
@@ -324,8 +326,8 @@ export default class MessageForward extends Vue {
     }
   }
   .list {
-    font-size: 1rem;
-    height: calc(72vh - 8rem);
+    font-size: 0.8rem;
+    height: calc(72vh - 6.4rem);
   }
 }
 .modal-enter {

@@ -129,24 +129,24 @@ main {
     flex-flow: column nowrap;
     height: 100vh;
     .bar {
-      padding-top: 3.75rem;
+      padding-top: 3rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 3.75rem;
+      height: 3rem;
       align-items: center;
       flex-flow: row nowrap;
       .back {
         cursor: pointer;
-        padding: 1rem;
+        padding: 0.8rem;
       }
       h3 {
-        padding: 0.5rem;
+        padding: 0.4rem;
       }
     }
     .nav {
-      border-bottom: 1px solid $border-color;
-      padding: 0.45rem 0.75rem;
+      border-bottom: 0.05rem solid $border-color;
+      padding: 0.45rem 0.6rem;
       display: flex;
       align-items: center;
     }
@@ -155,26 +155,26 @@ main {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
-      padding: 1rem;
+      padding: 0.8rem;
     }
     .list {
       overflow: auto;
       flex: 1 0 0;
     }
     .create {
-      width: 1.75rem;
-      height: 1.75rem;
+      width: 1.4rem;
+      height: 1.4rem;
       background: #397ee4;
       color: white;
-      padding: 0.75rem;
-      border-radius: 1.75rem;
+      padding: 0.6rem;
+      border-radius: 1.4rem;
       position: absolute;
-      bottom: 4rem;
+      bottom: 3.2rem;
       cursor: pointer;
       left: 0;
       right: 0;
       margin: auto;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.16), 0 0.15rem 0.3rem rgba(0, 0, 0, 0.23);
     }
   }
   .overlay {
@@ -188,13 +188,13 @@ main {
     left: 0;
     .inputbox {
       position: relative;
-      margin-top: 6.25rem;
-      margin-left: 1rem;
+      margin-top: 5rem;
+      margin-left: 0.8rem;
       input {
-        font-size: 1rem;
+        font-size: 0.8rem;
         border: none;
         background: transparent;
-        border-bottom: 2px solid #2cbda5;
+        border-bottom: 0.1rem solid #2cbda5;
       }
       input:focus {
         outline: none;
@@ -202,37 +202,37 @@ main {
 
       label {
         color: #999;
-        font-size: 1rem;
+        font-size: 0.8rem;
         font-weight: normal;
         position: absolute;
         pointer-events: none;
         color: #8a8a8a;
-        left: 0.625rem;
-        top: 0.625rem;
+        left: 0.6rem;
+        top: 0.6rem;
         transition: 0.2s ease all;
       }
 
       input:focus ~ label,
       input:valid ~ label {
-        top: -0.75rem;
-        font-size: 0.75rem;
+        top: -0.6rem;
+        font-size: 0.6rem;
         color: #8d8d8d;
       }
     }
     .create {
-      width: 1.75rem;
-      height: 1.75rem;
+      width: 1.4rem;
+      height: 1.4rem;
       background: #397ee4;
       cursor: pointer;
       color: white;
-      padding: 0.75rem;
-      border-radius: 1.75rem;
+      padding: 0.6rem;
+      border-radius: 1.4rem;
       position: absolute;
-      bottom: 4rem;
+      bottom: 3.2rem;
       left: 0;
       right: 0;
       margin: auto;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      box-shadow: 0 0.15rem 0.3rem rgba(0, 0, 0, 0.16), 0 0.15rem 0.3rem rgba(0, 0, 0, 0.23);
     }
   }
   #group {
@@ -242,24 +242,24 @@ main {
     flex-flow: column nowrap;
     background: #f5f7fa;
     .bar {
-      padding-top: 3.75rem;
+      padding-top: 3rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 3.75rem;
+      height: 3rem;
       color: white;
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 1rem;
+        padding: 0.8rem;
       }
       h3 {
-        padding: 0.5rem;
+        padding: 0.4rem;
       }
     }
     input {
-      padding: 0.5rem;
-      margin: 0.625rem;
+      padding: 0.4rem;
+      margin: 0.6rem;
     }
   }
   .slide-right-enter-active,

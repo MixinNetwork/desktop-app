@@ -12,11 +12,11 @@ export default {
 
 <style lang="scss" scoped>
 .message-item {
-  width: 2.5rem;
-  height: 2.5rem;
-  margin-right: 0.75rem;
-  border-radius: 1.25rem;
-  border-radius: 0.2rem;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.6rem;
+  border-radius: 1rem;
+  border-radius: 0.15rem;
   overflow: hidden;
   display: flex;
   justify-content: center;

@@ -398,6 +398,7 @@ export default {
   },
   sendAttachmentMessage: ({ commit }: any, { conversationId, payload }: any) => {
     const messageId = uuidv4().toLowerCase()
+    payload.id = messageId
     putAttachment(
       payload,
       (data: AttachmentMessagePayload) => {

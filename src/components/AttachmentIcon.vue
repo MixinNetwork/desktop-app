@@ -22,13 +22,13 @@ export default class AttachmentIcon extends Vue {
 <style lang="scss" scoped>
 .accachment {
   cursor: pointer;
-  width: 2.5rem;
-  height: 2.5rem;
-  margin-right: 0.75rem;
-  border-radius: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  margin-right: 0.6rem;
+  border-radius: 1rem;
   background: #f2f2f6;
   display: flex;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   justify-content: center;
   align-items: center;
   z-index: 3;

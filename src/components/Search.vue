@@ -45,12 +45,12 @@ export default class Search extends Vue {
     display: 'flex',
     background: '#f5f7fa',
     'align-items': 'center',
-    'padding-left': '1rem',
-    'padding-right': '1rem',
-    'padding-top': '8px',
-    'padding-bottom': '8px',
-    'border-width': '1px',
-    'border-radius': '1.25rem'
+    'padding-left': '0.8rem',
+    'padding-right': '0.8rem',
+    'padding-top': '0.4rem',
+    'padding-bottom': '0.4rem',
+    'border-width': '0.05rem',
+    'border-radius': '1rem'
   }
 
   @Watch('keyword')
@@ -124,11 +124,11 @@ export default class Search extends Vue {
 
 <style lang="scss" scoped>
 .box {
-  margin-left: 0.5rem;
-  margin-right: 0.5rem;
+  margin-left: 0.4rem;
+  margin-right: 0.4rem;
   border: none;
   flex-grow: 19;
-  font-size: 1rem;
+  font-size: 0.8rem;
   &::-webkit-input-placeholder {
     color: #bbbec3;
   }
@@ -138,8 +138,8 @@ export default class Search extends Vue {
   justify-content: center;
   align-items: center;
   display: flex;
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 0.9rem;
+  height: 0.9rem;
 }
 .layout {
   input {

@@ -77,7 +77,7 @@ export default class FileItem extends Vue {
   $electron: any
 
   openFile() {
-    if (!this.message.mediaUrl || this.message.mediaStatus === MediaStatus.CANCELED) {
+    if (!this.message.mediaUrl || this.message.mediaStatus !== MediaStatus.DONE) {
       return
     }
     const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
@@ -141,38 +141,39 @@ export default class FileItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   display: flex;
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   .username {
-    margin-left: 0.4rem;
+    margin-left: 0.3rem;
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    margin-bottom: 0.2rem;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    margin-bottom: 0.15rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .file {
     background: white;
     display: flex;
     flex-direction: row;
     align-content: center;
-    width: 12rem;
-    border-radius: 0.4rem;
-    box-shadow: 0px 1px 1px #77777733;
+    min-width: 9.6rem;
+    border-radius: 0.3rem;
+    box-shadow: 0 0.05rem 0.05rem #77777733;
     flex-wrap: wrap;
+    max-width: 14rem;
     .reply {
       width: 100%;
       margin-bottom: 0;
     }
     .loading {
       position: relative;
-      width: 2.5rem;
-      height: 2.5rem;
-      margin: 0.75rem;
+      width: 2rem;
+      height: 2rem;
+      margin: 0.6rem;
       .stop {
         width: 100%;
         height: 100%;
@@ -191,33 +192,33 @@ export default class FileItem extends Vue {
       }
     }
     .accachment {
-      margin: 0.75rem;
+      margin: 0.6rem;
     }
     .ic {
-      margin: 0.75rem;
+      margin: 0.6rem;
       background: #f2f2f6;
-      border-radius: 1.25rem;
+      border-radius: 1rem;
       display: flex;
-      height: 2.5rem;
+      height: 2rem;
       justify-content: center;
       align-items: center;
       .text {
-        width: 2.5rem;
+        width: 2rem;
         color: #a5a5a4;
         text-align: center;
-        font-size: 0.7rem;
+        font-size: 0.5rem;
         font-weight: 500;
       }
     }
     .content {
-      padding: 0.75rem 0.75rem 0.75rem 0;
+      padding: 0.6rem 0.6rem 0.6rem 0;
       display: flex;
       flex: 1;
       flex-direction: column;
       text-align: start;
       overflow: hidden;
       .name {
-        font-size: 1rem;
+        font-size: 0.8rem;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -227,8 +228,8 @@ export default class FileItem extends Vue {
         justify-content: space-between;
         .number {
           color: #888888cc;
-          font-size: 0.8rem;
-          margin-top: 0.375rem;
+          font-size: 0.6rem;
+          margin-top: 0.3rem;
         }
       }
     }

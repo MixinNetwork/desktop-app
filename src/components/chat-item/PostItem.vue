@@ -54,7 +54,7 @@ export default class PostItem extends Vue {
   MessageStatus: any = MessageStatus
   $postViewer: any
   $selectNes: any
-  minHeight: string = '3rem'
+  minHeight: string = '2.4rem'
   content: string = ''
 
   mounted() {
@@ -70,9 +70,9 @@ export default class PostItem extends Vue {
         line++
       }
     })
-    let minHeight = line * 1.5 + 4.6
-    if (minHeight > 16) {
-      minHeight = 16
+    let minHeight = line * 1.2 + 3.6
+    if (minHeight > 20) {
+      minHeight = 20
     }
     this.minHeight = minHeight + 'rem'
     this.content = content
@@ -105,19 +105,19 @@ export default class PostItem extends Vue {
 <style lang="scss" scoped>
 .post-item {
   display: flex;
-  margin-left: 0.8rem;
-  margin-right: 0.8rem;
+  margin-left: 0.6rem;
+  margin-right: 0.6rem;
   flex-direction: column;
   user-select: text;
   .username {
     display: inline-block;
-    font-size: 0.85rem;
+    font-size: 0.65rem;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
-    min-width: 2rem;
-    min-height: 0.85rem;
+    min-width: 1.6rem;
+    min-height: 0.65rem;
   }
   .item-title,
   .layout {
@@ -140,18 +140,18 @@ export default class PostItem extends Vue {
         cursor: pointer;
       }
       box-sizing: border-box;
-      border-radius: 0.2rem;
+      border-radius: 0.15rem;
       background-color: white;
-      padding: 0.8rem 1rem;
+      padding: 0.6rem 0.8rem;
       .inner {
         height: 100%;
-        max-height: 16rem;
+        max-height: 12.8rem;
         word-break: break-word;
         overflow: hidden;
       }
     }
     .bottom {
-      padding: 0.15rem 0;
+      padding: 0.1rem 0;
       display: flex;
       justify-content: flex-end;
     }

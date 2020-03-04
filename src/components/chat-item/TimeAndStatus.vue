@@ -1,19 +1,37 @@
 <template>
   <span class="time" :class="{absolute: !relative, relative}">
-    <svg-icon icon-class="ic_status_lock" v-if="message.type.startsWith('SIGNAL_')" class="icon lock" />
+    <svg-icon
+      icon-class="ic_status_lock"
+      v-if="message.type.startsWith('SIGNAL_')"
+      class="icon lock"
+    />
     <span>{{message.lt}}</span>
-    <svg-icon icon-class="ic_status_clock" v-if="message.status === MessageStatus.SENDING" class="icon" />
-    <svg-icon icon-class="ic_status_send" v-else-if="message.status === MessageStatus.SENT" class="icon" />
-    <svg-icon icon-class="ic_status_delivered" v-else-if="message.status === MessageStatus.DELIVERED" class="icon" />
-    <svg-icon icon-class="ic_status_read" v-else-if="message.status === MessageStatus.READ" class="icon" />
+    <svg-icon
+      icon-class="ic_status_clock"
+      v-if="message.status === MessageStatus.SENDING"
+      class="icon"
+    />
+    <svg-icon
+      icon-class="ic_status_send"
+      v-else-if="message.status === MessageStatus.SENT"
+      class="icon"
+    />
+    <svg-icon
+      icon-class="ic_status_delivered"
+      v-else-if="message.status === MessageStatus.DELIVERED"
+      class="icon"
+    />
+    <svg-icon
+      icon-class="ic_status_read"
+      v-else-if="message.status === MessageStatus.READ"
+      class="icon"
+    />
   </span>
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
-import {
-  MessageStatus
-} from '@/utils/constants'
+import { MessageStatus } from '@/utils/constants'
 
 @Component
 export default class TimeAndStatus extends Vue {
@@ -27,25 +45,25 @@ export default class TimeAndStatus extends Vue {
 <style lang="scss" scoped>
 .time {
   color: #8799a5;
-  font-size: 0.75rem;
+  font-size: 0.6rem;
   &.absolute {
     display: flex;
     float: right;
     position: absolute;
-    bottom: 0.3rem;
-    right: 0.5rem;
+    bottom: 0.2rem;
+    right: 0.4rem;
     align-items: flex-end;
   }
   &.relative {
     text-align: right;
   }
   .icon {
-    width: .875rem;
-    height: .875rem;
-    padding-left: 0.2rem;
+    width: 0.7rem;
+    height: 0.7rem;
+    padding-left: 0.15rem;
     &.lock {
-      width: .55rem;
-      margin-right: 0.2rem;
+      width: 0.4rem;
+      margin-right: 0.15rem;
     }
   }
 }

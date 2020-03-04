@@ -52,42 +52,42 @@ main {
     align-items: center;
     height: 100%;
     .bar {
-      padding-top: 3.75rem;
+      padding-top: 3rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 3.75rem;
+      height: 3rem;
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 1rem;
+        padding: 0.8rem;
       }
       h3 {
-        padding: 0.5rem;
+        padding: 0.4rem;
       }
     }
     .avatar {
-      width: 10rem;
-      height: 10rem;
-      margin: 2.5rem auto;
+      width: 8rem;
+      height: 8rem;
+      margin: 2rem auto;
     }
     .item-wrap {
       background: #fff;
-      padding: 15px 0 1.25rem;
+      padding: 0.6rem 0 1rem;
     }
     .item {
       width: 100%;
-      padding-top: 0.625rem;
-      padding-bottom: 0.625rem;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
       display: flex;
       flex-direction: column;
       a {
         color: #333;
-        margin: 0 1.25rem;
+        margin: 0 1rem;
         font-weight: bold;
       }
       label {
-        margin: 10px 1.25rem 0;
+        margin: 0.5rem 1rem 0;
         user-select: text;
       }
     }

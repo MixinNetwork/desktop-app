@@ -19,7 +19,7 @@
       </div>
       <div v-else-if="linkStatus === LinkStatus.CONNECTING">
         <spinner class="loading" />
-        <label style="line-height: 2.4rem">{{getConnectingTitle()}}</label>
+        <label style="line-height: 1.9rem">{{getConnectingTitle()}}</label>
       </div>
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
         <svg-icon icon-class="ic_back" />
@@ -565,18 +565,20 @@ export default class Navigation extends Vue {
 <style lang="scss" scoped>
 .navigation {
   background: white;
-  border-right: 1px solid #dee2e9;
-  flex: 0 0 18rem;
+  border-right: 0.05rem solid #dee2e9;
+  flex: 0 0 14.4rem;
   display: flex;
   height: 100vh;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  font-size: 0.8rem;
+  contain: layout;
   .loading {
     width: 1.375rem;
     height: 1.375rem;
     vertical-align: top;
-    margin: 0.5rem 0.5rem 0.5rem 1.45rem;
+    margin: 0.4rem 0.4rem 0.4rem 1.15rem;
   }
 
   .root {
@@ -591,69 +593,69 @@ export default class Navigation extends Vue {
       .listheader {
         display: flex;
         justify-content: space-between;
-        padding: 1rem 1.6rem 0.6rem;
+        padding: 0.8rem 1.25rem 0.45rem;
         font-family: Helvetica;
         font-weight: 500;
         a {
           color: #3d75e3;
-          font-size: 0.85rem;
-          margin-top: 0.1rem;
+          font-size: 0.65rem;
+          margin-top: 0.05rem;
           cursor: pointer;
         }
         &:nth-child(5),
         &:nth-child(3) {
-          border-top: 0.5rem solid #f2f3f6;
+          border-top: 0.4rem solid #f2f3f6;
         }
       }
 
       .listbox {
-        padding-bottom: 1rem;
+        padding-bottom: 0.8rem;
       }
     }
     .show-more {
-      padding: 0.45rem 0.75rem;
+      padding: 0.35rem 0.6rem;
       font-weight: 500;
       cursor: pointer;
       svg {
-        margin: 0.25rem 0.7rem 0 1.1rem;
+        margin: 0.2rem 0.55rem 0 0.85rem;
         vertical-align: top;
       }
     }
     .search-id-or-phone {
       text-align: center;
       background: #f2f3f6;
-      padding-bottom: 0.5rem;
+      padding-bottom: 0.4rem;
       & > div {
-        padding: 0.75rem 0.75rem 1.25rem;
+        padding: 0.6rem 0.6rem 1rem;
         background: #ffffff;
-        box-shadow: 0 2px 10px 0 rgba(195, 195, 195, 0.2);
+        box-shadow: 0 0.1rem 0.5rem 0 rgba(195, 195, 195, 0.2);
       }
       .search-button {
         background: #3d75e3;
         color: #ffffff;
         border: none;
-        font-size: 0.8rem;
-        padding: 0.3rem 0.75rem;
-        margin-top: 0.5rem;
+        font-size: 0.6rem;
+        padding: 0.2rem 0.6rem;
+        margin-top: 0.4rem;
         cursor: pointer;
-        box-shadow: 0 0.5rem 0.7rem 0 rgba(61, 117, 227, 0.3);
-        border-radius: 0.8rem;
+        box-shadow: 0 0.4rem 0.55rem 0 rgba(61, 117, 227, 0.3);
+        border-radius: 0.6rem;
       }
     }
     .header {
       background: #ffffff;
-      height: 3.6rem;
+      height: 2.85rem;
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-left: 0.8rem;
+      padding-right: 0.8rem;
       justify-content: space-between;
 
       #avatar {
-        width: 2.5rem;
-        height: 2.5rem;
-        margin-right: 2.4rem;
+        width: 2rem;
+        height: 2rem;
+        margin-right: 1.9rem;
         cursor: pointer;
       }
       .action_bar {
@@ -661,7 +663,7 @@ export default class Navigation extends Vue {
         flex-direction: row;
         align-items: baseline;
         #edit {
-          margin-right: 1rem;
+          margin-right: 0.8rem;
           cursor: pointer;
         }
         #menu {
@@ -679,22 +681,22 @@ export default class Navigation extends Vue {
     .signal {
       background: #fedd4a;
       display: flex;
-      padding: 0.625rem;
+      padding: 0.5rem;
       align-items: center;
       .signal_icon {
-        font-size: 3rem;
+        font-size: 2.4rem;
         flex-shrink: 0;
       }
       .content {
-        margin-left: 0.625rem;
+        margin-left: 0.5rem;
         display: flex;
         flex-direction: column;
         .title {
-          font-size: 0.9375rem;
+          font-size: 0.75rem;
           font-weight: 500;
         }
         .info {
-          font-size: 0.875rem;
+          font-size: 0.7rem;
           max-lines: 2;
         }
       }
@@ -713,7 +715,7 @@ export default class Navigation extends Vue {
   }
 
   .nav {
-    padding: 0.45rem 0.75rem;
+    padding: 0.35rem 0.6rem;
     display: flex;
     align-items: center;
   }

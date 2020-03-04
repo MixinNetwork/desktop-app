@@ -12,7 +12,7 @@
       <div class="title">
         <div class="username">
           <span>{{conversation.groupName?conversation.groupName:conversation.name}}</span>
-          <svg-icon style="width: 0.875rem" icon-class="ic_robot" v-if="conversation.appId" />
+          <svg-icon style="width: 0.7rem" icon-class="ic_robot" v-if="conversation.appId" />
         </div>
         <div class="time">{{timeAgo}}</div>
       </div>
@@ -227,8 +227,9 @@ $light-font-color: #aaa;
 li.conversation.item {
   cursor: pointer;
   display: flex;
+  contain: layout;
   align-items: stretch;
-  padding: 0.8rem 0.8rem;
+  padding: 0.6rem 0.6rem;
   &.current {
     background: #f7f7f7;
   }
@@ -236,9 +237,9 @@ li.conversation.item {
     background: #f1f2f2;
   }
   #avatar {
-    width: 3rem;
-    height: 3rem;
-    margin-right: 0.8rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    margin-right: 0.6rem;
   }
   .info {
     flex: 1;
@@ -255,7 +256,7 @@ li.conversation.item {
         display: flex;
         justify-content: flex-start;
         flex: 1;
-        line-height: 1.4rem;
+        line-height: 1.1rem;
         span {
           overflow: hidden;
           white-space: nowrap;
@@ -264,40 +265,40 @@ li.conversation.item {
         svg {
           flex-shrink: 0;
           vertical-align: top;
-          margin: 0.2rem 0.6rem 0 0.2rem;
+          margin: 0.15rem 0.45rem 0 0.15rem;
         }
       }
       .time {
         color: $light-font-color;
-        font-size: 0.75rem;
+        font-size: 0.6rem;
         flex-shrink: 0;
-        margin: 0 0 0.2rem;
+        margin: 0 0 0.15rem;
       }
     }
 
     .message {
       display: flex;
       flex-flow: row nowrap;
-      min-height: 1.125rem;
+      min-height: 0.95rem;
       align-items: center;
       .layout {
         display: flex;
         align-items: center;
         .icon {
-          width: .875rem;
-          height: .875rem;
-          margin-right: 0.1875rem;
+          width: 0.7rem;
+          height: 0.7rem;
+          margin-right: 0.15rem;
         }
       }
       .mute_icon, .icon {
-        font-size: 1.125rem;
-        margin-right: 0.1875rem;
+        font-size: 0.9rem;
+        margin-right: 0.15rem;
       }
       .content {
         flex: 1;
         color: $light-font-color;
-        font-size: 0.8rem;
-        line-height: 1.2rem;
+        font-size: 0.65rem;
+        line-height: 0.95rem;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
@@ -307,21 +308,21 @@ li.conversation.item {
       }
       .down {
         color: #a7a7a7;
-        width: 1rem;
-        height: 1rem;
-        margin-left: 0.1875rem;
+        width: 0.8rem;
+        height: 0.8rem;
+        margin-left: 0.15rem;
       }
       .badge {
         background: #4b7ed2;
-        border-radius: 0.8rem;
+        border-radius: 0.6rem;
         box-sizing: border-box;
         color: white;
-        font-size: 0.65rem;
-        padding: 0.23rem 0.45rem;
-        margin-right: 0.1875rem;
+        font-size: 0.5rem;
+        padding: 0.15rem 0.35rem;
+        margin-right: 0.15rem;
         &.mention {
-          padding: 0.12rem 0.3rem;
-          font-size: 0.8rem;
+          padding: 0.1rem 0.25rem;
+          font-size: 0.6rem;
         }
       }
     }

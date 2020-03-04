@@ -127,7 +127,7 @@ body {
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   user-select: none;
   overflow: hidden;
-  font-size: 1rem;
+  font-size: 20px;
 }
 button {
   -webkit-app-region: no-drag;
@@ -166,11 +166,11 @@ a {
       height: 33.6vw;
     }
     .app_time_info {
-      margin-top: 0.625rem;
+      margin-top: 0.5rem;
     }
     .app_time_continue {
-      margin-top: 1rem;
-      height: 2rem;
+      margin-top: 0.8rem;
+      height: 1.6rem;
       color: #2cc3fa;
       &:hover,
       &.current {
@@ -178,16 +178,16 @@ a {
       }
     }
     .app_time_loding {
-      margin-top: 1rem;
-      width: 2rem;
-      height: 2rem;
+      margin-top: 0.8rem;
+      width: 1.6rem;
+      height: 1.6rem;
     }
   }
 }
 .drag-bar {
   -webkit-app-region: drag;
   width: 100%;
-  height: 3rem;
+  height: 2.4rem;
   position: absolute;
   top: 0;
 }
@@ -211,13 +211,13 @@ b.highlight {
   }
   &.in-bubble {
     background: #c4ed7a;
-    border-radius: 0.25rem;
+    border-radius: 0.2rem;
   }
 }
 .markdown {
   word-break: break-word;
   line-height: 1.5;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 400;
   font-family: 'Helvetica Neue', Arial, sans-serif;
   color: #333;
@@ -236,7 +236,7 @@ b.highlight {
   h4,
   h5,
   h6 {
-    margin: 1rem 0;
+    margin: 0.8rem 0;
     padding: 0;
   }
   dl,
@@ -246,17 +246,17 @@ b.highlight {
   p,
   pre,
   blockquote {
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.4rem;
     padding: 0;
   }
   ul {
-    margin-left: 2rem;
+    margin-left: 1.6rem;
     li {
       list-style: disc;
     }
   }
   ol {
-    margin-left: 2rem;
+    margin-left: 1.6rem;
     li {
       list-style: decimal;
     }
@@ -267,16 +267,16 @@ b.highlight {
   pre {
     background: #f4f4f4;
     word-break: break-all;
-    padding: 0.2rem 0.4rem;
-    border-radius: 0.2rem;
+    padding: 0.16rem 0.3rem;
+    border-radius: 0.16rem;
     overflow: hidden;
     white-space: pre-wrap;
     word-wrap: break-word;
   }
   blockquote {
-    border-left: 0.2rem solid #ddd;
-    padding-left: 0.6rem;
-    margin-left: 0.2rem;
+    border-left: 0.16rem solid #ddd;
+    padding-left: 0.45rem;
+    margin-left: 0.16rem;
   }
   a {
     color: #4b7ed2;
@@ -291,7 +291,7 @@ b.highlight {
     margin: 0;
     font-weight: 400;
     box-sizing: border-box;
-    border: 1px solid #e2e2e2;
+    border: 0.05rem solid #e2e2e2;
     width: 96%;
   }
   tbody,
@@ -307,13 +307,13 @@ b.highlight {
     margin: 0;
     font-weight: 400;
     box-sizing: border-box;
-    min-width: 90px;
-    font-size: 14px;
+    min-width: 4.5rem;
+    font-size: 0.7rem;
     white-space: normal;
     word-wrap: break-word;
-    border: 1px solid #e2e2e2;
+    border: 0.05rem solid #e2e2e2;
     vertical-align: top;
-    padding: 4px 8px;
+    padding: 0.2rem 0.4rem;
   }
   th {
     background-color: #f6f6f6;

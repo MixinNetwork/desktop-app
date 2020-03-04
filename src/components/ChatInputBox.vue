@@ -39,7 +39,7 @@
           <svg-icon icon-class="ic_emoticon_on" v-if="stickerChoosing" />
           <svg-icon icon-class="ic_emoticon" v-else />
         </div>
-        <mixin-scrollbar style="margin-right: .2rem">
+        <mixin-scrollbar style="margin-right: 0.15rem">
           <div class="ul editable" ref="boxWrap">
             <div
               class="box"
@@ -227,8 +227,8 @@ export default class ChatItem extends Vue {
     this.$emit('clearBoxMessage')
     this.mentionChoosing = false
     this.currentSelectMention = null
-    this.panelHeight = 15
-    setTimeout(() => {
+    this.panelHeight = 12
+    requestAnimationFrame(() => {
       this.stickerChoosing = !this.stickerChoosing
     })
   }
@@ -307,20 +307,26 @@ export default class ChatItem extends Vue {
     this.currentSelectMention = mention
   }
 
-  panelHeight: number = 15
+  panelHeight: number = 12
   mentionHoverPrevent: boolean = false
   updateMentionUsers(result: any) {
     const len = result.length
     if (len) {
       if (len < 4) {
-        this.panelHeight = 4.2 * len
+        this.panelHeight = 3.3 * len
       } else {
-        this.panelHeight = 15
+        this.panelHeight = 12
       }
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
         this.mentionHoverPrevent = true
-        this.mentionChoosing = true
+        // @ts-ignore
+        requestIdleCallback(
+          () => {
+            this.mentionChoosing = true
+          },
+          { timeout: 30 }
+        )
       }
     } else {
       const selection: any = window.getSelection()
@@ -381,13 +387,13 @@ export default class ChatItem extends Vue {
 </script>
 <style lang="scss" scoped>
 .box {
-  font-size: 1.2rem;
+  font-size: 0.95rem;
   background: white;
   z-index: 1;
   position: relative;
   .removed {
-    padding: 0.9rem 0.9rem;
-    font-size: 0.95rem;
+    padding: 0.7rem 0.7rem;
+    font-size: 0.75rem;
     text-align: center;
   }
   .input {
@@ -395,29 +401,30 @@ export default class ChatItem extends Vue {
     color: $light-font-color;
     display: flex;
     align-items: center;
-    padding: 0.4rem 0.6rem;
+    padding: 0.3rem 0.45rem;
 
     .sticker {
-      margin: 0.15rem 0.25rem 0 0.25rem;
+      margin: 0.1rem 0.2rem 0 0.2rem;
       cursor: pointer;
     }
     .send {
       cursor: pointer;
-      margin: 0.1rem 0.15rem 0 0.25rem;
+      margin: 0.05rem 0.1rem 0 0.2rem;
     }
   }
   .editable {
-    max-height: 150px;
+    max-height: 7.5rem;
     overflow-y: auto;
     flex-grow: 1;
     * {
       word-break: break-all;
     }
     .box {
-      padding: 0.45rem 0.6rem;
-      font-size: 1rem;
-      min-height: 1.4rem;
-      line-height: 1.3rem;
+      padding: 0.35rem 0.15rem 0.35rem 0.45rem;
+      margin-right: 0.5rem;
+      font-size: 0.8rem;
+      min-height: 1.1rem;
+      line-height: 1.3;
       color: black;
       border: none;
       outline: none;
@@ -432,7 +439,7 @@ export default class ChatItem extends Vue {
     }
   }
   .bot {
-    padding: 0 1rem 0 0;
+    padding: 0 0.8rem 0 0;
   }
 }
 

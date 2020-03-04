@@ -104,6 +104,7 @@ export default class BadgeItem extends Vue {
 <style lang="scss" scoped>
 .layout {
   position: relative;
+  z-index: 0;
   .shadow {
     position: absolute;
     right: 0;

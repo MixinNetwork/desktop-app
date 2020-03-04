@@ -4,7 +4,7 @@
     <div class="content">
       <div class="title">
         <div class="name">
-          <span v-html="highlight(user.full_name)"></span>
+          <span v-html="highlight(user.full_name, 'name', /^@/.test(keyword))"></span>
           <svg-icon style="font-size: 0.875rem" icon-class="ic_robot" v-if="user.app_id" />
         </div>
         <span class="role" v-if="user.role">
@@ -15,7 +15,7 @@
         </span>
       </div>
       <div class="id">
-        <span v-html="highlight(user.identity_number)"></span>
+        <span v-html="highlight(user.identity_number, 'id', /^@/.test(keyword))"></span>
       </div>
     </div>
   </li>
@@ -35,8 +35,19 @@ export default class UserItem extends Vue {
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly user: any
 
-  highlight(content: string) {
-    return contentUtil.highlight(content, this.keyword, '')
+  highlight(content: string, type: string, isMention: any) {
+    let keyword = this.keyword
+    if (isMention) {
+      if (type === 'id') {
+        content = `@${content}`
+      } else if (type === 'name') {
+        keyword = keyword.substring(1, keyword.length)
+      }
+      if (keyword === '@') {
+        return content
+      }
+    }
+    return contentUtil.highlight(content, keyword, '')
   }
 }
 </script>

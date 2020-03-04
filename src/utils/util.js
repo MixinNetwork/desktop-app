@@ -1,6 +1,5 @@
 import crypto from 'crypto'
 import Bot from 'bot-api-js-client'
-import moment from 'moment'
 import store from '@/store/store'
 import {
   AvatarColors,

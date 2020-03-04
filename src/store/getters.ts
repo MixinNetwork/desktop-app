@@ -44,6 +44,10 @@ export default {
     return state.currentMessages
   },
 
+  conversationUnseenMentionsMap: (state: { conversationUnseenMentionsMap: any }) => {
+    return state.conversationUnseenMentionsMap
+  },
+
   findFriends: (state: { friends: any }) => {
     return state.friends
   },

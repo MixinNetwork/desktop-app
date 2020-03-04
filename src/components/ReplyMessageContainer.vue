@@ -54,7 +54,7 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
         />
-        {{getContent}}
+        <span v-html="getContent"></span>
       </span>
     </div>
     <img
@@ -94,6 +94,7 @@
 <script lang="ts">
 import { getNameColorById } from '@/utils/util'
 import { messageType } from '@/utils/constants'
+import contentUtil from '@/utils/content_util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
@@ -123,7 +124,9 @@ export default class ReplyMessageContainer extends Vue {
   }
   get getContent() {
     if (this.message.type.endsWith('_TEXT')) {
-      return this.message.content
+      let { mentions, content } = this.message
+      content = contentUtil.renderMention(content, mentions)
+      return content
     } else if (this.message.type.endsWith('_STICKER')) {
       return this.$t('chat.chat_sticker')
     } else if (this.message.type.endsWith('_IMAGE')) {
@@ -172,8 +175,10 @@ export default class ReplyMessageContainer extends Vue {
   flex-direction: row;
   background: white;
   justify-content: flex-start;
+  position: relative;
+  z-index: 10;
   .diver {
-    width: 0.4rem;
+    width: 0.3rem;
   }
   .layout {
     flex: 1;
@@ -187,13 +192,18 @@ export default class ReplyMessageContainer extends Vue {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      line-height: 1.5rem;
     }
     .content {
       font-size: 1rem;
+      line-height: 1.125rem;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
       color: #9b9b9b;
+      /deep/ * {
+        color: #9b9b9b;
+      }
     }
   }
   .image {

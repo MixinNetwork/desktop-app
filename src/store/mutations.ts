@@ -4,6 +4,7 @@ import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
+import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
@@ -21,11 +22,18 @@ function refreshConversations(state: any) {
   state.conversationKeys = conversationKeys
 }
 
-function refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string) {
+function refreshConversation(
+  state: { conversations: object; conversationKeys: any; conversationUnseenMentionsMap: any },
+  conversationId: string
+) {
+  const mentionsMap = state.conversationUnseenMentionsMap
   const conversation = conversationDao.getConversationItemByConversationId(conversationId)
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
     conversation.participants = participants
+    const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+    mentionsMap[conversationId] = mentionMessages
+    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
     Vue.set(state.conversations, conversationId, conversation)
   }
   state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
@@ -158,7 +166,8 @@ export default {
     state.friends = []
     state.currentUser = {}
     state.searching = ''
-    state.currentMessages = {}
+    state.currentMessages = []
+    state.conversationUnseenMentionsMap = {}
     state.search = {
       contact: null,
       chats: null,
@@ -174,13 +183,17 @@ export default {
   init(state: any) {
     const conversations = conversationDao.getConversations()
     const conversationKeys: any = []
+    const mentionsMap = state.conversationUnseenMentionsMap
     conversations.forEach((conversation: any, index: number) => {
       const conversationId = conversation.conversationId
       conversationKeys[index] = conversationId
       const participants = participantDao.getParticipantsByConversationId(conversationId)
       conversation.participants = participants
+      const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+      mentionsMap[conversationId] = mentionMessages
       Vue.set(state.conversations, conversationId, conversation)
     })
+    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
     const friends = userDao.findFriends()
     if (friends.length > 0) {
       state.friends = friends
@@ -221,6 +234,29 @@ export default {
   setCurrentMessages(state: { currentMessages: any }, messages: any) {
     state.currentMessages = messages
   },
+  markMentionRead(state: any, { conversationId, messageId }: any) {
+    const mentionsMap = state.conversationUnseenMentionsMap
+    if (!conversationId) {
+      Object.keys(mentionsMap).forEach(cid => {
+        for (let i = 0; i < mentionsMap[cid].length; i++) {
+          if (mentionsMap[cid][i].message_id === messageId) {
+            conversationId = cid
+            break
+          }
+        }
+      })
+    }
+    const messages = mentionsMap[conversationId] || []
+    for (let i = 0; i < messages.length; i++) {
+      const mId = messages[i].message_id
+      if (mId === messageId) {
+        messages.splice(i, 1)
+        break
+      }
+    }
+    mentionsMap[conversationId] = messages
+    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
+  },
   refreshMessage(state: any, payload: any) {
     messageBox.refreshMessage(payload)
     const { conversationId } = payload
@@ -234,7 +270,7 @@ export default {
       refreshConversation(state, conversationId)
     }
   },
-  refreshConversation(state: { conversations: object; conversationKeys: any }, conversationId: string) {
+  refreshConversation(state: any, conversationId: string) {
     refreshConversation(state, conversationId)
   },
   refreshConversations(state: any) {

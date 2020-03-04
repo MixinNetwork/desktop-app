@@ -149,6 +149,7 @@ export default class LiveItem extends Vue {
       position: relative;
       cursor: pointer;
       .image {
+        background: #333;
         background-size: cover;
         background-position: center;
         border-radius: 0.2rem;

@@ -62,6 +62,9 @@ class UserDao {
       )
       .all()
   }
+  findUserByIdentityNumber(id: any) {
+    return db.prepare('SELECT * FROM users WHERE identity_number = ?').get(id)
+  }
   findUserById(userId: any) {
     return db.prepare('SELECT * FROM users WHERE user_id = ?').get(userId)
   }
@@ -77,6 +80,10 @@ class UserDao {
     return db.prepare(
       `SELECT u.user_id FROM users u INNER JOIN participants p ON p.user_id = u.user_id WHERE p.conversation_id = ? AND u.identity_number = ?`
     ).get(conversationId, botNumber)
+  }
+  findUsersByIdentityNumber(uid: any) {
+    const sql = `SELECT * FROM users WHERE identity_number IN (${uid.map(() => '?').join(',')})`
+    return db.prepare(sql).all(uid)
   }
 }
 

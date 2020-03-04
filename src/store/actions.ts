@@ -3,6 +3,7 @@ import messageDao from '@/dao/message_dao'
 import stickerDao from '@/dao/sticker_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
+import messageMentionDao from '@/dao/message_mention_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
@@ -183,6 +184,7 @@ export default {
         unseen_message_count: 0,
         status: ConversationStatus.START,
         draft: null,
+        draftText: null,
         mute_until: null
       }
       conversationDao.insertConversation(conversation)
@@ -223,6 +225,7 @@ export default {
         unseen_message_count: 0,
         status: ConversationStatus.SUCCESS,
         draft: null,
+        draftText: null,
         mute_until: conversation.mute_until
       })
       if (conversation.participants) {
@@ -257,6 +260,23 @@ export default {
   markRead: ({ commit }: any, conversationId: any) => {
     markRead(conversationId)
     commit('refreshConversation', conversationId)
+  },
+  markMentionRead: ({ commit }: any, { conversationId, messageId }: any) => {
+    messageMentionDao.markMentionRead(messageId)
+    const blazeMessage = { message_id: messageId, status: 'MENTION_READ' }
+    jobDao.insert({
+      job_id: uuidv4(),
+      action: 'CREATE_MESSAGE',
+      created_at: new Date().toISOString(),
+      order_id: null,
+      priority: 5,
+      user_id: null,
+      blaze_message: JSON.stringify(blazeMessage),
+      conversation_id: conversationId,
+      resend_message_id: null,
+      run_count: 0
+    })
+    commit('markMentionRead', { conversationId, messageId })
   },
   updateConversationMute: ({ commit }: any, { conversation, ownerId }: any) => {
     if (conversation.category === ConversationCategory.CONTACT) {

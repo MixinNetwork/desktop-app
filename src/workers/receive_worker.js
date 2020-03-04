@@ -19,6 +19,7 @@ import { sendNotification } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
+import messageMentionDao from '@/dao/message_mention_dao'
 
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
 
@@ -32,7 +33,7 @@ import {
 } from '@/utils/constants'
 class ReceiveWorker extends BaseWorker {
   async doWork() {
-    await wasmObject.then(result => { })
+    await wasmObject.then(result => {})
     const fms = floodMessageDao.findFloodMessage()
     if (!fms) {
       return
@@ -341,34 +342,34 @@ class ReceiveWorker extends BaseWorker {
   }
 
   makeMessageStatus(messages) {
-    const conversationSet = new Set()
-    const messageIdsMap = {}
-    messages
-      .filter(message => {
-        const messageId = message.message_id
-        const simple = messageDao.findSimpleMessageById(messageId)
-        if (simple && simple.status && simple.status !== MessageStatus.READ) {
-          const conversationId = simple.conversation_id
-          conversationSet.add(conversationId)
-          if (!messageIdsMap[conversationId]) {
-            messageIdsMap[conversationId] = []
-          }
-          messageIdsMap[conversationId].push(messageId)
-          return true
-        } else {
-          return false
-        }
+    const messageIds = []
+    for (let m of messages) {
+      if (m.status !== 'READ' && m.status !== 'MENTION_READ') {
+        continue
+      }
+      if (m.status === 'MENTION_READ') {
+        messageMentionDao.markMentionRead(m.message_id)
+        store.dispatch('markMentionRead', {
+          conversationId: '',
+          messageId: m.message_id
+        })
+        continue
+      }
+      if (m.status === 'READ') {
+        messageIds.push(m.message_id)
+      }
+    }
+    if (messageIds.length > 0) {
+      messageDao.markMessageRead(messageIds)
+      const conversations = messageDao.findConversationsByMessages(messageIds)
+      conversations.forEach(c => {
+        messageDao.takeUnseen(this.getAccountId(), c.conversation_id)
+        store.dispatch('refreshMessage', {
+          conversationId: c.conversation_id,
+          messageIds: messageIds
+        })
       })
-      .forEach(msg => {
-        messageDao.updateMessageStatusById(msg.status, msg.message_id)
-      })
-    conversationSet.forEach(conversationId => {
-      messageDao.takeUnseen(this.getAccountId(), conversationId)
-      store.dispatch('refreshMessage', {
-        conversationId,
-        messageIds: messageIdsMap[conversationId]
-      })
-    })
+    }
   }
 
   insertDownloadMessage(message) {
@@ -428,7 +429,28 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
+      let quoteMe = quoteMessage && quoteMessage.user_id === this.getAccountId() && data.user_id !== this.getAccountId()
+      contentUtil.parseMention(
+        plain,
+        data.conversation_id,
+        data.message_id,
+        messageMentionDao,
+        this.getAccountId() === data.user_id,
+        quoteMe
+      )
       messageDao.insertMessage(message)
+      const mentionIds = contentUtil.parseMentionIdentityNumber(plain)
+      if (mentionIds.length > 0) {
+        const users = userDao.findUsersByIdentityNumber(mentionIds)
+        users.forEach((user) => {
+          if (user) {
+            const id = user.identity_number
+            const mentionName = `@${user.full_name}`
+            const regx = new RegExp(`@${id}`, 'g')
+            plain = plain.replace(regx, mentionName)
+          }
+        })
+      }
       this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
     } else if (data.category.endsWith('_POST')) {
       let plain = plaintext

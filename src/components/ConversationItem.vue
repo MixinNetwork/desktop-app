@@ -38,7 +38,11 @@
             class="icon"
           />
         </div>
-        <div class="content">{{description}}</div>
+        <div class="content" v-html="description" @click.prevent></div>
+        <span
+          class="badge mention"
+          v-if="showMention"
+        >@</span>
         <span
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
@@ -68,6 +72,7 @@ import { MessageStatus, SystemConversationAction, ConversationCategory } from '@
 import Avatar from '@/components/Avatar.vue'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 
 @Component({
   components: {
@@ -76,6 +81,8 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 })
 export default class ConversationItem extends Vue {
   @Prop(Object) readonly conversation: any
+
+  @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
   show: boolean = false
   fouse: boolean = false
@@ -123,7 +130,10 @@ export default class ConversationItem extends Vue {
     } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
       return this.getMessageName() + this.$t('chat.chat_sticker')
     } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
-      return this.getMessageName() + this.conversation.content
+      let content = this.conversation.content
+      content = contentUtil.renderMention(content, this.conversation.mentions)
+      content = contentUtil.renderUrl(content)
+      return this.getMessageName() + content
     } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
       return this.getMessageName() + this.$t('chat.chat_contact')
     } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {
@@ -160,6 +170,14 @@ export default class ConversationItem extends Vue {
   }
   get isSelf() {
     return this.conversation.senderId === this.getAccount().user_id
+  }
+
+  get showMention() {
+    const mentions = this.conversationUnseenMentionsMap[this.conversation.conversationId]
+    if (mentions && mentions.length > 0) {
+      return true
+    }
+    return false
   }
 
   getAccount() {
@@ -279,9 +297,13 @@ li.conversation.item {
         flex: 1;
         color: $light-font-color;
         font-size: 0.8rem;
+        line-height: 1.2rem;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        /deep/ * {
+          color: #aaa;
+        }
       }
       .down {
         color: #a7a7a7;
@@ -297,6 +319,10 @@ li.conversation.item {
         font-size: 0.65rem;
         padding: 0.23rem 0.45rem;
         margin-right: 0.1875rem;
+        &.mention {
+          padding: 0.12rem 0.3rem;
+          font-size: 0.8rem;
+        }
       }
     }
   }

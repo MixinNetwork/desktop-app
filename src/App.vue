@@ -50,6 +50,10 @@ export default class App extends Vue {
       }
     })
 
+    document.onmousemove = event => {
+      this.$root.$emit('mousemove', event)
+    }
+
     let directionKeyDownTimeout: any = null
     document.onkeydown = e => {
       let keyCode = e.keyCode
@@ -78,16 +82,16 @@ export default class App extends Vue {
           this.actionSetSearching('key:')
         }
         clearTimeout(directionKeyDownTimeout)
-        if (keyCode === 38) {
-          directionKeyDownTimeout = setTimeout(() => {
-            this.$root.$emit('directionKeyDown', 'up')
-          }, 10)
-        }
-        if (keyCode === 40) {
-          directionKeyDownTimeout = setTimeout(() => {
-            this.$root.$emit('directionKeyDown', 'down')
-          }, 10)
-        }
+      }
+      if (keyCode === 38) {
+        directionKeyDownTimeout = setTimeout(() => {
+          this.$root.$emit('directionKeyDown' + (ctrlKey ? 'WithCtrl' : ''), 'up')
+        }, 10)
+      }
+      if (keyCode === 40) {
+        directionKeyDownTimeout = setTimeout(() => {
+          this.$root.$emit('directionKeyDown' + (ctrlKey ? 'WithCtrl' : ''), 'down')
+        }, 10)
       }
     }
     document.onkeyup = e => {
@@ -198,8 +202,12 @@ video {
 }
 b.highlight {
   font-weight: normal;
-  &.default {
+  &.default,
+  &.mention {
     color: #3d75e3;
+  }
+  &.mention {
+    cursor: pointer;
   }
   &.in-bubble {
     background: #c4ed7a;

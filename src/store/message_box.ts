@@ -29,6 +29,7 @@ class MessageBox {
       this.pageDown = page
       this.tempCount = 0
       this.newCount = 0
+
       let posMessage = null
       if (messagePositionIndex > 0) {
         posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
@@ -41,15 +42,15 @@ class MessageBox {
         this.messages.push(...newMessages)
       }
 
-      this.callback(this.messages)
+      this.callback(this.messages, 0)
       this.scrollAction(true, posMessage)
     }
   }
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
   }
-  clearUnreadNum(index: any) {
-    this.newCount = index
+  clearUnreadNum(count: any) {
+    this.newCount = count
   }
   isMine(findMessage: any) {
     // @ts-ignore

@@ -28,7 +28,7 @@
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
               ></AttachmentIcon>
-              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading" :style="video"></video>
+              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus" :style="video"></video>
             </div>
           </div>
           <div class="bottom">

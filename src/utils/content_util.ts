@@ -4,11 +4,13 @@ import moment from 'moment'
 import i18n from '@/utils/i18n'
 // @ts-ignore
 import MarkdownIt from 'markdown-it'
+import userDao from '@/dao/user_dao'
 const md = new MarkdownIt()
 URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
 const botNumberReg = /@7000\d*\s/
+const mentionReg = /@\d{4,}/g
 
-export default {
+class ContentUtil {
   getBotNumber(content: string) {
     if (content.startsWith('@7000')) {
       const result = content.match(botNumberReg)
@@ -17,31 +19,36 @@ export default {
       }
     }
     return ''
-  },
+  }
   messageFilteredText(e: { innerHTML: string; innerText: string }) {
     e.innerHTML = e.innerHTML.replace(/<br><br><\/div>/g, '<br></div>').replace(/<div><br><\/div>/g, '<div>　</div>')
     // eslint-disable-next-line
     return e.innerText.replace(/\n　\n/g, '\n\n')
-  },
+  }
   renderUrl(content: string) {
-    const h = content
+    content = content
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-    const result = URI.withinString(h, function(url: string) {
+
+    if (/highlight mention/.test(content)) {
+      const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+?)?&quot;&gt;(.+?)?&lt;/b&gt;`, 'g')
+      content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
+    }
+
+    return URI.withinString(content, function(url: string) {
       let l = url
       if (!url.startsWith('http')) {
         l = 'https://' + url
       }
       return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
     })
-    return result
-  },
+  }
   renderMdToText(content: string) {
     const html = md.render(content)
     return html.replace(/<\/?[^>]*>/g, '')
-  },
+  }
   renderTime(timeStr: any, showDetail: any) {
     const t = moment(timeStr)
     const td = t.format('YYYY-MM-DD')
@@ -74,7 +81,7 @@ export default {
       }
       return `${dateStr}${weekStr}`
     }
-  },
+  }
   fts5KeywordFilter(text: string) {
     text = text.trim()
     text = text.replace(/[' ']+/g, '.')
@@ -105,7 +112,7 @@ export default {
     }
     keyword = keyword.replace(/['* ']+/g, '* ').replace(/^\* /, '')
     return keyword
-  },
+  }
   fts5ContentFilter(text: string) {
     text = text.trim()
     let i = 0
@@ -122,12 +129,12 @@ export default {
       i++
     }
     return content.replace(/ {2}/g, ' ').trim()
-  },
+  }
   highlight(content: any, keyword: string, highlight: string) {
     if (!keyword) return content
     let result: any = content
     highlight = highlight || 'default'
-    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&').replace(/ /g, '')
+    keyword = keyword.trim().replace(/[.[*?+^$|()/]|\]|\\/g, '\\$&')
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
       const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')
@@ -135,8 +142,10 @@ export default {
       let linkTemp = []
       let linkArr
       while ((linkArr = regxLink.exec(content)) !== null) {
-        const temp = linkArr[3].replace(regx, `<b class="highlight ${highlight}">$1</b>`)
-        linkTemp.push([linkArr[0], `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`])
+        if (linkArr && linkArr[3]) {
+          const temp = linkArr[3].replace(regx, `<b class="highlight ${highlight}">$1</b>`)
+          linkTemp.push([linkArr[0], `<a${linkArr[1]}href=${linkArr[2]}>${temp}</a>`])
+        }
       }
       if (linkTemp.length > 0) {
         linkTemp.forEach(item => {
@@ -146,4 +155,70 @@ export default {
     }
     return result
   }
+  parseMentionIdentityNumber(content: string) {
+    const pieces = content.match(mentionReg)
+    const mentionIds = new Set()
+    if (pieces && pieces.length > 0) {
+      pieces.forEach(piece => {
+        mentionIds.add(piece.replace('@', '').trim())
+      })
+    }
+    return Array.from(mentionIds)
+  }
+  renderMention(content: string, mentions: string) {
+    if (!mentions) {
+      return content
+    }
+    try {
+      const mentionsList: any = JSON.parse(mentions)
+      mentionsList.forEach((mention: any) => {
+        const id = mention.identity_number
+        const mentionName = `@${mention.full_name}`
+        const regx = new RegExp(`@${id}`, 'g')
+        const hl = this.highlight(mentionName, mentionName, `mention id-${id}`)
+        content = content.replace(regx, hl)
+      })
+    } catch (error) {}
+    return content
+  }
+  parseMention(
+    content: string,
+    conversationId: string,
+    messageId: string,
+    messageMentionDao: any,
+    ignore: boolean = true,
+    quoteMe: boolean = false
+  ) {
+    if (!content) return null
+    const account = localStorage.getItem('account')!!
+    const accountId = JSON.parse(account).user_id
+    let remind = 1
+    const mentionIds = this.parseMentionIdentityNumber(content)
+    if (mentionIds.length === 0) {
+      if (quoteMe) {
+        messageMentionDao.insert(conversationId, messageId, '', 0)
+      }
+      return null
+    }
+    const mentions: any = []
+    const users = userDao.findUsersByIdentityNumber(mentionIds)
+    users.forEach((user: any) => {
+      if (user) {
+        if (!ignore && user.user_id === accountId) {
+          remind = 0
+        }
+        const mention: any = {
+          identity_number: user.identity_number,
+          full_name: user.full_name
+        }
+        mentions.push(mention)
+      }
+    })
+    if (remind === 1 && quoteMe) {
+      remind = 0
+    }
+    messageMentionDao.insert(conversationId, messageId, JSON.stringify(mentions), remind)
+  }
 }
+
+export default new ContentUtil()

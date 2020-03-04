@@ -19,7 +19,7 @@
     <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
-        :style="`padding-bottom: ${inputBoxHeight-36}px;` + (mentionHoverPrevent ? 'pointer-events: none;' : '')"
+        :style="`padding-bottom: ${inputBoxHeight-36}px;`"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
         :keyword="mentionKeyword"
@@ -134,12 +134,6 @@ export default class ChatItem extends Vue {
 
   onBlur() {
     this.boxFocus = false
-  }
-
-  mounted() {
-    this.$root.$on('mousemove', () => {
-      this.mentionHoverPrevent = false
-    })
   }
 
   boxFocusAction(keep?: boolean) {

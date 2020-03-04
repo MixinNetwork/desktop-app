@@ -423,7 +423,6 @@ export default class ChatContainer extends Vue {
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
     this.$root.$off('escKeydown')
-    this.$root.$off('mousemove')
   }
 
   hideChoosePanel() {

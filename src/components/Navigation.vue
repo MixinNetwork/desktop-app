@@ -37,7 +37,10 @@
 
       <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
-          <ul v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)">
+          <ul
+            :style="`padding: ${72 * viewport.firstIndex}px 0 ${72 * (conversations.length - viewport.lastIndex - 1)}px 0;`"
+            v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
+          >
             <ConversationItem
               v-for="conversation in conversationsVisible"
               :key="conversation.conversationId"
@@ -554,7 +557,7 @@ export default class Navigation extends Vue {
     return conversationIds
   }
 
-  threshold: number = 30
+  threshold: number = 60
   viewport: any = {
     firstIndex: 0,
     lastIndex: 0
@@ -582,17 +585,40 @@ export default class Navigation extends Vue {
     return list
   }
 
+  viewportLimit(index: number, offset: number) {
+    let firstIndex = index - offset
+    let lastIndex = index + offset
+    if (firstIndex < 0) {
+      firstIndex = 0
+      if (lastIndex < this.viewport.lastIndex) {
+        lastIndex = this.viewport.lastIndex
+      }
+    }
+    const cLen = this.conversationIds.length
+    if (lastIndex >= cLen) {
+      lastIndex = cLen - 1
+      if (firstIndex > this.viewport.firstIndex) {
+        firstIndex = this.viewport.firstIndex
+      }
+    }
+    return {
+      firstIndex,
+      lastIndex
+    }
+  }
+
   intersectLock: boolean = true
   onIntersect({ target, isIntersecting }: any) {
     if (this.intersectLock) return
     const index = this.conversationIds.indexOf(target.id)
     const direction = this.scrollDirection
     const offset = this.threshold
-    if (isIntersecting && direction === 'up') {
-      this.viewport.firstIndex = index - offset
-    }
-    if (isIntersecting && direction === 'down') {
-      this.viewport.lastIndex = index + offset
+    const { firstIndex, lastIndex } = this.viewport
+    if (
+      (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
+      (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
+    ) {
+      this.viewport = this.viewportLimit(index, offset)
     }
   }
 

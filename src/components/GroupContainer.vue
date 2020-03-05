@@ -194,7 +194,7 @@ main {
         font-size: 0.8rem;
         border: none;
         background: transparent;
-        border-bottom: 0.1rem solid #2cbda5;
+        border-bottom: 0.1rem solid #397ee4;
       }
       input:focus {
         outline: none;

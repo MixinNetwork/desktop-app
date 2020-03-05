@@ -46,6 +46,7 @@
         @dragover="onDragOver"
         @dragleave="onDragLeave"
       >
+        <div :style="{height: `${virtualDom.top}px`}"></div>
         <li v-show="!user.app_id" :style="showTopTips ? '' : 'opacity:0'" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
         </li>
@@ -65,11 +66,13 @@
           :layout="showMessages"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
+          @loaded="onMessageLoaded"
           @mention-visible="mentionVisibleUpdate"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
         />
+        <div :style="{height: `${virtualDom.bottom}px`}"></div>
       </ul>
     </mixin-scrollbar>
 
@@ -204,22 +207,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Watch('messages.length')
-  onMessagesLengthChanged(val: number, oldVal: number) {
-    const ret = this.visibleIndexLimit(this.virtualDom)
-    this.virtualDom = ret
-    const messageIds: any = []
-    this.messages.forEach(item => {
-      messageIds.push(item.messageId)
-    })
-    this.messageIds = messageIds
-  }
-
-  @Watch('virtualDom')
-  onVirtualDomChanged(obj: any, oldObj: any) {
-    this.getMessagesVisible(obj, oldObj)
-  }
-
   @Watch('conversation')
   onConversationChanged(newC: any, oldC: any) {
     this.infiniteDownLock = true
@@ -328,11 +315,9 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
 
   scrollDirection: string = ''
-  messagesVisible: any = []
-
-  messageIds: any = []
+  messageHeightMap: any = {}
   viewport: any = { firstIndex: 0, lastIndex: 0 }
-  virtualDom: any = { firstIndex: 0, lastIndex: 0 }
+  virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 60
 
   get currentMentionNum() {
@@ -387,7 +372,6 @@ export default class ChatContainer extends Vue {
       function(messages: any, unreadNum: any) {
         if (messages) {
           self.messages = messages
-          self.getMessagesVisible(self.virtualDom, null)
         }
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
@@ -438,101 +422,92 @@ export default class ChatContainer extends Vue {
     this.panelChoosing = /Open/.test(data)
   }
 
-  visibleFirstIndex: number = 0
-  getMessagesVisible(obj: any, oldObj: any) {
-    const ret = this.visibleIndexLimit(obj)
-    let { firstIndex, lastIndex } = ret
-
-    this.visibleFirstIndex = firstIndex
-
-    const { messages, messagesVisible } = this
-
-    if (!messagesVisible.length) {
-      this.messagesVisible = this.messages
-    }
-
-    const finalList = []
-    for (let i = firstIndex; i <= lastIndex; i++) {
-      const msg = this.messages[i]
-      if (msg) {
-        finalList.push(msg)
-      }
-    }
-    this.messagesVisible = finalList
+  onMessageLoaded(dom: any) {
+    const { messageId, height } = dom
+    this.messageHeightMap[messageId] = height
   }
 
-  visibleIndexLimit(obj: any) {
-    const { messages, threshold } = this
-    const listLen = messages.length
-    let { firstIndex, lastIndex } = obj
+  get messageIds() {
+    const messageIds: any = []
+    this.messages.forEach((msg: any) => {
+      messageIds.push(msg.messageId)
+    })
+    return messageIds
+  }
 
-    if (lastIndex < threshold) {
-      lastIndex = threshold - 1
-    }
-    if (lastIndex >= listLen) {
-      lastIndex = listLen - 1
-    }
-    if (firstIndex >= lastIndex) {
-      firstIndex = lastIndex - threshold
-    }
-    if (firstIndex <= 0) {
+  visibleFirstIndex: number = 0
+  get messagesVisible() {
+    const list = []
+    let { firstIndex, lastIndex } = this.viewport
+    this.visibleFirstIndex = firstIndex
+    if (firstIndex < 0) {
       firstIndex = 0
     }
-    if (lastIndex <= 0) {
-      lastIndex = 0
+    if (lastIndex < this.threshold) {
+      lastIndex = this.threshold
+    }
+    const { messages, messageHeightMap } = this
+    for (let i = firstIndex; i < messages.length; i++) {
+      list.push(messages[i])
+      if (i >= lastIndex) {
+        break
+      }
+    }
+    if (this.intersectLock) {
+      setTimeout(() => {
+        this.intersectLock = false
+      }, 200)
+    }
+    let top = 0
+    let bottom = 0
+    for (let i = lastIndex + 1; i < messages.length; i++) {
+      bottom += messageHeightMap[messages[i].messageId] || 0
+    }
+    for (let i = 0; i < firstIndex; i++) {
+      top += messageHeightMap[messages[i].messageId] || 0
+    }
+    this.virtualDom = {
+      top,
+      bottom
     }
 
+    return list
+  }
+
+  viewportLimit(index: number, offset: number) {
+    let firstIndex = index - offset
+    let lastIndex = index + offset
+    if (firstIndex < 0) {
+      firstIndex = 0
+      if (lastIndex < this.viewport.lastIndex) {
+        lastIndex = this.viewport.lastIndex
+      }
+    }
+    const cLen = this.messageIds.length
+    if (lastIndex >= cLen) {
+      lastIndex = cLen - 1
+      if (firstIndex > this.viewport.firstIndex) {
+        firstIndex = this.viewport.firstIndex
+      }
+    }
     return {
       firstIndex,
       lastIndex
     }
   }
 
+  intersectLock: boolean = true
   onIntersect({ target, isIntersecting }: any) {
-    const { messages, showScroll, threshold, messageIds, scrollDirection } = this
-    if (!messages || !showScroll) return
-
-    const targetMessageId = target.id.substring(2, target.id.length)
-
-    const index = messageIds.indexOf(targetMessageId)
-
-    let { firstIndex, lastIndex } = this.virtualDom
-
-    const offset = threshold
-    if (isIntersecting) {
-      if (scrollDirection === 'down') {
-        this.viewport.lastIndex = index
-        if (index + offset >= lastIndex && targetMessageId !== messageIds[messageIds.length - 1]) {
-          firstIndex += offset
-          lastIndex += offset
-
-          if (this.viewport.firstIndex < firstIndex) {
-            firstIndex = this.viewport.firstIndex - offset
-          }
-
-          this.virtualDom = { firstIndex, lastIndex }
-        }
-      }
-      if (scrollDirection === 'up') {
-        this.viewport.firstIndex = index
-        if (index - offset <= firstIndex && targetMessageId !== messageIds[0]) {
-          firstIndex -= offset
-          lastIndex -= offset
-
-          if (this.viewport.lastIndex > lastIndex) {
-            lastIndex = this.viewport.lastIndex + offset
-          }
-
-          this.virtualDom = { firstIndex, lastIndex }
-        }
-      }
-    } else {
-      if (scrollDirection === 'down') {
-        this.viewport.firstIndex = index
-      }
-      if (scrollDirection === 'up') {
-        this.viewport.lastIndex = index
-      }
+    if (this.intersectLock || !target.id) return
+    const index = this.messageIds.indexOf(target.id.split('m-')[1])
+    const direction = this.scrollDirection
+    const offset = this.threshold
+    const { firstIndex, lastIndex } = this.viewport
+    if (
+      (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
+      (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
+    ) {
+      this.viewport = this.viewportLimit(index, offset)
     }
   }
 
@@ -658,7 +633,7 @@ export default class ChatContainer extends Vue {
     this.showTopTips = false
 
     const msgLen = this.messages.length
-    this.virtualDom = { firstIndex: msgLen - this.threshold, lastIndex: msgLen - 1 }
+    this.viewport = this.viewportLimit(0, this.threshold)
     this.beforeUnseenMessageCount = 0
 
     setTimeout(() => {

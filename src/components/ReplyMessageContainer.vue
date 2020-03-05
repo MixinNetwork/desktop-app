@@ -16,7 +16,7 @@
         />
         <svg-icon
           icon-class="ic_message_photo"
-          class="reply_icon"
+          class="reply_icon photo"
           v-else-if="messageType() === 'image'"
         />
         <svg-icon
@@ -221,6 +221,10 @@ export default class ReplyMessageContainer extends Vue {
   .reply_icon {
     height: 0.85rem;
     vertical-align: text-top;
+    &.photo {
+      height: 0.65rem;
+      margin: 0.1rem 0.15rem 0 0;
+    }
   }
 }
 </style>

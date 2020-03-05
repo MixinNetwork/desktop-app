@@ -11,6 +11,7 @@
   background: rgba(0, 0, 0, 0.8);
   padding: 0.5rem;
   border-radius: 0.25rem;
+  font-size: 0.8rem;
   color: #fff;
 }
 .fadein {

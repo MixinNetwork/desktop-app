@@ -388,6 +388,7 @@ export default class ChatContainer extends Vue {
           if (!message) {
             self.goBottom()
           } else {
+            self.viewport = self.viewportLimit(0, self.threshold)
             self.goMessagePos(message)
           }
         } else if (self.isBottom) {
@@ -461,10 +462,14 @@ export default class ChatContainer extends Vue {
     let top = 0
     let bottom = 0
     for (let i = lastIndex + 1; i < messages.length; i++) {
-      bottom += messageHeightMap[messages[i].messageId] || 0
+      if (messages[i]) {
+        bottom += messageHeightMap[messages[i].messageId] || 0
+      }
     }
     for (let i = 0; i < firstIndex; i++) {
-      top += messageHeightMap[messages[i].messageId] || 0
+      if (messages[i]) {
+        top += messageHeightMap[messages[i].messageId] || 0
+      }
     }
     this.virtualDom = {
       top,

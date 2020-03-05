@@ -7,9 +7,15 @@
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>
     <header class="search-bar">
-      <Search id="chatSearch" :autofocus="true" class="input" v-if="!searchingBefore.replace(/^key:/, '')" @input="onInput" />
+      <Search
+        id="chatSearch"
+        :autofocus="true"
+        class="input"
+        v-if="show && !searchingBefore.replace(/^key:/, '')"
+        @input="onInput"
+      />
     </header>
-    <mixin-scrollbar>
+    <mixin-scrollbar v-if="show">
       <div class="ul">
         <div v-if="resultList.length">
           <SearchItem
@@ -50,6 +56,8 @@ import { Getter } from 'vuex-class'
   }
 })
 export default class ChatSearch extends Vue {
+  @Prop(Boolean) readonly show: any
+
   @Getter('searching') readonly searchingBefore: any
   @Getter('currentConversation') readonly conversation: any
 
@@ -64,6 +72,11 @@ export default class ChatSearch extends Vue {
     this.searching = true
     const keyword = this.searchingBefore.replace(/^key:/, '')
     this.onInput(keyword)
+  }
+
+  @Watch('show')
+  onShowChanged() {
+    this.resultList = []
   }
 
   renderMdToText(content: string) {

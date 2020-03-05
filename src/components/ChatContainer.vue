@@ -18,10 +18,10 @@
         <svg-icon icon-class="ic_search" />
       </div>
       <div class="attachment" @click="chooseAttachment">
-        <input type="file" v-if="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
+        <input type="file" v-show="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
         <svg-icon icon-class="ic_attach" />
       </div>
-      <div class="bot" v-if="user&&user.app_id!=null" @click="openUrl">
+      <div class="bot" v-show="user && user.app_id!=null" @click="openUrl">
         <svg-icon icon-class="ic_bot" />
       </div>
       <ChatContainerMenu
@@ -37,6 +37,12 @@
       :goBottom="!showScroll"
       @scroll="onScroll"
     >
+      <TimeDivide
+        ref="timeDivide"
+        v-if="messagesVisible[0]"
+        v-show="showMessages && timeDivideShow"
+        :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
+      />
       <ul
         class="messages"
         ref="messagesUl"
@@ -46,30 +52,27 @@
         @dragover="onDragOver"
         @dragleave="onDragLeave"
       >
-        <div :style="{height: `${virtualDom.top}px`}"></div>
-        <li v-show="!user.app_id" :style="showTopTips ? '' : 'opacity:0'" class="encryption tips">
-          <div class="bubble">{{$t('encryption')}}</div>
-        </li>
-        <TimeDivide
-          ref="timeDivide"
-          v-if="messagesVisible[0] && showMessages && timeDivideShow"
-          :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
-        />
-        <MessageItem
-          v-for="(item, index) in messagesVisible"
-          :key="item.messageId"
-          :message="item"
-          :prev="messages[visibleFirstIndex + index - 1]"
-          :unread="unreadMessageId"
-          :searchKeyword="searchKeyword"
-          v-intersect="onIntersect"
-          @loaded="onMessageLoaded"
-          @mention-visible="mentionVisibleUpdate"
-          @user-click="onUserClick"
-          @action-click="handleAction"
-          @handle-item-click="handleItemClick"
-        />
-        <div :style="{height: `${virtualDom.bottom}px`}"></div>
+        <div :style="`padding-top: ${virtualDom.top}px; padding-bottom: ${virtualDom.bottom}px;`">
+          <div id="virtualTop"></div>
+          <li v-show="!user.app_id" class="encryption tips">
+            <div class="bubble">{{$t('encryption')}}</div>
+          </li>
+          <MessageItem
+            v-for="(item, index) in messagesVisible"
+            :key="item.messageId"
+            :message="item"
+            :prev="messages[visibleFirstIndex + index - 1]"
+            :unread="unreadMessageId"
+            :searchKeyword="searchKeyword"
+            v-intersect="onIntersect"
+            @loaded="onMessageLoaded"
+            @mention-visible="mentionVisibleUpdate"
+            @user-click="onUserClick"
+            @action-click="handleAction"
+            @handle-item-click="handleItemClick"
+          />
+          <div id="virtualBottom"></div>
+        </div>
       </ul>
     </mixin-scrollbar>
 
@@ -80,7 +83,7 @@
         v-show="conversation && showMentionBottom"
         @click="mentionClick"
       >
-        <span class="badge" v-if="showMentionBottom">{{currentMentionNum}}</span>
+        <span class="badge" v-show="showMentionBottom">{{currentMentionNum}}</span>
         <span class="mention-icon">@</span>
       </div>
     </transition>
@@ -92,7 +95,7 @@
         v-show="conversation && !isBottom"
         @click="goBottomClick"
       >
-        <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
+        <span class="badge" v-show="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <svg-icon style="font-size: 1.4rem" icon-class="chevron-down" />
       </div>
     </transition>
@@ -136,12 +139,20 @@
     </transition>
 
     <transition name="slide-right">
-      <Details class="overlay" :userId="detailUserId" v-if="details" @close="hideDetails"></Details>
+      <Details
+        class="overlay"
+        :userId="detailUserId"
+        v-if="conversation"
+        v-show="details"
+        @close="hideDetails"
+      ></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
       <ChatSearch
         class="overlay"
-        v-if="searching && conversation"
+        v-if="conversation"
+        v-show="searching"
+        :show="!!searching"
         @close="hideSearch"
         @search="goSearchMessagePos"
       />
@@ -150,7 +161,7 @@
     <transition name="slide-right">
       <Editor
         class="overlay"
-        v-if="editing"
+        v-show="editing"
         :conversation="conversation"
         :category="user.app_id ? 'PLAIN_POST' : 'SIGNAL_POST'"
       ></Editor>
@@ -211,6 +222,11 @@ export default class ChatContainer extends Vue {
       this.showMessages = false
       this.boxMessage = null
       this.mentionMarkReadLock = false
+      this.messageHeightMap = {}
+      this.virtualDom = {
+        top: 0,
+        bottom: 0
+      }
       this.goBottom(true)
       this.hideChoosePanel()
       this.$nextTick(() => {
@@ -264,6 +280,30 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  @Watch('viewport')
+  onViewportChanged(val: any, oldVal: any) {
+    let { firstIndex, lastIndex } = val
+    requestAnimationFrame(() => {
+      const { messages, messageHeightMap } = this
+      let top = 0
+      let bottom = 0
+      for (let i = lastIndex + 1; i < messages.length; i++) {
+        if (messages[i]) {
+          bottom += messageHeightMap[messages[i].messageId] || 0
+        }
+      }
+      for (let i = 0; i < firstIndex; i++) {
+        if (messages[i]) {
+          top += messageHeightMap[messages[i].messageId] || 0
+        }
+      }
+      this.virtualDom = {
+        top,
+        bottom
+      }
+    })
+  }
+
   @Getter('currentConversation') conversation: any
   @Getter('searching') searching: any
   @Getter('currentUser') user: any
@@ -307,7 +347,6 @@ export default class ChatContainer extends Vue {
   panelChoosing: boolean = false
   lastEnter: any = null
   goSearchPos: boolean = false
-  showTopTips: boolean = false
 
   scrollDirection: string = ''
   messageHeightMap: any = {}
@@ -332,7 +371,9 @@ export default class ChatContainer extends Vue {
       this.hideChoosePanel()
       this.boxMessage = null
       setTimeout(() => {
-        this.$refs.inputBox.boxFocusAction()
+        if (this.$refs.inputBox) {
+          this.$refs.inputBox.boxFocusAction()
+        }
       }, 200)
     })
     let self = this
@@ -383,7 +424,6 @@ export default class ChatContainer extends Vue {
           if (!message) {
             self.goBottom()
           } else {
-            self.viewport = self.viewportLimit(0, self.threshold)
             self.goMessagePos(message)
           }
         } else if (self.isBottom) {
@@ -442,9 +482,8 @@ export default class ChatContainer extends Vue {
     if (lastIndex < this.threshold) {
       lastIndex = this.threshold
     }
-    const { messages, messageHeightMap } = this
-    for (let i = firstIndex; i < messages.length; i++) {
-      list.push(messages[i])
+    for (let i = firstIndex; i < this.messages.length; i++) {
+      list.push(this.messages[i])
       if (i >= lastIndex) {
         break
       }
@@ -454,27 +493,14 @@ export default class ChatContainer extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    let top = 0
-    let bottom = 0
-    for (let i = lastIndex + 1; i < messages.length; i++) {
-      if (messages[i]) {
-        bottom += messageHeightMap[messages[i].messageId] || 0
-      }
-    }
-    for (let i = 0; i < firstIndex; i++) {
-      if (messages[i]) {
-        top += messageHeightMap[messages[i].messageId] || 0
-      }
-    }
-    this.virtualDom = {
-      top,
-      bottom
-    }
 
     return list
   }
 
   viewportLimit(index: number, offset: number) {
+    if (!offset) {
+      offset = this.threshold
+    }
     let firstIndex = index - offset
     let lastIndex = index + offset
     if (firstIndex < 0) {
@@ -537,8 +563,6 @@ export default class ChatContainer extends Vue {
       if (list.scrollTop < toTop) {
         if (!this.infiniteUpLock) {
           list.scrollTop = toTop
-        } else {
-          this.showTopTips = true
         }
       }
       this.scrollStop()
@@ -550,9 +574,11 @@ export default class ChatContainer extends Vue {
       this.timeDivideShow = false
     }
     setTimeout(() => {
-      const timeDivide = this.$refs.timeDivide
-      if (!timeDivide) return
-      timeDivide.action()
+      requestAnimationFrame(() => {
+        const timeDivide = this.$refs.timeDivide
+        if (!timeDivide) return
+        timeDivide.action()
+      })
     }, 10)
   }
   chooseAttachment() {
@@ -584,7 +610,9 @@ export default class ChatContainer extends Vue {
     })
   }
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
-    setTimeout(() => {
+    requestAnimationFrame(() => {
+      const posIndex = this.messageIds.indexOf(posMessage.messageId)
+      this.viewport = this.viewportLimit(posIndex, 0)
       this.infiniteDownLock = false
       let targetDom: any = document.querySelector('.unread-divide')
       let messageDom: any
@@ -616,7 +644,7 @@ export default class ChatContainer extends Vue {
         } else {
           list.scrollTop = targetDom.offsetTop
         }
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           this.showMessages = true
         })
       }
@@ -630,10 +658,9 @@ export default class ChatContainer extends Vue {
   }
   goBottom(wait?: boolean) {
     this.showScroll = false
-    this.showTopTips = false
 
     const msgLen = this.messages.length
-    this.viewport = this.viewportLimit(0, this.threshold)
+    this.viewport = this.viewportLimit(msgLen - 1, 0)
     this.beforeUnseenMessageCount = 0
 
     setTimeout(() => {
@@ -724,6 +751,9 @@ export default class ChatContainer extends Vue {
           }
           this.messages.push(...newMessages)
           this.actionSetCurrentMessages(this.messages)
+          setTimeout(() => {
+            this.infiniteDownLock = false
+          }, 100)
         } else {
           const newMessages = []
           const firstMessageId = this.messages[0].messageId
@@ -736,7 +766,9 @@ export default class ChatContainer extends Vue {
           }
           this.messages.unshift(...newMessages)
           this.actionSetCurrentMessages(this.messages)
-          this.infiniteUpLock = false
+          setTimeout(() => {
+            this.infiniteUpLock = false
+          }, 100)
         }
       }
     })
@@ -748,6 +780,7 @@ export default class ChatContainer extends Vue {
   }
   infiniteDown() {
     if (this.infiniteDownLock) return
+    this.infiniteDownLock = true
     this.infiniteScroll('down')
   }
   onDragEnter(e: any) {

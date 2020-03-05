@@ -9,21 +9,19 @@
           <font-awesome-icon icon="search" id="ic_search" v-show="!focus && !keyword" />
         </transition>
       </div>
-      <keep-alive>
-        <input
-          class="box"
-          ref="box"
-          type="text"
-          :id="id"
-          placeholder="Search"
-          @keyup="keyup"
-          @focus="onFocus"
-          @blur="onBlur"
-          @compositionstart="inputFlag = true"
-          @compositionend="inputFlag = false"
-          v-model="keyword"
-        />
-      </keep-alive>
+      <input
+        class="box"
+        ref="box"
+        type="text"
+        :id="id"
+        placeholder="Search"
+        @keyup="keyup"
+        @focus="onFocus"
+        @blur="onBlur"
+        @compositionstart="inputFlag = true"
+        @compositionend="inputFlag = false"
+        v-model="keyword"
+      />
     </div>
   </div>
 </template>

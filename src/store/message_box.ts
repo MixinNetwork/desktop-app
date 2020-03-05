@@ -150,9 +150,7 @@ class MessageBox {
       } else {
         data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
       }
-      setTimeout(() => {
-        resolve(data)
-      })
+      resolve(data)
     })
   }
   bindData(callback: any, scrollAction: any) {

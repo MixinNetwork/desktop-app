@@ -58,11 +58,13 @@ export default class PostItem extends Vue {
   content: string = ''
 
   mounted() {
-    // @ts-ignore
-    const chatWidth = document.querySelector('.chat.container').clientWidth
-    if (chatWidth * 0.8 > this.maxWidth) {
-      this.maxWidth = chatWidth * 0.8
-    }
+    requestAnimationFrame(() => {
+      // @ts-ignore
+      const chatWidth = document.querySelector('.chat.container').clientWidth
+      if (chatWidth * 0.8 > this.maxWidth) {
+        this.maxWidth = chatWidth * 0.8
+      }
+    })
     const content = this.message.content.substr(0, 5000)
     let line = 0
     content.split('\n').forEach((piece: string) => {
@@ -70,9 +72,9 @@ export default class PostItem extends Vue {
         line++
       }
     })
-    let minHeight = line * 1.2 + 3.6
-    if (minHeight > 20) {
-      minHeight = 20
+    let minHeight = line * 1.2 + 2
+    if (minHeight > 14) {
+      minHeight = 14
     }
     this.minHeight = minHeight + 'rem'
     this.content = content

@@ -195,7 +195,7 @@ import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants'
 
-import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
@@ -618,7 +618,9 @@ export default class Navigation extends Vue {
       (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
       (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
     ) {
-      this.viewport = this.viewportLimit(index, offset)
+      requestAnimationFrame(() => {
+        this.viewport = this.viewportLimit(index, offset)
+      })
     }
   }
 

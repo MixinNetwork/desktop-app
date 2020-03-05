@@ -246,13 +246,17 @@ export default class MessageItem extends Vue {
   $Menu: any
 
   mounted() {
-    const { messageId } = this.message
-    const dom: any = this.$refs.messageItem
-    let height = dom.getBoundingClientRect().height
-    // @ts-ignore
-    const marginBottom = document.defaultView.getComputedStyle(dom, null)['marginBottom']
-    height += parseInt(marginBottom.split('px')[0])
-    this.$emit('loaded', { messageId, height })
+    requestAnimationFrame(() => {
+      const { messageId } = this.message
+      const dom: any = this.$refs.messageItem
+      if (dom) {
+        let height = dom.getBoundingClientRect().height
+        // @ts-ignore
+        const marginBottom = document.defaultView.getComputedStyle(dom, null)['marginBottom']
+        height += parseInt(marginBottom.split('px')[0])
+        this.$emit('loaded', { messageId, height })
+      }
+    })
 
     if (this.messageType() === 'text') {
       const target: any = this.$refs.messageItem

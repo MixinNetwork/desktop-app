@@ -58,7 +58,7 @@ export default class Avatar extends Vue {
   onLinkStatus(status: any) {
     if (status === LinkStatus.CONNECTED) {
       this.loaded = false
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         this.loaded = true
       })
     }

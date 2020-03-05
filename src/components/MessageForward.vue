@@ -309,8 +309,8 @@ export default class MessageForward extends Vue {
   border-radius: 0.2rem;
   box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.195);
   .forward-search {
-    width: calc(100% - 3.2rem);
-    margin-left: 0.8rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
     input {
       border-radius: 0.15rem;
     }

@@ -130,7 +130,6 @@ export default class ChatSearch extends Vue {
     .input {
       padding: 0.15rem 0;
       border-bottom: 0.05rem solid #f0f0f0;
-      width: calc(100% - 1.5rem);
     }
   }
   .notify {

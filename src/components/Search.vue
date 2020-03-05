@@ -127,7 +127,7 @@ export default class Search extends Vue {
   margin-left: 0.4rem;
   margin-right: 0.4rem;
   border: none;
-  flex-grow: 19;
+  width: calc(100% - 1.6rem);
   font-size: 0.8rem;
   &::-webkit-input-placeholder {
     color: #bbbec3;
@@ -142,6 +142,8 @@ export default class Search extends Vue {
   height: 0.9rem;
 }
 .layout {
+  width: 100%;
+  box-sizing: border-box;
   input {
     background: transparent;
   }

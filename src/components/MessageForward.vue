@@ -63,7 +63,6 @@ import { AttachmentMessagePayload } from '@/utils/attachment_util'
 export default class MessageForward extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Object) readonly category: any
-  @Prop(Object) readonly me: any
 
   @Getter('currentConversation') conversation: any
   @Getter('getConversations') conversations: any

@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :style="layout ? 'contain: layout;' : ''" :id="`m-${message.messageId}`">
+  <li ref="messageItem" :id="`m-${message.messageId}`">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -207,6 +207,8 @@ import { AttachmentMessagePayload } from '@/utils/attachment_util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
+import { Getter } from 'vuex-class'
+
 @Component({
   components: {
     ReplyMessageItem,
@@ -227,13 +229,13 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
   }
 })
 export default class MessageItem extends Vue {
-  @Prop(Object) readonly conversation: any
   @Prop(Object) readonly message: any
-  @Prop(Object) readonly me: any
   @Prop(Object) readonly prev: any
   @Prop(String) readonly unread: any
   @Prop(String) readonly searchKeyword: any
-  @Prop(Boolean) readonly layout: any
+
+  @Getter('me') me: any
+  @Getter('currentConversation') conversation: any
 
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories

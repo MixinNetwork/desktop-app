@@ -40,7 +40,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :style="showMessages ? '' : 'opacity: 0'"
+        :class="{ show: showMessages }"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -61,9 +61,6 @@
           :message="item"
           :prev="messages[visibleFirstIndex + index - 1]"
           :unread="unreadMessageId"
-          :conversation="conversation"
-          :me="me"
-          :layout="showMessages"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @loaded="onMessageLoaded"
@@ -114,7 +111,6 @@
 
     <MessageForward
       v-if="forwardMessage"
-      :me="me"
       :message="forwardMessage"
       @close="handleHideMessageForward"
     />
@@ -271,7 +267,6 @@ export default class ChatContainer extends Vue {
   @Getter('currentConversation') conversation: any
   @Getter('searching') searching: any
   @Getter('currentUser') user: any
-  @Getter('me') me: any
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
@@ -999,6 +994,13 @@ export default class ChatContainer extends Vue {
     overflow-x: hidden;
     padding: 0.6rem;
     box-sizing: border-box;
+    opacity: 0;
+    &.show {
+      opacity: 1;
+      & > li {
+        contain: layout;
+      }
+    }
   }
 
   .encryption.tips {

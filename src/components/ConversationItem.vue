@@ -1,6 +1,7 @@
 <template>
   <li
     class="conversation item"
+    :id="conversation.conversationId"
     @click="$emit('item-click',conversation)"
     @mouseenter="enter"
     @mouseleave="leave"

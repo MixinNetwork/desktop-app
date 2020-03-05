@@ -5,11 +5,11 @@
         <Avatar
           style="font-size: 0.8rem"
           :conversation="conversation"
-          @onAvatarClick="showDetails"
+          @onAvatarClick="showDetails()"
         />
       </div>
       <div class="title">
-        <div @click="showDetails">
+        <div @click="showDetails()">
           <div class="username">{{name}}</div>
           <div class="identity number">{{identity}}</div>
         </div>
@@ -26,7 +26,7 @@
       </div>
       <ChatContainerMenu
         :conversation="conversation"
-        @showDetails="showDetails"
+        @showDetails="showDetails()"
         @menuCallback="menuCallback"
       />
     </header>
@@ -35,6 +35,7 @@
       :style="(panelHeight < 12 ? '' : 'transition: 0.3s all ease;')"
       v-if="conversation"
       :goBottom="!showScroll"
+      @scroll="onScroll"
     >
       <ul
         class="messages"
@@ -44,7 +45,6 @@
         @drop="onDrop"
         @dragover="onDragOver"
         @dragleave="onDragLeave"
-        @scroll="onScroll"
       >
         <li v-show="!user.app_id" :style="showTopTips ? '' : 'opacity:0'" class="encryption tips">
           <div class="bubble">{{$t('encryption')}}</div>
@@ -213,9 +213,6 @@ export default class ChatContainer extends Vue {
       messageIds.push(item.messageId)
     })
     this.messageIds = messageIds
-    if (messageIds.length > this.threshold) {
-      this.threshold = 200
-    }
   }
 
   @Watch('virtualDom')
@@ -330,13 +327,13 @@ export default class ChatContainer extends Vue {
   goSearchPos: boolean = false
   showTopTips: boolean = false
 
-  goDown: boolean = false
+  scrollDirection: string = ''
   messagesVisible: any = []
 
   messageIds: any = []
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { firstIndex: 0, lastIndex: 0 }
-  threshold: number = 600
+  threshold: number = 60
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -492,7 +489,7 @@ export default class ChatContainer extends Vue {
   }
 
   onIntersect({ target, isIntersecting }: any) {
-    const { messages, showScroll, threshold, messageIds, goDown } = this
+    const { messages, showScroll, threshold, messageIds, scrollDirection } = this
     if (!messages || !showScroll) return
 
     const targetMessageId = target.id.substring(2, target.id.length)
@@ -503,7 +500,7 @@ export default class ChatContainer extends Vue {
 
     const offset = threshold
     if (isIntersecting) {
-      if (goDown) {
+      if (scrollDirection === 'down') {
         this.viewport.lastIndex = index
         if (index + offset >= lastIndex && targetMessageId !== messageIds[messageIds.length - 1]) {
           firstIndex += offset
@@ -515,7 +512,8 @@ export default class ChatContainer extends Vue {
 
           this.virtualDom = { firstIndex, lastIndex }
         }
-      } else {
+      }
+      if (scrollDirection === 'up') {
         this.viewport.firstIndex = index
         if (index - offset <= firstIndex && targetMessageId !== messageIds[0]) {
           firstIndex -= offset
@@ -529,9 +527,10 @@ export default class ChatContainer extends Vue {
         }
       }
     } else {
-      if (goDown) {
+      if (scrollDirection === 'down') {
         this.viewport.firstIndex = index
-      } else {
+      }
+      if (scrollDirection === 'up') {
         this.viewport.lastIndex = index
       }
     }
@@ -541,20 +540,14 @@ export default class ChatContainer extends Vue {
     this.scrollTimeout = null
   }
 
-  beforeScrollTop: number = 0
-  goDownBuffer: any = []
   scrollTimeout: any = null
-  onScroll(e: any) {
+  onScroll(obj: any) {
+    if (obj) {
+      this.scrollDirection = obj.direction
+    }
+
     let list = this.$refs.messagesUl
     if (!list) return
-
-    const goDown = this.beforeScrollTop < list.scrollTop
-    this.goDownBuffer.unshift(goDown)
-    this.goDownBuffer = this.goDownBuffer.splice(0, 3)
-    if (this.goDownBuffer[0] !== undefined && this.goDownBuffer[0] === this.goDownBuffer[1]) {
-      this.goDown = this.goDownBuffer[1]
-    }
-    this.beforeScrollTop = list.scrollTop
 
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {

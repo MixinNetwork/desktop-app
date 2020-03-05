@@ -57,6 +57,8 @@ export default class MixinScrollbar extends Vue {
     }, 500)
   }
 
+  beforeScrollTop: number = 0
+  goDownBuffer: any = []
   scrollInit() {
     setTimeout(() => {
       this.thumbShowForce = true
@@ -77,6 +79,15 @@ export default class MixinScrollbar extends Vue {
 
     scrollBox.onscroll = (e: any) => {
       requestAnimationFrame(() => {
+        const goDown = this.beforeScrollTop < scrollBox.scrollTop
+        this.goDownBuffer.unshift(goDown)
+        this.goDownBuffer = this.goDownBuffer.splice(0, 3)
+        let direction = ''
+        if (this.goDownBuffer[0] !== undefined && this.goDownBuffer[0] === this.goDownBuffer[1]) {
+          direction = this.goDownBuffer[1] ? 'down' : 'up'
+        }
+        this.beforeScrollTop = scrollBox.scrollTop
+
         if (!this.thumbShowLock && !this.thumbShow) {
           this.thumbShow = true
         }
@@ -101,6 +112,9 @@ export default class MixinScrollbar extends Vue {
         if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
           this.thumbTop = 0
         }
+        this.$emit('scroll', {
+          direction
+        })
       })
     }
   }

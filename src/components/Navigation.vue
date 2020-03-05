@@ -35,14 +35,15 @@
         v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"
       >{{$t('conversation.empty')}}</h5>
 
-      <mixin-scrollbar>
+      <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
           <ul v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)">
             <ConversationItem
-              v-for="conversation in conversations"
+              v-for="conversation in conversationsVisible"
               :key="conversation.conversationId"
               :conversation="conversation"
               :class="{active:currentConversationId === conversation.conversationId}"
+              v-intersect="onIntersect"
               @item-click="onConversationClick"
               @item-more="openMenu"
               @item-menu-click="openDownMenu"
@@ -191,7 +192,7 @@ import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants'
 
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
@@ -545,6 +546,63 @@ export default class Navigation extends Vue {
     }
   }
 
+  get conversationIds() {
+    const conversationIds: any = []
+    this.conversations.forEach((conv: any) => {
+      conversationIds.push(conv.conversationId)
+    })
+    return conversationIds
+  }
+
+  threshold: number = 30
+  viewport: any = {
+    firstIndex: 0,
+    lastIndex: 0
+  }
+  get conversationsVisible() {
+    const list = []
+    let { firstIndex, lastIndex } = this.viewport
+    if (firstIndex < 0) {
+      firstIndex = 0
+    }
+    if (lastIndex < this.threshold) {
+      lastIndex = this.threshold
+    }
+    for (let i = firstIndex; i < this.conversations.length; i++) {
+      if (i >= lastIndex) {
+        break
+      }
+      list.push(this.conversations[i])
+    }
+    if (this.intersectLock) {
+      setTimeout(() => {
+        this.intersectLock = false
+      }, 200)
+    }
+    return list
+  }
+
+  intersectLock: boolean = true
+  onIntersect({ target, isIntersecting }: any) {
+    if (this.intersectLock) return
+    const index = this.conversationIds.indexOf(target.id)
+    const direction = this.scrollDirection
+    const offset = this.threshold
+    if (isIntersecting && direction === 'up') {
+      this.viewport.firstIndex = index - offset
+    }
+    if (isIntersecting && direction === 'down') {
+      this.viewport.lastIndex = index + offset
+    }
+  }
+
+  scrollDirection: string = ''
+  onScroll(obj: any) {
+    if (obj) {
+      this.scrollDirection = obj.direction
+    }
+  }
+
   getLinkTitle() {
     return this.$t('not_connected_title')
   }
@@ -575,10 +633,10 @@ export default class Navigation extends Vue {
   font-size: 0.8rem;
   contain: layout;
   .loading {
-    width: 1.375rem;
-    height: 1.375rem;
+    width: 1.2rem;
+    height: 1.2rem;
     vertical-align: top;
-    margin: 0.4rem 0.4rem 0.4rem 1.15rem;
+    margin: 0.3rem 0.3rem 0.3rem 1.15rem;
   }
 
   .root {

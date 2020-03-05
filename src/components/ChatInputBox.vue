@@ -302,7 +302,6 @@ export default class ChatItem extends Vue {
   }
 
   panelHeight: number = 12
-  mentionHoverPrevent: boolean = false
   updateMentionUsers(result: any) {
     const len = result.length
     if (len) {
@@ -313,7 +312,6 @@ export default class ChatItem extends Vue {
       }
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
-        this.mentionHoverPrevent = true
         // @ts-ignore
         requestIdleCallback(
           () => {

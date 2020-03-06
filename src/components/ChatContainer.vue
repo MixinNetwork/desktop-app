@@ -850,13 +850,10 @@ export default class ChatContainer extends Vue {
   }
   detailUserId: string = ''
   showDetails(id?: string) {
-    if (id) {
-      this.detailUserId = id
-    }
+    this.detailUserId = id || ''
     this.details = true
   }
   hideDetails() {
-    this.detailUserId = ''
     this.details = false
     if (this.conversation) {
       this.$root.$emit('updateMenu', this.conversation)

@@ -19,7 +19,7 @@ export default class BaseWorker {
   async syncConversation(data) {
     if (
       data.conversation_id === SystemUser ||
-      data.conversation_id === JSON.parse(localStorage.getItem('account')).user_id
+      data.conversation_id === this.getAccountId()
     ) {
       return
     }

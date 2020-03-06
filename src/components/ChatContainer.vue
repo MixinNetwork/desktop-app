@@ -730,7 +730,7 @@ export default class ChatContainer extends Vue {
       message.messageId = messageId
       this.unreadMessageId = ''
       this.goMessagePos(message)
-      // this.actionMarkMentionRead({ conversationId, messageId })
+      this.actionMarkMentionRead({ conversationId, messageId })
       this.$refs.inputBox.boxFocusAction(true)
     }
   }

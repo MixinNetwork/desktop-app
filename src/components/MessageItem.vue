@@ -246,7 +246,7 @@ export default class MessageItem extends Vue {
   $Menu: any
 
   mounted() {
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       const { messageId } = this.message
       const dom: any = this.$refs.messageItem
       if (dom) {

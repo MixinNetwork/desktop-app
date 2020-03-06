@@ -83,7 +83,7 @@
         v-show="conversation && showMentionBottom"
         @click="mentionClick"
       >
-        <span class="badge" v-show="showMentionBottom">{{currentMentionNum}}</span>
+        <span class="badge" v-if="showMentionBottom">{{currentMentionNum}}</span>
         <span class="mention-icon">@</span>
       </div>
     </transition>
@@ -95,7 +95,7 @@
         v-show="conversation && !isBottom"
         @click="goBottomClick"
       >
-        <span class="badge" v-show="currentUnreadNum>0">{{currentUnreadNum}}</span>
+        <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
         <svg-icon style="font-size: 1.4rem" icon-class="chevron-down" />
       </div>
     </transition>
@@ -268,6 +268,10 @@ export default class ChatContainer extends Vue {
       }
     }
   }
+  @Watch('messages.length')
+  onMessagesLengthChanged() {
+    this.getMessagesVisible()
+  }
 
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
@@ -276,22 +280,23 @@ export default class ChatContainer extends Vue {
     if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
       return
     }
+
     this.beforeViewport = { firstIndex, lastIndex }
-    this.getMessagesVisible()
+    const { messages, messageHeightMap } = this
+    let top = 0
+    let bottom = 0
+    for (let i = lastIndex + 1; i < messages.length; i++) {
+      if (messages[i]) {
+        bottom += messageHeightMap[messages[i].messageId] || 0
+      }
+    }
+    for (let i = 0; i < firstIndex; i++) {
+      if (messages[i]) {
+        top += messageHeightMap[messages[i].messageId] || 0
+      }
+    }
     requestAnimationFrame(() => {
-      const { messages, messageHeightMap } = this
-      let top = 0
-      let bottom = 0
-      for (let i = lastIndex + 1; i < messages.length; i++) {
-        if (messages[i]) {
-          bottom += messageHeightMap[messages[i].messageId] || 0
-        }
-      }
-      for (let i = 0; i < firstIndex; i++) {
-        if (messages[i]) {
-          top += messageHeightMap[messages[i].messageId] || 0
-        }
-      }
+      this.getMessagesVisible()
       this.virtualDom = {
         top,
         bottom
@@ -492,12 +497,7 @@ export default class ChatContainer extends Vue {
     this.messagesVisible = list
   }
 
-  viewportLimit(index: number, offset: number) {
-    if (!offset) {
-      offset = this.threshold
-    }
-    let firstIndex = index - offset
-    let lastIndex = index + offset
+  viewportLimit(firstIndex: number, lastIndex: number) {
     if (firstIndex < 0) {
       firstIndex = 0
       if (lastIndex < this.viewport.lastIndex) {
@@ -528,7 +528,7 @@ export default class ChatContainer extends Vue {
       (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
       (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
     ) {
-      this.viewport = this.viewportLimit(index, offset)
+      this.viewport = this.viewportLimit(index - offset, index + offset)
     }
   }
 
@@ -611,9 +611,7 @@ export default class ChatContainer extends Vue {
     })
   }
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
-    requestAnimationFrame(() => {
-      const posIndex = this.messageIds.indexOf(posMessage.messageId)
-      this.viewport = this.viewportLimit(posIndex, 0)
+    setTimeout(() => {
       this.infiniteDownLock = false
       let targetDom: any = document.querySelector('.unread-divide')
       let messageDom: any
@@ -624,7 +622,7 @@ export default class ChatContainer extends Vue {
         }
       }
       if (!targetDom && !messageDom) {
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           this.showMessages = true
         })
         return
@@ -648,7 +646,7 @@ export default class ChatContainer extends Vue {
         } else {
           list.scrollTop = targetDom.offsetTop
         }
-        requestAnimationFrame(() => {
+        setTimeout(() => {
           this.showMessages = true
         })
       }
@@ -658,15 +656,25 @@ export default class ChatContainer extends Vue {
     let goDone = false
     let beforeScrollTop = 0
 
+    const posIndex = this.messageIds.indexOf(posMessage.messageId)
+    let { firstIndex, lastIndex } = this.viewport
+    const offset = 20
+    if (firstIndex > posIndex - offset / 2) {
+      firstIndex -= offset
+    } else if (posIndex + offset / 2 > lastIndex) {
+      lastIndex += offset
+    }
+    this.viewport = this.viewportLimit(firstIndex, lastIndex)
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
-    }, 10)
+    }, 100)
   }
   goBottom(wait?: boolean) {
     this.showScroll = false
 
     const msgLen = this.messages.length
-    this.viewport = this.viewportLimit(msgLen - 1, 0)
+
+    this.viewport = this.viewportLimit(msgLen - this.threshold, msgLen - 1)
     this.beforeUnseenMessageCount = 0
 
     setTimeout(() => {

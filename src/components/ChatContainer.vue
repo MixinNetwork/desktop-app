@@ -61,7 +61,7 @@
             v-for="(item, index) in messagesVisible"
             :key="item.messageId"
             :message="item"
-            :prev="messages[visibleFirstIndex + index - 1]"
+            :prev="messagesVisible[index - 1]"
             :unread="unreadMessageId"
             :searchKeyword="searchKeyword"
             v-intersect="onIntersect"
@@ -228,6 +228,7 @@ export default class ChatContainer extends Vue {
         top: 0,
         bottom: 0
       }
+      this.beforeViewport = {}
       this.goBottom(true)
       this.hideChoosePanel()
       this.$nextTick(() => {
@@ -270,8 +271,13 @@ export default class ChatContainer extends Vue {
 
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
-    this.getMessagesVisible()
     let { firstIndex, lastIndex } = val
+    const bfv = this.beforeViewport
+    if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
+      return
+    }
+    this.beforeViewport = { firstIndex, lastIndex }
+    this.getMessagesVisible()
     requestAnimationFrame(() => {
       const { messages, messageHeightMap } = this
       let top = 0
@@ -340,8 +346,9 @@ export default class ChatContainer extends Vue {
   scrollDirection: string = ''
   messageHeightMap: any = {}
   viewport: any = { firstIndex: 0, lastIndex: 0 }
+  beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
-  threshold: number = 60
+  threshold: number = 120
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -462,11 +469,9 @@ export default class ChatContainer extends Vue {
   }
 
   messagesVisible: any = []
-  visibleFirstIndex: number = 0
   getMessagesVisible() {
     const list = []
     let { firstIndex, lastIndex } = this.viewport
-    this.visibleFirstIndex = firstIndex
     if (firstIndex < 0) {
       firstIndex = 0
     }
@@ -484,7 +489,6 @@ export default class ChatContainer extends Vue {
         this.intersectLock = false
       }, 200)
     }
-
     this.messagesVisible = list
   }
 
@@ -574,11 +578,9 @@ export default class ChatContainer extends Vue {
       this.timeDivideShow = false
     }
     setTimeout(() => {
-      requestAnimationFrame(() => {
-        const timeDivide = this.$refs.timeDivide
-        if (!timeDivide) return
-        timeDivide.action()
-      })
+      const timeDivide = this.$refs.timeDivide
+      if (!timeDivide) return
+      timeDivide.action()
     }, 10)
   }
   chooseAttachment() {

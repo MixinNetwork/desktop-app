@@ -79,8 +79,13 @@ export default class MixinScrollbar extends Vue {
 
     let beforeScrollTop: number = 0
     let goDownBuffer: any = []
+    let scrollTimer: any = null
+    let scrollLock: boolean = false
     scrollBox.onscroll = (e: any) => {
-      setTimeout(() => {
+      if (scrollLock) return
+      clearTimeout(scrollTimer)
+      scrollLock = true
+      scrollTimer = setTimeout(() => {
         const goDown = beforeScrollTop < scrollBox.scrollTop
         goDownBuffer.unshift(goDown)
         goDownBuffer = goDownBuffer.splice(0, 3)
@@ -117,7 +122,8 @@ export default class MixinScrollbar extends Vue {
         this.$emit('scroll', {
           direction
         })
-      })
+        scrollLock = false
+      }, 10)
     }
   }
   thumbMouseOver() {

@@ -165,8 +165,9 @@ class MessageDao {
           `SELECT m.message_id FROM messages_fts m_fts
             INNER JOIN messages m ON m.message_id = m_fts.message_id
             LEFT JOIN users u ON m.user_id = u.user_id
-            WHERE (m.category = 'SIGNAL_TEXT' OR m.category = 'PLAIN_TEXT' OR m.category = 'SIGNAL_DATA' OR m.category = 'PLAIN_DATA' OR m.category = 'SIGNAL_POST' OR m.category = 'PLAIN_POST')
-            AND m.status != 'FAILED' AND m.conversation_id = ? AND m_fts.content MATCH ?`
+            WHERE m.conversation_id = ?
+            AND m.category IN ('SIGNAL_TEXT', 'PLAIN_TEXT', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_POST', 'PLAIN_POST')
+            AND m_fts.content MATCH ? AND m.status != 'FAILED'`
         )
         .all(conversationId, keywordFinal)
       if (!data) return 0
@@ -216,8 +217,11 @@ class MessageDao {
         FROM messages_fts m_fts
         INNER JOIN messages m ON m.message_id = m_fts.message_id
         LEFT JOIN users u ON m.user_id = u.user_id
-        WHERE (m.category = 'SIGNAL_TEXT' OR m.category = 'PLAIN_TEXT' OR m.category = 'SIGNAL_DATA' OR m.category = 'PLAIN_DATA' OR m.category = 'SIGNAL_POST' OR m.category = 'PLAIN_POST')
-        AND m.status != 'FAILED' AND m.conversation_id = ? AND m_fts.content MATCH ? ORDER BY m.created_at DESC LIMIT 100`
+        WHERE m.conversation_id = ?
+        AND m_fts.content MATCH ?
+        AND m.category IN ('SIGNAL_TEXT', 'PLAIN_TEXT', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_POST', 'PLAIN_POST')
+        AND m.status != 'FAILED'
+        ORDER BY m.created_at DESC LIMIT 100`
       )
       .all(conversationId, keywordFinal)
   }
@@ -368,8 +372,9 @@ class MessageDao {
   takeUnseen(userId: any, conversationId: any) {
     return db
       .prepare(
-        `UPDATE conversations SET unseen_message_count = (SELECT count(1) FROM messages m WHERE  m.conversation_id = '${conversationId}' AND m.user_id != '${userId}'
-        AND m.status IN ('SENT', 'DELIVERED')) WHERE conversation_id = '${conversationId}'`
+        `UPDATE conversations SET unseen_message_count =
+        (SELECT count(1) FROM messages m WHERE m.conversation_id = '${conversationId}' AND m.status IN ('SENT', 'DELIVERED') AND m.user_id != '${userId}')
+        WHERE conversation_id = '${conversationId}'`
       )
       .run()
   }
@@ -383,7 +388,7 @@ class MessageDao {
     const userId = this.me().user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = 'SENT'  AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .all(conversationId)
   }
@@ -401,7 +406,7 @@ class MessageDao {
     const userId = this.me().user_id
     db.prepare(`UPDATE conversations SET unseen_message_count = 0 WHERE conversation_id = ?`).run(conversationId)
     db.prepare(
-      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND user_id != '${userId}' AND status = 'SENT'`
+      `UPDATE messages SET status = 'READ' WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}'`
     ).run(conversationId)
   }
 
@@ -416,7 +421,8 @@ class MessageDao {
   findImages(conversationId: any, messageId: any) {
     return db
       .prepare(
-        `SELECT m.message_id, m.media_url, m.media_width, m.media_height FROM messages m WHERE m.conversation_id = ? and (m.category = 'SIGNAL_IMAGE' OR m.category = 'PLAIN_IMAGE') AND m.media_status = 'DONE'
+        `SELECT m.message_id, m.media_url, m.media_width, m.media_height FROM messages m WHERE m.conversation_id = ?
+        AND m.category IN ('SIGNAL_IMAGE', 'PLAIN_IMAGE') AND m.media_status = 'DONE'
         AND m.created_at >= (SELECT created_at FROM messages WHERE message_id = ?) ORDER BY m.created_at ASC`
       )
       .all(conversationId, messageId)

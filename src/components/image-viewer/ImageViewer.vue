@@ -227,8 +227,28 @@ export default {
 .image-viewer-fade-leave-to {
   opacity: 0;
 }
+
+* {
+  ::-webkit-scrollbar {
+    width: 0.35rem;
+    height: 0.35rem;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-track-piece,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 0.25rem;
+    width: 0.35rem;
+    background: #11111177;
+    cursor: pointer;
+  }
+}
+
 .scorll {
-  overflow: scroll;
+  overflow: auto;
   width: 100%;
   height: 100%;
   display: flex;
@@ -348,7 +368,7 @@ export default {
   height: 15%;
   background-color: rgba(0, 0, 0, 0.7);
   &-main {
-    width: 99%;
+    width: 100%;
     height: 100%;
     margin: 0 auto;
     word-wrap: normal;
@@ -358,12 +378,15 @@ export default {
   &-thumb {
     height: 100%;
     display: flex;
-    overflow: scroll;
+    overflow-x: scroll;
     flex-direction: row;
+    &::-webkit-scrollbar-thumb {
+      background: #5f5f5faa;
+    }
     #thumb {
       display: inline-block;
       width: 12%;
-      height: 90%;
+      height: calc(100% - 0.3rem);
       margin: 0.4% 0 0.4% 0.4%;
       cursor: pointer;
       object-fit: cover;
@@ -380,6 +403,9 @@ export default {
         border: 0.2rem solid #666;
       }
     }
+  }
+  ::-webkit-scrollbar-thumb {
+    height: 0.3rem;
   }
 }
 

@@ -86,7 +86,7 @@ class SendWorker extends BaseWorker {
         message.content,
         message.message_id
       )
-      return this.createBlazeMessage(message, content, null, mentions)
+      return this.createBlazeMessage(message, content, message.resend_user_id, mentions)
     } else {
       const content = signalProtocol.encryptGroupMessage(
         message.conversation_id,
@@ -133,7 +133,7 @@ class SendWorker extends BaseWorker {
     }
     if (message.resend_user_id) {
       blazeParam.message_id = uuidv4()
-      blazeParam.user_id = message.resend_user_id
+      blazeParam.recipient_id = message.resend_user_id
       blazeParam.session_id = message.resend_session_id
     } else {
       blazeParam.conversation_checksum = this.getCheckSum(message.conversation_id)

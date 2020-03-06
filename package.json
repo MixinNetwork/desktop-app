@@ -85,7 +85,11 @@
     "sass-loader": "^8.0.2",
     "typescript": "~3.7.5",
     "vue-cli-plugin-electron-builder": "^2.0.0-beta.4",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.11",
+    "@types/node": "^12.12.29"
+  },
+  "resolutions": {
+    "electron-builder": "^22.3.6"
   },
   "main": "background.js",
   "repository": "github:MixinNetwork/desktop-app"

@@ -192,6 +192,8 @@ export default class Details extends Vue {
   background: #f5f7fa;
   display: flex;
   flex-flow: column nowrap;
+  position: relative;
+  z-index: 9999;
   .titlebar {
     background: #ffffff;
     height: 2.85rem;

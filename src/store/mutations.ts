@@ -9,16 +9,21 @@ import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
 function refreshConversations(state: any) {
-  const conversations = conversationDao.getConversations()
+  const findConversations = conversationDao.getConversations()
   const conversationKeys: any = []
-  Vue.set(state, 'conversations', {})
-  conversations.forEach((conversation: any, index: number) => {
+  if (!findConversations.length) {
+    state.conversations = {}
+    return
+  }
+  const conversations: any = {}
+  findConversations.forEach((conversation: any) => {
     const conversationId = conversation.conversationId
-    conversationKeys[index] = conversationId
+    conversationKeys.push(conversationId)
     const participants = participantDao.getParticipantsByConversationId(conversationId)
     conversation.participants = participants
-    Vue.set(state.conversations, conversationId, conversation)
+    conversations[conversationId] = conversation
   })
+  state.conversations = conversations
   state.conversationKeys = conversationKeys
 }
 
@@ -28,14 +33,16 @@ function refreshConversation(
 ) {
   const mentionsMap = state.conversationUnseenMentionsMap
   const conversation = conversationDao.getConversationItemByConversationId(conversationId)
+  const conversations = JSON.parse(JSON.stringify(state.conversations))
   if (conversation) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
     conversation.participants = participants
     const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
     mentionsMap[conversationId] = mentionMessages
     state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
-    Vue.set(state.conversations, conversationId, conversation)
+    conversations[conversationId] = conversation
   }
+  state.conversations = conversations
   state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
     return item.conversationId
   })
@@ -181,18 +188,21 @@ export default {
     state.linkStatus = LinkStatus.CONNECTED
   },
   init(state: any) {
-    const conversations = conversationDao.getConversations()
+    const findConversations = conversationDao.getConversations()
+    const conversations: any = {}
     const conversationKeys: any = []
     const mentionsMap = state.conversationUnseenMentionsMap
-    conversations.forEach((conversation: any, index: number) => {
+    findConversations.forEach((conversation: any) => {
       const conversationId = conversation.conversationId
-      conversationKeys[index] = conversationId
+      conversationKeys.push(conversationId)
       const participants = participantDao.getParticipantsByConversationId(conversationId)
       conversation.participants = participants
       const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
       mentionsMap[conversationId] = mentionMessages
-      Vue.set(state.conversations, conversationId, conversation)
+      conversations[conversationId] = conversation
     })
+    state.conversationKeys = conversationKeys
+    state.conversations = conversations
     state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
     const friends = userDao.findFriends()
     if (friends.length > 0) {
@@ -200,7 +210,6 @@ export default {
     }
     // @ts-ignore
     state.me = JSON.parse(localStorage.getItem('account'))
-    state.conversationKeys = conversationKeys
   },
   saveAccount(state: any, user: any) {
     state.me = user

@@ -69,14 +69,32 @@ export default class MixinScrollbar extends Vue {
     this.observer = new MutationObserver((mutationsList, observer) => {
       for (let mutation of mutationsList) {
         if (mutation.type === 'childList') {
-          this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
+          requestAnimationFrame(() => {
+            this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
+          })
         }
       }
     })
     this.observer.observe(targetNode, { childList: true, subtree: true })
 
+    let beforeScrollTop: number = 0
+    let goDownBuffer: any = []
+    let scrollTimer: any = null
+    let scrollLock: boolean = false
     scrollBox.onscroll = (e: any) => {
-      requestAnimationFrame(() => {
+      if (scrollLock) return
+      clearTimeout(scrollTimer)
+      scrollLock = true
+      scrollTimer = setTimeout(() => {
+        const goDown = beforeScrollTop < scrollBox.scrollTop
+        goDownBuffer.unshift(goDown)
+        goDownBuffer = goDownBuffer.splice(0, 3)
+        let direction = ''
+        if (goDownBuffer[0] !== undefined && goDownBuffer[0] === goDownBuffer[1]) {
+          direction = goDownBuffer[1] ? 'down' : 'up'
+        }
+        beforeScrollTop = scrollBox.scrollTop
+
         if (!this.thumbShowLock && !this.thumbShow) {
           this.thumbShow = true
         }
@@ -101,7 +119,11 @@ export default class MixinScrollbar extends Vue {
         if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
           this.thumbTop = 0
         }
-      })
+        this.$emit('scroll', {
+          direction
+        })
+        scrollLock = false
+      }, 10)
     }
   }
   thumbMouseOver() {

@@ -9,21 +9,19 @@
           <font-awesome-icon icon="search" id="ic_search" v-show="!focus && !keyword" />
         </transition>
       </div>
-      <keep-alive>
-        <input
-          class="box"
-          ref="box"
-          type="text"
-          :id="id"
-          placeholder="Search"
-          @keyup="keyup"
-          @focus="onFocus"
-          @blur="onBlur"
-          @compositionstart="inputFlag = true"
-          @compositionend="inputFlag = false"
-          v-model="keyword"
-        />
-      </keep-alive>
+      <input
+        class="box"
+        ref="box"
+        type="text"
+        :id="id"
+        placeholder="Search"
+        @keyup="keyup"
+        @focus="onFocus"
+        @blur="onBlur"
+        @compositionstart="inputFlag = true"
+        @compositionend="inputFlag = false"
+        v-model="keyword"
+      />
     </div>
   </div>
 </template>
@@ -127,7 +125,7 @@ export default class Search extends Vue {
   margin-left: 0.4rem;
   margin-right: 0.4rem;
   border: none;
-  flex-grow: 19;
+  width: calc(100% - 1.6rem);
   font-size: 0.8rem;
   &::-webkit-input-placeholder {
     color: #bbbec3;
@@ -142,6 +140,8 @@ export default class Search extends Vue {
   height: 0.9rem;
 }
 .layout {
+  width: 100%;
+  box-sizing: border-box;
   input {
     background: transparent;
   }

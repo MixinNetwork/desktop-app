@@ -32,12 +32,11 @@
       ></MentionPanel>
     </transition>
 
-    <div v-show="conversation" class="box" @click.stop>
-      <div v-if="!participant" class="removed">{{$t('home.removed')}}</div>
-      <div v-if="participant" class="input">
+    <div v-if="conversation" class="box" @click.stop>
+      <div v-show="!participant" class="removed">{{$t('home.removed')}}</div>
+      <div v-show="participant" class="input">
         <div class="sticker" @click.stop="chooseSticker">
-          <svg-icon icon-class="ic_emoticon_on" v-if="stickerChoosing" />
-          <svg-icon icon-class="ic_emoticon" v-else />
+          <svg-icon :icon-class="stickerChoosing ? 'ic_emoticon_on' : 'ic_emoticon'" />
         </div>
         <mixin-scrollbar style="margin-right: 0.15rem">
           <div class="ul editable" ref="boxWrap">
@@ -114,8 +113,8 @@ export default class ChatItem extends Vue {
   @Watch('conversation')
   onConversationChanged(newC: any, oldC: any) {
     this.mentions = []
-    setTimeout(() => {
-      const $target: any = this.$refs.box
+    const $target: any = this.$refs.box
+    requestAnimationFrame(() => {
       const numbers = contentUtil.parseMentionIdentityNumber($target.innerText)
       if (numbers.length > 0) {
         this.mentions = userDao.findUsersByIdentityNumber(numbers)
@@ -138,20 +137,20 @@ export default class ChatItem extends Vue {
 
   boxFocusAction(keep?: boolean) {
     if (this.$refs.box) {
-      const $target: any = this.$refs.box
-      if (!keep) {
-        $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
-        const $wrap: any = this.$refs.boxWrap
-        this.inputBoxHeight = $wrap.getBoundingClientRect().height
-        this.handleMention($target)
-      }
-      try {
+      requestAnimationFrame(() => {
+        const $target: any = this.$refs.box
+        if (!keep) {
+          $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
+          const $wrap: any = this.$refs.boxWrap
+          this.inputBoxHeight = $wrap.getBoundingClientRect().height
+          this.handleMention($target)
+        }
+        try {
         // @ts-ignore
-        window.getSelection().collapse($target, 1)
-        // @ts-ignore
-        window.getSelection().collapse($target, $target.childNodes.length)
-      } catch (error) {}
-      setTimeout(() => {
+          window.getSelection().collapse($target, 1)
+          // @ts-ignore
+          window.getSelection().collapse($target, $target.childNodes.length)
+        } catch (error) {}
         $target.focus()
       })
     }
@@ -302,7 +301,6 @@ export default class ChatItem extends Vue {
   }
 
   panelHeight: number = 12
-  mentionHoverPrevent: boolean = false
   updateMentionUsers(result: any) {
     const len = result.length
     if (len) {
@@ -313,14 +311,9 @@ export default class ChatItem extends Vue {
       }
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
-        this.mentionHoverPrevent = true
-        // @ts-ignore
-        requestIdleCallback(
-          () => {
-            this.mentionChoosing = true
-          },
-          { timeout: 30 }
-        )
+        setTimeout(() => {
+          this.mentionChoosing = true
+        }, 100)
       }
     } else {
       const selection: any = window.getSelection()

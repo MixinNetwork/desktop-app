@@ -31,6 +31,7 @@ import {
   SystemConversationAction,
   ConversationCategory
 } from '@/utils/constants'
+
 class ReceiveWorker extends BaseWorker {
   async doWork() {
     await wasmObject.then(result => {})
@@ -252,7 +253,7 @@ class ReceiveWorker extends BaseWorker {
       action: systemMessage.action,
       participant_id: systemMessage.participant_id
     }
-    const accountId = JSON.parse(localStorage.getItem('account')).user_id
+    const accountId = this.getAccountId()
     if (
       systemMessage.action === SystemConversationAction.ADD ||
       systemMessage.action === SystemConversationAction.JOIN
@@ -429,7 +430,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
-      let quoteMe = quoteMessage && quoteMessage.user_id === this.getAccountId() && data.user_id !== this.getAccountId()
+      let quoteMe = quoteMessage && quoteMessage.userId === this.getAccountId() && data.user_id !== this.getAccountId()
       contentUtil.parseMention(
         plain,
         data.conversation_id,
@@ -661,7 +662,7 @@ class ReceiveWorker extends BaseWorker {
     ) {
       return
     }
-    const accountId = JSON.parse(localStorage.getItem('account')).user_id
+    const accountId = this.getAccountId()
     if (accountId === userId) {
       return
     }
@@ -723,7 +724,7 @@ class ReceiveWorker extends BaseWorker {
     if (store.state.currentConversationId !== conversationId) {
       return
     }
-    if (userId === JSON.parse(localStorage.getItem('account')).user_id) {
+    if (userId === this.getAccountId()) {
       return
     }
     this.updateRemoteMessageStatus(messageId, status)

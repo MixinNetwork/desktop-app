@@ -1,9 +1,7 @@
 <template>
   <div class="home dashboard">
     <navigation />
-    <keep-alive>
-      <ChatContainer />
-    </keep-alive>
+    <ChatContainer />
   </div>
 </template>
 

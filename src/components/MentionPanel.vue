@@ -1,13 +1,14 @@
 <template>
   <div class="mention-panel" :style="{ height: `${height}rem`}" @click.stop>
     <mixin-scrollbar>
-      <div ref="ul" class="ul">
+      <div ref="ul" class="ul" @mousemove="mousemove">
         <UserItem
           v-for="user in contacts"
           :key="user.user_id"
           :user="user"
           :keyword="keyword"
           :class="{ current: user.identity_number === currentUidTemp }"
+          :style="mentionHoverPrevent ? 'pointer-events: none;' : ''"
           @user-click="onUserClick"
         ></UserItem>
       </div>
@@ -77,11 +78,17 @@ export default class MentionPanel extends Vue {
       const ul: any = this.$refs.ul
       ul.scrollTop = 0
     }, 10)
+    this.mentionHoverPrevent = true
+  }
+
+  mentionHoverPrevent: boolean = false
+  mousemove() {
+    this.mentionHoverPrevent = false
   }
 
   goItemPos(index: number) {
     const container: any = document.querySelector('.mention-panel .ul')
-    const item: any = document.querySelector('.mention-panel .user_item_layout')
+    const item: any = document.querySelector('.mention-panel .user-item')
     if (container && item) {
       const itemHeight = item.getBoundingClientRect().height
       const outUp = itemHeight * index <= container.scrollTop

@@ -270,6 +270,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
+    this.getMessagesVisible()
     let { firstIndex, lastIndex } = val
     requestAnimationFrame(() => {
       const { messages, messageHeightMap } = this
@@ -396,6 +397,7 @@ export default class ChatContainer extends Vue {
       function(messages: any, unreadNum: any) {
         if (messages) {
           self.messages = messages
+          self.getMessagesVisible()
         }
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
@@ -459,8 +461,9 @@ export default class ChatContainer extends Vue {
     return messageIds
   }
 
+  messagesVisible: any = []
   visibleFirstIndex: number = 0
-  get messagesVisible() {
+  getMessagesVisible() {
     const list = []
     let { firstIndex, lastIndex } = this.viewport
     this.visibleFirstIndex = firstIndex
@@ -482,7 +485,7 @@ export default class ChatContainer extends Vue {
       }, 200)
     }
 
-    return list
+    this.messagesVisible = list
   }
 
   viewportLimit(index: number, offset: number) {

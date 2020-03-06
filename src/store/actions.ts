@@ -478,7 +478,7 @@ export default {
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
         commit('stopLoading', messageId)
-        commit('refreshMessage', { conversationId: conversationId, messageIds: [messageId] })
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       }
     )
   },

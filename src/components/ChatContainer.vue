@@ -295,13 +295,11 @@ export default class ChatContainer extends Vue {
         top += messageHeightMap[messages[i].messageId] || 0
       }
     }
-    requestAnimationFrame(() => {
-      this.getMessagesVisible()
-      this.virtualDom = {
-        top,
-        bottom
-      }
-    })
+    this.getMessagesVisible()
+    this.virtualDom = {
+      top,
+      bottom
+    }
   }
 
   @Getter('currentConversation') conversation: any
@@ -353,7 +351,7 @@ export default class ChatContainer extends Vue {
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
-  threshold: number = 120
+  threshold: number = 30
 
   get currentMentionNum() {
     if (!this.conversation) return

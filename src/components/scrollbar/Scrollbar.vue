@@ -43,7 +43,6 @@ export default class MixinScrollbar extends Vue {
     y: 0
   }
   dragging: boolean = false
-  observer: any = null
 
   @Watch('goBottom')
   onGoBottomChange() {
@@ -65,65 +64,54 @@ export default class MixinScrollbar extends Vue {
 
     scrollBox.scrollTop = 0
 
-    const targetNode: any = this.$refs.scroll
-    this.observer = new MutationObserver((mutationsList, observer) => {
-      for (let mutation of mutationsList) {
-        if (mutation.type === 'childList') {
-          requestAnimationFrame(() => {
-            this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
-          })
-        }
-      }
-    })
-    this.observer.observe(targetNode, { childList: true, subtree: true })
-
     let beforeScrollTop: number = 0
     let goDownBuffer: any = []
-    let scrollTimer: any = null
     let scrollLock: boolean = false
     scrollBox.onscroll = (e: any) => {
       if (scrollLock) return
-      clearTimeout(scrollTimer)
       scrollLock = true
-      scrollTimer = setTimeout(() => {
-        const goDown = beforeScrollTop < scrollBox.scrollTop
-        goDownBuffer.unshift(goDown)
-        goDownBuffer = goDownBuffer.splice(0, 3)
-        let direction = ''
-        if (goDownBuffer[0] !== undefined && goDownBuffer[0] === goDownBuffer[1]) {
-          direction = goDownBuffer[1] ? 'down' : 'up'
-        }
-        beforeScrollTop = scrollBox.scrollTop
 
-        if (!this.thumbShowLock && !this.thumbShow) {
-          this.thumbShow = true
-        }
-        if (this.thumbShow) {
-          clearTimeout(this.thumbShowTimeout)
-          this.thumbShowTimeout = setTimeout(() => {
-            if (!this.thumbShowLock) {
-              this.thumbShow = false
-            }
-          }, 1000)
-        }
-        const maxScrollTop = scrollBox.scrollHeight - scrollBox.clientHeight
-        this.thumbHeight = (scrollBox.clientHeight / scrollBox.scrollHeight) * scrollBox.clientHeight
-        let thumbTop: number = (scrollBox.scrollTop * (scrollBox.clientHeight - this.thumbHeight)) / maxScrollTop
-        if (thumbTop > scrollBox.clientHeight - this.thumbHeight - 25) {
+      const { clientHeight, scrollHeight, scrollTop } = scrollBox
+
+      const goDown = beforeScrollTop < scrollTop
+      goDownBuffer.unshift(goDown)
+      goDownBuffer = goDownBuffer.splice(0, 3)
+      let direction = ''
+      if (goDownBuffer[0] !== undefined && goDownBuffer[0] === goDownBuffer[1]) {
+        direction = goDownBuffer[1] ? 'down' : 'up'
+      }
+      beforeScrollTop = scrollTop
+
+      if (!this.thumbShowLock && !this.thumbShow) {
+        this.thumbShow = true
+      }
+      if (this.thumbShow) {
+        clearTimeout(this.thumbShowTimeout)
+        this.thumbShowTimeout = setTimeout(() => {
+          if (!this.thumbShowLock) {
+            this.thumbShow = false
+          }
+        }, 1000)
+      }
+      const maxScrollTop = scrollHeight - clientHeight
+      requestAnimationFrame(() => {
+        this.thumbHeight = (clientHeight / scrollHeight) * clientHeight
+        let thumbTop: number = (scrollTop * (clientHeight - this.thumbHeight)) / maxScrollTop
+        if (thumbTop > clientHeight - this.thumbHeight - 25) {
           thumbTop = Math.floor(thumbTop)
         }
         if (this.thumbHeight < 25) {
           thumbTop -= 25 - this.thumbHeight
         }
         this.thumbTop = thumbTop
-        if (this.thumbTop < 0 || scrollBox.clientHeight >= scrollBox.scrollHeight) {
+        if (this.thumbTop < 0 || clientHeight >= scrollHeight) {
           this.thumbTop = 0
         }
-        this.$emit('scroll', {
-          direction
-        })
         scrollLock = false
-      }, 10)
+      })
+      this.$emit('scroll', {
+        direction
+      })
     }
   }
   thumbMouseOver() {
@@ -181,8 +169,6 @@ export default class MixinScrollbar extends Vue {
   destroyed() {
     this.scrollBox = null
     this.scrollThumb = null
-    this.observer.disconnect()
-    this.observer = null
   }
 }
 </script>

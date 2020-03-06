@@ -1,7 +1,7 @@
 <template>
   <transition name="fade">
     <div class="time-divide fixed" v-show="scrolling">
-      <span>{{timeDivide}}</span>
+      <span v-if="timeDivide">{{timeDivide}}</span>
     </div>
   </transition>
 </template>
@@ -60,7 +60,7 @@ export default class TimeDivide extends Vue {
   }
   &.fixed {
     position: absolute;
-    top: 0.45rem;
+    top: 0.6rem;
     z-index: 9999;
     left: 0;
     right: 0;

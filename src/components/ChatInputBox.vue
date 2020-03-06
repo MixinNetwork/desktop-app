@@ -113,8 +113,8 @@ export default class ChatItem extends Vue {
   @Watch('conversation')
   onConversationChanged(newC: any, oldC: any) {
     this.mentions = []
+    const $target: any = this.$refs.box
     requestAnimationFrame(() => {
-      const $target: any = this.$refs.box
       const numbers = contentUtil.parseMentionIdentityNumber($target.innerText)
       if (numbers.length > 0) {
         this.mentions = userDao.findUsersByIdentityNumber(numbers)

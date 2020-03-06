@@ -15,7 +15,7 @@ class MessageBox {
   callback: any
   count: any
 
-  async setConversationId(conversationId: string, messagePositionIndex: number) {
+  setConversationId(conversationId: string, messagePositionIndex: number) {
     if (conversationId) {
       this.conversationId = conversationId
       this.messagePositionIndex = messagePositionIndex
@@ -30,16 +30,28 @@ class MessageBox {
       this.tempCount = 0
       this.newCount = 0
 
-      let posMessage = null
+      let posMessage: any = null
       if (messagePositionIndex > 0) {
         posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
       }
-      let newMessages: any = await this.nextPage('up')
+
+      let newMessages: any = this.nextPage('up')
       this.messages.unshift(...newMessages)
 
       if (this.page > 0) {
-        newMessages = await this.nextPage('down')
+        newMessages = this.nextPage('down')
         this.messages.push(...newMessages)
+      }
+      let markdownCount = 5
+      for (let i = this.messages.length - 1; i >= 0; i--) {
+        const type = this.messages[i].type
+        if (type.endsWith('_POST') || type.endsWith('_IMAGE') || type.endsWith('_STICKER')) {
+          this.messages[i].fastLoad = true
+          markdownCount--
+        }
+        if (markdownCount < 0) {
+          break
+        }
       }
 
       this.callback(this.messages, 0)
@@ -138,20 +150,18 @@ class MessageBox {
     }
   }
   nextPage(direction: string): any {
-    return new Promise(resolve => {
-      let data: unknown = []
-      if (direction === 'down') {
-        if (this.pageDown > 0) {
-          data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
-        } else {
-          this.newCount = 0
-          this.callback(null, this.newCount)
-        }
+    let data: unknown = []
+    if (direction === 'down') {
+      if (this.pageDown > 0) {
+        data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
       } else {
-        data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+        this.newCount = 0
+        this.callback(null, this.newCount)
       }
-      resolve(data)
-    })
+    } else {
+      data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+    }
+    return data
   }
   bindData(callback: any, scrollAction: any) {
     this.callback = callback

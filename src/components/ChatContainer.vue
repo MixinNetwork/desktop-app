@@ -39,7 +39,7 @@
     >
       <TimeDivide
         ref="timeDivide"
-        v-if="messagesVisible[0]"
+        v-if="messagesVisible[0] && !onScrollLock"
         v-show="showMessages && timeDivideShow"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
@@ -222,6 +222,7 @@ export default class ChatContainer extends Vue {
       this.showMessages = false
       this.boxMessage = null
       this.mentionMarkReadLock = false
+      this.onScrollLock = true
       this.messageHeightMap = {}
       this.virtualDom = {
         top: 0,
@@ -236,20 +237,7 @@ export default class ChatContainer extends Vue {
       })
       this.$root.$emit('updateMenu', newC)
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-      let markdownCount = 5
-      for (let i = messageBox.messages.length - 1; i >= 0; i--) {
-        const type = messageBox.messages[i].type
-        if (type.endsWith('_POST') || type.endsWith('_IMAGE') || type.endsWith('_STICKER')) {
-          const type = messageBox.messages[i].type
-          messageBox.messages[i].fastLoad = true
-          markdownCount--
-        }
-        if (markdownCount < 0) {
-          break
-        }
-      }
-      this.messages = messageBox.messages
-      this.actionSetCurrentMessages(this.messages)
+      this.actionSetCurrentMessages(messageBox.messages)
       if (newC) {
         let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
         if (unreadMessage) {
@@ -538,11 +526,20 @@ export default class ChatContainer extends Vue {
   }
 
   scrollStop() {
-    this.scrollTimeout = null
+    this.scrollTimer = null
   }
 
-  scrollTimeout: any = null
+  scrollTimer: any = null
+  onScrollLock: boolean = true
+  onScrollLockTimer: any = null
   onScroll(obj: any) {
+    if (this.onScrollLock) {
+      clearTimeout(this.onScrollLockTimer)
+      this.onScrollLockTimer = setTimeout(() => {
+        this.onScrollLock = false
+      }, 300)
+      return
+    }
     if (obj) {
       this.scrollDirection = obj.direction
     }
@@ -558,8 +555,8 @@ export default class ChatContainer extends Vue {
     if (list.scrollTop < toTop) {
       this.infiniteUp()
     }
-    clearTimeout(this.scrollTimeout)
-    this.scrollTimeout = setTimeout(() => {
+    clearTimeout(this.scrollTimer)
+    this.scrollTimer = setTimeout(() => {
       if (list.scrollTop < toTop) {
         if (!this.infiniteUpLock) {
           list.scrollTop = toTop
@@ -602,10 +599,9 @@ export default class ChatContainer extends Vue {
         this.conversation.conversationId,
         item.message_id || item.messageId
       )
-      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1).then(() => {
-        this.searchKeyword = keyword
-        this.goSearchPos = false
-      })
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+      this.searchKeyword = keyword
+      this.goSearchPos = false
       this.$refs.inputBox.boxFocusAction()
     })
   }
@@ -623,7 +619,10 @@ export default class ChatContainer extends Vue {
         }
       }
       if (!targetDom && !messageDom) {
-        return (this.showMessages = true)
+        requestAnimationFrame(() => {
+          this.showMessages = true
+        })
+        return
       }
       let list = this.$refs.messagesUl
       if (!list) {
@@ -654,7 +653,9 @@ export default class ChatContainer extends Vue {
     let goDone = false
     let beforeScrollTop = 0
 
-    this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+    setTimeout(() => {
+      this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+    }, 10)
   }
   goBottom(wait?: boolean) {
     this.showScroll = false
@@ -737,41 +738,40 @@ export default class ChatContainer extends Vue {
     }, 100)
   }
   infiniteScroll(direction: any) {
-    messageBox.nextPage(direction).then((messages: any) => {
-      if (messages.length) {
-        if (direction === 'down') {
-          const newMessages = []
-          const lastMessageId = this.messages[this.messages.length - 1].messageId
-          for (let i = messages.length - 1; i >= 0; i--) {
-            const temp = messages[i]
-            if (temp.messageId === lastMessageId) {
-              break
-            }
-            newMessages.unshift(temp)
+    const messages = messageBox.nextPage(direction)
+    if (messages.length) {
+      if (direction === 'down') {
+        const newMessages = []
+        const lastMessageId = this.messages[this.messages.length - 1].messageId
+        for (let i = messages.length - 1; i >= 0; i--) {
+          const temp = messages[i]
+          if (temp.messageId === lastMessageId) {
+            break
           }
-          this.messages.push(...newMessages)
-          this.actionSetCurrentMessages(this.messages)
-          setTimeout(() => {
-            this.infiniteDownLock = false
-          }, 100)
-        } else {
-          const newMessages = []
-          const firstMessageId = this.messages[0].messageId
-          for (let i = 0; i < messages.length; i++) {
-            const temp = messages[i]
-            if (temp.messageId === firstMessageId) {
-              break
-            }
-            newMessages.push(temp)
-          }
-          this.messages.unshift(...newMessages)
-          this.actionSetCurrentMessages(this.messages)
-          setTimeout(() => {
-            this.infiniteUpLock = false
-          }, 100)
+          newMessages.unshift(temp)
         }
+        this.messages.push(...newMessages)
+        this.actionSetCurrentMessages(this.messages)
+        setTimeout(() => {
+          this.infiniteDownLock = false
+        }, 100)
+      } else {
+        const newMessages = []
+        const firstMessageId = this.messages[0].messageId
+        for (let i = 0; i < messages.length; i++) {
+          const temp = messages[i]
+          if (temp.messageId === firstMessageId) {
+            break
+          }
+          newMessages.push(temp)
+        }
+        this.messages.unshift(...newMessages)
+        this.actionSetCurrentMessages(this.messages)
+        setTimeout(() => {
+          this.infiniteUpLock = false
+        }, 100)
       }
-    })
+    }
   }
   infiniteUp() {
     if (this.infiniteUpLock) return

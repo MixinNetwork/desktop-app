@@ -5,11 +5,11 @@
         <Avatar
           style="font-size: 0.8rem"
           :conversation="conversation"
-          @onAvatarClick="showDetails()"
+          @onAvatarClick="showDetails('')"
         />
       </div>
       <div class="title">
-        <div @click="showDetails()">
+        <div @click="showDetails('')">
           <div class="username">{{name}}</div>
           <div class="identity number">{{identity}}</div>
         </div>
@@ -26,7 +26,7 @@
       </div>
       <ChatContainerMenu
         :conversation="conversation"
-        @showDetails="showDetails()"
+        @showDetails="showDetails('')"
         @menuCallback="menuCallback"
       />
     </header>
@@ -855,8 +855,8 @@ export default class ChatContainer extends Vue {
     this.file = null
   }
   detailUserId: string = ''
-  showDetails(id?: string) {
-    this.detailUserId = id || ''
+  showDetails(id: string) {
+    this.detailUserId = id
     this.details = true
   }
   hideDetails() {

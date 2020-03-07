@@ -52,27 +52,25 @@
         @dragover="onDragOver"
         @dragleave="onDragLeave"
       >
-        <div :style="`padding-top: ${virtualDom.top}px; padding-bottom: ${virtualDom.bottom}px;`">
-          <div id="virtualTop"></div>
-          <li v-show="!user.app_id" :style="{opacity: showTopTips ? 1 : 0}" class="encryption tips">
-            <div class="bubble">{{$t('encryption')}}</div>
-          </li>
-          <MessageItem
-            v-for="(item, index) in messagesVisible"
-            :key="item.messageId"
-            :message="item"
-            :prev="messagesVisible[index - 1]"
-            :unread="unreadMessageId"
-            :searchKeyword="searchKeyword"
-            v-intersect="onIntersect"
-            @loaded="onMessageLoaded"
-            @mention-visible="mentionVisibleUpdate"
-            @user-click="onUserClick"
-            @action-click="handleAction"
-            @handle-item-click="handleItemClick"
-          />
-          <div id="virtualBottom"></div>
-        </div>
+        <div v-intersect="onIntersect" :style="`height: ${virtualDom.top}px`" id="virtualTop"></div>
+        <li v-show="!user.app_id" :style="{opacity: showTopTips ? 1 : 0}" class="encryption tips">
+          <div class="bubble">{{$t('encryption')}}</div>
+        </li>
+        <MessageItem
+          v-for="(item, index) in messagesVisible"
+          :key="item.messageId"
+          :message="item"
+          :prev="messagesVisible[index - 1]"
+          :unread="unreadMessageId"
+          :searchKeyword="searchKeyword"
+          v-intersect="onIntersect"
+          @loaded="onMessageLoaded"
+          @mention-visible="mentionVisibleUpdate"
+          @user-click="onUserClick"
+          @action-click="handleAction"
+          @handle-item-click="handleItemClick"
+        />
+        <div v-intersect="onIntersect" :style="`height: ${virtualDom.bottom}px`" id="virtualBottom"></div>
       </ul>
     </mixin-scrollbar>
 
@@ -505,8 +503,15 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  overflowMap: any = { top: false, bottom: false }
   intersectLock: boolean = true
   onIntersect({ target, isIntersecting }: any) {
+    if (target.id === 'virtualTop') {
+      this.overflowMap.top = isIntersecting
+    }
+    if (target.id === 'virtualBottom') {
+      this.overflowMap.bottom = isIntersecting
+    }
     if (this.intersectLock || !target.id) return
     const index = this.messageIds.indexOf(target.id.split('m-')[1])
     const direction = this.scrollDirection
@@ -520,8 +525,18 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  overflowTimer: any = null
   scrollStop() {
     this.scrollTimer = null
+    clearTimeout(this.overflowTimer)
+    this.overflowTimer = setTimeout(() => {
+      if (!this.infiniteUpLock && this.overflowMap.top) {
+        this.viewport = this.viewportLimit(0, 2 * this.threshold)
+      }
+      if (!this.infiniteDownLock && this.overflowMap.bottom) {
+        this.goBottom()
+      }
+    }, 500)
   }
 
   scrollTimer: any = null
@@ -685,20 +700,20 @@ export default class ChatContainer extends Vue {
     this.beforeViewport = {}
     this.currentUnreadNum = 0
     this.searchKeyword = ''
-
     setTimeout(() => {
       const msgLen = this.messages.length
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
-      this.infiniteUpLock = false
       let list = this.$refs.messagesUl
       if (!list) return
-      list.scrollTop = list.scrollHeight
+      this.infiniteUpLock = false
       this.showMessages = true
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         list.scrollTop = list.scrollHeight
+      })
+      setTimeout(() => {
         this.showScroll = true
       }, 200)
-    }, 10)
+    })
     messageBox.clearUnreadNum(0)
   }
 

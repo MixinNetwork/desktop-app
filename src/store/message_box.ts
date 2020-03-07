@@ -193,6 +193,7 @@ class MessageBox {
         }
         this.messages.push(...newMessages)
         store.dispatch('setCurrentMessages', this.messages)
+        this.callback({ messages: this.messages })
         setTimeout(() => {
           this.callback({ infiniteDownLock: false })
         }, 100)
@@ -208,6 +209,7 @@ class MessageBox {
         }
         this.messages.unshift(...newMessages)
         store.dispatch('setCurrentMessages', this.messages)
+        this.callback({ messages: this.messages })
         setTimeout(() => {
           this.callback({ infiniteUpLock: false })
         }, 100)

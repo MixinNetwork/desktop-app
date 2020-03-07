@@ -300,7 +300,6 @@ export default class ChatContainer extends Vue {
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
-  @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
@@ -402,7 +401,8 @@ export default class ChatContainer extends Vue {
           })
         }
         if (messages) {
-          self.getMessagesVisible()
+          const {firstIndex, lastIndex} = self.viewport
+          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
@@ -530,13 +530,14 @@ export default class ChatContainer extends Vue {
     this.scrollTimer = null
     clearTimeout(this.overflowTimer)
     this.overflowTimer = setTimeout(() => {
+      if (this.goMessagePosLock) return
       if (!this.infiniteUpLock && this.overflowMap.top) {
         this.viewport = this.viewportLimit(0, 2 * this.threshold)
       }
       if (!this.infiniteDownLock && this.overflowMap.bottom) {
         this.goBottom()
       }
-    }, 500)
+    }, 300)
   }
 
   scrollTimer: any = null
@@ -578,11 +579,6 @@ export default class ChatContainer extends Vue {
     }
     clearTimeout(this.scrollTimer)
     this.scrollTimer = setTimeout(() => {
-      if (list.scrollTop < toTop) {
-        if (!this.infiniteUpLock) {
-          list.scrollTop = toTop
-        }
-      }
       this.scrollStop()
     }, 100)
 
@@ -624,6 +620,9 @@ export default class ChatContainer extends Vue {
       this.$refs.inputBox.boxFocusAction()
     })
   }
+
+  goMessagePosLock: boolean = false
+  goMessagePosTimer: any = null
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
     setTimeout(() => {
       this.infiniteDownLock = false
@@ -660,20 +659,23 @@ export default class ChatContainer extends Vue {
         } else {
           list.scrollTop = targetDom.offsetTop
         }
-        setTimeout(() => {
-          this.showMessages = true
-        })
+        this.showMessages = true
+        this.goMessagePosTimer = setTimeout(() => {
+          this.goMessagePosLock = false
+        }, 600)
       }
     })
   }
+
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
 
     let { firstIndex, lastIndex } = this.viewport
+    const temp = { firstIndex, lastIndex }
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
-      const offset = 20
+      const offset = this.threshold
       if (firstIndex > posIndex - offset / 2) {
         firstIndex -= offset
       } else if (posIndex + offset / 2 > lastIndex) {
@@ -682,8 +684,11 @@ export default class ChatContainer extends Vue {
     }
     this.showScroll = false
     this.beforeViewport = {}
-    this.viewport = this.viewportLimit(firstIndex, lastIndex)
-
+    this.goMessagePosLock = true
+    clearTimeout(this.goMessagePosTimer)
+    if (temp.firstIndex !== firstIndex || temp.lastIndex !== lastIndex) {
+      this.viewport = this.viewportLimit(firstIndex, lastIndex)
+    }
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
     }, 100)

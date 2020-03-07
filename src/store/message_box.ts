@@ -149,6 +149,7 @@ class MessageBox {
           })
         } else {
           store.dispatch('setCurrentMessages', this.messages)
+          this.callback({ messages: this.messages })
         }
       }
     }

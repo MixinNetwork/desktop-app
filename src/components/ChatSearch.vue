@@ -66,7 +66,7 @@ export default class ChatSearch extends Vue {
   searching: any = false
   resultList: any = []
 
-  @Watch('conversation')
+  @Watch('conversation.conversationId')
   onConversationChanged() {
     this.resultList = []
     this.searching = true

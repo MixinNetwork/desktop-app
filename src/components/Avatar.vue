@@ -43,7 +43,7 @@ export default class Avatar extends Vue {
 
   @Getter('linkStatus') linkStatus: any
 
-  @Watch('conversation')
+  @Watch('conversation.conversationId')
   onConversationChange(newConversation: any, oldConversation: any) {
     if (newConversation) {
       this.onChange()

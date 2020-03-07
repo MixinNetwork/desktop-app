@@ -54,7 +54,7 @@
       >
         <div :style="`padding-top: ${virtualDom.top}px; padding-bottom: ${virtualDom.bottom}px;`">
           <div id="virtualTop"></div>
-          <li v-show="!user.app_id" class="encryption tips">
+          <li v-show="!user.app_id" :style="{opacity: showTopTips ? 1 : 0}" class="encryption tips">
             <div class="bubble">{{$t('encryption')}}</div>
           </li>
           <MessageItem
@@ -223,6 +223,8 @@ export default class ChatContainer extends Vue {
     this.boxMessage = null
     this.mentionMarkReadLock = false
     this.onScrollLock = true
+    this.showTopTips = false
+    this.messageHeightMap = {}
     const { groupName, name, conversationId } = this.conversation
     if (newVal) {
       this.details = false
@@ -340,6 +342,7 @@ export default class ChatContainer extends Vue {
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 30
+  showTopTips: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -393,12 +396,15 @@ export default class ChatContainer extends Vue {
     }
     messageBox.bindData(
       function(payload: any) {
-        const { unreadNum, infiniteUpLock, infiniteDownLock } = payload
+        const { messages, unreadNum, infiniteUpLock, infiniteDownLock } = payload
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
+        }
+        if (messages) {
+          self.getMessagesVisible()
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
@@ -410,8 +416,7 @@ export default class ChatContainer extends Vue {
         }
         if (message) {
           self.goMessagePos(message)
-        }
-        if (isMyMsg || goBottom || self.isBottom) {
+        } else if (isMyMsg || goBottom || self.isBottom) {
           self.goBottom()
         }
       }
@@ -520,6 +525,7 @@ export default class ChatContainer extends Vue {
   }
 
   scrollTimer: any = null
+  showTopTipsTimer: any = null
   onScrollLock: boolean = true
   onScrollLockTimer: any = null
   onScroll(obj: any) {
@@ -546,7 +552,11 @@ export default class ChatContainer extends Vue {
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
+      this.showTopTipsTimer = setTimeout(() => {
+        this.showTopTips = true
+      }, 200)
       if (!this.infiniteUpLock) {
+        clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true
         messageBox.infiniteUp()
       }
@@ -645,45 +655,50 @@ export default class ChatContainer extends Vue {
     let goDone = false
     let beforeScrollTop = 0
 
-    const posIndex = this.messageIds.indexOf(posMessage.messageId)
     let { firstIndex, lastIndex } = this.viewport
-    const offset = 20
-    if (firstIndex > posIndex - offset / 2) {
-      firstIndex -= offset
-    } else if (posIndex + offset / 2 > lastIndex) {
-      lastIndex += offset
+    const posIndex = this.messageIds.indexOf(posMessage.messageId)
+    if (posIndex > -1) {
+      const offset = 20
+      if (firstIndex > posIndex - offset / 2) {
+        firstIndex -= offset
+      } else if (posIndex + offset / 2 > lastIndex) {
+        lastIndex += offset
+      }
     }
+    this.showScroll = false
+    this.beforeViewport = {}
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
+
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
     }, 100)
+    setTimeout(() => {
+      this.showScroll = true
+    }, 200)
   }
-  goBottom(wait?: boolean) {
-    this.showScroll = false
 
-    const msgLen = this.messages.length
+  goBottom() {
+    this.showScroll = false
     this.isBottom = true
+    this.intersectLock = true
     this.beforeUnseenMessageCount = 0
-    this.messageHeightMap = {}
     this.beforeViewport = {}
-    this.viewport = this.viewportLimit(msgLen - this.threshold, msgLen - 1)
+    this.currentUnreadNum = 0
+    this.searchKeyword = ''
 
     setTimeout(() => {
-      if (!wait) {
-        this.showMessages = true
-      }
+      const msgLen = this.messages.length
+      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       this.infiniteUpLock = false
-      this.currentUnreadNum = 0
       let list = this.$refs.messagesUl
       if (!list) return
-      let scrollHeight = list.scrollHeight
-      list.scrollTop = scrollHeight
-      this.searchKeyword = ''
+      list.scrollTop = list.scrollHeight
       this.showMessages = true
       setTimeout(() => {
+        list.scrollTop = list.scrollHeight
         this.showScroll = true
       }, 200)
-    })
+    }, 10)
     messageBox.clearUnreadNum(0)
   }
 

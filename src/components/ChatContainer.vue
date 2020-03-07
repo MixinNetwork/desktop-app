@@ -1,6 +1,6 @@
 <template>
   <main class="chat container" @click="hideChoosePanel">
-    <header v-show="conversation">
+    <header v-if="conversation">
       <div>
         <Avatar
           style="font-size: 0.8rem"
@@ -80,7 +80,7 @@
       <div
         class="floating mention"
         :class="{ 'box-message': boxMessage, 'is-bottom': isBottom }"
-        v-show="conversation && showMentionBottom"
+        v-if="conversation && showMentionBottom"
         @click="mentionClick"
       >
         <span class="badge" v-if="showMentionBottom">{{currentMentionNum}}</span>
@@ -92,7 +92,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-show="conversation && !isBottom"
+        v-if="conversation && !isBottom"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -130,7 +130,7 @@
       <FileContainer
         class="media"
         :style="dragging?'pointer-events: none;':''"
-        v-show="(dragging&&conversation) || file"
+        v-if="(dragging && conversation) || file"
         :file="file"
         :dragging="dragging"
         @close="closeFile"
@@ -214,60 +214,47 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Watch('conversation')
-  onConversationChanged(newC: any, oldC: any) {
+  @Watch('conversation.conversationId')
+  onConversationChanged(newVal: any, oldVal: any) {
     this.infiniteDownLock = true
     this.infiniteUpLock = false
-    if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-      this.showMessages = false
-      this.boxMessage = null
-      this.mentionMarkReadLock = false
-      this.onScrollLock = true
-      this.messageHeightMap = {}
-      this.virtualDom = {
-        top: 0,
-        bottom: 0
+    this.file = null
+    this.showMessages = false
+    this.boxMessage = null
+    this.mentionMarkReadLock = false
+    this.onScrollLock = true
+    const { groupName, name, conversationId } = this.conversation
+    if (newVal) {
+      this.details = false
+      if (!this.searching.replace(/^key:/, '')) {
+        this.actionSetSearching('')
       }
-      this.beforeViewport = {}
-      this.goBottom(true)
+      if (groupName) {
+        this.name = groupName
+      } else if (name) {
+        this.name = name
+      }
       this.hideChoosePanel()
+
+      this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      let unreadMessage = messageDao.getUnreadMessage(conversationId)
+      if (unreadMessage) {
+        this.unreadMessageId = unreadMessage.message_id
+      } else {
+        this.unreadMessageId = ''
+      }
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
           this.$refs.inputBox.boxFocusAction()
         }
+        this.$root.$emit('updateMenu', this.conversation)
+        setTimeout(() => {
+          this.actionMarkRead(conversationId)
+        }, 100)
       })
-      this.$root.$emit('updateMenu', newC)
-      this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-      this.actionSetCurrentMessages(messageBox.messages)
-      if (newC) {
-        let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
-        if (unreadMessage) {
-          this.unreadMessageId = unreadMessage.message_id
-        } else {
-          this.unreadMessageId = ''
-        }
-      }
-      this.actionMarkRead(newC.conversationId)
-    }
-    if (newC && newC !== oldC) {
-      if (newC.groupName) {
-        this.name = newC.groupName
-      } else if (newC.name) {
-        this.name = newC.name
-      }
-      if (!oldC || newC.conversationId !== oldC.conversationId) {
-        this.details = false
-        if (!this.searching.replace(/^key:/, '')) {
-          this.actionSetSearching('')
-        }
-        if (this.$refs.inputBox) {
-          this.$refs.inputBox.boxFocusAction()
-        }
-        this.hideChoosePanel()
-        this.file = null
-      }
     }
   }
+
   @Watch('messages.length')
   onMessagesLengthChanged() {
     this.getMessagesVisible()
@@ -295,6 +282,7 @@ export default class ChatContainer extends Vue {
         top += messageHeightMap[messages[i].messageId] || 0
       }
     }
+
     this.getMessagesVisible()
     this.virtualDom = {
       top,
@@ -303,6 +291,7 @@ export default class ChatContainer extends Vue {
   }
 
   @Getter('currentConversation') conversation: any
+  @Getter('currentMessages') messages: any
   @Getter('searching') searching: any
   @Getter('currentUser') user: any
   @Getter('editing') editing: any
@@ -329,7 +318,6 @@ export default class ChatContainer extends Vue {
   MessageStatus: any = MessageStatus
   dragging: any = false
   file: any = null
-  messages: any[] = []
   isBottom: any = true
   boxMessage: any = null
   forwardMessage: any = null
@@ -404,29 +392,26 @@ export default class ChatContainer extends Vue {
       }
     }
     messageBox.bindData(
-      function(messages: any, unreadNum: any) {
-        if (messages) {
-          self.messages = messages
-          self.getMessagesVisible()
-        }
+      function(payload: any) {
+        const { unreadNum, infiniteUpLock, infiniteDownLock } = payload
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
         }
+        self.infiniteUpLock = infiniteUpLock
+        self.infiniteDownLock = infiniteDownLock
       },
-      function(force: any, message: any, clearUnreadMsgId: boolean) {
-        if (clearUnreadMsgId) {
+      function(payload: any) {
+        const { message, isMyMsg, goBottom }: any = payload
+        if (isMyMsg) {
           self.unreadMessageId = ''
         }
-        if (force) {
-          if (!message) {
-            self.goBottom()
-          } else {
-            self.goMessagePos(message)
-          }
-        } else if (self.isBottom) {
+        if (message) {
+          self.goMessagePos(message)
+        }
+        if (isMyMsg || goBottom || self.isBottom) {
           self.goBottom()
         }
       }
@@ -554,11 +539,17 @@ export default class ChatContainer extends Vue {
 
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {
-      this.infiniteDown()
+      if (!this.infiniteDownLock) {
+        this.infiniteDownLock = true
+        messageBox.infiniteDown()
+      }
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
-      this.infiniteUp()
+      if (!this.infiniteUpLock) {
+        this.infiniteUpLock = true
+        messageBox.infiniteUp()
+      }
     }
     clearTimeout(this.scrollTimer)
     this.scrollTimer = setTimeout(() => {
@@ -671,9 +662,11 @@ export default class ChatContainer extends Vue {
     this.showScroll = false
 
     const msgLen = this.messages.length
-
-    this.viewport = this.viewportLimit(msgLen - this.threshold, msgLen - 1)
+    this.isBottom = true
     this.beforeUnseenMessageCount = 0
+    this.messageHeightMap = {}
+    this.beforeViewport = {}
+    this.viewport = this.viewportLimit(msgLen - this.threshold, msgLen - 1)
 
     setTimeout(() => {
       if (!wait) {
@@ -686,6 +679,7 @@ export default class ChatContainer extends Vue {
       let scrollHeight = list.scrollHeight
       list.scrollTop = scrollHeight
       this.searchKeyword = ''
+      this.showMessages = true
       setTimeout(() => {
         this.showScroll = true
       }, 200)
@@ -747,52 +741,6 @@ export default class ChatContainer extends Vue {
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)
     }, 100)
-  }
-  infiniteScroll(direction: any) {
-    const messages = messageBox.nextPage(direction)
-    if (messages.length) {
-      if (direction === 'down') {
-        const newMessages = []
-        const lastMessageId = this.messages[this.messages.length - 1].messageId
-        for (let i = messages.length - 1; i >= 0; i--) {
-          const temp = messages[i]
-          if (temp.messageId === lastMessageId) {
-            break
-          }
-          newMessages.unshift(temp)
-        }
-        this.messages.push(...newMessages)
-        this.actionSetCurrentMessages(this.messages)
-        setTimeout(() => {
-          this.infiniteDownLock = false
-        }, 100)
-      } else {
-        const newMessages = []
-        const firstMessageId = this.messages[0].messageId
-        for (let i = 0; i < messages.length; i++) {
-          const temp = messages[i]
-          if (temp.messageId === firstMessageId) {
-            break
-          }
-          newMessages.push(temp)
-        }
-        this.messages.unshift(...newMessages)
-        this.actionSetCurrentMessages(this.messages)
-        setTimeout(() => {
-          this.infiniteUpLock = false
-        }, 100)
-      }
-    }
-  }
-  infiniteUp() {
-    if (this.infiniteUpLock) return
-    this.infiniteUpLock = true
-    this.infiniteScroll('up')
-  }
-  infiniteDown() {
-    if (this.infiniteDownLock) return
-    this.infiniteDownLock = true
-    this.infiniteScroll('down')
   }
   onDragEnter(e: any) {
     this.lastEnter = e.target

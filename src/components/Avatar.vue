@@ -23,6 +23,7 @@ const ranges = [
 ].join('|')
 let reg = new RegExp(ranges, 'g')
 function emoji(u: any) {
+  u.full_name = u.full_name || ''
   let emojis = u.full_name.match(reg)
   if (emojis && emojis.length > 0) {
     u.emoji = emojis[0]

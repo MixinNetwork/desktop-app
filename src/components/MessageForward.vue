@@ -311,7 +311,7 @@ export default class MessageForward extends Vue {
     padding-left: 0.8rem;
     padding-right: 0.8rem;
     input {
-      border-radius: 0.15rem;
+      border-radius: 0.2rem;
     }
   }
   .header,

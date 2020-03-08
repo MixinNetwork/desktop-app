@@ -4,7 +4,7 @@
       <div class="bg"></div>
       <div class="post-viewer">
         <div class="header">
-          <svg-icon style="font-size: 1.3rem" @click="close" icon-class="ic_close" />
+          <svg-icon style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
         </div>
         <mixin-scrollbar>
           <div class="ul">

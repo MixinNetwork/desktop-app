@@ -142,7 +142,7 @@ export default class PostItem extends Vue {
         cursor: pointer;
       }
       box-sizing: border-box;
-      border-radius: 0.15rem;
+      border-radius: 0.2rem;
       background-color: white;
       padding: 0.6rem 0.8rem;
       .inner {

@@ -82,7 +82,7 @@ export default class AppButtonItem extends Vue {
       margin-right: 0.45rem;
       margin-bottom: 0.3rem;
       white-space: nowrap;
-      border-radius: 0.3rem;
+      border-radius: 0.25rem;
       box-shadow: 0 0.05rem 0.05rem #77777733;
       background-color: white;
       padding: 0.35rem 0.6rem;

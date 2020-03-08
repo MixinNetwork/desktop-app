@@ -624,7 +624,7 @@ li {
 .system {
   text-align: center;
   .bubble {
-    border-radius: 0.15rem;
+    border-radius: 0.2rem;
     padding: 0.3rem 0.45rem;
     text-align: left;
     word-break: break-all;
@@ -647,7 +647,7 @@ li {
   &.app_button,
   &.unknown,
   &.transfer {
-    border-radius: 0.15rem;
+    border-radius: 0.2rem;
     text-align: left;
     word-break: break-all;
     user-select: text;

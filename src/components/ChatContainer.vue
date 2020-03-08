@@ -39,7 +39,7 @@
     >
       <TimeDivide
         ref="timeDivide"
-        v-if="messagesVisible[0] && !onScrollLock"
+        v-if="messagesVisible[0]"
         v-show="showMessages && timeDivideShow"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
@@ -220,9 +220,10 @@ export default class ChatContainer extends Vue {
     this.showMessages = false
     this.boxMessage = null
     this.mentionMarkReadLock = false
-    this.onScrollLock = true
+    this.scrollTimerThrottle = null
     this.showTopTips = false
     this.messageHeightMap = {}
+    if (!this.conversation) return
     const { groupName, name, conversationId } = this.conversation
     if (newVal) {
       this.details = false
@@ -541,17 +542,9 @@ export default class ChatContainer extends Vue {
   }
 
   scrollTimer: any = null
+  scrollTimerThrottle: any = null
   showTopTipsTimer: any = null
-  onScrollLock: boolean = true
-  onScrollLockTimer: any = null
   onScroll(obj: any) {
-    if (this.onScrollLock) {
-      clearTimeout(this.onScrollLockTimer)
-      this.onScrollLockTimer = setTimeout(() => {
-        this.onScrollLock = false
-      }, 300)
-      return
-    }
     if (obj) {
       this.scrollDirection = obj.direction
     }
@@ -577,10 +570,19 @@ export default class ChatContainer extends Vue {
         messageBox.infiniteUp()
       }
     }
-    clearTimeout(this.scrollTimer)
-    this.scrollTimer = setTimeout(() => {
-      this.scrollStop()
-    }, 100)
+
+    if (!this.scrollTimerThrottle) {
+      this.scrollTimerThrottle = setTimeout(() => {
+        this.scrollTimerThrottle = null
+      }, 50)
+      clearTimeout(this.scrollTimer)
+      this.scrollTimer = setTimeout(() => {
+        if (list.scrollTop < toTop && !this.infiniteUpLock) {
+          list.scrollTop = toTop
+        }
+        this.scrollStop()
+      }, 100)
+    }
 
     if (!this.isBottom && list.scrollTop > 130) {
       this.timeDivideShow = true
@@ -691,10 +693,8 @@ export default class ChatContainer extends Vue {
     }
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
-    }, 100)
-    setTimeout(() => {
       this.showScroll = true
-    }, 200)
+    }, 100)
   }
 
   goBottom() {
@@ -717,7 +717,7 @@ export default class ChatContainer extends Vue {
       })
       setTimeout(() => {
         this.showScroll = true
-      }, 200)
+      }, 100)
     })
     messageBox.clearUnreadNum(0)
   }

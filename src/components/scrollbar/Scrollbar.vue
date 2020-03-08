@@ -53,7 +53,7 @@ export default class MixinScrollbar extends Vue {
     this.goBottomTimeout = setTimeout(() => {
       this.thumbShowForce = true
       this.thumbShowLock = false
-    }, 500)
+    }, 100)
   }
 
   scrollInit() {

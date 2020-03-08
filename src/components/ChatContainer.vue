@@ -140,8 +140,7 @@
       <Details
         class="overlay"
         :userId="detailUserId"
-        v-if="conversation"
-        v-show="details"
+        v-if="conversation && details"
         @close="hideDetails"
       ></Details>
     </transition>
@@ -853,9 +852,12 @@ export default class ChatContainer extends Vue {
   detailUserId: string = ''
   showDetails(id: string) {
     this.detailUserId = id
-    this.details = true
+    requestAnimationFrame(() => {
+      this.details = true
+    })
   }
   hideDetails() {
+    this.detailUserId = ''
     this.details = false
     if (this.conversation) {
       this.$root.$emit('updateMenu', this.conversation)

@@ -77,6 +77,7 @@ export default class TransferItem extends Vue {
           min-height: 0.8rem;
         }
         .time {
+          user-select: none;
           position: absolute;
           color: #8799a5;
           display: flex;

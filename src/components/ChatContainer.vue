@@ -260,7 +260,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('messages.length')
   onMessagesLengthChanged() {
-    this.getMessagesVisible()
+    this.messagesVisible = this.getMessagesVisible()
   }
 
   @Watch('viewport')
@@ -268,6 +268,7 @@ export default class ChatContainer extends Vue {
     let { firstIndex, lastIndex } = val
     const bfv = this.beforeViewport
     if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
+      this.udpateMessagesVisible()
       return
     }
 
@@ -286,7 +287,7 @@ export default class ChatContainer extends Vue {
       }
     }
 
-    this.getMessagesVisible()
+    this.messagesVisible = this.getMessagesVisible()
     this.virtualDom = {
       top,
       bottom
@@ -405,7 +406,7 @@ export default class ChatContainer extends Vue {
           })
         }
         if (messages) {
-          const {firstIndex, lastIndex} = self.viewport
+          const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
         }
         self.infiniteUpLock = infiniteUpLock
@@ -484,7 +485,16 @@ export default class ChatContainer extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    this.messagesVisible = list
+    return list
+  }
+
+  udpateMessagesVisible() {
+    const list = this.getMessagesVisible()
+    list.forEach((item: any, index: number) => {
+      if (item.messageId === this.messagesVisible[index].messageId) {
+        this.messagesVisible[index] = item
+      }
+    })
   }
 
   viewportLimit(firstIndex: number, lastIndex: number) {

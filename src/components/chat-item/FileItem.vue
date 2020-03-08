@@ -111,6 +111,7 @@ export default class FileItem extends Vue {
   }
   get fileName() {
     let name = this.message.mediaName
+    if (!name) return
     const str1 = contentUtil.highlight(name.substring(0, 7), this.searchKeyword, 'in-bubble')
     const str2 = contentUtil.highlight(name.substring(name.length - 8, name.length), this.searchKeyword, 'in-bubble')
     if (name && name.length > 18) {

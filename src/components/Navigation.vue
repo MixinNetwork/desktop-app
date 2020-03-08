@@ -195,7 +195,7 @@ import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants'
 
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
@@ -223,6 +223,11 @@ export default class Navigation extends Vue {
   @Getter('linkStatus') linkStatus: any
   @Getter('currentConversation') conversation: any
 
+  @Watch('viewport')
+  onViewportChanged() {
+    this.getConversationsVisible()
+  }
+
   conversationShow: any = false
   groupShow: any = false
   profileShow: any = false
@@ -233,6 +238,14 @@ export default class Navigation extends Vue {
   inputTimer: any = null
   LinkStatus: any = LinkStatus
   ConversationCategory: any = ConversationCategory
+
+  threshold: number = 60
+  viewport: any = {
+    firstIndex: 0,
+    lastIndex: 0
+  }
+  conversationsVisible: any = []
+
   // @ts-ignore
   isMacOS: any = platform.os.family === 'OS X'
   primaryPlatform: any = localStorage.primaryPlatform
@@ -489,7 +502,8 @@ export default class Navigation extends Vue {
           }
         }
         this.goConversationPos(index)
-      }, 100)
+        this.viewport = this.viewportLimit(index - this.threshold, index + this.threshold)
+      }, 50)
     }
     clearTimeout(this.inputTimer)
     this.inputTimer = setTimeout(() => {
@@ -557,12 +571,11 @@ export default class Navigation extends Vue {
     return conversationIds
   }
 
-  threshold: number = 30
-  viewport: any = {
-    firstIndex: 0,
-    lastIndex: 0
+  mounted() {
+    this.viewport = this.viewportLimit(0, this.threshold)
   }
-  get conversationsVisible() {
+
+  getConversationsVisible() {
     const list = []
     let { firstIndex, lastIndex } = this.viewport
     if (firstIndex < 0) {
@@ -582,7 +595,7 @@ export default class Navigation extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    return list
+    this.conversationsVisible = list
   }
 
   viewportLimit(index: number, offset: number) {

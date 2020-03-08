@@ -56,7 +56,7 @@ export default class TransferItem extends Vue {
     flex-direction: row;
     align-content: center;
     min-width: 8rem;
-    border-radius: 0.3rem;
+    border-radius: 0.2rem;
     box-shadow: 0 0.05rem 0.05rem #77777733;
     .content {
       display: flex;

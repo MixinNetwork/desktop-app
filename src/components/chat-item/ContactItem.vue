@@ -20,7 +20,7 @@
             <span class="name">
               <span>{{message.sharedUserFullName}}</span>
               <svg-icon
-                style="font-size: 0.875rem"
+                style="font-size: 0.7rem"
                 icon-class="ic_robot"
                 v-if="message.sharedUserAppId"
               />
@@ -101,7 +101,7 @@ export default class ContactItem extends Vue {
     flex-direction: row;
     align-content: center;
     min-width: 9.6rem;
-    border-radius: 0.3rem;
+    border-radius: 0.2rem;
     box-shadow: 0 0.05rem 0.05rem #77777733;
     flex-wrap: wrap;
     max-width: 14rem;

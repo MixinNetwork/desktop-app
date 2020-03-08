@@ -181,7 +181,7 @@ export default class ReplyMessageItem extends Vue {
 </script>
 <style lang="scss" scoped>
 .message {
-  border-radius: 0.15rem;
+  border-radius: 0.2rem;
   overflow: hidden;
   margin-bottom: 0.15rem;
   display: flex;

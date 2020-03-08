@@ -16,7 +16,7 @@ export default {
   height: 2rem;
   margin-right: 0.6rem;
   border-radius: 1rem;
-  border-radius: 0.15rem;
+  border-radius: 0.2rem;
   overflow: hidden;
   display: flex;
   justify-content: center;

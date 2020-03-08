@@ -152,7 +152,7 @@ export default class LiveItem extends Vue {
         background: #333;
         background-size: cover;
         background-position: center;
-        border-radius: 0.15rem;
+        border-radius: 0.2rem;
       }
     }
     .bottom {

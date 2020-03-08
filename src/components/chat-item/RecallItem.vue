@@ -79,7 +79,7 @@ export default class RecallItem extends Vue {
   display: inline-block;
   font-size: 0;
   max-width: 80%;
-  border-radius: 0.15rem;
+  border-radius: 0.2rem;
   text-align: left;
   word-break: break-all;
   user-select: text;

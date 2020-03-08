@@ -211,7 +211,7 @@ export default class ChatSticker extends Vue {
     .album {
       width: 1.6rem;
       height: 1.6rem;
-      border-radius: 0.15rem;
+      border-radius: 0.2rem;
       display: flex;
       align-items: center;
       justify-content: center;

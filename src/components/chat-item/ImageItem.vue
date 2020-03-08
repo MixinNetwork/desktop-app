@@ -219,7 +219,7 @@ export default class ImageItem extends Vue {
       .content-in {
         background: #fff;
         padding: 0.1rem 0.15rem 0.15rem;
-        border-radius: 0.15rem;
+        border-radius: 0.2rem;
       }
     }
     .reply {
@@ -259,7 +259,7 @@ export default class ImageItem extends Vue {
       overflow: hidden;
       position: relative;
       .image {
-        border-radius: 0.15rem;
+        border-radius: 0.2rem;
       }
       font-size: 0;
     }

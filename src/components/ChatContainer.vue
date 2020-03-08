@@ -214,6 +214,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
+    clearTimeout(this.scrollStopTimer)
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     this.file = null

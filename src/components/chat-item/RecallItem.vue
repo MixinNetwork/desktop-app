@@ -96,6 +96,7 @@ export default class RecallItem extends Vue {
   }
 
   .time {
+    user-select: none;
     color: #8799a5;
     display: flex;
     float: right;

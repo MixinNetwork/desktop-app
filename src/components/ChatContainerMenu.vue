@@ -114,7 +114,7 @@ export default class ChatContainerMenu extends Vue {
     const key = Object.keys(chatMenu).find(key => chatMenu[key] === option)
 
     if (key === 'contact_info') {
-      this.$emit('showDetails')
+      this.$emit('showDetails', '')
     } else if (key === 'exit_group') {
       this.actionExitGroup(this.conversation.conversationId)
     } else if (key === 'add_contact') {

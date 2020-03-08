@@ -1,15 +1,15 @@
 <template>
   <main class="chat container" @click="hideChoosePanel">
-    <header v-show="conversation">
+    <header v-if="conversation">
       <div>
         <Avatar
           style="font-size: 0.8rem"
           :conversation="conversation"
-          @onAvatarClick="showDetails()"
+          @onAvatarClick="showDetails('')"
         />
       </div>
       <div class="title">
-        <div @click="showDetails()">
+        <div @click="showDetails('')">
           <div class="username">{{name}}</div>
           <div class="identity number">{{identity}}</div>
         </div>
@@ -26,7 +26,7 @@
       </div>
       <ChatContainerMenu
         :conversation="conversation"
-        @showDetails="showDetails()"
+        @showDetails="showDetails('')"
         @menuCallback="menuCallback"
       />
     </header>
@@ -39,7 +39,7 @@
     >
       <TimeDivide
         ref="timeDivide"
-        v-if="messagesVisible[0] && !onScrollLock"
+        v-if="messagesVisible[0] && timeDivideShowForce"
         v-show="showMessages && timeDivideShow"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
@@ -52,27 +52,25 @@
         @dragover="onDragOver"
         @dragleave="onDragLeave"
       >
-        <div :style="`padding-top: ${virtualDom.top}px; padding-bottom: ${virtualDom.bottom}px;`">
-          <div id="virtualTop"></div>
-          <li v-show="!user.app_id" class="encryption tips">
-            <div class="bubble">{{$t('encryption')}}</div>
-          </li>
-          <MessageItem
-            v-for="(item, index) in messagesVisible"
-            :key="item.messageId"
-            :message="item"
-            :prev="messagesVisible[index - 1]"
-            :unread="unreadMessageId"
-            :searchKeyword="searchKeyword"
-            v-intersect="onIntersect"
-            @loaded="onMessageLoaded"
-            @mention-visible="mentionVisibleUpdate"
-            @user-click="onUserClick"
-            @action-click="handleAction"
-            @handle-item-click="handleItemClick"
-          />
-          <div id="virtualBottom"></div>
-        </div>
+        <div v-intersect="onIntersect" :style="`height: ${virtualDom.top}px`" id="virtualTop"></div>
+        <li v-show="!user.app_id" :style="{opacity: showTopTips ? 1 : 0}" class="encryption tips">
+          <div class="bubble">{{$t('encryption')}}</div>
+        </li>
+        <MessageItem
+          v-for="(item, index) in messagesVisible"
+          :key="item.messageId"
+          :message="item"
+          :prev="messagesVisible[index - 1]"
+          :unread="unreadMessageId"
+          :searchKeyword="searchKeyword"
+          v-intersect="onIntersect"
+          @loaded="onMessageLoaded"
+          @mention-visible="mentionVisibleUpdate"
+          @user-click="onUserClick"
+          @action-click="handleAction"
+          @handle-item-click="handleItemClick"
+        />
+        <div v-intersect="onIntersect" :style="`height: ${virtualDom.bottom}px`" id="virtualBottom"></div>
       </ul>
     </mixin-scrollbar>
 
@@ -80,7 +78,7 @@
       <div
         class="floating mention"
         :class="{ 'box-message': boxMessage, 'is-bottom': isBottom }"
-        v-show="conversation && showMentionBottom"
+        v-if="conversation && showMentionBottom"
         @click="mentionClick"
       >
         <span class="badge" v-if="showMentionBottom">{{currentMentionNum}}</span>
@@ -92,7 +90,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-show="conversation && !isBottom"
+        v-if="conversation && !isBottom"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -130,7 +128,7 @@
       <FileContainer
         class="media"
         :style="dragging?'pointer-events: none;':''"
-        v-show="(dragging&&conversation) || file"
+        v-if="(dragging && conversation) || file"
         :file="file"
         :dragging="dragging"
         @close="closeFile"
@@ -142,8 +140,7 @@
       <Details
         class="overlay"
         :userId="detailUserId"
-        v-if="conversation"
-        v-show="details"
+        v-if="conversation && details"
         @close="hideDetails"
       ></Details>
     </transition>
@@ -214,63 +211,55 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Watch('conversation')
-  onConversationChanged(newC: any, oldC: any) {
+  @Watch('conversation.conversationId')
+  onConversationChanged(newVal: any, oldVal: any) {
+    clearTimeout(this.scrollStopTimer)
     this.infiniteDownLock = true
     this.infiniteUpLock = false
-    if ((oldC && newC && newC.conversationId !== oldC.conversationId) || (newC && !oldC)) {
-      this.showMessages = false
-      this.boxMessage = null
-      this.mentionMarkReadLock = false
-      this.onScrollLock = true
-      this.messageHeightMap = {}
-      this.virtualDom = {
-        top: 0,
-        bottom: 0
+    this.file = null
+    this.showMessages = false
+    this.boxMessage = null
+    this.mentionMarkReadLock = false
+    this.scrollTimerThrottle = null
+    this.showTopTips = false
+    this.timeDivideShowForce = false
+    this.messageHeightMap = {}
+    if (!this.conversation) return
+    const { groupName, name, conversationId } = this.conversation
+    if (newVal) {
+      this.details = false
+      if (!this.searching.replace(/^key:/, '')) {
+        this.actionSetSearching('')
       }
-      this.beforeViewport = {}
-      this.goBottom(true)
+      if (groupName) {
+        this.name = groupName
+      } else if (name) {
+        this.name = name
+      }
       this.hideChoosePanel()
+
+      this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      let unreadMessage = messageDao.getUnreadMessage(conversationId)
+      if (unreadMessage) {
+        this.unreadMessageId = unreadMessage.message_id
+      } else {
+        this.unreadMessageId = ''
+      }
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
           this.$refs.inputBox.boxFocusAction()
         }
+        this.$root.$emit('updateMenu', this.conversation)
+        setTimeout(() => {
+          this.actionMarkRead(conversationId)
+        }, 100)
       })
-      this.$root.$emit('updateMenu', newC)
-      this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-      this.actionSetCurrentMessages(messageBox.messages)
-      if (newC) {
-        let unreadMessage = messageDao.getUnreadMessage(newC.conversationId)
-        if (unreadMessage) {
-          this.unreadMessageId = unreadMessage.message_id
-        } else {
-          this.unreadMessageId = ''
-        }
-      }
-      this.actionMarkRead(newC.conversationId)
-    }
-    if (newC && newC !== oldC) {
-      if (newC.groupName) {
-        this.name = newC.groupName
-      } else if (newC.name) {
-        this.name = newC.name
-      }
-      if (!oldC || newC.conversationId !== oldC.conversationId) {
-        this.details = false
-        if (!this.searching.replace(/^key:/, '')) {
-          this.actionSetSearching('')
-        }
-        if (this.$refs.inputBox) {
-          this.$refs.inputBox.boxFocusAction()
-        }
-        this.hideChoosePanel()
-        this.file = null
-      }
     }
   }
+
   @Watch('messages.length')
   onMessagesLengthChanged() {
-    this.getMessagesVisible()
+    this.messagesVisible = this.getMessagesVisible()
   }
 
   @Watch('viewport')
@@ -278,6 +267,7 @@ export default class ChatContainer extends Vue {
     let { firstIndex, lastIndex } = val
     const bfv = this.beforeViewport
     if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
+      this.udpateMessagesVisible()
       return
     }
 
@@ -295,16 +285,16 @@ export default class ChatContainer extends Vue {
         top += messageHeightMap[messages[i].messageId] || 0
       }
     }
-    requestAnimationFrame(() => {
-      this.getMessagesVisible()
-      this.virtualDom = {
-        top,
-        bottom
-      }
-    })
+
+    this.messagesVisible = this.getMessagesVisible()
+    this.virtualDom = {
+      top,
+      bottom
+    }
   }
 
   @Getter('currentConversation') conversation: any
+  @Getter('currentMessages') messages: any
   @Getter('searching') searching: any
   @Getter('currentUser') user: any
   @Getter('editing') editing: any
@@ -313,7 +303,6 @@ export default class ChatContainer extends Vue {
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
-  @Action('setCurrentMessages') actionSetCurrentMessages: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
@@ -331,7 +320,6 @@ export default class ChatContainer extends Vue {
   MessageStatus: any = MessageStatus
   dragging: any = false
   file: any = null
-  messages: any[] = []
   isBottom: any = true
   boxMessage: any = null
   forwardMessage: any = null
@@ -342,6 +330,7 @@ export default class ChatContainer extends Vue {
   infiniteUpLock: any = false
   infiniteDownLock: any = true
   searchKeyword: any = ''
+  timeDivideShowForce: boolean = false
   timeDivideShow: boolean = false
   contentUtil: any = contentUtil
   panelChoosing: boolean = false
@@ -353,7 +342,8 @@ export default class ChatContainer extends Vue {
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
-  threshold: number = 120
+  threshold: number = 30
+  showTopTips: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -406,29 +396,29 @@ export default class ChatContainer extends Vue {
       }
     }
     messageBox.bindData(
-      function(messages: any, unreadNum: any) {
-        if (messages) {
-          self.messages = messages
-          self.getMessagesVisible()
-        }
+      function(payload: any) {
+        const { messages, unreadNum, infiniteUpLock, infiniteDownLock } = payload
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
         }
+        if (messages) {
+          const { firstIndex, lastIndex } = self.viewport
+          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
+        }
+        self.infiniteUpLock = infiniteUpLock
+        self.infiniteDownLock = infiniteDownLock
       },
-      function(force: any, message: any, clearUnreadMsgId: boolean) {
-        if (clearUnreadMsgId) {
+      function(payload: any) {
+        const { message, isMyMsg, goBottom }: any = payload
+        if (isMyMsg) {
           self.unreadMessageId = ''
         }
-        if (force) {
-          if (!message) {
-            self.goBottom()
-          } else {
-            self.goMessagePos(message)
-          }
-        } else if (self.isBottom) {
+        if (message) {
+          self.goMessagePos(message)
+        } else if (isMyMsg || goBottom || self.isBottom) {
           self.goBottom()
         }
       }
@@ -494,7 +484,16 @@ export default class ChatContainer extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    this.messagesVisible = list
+    return list
+  }
+
+  udpateMessagesVisible() {
+    const list = this.getMessagesVisible()
+    list.forEach((item: any, index: number) => {
+      if (item.messageId === this.messagesVisible[index].messageId) {
+        this.messagesVisible[index] = item
+      }
+    })
   }
 
   viewportLimit(firstIndex: number, lastIndex: number) {
@@ -517,8 +516,15 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  overflowMap: any = { top: false, bottom: false }
   intersectLock: boolean = true
   onIntersect({ target, isIntersecting }: any) {
+    if (target.id === 'virtualTop') {
+      this.overflowMap.top = isIntersecting
+    }
+    if (target.id === 'virtualBottom') {
+      this.overflowMap.bottom = isIntersecting
+    }
     if (this.intersectLock || !target.id) return
     const index = this.messageIds.indexOf(target.id.split('m-')[1])
     const direction = this.scrollDirection
@@ -532,21 +538,25 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  scrollStopTimer: any = null
   scrollStop() {
-    this.scrollTimer = null
+    clearTimeout(this.scrollStopTimer)
+    this.scrollStopTimer = setTimeout(() => {
+      this.timeDivideShowForce = true
+      if (this.goMessagePosLock) return
+      if (!this.infiniteUpLock && this.overflowMap.top) {
+        this.viewport = this.viewportLimit(0, 2 * this.threshold)
+      }
+      if (!this.infiniteDownLock && this.overflowMap.bottom) {
+        this.goBottom()
+      }
+    }, 200)
   }
 
   scrollTimer: any = null
-  onScrollLock: boolean = true
-  onScrollLockTimer: any = null
+  scrollTimerThrottle: any = null
+  showTopTipsTimer: any = null
   onScroll(obj: any) {
-    if (this.onScrollLock) {
-      clearTimeout(this.onScrollLockTimer)
-      this.onScrollLockTimer = setTimeout(() => {
-        this.onScrollLock = false
-      }, 300)
-      return
-    }
     if (obj) {
       this.scrollDirection = obj.direction
     }
@@ -556,21 +566,35 @@ export default class ChatContainer extends Vue {
 
     this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
     if (this.isBottom) {
-      this.infiniteDown()
+      if (!this.infiniteDownLock) {
+        this.infiniteDownLock = true
+        messageBox.infiniteDown()
+      }
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
-      this.infiniteUp()
+      this.showTopTipsTimer = setTimeout(() => {
+        this.showTopTips = true
+      }, 200)
+      if (!this.infiniteUpLock) {
+        clearTimeout(this.showTopTipsTimer)
+        this.infiniteUpLock = true
+        messageBox.infiniteUp()
+      }
     }
-    clearTimeout(this.scrollTimer)
-    this.scrollTimer = setTimeout(() => {
-      if (list.scrollTop < toTop) {
-        if (!this.infiniteUpLock) {
+
+    if (!this.scrollTimerThrottle) {
+      this.scrollTimerThrottle = setTimeout(() => {
+        this.scrollTimerThrottle = null
+      }, 50)
+      clearTimeout(this.scrollTimer)
+      this.scrollTimer = setTimeout(() => {
+        if (list.scrollTop < toTop && !this.infiniteUpLock) {
           list.scrollTop = toTop
         }
-      }
-      this.scrollStop()
-    }, 100)
+        this.scrollStop()
+      }, 100)
+    }
 
     if (!this.isBottom && list.scrollTop > 130) {
       this.timeDivideShow = true
@@ -610,6 +634,9 @@ export default class ChatContainer extends Vue {
       this.$refs.inputBox.boxFocusAction()
     })
   }
+
+  goMessagePosLock: boolean = false
+  goMessagePosTimer: any = null
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
     setTimeout(() => {
       this.infiniteDownLock = false
@@ -646,51 +673,63 @@ export default class ChatContainer extends Vue {
         } else {
           list.scrollTop = targetDom.offsetTop
         }
-        setTimeout(() => {
-          this.showMessages = true
-        })
+        this.showMessages = true
+        this.goMessagePosTimer = setTimeout(() => {
+          this.goMessagePosLock = false
+        }, 600)
       }
     })
   }
+
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
 
-    const posIndex = this.messageIds.indexOf(posMessage.messageId)
     let { firstIndex, lastIndex } = this.viewport
-    const offset = 20
-    if (firstIndex > posIndex - offset / 2) {
-      firstIndex -= offset
-    } else if (posIndex + offset / 2 > lastIndex) {
-      lastIndex += offset
+    const temp = { firstIndex, lastIndex }
+    const posIndex = this.messageIds.indexOf(posMessage.messageId)
+    if (posIndex > -1) {
+      const offset = this.threshold
+      if (firstIndex > posIndex - offset / 2) {
+        firstIndex -= offset
+      } else if (posIndex + offset / 2 > lastIndex) {
+        lastIndex += offset
+      }
     }
-    this.viewport = this.viewportLimit(firstIndex, lastIndex)
+    this.showScroll = false
+    this.beforeViewport = {}
+    this.goMessagePosLock = true
+    clearTimeout(this.goMessagePosTimer)
+    if (temp.firstIndex !== firstIndex || temp.lastIndex !== lastIndex) {
+      this.viewport = this.viewportLimit(firstIndex, lastIndex)
+    }
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+      this.showScroll = true
     }, 100)
   }
-  goBottom(wait?: boolean) {
+
+  goBottom() {
     this.showScroll = false
-
-    const msgLen = this.messages.length
-
-    this.viewport = this.viewportLimit(msgLen - this.threshold, msgLen - 1)
+    this.isBottom = true
+    this.intersectLock = true
     this.beforeUnseenMessageCount = 0
-
+    this.beforeViewport = {}
+    this.currentUnreadNum = 0
+    this.searchKeyword = ''
     setTimeout(() => {
-      if (!wait) {
-        this.showMessages = true
-      }
-      this.infiniteUpLock = false
-      this.currentUnreadNum = 0
+      const msgLen = this.messages.length
+      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       let list = this.$refs.messagesUl
       if (!list) return
-      let scrollHeight = list.scrollHeight
-      list.scrollTop = scrollHeight
-      this.searchKeyword = ''
+      this.infiniteUpLock = false
+      this.showMessages = true
+      requestAnimationFrame(() => {
+        list.scrollTop = list.scrollHeight
+      })
       setTimeout(() => {
         this.showScroll = true
-      }, 200)
+      }, 100)
     })
     messageBox.clearUnreadNum(0)
   }
@@ -749,52 +788,6 @@ export default class ChatContainer extends Vue {
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)
     }, 100)
-  }
-  infiniteScroll(direction: any) {
-    const messages = messageBox.nextPage(direction)
-    if (messages.length) {
-      if (direction === 'down') {
-        const newMessages = []
-        const lastMessageId = this.messages[this.messages.length - 1].messageId
-        for (let i = messages.length - 1; i >= 0; i--) {
-          const temp = messages[i]
-          if (temp.messageId === lastMessageId) {
-            break
-          }
-          newMessages.unshift(temp)
-        }
-        this.messages.push(...newMessages)
-        this.actionSetCurrentMessages(this.messages)
-        setTimeout(() => {
-          this.infiniteDownLock = false
-        }, 100)
-      } else {
-        const newMessages = []
-        const firstMessageId = this.messages[0].messageId
-        for (let i = 0; i < messages.length; i++) {
-          const temp = messages[i]
-          if (temp.messageId === firstMessageId) {
-            break
-          }
-          newMessages.push(temp)
-        }
-        this.messages.unshift(...newMessages)
-        this.actionSetCurrentMessages(this.messages)
-        setTimeout(() => {
-          this.infiniteUpLock = false
-        }, 100)
-      }
-    }
-  }
-  infiniteUp() {
-    if (this.infiniteUpLock) return
-    this.infiniteUpLock = true
-    this.infiniteScroll('up')
-  }
-  infiniteDown() {
-    if (this.infiniteDownLock) return
-    this.infiniteDownLock = true
-    this.infiniteScroll('down')
   }
   onDragEnter(e: any) {
     this.lastEnter = e.target
@@ -857,11 +850,14 @@ export default class ChatContainer extends Vue {
     this.file = null
   }
   detailUserId: string = ''
-  showDetails(id?: string) {
-    this.detailUserId = id || ''
-    this.details = true
+  showDetails(id: string) {
+    this.detailUserId = id
+    requestAnimationFrame(() => {
+      this.details = true
+    })
   }
   hideDetails() {
+    this.detailUserId = ''
     this.details = false
     if (this.conversation) {
       this.$root.$emit('updateMenu', this.conversation)
@@ -1055,6 +1051,7 @@ export default class ChatContainer extends Vue {
       font-size: 0.7rem;
       padding: 0.2rem 0.5rem;
       margin-bottom: 0.5rem;
+      box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
     }
   }
 

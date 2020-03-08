@@ -1,6 +1,7 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
 import { PerPageMessageCount, MessageStatus } from '@/utils/constants'
+import store from '@/store/store'
 
 class MessageBox {
   conversationId: any
@@ -35,13 +36,6 @@ class MessageBox {
         posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
       }
 
-      let newMessages: any = this.nextPage('up')
-      this.messages.unshift(...newMessages)
-
-      if (this.page > 0) {
-        newMessages = this.nextPage('down')
-        this.messages.push(...newMessages)
-      }
       let markdownCount = 5
       for (let i = this.messages.length - 1; i >= 0; i--) {
         const type = this.messages[i].type
@@ -54,10 +48,29 @@ class MessageBox {
         }
       }
 
-      this.callback(this.messages, 0)
-      this.scrollAction(true, posMessage)
+      // this.updateMessages(this.messages, [], 0, () => {
+      //   this.scrollAction({ message: posMessage })
+      // })
+      store.dispatch('setCurrentMessages', this.messages)
+      this.scrollAction({ goBottom: true, message: posMessage })
+      this.callback({ unreadNum: 0 })
     }
   }
+
+  myReq: any
+  updateMessages(messages: any, real: any, index: number, callback: any) {
+    cancelAnimationFrame(this.myReq)
+    this.myReq = requestAnimationFrame(() => {
+      real.push(messages[index])
+      store.dispatch('setCurrentMessages', real)
+      if (index < this.messages.length - 1) {
+        this.updateMessages(messages, real, index + 1, callback)
+      } else if (callback) {
+        callback()
+      }
+    })
+  }
+
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
   }
@@ -74,7 +87,7 @@ class MessageBox {
     this.pageDown = 0
     this.tempCount = 0
     this.messages = messageDao.getMessages(conversationId, 0)
-    this.callback(this.messages)
+    store.dispatch('setCurrentMessages', this.messages)
   }
   refreshMessage(payload: any) {
     const { conversationId, messageIds } = payload
@@ -116,17 +129,17 @@ class MessageBox {
                 if (isMyMsg) {
                   newCount = 0
                 }
-                this.callback(this.messages, newCount)
-                this.scrollAction(isMyMsg, null, isMyMsg)
+                store.dispatch('setCurrentMessages', this.messages)
+                this.callback({ unreadNum: newCount })
+                this.scrollAction({ isMyMsg })
               } else {
                 if (isMyMsg) {
                   if (findMessage.status === MessageStatus.SENT) {
                     this.setConversationId(conversationId, 0)
-                    this.scrollAction(false)
                   }
                 } else {
                   this.newCount++
-                  this.callback(null, this.newCount)
+                  this.callback({ unreadNum: this.newCount })
                   this.tempCount = this.newCount % PerPageMessageCount
                   const lastCount = this.messagePositionIndex % PerPageMessageCount
                   this.pageDown += Math.floor((this.newCount + lastCount) / PerPageMessageCount)
@@ -135,7 +148,8 @@ class MessageBox {
             }
           })
         } else {
-          this.callback(this.messages)
+          store.dispatch('setCurrentMessages', this.messages)
+          this.callback({ messages: this.messages })
         }
       }
     }
@@ -156,12 +170,57 @@ class MessageBox {
         data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
       } else {
         this.newCount = 0
-        this.callback(null, this.newCount)
+        this.callback({ unreadNum: this.newCount })
       }
     } else {
       data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
     }
     return data
+  }
+
+  infiniteScroll(direction: any) {
+    const messages = this.nextPage(direction)
+    if (messages.length) {
+      if (direction === 'down') {
+        const newMessages = []
+        const lastMessageId = this.messages[this.messages.length - 1].messageId
+        for (let i = messages.length - 1; i >= 0; i--) {
+          const temp = messages[i]
+          if (temp.messageId === lastMessageId) {
+            break
+          }
+          newMessages.unshift(temp)
+        }
+        this.messages.push(...newMessages)
+        store.dispatch('setCurrentMessages', this.messages)
+        this.callback({ messages: this.messages })
+        setTimeout(() => {
+          this.callback({ infiniteDownLock: false })
+        }, 100)
+      } else {
+        const newMessages = []
+        const firstMessageId = this.messages[0].messageId
+        for (let i = 0; i < messages.length; i++) {
+          const temp = messages[i]
+          if (temp.messageId === firstMessageId) {
+            break
+          }
+          newMessages.push(temp)
+        }
+        this.messages.unshift(...newMessages)
+        store.dispatch('setCurrentMessages', this.messages)
+        this.callback({ messages: this.messages })
+        setTimeout(() => {
+          this.callback({ infiniteUpLock: false })
+        }, 100)
+      }
+    }
+  }
+  infiniteUp() {
+    this.infiniteScroll('up')
+  }
+  infiniteDown() {
+    this.infiniteScroll('down')
   }
   bindData(callback: any, scrollAction: any) {
     this.callback = callback

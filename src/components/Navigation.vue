@@ -557,7 +557,7 @@ export default class Navigation extends Vue {
     return conversationIds
   }
 
-  threshold: number = 60
+  threshold: number = 30
   viewport: any = {
     firstIndex: 0,
     lastIndex: 0

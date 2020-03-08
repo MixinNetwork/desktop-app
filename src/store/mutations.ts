@@ -1,4 +1,3 @@
-import Vue from 'vue'
 import messageBox from '@/store/message_box'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
@@ -43,6 +42,7 @@ function refreshConversation(
     conversations[conversationId] = conversation
   }
   state.conversations = conversations
+
   state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
     return item.conversationId
   })
@@ -69,7 +69,7 @@ function messageSearch(state: any, type: string, keyword: any) {
         temp.records = count
 
         messageAll.push(temp)
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           state.search.messageAll = messageAll
           if (num <= limit) {
             message.push(temp)
@@ -224,15 +224,17 @@ export default {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
     messageBox.setConversationId(conversationId, unseenMessageCount - 1)
-    if (
-      !state.conversationKeys.some((item: any) => {
-        return item === conversationId
-      })
-    ) {
-      refreshConversations(state)
-    } else {
-      refreshConversation(state, conversationId)
-    }
+    setTimeout(() => {
+      if (
+        !state.conversationKeys.some((item: any) => {
+          return item === conversationId
+        })
+      ) {
+        refreshConversations(state)
+      } else {
+        refreshConversation(state, conversationId)
+      }
+    }, 100)
     state.currentConversationId = conversationId
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)

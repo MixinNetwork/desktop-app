@@ -270,6 +270,7 @@ li.conversation.item {
         }
       }
       .time {
+        user-select: none;
         color: $light-font-color;
         font-size: 0.6rem;
         flex-shrink: 0;

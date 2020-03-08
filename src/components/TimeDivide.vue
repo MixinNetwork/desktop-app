@@ -57,7 +57,8 @@ export default class TimeDivide extends Vue {
     border-radius: 0.6rem;
     display: inline-block;
     line-height: 1.5;
-    padding: 0 0.4rem;
+    padding: 0.025rem 0.6rem;
+    box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
   }
   &.fixed {
     position: absolute;

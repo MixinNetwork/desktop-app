@@ -44,6 +44,7 @@ export default class TimeAndStatus extends Vue {
 
 <style lang="scss" scoped>
 .time {
+  user-select: none;
   color: #8799a5;
   font-size: 0.6rem;
   &.absolute {

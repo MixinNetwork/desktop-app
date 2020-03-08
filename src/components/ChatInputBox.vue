@@ -110,7 +110,7 @@ export default class ChatItem extends Vue {
     this.$emit('panelChoosing', 'mention' + (val ? 'Open' : 'Hide'))
   }
 
-  @Watch('conversation')
+  @Watch('conversation.conversationId')
   onConversationChanged(newC: any, oldC: any) {
     this.mentions = []
     const $target: any = this.$refs.box

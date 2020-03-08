@@ -72,6 +72,7 @@ export default class SearchItem extends Vue {
       flex: 1;
     }
     .time {
+      user-select: none;
       font-size: 0.65rem;
       padding-bottom: 0.2rem;
       color: #999;

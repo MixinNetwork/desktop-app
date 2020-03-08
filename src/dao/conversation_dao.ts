@@ -92,9 +92,9 @@ class ConversationDao {
   getConversationsByUserId(userId: any) {
     return db
       .prepare(
-        'select c.conversation_id from conversations c inner join users u on c.owner_id = u.user_id ' +
-          'left join participants p on p.conversation_id = c.conversation_id ' +
-          'where p.user_id = ? AND u.app_id IS NULL'
+        `SELECT c.conversation_id from conversations c, users u
+         LEFT JOIN participants p on p.conversation_id = c.conversation_id
+         WHERE p.user_id = ? AND c.owner_id = u.user_id AND u.app_id IS NULL`
       )
       .all(userId)
   }
@@ -147,7 +147,7 @@ class ConversationDao {
     const stmt = db.prepare(
       'UPDATE conversations SET owner_id = @owner_id, category = @category, ' +
         'name = @name, announcement = @announcement, mute_until = @mute_until, ' +
-        'created_at = @created_at,  status = @status WHERE conversation_id = ?'
+        'created_at = @created_at, status = @status WHERE conversation_id = ?'
     )
     stmt.run(conversation.conversation_id, conversation)
   }

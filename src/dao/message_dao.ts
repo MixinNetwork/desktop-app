@@ -167,7 +167,8 @@ class MessageDao {
             LEFT JOIN users u ON m.user_id = u.user_id
             WHERE m.conversation_id = ?
             AND m.category IN ('SIGNAL_TEXT', 'PLAIN_TEXT', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_POST', 'PLAIN_POST')
-            AND m_fts.content MATCH ? AND m.status != 'FAILED'`
+            AND m_fts.content MATCH ?
+            AND m.status != 'FAILED'`
         )
         .all(conversationId, keywordFinal)
       if (!data) return 0

@@ -598,6 +598,7 @@ li {
   background: white;
   color: #8799a5;
   font-size: 0.6rem;
+  line-height: 1.5;
   text-align: center;
   padding: 0.1rem;
   margin-bottom: 0.45rem;

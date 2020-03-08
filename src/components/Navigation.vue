@@ -501,8 +501,8 @@ export default class Navigation extends Vue {
             break
           }
         }
-        this.goConversationPos(index)
         this.viewport = this.viewportLimit(index - this.threshold, index + this.threshold)
+        this.goConversationPos(index)
       }, 50)
     }
     clearTimeout(this.inputTimer)

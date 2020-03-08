@@ -1,5 +1,9 @@
 <template>
+  <span class="layout" @mouseenter="enter" v-if="freeze">
+    <slot></slot>
+  </span>
   <span
+    v-else
     class="layout"
     @mousemove="move"
     @mouseup="up"
@@ -37,6 +41,7 @@ export default class BadgeItem extends Vue {
   focus: Boolean = false
   show: Boolean = false
   mouseDown: Boolean = false
+  freeze: Boolean = true
 
   down() {
     this.mouseDown = true
@@ -51,6 +56,9 @@ export default class BadgeItem extends Vue {
     }
   }
   enter() {
+    if (this.freeze) {
+      this.freeze = false
+    }
     this.show = true
   }
   leave() {

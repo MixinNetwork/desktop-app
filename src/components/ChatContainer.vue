@@ -550,7 +550,7 @@ export default class ChatContainer extends Vue {
       if (!this.infiniteDownLock && this.overflowMap.bottom) {
         this.goBottom()
       }
-    }, 300)
+    }, 200)
   }
 
   scrollTimer: any = null

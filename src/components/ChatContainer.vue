@@ -39,7 +39,7 @@
     >
       <TimeDivide
         ref="timeDivide"
-        v-if="messagesVisible[0]"
+        v-if="messagesVisible[0] && timeDivideShowForce"
         v-show="showMessages && timeDivideShow"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
@@ -222,6 +222,7 @@ export default class ChatContainer extends Vue {
     this.mentionMarkReadLock = false
     this.scrollTimerThrottle = null
     this.showTopTips = false
+    this.timeDivideShowForce = false
     this.messageHeightMap = {}
     if (!this.conversation) return
     const { groupName, name, conversationId } = this.conversation
@@ -328,6 +329,7 @@ export default class ChatContainer extends Vue {
   infiniteUpLock: any = false
   infiniteDownLock: any = true
   searchKeyword: any = ''
+  timeDivideShowForce: boolean = false
   timeDivideShow: boolean = false
   contentUtil: any = contentUtil
   panelChoosing: boolean = false
@@ -526,11 +528,11 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  overflowTimer: any = null
+  scrollStopTimer: any = null
   scrollStop() {
-    this.scrollTimer = null
-    clearTimeout(this.overflowTimer)
-    this.overflowTimer = setTimeout(() => {
+    clearTimeout(this.scrollStopTimer)
+    this.scrollStopTimer = setTimeout(() => {
+      this.timeDivideShowForce = true
       if (this.goMessagePosLock) return
       if (!this.infiniteUpLock && this.overflowMap.top) {
         this.viewport = this.viewportLimit(0, 2 * this.threshold)

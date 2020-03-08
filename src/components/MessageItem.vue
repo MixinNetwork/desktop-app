@@ -599,7 +599,7 @@ li {
   color: #8799a5;
   font-size: 0.6rem;
   text-align: center;
-  padding: 0.15rem;
+  padding: 0.1rem;
   margin-bottom: 0.45rem;
   margin-left: -2.4rem;
   margin-right: -2.4rem;

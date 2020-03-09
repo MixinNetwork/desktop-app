@@ -26,6 +26,7 @@
     "bytebuffer": "^5.0.1",
     "chimee": "^0.11.0",
     "chimee-kernel-hls": "^1.3.2",
+    "electron-log": "^4.0.7",
     "electron-updater": "^4.2.4",
     "electron-window-state": "^5.0.3",
     "highlight.js": "^9.18.1",
@@ -66,6 +67,7 @@
     "vuex-class": "^0.3.2"
   },
   "devDependencies": {
+    "@types/node": "^12.12.29",
     "@types/url-parse": "^1.4.3",
     "@vue/cli-plugin-babel": "^4.2.3",
     "@vue/cli-plugin-eslint": "^4.2.3",
@@ -85,8 +87,7 @@
     "sass-loader": "^8.0.2",
     "typescript": "~3.7.5",
     "vue-cli-plugin-electron-builder": "^2.0.0-beta.4",
-    "vue-template-compiler": "^2.6.11",
-    "@types/node": "^12.12.29"
+    "vue-template-compiler": "^2.6.11"
   },
   "resolutions": {
     "electron-builder": "^22.3.6"

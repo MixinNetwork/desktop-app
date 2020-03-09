@@ -1,5 +1,6 @@
 const { app, dialog, BrowserWindow } = require('electron')
 const { autoUpdater } = require('electron-updater')
+const log = require('electron-log')
 
 const lang = app.getLocale().split('-')[0]
 
@@ -25,21 +26,16 @@ autoUpdater.on('update-available', () => {
       buttons: ['确定', '取消']
     }
   }
-  dialog.showMessageBox(
-    focusedWindow,
-    infoObj,
-    // @ts-ignore
-    (buttonIndex: number) => {
-      if (buttonIndex === 0) {
-        autoUpdater.downloadUpdate()
-      } else {
-        if (updater) {
-          updater.enabled = true
-          updater = null
-        }
+  dialog.showMessageBox(focusedWindow, infoObj).then((returnValue: any) => {
+    if (returnValue.response === 0) {
+      autoUpdater.downloadUpdate()
+    } else {
+      if (updater) {
+        updater.enabled = true
+        updater = null
       }
     }
-  )
+  })
 })
 
 autoUpdater.on('update-not-available', () => {
@@ -60,6 +56,11 @@ autoUpdater.on('update-not-available', () => {
   }
 })
 
+autoUpdater.on('download-progress', (event: any) => {
+  console.log(event)
+  log.debug(event)
+})
+
 autoUpdater.on('update-downloaded', () => {
   let infoObj = {
     title: 'Install Updates',
@@ -71,21 +72,16 @@ autoUpdater.on('update-downloaded', () => {
       message: '已下载更新，应用程序将退出以进行更新...'
     }
   }
-  dialog.showMessageBox(
-    focusedWindow,
-    infoObj,
-    // @ts-ignore
-    () => {
-      setImmediate(() => {
-        app.removeAllListeners('window-all-closed')
-        const browserWindows = BrowserWindow.getAllWindows()
-        browserWindows.forEach(function(browserWindow) {
-          browserWindow.removeAllListeners('close')
-        })
-        autoUpdater.quitAndInstall(true, true)
+  dialog.showMessageBox(focusedWindow, infoObj).then(() => {
+    setImmediate(() => {
+      app.removeAllListeners('window-all-closed')
+      const browserWindows = BrowserWindow.getAllWindows()
+      browserWindows.forEach(function(browserWindow) {
+        browserWindow.removeAllListeners('close')
       })
-    }
-  )
+      autoUpdater.quitAndInstall(true, true)
+    })
+  })
 })
 
 // export this to MenuItem click callback
@@ -94,6 +90,7 @@ export function checkForUpdates(menuItem: any, focusedWindow: any, event: any) {
   if (updater) {
     updater.enabled = false
   }
+  autoUpdater.logger = log
   autoUpdater.checkForUpdates()
 }
 

@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Vue from 'vue'
 
 export default class BaseWorker {
-  async syncConversation(data) {
+  syncConversation(data) {
     if (
       data.conversation_id === SystemUser ||
       data.conversation_id === this.getAccountId()
@@ -45,10 +45,10 @@ export default class BaseWorker {
         mute_until: null
       }
       conversationDao.insertConversation(conversation)
-      await this.refreshConversation(data.conversation_id)
+      this.refreshConversation(data.conversation_id)
     }
     if (conversation.status === ConversationStatus.START) {
-      await this.refreshConversation(data.conversation_id)
+      this.refreshConversation(data.conversation_id)
     }
   }
 
@@ -255,7 +255,7 @@ export default class BaseWorker {
       return
     }
     if (conversation.category === 'GROUP') {
-      await this.refreshConversation(conversation.conversation_id)
+      this.refreshConversation(conversation.conversation_id)
     } else {
       await this.createConversation(conversation)
     }
@@ -334,7 +334,7 @@ export default class BaseWorker {
         _ => {},
         async error => {
           if (error.code === 20140) {
-            await self.refreshConversation(conversationId)
+            self.refreshConversation(conversationId)
             await self.sendSenderKey(conversationId, recipientId, sessionId)
           } else if (error.code === 403) {
           } else {

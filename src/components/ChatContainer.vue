@@ -678,7 +678,7 @@ export default class ChatContainer extends Vue {
           this.goMessagePosLock = false
         }, 600)
       }
-    }, 10)
+    })
   }
 
   goMessagePos(posMessage: any) {

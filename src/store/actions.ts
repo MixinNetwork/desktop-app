@@ -447,9 +447,8 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
-        // Todo
-        insertSendingJob(messageId, conversationId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+        insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
       },
       (e: any) => {
@@ -493,7 +492,6 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
-        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
         commit('stopLoading', messageId)
       },

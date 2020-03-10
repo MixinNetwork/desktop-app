@@ -241,6 +241,7 @@ export default class ChatItem extends Vue {
       category,
       status
     }
+    this.hideChoosePanel()
     this.$root.$emit('resetSearch')
     this.actionSendStickerMessage(msg)
     this.$emit('goBottom')

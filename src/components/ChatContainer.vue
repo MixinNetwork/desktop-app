@@ -214,6 +214,7 @@ export default class ChatContainer extends Vue {
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
+    this.overflowMap = { top: false, bottom: false }
     this.infiniteDownLock = true
     this.infiniteUpLock = false
     this.file = null
@@ -519,9 +520,11 @@ export default class ChatContainer extends Vue {
   overflowMap: any = { top: false, bottom: false }
   intersectLock: boolean = true
   onIntersect({ target, isIntersecting }: any) {
+    this.overflowMap.top = false
     if (target.id === 'virtualTop') {
       this.overflowMap.top = isIntersecting
     }
+    this.overflowMap.bottom = false
     if (target.id === 'virtualBottom') {
       this.overflowMap.bottom = isIntersecting
     }

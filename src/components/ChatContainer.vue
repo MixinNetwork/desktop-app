@@ -408,15 +408,13 @@ export default class ChatContainer extends Vue {
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
-        if (isMyMsg) {
-          self.unreadMessageId = ''
-        }
         if (message) {
           if (isInit) {
             self.unreadMessageId = message.messageId
           }
           self.goMessagePos(message)
         } else if (isMyMsg || goBottom || self.isBottom) {
+          self.unreadMessageId = ''
           self.goBottom()
         }
       }

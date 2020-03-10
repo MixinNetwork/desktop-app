@@ -440,7 +440,6 @@ export default {
           created_at: new Date().toISOString(),
           name: data.mediaName
         })
-        insertSendingJob(messageId, conversationId)
         commit('startLoading', messageId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
@@ -449,6 +448,7 @@ export default {
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         // Todo
+        insertSendingJob(messageId, conversationId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
         commit('stopLoading', messageId)
       },

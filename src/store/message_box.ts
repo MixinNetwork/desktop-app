@@ -15,10 +15,10 @@ class MessageBox {
   callback: any
   count: any
 
-  setConversationId(conversationId: string, messagePositionIndex: number) {
+  setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
     if (conversationId) {
       this.conversationId = conversationId
-      this.messagePositionIndex = messagePositionIndex
+      this.messagePositionIndex = messagePositionIndex > 0 ? messagePositionIndex : 0
       let page = 0
       if (messagePositionIndex >= PerPageMessageCount) {
         page = Math.floor(messagePositionIndex / PerPageMessageCount)
@@ -30,8 +30,13 @@ class MessageBox {
       this.newCount = 0
 
       let posMessage: any = null
-      if (messagePositionIndex > 0) {
+      if (messagePositionIndex >= 0) {
         posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
+        if (messagePositionIndex % PerPageMessageCount < 10) {
+          this.infiniteDown()
+        } else {
+          this.infiniteUp()
+        }
       }
 
       let markdownCount = 5
@@ -50,7 +55,7 @@ class MessageBox {
       //   this.scrollAction({ message: posMessage })
       // })
       store.dispatch('setCurrentMessages', this.messages)
-      this.scrollAction({ goBottom: true, message: posMessage })
+      this.scrollAction({ goBottom: true, message: posMessage, isInit })
       this.callback({ unreadNum: 0 })
     }
   }
@@ -133,7 +138,7 @@ class MessageBox {
               } else {
                 if (isMyMsg) {
                   if (findMessage.status === MessageStatus.SENT) {
-                    this.setConversationId(conversationId, 0)
+                    this.setConversationId(conversationId, -1, false)
                   }
                 } else {
                   this.newCount++

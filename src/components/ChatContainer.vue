@@ -240,12 +240,6 @@ export default class ChatContainer extends Vue {
       this.hideChoosePanel()
 
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
-      let unreadMessage = messageDao.getUnreadMessage(conversationId)
-      if (unreadMessage) {
-        this.unreadMessageId = unreadMessage.message_id
-      } else {
-        this.unreadMessageId = ''
-      }
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
           this.$refs.inputBox.boxFocusAction()
@@ -413,11 +407,14 @@ export default class ChatContainer extends Vue {
         self.infiniteDownLock = infiniteDownLock
       },
       function(payload: any) {
-        const { message, isMyMsg, goBottom }: any = payload
+        const { message, isMyMsg, isInit, goBottom }: any = payload
         if (isMyMsg) {
           self.unreadMessageId = ''
         }
         if (message) {
+          if (isInit) {
+            self.unreadMessageId = message.messageId
+          }
           self.goMessagePos(message)
         } else if (isMyMsg || goBottom || self.isBottom) {
           self.goBottom()
@@ -425,7 +422,8 @@ export default class ChatContainer extends Vue {
       }
     )
     this.$root.$on('goSearchMessagePos', (item: any) => {
-      const { message, keyword } = item
+      const { message, keyword, goMessagePosType } = item
+      this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
   }
@@ -529,7 +527,7 @@ export default class ChatContainer extends Vue {
       this.overflowMap.bottom = isIntersecting
     }
     if (this.intersectLock || !target.id) return
-    const index = this.messageIds.indexOf(target.id.split('m-')[1])
+    const index = this.messageIds.indexOf(target.id)
     const direction = this.scrollDirection
     const offset = this.threshold
     const { firstIndex, lastIndex } = this.viewport
@@ -618,6 +616,7 @@ export default class ChatContainer extends Vue {
     this.file = event.target.files[0]
   }
 
+  goMessagePosType: string = ''
   goSearchMessagePos(item: any, keyword: string) {
     this.unreadMessageId = ''
     this.goSearchPos = true
@@ -631,7 +630,7 @@ export default class ChatContainer extends Vue {
         this.conversation.conversationId,
         item.message_id || item.messageId
       )
-      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1)
+      messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
       this.searchKeyword = keyword
       this.goSearchPos = false
       this.$refs.inputBox.boxFocusAction()
@@ -646,7 +645,7 @@ export default class ChatContainer extends Vue {
       let targetDom: any = document.querySelector('.unread-divide')
       let messageDom: any
       if (posMessage && posMessage.messageId && !targetDom) {
-        messageDom = document.getElementById(`m-${posMessage.messageId}`)
+        messageDom = document.getElementById(posMessage.messageId)
         if (!this.searchKeyword && messageDom) {
           messageDom.className = 'notice'
         }
@@ -667,7 +666,7 @@ export default class ChatContainer extends Vue {
       } else {
         goDone = true
         if (messageDom) {
-          if (list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
+          if (this.goMessagePosType === 'search' || list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
             list.scrollTop = messageDom.offsetTop
           }
           setTimeout(() => {
@@ -689,7 +688,6 @@ export default class ChatContainer extends Vue {
     let beforeScrollTop = 0
 
     let { firstIndex, lastIndex } = this.viewport
-    const temp = { firstIndex, lastIndex }
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
       const offset = this.threshold
@@ -703,9 +701,7 @@ export default class ChatContainer extends Vue {
     this.beforeViewport = {}
     this.goMessagePosLock = true
     clearTimeout(this.goMessagePosTimer)
-    if (temp.firstIndex !== firstIndex || temp.lastIndex !== lastIndex) {
-      this.viewport = this.viewportLimit(firstIndex, lastIndex)
-    }
+    this.viewport = this.viewportLimit(firstIndex, lastIndex)
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       this.showScroll = true
@@ -897,6 +893,7 @@ export default class ChatContainer extends Vue {
   }
   chatSearch() {
     this.actionSetSearching('key:')
+    this.goMessagePosType = 'search'
   }
   hideSearch() {
     this.actionSetSearching('')

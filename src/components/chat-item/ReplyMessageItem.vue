@@ -164,7 +164,8 @@ export default class ReplyMessageItem extends Vue {
   reply() {
     this.$root.$emit('goSearchMessagePos', {
       message: this.message,
-      keyword: ''
+      keyword: '',
+      goSearchMessagePos: 'reply'
     })
   }
 

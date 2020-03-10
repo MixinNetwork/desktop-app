@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :id="`m-${message.messageId}`">
+  <li ref="messageItem" :id="message.messageId">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>

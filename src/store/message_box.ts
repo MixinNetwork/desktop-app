@@ -6,7 +6,6 @@ import store from '@/store/store'
 class MessageBox {
   conversationId: any
   messagePositionIndex: any
-  oldLastMessages: any
   scrollAction: any
   messages: any
   pageDown: any
@@ -25,7 +24,6 @@ class MessageBox {
         page = Math.floor(messagePositionIndex / PerPageMessageCount)
       }
       this.messages = messageDao.getMessages(conversationId, page)
-      this.oldLastMessages = messageDao.getMessages(conversationId, 0)
       this.page = page
       this.pageDown = page
       this.tempCount = 0

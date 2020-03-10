@@ -215,7 +215,7 @@ export default class ChatContainer extends Vue {
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
     this.overflowMap = { top: false, bottom: false }
-    this.infiniteDownLock = true
+    this.infiniteDownLock = false
     this.infiniteUpLock = false
     this.file = null
     this.showMessages = false
@@ -329,7 +329,7 @@ export default class ChatContainer extends Vue {
   showMessages: any = true
   showScroll: any = true
   infiniteUpLock: any = false
-  infiniteDownLock: any = true
+  infiniteDownLock: any = false
   searchKeyword: any = ''
   timeDivideShowForce: boolean = false
   timeDivideShow: boolean = false
@@ -681,7 +681,7 @@ export default class ChatContainer extends Vue {
           this.goMessagePosLock = false
         }, 600)
       }
-    })
+    }, 10)
   }
 
   goMessagePos(posMessage: any) {
@@ -731,6 +731,7 @@ export default class ChatContainer extends Vue {
         list.scrollTop = list.scrollHeight
       })
       setTimeout(() => {
+        list.scrollTop = list.scrollHeight
         this.showScroll = true
       }, 100)
     })

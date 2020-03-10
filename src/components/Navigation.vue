@@ -619,9 +619,7 @@ export default class Navigation extends Vue {
       (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
       (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
     ) {
-      requestAnimationFrame(() => {
-        this.viewport = this.viewportLimit(index, offset)
-      })
+      this.viewport = this.viewportLimit(index, offset)
     }
   }
 

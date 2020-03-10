@@ -18,7 +18,8 @@ class SendWorker extends BaseWorker {
       return
     }
     const { messageId } = JSON.parse(sendingMessageJob.blaze_message)
-    const message = messageDao.getMessageById(messageId)
+    const message = messageDao.getSendingMessage(messageId)
+    if (!message) return
 
     let recipientId = ''
     let mentions

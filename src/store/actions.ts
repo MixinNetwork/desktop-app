@@ -440,7 +440,7 @@ export default {
           created_at: new Date().toISOString(),
           name: data.mediaName
         })
-        // insertSendingJob(messageId, conversationId)
+        insertSendingJob(messageId, conversationId)
         commit('startLoading', messageId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },

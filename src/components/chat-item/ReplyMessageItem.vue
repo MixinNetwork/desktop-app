@@ -53,7 +53,7 @@
           :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
           class="markdown"
           v-if="messageType() === 'post'"
-        >getContent</vue-markdown>
+        >{{getContent}}</vue-markdown>
         <span v-else v-html="$w(getContent)"></span>
       </span>
     </div>

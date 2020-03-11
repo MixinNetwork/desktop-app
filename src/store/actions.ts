@@ -348,6 +348,7 @@ export default {
       let quoteItem = messageDao.findMessageItemById(conversationId, quoteId)
       if (quoteItem) {
         messageId = messageDao.insertRelyMessage(msg, quoteId, JSON.stringify(quoteItem))
+        insertSendingJob(messageId, conversationId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
         return
       }
@@ -450,6 +451,7 @@ export default {
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
         insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
@@ -493,7 +495,9 @@ export default {
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+        insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)

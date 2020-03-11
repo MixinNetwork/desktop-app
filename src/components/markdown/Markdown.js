@@ -11,7 +11,6 @@ import toc from 'markdown-it-toc-and-anchor'
 import katex from 'markdown-it-katex'
 import tasklists from 'markdown-it-task-lists'
 import hljs from 'highlight.js'
-const md = new MarkdownIt()
 
 export default {
   template: '<div><slot></slot></div>',
@@ -149,7 +148,7 @@ export default {
             return '<pre class="hljs"><code>' + hljs.highlight(lang, str, true).value + '</code></pre>'
           } catch (__) {}
         }
-        return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>'
+        return '<pre class="hljs"><code>' + str + '</code></pre>'
       }
     })
       .use(subscript)

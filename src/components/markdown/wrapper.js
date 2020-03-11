@@ -13,7 +13,7 @@ export default {
             article: [],
             aside: [],
             audio: ['autoplay', 'controls', 'loop', 'preload', 'src'],
-            b: [],
+            b: ['style', 'class'],
             bdi: ['dir'],
             bdo: ['dir'],
             big: [],
@@ -72,9 +72,7 @@ export default {
             input: ['type', 'src', 'disabled', 'checked', 'class'],
             math: [],
             annotation: ['encoding']
-          },
-          stripIgnoreTag: true,
-          stripIgnoreTagBody: ['script', 'style']
+          }
         })
       }
     })

@@ -11,6 +11,7 @@ import toc from 'markdown-it-toc-and-anchor'
 import katex from 'markdown-it-katex'
 import tasklists from 'markdown-it-task-lists'
 import hljs from 'highlight.js'
+import filter from './filter'
 
 export default {
   template: '<div><slot></slot></div>',
@@ -221,7 +222,7 @@ export default {
     this.$emit('rendered', outHtml)
     return createElement('div', {
       domProps: {
-        innerHTML: outHtml
+        innerHTML: filter(outHtml)
       }
     })
   },

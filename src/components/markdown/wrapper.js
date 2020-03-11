@@ -1,79 +1,10 @@
-import xss from 'xss'
+import filter from './filter'
 
 export default {
   install: function(Vue) {
     Object.defineProperty(Vue.prototype, '$w', {
       value: function(html) {
-        return xss(html, {
-          whiteList: {
-            a: ['style', 'class', 'id', 'target', 'href', 'title', 'rel'],
-            abbr: ['title'],
-            address: [],
-            area: ['shape', 'coords', 'href', 'alt'],
-            article: [],
-            aside: [],
-            audio: ['autoplay', 'controls', 'loop', 'preload', 'src'],
-            b: ['style', 'class'],
-            bdi: ['dir'],
-            bdo: ['dir'],
-            big: [],
-            blockquote: ['cite'],
-            br: [],
-            caption: [],
-            center: [],
-            cite: [],
-            code: [],
-            col: ['align', 'valign', 'span', 'width'],
-            colgroup: ['align', 'valign', 'span', 'width'],
-            dd: [],
-            del: ['datetime'],
-            details: ['open'],
-            div: [],
-            dl: [],
-            dt: [],
-            em: [],
-            font: ['color', 'size', 'face'],
-            footer: [],
-            h1: [],
-            h2: [],
-            h3: [],
-            h4: [],
-            h5: [],
-            h6: [],
-            header: [],
-            hr: [],
-            i: [],
-            img: ['src', 'alt', 'title', 'width', 'max-width', 'style', 'height'],
-            ins: ['datetime'],
-            li: [],
-            mark: [],
-            nav: [],
-            ol: [],
-            p: [],
-            pre: [],
-            s: [],
-            section: [],
-            small: [],
-            span: [],
-            sub: [],
-            sup: [],
-            strong: [],
-            table: ['width', 'border', 'align', 'valign'],
-            tbody: ['align', 'valign'],
-            td: ['width', 'rowspan', 'colspan', 'align', 'valign'],
-            tfoot: ['align', 'valign'],
-            th: ['width', 'rowspan', 'colspan', 'align', 'valign'],
-            thead: ['align', 'valign'],
-            tr: ['rowspan', 'align', 'valign'],
-            tt: [],
-            u: [],
-            ul: [],
-            video: ['autoplay', 'controls', 'loop', 'preload', 'src', 'height', 'width'],
-            input: ['type', 'src', 'disabled', 'checked', 'class'],
-            math: [],
-            annotation: ['encoding']
-          }
-        })
+        return filter(html)
       }
     })
   }

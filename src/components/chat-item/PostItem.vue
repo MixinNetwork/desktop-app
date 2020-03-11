@@ -16,7 +16,7 @@
               v-if="loaded"
               :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
               class="inner"
-            >{{content}}</vue-markdown>
+            >{{$w(content)}}</vue-markdown>
           </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />

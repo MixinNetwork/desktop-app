@@ -70,7 +70,7 @@ export default class NewConversation extends Vue {
 </script>
 <style lang="scss" scoped>
 #create {
-  background: #f5f7fa;
+  background: #f7f7f7;
   display: flex;
   flex-direction: column;
   .list {

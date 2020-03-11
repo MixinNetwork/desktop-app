@@ -99,7 +99,7 @@ export default class FileContainer extends Vue {
     right: 0.8rem;
     bottom: 4.8rem;
     font-size: 1rem;
-    background: #f5f7fa;
+    background: #f2f3f3;
     border-radius: 0.5rem;
     border: 0.05rem dashed #c0cfe6;
   }

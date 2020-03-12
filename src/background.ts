@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut } from 'electron'
+import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
@@ -57,6 +57,23 @@ function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+
+  const appTray = new Tray('app://./app.ico')
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'quit',
+      click: function() {
+        app.quit()
+      }
+    }
+  ])
+  appTray.setToolTip('Mixin')
+  appTray.setContextMenu(contextMenu)
+  appTray.on('click', function() {
+    if (win) {
+      win.show()
+    }
+  })
 
   win.on('close', async e => {
     if (process.platform === 'darwin' && win !== null) {

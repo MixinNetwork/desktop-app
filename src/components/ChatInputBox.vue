@@ -146,7 +146,7 @@ export default class ChatItem extends Vue {
           this.handleMention($target)
         }
         try {
-        // @ts-ignore
+          // @ts-ignore
           window.getSelection().collapse($target, 1)
           // @ts-ignore
           window.getSelection().collapse($target, $target.childNodes.length)
@@ -178,12 +178,15 @@ export default class ChatItem extends Vue {
   }
 
   sendMessage(event: any) {
+    if (this.inputFlag === true || event.shiftKey) {
+      return
+    }
     if (this.currentSelectMention) {
       this.chooseMentionUser(this.currentSelectMention)
       event.preventDefault()
-      return
-    }
-    if (this.inputFlag === true || event.shiftKey) {
+      setTimeout(() => {
+        this.currentSelectMention = null
+      }, 10)
       return
     }
     event.preventDefault()
@@ -195,6 +198,7 @@ export default class ChatItem extends Vue {
     this.hideChoosePanel()
     conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
     $target.innerText = ''
+    this.handleMention($target)
     const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
     const status = MessageStatus.SENDING
     const message = {

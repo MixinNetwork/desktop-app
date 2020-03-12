@@ -303,7 +303,7 @@ class MessageDao {
       m.name, m.album_id, m.sticker_id, m.shared_user_id, m.media_waveform, m.quote_message_id, m.quote_content,
       rm.status as resend_status, rm.user_id as resend_user_id, rm.session_id as resend_session_id
       FROM messages m LEFT JOIN resend_session_messages rm on m.message_id = rm.message_id
-      WHERE (m.status = 'SENDING' OR rm.status = 1) AND m.content IS NOT NULL AND m.message_id = ?`)
+      WHERE m.message_id = ? AND (m.status = 'SENDING' OR rm.status = 1) AND m.content IS NOT NULL`)
     const data = stmt.get(messageId)
     return data
   }

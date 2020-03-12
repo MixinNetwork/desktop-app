@@ -19,6 +19,14 @@ import accountApi from '@/api/account'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 
+ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
+  switch (name) {
+    case 'devtool':
+      return ipcRenderer.send('openDevTools')
+    default:
+  }
+})
+
 // @ts-ignore
 window.linkClick = href => {
   // browser.loadURL(href)
@@ -42,14 +50,6 @@ export default class App extends Vue {
   $postViewer: any
 
   created() {
-    ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name: any }) => {
-      switch (name) {
-        case 'find':
-          return this.actionSetSearching('key:')
-        default:
-      }
-    })
-
     let directionKeyDownTimeout: any = null
     document.onkeydown = e => {
       let keyCode = e.keyCode
@@ -71,9 +71,6 @@ export default class App extends Vue {
         this.$root.$emit('tabKeyDown', 'navigationSearch')
       }
       if (ctrlKey) {
-        if (keyCode === 69) {
-          ipcRenderer.send('openDevTools')
-        }
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }

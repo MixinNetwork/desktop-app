@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, shell, BrowserWindow } from 'electron'
+import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
@@ -137,9 +137,15 @@ app.on('ready', async() => {
     }
   }
   createWindow()
+  globalShortcut.register('ctrl+shift+i', function() {
+    if (win) {
+      win.webContents.openDevTools()
+    }
+  })
 })
 
 app.on('before-quit', () => {
+  globalShortcut.unregister('ctrl+shift+i')
   quitting = true
 })
 

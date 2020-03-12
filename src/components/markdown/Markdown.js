@@ -7,7 +7,6 @@ import deflist from 'markdown-it-deflist'
 import abbreviation from 'markdown-it-abbr'
 import insert from 'markdown-it-ins'
 import mark from 'markdown-it-mark'
-import toc from 'markdown-it-toc-and-anchor'
 import katex from 'markdown-it-katex'
 import tasklists from 'markdown-it-task-lists'
 import hljs from 'highlight.js'
@@ -25,7 +24,7 @@ export default {
   props: {
     watches: {
       type: Array,
-      default: () => ['source', 'show', 'toc']
+      default: () => ['source', 'show']
     },
     source: {
       type: String,
@@ -55,10 +54,6 @@ export default {
       type: Boolean,
       default: true
     },
-    emoji: {
-      type: Boolean,
-      default: true
-    },
     typographer: {
       type: Boolean,
       default: true
@@ -79,48 +74,6 @@ export default {
       type: Boolean,
       default: true
     },
-    toc: {
-      type: Boolean,
-      default: false
-    },
-    tocId: {
-      type: String
-    },
-    tocClass: {
-      type: String,
-      default: 'table-of-contents'
-    },
-    tocFirstLevel: {
-      type: Number,
-      default: 2
-    },
-    tocLastLevel: {
-      type: Number
-    },
-    tocAnchorLink: {
-      type: Boolean,
-      default: true
-    },
-    tocAnchorClass: {
-      type: String,
-      default: 'toc-anchor'
-    },
-    tocAnchorLinkSymbol: {
-      type: String,
-      default: '#'
-    },
-    tocAnchorLinkSpace: {
-      type: Boolean,
-      default: true
-    },
-    tocAnchorLinkClass: {
-      type: String,
-      default: 'toc-anchor-link'
-    },
-    anchorAttributes: {
-      type: Object,
-      default: () => ({})
-    },
     prerender: {
       type: Function,
       default: sourceData => {
@@ -132,12 +85,6 @@ export default {
       default: htmlData => {
         return htmlData
       }
-    }
-  },
-
-  computed: {
-    tocLastLevelComputed() {
-      return this.tocLastLevel > this.tocFirstLevel ? this.tocLastLevel : this.tocFirstLevel + 1
     }
   },
 
@@ -161,10 +108,7 @@ export default {
       .use(mark)
       .use(katex, { throwOnError: false, errorColor: ' #cc0000' })
       .use(tasklists, { enabled: this.taskLists })
-
-    if (this.emoji) {
-      this.md.use(emoji)
-    }
+      .use(emoji)
 
     this.md.set({
       html: this.html,
@@ -182,11 +126,16 @@ export default {
         return self.renderToken(tokens, idx, options)
       }
     this.md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-      Object.keys(this.anchorAttributes).map(attribute => {
+      const anchorAttributes = {
+        target: '_blank',
+        rel: 'noopener noreferrer nofollow',
+        onclick: 'linkClick(this.href)'
+      }
+      Object.keys(anchorAttributes).map(attribute => {
         let aIndex = tokens[idx].attrIndex(attribute)
-        let value = this.anchorAttributes[attribute]
+        let value = anchorAttributes[attribute]
         if (aIndex < 0) {
-          tokens[idx].attrPush([attribute, value]) // add new attribute
+          tokens[idx].attrPush([attribute, value])
         } else {
           tokens[idx].attrs[aIndex][1] = value
         }
@@ -194,32 +143,9 @@ export default {
       return defaultLinkRenderer(tokens, idx, options, env, self)
     }
 
-    if (this.toc) {
-      this.md.use(toc, {
-        tocClassName: this.tocClass,
-        tocFirstLevel: this.tocFirstLevel,
-        tocLastLevel: this.tocLastLevelComputed,
-        anchorLink: this.tocAnchorLink,
-        anchorLinkSymbol: this.tocAnchorLinkSymbol,
-        anchorLinkSpace: this.tocAnchorLinkSpace,
-        anchorClassName: this.tocAnchorClass,
-        anchorLinkSymbolClassName: this.tocAnchorLinkClass,
-        tocCallback: (tocMarkdown, tocArray, tocHtml) => {
-          if (tocHtml) {
-            if (this.tocId && document.getElementById(this.tocId)) {
-              document.getElementById(this.tocId).innerHTML = tocHtml
-            }
-
-            this.$emit('toc-rendered', tocHtml)
-          }
-        }
-      })
-    }
-
     let outHtml = this.show ? this.md.render(this.prerender(this.sourceData)) : ''
     outHtml = this.postrender(outHtml)
 
-    this.$emit('rendered', outHtml)
     return createElement('div', {
       domProps: {
         innerHTML: filter(outHtml)
@@ -237,13 +163,6 @@ export default {
 
     this.$watch('source', () => {
       this.sourceData = this.prerender(this.source)
-      this.$forceUpdate()
-    })
-
-    this.watches.forEach(v => {
-      this.$watch(v, () => {
-        this.$forceUpdate()
-      })
     })
   }
 }

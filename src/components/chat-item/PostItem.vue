@@ -12,11 +12,7 @@
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
           <div class="markdown" :style="loaded ? {} : { minHeight }" @click="preview">
-            <vue-markdown
-              v-if="loaded"
-              :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
-              class="inner"
-            >{{content}}</vue-markdown>
+            <vue-markdown v-if="loaded" class="inner" :source="content"></vue-markdown>
           </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />

@@ -85,7 +85,7 @@ class Blaze {
     })
     if (event.code === 1008) return
     console.log('---should reconnect--')
-    setTimeout(function() {
+    setTimeout(() => {
       this.reconnectBlaze()
     }, 5000)
   }

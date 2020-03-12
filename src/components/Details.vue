@@ -22,12 +22,12 @@
           <div
             v-if="!isContact && conversation.category === 'GROUP'"
             class="announcement"
-            v-html="contentUtil.renderUrl(conversation.announcement)"
+            v-html="$w(contentUtil.renderUrl(conversation.announcement))"
           ></div>
           <div
             v-else-if="conversation.biography"
             class="biography"
-            v-html="user.biography || conversation.biography"
+            v-html="$w(user.biography || conversation.biography)"
           ></div>
         </header>
         <div class="participants" v-if="!isContact">

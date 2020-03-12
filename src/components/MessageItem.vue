@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :id="`m-${message.messageId}`">
+  <li ref="messageItem" :id="message.messageId">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -162,7 +162,7 @@
             class="reply"
           ></ReplyMessageItem>
           <span v-if="messageType() === 'text'" class="text" v-intersect="onIntersect">
-            <span v-html="textMessage(message)"></span>
+            <span v-html="$w(textMessage(message))"></span>
           </span>
           <span v-else-if="messageType() === 'unknown'" class="unknown">{{$t('chat.chat_unknown') }}</span>
           <span class="time-place"></span>

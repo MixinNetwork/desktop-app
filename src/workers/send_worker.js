@@ -1,5 +1,6 @@
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
+import jobDao from '@/dao/job_dao'
 import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
@@ -12,10 +13,17 @@ import contentUtil from '@/utils/content_util'
 
 class SendWorker extends BaseWorker {
   async doWork() {
-    const message = messageDao.getSendingMessages()
-    if (!message) {
+    const sendingMessageJob = jobDao.findSendingJob()
+    if (!sendingMessageJob) {
       return
     }
+    const { messageId } = JSON.parse(sendingMessageJob.blaze_message)
+    const message = messageDao.getSendingMessage(messageId)
+    if (!message) {
+      jobDao.delete([sendingMessageJob])
+      return
+    }
+
     let recipientId = ''
     let mentions
     if (message.category.endsWith('_TEXT')) {
@@ -30,10 +38,14 @@ class SendWorker extends BaseWorker {
         mentions = this.getMentionParam(message.content)
       }
     }
+    let result = false
     if (message.category.startsWith('PLAIN_')) {
-      await this.sendPlainMessage(message, recipientId, mentions)
+      result = await this.sendPlainMessage(message, recipientId, mentions)
     } else {
-      await this.sendSignalMessage(message, mentions)
+      result = await this.sendSignalMessage(message, mentions)
+    }
+    if (result) {
+      jobDao.delete([sendingMessageJob])
     }
   }
 
@@ -45,12 +57,13 @@ class SendWorker extends BaseWorker {
       content = btoa(unescape(encodeURIComponent(message.content)))
     }
     const blazeMessage = this.createBlazeMessage(message, content, recipientId, mentions)
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    const result = await this.deliver(message, blazeMessage)
+    return result
   }
 
   async sendSignalMessage(message, mentions) {
     // eslint-disable-next-line no-undef
-    await wasmObject.then(result => { })
+    await wasmObject.then(result => {})
 
     if (message.resend_status) {
       if (message.resend_status === 1) {
@@ -74,8 +87,10 @@ class SendWorker extends BaseWorker {
     await this.checkSessionSenderKey(message.conversation_id)
     const bm = this.encryptNormalMessage(message, mentions)
     if (bm) {
-      await this.deliver(message, bm)
+      const result = await this.deliver(message, bm)
+      return result
     }
+    return true
   }
 
   encryptNormalMessage(message, mentions) {
@@ -116,10 +131,12 @@ class SendWorker extends BaseWorker {
           console.log('refresh end')
         } else if (error.code === 403) {
           messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
+          result = true
         } else {
           console.log(error)
         }
-      })
+      }
+    )
     return result
   }
 
@@ -253,27 +270,30 @@ class SendWorker extends BaseWorker {
       }
     }
     const self = this
-    await Vue.prototype.$blaze.sendMessagePromise(bm).then(_ => {
-      participantSessionDao.updateList(
-        signalKeyMessages.map(key => {
-          return {
-            conversation_id: conversationId,
-            user_id: key.recipient_id,
-            session_id: key.session_id,
-            sent_to_server: 1,
-            created_at: new Date().toISOString()
-          }
-        })
-      )
-    }, async error => {
-      if (error.code === 20140) {
-        console.log('checkSessionSenderKey checksum failed')
-        await self.refreshConversation(conversationId)
-        await self.checkSessionSenderKey(conversationId)
-      } else {
-        console.log(error)
+    await Vue.prototype.$blaze.sendMessagePromise(bm).then(
+      _ => {
+        participantSessionDao.updateList(
+          signalKeyMessages.map(key => {
+            return {
+              conversation_id: conversationId,
+              user_id: key.recipient_id,
+              session_id: key.session_id,
+              sent_to_server: 1,
+              created_at: new Date().toISOString()
+            }
+          })
+        )
+      },
+      async error => {
+        if (error.code === 20140) {
+          console.log('checkSessionSenderKey checksum failed')
+          await self.refreshConversation(conversationId)
+          await self.checkSessionSenderKey(conversationId)
+        } else {
+          console.log(error)
+        }
       }
-    })
+    )
   }
 
   async checkSignalSession(recipientId, sessionId) {
@@ -289,11 +309,7 @@ class SendWorker extends BaseWorker {
       const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
       if (data && data.length > 0) {
         const key = data[0]
-        signalProtocol.processSession(
-          key.user_id,
-          deviceId,
-          JSON.stringify(key)
-        )
+        signalProtocol.processSession(key.user_id, deviceId, JSON.stringify(key))
       } else {
         return false
       }
@@ -309,7 +325,7 @@ class SendWorker extends BaseWorker {
     }
     const mentionIds = new Set()
     const mentions = userDao.findUsersByIdentityNumber(numbers)
-    mentions.forEach((user) => {
+    mentions.forEach(user => {
       if (user) {
         mentionIds.add(user.user_id)
       }

@@ -1,4 +1,6 @@
 import db from '@/persistence/db'
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid'
 
 class JobDao {
   insert(job: any) {
@@ -6,6 +8,20 @@ class JobDao {
       'INSERT OR REPLACE INTO jobs VALUES (@job_id, @action, @created_at,@order_id, @priority, @user_id, @blaze_message, @conversation_id, @resend_message_id, @run_count)'
     )
     stmt.run(job)
+  }
+  insertSendingJob(messageId: string, conversationId: string) {
+    this.insert({
+      job_id: uuidv4(),
+      action: 'SENDING_MESSAGE',
+      created_at: new Date().toISOString(),
+      order_id: null,
+      priority: 5,
+      user_id: null,
+      blaze_message: JSON.stringify({ messageId }),
+      conversation_id: conversationId,
+      resend_message_id: null,
+      run_count: 0
+    })
   }
   findAckJobs() {
     return db
@@ -18,6 +34,9 @@ class JobDao {
   }
   findRecallJob() {
     return db.prepare(`SELECT * FROM jobs WHERE action = 'RECALL_MESSAGE'`).get()
+  }
+  findSendingJob() {
+    return db.prepare(`SELECT * FROM jobs WHERE action = 'SENDING_MESSAGE'`).get()
   }
   delete(jobs: any) {
     const stmt = db.prepare('DELETE FROM jobs WHERE job_id = ?')

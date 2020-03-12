@@ -223,7 +223,7 @@ export default {
   setCurrentConversation(state: any, conversation: any) {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
-    messageBox.setConversationId(conversationId, unseenMessageCount - 1)
+    messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
     setTimeout(() => {
       if (
         !state.conversationKeys.some((item: any) => {

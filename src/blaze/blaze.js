@@ -106,7 +106,9 @@ class Blaze {
     if (this.ws) {
       this.ws.close(1000, 'Normal close, should reconnect')
     }
-    this.connect()
+    setTimeout(() => {
+      this.connect()
+    }, 1500)
   }
   isConnect() {
     if (this.ws) {
@@ -195,7 +197,9 @@ class Blaze {
         }, 5000)
       })
     } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
-      this.connect()
+      setTimeout(() => {
+        this.connect()
+      }, 1500)
     }
   }
 

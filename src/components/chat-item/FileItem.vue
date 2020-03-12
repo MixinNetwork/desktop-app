@@ -29,7 +29,7 @@
             <span class="text">FILE</span>
           </div>
           <div class="content">
-            <span class="name" v-html="fileName"></span>
+            <span class="name" v-html="$w(fileName)"></span>
             <div class="bottom">
               <span class="number">{{fileSize}}</span>
               <TimeAndStatus :message="message" />

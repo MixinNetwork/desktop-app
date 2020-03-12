@@ -43,7 +43,7 @@
             class="icon"
           />
         </div>
-        <div class="content" v-html="description" @click.prevent></div>
+        <div class="content" v-html="$w(description)" @click.prevent></div>
         <span class="badge mention" v-if="showMention">@</span>
         <span
           class="badge"

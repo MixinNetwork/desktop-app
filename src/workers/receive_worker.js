@@ -307,17 +307,18 @@ class ReceiveWorker extends BaseWorker {
       ) {
         this.makeMessageStatus(plainData.ack_messages)
       } else if (plainData.action === 'RESEND_MESSAGES') {
-        plainData.messages.forEach(msg => {
-          const resendMessage = resendMessageDao.findResendMessage(data.user_id, msg)
+        plainData.messages.forEach(messageId => {
+          const resendMessage = resendMessageDao.findResendMessage(data.user_id, messageId)
           if (resendMessage) {
             return
           }
-          const needResendMessage = messageDao.getMessageById(msg)
+          const needResendMessage = messageDao.getMessageById(messageId)
           if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
-            resendMessageDao.insertMessage(msg, data.user_id, data.session_id, 1)
+            resendMessageDao.insertMessage(messageId, data.user_id, data.session_id, 1)
           } else {
-            resendMessageDao.insertMessage(msg, data.user_id, data.session_id, 0)
+            resendMessageDao.insertMessage(messageId, data.user_id, data.session_id, 0)
           }
+          jobDao.insertSendingJob(messageId, data.conversation_id)
         })
       } else if (plainData.action === 'RESEND_KEY') {
         if (signalProtocol.containsUserSession(data.user_id)) {

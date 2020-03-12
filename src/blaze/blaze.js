@@ -85,9 +85,7 @@ class Blaze {
     })
     if (event.code === 1008) return
     console.log('---should reconnect--')
-    setTimeout(() => {
-      this.reconnectBlaze()
-    }, 5000)
+    this.reconnectBlaze()
   }
   _onError(event) {
     console.log('-------onerrror--')
@@ -108,7 +106,9 @@ class Blaze {
     if (this.ws) {
       this.ws.close(1000, 'Normal close, should reconnect')
     }
-    this.connect()
+    setTimeout(() => {
+      this.connect()
+    }, 1500)
   }
   isConnect() {
     if (this.ws) {

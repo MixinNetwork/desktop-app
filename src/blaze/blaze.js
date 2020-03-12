@@ -85,7 +85,9 @@ class Blaze {
     })
     if (event.code === 1008) return
     console.log('---should reconnect--')
-    this.reconnectBlaze()
+    setTimeout(function() {
+      this.reconnectBlaze()
+    }, 5000)
   }
   _onError(event) {
     console.log('-------onerrror--')
@@ -195,7 +197,9 @@ class Blaze {
         }, 5000)
       })
     } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
-      this.connect()
+      setTimeout(() => {
+        this.connect()
+      }, 1500)
     }
   }
 

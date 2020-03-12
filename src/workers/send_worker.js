@@ -38,12 +38,15 @@ class SendWorker extends BaseWorker {
         mentions = this.getMentionParam(message.content)
       }
     }
+    let result = false
     if (message.category.startsWith('PLAIN_')) {
-      await this.sendPlainMessage(message, recipientId, mentions)
+      result = await this.sendPlainMessage(message, recipientId, mentions)
     } else {
-      await this.sendSignalMessage(message, mentions)
+      result = await this.sendSignalMessage(message, mentions)
     }
-    jobDao.delete([sendingMessageJob])
+    if (result) {
+      jobDao.delete([sendingMessageJob])
+    }
   }
 
   async sendPlainMessage(message, recipientId, mentions) {
@@ -54,7 +57,8 @@ class SendWorker extends BaseWorker {
       content = btoa(unescape(encodeURIComponent(message.content)))
     }
     const blazeMessage = this.createBlazeMessage(message, content, recipientId, mentions)
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+    const result = await this.deliver(message, blazeMessage)
+    return result
   }
 
   async sendSignalMessage(message, mentions) {
@@ -83,8 +87,10 @@ class SendWorker extends BaseWorker {
     await this.checkSessionSenderKey(message.conversation_id)
     const bm = this.encryptNormalMessage(message, mentions)
     if (bm) {
-      await this.deliver(message, bm)
+      const result = await this.deliver(message, bm)
+      return result
     }
+    return true
   }
 
   encryptNormalMessage(message, mentions) {
@@ -125,6 +131,7 @@ class SendWorker extends BaseWorker {
           console.log('refresh end')
         } else if (error.code === 403) {
           messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
+          result = true
         } else {
           console.log(error)
         }

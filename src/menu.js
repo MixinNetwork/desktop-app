@@ -1,6 +1,16 @@
 import { checkForUpdates } from './updater'
 const { app, Menu } = require('electron')
 
+function emit(name) {
+  return (_, window) => {
+    if (window) {
+      window.webContents.send('menu-event', { name })
+    } else {
+      ipcMain.emit('menu-event', { name })
+    }
+  }
+}
+
 const lang = app.getLocale().split('-')[0]
 
 let template = [
@@ -55,6 +65,7 @@ if (process.platform === 'darwin') {
     submenu: [
       { role: 'about' },
       { label: 'Check for Updates...', click: checkForUpdates },
+      { label: 'devtool', click: emit('devtool'), accelerator: process.platform === 'darwin' ? 'Cmd+Shift+I' : 'Ctrl+Shift+I' },
       { type: 'separator' },
       { role: 'services' },
       { type: 'separator' },
@@ -118,7 +129,10 @@ if (lang === 'zh') {
     {
       label: '窗口',
       role: 'window',
-      submenu: [{ role: 'minimize', label: '最小化' }, { role: 'close', label: '关闭' }]
+      submenu: [
+        { role: 'minimize', label: '最小化' },
+        { role: 'close', label: '关闭' }
+      ]
     },
     {
       label: '帮助',
@@ -140,6 +154,7 @@ if (lang === 'zh') {
       submenu: [
         { role: 'about', label: '关于' },
         { label: '检查更新...', click: checkForUpdates },
+        { label: '开发者工具', click: emit('devtool'), accelerator: process.platform === 'darwin' ? 'Cmd+Shift+I' : 'Ctrl+Shift+I' },
         { type: 'separator' },
         { role: 'services', label: '服务' },
         { type: 'separator' },
@@ -156,7 +171,10 @@ if (lang === 'zh') {
       { type: 'separator' },
       {
         label: '发言',
-        submenu: [{ role: 'startspeaking', label: '开始说话' }, { role: 'stopspeaking', label: '停止说话' }]
+        submenu: [
+          { role: 'startspeaking', label: '开始说话' },
+          { role: 'stopspeaking', label: '停止说话' }
+        ]
       }
     )
 

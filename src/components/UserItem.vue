@@ -4,7 +4,7 @@
     <div class="content">
       <div class="title">
         <div class="name">
-          <span v-html="highlight(user.full_name, 'name', /^@/.test(keyword))"></span>
+          <span v-html="$w(highlight(user.full_name, 'name', /^@/.test(keyword)))"></span>
           <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
         </div>
         <span class="role" v-if="user.role">
@@ -15,7 +15,7 @@
         </span>
       </div>
       <div class="id">
-        <span v-html="highlight(user.identity_number, 'id', /^@/.test(keyword))"></span>
+        <span v-html="$w(highlight(user.identity_number, 'id', /^@/.test(keyword)))"></span>
       </div>
     </div>
   </li>

@@ -54,7 +54,7 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' ||messageType() === 'app_button'"
         />
-        <span v-html="getContent"></span>
+        <span v-html="$w(getContent)"></span>
       </span>
     </div>
     <img

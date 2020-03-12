@@ -3,7 +3,7 @@
     <div class="msgBox" v-if="show" @touchmove="notAllowTouchMove($event)">
       <div class="message">
         <div class="title" v-show="title.content">{{ title.content }}</div>
-        <div class="msg" v-html="message.content"></div>
+        <div class="msg" v-html="$w(message.content)"></div>
         <div class="options" v-if="options">
           <template v-for="(option,index) in options">
             <label :key="index">

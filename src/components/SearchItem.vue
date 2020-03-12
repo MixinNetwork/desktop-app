@@ -3,11 +3,11 @@
     <Avatar class="avatar" :user="item" :conversation="null" />
     <div class="box">
       <div class="meta">
-        <div v-html="highlight(item.full_name)"></div>
+        <div v-html="$w(highlight(item.full_name))"></div>
         <div class="time">{{renderTime(item.created_at)}}</div>
       </div>
       <div class="content">
-        <div v-html="highlight(content)"></div>
+        <div v-html="$w(highlight(content))"></div>
       </div>
     </div>
   </li>

@@ -49,12 +49,8 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
         />
-        <vue-markdown
-          :anchorAttributes="{target: '_blank', rel: 'noopener noreferrer nofollow', onclick: 'linkClick(this.href)'}"
-          class="markdown"
-          v-if="messageType() === 'post'"
-        >{{getContent}}</vue-markdown>
-        <span v-else v-html="getContent"></span>
+        <vue-markdown class="markdown" v-if="messageType() === 'post'" :source="getContent"></vue-markdown>
+        <span v-else v-html="$w(getContent)"></span>
       </span>
     </div>
     <img

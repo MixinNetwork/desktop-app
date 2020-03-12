@@ -5,7 +5,7 @@
       <div class="title">
         <div class="name">
           <span v-if="chat.records">{{chat.groupName || chat.name}}</span>
-          <span v-else v-html="highlight(chat.groupName || chat.name)"></span>
+          <span v-else v-html="$w(highlight(chat.groupName || chat.name))"></span>
           <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="chat.appId" />
         </div>
       </div>

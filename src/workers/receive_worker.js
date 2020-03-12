@@ -56,7 +56,7 @@ class ReceiveWorker extends BaseWorker {
       return
     }
     const data = JSON.parse(floodMessage.data)
-    this.syncConversation(data)
+    await this.syncConversation(data)
     if (data.category.startsWith('SIGNAL_')) {
       await this.processSignalMessage(data)
     } else if (data.category.startsWith('PLAIN_')) {
@@ -284,7 +284,7 @@ class ReceiveWorker extends BaseWorker {
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      this.refreshConversation(data.conversation_id)
+      await this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
       participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)

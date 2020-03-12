@@ -60,8 +60,8 @@ async function refreshConversation(conversationId: any, callback: () => void) {
       status: status,
       mute_until: conversation.mute_until
     })
-    refreshParticipants(conversation.conversation_id, conversation.participants, callback)
-    syncUser(ownerId)
+    await refreshParticipants(conversation.conversation_id, conversation.participants, callback)
+    await syncUser(ownerId)
   }
 }
 async function refreshParticipants(conversationId: any, participants: any[], callback: () => void) {
@@ -606,8 +606,8 @@ export default {
     )
     commit('refreshMessage', { conversationId: message.conversation_id, messageIds: [message.message_id] })
   },
-  syncConversation: ({ commit }: any, conversationId: any) => {
-    refreshConversation(conversationId, function() {
+  syncConversation: async({ commit }: any, conversationId: any) => {
+    await refreshConversation(conversationId, function() {
       commit('refreshConversation', conversationId)
     })
   },

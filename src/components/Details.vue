@@ -25,9 +25,14 @@
             v-html="$w(contentUtil.renderUrl(conversation.announcement))"
           ></div>
           <div
-            v-else-if="conversation.biography"
+            v-else-if="isContact"
             class="biography"
-            v-html="$w(user.biography || conversation.biography)"
+            v-html="$w(user.biography)"
+          ></div>
+          <div
+            v-else
+            class="biography"
+            v-html="$w(conversation.biography)"
           ></div>
         </header>
         <div class="participants" v-if="!isContact">

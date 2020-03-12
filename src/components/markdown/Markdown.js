@@ -12,6 +12,14 @@ import tasklists from 'markdown-it-task-lists'
 import hljs from 'highlight.js'
 import filter from './filter'
 
+const md = new MarkdownIt()
+
+const regx = /<a href=(.+?)>(.+?)<\/a>/g
+function renderUrl(content) {
+  content = content.replace(regx, '<a href=$1 target="_blank" rel="noopener noreferrer nofollow">$2</a>')
+  return content
+}
+
 export default {
   template: '<div><slot></slot></div>',
 
@@ -96,7 +104,7 @@ export default {
             return '<pre class="hljs"><code>' + hljs.highlight(lang, str, true).value + '</code></pre>'
           } catch (__) {}
         }
-        return '<pre class="hljs"><code>' + str + '</code></pre>'
+        return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>'
       }
     })
       .use(subscript)
@@ -120,35 +128,19 @@ export default {
       quotes: this.quotes
     })
     this.md.renderer.rules.table_open = () => `<table class="${this.tableClass}">\n`
-    let defaultLinkRenderer =
-      this.md.renderer.rules.link_open ||
-      function(tokens, idx, options, env, self) {
-        return self.renderToken(tokens, idx, options)
-      }
-    this.md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
-      const anchorAttributes = {
-        target: '_blank',
-        rel: 'noopener noreferrer nofollow',
-        onclick: 'linkClick(this.href)'
-      }
-      Object.keys(anchorAttributes).map(attribute => {
-        let aIndex = tokens[idx].attrIndex(attribute)
-        let value = anchorAttributes[attribute]
-        if (aIndex < 0) {
-          tokens[idx].attrPush([attribute, value])
-        } else {
-          tokens[idx].attrs[aIndex][1] = value
-        }
-      })
-      return defaultLinkRenderer(tokens, idx, options, env, self)
-    }
 
     let outHtml = this.show ? this.md.render(this.prerender(this.sourceData)) : ''
     outHtml = this.postrender(outHtml)
+    outHtml = renderUrl(outHtml)
+    outHtml = filter(outHtml)
+    outHtml = outHtml.replace(
+      / rel="noopener noreferrer nofollow">/g,
+      ' onclick=linkClick(this.href) rel="noopener noreferrer nofollow">'
+    )
 
     return createElement('div', {
       domProps: {
-        innerHTML: filter(outHtml)
+        innerHTML: outHtml
       }
     })
   },

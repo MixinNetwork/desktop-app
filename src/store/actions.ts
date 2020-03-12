@@ -170,6 +170,9 @@ function insertSendingJob(messageId: string, conversationId: string) {
 }
 
 export default {
+  insertSendingJob: (messageId: string, conversationId: string) => {
+    insertSendingJob(messageId, conversationId)
+  },
   createUserConversation: ({ commit, state }: any, payload: { user: any }) => {
     const { user } = payload
     const account = getAccount()

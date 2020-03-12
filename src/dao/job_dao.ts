@@ -19,6 +19,9 @@ class JobDao {
   findRecallJob() {
     return db.prepare(`SELECT * FROM jobs WHERE action = 'RECALL_MESSAGE'`).get()
   }
+  findSendingJob() {
+    return db.prepare(`SELECT * FROM jobs WHERE action = 'SENDING_MESSAGE'`).get()
+  }
   delete(jobs: any) {
     const stmt = db.prepare('DELETE FROM jobs WHERE job_id = ?')
     const deleteMany = db.transaction((jobs: any) => {

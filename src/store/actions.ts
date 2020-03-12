@@ -154,7 +154,25 @@ function updateRemoteMessageStatus(conversationId: any, messageId: any, status: 
   })
 }
 
+function insertSendingJob(messageId: string, conversationId: string) {
+  jobDao.insert({
+    job_id: uuidv4(),
+    action: 'SENDING_MESSAGE',
+    created_at: new Date().toISOString(),
+    order_id: null,
+    priority: 5,
+    user_id: null,
+    blaze_message: JSON.stringify({ messageId }),
+    conversation_id: conversationId,
+    resend_message_id: null,
+    run_count: 0
+  })
+}
+
 export default {
+  insertSendingJob: (messageId: string, conversationId: string) => {
+    insertSendingJob(messageId, conversationId)
+  },
   createUserConversation: ({ commit, state }: any, payload: { user: any }) => {
     const { user } = payload
     const account = getAccount()
@@ -325,23 +343,28 @@ export default {
     commit('setCurrentMessages', messages)
   },
   sendMessage: ({ commit }: any, { msg, quoteId }: any) => {
-    markRead(msg.conversationId)
+    const { conversationId } = msg
+    markRead(conversationId)
 
     let messageId = ''
     if (quoteId) {
-      let quoteItem = messageDao.findMessageItemById(msg.conversationId, quoteId)
+      let quoteItem = messageDao.findMessageItemById(conversationId, quoteId)
       if (quoteItem) {
         messageId = messageDao.insertRelyMessage(msg, quoteId, JSON.stringify(quoteItem))
-        commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
+        insertSendingJob(messageId, conversationId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
         return
       }
     }
-    if (msg.category.endsWith('_CONTACT')) {
-      messageId = messageDao.insertContactMessage(msg)
-    } else {
-      messageId = messageDao.insertTextMessage(msg)
+    if (!messageId) {
+      if (msg.category.endsWith('_CONTACT')) {
+        messageId = messageDao.insertContactMessage(msg)
+      } else {
+        messageId = messageDao.insertTextMessage(msg)
+      }
     }
-    commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
+    insertSendingJob(messageId, conversationId)
+    commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendStickerMessage: (
     { commit }: any,
@@ -364,7 +387,8 @@ export default {
     const sticker = stickerDao.getStickerByUnique(stickerId)
     sticker.last_use_at = new Date().toISOString()
     stickerDao.insertUpdate(sticker)
-    commit('refreshMessage', { conversationId: msg.conversationId, messageIds: [messageId] })
+    insertSendingJob(messageId, conversationId)
+    commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendLiveMessage: ({ commit }: any, msg: { conversationId: any; payload: AttachmentMessagePayload }) => {
     const { conversationId, payload } = msg
@@ -394,6 +418,7 @@ export default {
       created_at: new Date().toISOString(),
       name: mediaName
     })
+    insertSendingJob(messageId, conversationId)
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendAttachmentMessage: ({ commit }: any, { conversationId, payload }: any) => {
@@ -426,9 +451,10 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(transferAttachmentData))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
-        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+        insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)
@@ -471,9 +497,10 @@ export default {
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(msg))))
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
-        // Todo
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
+        insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
+        commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
       (e: any) => {
         messageDao.updateMediaStatus(MediaStatus.CANCELED, messageId)

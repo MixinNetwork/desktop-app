@@ -154,25 +154,7 @@ function updateRemoteMessageStatus(conversationId: any, messageId: any, status: 
   })
 }
 
-function insertSendingJob(messageId: string, conversationId: string) {
-  jobDao.insert({
-    job_id: uuidv4(),
-    action: 'SENDING_MESSAGE',
-    created_at: new Date().toISOString(),
-    order_id: null,
-    priority: 5,
-    user_id: null,
-    blaze_message: JSON.stringify({ messageId }),
-    conversation_id: conversationId,
-    resend_message_id: null,
-    run_count: 0
-  })
-}
-
 export default {
-  insertSendingJob: (messageId: string, conversationId: string) => {
-    insertSendingJob(messageId, conversationId)
-  },
   createUserConversation: ({ commit, state }: any, payload: { user: any }) => {
     const { user } = payload
     const account = getAccount()
@@ -351,7 +333,7 @@ export default {
       let quoteItem = messageDao.findMessageItemById(conversationId, quoteId)
       if (quoteItem) {
         messageId = messageDao.insertRelyMessage(msg, quoteId, JSON.stringify(quoteItem))
-        insertSendingJob(messageId, conversationId)
+        jobDao.insertSendingJob(messageId, conversationId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
         return
       }
@@ -363,7 +345,7 @@ export default {
         messageId = messageDao.insertTextMessage(msg)
       }
     }
-    insertSendingJob(messageId, conversationId)
+    jobDao.insertSendingJob(messageId, conversationId)
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendStickerMessage: (
@@ -387,7 +369,7 @@ export default {
     const sticker = stickerDao.getStickerByUnique(stickerId)
     sticker.last_use_at = new Date().toISOString()
     stickerDao.insertUpdate(sticker)
-    insertSendingJob(messageId, conversationId)
+    jobDao.insertSendingJob(messageId, conversationId)
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendLiveMessage: ({ commit }: any, msg: { conversationId: any; payload: AttachmentMessagePayload }) => {
@@ -418,7 +400,7 @@ export default {
       created_at: new Date().toISOString(),
       name: mediaName
     })
-    insertSendingJob(messageId, conversationId)
+    jobDao.insertSendingJob(messageId, conversationId)
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendAttachmentMessage: ({ commit }: any, { conversationId, payload }: any) => {
@@ -452,7 +434,7 @@ export default {
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
-        insertSendingJob(messageId, conversationId)
+        jobDao.insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },
@@ -498,7 +480,7 @@ export default {
         messageDao.updateMessageContent(content, messageId)
         messageDao.updateMediaStatus(MediaStatus.DONE, messageId)
         messageDao.updateMessageStatusById(MessageStatus.SENDING, messageId)
-        insertSendingJob(messageId, conversationId)
+        jobDao.insertSendingJob(messageId, conversationId)
         commit('stopLoading', messageId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },

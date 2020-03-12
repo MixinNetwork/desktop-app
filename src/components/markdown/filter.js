@@ -44,6 +44,7 @@ export default function(html) {
       ins: ['datetime'],
       li: [],
       mark: [],
+      summary: [],
       nav: [],
       ol: [],
       p: [],

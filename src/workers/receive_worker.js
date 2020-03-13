@@ -17,7 +17,7 @@ import i18n from '@/utils/i18n'
 import moment from 'moment'
 import { sendNotification } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
-import { remote } from 'electron'
+import { remote, ipcRenderer } from 'electron'
 import snapshotApi from '@/api/snapshot'
 import messageMentionDao from '@/dao/message_mention_dao'
 
@@ -36,9 +36,11 @@ class ReceiveWorker extends BaseWorker {
   async doWork() {
     await wasmObject.then(result => {})
     const fms = floodMessageDao.findFloodMessage()
-    if (!fms) {
+    if (!fms || !fms.length) {
       return
     }
+    // ipcRenderer.send('workerTask', { action: 'test', data: 'data' })
+
     for (const fm of fms) {
       try {
         await this.process(fm)

@@ -21,9 +21,8 @@ import {
 import appDao from '@/dao/app_dao'
 
 function markRead(conversationId: any) {
-  messageDao.findUnreadMessage(conversationId).forEach(function(item: any, index: any) {
-    updateRemoteMessageStatus(conversationId, item.message_id, MessageStatus.READ)
-  })
+  const messages = messageDao.findUnreadMessage(conversationId)
+  updateRemoteMessageStatusBatch(conversationId, messages, MessageStatus.READ)
   messageDao.markRead(conversationId)
 }
 
@@ -125,33 +124,37 @@ async function fetchUsers(users: any[]) {
   }
 }
 
-function updateRemoteMessageStatus(conversationId: any, messageId: any, status: string) {
-  const blazeMessage = { message_id: messageId, status: status }
-  jobDao.insert({
-    job_id: uuidv4(),
-    action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
-    created_at: new Date().toISOString(),
-    order_id: null,
-    priority: 5,
-    user_id: null,
-    blaze_message: JSON.stringify(blazeMessage),
-    conversation_id: null,
-    resend_message_id: null,
-    run_count: 0
+function updateRemoteMessageStatusBatch(conversationId: any, messages: any, status: string) {
+  if (!messages.length) return
+  const jobList: any = []
+  messages.forEach((message: any) => {
+    const blazeMessage = { message_id: message.messageId, status }
+    jobList.push({
+      job_id: uuidv4(),
+      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
+      created_at: new Date().toISOString(),
+      order_id: null,
+      priority: 5,
+      user_id: null,
+      blaze_message: JSON.stringify(blazeMessage),
+      conversation_id: null,
+      resend_message_id: null,
+      run_count: 0
+    })
+    jobList.push({
+      job_id: uuidv4(),
+      action: 'CREATE_MESSAGE',
+      created_at: new Date().toISOString(),
+      order_id: null,
+      priority: 5,
+      user_id: null,
+      blaze_message: JSON.stringify(blazeMessage),
+      conversation_id: conversationId,
+      resend_message_id: null,
+      run_count: 0
+    })
   })
-
-  jobDao.insert({
-    job_id: uuidv4(),
-    action: 'CREATE_MESSAGE',
-    created_at: new Date().toISOString(),
-    order_id: null,
-    priority: 5,
-    user_id: null,
-    blaze_message: JSON.stringify(blazeMessage),
-    conversation_id: conversationId,
-    resend_message_id: null,
-    run_count: 0
-  })
+  jobDao.insertJobs(jobList)
 }
 
 export default {

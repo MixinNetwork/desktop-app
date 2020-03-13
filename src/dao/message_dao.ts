@@ -389,7 +389,7 @@ class MessageDao {
     const userId = this.me().user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id as messageId FROM messages WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .all(conversationId)
   }

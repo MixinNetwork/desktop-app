@@ -18,8 +18,6 @@ class WorkManager {
       this.stoppedExternally = false
       this.workerStatus = []
 
-      receiveWorker.ftsMessageLoadAll()
-
       interval(
         async(_, stop) => {
           this.workerStatus[0] = Status.RUNNING

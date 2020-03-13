@@ -17,6 +17,8 @@ import workerManager from '@/workers/worker_manager'
 import { LinkStatus } from '@/utils/constants'
 import { clearDb } from '@/persistence/db_util'
 import userDao from '@/dao/user_dao'
+import messageDao from '@/dao/message_dao'
+import conversationDao from '@/dao/conversation_dao'
 
 import { Vue, Component } from 'vue-property-decorator'
 
@@ -38,6 +40,17 @@ export default class Home extends Vue {
   beforeMount() {
     this.$store.dispatch('init')
   }
+
+  ftsMessageLoadAll() {
+    const count = messageDao.ftsMessageCount()
+    if (!count) {
+      const conversations = conversationDao.getConversations()
+      conversations.forEach((conversation: any) => {
+        messageDao.ftsMessageLoad(conversation.conversationId)
+      })
+    }
+  }
+
   async created() {
     // @ts-ignore
     if (!userDao.isMe(JSON.parse(localStorage.getItem('account')).user_id)) {
@@ -47,6 +60,7 @@ export default class Home extends Vue {
         clearDb()
       })
     }
+    this.ftsMessageLoadAll()
 
     this.$blaze.connect()
     workerManager.start()

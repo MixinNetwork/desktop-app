@@ -65,7 +65,7 @@ class ReceiveWorker extends BaseWorker {
       this.syncConversationTimerMap[conversationId] = setTimeout(() => {
         this.syncConversation(data)
         this.syncConversationTimerMap[conversationId] = null
-      }, 300)
+      }, 600)
     }
     if (data.category.startsWith('SIGNAL_')) {
       await this.processSignalMessage(data)

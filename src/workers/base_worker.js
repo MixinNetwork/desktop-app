@@ -4,7 +4,6 @@ import participantSessionDao from '@/dao/participant_session_dao'
 import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
-import messageDao from '@/dao/message_dao'
 import stickerApi from '@/api/sticker'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
@@ -48,16 +47,6 @@ export default class BaseWorker {
     }
     if (conversation.status === ConversationStatus.START) {
       await this.refreshConversation(data.conversation_id)
-    }
-  }
-
-  async ftsMessageLoadAll() {
-    const count = messageDao.ftsMessageCount()
-    if (!count) {
-      const conversations = conversationDao.getConversations()
-      conversations.forEach(conversation => {
-        messageDao.ftsMessageLoad(conversation.conversationId)
-      })
     }
   }
 

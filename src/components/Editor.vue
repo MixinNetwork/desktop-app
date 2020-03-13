@@ -50,6 +50,9 @@ export default class Editor extends Vue {
     }
     this.$store.dispatch('sendMessage', message)
     this.$store.dispatch('toggleEditor')
+    setTimeout(() => {
+      this.post = ''
+    }, 200)
   }
   closeEditor() {
     this.$store.dispatch('toggleEditor')

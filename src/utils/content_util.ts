@@ -25,6 +25,18 @@ class ContentUtil {
     // eslint-disable-next-line
     return e.innerText.replace(/\n　\n/g, '\n\n')
   }
+  relLen(str: string) {
+    var len = 0
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i)
+      if ((c >= 0x0001 && c <= 0x007e) || (c >= 0xff60 && c <= 0xff9f)) {
+        len++
+      } else {
+        len += 2
+      }
+    }
+    return len
+  }
   renderUrl(content: string) {
     content = content
       .replace(/&/g, '&amp;')

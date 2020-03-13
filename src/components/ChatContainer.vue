@@ -171,6 +171,8 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
+// @ts-ignore
+import _ from 'lodash'
 import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import ChatInputBox from '@/components/ChatInputBox.vue'
@@ -481,7 +483,7 @@ export default class ChatContainer extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    return list
+    return _.sortBy(list, ['createdAt'])
   }
 
   udpateMessagesVisible() {

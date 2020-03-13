@@ -591,8 +591,8 @@ export default {
     )
     commit('refreshMessage', { conversationId: message.conversation_id, messageIds: [message.message_id] })
   },
-  syncConversation: async({ commit }: any, conversationId: any) => {
-    await refreshConversation(conversationId, function() {
+  syncConversation: ({ commit }: any, conversationId: any) => {
+    refreshConversation(conversationId, function() {
       commit('refreshConversation', conversationId)
     })
   },

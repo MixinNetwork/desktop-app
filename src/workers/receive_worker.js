@@ -50,13 +50,23 @@ class ReceiveWorker extends BaseWorker {
     }
   }
 
+  syncConversationTimerMap = {}
   async process(floodMessage) {
     if (this.isExistMessage(floodMessage.message_id)) {
       this.updateRemoteMessageStatus(floodMessage.message_id, MessageStatus.DELIVERED)
       return
     }
     const data = JSON.parse(floodMessage.data)
-    await this.syncConversation(data)
+    const conversationId = data.conversation_id
+    const conversation = conversationDao.getSimpleConversationItem(conversationId)
+    if (!conversation) {
+      await this.syncConversation(data)
+    } else if (!this.syncConversationTimerMap[conversationId]) {
+      this.syncConversationTimerMap[conversationId] = setTimeout(() => {
+        this.syncConversation(data)
+        this.syncConversationTimerMap[conversationId] = null
+      }, 300)
+    }
     if (data.category.startsWith('SIGNAL_')) {
       await this.processSignalMessage(data)
     } else if (data.category.startsWith('PLAIN_')) {
@@ -284,7 +294,7 @@ class ReceiveWorker extends BaseWorker {
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      await this.refreshConversation(data.conversation_id)
+      this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
       participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)
@@ -444,7 +454,7 @@ class ReceiveWorker extends BaseWorker {
       const mentionIds = contentUtil.parseMentionIdentityNumber(plain)
       if (mentionIds.length > 0) {
         const users = userDao.findUsersByIdentityNumber(mentionIds)
-        users.forEach((user) => {
+        users.forEach(user => {
           if (user) {
             const id = user.identity_number
             const mentionName = `@${user.full_name}`

@@ -45,7 +45,6 @@ export default class BaseWorker {
         mute_until: null
       }
       conversationDao.insertConversation(conversation)
-      await this.refreshConversation(data.conversation_id)
     }
     if (conversation.status === ConversationStatus.START) {
       await this.refreshConversation(data.conversation_id)

@@ -26,7 +26,7 @@
     "bytebuffer": "^5.0.1",
     "chimee": "^0.11.0",
     "chimee-kernel-hls": "^1.3.2",
-    "electron-log": "^4.0.7",
+    "electron-log": "^4.1.0",
     "electron-updater": "^4.2.5",
     "electron-window-state": "^5.0.3",
     "highlight.js": "^9.18.1",

@@ -718,7 +718,10 @@ export default class ChatContainer extends Vue {
       const msgLen = this.messages.length
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       let list = this.$refs.messagesUl
-      if (!list) return
+      if (!list) {
+        this.goBottom()
+        return
+      }
       this.infiniteUpLock = false
       this.showMessages = true
       requestAnimationFrame(() => {
@@ -728,7 +731,7 @@ export default class ChatContainer extends Vue {
         list.scrollTop = list.scrollHeight
         this.showScroll = true
       }, 100)
-    })
+    }, 10)
     messageBox.clearUnreadNum(0)
   }
 

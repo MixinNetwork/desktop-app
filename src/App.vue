@@ -68,7 +68,6 @@ export default class App extends Vue {
       }
       if (keyCode === 9) {
         e.preventDefault()
-        this.$root.$emit('tabKeyDown', 'navigationSearch')
       }
       if (ctrlKey) {
         if (keyCode === 70) {

@@ -51,27 +51,10 @@ class MessageBox {
         }
       }
 
-      // this.updateMessages(this.messages, [], 0, () => {
-      //   this.scrollAction({ message: posMessage })
-      // })
       store.dispatch('setCurrentMessages', this.messages)
       this.scrollAction({ goBottom: true, message: posMessage, isInit })
       this.callback({ unreadNum: 0 })
     }
-  }
-
-  myReq: any
-  updateMessages(messages: any, real: any, index: number, callback: any) {
-    cancelAnimationFrame(this.myReq)
-    this.myReq = requestAnimationFrame(() => {
-      real.push(messages[index])
-      store.dispatch('setCurrentMessages', real)
-      if (index < this.messages.length - 1) {
-        this.updateMessages(messages, real, index + 1, callback)
-      } else if (callback) {
-        callback()
-      }
-    })
   }
 
   clearMessagePositionIndex(index: any) {
@@ -219,11 +202,29 @@ class MessageBox {
       }
     }
   }
+  infiniteUpLock: boolean = false
   infiniteUp() {
-    this.infiniteScroll('up')
+    if (!this.infiniteUpLock) {
+      this.infiniteUpLock = true
+      this.infiniteScroll('up')
+      this.infiniteUpLock = false
+    } else {
+      setTimeout(() => {
+        this.infiniteDown()
+      }, 10)
+    }
   }
+  infiniteDownLock: boolean = false
   infiniteDown() {
-    this.infiniteScroll('down')
+    if (!this.infiniteDownLock) {
+      this.infiniteDownLock = true
+      this.infiniteScroll('down')
+      this.infiniteDownLock = false
+    } else {
+      setTimeout(() => {
+        this.infiniteDown()
+      }, 10)
+    }
   }
   bindData(callback: any, scrollAction: any) {
     this.callback = callback

@@ -222,7 +222,6 @@ export default class ChatContainer extends Vue {
     this.file = null
     this.showMessages = false
     this.boxMessage = null
-    this.mentionMarkReadLock = false
     this.scrollTimerThrottle = null
     this.showTopTips = false
     this.timeDivideShowForce = false
@@ -737,7 +736,6 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum(0)
   }
 
-  mentionMarkReadLock: boolean = false
   mentionVisibleIds: any = []
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
@@ -752,7 +750,7 @@ export default class ChatContainer extends Vue {
             const index = this.mentionVisibleIds.indexOf(messageId)
             this.mentionVisibleIds.splice(index, 1)
           }
-          if (!this.mentionMarkReadLock && isIntersecting) {
+          if (isIntersecting) {
             this.actionMarkMentionRead({ conversationId, messageId })
           }
         }
@@ -762,7 +760,6 @@ export default class ChatContainer extends Vue {
       if (this.isBottom && isIntersecting) {
         this.actionMarkMentionRead({ conversationId, messageId })
       }
-      this.mentionMarkReadLock = true
     }, 200)
   }
 
@@ -771,7 +768,6 @@ export default class ChatContainer extends Vue {
   }
 
   mentionClick() {
-    this.mentionMarkReadLock = false
     const { conversationId } = this.conversation
     const mentions = this.conversationUnseenMentionsMap[conversationId]
     if (mentions && mentions.length > 0) {

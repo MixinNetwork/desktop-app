@@ -78,10 +78,10 @@
       <div
         class="floating mention"
         :class="{ 'box-message': boxMessage, 'is-bottom': isBottom }"
-        v-if="conversation && showMentionBottom"
+        v-if="conversation && currentMentionNum"
         @click="mentionClick"
       >
-        <span class="badge" v-if="showMentionBottom">{{currentMentionNum}}</span>
+        <span class="badge" v-if="currentMentionNum">{{currentMentionNum}}</span>
         <span class="mention-icon">@</span>
       </div>
     </transition>
@@ -665,7 +665,11 @@ export default class ChatContainer extends Vue {
       } else {
         goDone = true
         if (messageDom) {
-          if (this.goMessagePosType === 'search' || list.scrollTop + list.clientHeight < messageDom.offsetTop || list.scrollTop > messageDom.offsetTop) {
+          if (
+            this.goMessagePosType === 'search' ||
+            list.scrollTop + list.clientHeight < messageDom.offsetTop ||
+            list.scrollTop > messageDom.offsetTop
+          ) {
             list.scrollTop = messageDom.offsetTop
           }
           setTimeout(() => {
@@ -695,6 +699,13 @@ export default class ChatContainer extends Vue {
       } else if (posIndex + offset / 2 > lastIndex) {
         lastIndex += offset
       }
+    } else {
+      const { conversationId } = this.conversation
+      const count = messageDao.ftsMessageCount(conversationId)
+      const messageIndex = messageDao.ftsMessageIndex(conversationId, posMessage.messageId)
+      messageBox.setConversationId(conversationId, count - messageIndex - 1, false)
+      firstIndex = 0
+      lastIndex = this.threshold
     }
     this.showScroll = false
     this.beforeViewport = {}
@@ -736,7 +747,6 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum(0)
   }
 
-  mentionVisibleIds: any = []
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
     const { conversationId } = this.conversation
@@ -744,12 +754,6 @@ export default class ChatContainer extends Vue {
     if (mentions && mentions.length > 0) {
       mentions.forEach((item: any) => {
         if (item.message_id === messageId) {
-          if (isIntersecting) {
-            this.mentionVisibleIds.push(messageId)
-          } else {
-            const index = this.mentionVisibleIds.indexOf(messageId)
-            this.mentionVisibleIds.splice(index, 1)
-          }
           if (isIntersecting) {
             this.actionMarkMentionRead({ conversationId, messageId })
           }
@@ -761,10 +765,6 @@ export default class ChatContainer extends Vue {
         this.actionMarkMentionRead({ conversationId, messageId })
       }
     }, 200)
-  }
-
-  get showMentionBottom() {
-    return this.mentionVisibleIds.length === 0 && this.currentMentionNum > 0
   }
 
   mentionClick() {

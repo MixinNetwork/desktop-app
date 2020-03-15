@@ -32,7 +32,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelHeight < 12 ? '' : 'transition: 0.3s all ease;')"
+      :style="(panelChoosing ? '' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
       @scroll="onScroll"
@@ -460,7 +460,9 @@ export default class ChatContainer extends Vue {
 
   panelChooseAction(data: any) {
     this.goBottom()
-    this.panelChoosing = /Open/.test(data)
+    requestAnimationFrame(() => {
+      this.panelChoosing = /Open/.test(data)
+    })
   }
 
   onMessageLoaded(dom: any) {

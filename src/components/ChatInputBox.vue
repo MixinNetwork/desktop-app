@@ -6,7 +6,7 @@
       @hidenReplyBox="$emit('clearBoxMessage')"
     ></ReplyMessageContainer>
 
-    <transition name="slide-up">
+    <transition :name="!stickerChoosing ? 'slide-up' : ''">
       <ChatSticker
         :style="`padding-bottom: ${inputBoxHeight-36}px`"
         :class="{ 'box-message': boxMessage }"
@@ -16,7 +16,7 @@
       ></ChatSticker>
     </transition>
 
-    <transition name="slide-up">
+    <transition :name="!mentionChoosing ? 'slide-up' : ''">
       <MentionPanel
         v-show="mentionChoosing"
         :style="`padding-bottom: ${inputBoxHeight-36}px;`"

@@ -44,31 +44,54 @@ function makeMessageReadQueuePush(blazeMessage, conversationId, messageId) {
   makeMessageReadQueue.push([blazeMessage, conversationId, messageId])
 }
 
+function refreshMessages(messageIdsMap) {
+  Object.keys(messageIdsMap).forEach(conversationId => {
+    const messageIds = messageIdsMap[conversationId]
+    store.dispatch('refreshMessage', {
+      conversationId,
+      messageIds
+    })
+  })
+}
+
 interval(
   async(_, stop) => {
     if (insertMessageQueue.length) {
       let i = 20
       const messageList = []
       const callbackList = []
+      const messageIdsMap = {}
       while (i > 0 && insertMessageQueue.length > 0) {
         i--
         const temp = insertMessageQueue.shift()
         if (temp) {
           messageList.push(temp[0])
           callbackList.push(temp[1])
+          const conversationId = temp[0].conversation_id
+          const messageId = temp[0].message_id
+          messageIdsMap[conversationId] = messageIdsMap[conversationId] || []
+          messageIdsMap[conversationId].push(messageId)
         }
       }
       messageDao.insertMessages(messageList)
+      const promiseList = []
       callbackList.forEach(callback => {
         if (callback) {
-          callback()
+          const temp = new Promise((resolve, reject) => {
+            callback()
+            resolve(true)
+          })
+          promiseList.push(temp)
         }
+      })
+      Promise.all(promiseList).then(() => {
+        refreshMessages(messageIdsMap)
       })
     }
     if (makeMessageReadQueue.length) {
       let i = 20
       const jobList = []
-      const messageIds = []
+      const messageIdsMap = {}
       while (i > 0 && makeMessageReadQueue.length > 0) {
         i--
         const temp = insertMessageQueue.shift()
@@ -85,14 +108,12 @@ interval(
             resend_message_id: null,
             run_count: 0
           })
-          messageIds.push(temp[2])
+          messageIdsMap[temp[1]] = messageIdsMap[temp[1]] || []
+          messageIdsMap[temp[1]].push(temp[2])
         }
       }
       jobDao.insertJobs(jobList)
-      store.dispatch('refreshMessage', {
-        conversationId,
-        messageIds
-      })
+      refreshMessages(messageIdsMap)
     }
   },
   70,

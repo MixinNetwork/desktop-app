@@ -146,8 +146,11 @@ export default class VideoItem extends Vue {
     &.reply {
       .content-in {
         background: #fff;
-        padding: 0.1rem 0.15rem 0.15rem;
+        padding: 0.1rem;
         border-radius: 0.2rem;
+        .loading {
+          top: calc(50% + 0.6rem);
+        }
       }
     }
     .reply {
@@ -159,7 +162,7 @@ export default class VideoItem extends Vue {
         width: 1.6rem;
         height: 1.6rem;
         left: 50%;
-        top: calc(50% - 0.6rem);
+        top: calc(50% - 0.4rem);
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: 3;

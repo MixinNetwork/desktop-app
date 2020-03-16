@@ -13,11 +13,10 @@ ipcMain.on('checkUp', (event, _) => {
 })
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-const lang = app.getLocale().split('-')[0]
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null
+let appTray = null
 
 let quitting = false
 
@@ -145,7 +144,9 @@ app.on('ready', async() => {
     }
   })
 
-  const appTray = new Tray(path.join(__dirname, '../public/icon.png'))
+  appTray = new Tray(path.join(__dirname, '../public/icon.png'))
+  const lang = app.getLocale().split('-')[0]
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: lang !== 'zh' ? 'quit' : '退出',

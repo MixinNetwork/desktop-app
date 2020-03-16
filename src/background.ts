@@ -48,7 +48,7 @@ function createWindow() {
     show: false
   })
   win.on('ready-to-show', () => {
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    if (process.env.WEBPACK_DEV_SERVER_URL && !process.env.IS_TEST) win.webContents.openDevTools()
     win.show()
   })
 
@@ -98,6 +98,12 @@ function createWindow() {
   initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
 
+  globalShortcut.register('ctrl+shift+i', function() {
+    if (win) {
+      win.webContents.openDevTools()
+    }
+  })
+
   ipcMain.on('showWin', (event, _) => {
     if (win) {
       win.show()
@@ -129,44 +135,54 @@ app.on('activate', () => {
   }
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', async() => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installVueDevtools()
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
-    }
+if (process.platform === 'win32') {
+  const lock = app.requestSingleInstanceLock()
+  if (!lock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, argv, cwd) => {
+      if (win) {
+        if (win.isMinimized()) win.restore()
+        win.focus()
+      }
+    })
+    app.on('ready', async() => {
+      appTray = new Tray(path.join(__dirname, '../public/icon.png'))
+      const lang = app.getLocale().split('-')[0]
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: lang !== 'zh' ? 'quit' : '退出',
+          click: function() {
+            app.quit()
+          }
+        }
+      ])
+      appTray.setToolTip('Mixin')
+      appTray.setContextMenu(contextMenu)
+      appTray.on('click', function() {
+        if (win) {
+          win.show()
+        }
+      })
+      createWindow()
+    })
   }
-  createWindow()
-  globalShortcut.register('ctrl+shift+i', function() {
-    if (win) {
-      win.webContents.openDevTools()
-    }
-  })
-
-  appTray = new Tray(path.join(__dirname, '../public/icon.png'))
-  const lang = app.getLocale().split('-')[0]
-
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: lang !== 'zh' ? 'quit' : '退出',
-      click: function() {
-        app.quit()
+} else {
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.on('ready', async() => {
+    if (isDevelopment && !process.env.IS_TEST) {
+      // Install Vue Devtools
+      try {
+        await installVueDevtools()
+      } catch (e) {
+        console.error('Vue Devtools failed to install:', e.toString())
       }
     }
-  ])
-  appTray.setToolTip('Mixin')
-  appTray.setContextMenu(contextMenu)
-  appTray.on('click', function() {
-    if (win) {
-      win.show()
-    }
+    createWindow()
   })
-})
+}
 
 app.on('before-quit', () => {
   globalShortcut.unregister('ctrl+shift+i')

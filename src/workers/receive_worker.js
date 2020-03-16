@@ -73,7 +73,7 @@ interval(
           messageIdsMap[conversationId].push(messageId)
         }
       }
-      messageDao.insertMessages(messageList)
+      // messageDao.insertMessages(messageList)
       const promiseList = []
       callbackList.forEach(callback => {
         if (callback) {
@@ -94,7 +94,7 @@ interval(
       const messageIdsMap = {}
       while (i > 0 && makeMessageReadQueue.length > 0) {
         i--
-        const temp = insertMessageQueue.shift()
+        const temp = makeMessageReadQueue.shift()
         if (temp) {
           jobList.push({
             job_id: uuidv4(),
@@ -195,6 +195,7 @@ class ReceiveWorker extends BaseWorker {
       status: status,
       created_at: data.created_at
     }
+    messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
@@ -298,6 +299,7 @@ class ReceiveWorker extends BaseWorker {
       created_at: data.created_at,
       snapshot_id: decodedData.snapshot_id
     }
+    messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
@@ -375,6 +377,7 @@ class ReceiveWorker extends BaseWorker {
         return
       }
     }
+    messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
@@ -459,6 +462,7 @@ class ReceiveWorker extends BaseWorker {
   }
 
   insertDownloadMessage(message) {
+    messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
       if (offset <= 7200000) {
@@ -525,19 +529,20 @@ class ReceiveWorker extends BaseWorker {
         this.getAccountId() === data.user_id,
         quoteMe
       )
+      messageDao.insertMessage(message)
+      const mentionIds = contentUtil.parseMentionIdentityNumber(plain)
+      if (mentionIds.length > 0) {
+        const users = userDao.findUsersByIdentityNumber(mentionIds)
+        users.forEach(user => {
+          if (user) {
+            const id = user.identity_number
+            const mentionName = `@${user.full_name}`
+            const regx = new RegExp(`@${id}`, 'g')
+            plain = plain.replace(regx, mentionName)
+          }
+        })
+      }
       insertMessageQueuePush(message, async() => {
-        const mentionIds = contentUtil.parseMentionIdentityNumber(plain)
-        if (mentionIds.length > 0) {
-          const users = userDao.findUsersByIdentityNumber(mentionIds)
-          users.forEach(user => {
-            if (user) {
-              const id = user.identity_number
-              const mentionName = `@${user.full_name}`
-              const regx = new RegExp(`@${id}`, 'g')
-              plain = plain.replace(regx, mentionName)
-            }
-          })
-        }
         this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
       })
     } else if (data.category.endsWith('_POST')) {
@@ -556,6 +561,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
+      messageDao.insertMessage(message)
       insertMessageQueuePush(message, async() => {
         plain = contentUtil.renderMdToText(plain)
         this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
@@ -681,11 +687,12 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
+      messageDao.insertMessage(message)
+      const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
+      if (!sticker) {
+        await this.refreshSticker(stickerData.sticker_id)
+      }
       insertMessageQueuePush(message, async() => {
-        const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
-        if (!sticker) {
-          await this.refreshSticker(stickerData.sticker_id)
-        }
         const body = i18n.t('notification.sendSticker')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
@@ -704,8 +711,9 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
+      messageDao.insertMessage(message)
+      await this.syncUser(contactData.user_id)
       insertMessageQueuePush(message, async() => {
-        await this.syncUser(contactData.user_id)
         const body = i18n.t('notification.sendContact')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
@@ -727,6 +735,7 @@ class ReceiveWorker extends BaseWorker {
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
+      messageDao.insertMessage(message)
       insertMessageQueuePush(message, async() => {
         const body = i18n.t('notification.sendLive')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)

@@ -16,7 +16,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: any = null
-let appTray = null
+let appTray: any = null
 
 let quitting = false
 
@@ -44,17 +44,16 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
-    },
-    show: false
+    }
   })
-  win.on('ready-to-show', () => {
-    if (process.env.WEBPACK_DEV_SERVER_URL && !process.env.IS_TEST) win.webContents.openDevTools()
+  if (win) {
     win.show()
-  })
+  }
 
   mainWindowState.manage(win)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
+    if (!process.env.IS_TEST) win.webContents.openDevTools()
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
   } else {
@@ -75,6 +74,25 @@ function createWindow() {
         }
         win.hide()
       }
+
+      appTray = new Tray('resources/icon/icon.ico')
+      const lang = app.getLocale().split('-')[0]
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: lang !== 'zh' ? 'quit' : '退出',
+          click: function() {
+            app.quit()
+          }
+        }
+      ])
+      appTray.setToolTip('Mixin')
+      appTray.setContextMenu(contextMenu)
+      appTray.on('click', function() {
+        if (win) {
+          win.show()
+          appTray.destroy()
+        }
+      })
     }
   })
 
@@ -135,35 +153,19 @@ app.on('activate', () => {
   }
 })
 
-if (process.platform === 'win32') {
+if (process.platform === 'win32' && !isDevelopment) {
   const lock = app.requestSingleInstanceLock()
   if (!lock) {
     app.quit()
   } else {
     app.on('second-instance', (event, argv, cwd) => {
       if (win) {
+        win.show()
         if (win.isMinimized()) win.restore()
         win.focus()
       }
     })
     app.on('ready', async() => {
-      appTray = new Tray(path.join(__dirname, '../public/icon.png'))
-      const lang = app.getLocale().split('-')[0]
-      const contextMenu = Menu.buildFromTemplate([
-        {
-          label: lang !== 'zh' ? 'quit' : '退出',
-          click: function() {
-            app.quit()
-          }
-        }
-      ])
-      appTray.setToolTip('Mixin')
-      appTray.setContextMenu(contextMenu)
-      appTray.on('click', function() {
-        if (win) {
-          win.show()
-        }
-      })
       createWindow()
     })
   }

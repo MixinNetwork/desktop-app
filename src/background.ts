@@ -163,6 +163,9 @@ if (process.platform === 'win32' && !isDevelopment) {
         win.show()
         if (win.isMinimized()) win.restore()
         win.focus()
+        if (appTray) {
+          appTray.destroy()
+        }
       }
     })
     app.on('ready', async() => {

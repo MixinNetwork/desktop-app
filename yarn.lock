@@ -1765,9 +1765,9 @@ acorn-walk@^7.0.0:
   integrity sha512-wdlPY2tm/9XBr7QkKlq0WQVgiuGTX6YWPyRyBviSoScBuLfTVQhvwg6wJ369GJ/1nPfTLMfnrFIfjqVg6d+jQQ==
 
 acorn@^6.0.7, acorn@^6.2.1:
-  version "6.4.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.4.0.tgz#b659d2ffbafa24baf5db1cdbb2c94a983ecd2784"
-  integrity sha512-gac8OEcQ2Li1dxIEWGZzsp2BitJxwkwcOm0zHAJLcPJaVvm58FRnk6RkuLRpU1EujipU2ZFODv2P9DLMfnV8mw==
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.4.1.tgz#531e58ba3f51b9dacb9a6646ca4debf5b14ca474"
+  integrity sha512-ZVA9k326Nwrj3Cj9jlh3wGFutC2ZornPNARZwsNYqQYgN0EsV2d53w5RN/co65Ohn4sUAUtb1rSUAOD6XN9idA==
 
 acorn@^7.1.0:
   version "7.1.1"
@@ -2361,7 +2361,8 @@ boolean@^3.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#a069c7f395fa6e57770660f0c5b984d6442fbc76"
+  uid "85778c8f2ba4edc5bdb653fafff73f1a8a75a115"
+  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#85778c8f2ba4edc5bdb653fafff73f1a8a75a115"
   dependencies:
     crypto "^1.0.1"
     int64-buffer "^0.99.1007"
@@ -4094,10 +4095,10 @@ electron-icon-builder@^1.0.2:
     icon-gen "^2.0.0"
     jimp "^0.9.3"
 
-electron-log@^4.0.7:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.0.7.tgz#39b010d2dbd7b1c43e6fa1ae8c6be2b536a215c1"
-  integrity sha512-39h44ciUSeM9bX8+/rY7ct16QqZG2O43jG0yxyfv1DG6bLoEdmboUZ4xNQ9hyGe6R5mMrVfSu6OMee0pNOiZPQ==
+electron-log@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.1.0.tgz#06c23f5ed1b23dddb3252ad523e8279fb90bab6b"
+  integrity sha512-F3KVUe4s0MKs7mjkvz8g6WrfL1gCITfbVOcU9qLI5KjRbtIWeC8OfAneloz8zdW99TI2xcNc639ppgRXUpKjHw==
 
 electron-notarize@^0.2.1:
   version "0.2.1"

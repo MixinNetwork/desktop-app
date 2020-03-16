@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut } from 'electron'
+import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
@@ -15,7 +15,8 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow | null
+let win: any = null
+let appTray: any = null
 
 let quitting = false
 
@@ -45,21 +46,24 @@ function createWindow() {
       webSecurity: false
     }
   })
+  if (win) {
+    win.show()
+  }
 
   mainWindowState.manage(win)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
+    if (!process.env.IS_TEST) win.webContents.openDevTools()
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
 
-  win.on('close', async e => {
-    if (process.platform === 'darwin' && win !== null) {
+  win.on('close', async(e: any) => {
+    if (win !== null) {
       if (quitting) {
         win = null
       } else {
@@ -70,6 +74,25 @@ function createWindow() {
         }
         win.hide()
       }
+
+      appTray = new Tray('resources/icon/icon.ico')
+      const lang = app.getLocale().split('-')[0]
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: lang !== 'zh' ? 'quit' : '退出',
+          click: function() {
+            app.quit()
+          }
+        }
+      ])
+      appTray.setToolTip('Mixin')
+      appTray.setContextMenu(contextMenu)
+      appTray.on('click', function() {
+        if (win) {
+          win.show()
+          appTray.destroy()
+        }
+      })
     }
   })
 
@@ -77,7 +100,7 @@ function createWindow() {
     win = null
   })
 
-  win.webContents.on('new-window', function(event, url) {
+  win.webContents.on('new-window', function(event: any, url: string) {
     event.preventDefault()
     shell.openExternal(url)
   })
@@ -92,6 +115,12 @@ function createWindow() {
   }
   initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
+
+  globalShortcut.register('ctrl+shift+i', function() {
+    if (win) {
+      win.webContents.openDevTools()
+    }
+  })
 
   ipcMain.on('showWin', (event, _) => {
     if (win) {
@@ -124,25 +153,41 @@ app.on('activate', () => {
   }
 })
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', async() => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installVueDevtools()
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
-    }
+if (process.platform === 'win32' && !isDevelopment) {
+  const lock = app.requestSingleInstanceLock()
+  if (!lock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, argv, cwd) => {
+      if (win) {
+        win.show()
+        if (win.isMinimized()) win.restore()
+        win.focus()
+        if (appTray) {
+          appTray.destroy()
+        }
+      }
+    })
+    app.on('ready', async() => {
+      createWindow()
+    })
   }
-  createWindow()
-  globalShortcut.register('ctrl+shift+i', function() {
-    if (win) {
-      win.webContents.openDevTools()
+} else {
+  // This method will be called when Electron has finished
+  // initialization and is ready to create browser windows.
+  // Some APIs can only be used after this event occurs.
+  app.on('ready', async() => {
+    if (isDevelopment && !process.env.IS_TEST) {
+      // Install Vue Devtools
+      try {
+        await installVueDevtools()
+      } catch (e) {
+        console.error('Vue Devtools failed to install:', e.toString())
+      }
     }
+    createWindow()
   })
-})
+}
 
 app.on('before-quit', () => {
   globalShortcut.unregister('ctrl+shift+i')

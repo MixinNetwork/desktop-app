@@ -77,6 +77,10 @@ module.exports = {
               arch: ['x64']
             }
           ]
+        },
+        extraResources: {
+          from: 'resources/',
+          to: './'
         }
       }
     }

@@ -75,12 +75,15 @@ export function initPlayer(id: number) {
 
   let currentURL: any = null
   ipcMain.on('play', (event, args) => {
-    let playerWindow = getPlayerWindow()
+    let playerWindow: any = getPlayerWindow()
     if (args.url !== currentURL) {
       if (playerWindow != null) {
         playerWindow.close()
       }
       playerWindow = createPlayerWindow(args.width, args.height, args.pin)
+      playerWindow.on('ready-to-show', () => {
+        playerWindow.show()
+      })
       currentURL = args.url
     } else if (playerWindow) {
       playerWindow.show()
@@ -95,6 +98,8 @@ export function initPlayer(id: number) {
     } else {
       playerWindow.loadURL('app://./index.html' + params)
     }
-    playerWindow.show()
+    playerWindow.on('ready-to-show', () => {
+      playerWindow.show()
+    })
   })
 }

@@ -957,14 +957,13 @@ export default class ChatContainer extends Vue {
   font-size: 0.8rem;
 
   header {
-    background: white;
-    border-bottom: 0.05rem solid $border-color;
+    border-bottom: 0.05rem solid #e0e0e0;
     padding: 0 0.8rem;
     display: flex;
     height: 2.9rem;
     box-sizing: border-box;
     align-items: center;
-    background: #ffffff;
+    background: #f2f3f3;
     .title {
       box-sizing: border-box;
       flex: 1;

@@ -22,28 +22,29 @@
           class="layout"
           v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
         >
-          <svg-icon icon-class="ic_status_clock"
+          <svg-icon
+            icon-class="ic_status_clock"
             v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
             class="icon"
           />
-          <svg-icon icon-class="ic_status_send"
+          <svg-icon
+            icon-class="ic_status_send"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.SENT"
             class="icon"
           />
-          <svg-icon icon-class="ic_status_delivered"
+          <svg-icon
+            icon-class="ic_status_delivered"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.DELIVERED"
             class="icon"
           />
-          <svg-icon icon-class="ic_status_read"
+          <svg-icon
+            icon-class="ic_status_read"
             v-else-if="isSelf && conversation.messageStatus === MessageStatus.READ"
             class="icon"
           />
         </div>
         <div class="content" v-html="$w(description)" @click.prevent></div>
-        <span
-          class="badge mention"
-          v-if="showMention"
-        >@</span>
+        <span class="badge mention" v-if="showMention">@</span>
         <span
           class="badge"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
@@ -213,7 +214,7 @@ export default class ConversationItem extends Vue {
   getMessageName() {
     if (
       this.conversation.category === ConversationCategory.GROUP &&
-        this.conversation.senderId !== this.getAccount().user_id
+      this.conversation.senderId !== this.getAccount().user_id
     ) {
       return this.conversation.senderFullName + ': '
     } else {
@@ -234,8 +235,12 @@ li.conversation.item {
   &.current {
     background: #f7f7f7;
   }
-  &.active {
+  &.active,
+  &.active:hover {
     background: #f1f2f2;
+  }
+  &:hover {
+    background: #f8f9f9;
   }
   #avatar {
     width: 2.4rem;
@@ -292,7 +297,8 @@ li.conversation.item {
           margin-right: 0.15rem;
         }
       }
-      .mute_icon, .icon {
+      .mute_icon,
+      .icon {
         font-size: 0.9rem;
         margin-right: 0.15rem;
       }

@@ -29,7 +29,9 @@
         messages: 'chat.chat_messages' }[showMoreType])
         }}
       </div>
-      <Search id="navigationSearch" class="nav" @input="onInput" />
+      <div class="search-wrapper">
+        <Search id="navigationSearch" class="nav" @input="onInput" />
+      </div>
 
       <h5
         v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"
@@ -666,6 +668,14 @@ export default class Navigation extends Vue {
     margin: 0.3rem 0.3rem 0.3rem 1.15rem;
   }
 
+  .search-wrapper {
+    background: #f2f3f3;
+    /deep/ .layout {
+      background: #fff !important;
+    }
+    border-bottom: 0.05rem solid #aaaaaa22;
+  }
+
   .root {
     width: 100%;
     display: flex;
@@ -700,9 +710,10 @@ export default class Navigation extends Vue {
     .show-more {
       padding: 0.35rem 0.6rem;
       font-weight: 500;
+      background: #f2f3f3;
       cursor: pointer;
       svg {
-        margin: 0.2rem 0.55rem 0 0.85rem;
+        margin: 0.2rem 0.35rem 0 0.7rem;
         vertical-align: top;
       }
     }
@@ -728,8 +739,8 @@ export default class Navigation extends Vue {
       }
     }
     .header {
-      background: #ffffff;
-      height: 2.85rem;
+      background: #f2f3f3;
+      height: 2.875rem;
       display: flex;
       flex-direction: row;
       align-items: center;

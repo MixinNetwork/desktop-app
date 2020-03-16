@@ -123,7 +123,7 @@ export default class GroupContainer extends Vue {
 </script>
 <style lang="scss" scoped>
 main {
-  background: #f5f7fa;
+  background: #f2f3f3;
   .group {
     display: flex;
     flex-flow: column nowrap;
@@ -240,7 +240,7 @@ main {
     height: 100%;
     display: flex;
     flex-flow: column nowrap;
-    background: #f5f7fa;
+    background: #f2f3f3;
     .bar {
       padding-top: 3rem;
       width: 100%;

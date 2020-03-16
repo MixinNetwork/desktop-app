@@ -53,6 +53,7 @@ let transactions = {
       }
     },
     home: {
+      search: 'Search',
       input: 'Say something ...',
       removed: "You can't send messages to this group because you're not a participant."
     },
@@ -206,6 +207,7 @@ let transactions = {
       }
     },
     home: {
+      search: '搜索',
       input: '内容输入 ...',
       removed: '您不能发送消息，因为您已经不再是此群组成员。'
     },

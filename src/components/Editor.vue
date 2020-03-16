@@ -58,7 +58,7 @@ export default class Editor extends Vue {
 </script>
 <style lang="scss">
 .editor {
-  background: #f5f7fa;
+  background: #f2f3f3;
   display: flex;
   flex-flow: column nowrap;
   .title_bar {

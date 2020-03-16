@@ -45,7 +45,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 main {
-  background: #f5f7fa;
+  background: #f2f3f3;
   .group {
     display: flex;
     flex-flow: column nowrap;

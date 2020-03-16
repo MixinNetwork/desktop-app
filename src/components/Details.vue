@@ -194,7 +194,7 @@ export default class Details extends Vue {
 <style lang="scss" scoped>
 .delails {
   contain: layout;
-  background: #f5f7fa;
+  background: #f2f3f3;
   display: flex;
   flex-flow: column nowrap;
   position: relative;

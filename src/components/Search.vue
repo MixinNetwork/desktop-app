@@ -14,7 +14,7 @@
         ref="box"
         type="text"
         :id="id"
-        placeholder="Search"
+        :placeholder="placeholder"
         @keyup="keyup"
         @focus="onFocus"
         @blur="onBlur"
@@ -41,7 +41,6 @@ export default class Search extends Vue {
   layoutStyle: any = {
     width: '100%',
     display: 'flex',
-    background: '#f5f7fa',
     'align-items': 'center',
     'padding-left': '0.8rem',
     'padding-right': '0.8rem',
@@ -50,6 +49,7 @@ export default class Search extends Vue {
     'border-width': '0.05rem',
     'border-radius': '1rem'
   }
+  $t: any
 
   @Watch('keyword')
   onKeywordChanged(value: any) {
@@ -65,11 +65,15 @@ export default class Search extends Vue {
       this.layoutStyle['border-color'] = '#cccccc'
     } else {
       // this.searchColor = '#FBFBFB'
-      this.layoutStyle['border-color'] = '#f5f7fa'
+      this.layoutStyle['border-color'] = '#f2f3f3'
     }
   }
 
   @Action('setSearching') actionSetSearching: any
+
+  get placeholder() {
+    return this.$t('home.search')
+  }
 
   mounted() {
     if (this.autofocus) {
@@ -122,8 +126,8 @@ export default class Search extends Vue {
 
 <style lang="scss" scoped>
 .box {
-  margin-left: 0.4rem;
-  margin-right: 0.4rem;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
   border: none;
   width: calc(100% - 1.6rem);
   font-size: 0.8rem;

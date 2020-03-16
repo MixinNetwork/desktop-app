@@ -279,7 +279,8 @@ export default class ChatItem extends Vue {
         for (let j = innerPieces.length - 1; j >= 0; j--) {
           this.mentions.forEach((item: any) => {
             const id = `@${item.identity_number}`
-            if (messageIds.indexOf(id) < 0 && idsTemp.indexOf(id) < 0) {
+            const idInPiece = innerPieces[j].split('<')[0]
+            if (messageIds.indexOf(id) < 0 && idsTemp.indexOf(id) < 0 && id.startsWith(idInPiece)) {
               const hl = contentUtil.highlight(id, id, '')
               innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
             }
@@ -350,6 +351,32 @@ export default class ChatItem extends Vue {
   handleMention(input: any) {
     let content = input.innerText.replace(/\s/g, this.splitSpace)
 
+    const regx = new RegExp(`<b class="highlight default">(.*?)</b>`, 'g')
+    let idsTemp: any = []
+    let idsArr
+    while ((idsArr = regx.exec(input.innerHTML)) !== null) {
+      idsTemp.push(idsArr[1])
+    }
+    const mentionIds: any = []
+    this.mentions.forEach((item: any, index: number) => {
+      const id = `@${item.identity_number}`
+      if (idsTemp.indexOf(id) < 0) {
+        this.mentions.splice(index, 1)
+      } else {
+        mentionIds.push(id)
+      }
+    })
+    idsTemp.forEach((id: any) => {
+      if (mentionIds.indexOf(id) < 0) {
+        const regx = new RegExp(`<b class="highlight default">${id}</b>`, 'g')
+        input.innerHTML = input.innerHTML.replace(regx, id)
+        if (input.innerText.trim()) {
+          // @ts-ignore
+          window.getSelection().collapse(input, input.childNodes.length)
+        }
+      }
+    })
+
     const contentPieces = content.split(this.splitSpace)
     let lastPiece = ''
     let keyword = ''
@@ -366,13 +393,17 @@ export default class ChatItem extends Vue {
       this.mentionChoosing = false
       this.currentSelectMention = null
       this.mentionKeyword = ''
-      if (!input.innerText.trim()) {
-        this.mentions = []
-        try {
-          // @ts-ignore
-          window.getSelection().collapse(input, input.childNodes.length)
-        } catch (error) {}
+    }
+    const colorTag = /color/.test(input.innerHTML)
+    if (!input.innerText.trim() || colorTag) {
+      this.mentions = []
+      if (colorTag) {
+        input.innerHTML = input.innerText
       }
+      try {
+        // @ts-ignore
+        window.getSelection().collapse(input, input.childNodes.length)
+      } catch (error) {}
     }
   }
 }

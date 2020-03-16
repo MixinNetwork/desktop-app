@@ -196,9 +196,11 @@ export default class ReplyMessageItem extends Vue {
     overflow: hidden;
     flex-direction: column;
     cursor: pointer;
+    text-align: left;
 
     .name {
       font-size: 0.55rem;
+      line-height: 1rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;

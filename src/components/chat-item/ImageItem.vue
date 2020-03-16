@@ -218,8 +218,11 @@ export default class ImageItem extends Vue {
     &.reply {
       .content-in {
         background: #fff;
-        padding: 0.1rem 0.15rem 0.15rem;
+        padding: 0.1rem;
         border-radius: 0.2rem;
+        .loading {
+          top: calc(50% + 0.6rem);
+        }
       }
     }
     .reply {

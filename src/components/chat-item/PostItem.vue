@@ -30,6 +30,7 @@ import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
+import contentUtil from '@/utils/content_util'
 
 @Component({
   components: {
@@ -68,7 +69,11 @@ export default class PostItem extends Vue {
         line++
       }
     })
-    let minHeight = line * 1.2 + 2
+    const temp = Math.ceil(contentUtil.relLen(content) / 45)
+    if (temp > line) {
+      line = temp
+    }
+    let minHeight = line * 1.2 + 1.2
     if (minHeight > 14) {
       minHeight = 14
     }

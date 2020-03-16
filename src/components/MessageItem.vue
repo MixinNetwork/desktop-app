@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :id="message.messageId">
+  <li ref="messageItem" :id="message.messageId" v-intersect="onIntersect">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -161,7 +161,7 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <span v-if="messageType() === 'text'" class="text" v-intersect="onIntersect">
+          <span v-if="messageType() === 'text'" class="text">
             <span v-html="$w(textMessage(message))"></span>
           </span>
           <span v-else-if="messageType() === 'unknown'" class="unknown">{{$t('chat.chat_unknown') }}</span>
@@ -276,8 +276,8 @@ export default class MessageItem extends Vue {
     }
   }
   onIntersect({ target, isIntersecting }: any) {
-    const { messageId, mentions } = this.message
-    if (mentions) {
+    const { messageId, mentions, quoteId } = this.message
+    if (mentions || quoteId) {
       this.$emit('mention-visible', { messageId, isIntersecting })
     }
   }

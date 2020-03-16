@@ -15,7 +15,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow | null
+let win: any = null
 let appTray = null
 
 let quitting = false
@@ -44,7 +44,12 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
-    }
+    },
+    show: false
+  })
+  win.on('ready-to-show', () => {
+    if (!process.env.IS_TEST) win.webContents.openDevTools()
+    win.show()
   })
 
   mainWindowState.manage(win)
@@ -52,14 +57,13 @@ function createWindow() {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-    if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
 
-  win.on('close', async e => {
+  win.on('close', async(e: any) => {
     if (win !== null) {
       if (quitting) {
         win = null
@@ -78,7 +82,7 @@ function createWindow() {
     win = null
   })
 
-  win.webContents.on('new-window', function(event, url) {
+  win.webContents.on('new-window', function(event: any, url: string) {
     event.preventDefault()
     shell.openExternal(url)
   })

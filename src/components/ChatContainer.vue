@@ -258,7 +258,6 @@ export default class ChatContainer extends Vue {
       if (msgLen > 0 && msgLen < PerPageMessageCount) {
         this.showTopTips = true
       }
-      this.messagesVisible = this.getMessagesVisible()
     }
   }
 
@@ -430,7 +429,7 @@ export default class ChatContainer extends Vue {
           self.goMessagePos(message)
         } else if (isMyMsg || goBottom || self.isBottom) {
           self.unreadMessageId = ''
-          self.goBottom()
+          self.goBottom(goBottom)
         }
       }
     )
@@ -732,7 +731,7 @@ export default class ChatContainer extends Vue {
     }, 100)
   }
 
-  goBottom() {
+  goBottom(currentMessageLen: number = 0) {
     this.showScroll = false
     this.isBottom = true
     this.intersectLock = true
@@ -742,12 +741,12 @@ export default class ChatContainer extends Vue {
     this.searchKeyword = ''
     setTimeout(() => {
       const msgLen = this.messages.length
-      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       let list = this.$refs.messagesUl
-      if (!list) {
-        this.goBottom()
+      if (!list || (currentMessageLen > 0 && currentMessageLen !== msgLen)) {
+        this.goBottom(currentMessageLen)
         return
       }
+      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       this.infiniteUpLock = false
       this.showMessages = true
       requestAnimationFrame(() => {

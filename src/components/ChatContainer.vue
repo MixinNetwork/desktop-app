@@ -256,7 +256,10 @@ export default class ChatContainer extends Vue {
   }
 
   @Watch('messages.length')
-  onMessagesLengthChanged() {
+  onMessagesLengthChanged(val: number) {
+    if (val < 20) {
+      this.showTopTips = true
+    }
     this.messagesVisible = this.getMessagesVisible()
   }
 

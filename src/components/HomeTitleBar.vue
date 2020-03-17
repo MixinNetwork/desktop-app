@@ -28,9 +28,9 @@ import { remote } from 'electron'
 export default class TimeDivide extends Vue {
   platform: any = process.platform
   theme: any = 'light'
-  isMaximizable: any = remote.getCurrentWindow().isMaximizable()
-  isMinimizable: any = remote.getCurrentWindow().isMinimizable()
-  isClosable: any = remote.getCurrentWindow().isClosable()
+  isMaximizable: any = remote.getCurrentWindow().maximizable
+  isMinimizable: any = remote.getCurrentWindow().minimizable
+  isClosable: any = remote.getCurrentWindow().closable
   showTitle: any = true
   showIcon: any = true
   menu: any = []

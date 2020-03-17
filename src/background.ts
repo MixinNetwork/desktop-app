@@ -112,7 +112,7 @@ function createWindow() {
     require('./menu')
   } else if (process.platform === 'linux') {
     win.setMenuBarVisibility(false)
-    win.setAutoHideMenuBar(true)
+    win.autoHideMenuBar = true
   } else {
     win.setMenu(null)
   }

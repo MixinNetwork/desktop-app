@@ -121,7 +121,7 @@ export default class NewConversation extends Vue {
   &.current {
     background: #f7f7f7;
   }
-  z-index: 100;
+  z-index: 10;
   box-shadow: 0 0.05rem 0.05rem #99999933;
 }
 </style>

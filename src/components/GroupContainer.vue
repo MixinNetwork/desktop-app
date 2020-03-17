@@ -145,7 +145,7 @@ main {
       }
     }
     .nav {
-      z-index: 1000;
+      z-index: 10;
       background: #f7f7f7;
       border-top: 0.05rem solid $border-color;
       box-shadow: 0 0.05rem 0.05rem #99999933;

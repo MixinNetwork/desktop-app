@@ -70,7 +70,7 @@ export default class NewConversation extends Vue {
 </script>
 <style lang="scss" scoped>
 #create {
-  background: #f7f7f7;
+  background: #f2f3f3;
   display: flex;
   flex-direction: column;
   .list {
@@ -84,23 +84,25 @@ export default class NewConversation extends Vue {
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 3.2rem 0 0 0;
+  padding: 2.6rem 0 0 0;
+  height: 2.5rem;
   width: 100%;
   .back {
     cursor: pointer;
-    padding: 0.8rem 0.2rem 0.8rem 1rem;
+    padding: 0.8rem 0.2rem 0.8rem 1.35rem;
   }
   h3 {
-    padding: 0;
-    margin: 0;
+    padding: 0.4rem;
   }
 }
 
 .nav {
+  border-top: 0.05rem solid $border-color;
   border-bottom: 0.05rem solid $border-color;
   padding: 0.35rem 0.6rem;
   display: flex;
   align-items: center;
+  background: #f7f7f7;
 }
 
 .create {
@@ -117,8 +119,9 @@ export default class NewConversation extends Vue {
   }
   &:hover,
   &.current {
-    background: #f0f0f0;
+    background: #f7f7f7;
   }
-  border-bottom: 0.05rem solid $border-color;
+  z-index: 100;
+  box-shadow: 0 0.05rem 0.05rem #99999933;
 }
 </style>

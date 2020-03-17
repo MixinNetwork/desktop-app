@@ -2,7 +2,7 @@
   <transition name="modal">
     <div class="root" v-if="visible">
       <div class="bg"></div>
-      <div class="post-viewer">
+      <div class="post-viewer" :style="{top: showTitlebar ? '1.4rem' : ''}">
         <div class="header">
           <svg-icon style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
         </div>
@@ -22,6 +22,10 @@ import { Vue, Component } from 'vue-property-decorator'
 export default class PostViewer extends Vue {
   post: any = ''
   visible: boolean = false
+
+  get showTitlebar() {
+    return process.platform !== 'darwin'
+  }
 
   close() {
     this.visible = false
@@ -52,10 +56,16 @@ export default class PostViewer extends Vue {
   background: #ffffff;
 }
 .post-viewer {
-  position: relative;
+  position: absolute;
   width: 100%;
-  height: calc(100% - 2.4rem);
+  top: 0;
+  bottom: 0;
+  padding-top: 2.05rem;
+  box-sizing: border-box;
   .header {
+    position: absolute;
+    top: 0;
+    width: 100%;
     height: 2.05rem;
     line-height: 2.05rem;
     .svg-icon {

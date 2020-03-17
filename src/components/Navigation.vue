@@ -17,7 +17,7 @@
           <label class="info">{{getLinkContent()}}</label>
         </div>
       </div>
-      <div v-else-if="linkStatus === LinkStatus.CONNECTING">
+      <div class="loading-wrapper" v-else-if="linkStatus === LinkStatus.CONNECTING">
         <spinner class="loading" />
         <label style="line-height: 1.9rem">{{getConnectingTitle()}}</label>
       </div>
@@ -796,6 +796,9 @@ export default class Navigation extends Vue {
           max-lines: 2;
         }
       }
+    }
+    .loading-wrapper {
+      background: #f2f3f3;
     }
   }
 

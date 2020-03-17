@@ -147,7 +147,7 @@ export default class Search extends Vue {
 #ic_arrow,
 #ic_search {
   position: absolute;
-  color: #bbbec3;
+  color: #c6c9d0;
 }
 #ic_arrow {
   cursor: pointer;

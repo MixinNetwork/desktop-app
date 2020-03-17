@@ -240,7 +240,7 @@ li.conversation.item {
     background: #f1f2f2;
   }
   &:hover {
-    background: #f8f9f9;
+    background: #f7f7f7;
   }
   #avatar {
     width: 2.4rem;

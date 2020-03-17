@@ -695,7 +695,6 @@ export default class Navigation extends Vue {
         display: flex;
         justify-content: space-between;
         padding: 0.8rem 1.25rem 0.45rem;
-        font-family: Helvetica;
         font-weight: 500;
         a {
           color: #3d75e3;

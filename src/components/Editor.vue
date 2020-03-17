@@ -92,7 +92,7 @@ export default class Editor extends Vue {
       font-weight: 400;
       line-height: 1.5;
       padding: 0.8rem;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
       border: 0.15rem solid #cccccc;
       color: #333;
       border: none;

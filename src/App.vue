@@ -212,7 +212,7 @@ b.highlight {
   line-height: 1.5;
   font-size: 0.8rem;
   font-weight: 400;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   color: #333;
   * {
     outline: none;

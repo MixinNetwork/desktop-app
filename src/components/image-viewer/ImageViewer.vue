@@ -275,8 +275,6 @@ export default {
     list-style-type: none;
     zoom: 1;
     resize: none;
-    font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, Ionicons, iconfont,
-      'vue-image-viewer-icon', sans-serif;
     box-sizing: border-box;
 
     vertical-align: baseline;

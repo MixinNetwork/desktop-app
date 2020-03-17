@@ -149,7 +149,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 $titlebar-height: 1.4rem;
 .titlebar {
   position: relative;

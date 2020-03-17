@@ -2,7 +2,7 @@
   <div class="chat-search">
     <header class="title-bar">
       <div @click="$emit('close')">
-        <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
+        <svg-icon style="font-size: 1.2rem; cursor: pointer" icon-class="ic_close" />
       </div>
       <div class="title-content">{{$t('chat.search')}}</div>
     </header>

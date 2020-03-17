@@ -59,7 +59,7 @@ export default class Editor extends Vue {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .editor {
   background: #f2f3f3;
   display: flex;

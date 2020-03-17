@@ -75,24 +75,26 @@ function createWindow() {
         win.hide()
       }
 
-      appTray = new Tray('resources/icon/icon.ico')
-      const lang = app.getLocale().split('-')[0]
-      const contextMenu = Menu.buildFromTemplate([
-        {
-          label: lang !== 'zh' ? 'quit' : '退出',
-          click: function() {
-            app.quit()
+      if (process.platform === 'win32') {
+        appTray = new Tray('resources/icon/icon.ico')
+        const lang = app.getLocale().split('-')[0]
+        const contextMenu = Menu.buildFromTemplate([
+          {
+            label: lang !== 'zh' ? 'quit' : '退出',
+            click: function() {
+              app.quit()
+            }
           }
-        }
-      ])
-      appTray.setToolTip('Mixin')
-      appTray.setContextMenu(contextMenu)
-      appTray.on('click', function() {
-        if (win) {
-          win.show()
-          appTray.destroy()
-        }
-      })
+        ])
+        appTray.setToolTip('Mixin')
+        appTray.setContextMenu(contextMenu)
+        appTray.on('click', function() {
+          if (win) {
+            win.show()
+            appTray.destroy()
+          }
+        })
+      }
     }
   })
 

@@ -208,8 +208,8 @@ $titlebar-height: 1.4rem;
     flex-shrink: 0;
     font-size: 0.7rem;
     line-height: $titlebar-height;
-    padding: 0 0.1rem;
-    margin-left: 0.5rem;
+    padding: 0 0.3rem;
+    margin-left: 0.3rem;
     height: $titlebar-height;
     > svg,
     > img {

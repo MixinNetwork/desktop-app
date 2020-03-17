@@ -141,7 +141,8 @@ a {
 
   .app_time {
     width: 100vw;
-    height: 100%;
+    height: 100vh;
+    font-size: 0.85rem;
     top: 0;
     left: 0;
     right: 0;

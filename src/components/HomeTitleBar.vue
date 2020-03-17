@@ -50,3 +50,9 @@ export default class TimeDivide extends Vue {
   }
 }
 </script>
+<style lang="scss" scoped>
+/deep/ .titlebar-icon img {
+  border-radius: 1rem;
+  border: 0.05rem solid #f2f3f3;
+}
+</style>

@@ -254,7 +254,8 @@ main {
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 0.8rem;
+        cursor: pointer;
+        padding: 0.8rem 0.2rem 0.8rem 1rem;
       }
       h3 {
         padding: 0.4rem;

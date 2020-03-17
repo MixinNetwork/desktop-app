@@ -59,7 +59,8 @@ export default class SettingContainer extends Vue {
     align-items: center;
     flex-flow: row nowrap;
     .back {
-      padding: 0.8rem;
+      cursor: pointer;
+      padding: 0.8rem 0.2rem 0.8rem 1rem;
     }
     h3 {
       padding: 0.4rem;
@@ -84,12 +85,13 @@ export default class SettingContainer extends Vue {
     margin-top: 1rem;
 
     .item {
+      cursor: pointer;
       font-weight: 500;
       padding: 0.8rem;
       border-bottom: 0.05rem solid $border-color;
       &:hover,
       &.current {
-        background: #f0f0f0;
+        background: #f7f7f7;
       }
     }
   }

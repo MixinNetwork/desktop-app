@@ -87,8 +87,8 @@ export default class NewConversation extends Vue {
   padding: 3.2rem 0 0 0;
   width: 100%;
   .back {
-    padding: 0.8rem;
     cursor: pointer;
+    padding: 0.8rem 0.2rem 0.8rem 1rem;
   }
   h3 {
     padding: 0;

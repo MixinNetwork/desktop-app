@@ -171,7 +171,7 @@
 <script lang="ts">
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { MessageCategories, MessageStatus } from '@/utils/constants'
+import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 // @ts-ignore
 import _ from 'lodash'
@@ -257,7 +257,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('messages.length')
   onMessagesLengthChanged(val: number) {
-    if (val < 20) {
+    if (val > 0 && val < PerPageMessageCount) {
       this.showTopTips = true
     }
     this.messagesVisible = this.getMessagesVisible()

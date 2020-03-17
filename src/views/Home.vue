@@ -32,7 +32,7 @@ export default class Home extends Vue {
   $blaze: any
 
   get showTitlebar() {
-    return process.platform !== 'darwin'
+    return process.platform === 'win32'
   }
 
   beforeMount() {

@@ -96,7 +96,7 @@ export default {
     }
   },
   mounted() {
-    this.showTitlebar = process.platform !== 'darwin'
+    this.showTitlebar = process.platform === 'win32'
     window.addEventListener('keyup', this.keyUp)
   },
   methods: {

@@ -24,7 +24,7 @@ export default class PostViewer extends Vue {
   visible: boolean = false
 
   get showTitlebar() {
-    return process.platform !== 'darwin'
+    return process.platform === 'win32'
   }
 
   close() {

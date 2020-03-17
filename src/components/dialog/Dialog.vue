@@ -134,7 +134,8 @@ export default class Dialog extends Vue {
     }
   }
   .negative {
-    border: 0.05rem solid #ddd;
+    border: 0.05rem solid #e0e0e0;
+    background: #fff;
     cursor: pointer;
     color: #3d75e3;
     &:hover,

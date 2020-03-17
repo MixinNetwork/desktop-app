@@ -958,7 +958,8 @@ export default class ChatContainer extends Vue {
   font-size: 0.8rem;
 
   header {
-    border-bottom: 0.05rem solid #e0e0e0;
+    box-shadow: 0 0.05rem 0.05rem #99999944;
+    z-index: 10;
     padding: 0 0.8rem;
     display: flex;
     height: 2.9rem;

@@ -673,7 +673,8 @@ export default class Navigation extends Vue {
     /deep/ .layout {
       background: #fff !important;
     }
-    border-bottom: 0.05rem solid #aaaaaa22;
+    z-index: 10;
+    box-shadow: 0 0.05rem 0.05rem #99999933;
   }
 
   .root {

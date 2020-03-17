@@ -89,7 +89,7 @@ export default class SettingContainer extends Vue {
       border-bottom: 0.05rem solid $border-color;
       &:hover,
       &.current {
-        background: #f1f2f2;
+        background: #f0f0f0;
       }
     }
   }

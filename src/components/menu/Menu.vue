@@ -75,7 +75,7 @@ export default class Menu extends Vue {
   font-size: 0.7rem;
   text-align: left;
   background-color: #fff;
-  border: 0.05rem solid #ddd;
+  border: 0.05rem solid #e0e0e0;
   border-radius: 0.2rem;
   box-shadow: 0 0.3rem 0.6rem rgba(0, 0, 0, 0.155);
   background-clip: padding-box;

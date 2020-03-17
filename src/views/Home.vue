@@ -1,11 +1,15 @@
 <template>
   <div class="home dashboard">
-    <navigation />
-    <ChatContainer />
+    <HomeTitleBar v-if="showTitlebar" />
+    <div class="main" :style="{ height: showTitlebar ? 'calc(100vh - 1.4rem)' : '100vh' }">
+      <Navigation />
+      <ChatContainer />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
+import HomeTitleBar from '@/components/HomeTitleBar.vue'
 import ChatContainer from '@/components/ChatContainer.vue'
 import Navigation from '@/components/Navigation.vue'
 import accountApi from '@/api/account'
@@ -18,6 +22,7 @@ import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
   components: {
+    HomeTitleBar,
     ChatContainer,
     Navigation
   }
@@ -25,6 +30,10 @@ import { Vue, Component } from 'vue-property-decorator'
 export default class Home extends Vue {
   select: any = 0
   $blaze: any
+
+  get showTitlebar() {
+    return process.platform !== 'darwin'
+  }
 
   beforeMount() {
     this.$store.dispatch('init')
@@ -81,8 +90,10 @@ export default class Home extends Vue {
 
 <style lang="scss" scoped>
 .home.dashboard {
-  display: flex;
   overflow: hidden;
   height: 100vh;
+  .main {
+    display: flex;
+  }
 }
 </style>

@@ -657,7 +657,7 @@ export default class Navigation extends Vue {
   border-right: 0.05rem solid #dee2e9;
   flex: 0 0 14.4rem;
   display: flex;
-  height: 100vh;
+  height: 100%;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;

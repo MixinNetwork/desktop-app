@@ -22,6 +22,7 @@ import 'highlight.js/styles/default.css'
 import Markdown from '@/components/markdown'
 import Wrapper from '@/components/markdown/wrapper'
 import VueIntersect from '@/components/intersect'
+import VueTitlebar from '@/components/titlebar/index'
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
@@ -36,6 +37,7 @@ Vue.use(PostViewer)
 Vue.use(Markdown)
 Vue.use(Wrapper)
 Vue.use(VueIntersect)
+Vue.use(VueTitlebar)
 
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

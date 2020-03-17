@@ -127,7 +127,7 @@ main {
   .group {
     display: flex;
     flex-flow: column nowrap;
-    height: 100vh;
+    height: 100%;
     .bar {
       padding-top: 2.6rem;
       width: 100%;

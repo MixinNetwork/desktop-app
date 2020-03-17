@@ -141,7 +141,7 @@ a {
 
   .app_time {
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     top: 0;
     left: 0;
     right: 0;

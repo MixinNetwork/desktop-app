@@ -52,10 +52,9 @@ export default class PostViewer extends Vue {
   background: #ffffff;
 }
 .post-viewer {
-  position: absolute;
-  top: 0;
+  position: relative;
   width: 100%;
-  height: calc(100vh - 2.05rem);
+  height: calc(100% - 2.4rem);
   .header {
     height: 2.05rem;
     line-height: 2.05rem;

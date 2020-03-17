@@ -39,7 +39,7 @@
     >
       <TimeDivide
         ref="timeDivide"
-        v-if="messagesVisible[0] && timeDivideShowForce"
+        v-if="messagesVisible[0] && timeDivideShowForce && !details"
         v-show="showMessages && timeDivideShow"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
@@ -140,7 +140,9 @@
       <Details
         class="overlay"
         :userId="detailUserId"
-        v-if="conversation && details"
+        v-if="conversation"
+        v-show="details"
+        :details="details"
         @close="hideDetails"
       ></Details>
     </transition>

@@ -1,6 +1,6 @@
 <template>
   <div class="delails">
-    <header class="titlebar">
+    <header class="titlebar" v-if="details">
       <div @click="$emit('close')">
         <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
       </div>
@@ -8,7 +8,7 @@
     </header>
     <mixin-scrollbar>
       <div class="ul content">
-        <header class="content-header">
+        <header class="content-header" v-if="details">
           <div>
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
@@ -24,18 +24,10 @@
             class="announcement"
             v-html="$w(contentUtil.renderUrl(conversation.announcement))"
           ></div>
-          <div
-            v-else-if="isContact"
-            class="biography"
-            v-html="$w(user.biography)"
-          ></div>
-          <div
-            v-else
-            class="biography"
-            v-html="$w(conversation.biography)"
-          ></div>
+          <div v-else-if="isContact" class="biography" v-html="$w(user.biography)"></div>
+          <div v-else class="biography" v-html="$w(conversation.biography)"></div>
         </header>
-        <div class="participants" v-if="!isContact">
+        <div class="participants" v-if="!isContact && details">
           <span class="title">{{participantTitle}}</span>
           <UserItem
             class="participant"
@@ -52,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 
 import UserItem from '@/components/UserItem.vue'
@@ -70,6 +62,7 @@ import userDao from '@/dao/user_dao'
 })
 export default class Details extends Vue {
   @Prop(String) readonly userId: any
+  @Prop(Boolean) readonly details: any
 
   @Getter('currentConversation') conversation: any
   @Getter('currentUser') user: any
@@ -81,6 +74,13 @@ export default class Details extends Vue {
 
   @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
   @Action('participantRemove') actionParticipantRemove: any
+
+  @Watch('details')
+  onDetailChanged(val: boolean) {
+    if (val) {
+      this.updateView()
+    }
+  }
 
   contentUtil: any = contentUtil
   $t: any
@@ -175,7 +175,7 @@ export default class Details extends Vue {
     return this.conversation.category === ConversationCategory.CONTACT || this.userId
   }
 
-  mounted() {
+  updateView() {
     if (this.isContact) {
       this.actionRefreshUser({
         userId: this.userId || this.conversation.ownerId,
@@ -188,6 +188,9 @@ export default class Details extends Vue {
     } else {
       this.actionSyncConversation(this.conversation.conversationId)
     }
+  }
+  mounted() {
+    this.updateView()
   }
 }
 </script>

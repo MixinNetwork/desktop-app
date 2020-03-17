@@ -243,20 +243,28 @@ export default class ChatContainer extends Vue {
       this.hideChoosePanel()
 
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      this.changeConversation = true
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
           this.$refs.inputBox.boxFocusAction()
         }
         this.$root.$emit('updateMenu', this.conversation)
         setTimeout(() => {
+          this.changeConversation = false
           this.actionMarkRead(conversationId)
-        }, 100)
+        }, 50)
       })
+      const msgLen = this.messages.length
+      if (msgLen > 0 && msgLen < PerPageMessageCount) {
+        this.showTopTips = true
+      }
+      this.messagesVisible = this.getMessagesVisible()
     }
   }
 
   @Watch('messages.length')
   onMessagesLengthChanged(val: number) {
+    if (this.changeConversation) return
     if (val > 0 && val < PerPageMessageCount) {
       this.showTopTips = true
     }
@@ -330,6 +338,7 @@ export default class ChatContainer extends Vue {
   showScroll: any = true
   infiniteUpLock: any = false
   infiniteDownLock: any = false
+  changeConversation: any = false
   searchKeyword: any = ''
   timeDivideShowForce: boolean = false
   timeDivideShow: boolean = false

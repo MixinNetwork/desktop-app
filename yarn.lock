@@ -11136,10 +11136,10 @@ vue-class-component@^7.1.0, vue-class-component@^7.2.3:
   resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.2.3.tgz#a5b1abd53513a72ad51098752e2dedd499807cca"
   integrity sha512-oEqYpXKaFN+TaXU+mRLEx8dX0ah85aAJEe61mpdoUrq0Bhe/6sWhyZX1JjMQLhVsHAkncyhedhmCdDVSasUtDw==
 
-vue-cli-plugin-electron-builder@^2.0.0-beta.4:
-  version "2.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-2.0.0-beta.4.tgz#1f9f060d2ff5db29aaed9065abc1e05fe7f3c2e8"
-  integrity sha512-1nmZOzHkejvkim7AaHSg7Jw0TNiO+PFi7bO72ncosc34bjQ5bJPxWWX+E5Uz0HFgDvhrkPeBgTRyhMzf3P6z8w==
+vue-cli-plugin-electron-builder@^2.0.0-beta.5:
+  version "2.0.0-beta.5"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-2.0.0-beta.5.tgz#bfbd2d35f57f6789f4f2b60bf33fe5e761331eec"
+  integrity sha512-9rWBko6dQ+RSc5Drxi/O64DgEL9TXTzDTQOV6mUDBo2D+Aij3MNmO2KF87ksVW3JEQSrCERXLKWq6sGRao/ybw==
   dependencies:
     chokidar "^3.0.2"
     electron-builder "^22.2.0"

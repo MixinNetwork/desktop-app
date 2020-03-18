@@ -702,13 +702,13 @@ export default class ChatContainer extends Vue {
             list.scrollTop + list.clientHeight < messageDom.offsetTop ||
             list.scrollTop > messageDom.offsetTop
           ) {
-            list.scrollTop = messageDom.offsetTop - 1
+            list.scrollTop = messageDom.offsetTop - 8
           }
           setTimeout(() => {
             messageDom.className = ''
           }, 200)
         } else {
-          list.scrollTop = targetDom.offsetTop - 1
+          list.scrollTop = targetDom.offsetTop - 8
         }
         this.showMessages = true
         this.goMessagePosTimer = setTimeout(() => {

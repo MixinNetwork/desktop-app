@@ -414,6 +414,7 @@ class ReceiveWorker extends BaseWorker {
     } else if (
       data.category === 'PLAIN_TEXT' ||
       data.category === 'PLAIN_POST' ||
+      data.category === 'PLAIN_LOCATION' ||
       data.category === 'PLAIN_IMAGE' ||
       data.category === 'PLAIN_VIDEO' ||
       data.category === 'PLAIN_DATA' ||
@@ -565,6 +566,8 @@ class ReceiveWorker extends BaseWorker {
         plain = contentUtil.renderMdToText(plain)
         this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
       })
+    } else if (data.category.endsWith('_LOCATION')) {
+      //
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)
       var mediaData = JSON.parse(decoded)

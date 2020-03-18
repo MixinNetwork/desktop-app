@@ -11,11 +11,15 @@
         <svg-icon style="width: 0.6rem" icon-class="ic_robot" />
       </span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="location" @click="$emit('action-click', messageContent.action)">
-          <!-- <MessageItemIcon :url="messageContent.icon_url" /> -->
+        <div class="location" @click.stop="openMap">
+          <!-- <MessageItemIcon :url="" /> -->
+          <!-- {{messageContent.venue_type}} -->
           <div class="content">
+            <div class="view"></div>
             <span class="name">{{messageContent.name}}</span>
             <div class="address">{{messageContent.address}}</div>
+            <span class="time-place"></span>
+            <TimeAndStatus :message="message" />
           </div>
         </div>
       </BadgeItem>
@@ -27,11 +31,15 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 import BadgeItem from './BadgeItem.vue'
 import MessageItemIcon from '@/components/MessageItemIcon.vue'
 import { getNameColorById } from '@/utils/util'
+import TimeAndStatus from './TimeAndStatus.vue'
+import browser from '@/utils/browser'
+import axios from 'axios'
 
 @Component({
   components: {
     BadgeItem,
-    MessageItemIcon
+    MessageItemIcon,
+    TimeAndStatus
   }
 })
 export default class AppCardItem extends Vue {
@@ -48,6 +56,21 @@ export default class AppCardItem extends Vue {
     return {
       send: message.userId === me.user_id,
       receive: message.userId !== me.user_id
+    }
+  }
+
+  openMap() {
+    const { latitude, longitude, name = '', address = '' } = this.messageContent
+    if (process.platform === 'darwin') {
+      window.open(
+        `https://maps.apple.com/?address=${encodeURIComponent(
+          address
+        )}&ll=${latitude},${longitude}&q=${encodeURIComponent(name)}`
+      )
+    } else {
+      browser.loadURL(
+        `https://www.google.com/maps/place/${latitude},${longitude}`
+      )
     }
   }
 
@@ -88,30 +111,43 @@ export default class AppCardItem extends Vue {
   box-shadow: 0 0.05rem 0.05rem #77777733;
   background-color: white;
   border-radius: 0.2rem;
-  padding: 0.6rem;
+  overflow: hidden;
   .content {
     display: flex;
     flex-direction: column;
     align-content: center;
-    max-width: 10.2rem;
+    width: 14rem;
     &,
     * {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+    .view {
+      width: 100%;
+      height: 6rem;
+      background: #f5f7fa;
+    }
     .name {
+      padding: 0.6rem 0.6rem 0;
       font-size: 0.8rem;
       margin-bottom: 0.2rem;
       line-height: 1.2;
       text-align: left;
     }
     .address {
+      padding: 0 0.6rem;
       color: #888888cc;
       font-size: 0.6rem;
       text-align: left;
       line-height: 1.4;
     }
+  }
+  .time-place {
+    float: right;
+    margin-left: 0.45rem;
+    width: 3.6rem;
+    height: 0.8rem;
   }
 }
 </style>

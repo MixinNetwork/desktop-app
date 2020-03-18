@@ -40,6 +40,16 @@
           v-else-if="messageType() === 'contact'"
         />
         <svg-icon
+          icon-class="ic_message_file"
+          class="reply_icon"
+          v-else-if="messageType() === 'post'"
+        />
+        <svg-icon
+          icon-class="ic_message_location"
+          class="reply_icon"
+          v-else-if="messageType() === 'location'"
+        />
+        <svg-icon
           icon-class="ic_message_transfer"
           class="reply_icon"
           v-else-if="messageType() === 'transfer'"
@@ -49,8 +59,7 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
         />
-        <vue-markdown class="markdown" v-if="messageType() === 'post'" :source="getContent"></vue-markdown>
-        <span v-else v-html="$w(getContent)"></span>
+        <span v-html="$w(getContent)"></span>
       </span>
     </div>
     <img
@@ -148,9 +157,9 @@ export default class ReplyMessageItem extends Vue {
     } else if (this.message.type.endsWith('_CONTACT')) {
       return this.message.sharedUserIdentityNumber
     } else if (this.message.type.endsWith('_LOCATION')) {
-      return this.message.name
+      return this.$t('chat.chat_location')
     } else if (this.message.type.endsWith('_POST')) {
-      return this.message.content.substr(0, 500)
+      return contentUtil.renderMdToText(this.message.content.substr(0, 50))
     } else {
       return null
     }

@@ -151,6 +151,7 @@ let transactions = {
       sendVideo: 'send a video',
       sendSticker: 'send a sticker',
       sendContact: 'shared a contact',
+      sendLocation: 'shared a location',
       sendFile: 'send a file',
       sendAudio: 'send an audio message',
       sendLive: 'send a live message'
@@ -306,6 +307,7 @@ let transactions = {
       sendVideo: '发送了一个视频',
       sendSticker: '发送了一个贴纸',
       sendContact: '分享了一个联系人',
+      sendLocation: '分享了一个位置',
       sendFile: '发送了一个文件',
       sendAudio: '发送了一条语音',
       sendLive: '发送了一个直播'

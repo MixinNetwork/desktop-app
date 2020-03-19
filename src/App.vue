@@ -16,6 +16,8 @@ import { Component, Vue } from 'vue-property-decorator'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
+import log from 'electron-log'
+
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 
@@ -26,6 +28,14 @@ ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name
     default:
   }
 })
+
+process.on('uncaughtException', err => {
+  log.error(err.stack)
+})
+
+window.onerror = (message, source, lineno, colno, err: any) => {
+  log.error(err.stack || err)
+}
 
 // @ts-ignore
 window.linkClick = href => {

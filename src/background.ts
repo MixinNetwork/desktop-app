@@ -8,8 +8,6 @@ import { setFocusWindow } from './updater'
 import { initPlayer } from './player'
 import path from 'path'
 
-import { Worker } from 'worker_threads'
-
 ipcMain.on('checkUp', (event, _) => {
   autoUpdater.checkForUpdates()
 })

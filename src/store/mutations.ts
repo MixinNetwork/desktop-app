@@ -6,6 +6,8 @@ import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
+// @ts-ignore
+import _ from 'lodash'
 
 let setCurrentConversationTimer: any = null
 let refreshConversationsTimer: any = null
@@ -50,13 +52,13 @@ function refreshConversation(state: any, conversationId: string) {
   refreshConversationTimerMap[conversationId] = setTimeout(() => {
     const mentionsMap = state.conversationUnseenMentionsMap
     const conversation = conversationDao.getConversationItemByConversationId(conversationId)
-    const conversations = JSON.parse(JSON.stringify(state.conversations))
+    const conversations = _.cloneDeepWith(state.conversations)
     if (conversation) {
       const participants = participantDao.getParticipantsByConversationId(conversationId)
       conversation.participants = participants
       const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
       mentionsMap[conversationId] = mentionMessages
-      state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
+      state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
       conversations[conversationId] = conversation
     }
     state.conversations = conversations
@@ -85,7 +87,7 @@ function messageSearch(state: any, type: string, keyword: any) {
       if (count > 0) {
         isEmpty = false
         num++
-        const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
+        const temp = _.cloneDeepWith(state.conversations[conversation.conversationId])
         temp.records = count
 
         messageAll.push(temp)
@@ -223,7 +225,7 @@ export default {
     })
     state.conversationKeys = conversationKeys
     state.conversations = conversations
-    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
+    state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
     const friends = userDao.findFriends()
     if (friends.length > 0) {
       state.friends = friends
@@ -287,7 +289,7 @@ export default {
       }
     }
     mentionsMap[conversationId] = messages
-    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
+    state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
   },
   refreshMessage(state: any, payload: any) {
     messageBox.refreshMessage(payload)

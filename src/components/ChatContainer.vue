@@ -215,6 +215,7 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  conversationChangedTimer: any = null
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
@@ -249,7 +250,8 @@ export default class ChatContainer extends Vue {
           this.$refs.inputBox.boxFocusAction()
         }
         this.$root.$emit('updateMenu', this.conversation)
-        setTimeout(() => {
+        clearTimeout(this.conversationChangedTimer)
+        this.conversationChangedTimer = setTimeout(() => {
           this.changeConversation = false
           this.actionMarkRead(conversationId)
         }, 50)
@@ -567,6 +569,7 @@ export default class ChatContainer extends Vue {
   }
 
   scrollTimer: any = null
+  timeDivideLock: boolean = false
   scrollTimerThrottle: any = null
   showTopTipsTimer: any = null
   onScroll(obj: any) {
@@ -614,11 +617,16 @@ export default class ChatContainer extends Vue {
     } else {
       this.timeDivideShow = false
     }
-    setTimeout(() => {
+
+    if (!this.timeDivideLock) {
+      this.timeDivideLock = true
+      setTimeout(() => {
+        this.timeDivideLock = false
+      }, 50)
       const timeDivide = this.$refs.timeDivide
       if (!timeDivide) return
       timeDivide.action()
-    }, 10)
+    }
   }
   chooseAttachment() {
     this.file = null
@@ -731,6 +739,7 @@ export default class ChatContainer extends Vue {
     }, 100)
   }
 
+  goBottomTimer: any = null
   goBottom(currentMessageLen: number = 0) {
     this.showScroll = false
     this.isBottom = true
@@ -739,11 +748,12 @@ export default class ChatContainer extends Vue {
     this.beforeViewport = {}
     this.currentUnreadNum = 0
     this.searchKeyword = ''
-    setTimeout(() => {
-      const msgLen = this.messages.length
+    const msgLen = this.messages.length
+    const waitTime = currentMessageLen > 0 && currentMessageLen !== msgLen ? 100 : 10
+    clearTimeout(this.goBottomTimer)
+    this.goBottomTimer = setTimeout(() => {
       let list = this.$refs.messagesUl
-      if (!list || (currentMessageLen > 0 && currentMessageLen !== msgLen)) {
-        this.goBottom(currentMessageLen)
+      if (!list) {
         return
       }
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
@@ -756,7 +766,7 @@ export default class ChatContainer extends Vue {
         list.scrollTop = list.scrollHeight
         this.showScroll = true
       }, 100)
-    }, 10)
+    }, waitTime)
     messageBox.clearUnreadNum(0)
   }
 

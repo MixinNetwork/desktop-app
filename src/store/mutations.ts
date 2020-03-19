@@ -7,6 +7,8 @@ import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
 
+let setCurrentConversationTimer: any = null
+
 function refreshConversations(state: any) {
   const findConversations = conversationDao.getConversations()
   const conversationKeys: any = []
@@ -224,7 +226,8 @@ export default {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
     messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
-    setTimeout(() => {
+    clearTimeout(setCurrentConversationTimer)
+    setCurrentConversationTimer = setTimeout(() => {
       if (
         !state.conversationKeys.some((item: any) => {
           return item === conversationId

@@ -60,7 +60,7 @@ export default {
     },
     linkify: {
       type: Boolean,
-      default: true
+      default: false
     },
     typographer: {
       type: Boolean,

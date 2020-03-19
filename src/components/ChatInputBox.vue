@@ -279,8 +279,13 @@ export default class ChatItem extends Vue {
         for (let j = innerPieces.length - 1; j >= 0; j--) {
           this.mentions.forEach((item: any) => {
             const id = `@${item.identity_number}`
+            const name = `@${item.full_name}`
             const idInPiece = innerPieces[j].split('<')[0]
-            if (messageIds.indexOf(id) < 0 && idsTemp.indexOf(id) < 0 && id.startsWith(idInPiece)) {
+            if (
+              messageIds.indexOf(id) < 0 &&
+              idsTemp.indexOf(id) < 0 &&
+              (id.startsWith(idInPiece) || name.startsWith(idInPiece))
+            ) {
               const hl = contentUtil.highlight(id, id, '')
               innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
             }

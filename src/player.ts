@@ -33,7 +33,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
   }
   if (process.platform !== 'darwin') {
     playerWindow.setMenuBarVisibility(false)
-    playerWindow.setAutoHideMenuBar(true)
+    playerWindow.autoHideMenuBar = true
     playerWindow.setMenu(null)
   }
   return playerWindow

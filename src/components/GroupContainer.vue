@@ -127,26 +127,29 @@ main {
   .group {
     display: flex;
     flex-flow: column nowrap;
-    height: 100vh;
+    height: 100%;
     .bar {
-      padding-top: 3rem;
+      padding-top: 2.6rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 3rem;
+      height: 2.5rem;
       align-items: center;
       flex-flow: row nowrap;
       .back {
         cursor: pointer;
-        padding: 0.8rem;
+        padding: 0.8rem 0.2rem 0.8rem 1.35rem;
       }
       h3 {
         padding: 0.4rem;
       }
     }
     .nav {
-      border-bottom: 0.05rem solid $border-color;
-      padding: 0.45rem 0.6rem;
+      z-index: 10;
+      background: #f7f7f7;
+      border-top: 0.05rem solid $border-color;
+      box-shadow: 0 0.05rem 0.05rem #99999933;
+      padding: 0.35rem 0.6rem;
       display: flex;
       align-items: center;
     }
@@ -242,16 +245,17 @@ main {
     flex-flow: column nowrap;
     background: #f2f3f3;
     .bar {
-      padding-top: 3rem;
+      padding-top: 2.6rem;
       width: 100%;
       display: flex;
       background: #ffffff;
-      height: 3rem;
+      height: 2.5rem;
       color: white;
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 0.8rem;
+        cursor: pointer;
+        padding: 0.8rem 0.2rem 0.8rem 1rem;
       }
       h3 {
         padding: 0.4rem;

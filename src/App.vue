@@ -16,6 +16,8 @@ import { Component, Vue } from 'vue-property-decorator'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
+import log from 'electron-log'
+
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 
@@ -26,6 +28,14 @@ ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name
     default:
   }
 })
+
+process.on('uncaughtException', err => {
+  log.error(err.stack)
+})
+
+window.onerror = (message, source, lineno, colno, err: any) => {
+  log.error(err.stack || err)
+}
 
 // @ts-ignore
 window.linkClick = href => {
@@ -142,6 +152,7 @@ a {
   .app_time {
     width: 100vw;
     height: 100vh;
+    font-size: 0.85rem;
     top: 0;
     left: 0;
     right: 0;
@@ -211,7 +222,7 @@ b.highlight {
   line-height: 1.5;
   font-size: 0.8rem;
   font-weight: 400;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
   color: #333;
   * {
     outline: none;

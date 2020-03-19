@@ -314,7 +314,7 @@ export default class MessageForward extends Vue {
       border-radius: 0.2rem;
     }
     /deep/ .layout {
-      background: #f2f2f3;
+      background: #f7f7f7;
     }
   }
   .header,

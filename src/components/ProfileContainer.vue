@@ -19,7 +19,7 @@
             </div>
             <div class="item">
               <a>{{$t('profile.user_biography')}}</a>
-              <label>{{me.biography}}</label>
+              <label class="desc">{{me.biography}}</label>
             </div>
           </div>
         </div>
@@ -60,7 +60,8 @@ main {
       align-items: center;
       flex-flow: row nowrap;
       .back {
-        padding: 0.8rem;
+        cursor: pointer;
+        padding: 0.8rem 0.2rem 0.8rem 1rem;
       }
       h3 {
         padding: 0.4rem;
@@ -85,10 +86,15 @@ main {
         color: #333;
         margin: 0 1rem;
         font-weight: bold;
+        font-size: 0.7rem;
       }
       label {
         margin: 0.5rem 1rem 0;
+        font-size: 0.85rem;
         user-select: text;
+        &.desc {
+          font-size: 0.75rem;
+        }
       }
     }
   }

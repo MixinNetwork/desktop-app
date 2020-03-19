@@ -49,7 +49,7 @@ export default class SearchItem extends Vue {
   cursor: pointer;
   &:hover,
   &.current {
-    background: #f1f2f2;
+    background: #f0f0f0;
   }
   border-bottom: 0.05rem solid $border-color;
 

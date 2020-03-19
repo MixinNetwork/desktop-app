@@ -237,10 +237,10 @@ li.conversation.item {
   }
   &.active,
   &.active:hover {
-    background: #f1f2f2;
+    background: #f0f0f0;
   }
   &:hover {
-    background: #f8f9f9;
+    background: #f7f7f7;
   }
   #avatar {
     width: 2.4rem;

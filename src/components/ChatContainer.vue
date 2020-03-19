@@ -39,7 +39,7 @@
     >
       <TimeDivide
         ref="timeDivide"
-        v-if="messagesVisible[0] && timeDivideShowForce"
+        v-if="messagesVisible[0] && timeDivideShowForce && !details"
         v-show="showMessages && timeDivideShow"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
@@ -140,7 +140,9 @@
       <Details
         class="overlay"
         :userId="detailUserId"
-        v-if="conversation && details"
+        v-if="conversation"
+        v-show="details"
+        :details="details"
         @close="hideDetails"
       ></Details>
     </transition>
@@ -169,7 +171,7 @@
 <script lang="ts">
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { MessageCategories, MessageStatus } from '@/utils/constants'
+import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 // @ts-ignore
 import _ from 'lodash'
@@ -213,6 +215,7 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  conversationChangedTimer: any = null
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
@@ -241,20 +244,31 @@ export default class ChatContainer extends Vue {
       this.hideChoosePanel()
 
       this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      this.changeConversation = true
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
           this.$refs.inputBox.boxFocusAction()
         }
         this.$root.$emit('updateMenu', this.conversation)
-        setTimeout(() => {
+        clearTimeout(this.conversationChangedTimer)
+        this.conversationChangedTimer = setTimeout(() => {
+          this.changeConversation = false
           this.actionMarkRead(conversationId)
-        }, 100)
+        }, 50)
       })
+      const msgLen = this.messages.length
+      if (msgLen > 0 && msgLen < PerPageMessageCount) {
+        this.showTopTips = true
+      }
     }
   }
 
   @Watch('messages.length')
-  onMessagesLengthChanged() {
+  onMessagesLengthChanged(val: number) {
+    if (this.changeConversation) return
+    if (val > 0 && val < PerPageMessageCount) {
+      this.showTopTips = true
+    }
     this.messagesVisible = this.getMessagesVisible()
   }
 
@@ -325,6 +339,7 @@ export default class ChatContainer extends Vue {
   showScroll: any = true
   infiniteUpLock: any = false
   infiniteDownLock: any = false
+  changeConversation: any = false
   searchKeyword: any = ''
   timeDivideShowForce: boolean = false
   timeDivideShow: boolean = false
@@ -416,7 +431,7 @@ export default class ChatContainer extends Vue {
           self.goMessagePos(message)
         } else if (isMyMsg || goBottom || self.isBottom) {
           self.unreadMessageId = ''
-          self.goBottom()
+          self.goBottom(goBottom)
         }
       }
     )
@@ -554,6 +569,7 @@ export default class ChatContainer extends Vue {
   }
 
   scrollTimer: any = null
+  timeDivideLock: boolean = false
   scrollTimerThrottle: any = null
   showTopTipsTimer: any = null
   onScroll(obj: any) {
@@ -601,11 +617,16 @@ export default class ChatContainer extends Vue {
     } else {
       this.timeDivideShow = false
     }
-    setTimeout(() => {
+
+    if (!this.timeDivideLock) {
+      this.timeDivideLock = true
+      setTimeout(() => {
+        this.timeDivideLock = false
+      }, 50)
       const timeDivide = this.$refs.timeDivide
       if (!timeDivide) return
       timeDivide.action()
-    }, 10)
+    }
   }
   chooseAttachment() {
     this.file = null
@@ -670,13 +691,13 @@ export default class ChatContainer extends Vue {
             list.scrollTop + list.clientHeight < messageDom.offsetTop ||
             list.scrollTop > messageDom.offsetTop
           ) {
-            list.scrollTop = messageDom.offsetTop
+            list.scrollTop = messageDom.offsetTop - 1
           }
           setTimeout(() => {
             messageDom.className = ''
           }, 200)
         } else {
-          list.scrollTop = targetDom.offsetTop
+          list.scrollTop = targetDom.offsetTop - 1
         }
         this.showMessages = true
         this.goMessagePosTimer = setTimeout(() => {
@@ -718,7 +739,8 @@ export default class ChatContainer extends Vue {
     }, 100)
   }
 
-  goBottom() {
+  goBottomTimer: any = null
+  goBottom(currentMessageLen: number = 0) {
     this.showScroll = false
     this.isBottom = true
     this.intersectLock = true
@@ -726,14 +748,15 @@ export default class ChatContainer extends Vue {
     this.beforeViewport = {}
     this.currentUnreadNum = 0
     this.searchKeyword = ''
-    setTimeout(() => {
-      const msgLen = this.messages.length
-      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
+    const msgLen = this.messages.length
+    const waitTime = currentMessageLen > 0 && currentMessageLen !== msgLen ? 100 : 10
+    clearTimeout(this.goBottomTimer)
+    this.goBottomTimer = setTimeout(() => {
       let list = this.$refs.messagesUl
       if (!list) {
-        this.goBottom()
         return
       }
+      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       this.infiniteUpLock = false
       this.showMessages = true
       requestAnimationFrame(() => {
@@ -743,7 +766,7 @@ export default class ChatContainer extends Vue {
         list.scrollTop = list.scrollHeight
         this.showScroll = true
       }, 100)
-    }, 10)
+    }, waitTime)
     messageBox.clearUnreadNum(0)
   }
 
@@ -953,12 +976,13 @@ export default class ChatContainer extends Vue {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   font-size: 0.8rem;
 
   header {
-    border-bottom: 0.05rem solid #e0e0e0;
+    box-shadow: 0 0.05rem 0.05rem #99999944;
+    z-index: 10;
     padding: 0 0.8rem;
     display: flex;
     height: 2.9rem;

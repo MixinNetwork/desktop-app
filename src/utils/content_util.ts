@@ -150,7 +150,6 @@ class ContentUtil {
     const regx = new RegExp('(' + keyword + ')', 'ig')
     if (result) {
       const regxLink = new RegExp(`<a(.*?)href=(.*?)>(.*?)</a>`, 'ig')
-      result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
       let linkTemp = []
       let linkArr
       while ((linkArr = regxLink.exec(content)) !== null) {
@@ -163,6 +162,8 @@ class ContentUtil {
         linkTemp.forEach(item => {
           result = result.replace(item[0], item[1])
         })
+      } else {
+        result = result.replace(regx, `<b class="highlight ${highlight}">$1</b>`)
       }
     }
     return result

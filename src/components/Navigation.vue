@@ -10,16 +10,18 @@
           <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
         </div>
       </div>
-      <div class="signal" v-if="linkStatus === LinkStatus.NOT_CONNECTED">
-        <svg-icon icon-class="ic_signal" class="signal_icon" />
-        <div class="content">
-          <label class="title">{{getLinkTitle()}}</label>
-          <label class="info">{{getLinkContent()}}</label>
+      <div class="status-wrapper">
+        <div class="signal" v-if="linkStatus === LinkStatus.NOT_CONNECTED">
+          <svg-icon icon-class="ic_signal" class="signal_icon" />
+          <div class="content">
+            <label class="title">{{getLinkTitle()}}</label>
+            <label class="info">{{getLinkContent()}}</label>
+          </div>
         </div>
-      </div>
-      <div v-else-if="linkStatus === LinkStatus.CONNECTING">
-        <spinner class="loading" />
-        <label style="line-height: 1.9rem">{{getConnectingTitle()}}</label>
+        <div v-else-if="linkStatus === LinkStatus.CONNECTING">
+          <spinner class="loading" stroke="#aaa" />
+          <label style="line-height: 1.9rem; color: #555">{{getConnectingTitle()}}</label>
+        </div>
       </div>
       <div class="show-more" v-if="showMoreType" @click="showMoreBack">
         <svg-icon icon-class="ic_back" />
@@ -655,25 +657,29 @@ export default class Navigation extends Vue {
   border-right: 0.05rem solid #dee2e9;
   flex: 0 0 14.4rem;
   display: flex;
-  height: 100vh;
+  height: 100%;
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
   font-size: 0.8rem;
   contain: layout;
   .loading {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1rem;
+    height: 1rem;
     vertical-align: top;
-    margin: 0.3rem 0.3rem 0.3rem 1.15rem;
+    margin: 0.45rem 0.3rem 0.3rem 1.3rem;
   }
 
   .search-wrapper {
     background: #f2f3f3;
+    /deep/ .search {
+      padding-top: 0.05rem;
+    }
     /deep/ .layout {
       background: #fff !important;
     }
-    border-bottom: 0.05rem solid #aaaaaa22;
+    z-index: 10;
+    box-shadow: 0 0.05rem 0.05rem #99999933;
   }
 
   .root {
@@ -689,7 +695,6 @@ export default class Navigation extends Vue {
         display: flex;
         justify-content: space-between;
         padding: 0.8rem 1.25rem 0.45rem;
-        font-family: Helvetica;
         font-weight: 500;
         a {
           color: #3d75e3;
@@ -779,6 +784,7 @@ export default class Navigation extends Vue {
       display: flex;
       padding: 0.5rem;
       align-items: center;
+      margin-bottom: 0.35rem;
       .signal_icon {
         font-size: 2.4rem;
         flex-shrink: 0;
@@ -796,6 +802,9 @@ export default class Navigation extends Vue {
           max-lines: 2;
         }
       }
+    }
+    .status-wrapper {
+      background: #f2f3f3;
     }
   }
 

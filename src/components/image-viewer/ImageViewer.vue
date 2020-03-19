@@ -1,6 +1,6 @@
 <template>
   <transition name="image-viewer-fade">
-    <div class="image-viewer" v-show="visible">
+    <div class="image-viewer" :style="{top: showTitlebar ? '1.4rem' : ''}" v-show="visible">
       <div class="image-viewer-close icon-close" @click="close">
         <svg-icon style="font-size: 1.2rem" v-if="visible" icon-class="ic_close_white" />
       </div>
@@ -63,7 +63,8 @@ export default {
       scrollStyle: {},
       moved: false,
       tempPos: {},
-      limit: 100
+      limit: 100,
+      showTitlebar: false
     }
   },
   watch: {
@@ -95,6 +96,7 @@ export default {
     }
   },
   mounted() {
+    this.showTitlebar = process.platform === 'win32'
     window.addEventListener('keyup', this.keyUp)
   },
   methods: {
@@ -273,8 +275,6 @@ export default {
     list-style-type: none;
     zoom: 1;
     resize: none;
-    font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Arial, Ionicons, iconfont,
-      'vue-image-viewer-icon', sans-serif;
     box-sizing: border-box;
 
     vertical-align: baseline;

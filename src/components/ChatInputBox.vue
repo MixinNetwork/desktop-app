@@ -6,7 +6,7 @@
       @hidenReplyBox="$emit('clearBoxMessage')"
     ></ReplyMessageContainer>
 
-    <transition :name="!stickerChoosing ? 'slide-up' : ''">
+    <transition name="slide-up">
       <ChatSticker
         :style="`padding-bottom: ${inputBoxHeight-36}px`"
         :class="{ 'box-message': boxMessage }"
@@ -16,7 +16,7 @@
       ></ChatSticker>
     </transition>
 
-    <transition :name="!mentionChoosing ? 'slide-up' : ''">
+    <transition name="slide-up">
       <MentionPanel
         v-show="mentionChoosing"
         :style="`padding-bottom: ${inputBoxHeight-36}px;`"
@@ -470,7 +470,9 @@ export default class ChatItem extends Vue {
   }
 }
 
-.slide-up-enter-active,
+.slide-up-enter-active {
+  transition: all 0.1s;
+}
 .slide-up-leave-active {
   transition: all 0.3s ease;
 }

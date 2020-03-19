@@ -32,7 +32,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelChoosing ? '' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
+      :style="(panelChoosing ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
       @scroll="onScroll"

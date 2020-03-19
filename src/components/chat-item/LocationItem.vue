@@ -15,7 +15,7 @@
           <!-- <MessageItemIcon :url="" /> -->
           <!-- {{messageContent.venue_type}} -->
           <div class="content">
-            <div class="view" :style="{height: showDetail ? '' : '8rem'}">
+            <div class="view" :style="{height: showDetail ? '' : '7.8rem'}">
               <div class="pin">
                 <svg-icon icon-class="ic_map_pin" />
               </div>

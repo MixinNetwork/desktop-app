@@ -127,7 +127,6 @@ class ReceiveWorker extends BaseWorker {
     if (!fms || !fms.length) {
       return
     }
-    // ipcRenderer.send('workerTask', { action: 'test', data: 'data' })
 
     for (const fm of fms) {
       try {

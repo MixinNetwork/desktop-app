@@ -137,16 +137,6 @@ function createWindow() {
       win.webContents.openDevTools()
     }
   })
-  ipcMain.on('workerTask', (event, payload) => {
-    if (win) {
-      // @ts-ignore
-      const worker = new Worker(path.join(__static, 'worker.js'))
-      worker.postMessage(payload)
-      worker.once('message', (ret: any) => {
-        console.log('return---', ret)
-      })
-    }
-  })
 }
 
 // Quit when all windows are closed.

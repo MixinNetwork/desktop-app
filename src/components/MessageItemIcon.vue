@@ -22,6 +22,7 @@ export default {
   justify-content: center;
   align-items: center;
   z-index: 3;
+  flex-shrink: 0;
   img {
     width: 100%;
   }

@@ -16,7 +16,7 @@
           <svg-icon style="margin-top: 0.1rem" icon-class="if_recall" />
           <I class="text">{{getContent}}</I>
           <span class="time-place"></span>
-          <span class="time">{{message.lt}}</span>
+          <TimeAndStatus :message="message" status="hide" />
         </div>
       </div>
     </BadgeItem>
@@ -24,12 +24,14 @@
 </template>
 <script lang="ts">
 import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { getNameColorById } from '@/utils/util'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
 @Component({
   components: {
-    BadgeItem
+    BadgeItem,
+    TimeAndStatus
   }
 })
 export default class RecallItem extends Vue {
@@ -93,18 +95,6 @@ export default class RecallItem extends Vue {
     margin-left: 0.45rem;
     width: 1.6rem;
     height: 0.8rem;
-  }
-
-  .time {
-    user-select: none;
-    color: #8799a5;
-    display: flex;
-    float: right;
-    font-size: 0.6rem;
-    position: absolute;
-    bottom: 0.2rem;
-    right: 0.15rem;
-    align-items: flex-end;
   }
 }
 .layout.send {

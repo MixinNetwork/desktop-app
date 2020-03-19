@@ -18,6 +18,9 @@
             <div class="desc">{{messageContent.description}}</div>
           </div>
         </div>
+        <div class="bottom">
+          <TimeAndStatus :relative="true" :message="message" />
+        </div>
       </BadgeItem>
     </div>
   </div>
@@ -26,12 +29,14 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import BadgeItem from './BadgeItem.vue'
 import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 import { getNameColorById } from '@/utils/util'
 
 @Component({
   components: {
     BadgeItem,
-    MessageItemIcon
+    MessageItemIcon,
+    TimeAndStatus
   }
 })
 export default class AppCardItem extends Vue {
@@ -57,16 +62,17 @@ export default class AppCardItem extends Vue {
 }
 </script>
 <style lang="scss" scoped>
-.layout {
-  display: flex;
-  margin-left: 0.3rem;
-  margin-right: 0.3rem;
-}
 .layout.send {
   flex-direction: row-reverse;
 }
 .layout.receive {
   flex-direction: row;
+}
+.layout {
+  display: flex;
+  margin-left: 0.3rem;
+  margin-right: 0.3rem;
+  flex-direction: column;
 }
 .username {
   margin-left: 0.3rem;
@@ -89,11 +95,11 @@ export default class AppCardItem extends Vue {
   background-color: white;
   border-radius: 0.2rem;
   padding: 0.6rem;
+  max-width: 16rem;
   .content {
     display: flex;
     flex-direction: column;
     align-content: center;
-    max-width: 10.2rem;
     &,
     * {
       overflow: hidden;
@@ -113,5 +119,11 @@ export default class AppCardItem extends Vue {
       line-height: 1.4;
     }
   }
+}
+.bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding: 0.1rem;
 }
 </style>

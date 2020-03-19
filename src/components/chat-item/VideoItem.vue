@@ -193,7 +193,7 @@ export default class VideoItem extends Vue {
     }
     .bottom {
       display: flex;
-      padding: 0.1rem 0;
+      padding: 0.1rem;
       justify-content: flex-end;
     }
   }

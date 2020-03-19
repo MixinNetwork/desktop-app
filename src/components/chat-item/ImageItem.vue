@@ -269,7 +269,7 @@ export default class ImageItem extends Vue {
     .bottom {
       display: flex;
       justify-content: flex-end;
-      padding: 0.1rem 0;
+      padding: 0.1rem;
     }
   }
 }

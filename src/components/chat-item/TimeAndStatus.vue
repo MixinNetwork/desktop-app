@@ -6,9 +6,10 @@
       class="icon lock"
     />
     <span>{{message.lt}}</span>
+    <span v-if="status === 'hide'"></span>
     <svg-icon
       icon-class="ic_status_clock"
-      v-if="message.status === MessageStatus.SENDING"
+      v-else-if="message.status === MessageStatus.SENDING"
       class="icon"
     />
     <svg-icon
@@ -37,6 +38,7 @@ import { MessageStatus } from '@/utils/constants'
 export default class TimeAndStatus extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Boolean) readonly relative: any
+  @Prop(String) readonly status: any
 
   MessageStatus: any = MessageStatus
 }

@@ -154,7 +154,7 @@ export default class PostItem extends Vue {
       }
     }
     .bottom {
-      padding: 0.1rem 0;
+      padding: 0.1rem;
       display: flex;
       justify-content: flex-end;
     }

@@ -8,7 +8,7 @@
             <span class="amount">{{message.snapshotAmount}}</span>
             <div class="bottom">
               <span class="symbol">{{message.assetSymbol}}</span>
-              <span class="time">{{message.lt}}</span>
+              <TimeAndStatus :message="message" status="hide" />
             </div>
           </div>
         </div>
@@ -19,6 +19,7 @@
 <script lang="ts">
 import MessageItemIcon from '@/components/MessageItemIcon.vue'
 import BadgeItem from './BadgeItem.vue'
+import TimeAndStatus from './TimeAndStatus.vue'
 
 import { MessageStatus } from '@/utils/constants'
 import { Vue, Prop, Component } from 'vue-property-decorator'
@@ -26,7 +27,8 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 @Component({
   components: {
     MessageItemIcon,
-    BadgeItem
+    BadgeItem,
+    TimeAndStatus
   }
 })
 export default class TransferItem extends Vue {
@@ -75,17 +77,6 @@ export default class TransferItem extends Vue {
           font-size: 0.6rem;
           line-height: 1.5;
           min-height: 0.8rem;
-        }
-        .time {
-          user-select: none;
-          position: absolute;
-          color: #8799a5;
-          display: flex;
-          float: right;
-          font-size: 0.6rem;
-          bottom: 0.2rem;
-          right: 0.15rem;
-          align-items: flex-end;
         }
       }
     }

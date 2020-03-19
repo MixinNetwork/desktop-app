@@ -15,10 +15,17 @@
           <!-- <MessageItemIcon :url="" /> -->
           <!-- {{messageContent.venue_type}} -->
           <div class="content">
-            <div class="view"></div>
-            <span class="name">{{messageContent.name}}</span>
-            <div class="address">{{messageContent.address}}</div>
-            <span class="time-place"></span>
+            <div class="view" :style="{height: showDetail ? '' : '8rem'}">
+              <div class="pin">
+                <svg-icon icon-class="ic_map_pin" />
+              </div>
+              <div class="bg">
+                <svg-icon icon-class="ic_map_default" />
+              </div>
+            </div>
+            <span class="name" v-if="showDetail">{{messageContent.name}}</span>
+            <div class="address" v-if="showDetail">{{messageContent.address}}</div>
+            <span class="time-place" v-if="showDetail"></span>
             <TimeAndStatus :message="message" />
           </div>
         </div>
@@ -61,17 +68,16 @@ export default class AppCardItem extends Vue {
 
   openMap() {
     const { latitude, longitude, name = '', address = '' } = this.messageContent
-    if (process.platform === 'darwin') {
-      window.open(
-        `https://maps.apple.com/?address=${encodeURIComponent(
-          address
-        )}&ll=${latitude},${longitude}&q=${encodeURIComponent(name)}`
-      )
-    } else {
-      browser.loadURL(
-        `https://www.google.com/maps/place/${latitude},${longitude}`
-      )
+    let url = `https://www.google.com/maps/place/@${latitude},${longitude},17z?hl=zh-CN`
+    if (!address) {
+      url = `https://www.google.com/maps/search/${encodeURIComponent(address)}/@${latitude},${longitude},17z?hl=zh-CN`
     }
+    window.open(url)
+  }
+
+  get showDetail() {
+    const { name, address } = this.messageContent
+    return name && address
   }
 
   get messageContent() {
@@ -125,8 +131,28 @@ export default class AppCardItem extends Vue {
     }
     .view {
       width: 100%;
-      height: 6rem;
-      background: #f5f7fa;
+      height: 5rem;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .pin {
+        position: relative;
+        z-index: 1;
+        /deep/ svg {
+          font-size: 2rem;
+        }
+      }
+      .bg {
+        top: 0;
+        left: 0;
+        position: absolute;
+        margin-left: -1rem;
+        user-select: none;
+        /deep/ svg {
+          font-size: 16rem;
+        }
+      }
     }
     .name {
       padding: 0.6rem 0.6rem 0;

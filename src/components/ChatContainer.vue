@@ -765,13 +765,16 @@ export default class ChatContainer extends Vue {
         list.scrollTop = list.scrollHeight
       })
       setTimeout(() => {
-        list.scrollTop = list.scrollHeight
+        if (list.scrollTop !== list.scrollHeight) {
+          list.scrollTop = list.scrollHeight
+        }
         this.showScroll = true
       }, 100)
     }, waitTime)
     messageBox.clearUnreadNum(0)
   }
 
+  markMentionReadTimer: any = null
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
     const { conversationId } = this.conversation
@@ -785,11 +788,12 @@ export default class ChatContainer extends Vue {
         }
       })
     }
-    setTimeout(() => {
+    clearTimeout(this.markMentionReadTimer)
+    this.markMentionReadTimer = setTimeout(() => {
       if (this.isBottom && isIntersecting) {
         this.actionMarkMentionRead({ conversationId, messageId })
       }
-    }, 200)
+    }, 100)
   }
 
   mentionClick() {

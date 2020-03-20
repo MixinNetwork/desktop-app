@@ -42,13 +42,7 @@ function refreshConversations(state: any) {
 
 let refreshConversationTimerMap: any = {}
 function refreshConversation(state: any, conversationId: string) {
-  const timer = refreshConversationTimerMap[conversationId]
-  if (timer) {
-    clearTimeout(timer)
-    refreshConversationTimerMap[conversationId] = null
-    refreshConversation(state, conversationId)
-    return
-  }
+  clearTimeout(refreshConversationTimerMap[conversationId])
   refreshConversationTimerMap[conversationId] = setTimeout(() => {
     const mentionsMap = state.conversationUnseenMentionsMap
     const conversation = conversationDao.getConversationItemByConversationId(conversationId)
@@ -66,7 +60,6 @@ function refreshConversation(state: any, conversationId: string) {
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
       return item.conversationId
     })
-    refreshConversationTimerMap[conversationId] = null
   }, 150)
 }
 

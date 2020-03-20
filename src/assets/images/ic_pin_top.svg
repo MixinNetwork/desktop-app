@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <g  stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g transform="translate(-2.000000, 0.000000)">
-            <rect fill="#A9A9A9" x="2" y="0" width="18" height="18" rx="9"></rect>
-            <g transform="translate(9.677159, 9.770996) rotate(45.000000) translate(-9.677159, -9.770996) translate(3.677159, 2.770996)" fill="#FFFFFF">
-                <polygon points="5.05881261 6.85083487 7.63024118 6.85083487 6.42330769 13.2794063"></polygon>
-                <rect x="2.48738404" y="0.330890545" width="7.71428571" height="1.28571429" rx="0.5"></rect>
-                <polygon points="6.03665995 1.63034684 11.3399608 6.9336477 0.730228024 6.91777681"></polygon>
-                <rect x="4.78325087" y="1.46954237" width="2.57142857" height="3.85714286"></rect>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g transform="translate(-2)" fill="none" fill-rule="evenodd"><rect fill="#A9A9A9" x="2" width="18" height="18" rx="9"/><g transform="rotate(45 4.494 12.824)" fill="#FFF"><path d="M5.059 6.85H7.63l-1.207 6.43z"/><rect x="2.487" y=".331" width="7.714" height="1.286" rx=".5"/><path d="M6.037 1.63l5.303 5.304L.73 6.918z"/><path d="M4.783 1.47h2.571v3.857H4.783z"/></g></g></svg>

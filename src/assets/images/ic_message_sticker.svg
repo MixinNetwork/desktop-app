@@ -1,10 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="14px" height="12px" viewBox="0 0 14 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect stroke="#B8BDC7" x="1.5" y="0.5" width="11" height="11" rx="5.5"></rect>
-        <circle fill="#B8BDC7" fill-rule="nonzero" cx="4.5" cy="5.5" r="1"></circle>
-        <circle fill="#B8BDC7" fill-rule="nonzero" cx="9.5" cy="5.5" r="1"></circle>
-        <path d="M9.23610651,8 C8.68678595,8.61374936 7.88849981,9 7,9 C6.11150019,9 5.31321405,8.61374936 4.76389349,8" id="路径" stroke="#B8BDC7" stroke-linecap="round" fill-rule="nonzero"></path>
-    </g>
-</svg>
+<svg width="14" height="12" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><rect stroke="#B8BDC7" x="1.5" y=".5" width="11" height="11" rx="5.5"/><circle fill="#B8BDC7" fill-rule="nonzero" cx="4.5" cy="5.5" r="1"/><circle fill="#B8BDC7" fill-rule="nonzero" cx="9.5" cy="5.5" r="1"/><path d="M9.236 8C8.686 8.614 7.888 9 7 9a2.993 2.993 0 01-2.236-1" stroke="#B8BDC7" stroke-linecap="round"/></g></svg>

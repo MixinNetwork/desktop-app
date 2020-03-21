@@ -994,7 +994,7 @@ export default class ChatContainer extends Vue {
     height: 2.9rem;
     box-sizing: border-box;
     align-items: center;
-    background: #f2f3f3;
+    background: $bg-color;
     .title {
       box-sizing: border-box;
       flex: 1;
@@ -1129,7 +1129,7 @@ export default class ChatContainer extends Vue {
     .badge {
       position: absolute;
       top: -0.35rem;
-      background: #4b7ed2;
+      background: $primary-color;
       border-radius: 1rem;
       box-sizing: border-box;
       color: #fff;

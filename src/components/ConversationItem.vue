@@ -233,14 +233,14 @@ li.conversation.item {
   align-items: stretch;
   padding: 0.6rem 0.6rem;
   &.current {
-    background: #f7f7f7;
+    background: $hover-bg-color;
   }
   &.active,
   &.active:hover {
     background: #f0f0f0;
   }
   &:hover {
-    background: #f7f7f7;
+    background: $hover-bg-color;
   }
   #avatar {
     width: 2.4rem;
@@ -321,7 +321,7 @@ li.conversation.item {
         margin-left: 0.15rem;
       }
       .badge {
-        background: #4b7ed2;
+        background: $primary-color;
         border-radius: 0.6rem;
         box-sizing: border-box;
         color: white;

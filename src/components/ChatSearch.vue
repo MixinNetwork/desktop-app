@@ -138,7 +138,7 @@ export default class ChatSearch extends Vue {
     }
   }
   .search-bar {
-    background: #f7f7f7;
+    background: $hover-bg-color;
     border-top: 0.05rem solid #f0f0f0;
     .input {
       padding: 0.2rem 0;

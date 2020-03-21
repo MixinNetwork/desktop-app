@@ -49,7 +49,7 @@ export default class SettingContainer extends Vue {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  background: #f2f3f3;
+  background: $bg-color;
   .bar {
     padding-top: 3rem;
     width: 100%;
@@ -91,7 +91,7 @@ export default class SettingContainer extends Vue {
       border-bottom: 0.05rem solid $border-color;
       &:hover,
       &.current {
-        background: #f7f7f7;
+        background: $hover-bg-color;
       }
     }
   }

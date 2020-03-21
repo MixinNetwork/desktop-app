@@ -70,7 +70,7 @@ export default class NewConversation extends Vue {
 </script>
 <style lang="scss" scoped>
 #create {
-  background: #f2f3f3;
+  background: $bg-color;
   display: flex;
   flex-direction: column;
   .list {
@@ -102,7 +102,7 @@ export default class NewConversation extends Vue {
   padding: 0.35rem 0.6rem;
   display: flex;
   align-items: center;
-  background: #f7f7f7;
+  background: $hover-bg-color;
 }
 
 .create {
@@ -119,7 +119,7 @@ export default class NewConversation extends Vue {
   }
   &:hover,
   &.current {
-    background: #f7f7f7;
+    background: $hover-bg-color;
   }
   z-index: 10;
   box-shadow: 0 0.05rem 0.05rem #99999933;

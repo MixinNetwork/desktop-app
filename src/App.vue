@@ -282,7 +282,7 @@ b.highlight {
     margin-left: 0.16rem;
   }
   a {
-    color: #4b7ed2;
+    color: $primary-color;
   }
   table {
     position: relative;

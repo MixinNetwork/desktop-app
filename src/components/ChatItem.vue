@@ -41,7 +41,7 @@ export default class ChatItem extends Vue {
   padding: 0.45rem 1.1rem;
   &:hover,
   &.current {
-    background: #f7f7f7;
+    background: $hover-bg-color;
   }
   border: none;
 

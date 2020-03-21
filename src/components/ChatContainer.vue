@@ -277,7 +277,6 @@ export default class ChatContainer extends Vue {
     let { firstIndex, lastIndex } = val
     const bfv = this.beforeViewport
     if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
-      this.udpateMessagesVisible()
       return
     }
 
@@ -418,6 +417,7 @@ export default class ChatContainer extends Vue {
         if (messages) {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
+          self.udpateMessagesVisible()
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
@@ -505,7 +505,7 @@ export default class ChatContainer extends Vue {
   udpateMessagesVisible() {
     const list = this.getMessagesVisible()
     list.forEach((item: any, index: number) => {
-      if (item.messageId === this.messagesVisible[index].messageId) {
+      if (this.messagesVisible[index] && item.messageId === this.messagesVisible[index].messageId) {
         this.messagesVisible[index] = item
       }
     })
@@ -593,7 +593,7 @@ export default class ChatContainer extends Vue {
     if (list.scrollTop < toTop) {
       this.showTopTipsTimer = setTimeout(() => {
         this.showTopTips = true
-      }, 200)
+      }, 150)
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true

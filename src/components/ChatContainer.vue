@@ -90,7 +90,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && !isBottom"
+        v-if="conversation && (!isBottom || this.infiniteDownLock)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -426,7 +426,7 @@ export default class ChatContainer extends Vue {
         clearTimeout(self.hideTimeDivideTimer)
         self.hideTimeDivideTimer = setTimeout(() => {
           self.hideTimeDivide = false
-        }, 500)
+        }, 200)
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
@@ -597,15 +597,17 @@ export default class ChatContainer extends Vue {
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
-      this.showTopTipsTimer = setTimeout(() => {
-        this.showTopTips = true
-      }, 150)
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true
-        this.hideTimeDivide = true
+        if (!this.showTopTips) {
+          this.hideTimeDivide = true
+        }
         messageBox.infiniteUp()
       }
+      this.showTopTipsTimer = setTimeout(() => {
+        this.showTopTips = true
+      }, 150)
     }
 
     if (!this.scrollTimerThrottle) {

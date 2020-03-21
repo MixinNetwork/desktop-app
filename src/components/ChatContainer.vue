@@ -46,7 +46,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :class="{ show: showMessages }"
+        :class="{ show: showMessages, 'hide-time-divide': hideTimeDivide }"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -354,6 +354,7 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 30
   showTopTips: boolean = false
+  hideTimeDivide: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -364,6 +365,7 @@ export default class ChatContainer extends Vue {
     return 0
   }
 
+  hideTimeDivideTimer: any = null
   mounted() {
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
@@ -421,6 +423,10 @@ export default class ChatContainer extends Vue {
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
+        clearTimeout(self.hideTimeDivideTimer)
+        self.hideTimeDivideTimer = setTimeout(() => {
+          self.hideTimeDivide = false
+        }, 500)
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
@@ -597,6 +603,7 @@ export default class ChatContainer extends Vue {
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true
+        this.hideTimeDivide = true
         messageBox.infiniteUp()
       }
     }
@@ -1081,6 +1088,11 @@ export default class ChatContainer extends Vue {
       padding: 0.2rem 0.5rem;
       margin-bottom: 0.5rem;
       box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
+    }
+  }
+  .hide-time-divide {
+    /deep/ .time-divide.inner {
+      opacity: 0;
     }
   }
 

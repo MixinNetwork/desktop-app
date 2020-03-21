@@ -32,7 +32,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelHeight < 12 ? '' : 'transition: 0.3s all ease;')"
+      :style="(panelChoosing ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
       @scroll="onScroll"
@@ -460,7 +460,9 @@ export default class ChatContainer extends Vue {
 
   panelChooseAction(data: any) {
     this.goBottom()
-    this.panelChoosing = /Open/.test(data)
+    requestAnimationFrame(() => {
+      this.panelChoosing = /Open/.test(data)
+    })
   }
 
   onMessageLoaded(dom: any) {
@@ -763,13 +765,16 @@ export default class ChatContainer extends Vue {
         list.scrollTop = list.scrollHeight
       })
       setTimeout(() => {
-        list.scrollTop = list.scrollHeight
+        if (list.scrollTop !== list.scrollHeight) {
+          list.scrollTop = list.scrollHeight
+        }
         this.showScroll = true
       }, 100)
     }, waitTime)
     messageBox.clearUnreadNum(0)
   }
 
+  markMentionReadTimer: any = null
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
     const { conversationId } = this.conversation
@@ -783,11 +788,12 @@ export default class ChatContainer extends Vue {
         }
       })
     }
-    setTimeout(() => {
+    clearTimeout(this.markMentionReadTimer)
+    this.markMentionReadTimer = setTimeout(() => {
       if (this.isBottom && isIntersecting) {
         this.actionMarkMentionRead({ conversationId, messageId })
       }
-    }, 200)
+    }, 100)
   }
 
   mentionClick() {
@@ -988,7 +994,7 @@ export default class ChatContainer extends Vue {
     height: 2.9rem;
     box-sizing: border-box;
     align-items: center;
-    background: #f2f3f3;
+    background: $bg-color;
     .title {
       box-sizing: border-box;
       flex: 1;
@@ -1123,7 +1129,7 @@ export default class ChatContainer extends Vue {
     .badge {
       position: absolute;
       top: -0.35rem;
-      background: #4b7ed2;
+      background: $primary-color;
       border-radius: 1rem;
       box-sizing: border-box;
       color: #fff;

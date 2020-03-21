@@ -1,5 +1,4 @@
 import MarkdownIt from 'markdown-it'
-import emoji from 'markdown-it-emoji'
 import subscript from 'markdown-it-sub'
 import superscript from 'markdown-it-sup'
 import footnote from 'markdown-it-footnote'
@@ -116,7 +115,6 @@ export default {
       .use(mark)
       .use(katex, { throwOnError: false, errorColor: ' #cc0000' })
       .use(tasklists, { enabled: this.taskLists })
-      .use(emoji)
 
     this.md.set({
       html: this.html,

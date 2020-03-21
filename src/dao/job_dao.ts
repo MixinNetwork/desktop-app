@@ -9,6 +9,17 @@ class JobDao {
     )
     stmt.run(job)
   }
+  insertJobs(jobs: any) {
+    const stmt = db.prepare(
+      'INSERT OR REPLACE INTO jobs VALUES (@job_id, @action, @created_at,@order_id, @priority, @user_id, @blaze_message, @conversation_id, @resend_message_id, @run_count)'
+    )
+    const insertMany = db.transaction((jobs: any) => {
+      for (const item of jobs) {
+        stmt.run(item)
+      }
+    })
+    insertMany(jobs)
+  }
   insertSendingJob(messageId: string, conversationId: string) {
     this.insert({
       job_id: uuidv4(),

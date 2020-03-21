@@ -245,7 +245,6 @@ export default class ChatItem extends Vue {
       category,
       status
     }
-    this.hideChoosePanel()
     this.$root.$emit('resetSearch')
     this.actionSendStickerMessage(msg)
     this.$emit('goBottom')
@@ -471,7 +470,9 @@ export default class ChatItem extends Vue {
   }
 }
 
-.slide-up-enter-active,
+.slide-up-enter-active {
+  transition: all 0.1s;
+}
 .slide-up-leave-active {
   transition: all 0.3s ease;
 }

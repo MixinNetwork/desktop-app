@@ -21,6 +21,19 @@ class MessageDao {
     })
   }
 
+  insertOrReplaceMessageFtsWrapper(message: any) {
+    if (message.category.endsWith('_TEXT')) {
+      this.insertOrReplaceMessageFts(message.message_id, message.content)
+    }
+    if (message.category.endsWith('_DATA')) {
+      this.insertOrReplaceMessageFts(message.message_id, message.name)
+    }
+    if (message.category.endsWith('_POST')) {
+      const content = contentUtil.renderMdToText(message.content)
+      this.insertOrReplaceMessageFts(message.message_id, content)
+    }
+  }
+
   deleteMessageFts(msgIds: string[]) {
     return db.prepare('DELETE FROM messages_fts WHERE message_id = ?').run(msgIds)
   }
@@ -107,16 +120,21 @@ class MessageDao {
       'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
     )
     stmt.run(finalMsg)
-    if (message.category.endsWith('_TEXT')) {
-      this.insertOrReplaceMessageFts(message.message_id, message.content)
-    }
-    if (message.category.endsWith('_DATA')) {
-      this.insertOrReplaceMessageFts(message.message_id, message.name)
-    }
-    if (message.category.endsWith('_POST')) {
-      const content = contentUtil.renderMdToText(message.content)
-      this.insertOrReplaceMessageFts(message.message_id, content)
-    }
+    this.insertOrReplaceMessageFtsWrapper(message)
+  }
+
+  insertMessages(messages: any) {
+    const stmt = db.prepare(
+      'INSERT OR REPLACE INTO messages VALUES (@message_id, @conversation_id, @user_id, @category, @content, @media_url, @media_mime_type, @media_size, @media_duration, @media_width, @media_height, @media_hash, @thumb_image, @media_key, @media_digest, @media_status, @status, @created_at, @action, @participant_id, @snapshot_id, @hyperlink, @name, @album_id, @sticker_id, @shared_user_id, @media_waveform, @quote_message_id, @quote_content, @thumb_url)'
+    )
+    const insertMany = db.transaction((messages: any) => {
+      for (const message of messages) {
+        const finalMsg = getCompleteMessage(message)
+        stmt.run(finalMsg)
+        this.insertOrReplaceMessageFtsWrapper(message)
+      }
+    })
+    insertMany(messages)
   }
 
   deleteMessagesById(mIds: any) {
@@ -389,7 +407,7 @@ class MessageDao {
     const userId = this.me().user_id
     return db
       .prepare(
-        `SELECT message_id FROM messages WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}' ORDER BY created_at ASC`
+        `SELECT message_id as messageId FROM messages WHERE conversation_id = ? AND status = 'SENT' AND user_id != '${userId}' ORDER BY created_at ASC`
       )
       .all(conversationId)
   }

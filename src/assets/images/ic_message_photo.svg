@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="14px" height="12px" viewBox="0 0 14 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g>
-            <g>
-                <path d="M2,0.5 C1.17157288,0.5 0.5,1.17157288 0.5,2 L0.5,10 C0.5,10.8284271 1.17157288,11.5 2,11.5 L12,11.5 C12.8284271,11.5 13.5,10.8284271 13.5,10 L13.5,2 C13.5,1.17157288 12.8284271,0.5 12,0.5 L2,0.5 Z" stroke="#B8BDC7" fill-rule="nonzero"></path>
-                <circle fill="#B8BDC7" cx="10" cy="4" r="1"></circle>
-                <polyline stroke="#B8BDC7" points="0.705322849 8.74519056 4.08839917 5.92619277 7.5 8.74519056 10.0023796 7.0565661 13.4423902 9.88585665"></polyline>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg width="14" height="12" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path d="M2 .5A1.5 1.5 0 00.5 2v8A1.5 1.5 0 002 11.5h10a1.5 1.5 0 001.5-1.5V2A1.5 1.5 0 0012 .5H2z" stroke="#B8BDC7"/><circle fill="#B8BDC7" cx="10" cy="4" r="1"/><path stroke="#B8BDC7" d="M.705 8.745l3.383-2.819L7.5 8.746l2.502-1.69 3.44 2.83"/></g></svg>

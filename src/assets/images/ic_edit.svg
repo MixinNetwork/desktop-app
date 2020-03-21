@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="16" height="16" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
-        <g transform="translate(-219.000000, -20.000000)" fill-rule="nonzero" stroke="#2F3032" stroke-width="2">
-            <g transform="translate(25.000000, 15.000000)">
-                <g transform="translate(188.000000, 1.000000)">
-                    <path d="M20,11.5714286 L20,15.75 C20,17.5449254 18.5449254,19 16.75,19 L10.25,19 C8.45507456,19 7,17.5449254 7,15.75 L7,9.25 C7,7.45507456 8.45507456,6 10.25,6 L13.5,6" transform="translate(13.500000, 12.500000) rotate(-360.000000) translate(-13.500000, -12.500000) "></path>
-                    <path d="M13,13 L20.0918831,5"></path>
-                </g>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g fill-rule="nonzero" stroke="#2F3032" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14 7.571v4.179A3.25 3.25 0 0110.75 15h-6.5A3.25 3.25 0 011 11.75v-6.5A3.25 3.25 0 014.25 2H7.5M7 9l7.092-8"/></g></svg>

@@ -6,48 +6,61 @@ import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory } from '@/utils/constants'
+// @ts-ignore
+import _ from 'lodash'
 
 let setCurrentConversationTimer: any = null
+let refreshConversationsTimer: any = null
 
 function refreshConversations(state: any) {
-  const findConversations = conversationDao.getConversations()
-  const conversationKeys: any = []
-  if (!findConversations.length) {
-    state.conversations = {}
+  if (refreshConversationsTimer) {
+    clearTimeout(refreshConversationsTimer)
+    refreshConversationsTimer = null
+    refreshConversations(state)
     return
   }
-  const conversations: any = {}
-  findConversations.forEach((conversation: any) => {
-    const conversationId = conversation.conversationId
-    conversationKeys.push(conversationId)
-    const participants = participantDao.getParticipantsByConversationId(conversationId)
-    conversation.participants = participants
-    conversations[conversationId] = conversation
-  })
-  state.conversations = conversations
-  state.conversationKeys = conversationKeys
+  refreshConversationsTimer = setTimeout(() => {
+    const findConversations = conversationDao.getConversations()
+    const conversationKeys: any = []
+    if (!findConversations.length) {
+      state.conversations = {}
+      return
+    }
+    const conversations: any = {}
+    findConversations.forEach((conversation: any) => {
+      const conversationId = conversation.conversationId
+      conversationKeys.push(conversationId)
+      const participants = participantDao.getParticipantsByConversationId(conversationId)
+      conversation.participants = participants
+      conversations[conversationId] = conversation
+    })
+    state.conversations = conversations
+    state.conversationKeys = conversationKeys
+    refreshConversationsTimer = null
+  }, 150)
 }
 
-function refreshConversation(
-  state: { conversations: object; conversationKeys: any; conversationUnseenMentionsMap: any },
-  conversationId: string
-) {
-  const mentionsMap = state.conversationUnseenMentionsMap
-  const conversation = conversationDao.getConversationItemByConversationId(conversationId)
-  const conversations = JSON.parse(JSON.stringify(state.conversations))
-  if (conversation) {
-    const participants = participantDao.getParticipantsByConversationId(conversationId)
-    conversation.participants = participants
-    const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
-    mentionsMap[conversationId] = mentionMessages
-    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
-    conversations[conversationId] = conversation
-  }
-  state.conversations = conversations
+let refreshConversationTimerMap: any = {}
+function refreshConversation(state: any, conversationId: string) {
+  clearTimeout(refreshConversationTimerMap[conversationId])
+  refreshConversationTimerMap[conversationId] = setTimeout(() => {
+    const mentionsMap = state.conversationUnseenMentionsMap
+    const conversation = conversationDao.getConversationItemByConversationId(conversationId)
+    const conversations = _.cloneDeepWith(state.conversations)
+    if (conversation) {
+      const participants = participantDao.getParticipantsByConversationId(conversationId)
+      conversation.participants = participants
+      const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+      mentionsMap[conversationId] = mentionMessages
+      state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
+      conversations[conversationId] = conversation
+    }
+    state.conversations = conversations
 
-  state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
-    return item.conversationId
-  })
+    state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
+      return item.conversationId
+    })
+  }, 150)
 }
 
 let keywordCache: any = null
@@ -67,7 +80,7 @@ function messageSearch(state: any, type: string, keyword: any) {
       if (count > 0) {
         isEmpty = false
         num++
-        const temp = JSON.parse(JSON.stringify(state.conversations[conversation.conversationId]))
+        const temp = _.cloneDeepWith(state.conversations[conversation.conversationId])
         temp.records = count
 
         messageAll.push(temp)
@@ -205,7 +218,7 @@ export default {
     })
     state.conversationKeys = conversationKeys
     state.conversations = conversations
-    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
+    state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
     const friends = userDao.findFriends()
     if (friends.length > 0) {
       state.friends = friends
@@ -269,7 +282,7 @@ export default {
       }
     }
     mentionsMap[conversationId] = messages
-    state.conversationUnseenMentionsMap = JSON.parse(JSON.stringify(mentionsMap))
+    state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
   },
   refreshMessage(state: any, payload: any) {
     messageBox.refreshMessage(payload)

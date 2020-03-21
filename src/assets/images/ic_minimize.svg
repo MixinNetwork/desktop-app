@@ -1,9 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="18px" height="18px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g transform="translate(0.000000, -2.000000)">
-            <rect fill="#FFF" opacity="0" x="0" y="0" width="1024" height="1024"></rect>
-            <polyline stroke="#FFF" stroke-width="85.3333333" points="938.666667 282.666667 512 709.333333 85.3333333 282.666667"></polyline>
-        </g>
-    </g>
-</svg>
+<svg width="18" height="18" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path stroke="#FFF" stroke-width="85.333" d="M938.667 280.667L512 707.333 85.333 280.667" fill="none" fill-rule="evenodd"/></svg>

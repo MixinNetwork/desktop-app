@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="30px" height="30px" viewBox="0 0 38 38" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <g id="Conversation" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="" transform="translate(-225.000000, -548.000000)">
-            <g id="" transform="translate(217.000000, 536.000000)">
-                <g id="ic_play" transform="translate(8.000000, 12.000000)">
-                    <circle id="Oval" fill="#EFEFF4" cx="19" cy="19" r="19"></circle>
-                    <path d="M16.7022518,11.7371619 L25.7050926,17.5247024 C26.519877,18.0484923 26.7557745,19.1336212 26.2319846,19.9484056 C26.0961212,20.1597487 25.9164357,20.3394342 25.7050926,20.4752976 L16.7022518,26.2628381 C15.8874674,26.7866281 14.8023385,26.5507305 14.2785485,25.7359461 C14.0966902,25.4530554 14,25.1238434 14,24.7875405 L14,13.2124595 C14,12.243837 14.7852237,11.4586133 15.7538462,11.4586133 C16.090149,11.4586133 16.4193611,11.5553035 16.7022518,11.7371619 Z" id="Rectangle" fill="#4b7ed2"></path>
-                </g>
-            </g>
-        </g>
-    </g>
-</svg>
+<svg width="30" height="30" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><circle fill="#EFEFF4" cx="19" cy="19" r="19"/><path d="M16.702 11.737l9.003 5.788a1.754 1.754 0 010 2.95l-9.003 5.788A1.754 1.754 0 0114 24.788V13.212a1.754 1.754 0 012.702-1.475z" fill="#4b7ed2"/></g></svg>

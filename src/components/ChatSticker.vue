@@ -175,7 +175,7 @@ export default class ChatSticker extends Vue {
 </script>
 <style lang="scss" scoped>
 .chat-sticker {
-  background: #f2f3f3;
+  background: $bg-color;
   border-top: 0.05rem solid #f0f0f0;
   display: flex;
   flex-flow: column nowrap;

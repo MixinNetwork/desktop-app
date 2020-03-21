@@ -61,7 +61,7 @@ export default class Editor extends Vue {
 </script>
 <style lang="scss" scoped>
 .editor {
-  background: #f2f3f3;
+  background: $bg-color;
   display: flex;
   flex-flow: column nowrap;
   .title_bar {

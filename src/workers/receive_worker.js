@@ -21,6 +21,7 @@ import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
 import messageMentionDao from '@/dao/message_mention_dao'
 
+import interval from 'interval-promise'
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
 
 import {
@@ -32,13 +33,101 @@ import {
   ConversationCategory
 } from '@/utils/constants'
 
+const insertMessageQueue = []
+const makeMessageReadQueue = []
+
+function insertMessageQueuePush(message, callback) {
+  insertMessageQueue.push([message, callback])
+}
+
+function makeMessageReadQueuePush(blazeMessage, conversationId, messageId) {
+  makeMessageReadQueue.push([blazeMessage, conversationId, messageId])
+}
+
+function refreshMessages(messageIdsMap) {
+  Object.keys(messageIdsMap).forEach(conversationId => {
+    const messageIds = messageIdsMap[conversationId]
+    store.dispatch('refreshMessage', {
+      conversationId,
+      messageIds
+    })
+  })
+}
+
+interval(
+  async(_, stop) => {
+    if (insertMessageQueue.length) {
+      let i = 20
+      const messageList = []
+      const callbackList = []
+      const messageIdsMap = {}
+      while (i > 0 && insertMessageQueue.length > 0) {
+        i--
+        const temp = insertMessageQueue.shift()
+        if (temp) {
+          messageList.push(temp[0])
+          callbackList.push(temp[1])
+          const conversationId = temp[0].conversation_id
+          const messageId = temp[0].message_id
+          messageIdsMap[conversationId] = messageIdsMap[conversationId] || []
+          messageIdsMap[conversationId].push(messageId)
+        }
+      }
+      // messageDao.insertMessages(messageList)
+      const promiseList = []
+      callbackList.forEach(callback => {
+        if (callback) {
+          const temp = new Promise((resolve, reject) => {
+            callback()
+            resolve(true)
+          })
+          promiseList.push(temp)
+        }
+      })
+      Promise.all(promiseList).then(() => {
+        refreshMessages(messageIdsMap)
+      })
+    }
+    if (makeMessageReadQueue.length) {
+      let i = 20
+      const jobList = []
+      const messageIdsMap = {}
+      while (i > 0 && makeMessageReadQueue.length > 0) {
+        i--
+        const temp = makeMessageReadQueue.shift()
+        if (temp) {
+          jobList.push({
+            job_id: uuidv4(),
+            action: 'CREATE_MESSAGE',
+            created_at: new Date().toISOString(),
+            order_id: null,
+            priority: 5,
+            user_id: null,
+            blaze_message: JSON.stringify(temp[0]),
+            conversation_id: temp[1],
+            resend_message_id: null,
+            run_count: 0
+          })
+          messageIdsMap[temp[1]] = messageIdsMap[temp[1]] || []
+          messageIdsMap[temp[1]].push(temp[2])
+        }
+      }
+      jobDao.insertJobs(jobList)
+      refreshMessages(messageIdsMap)
+    }
+  },
+  70,
+  { stopOnError: false }
+)
+
 class ReceiveWorker extends BaseWorker {
   async doWork() {
     await wasmObject.then(result => {})
     const fms = floodMessageDao.findFloodMessage()
-    if (!fms) {
+    if (!fms || !fms.length) {
       return
     }
+
     for (const fm of fms) {
       try {
         await this.process(fm)
@@ -56,7 +145,10 @@ class ReceiveWorker extends BaseWorker {
       return
     }
     const data = JSON.parse(floodMessage.data)
-    await this.syncConversation(data)
+    const conversation = conversationDao.getSimpleConversationItem(data.conversation_id)
+    if (!conversation) {
+      await this.syncConversation(data)
+    }
     if (data.category.startsWith('SIGNAL_')) {
       await this.processSignalMessage(data)
     } else if (data.category.startsWith('PLAIN_')) {
@@ -103,10 +195,8 @@ class ReceiveWorker extends BaseWorker {
       created_at: data.created_at
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
-    store.dispatch('refreshMessage', {
-      conversationId: data.conversation_id,
-      messageIds: [data.message_id]
+    insertMessageQueuePush(message, async() => {
+      this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
   }
 
@@ -126,10 +216,6 @@ class ReceiveWorker extends BaseWorker {
     }
 
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
-    store.dispatch('refreshMessage', {
-      conversationId: data.conversation_id,
-      messageIds: [recallMassage.message_id]
-    })
   }
 
   async processSystemMessage(data) {
@@ -213,11 +299,9 @@ class ReceiveWorker extends BaseWorker {
       snapshot_id: decodedData.snapshot_id
     }
     messageDao.insertMessage(message)
-    store.dispatch('refreshMessage', {
-      conversationId: data.conversation_id,
-      messageIds: [data.message_id]
+    insertMessageQueuePush(message, async() => {
+      this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
   }
 
   async processSystemConversationMessage(data, systemMessage) {
@@ -284,7 +368,7 @@ class ReceiveWorker extends BaseWorker {
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      await this.refreshConversation(data.conversation_id)
+      this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
       participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)
@@ -293,7 +377,9 @@ class ReceiveWorker extends BaseWorker {
       }
     }
     messageDao.insertMessage(message)
-    this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
+    insertMessageQueuePush(message, async() => {
+      this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
+    })
   }
 
   async processPlainMessage(data) {
@@ -376,13 +462,15 @@ class ReceiveWorker extends BaseWorker {
 
   insertDownloadMessage(message) {
     messageDao.insertMessage(message)
-    const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-    if (offset <= 7200000) {
-      store.dispatch('startLoading', message.message_id)
-      downloadQueue.push(this.download, {
-        args: message
-      })
-    }
+    insertMessageQueuePush(message, async() => {
+      const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+      if (offset <= 7200000) {
+        store.dispatch('startLoading', message.message_id)
+        downloadQueue.push(this.download, {
+          args: message
+        })
+      }
+    })
   }
 
   async download(message) {
@@ -444,7 +532,7 @@ class ReceiveWorker extends BaseWorker {
       const mentionIds = contentUtil.parseMentionIdentityNumber(plain)
       if (mentionIds.length > 0) {
         const users = userDao.findUsersByIdentityNumber(mentionIds)
-        users.forEach((user) => {
+        users.forEach(user => {
           if (user) {
             const id = user.identity_number
             const mentionName = `@${user.full_name}`
@@ -453,7 +541,9 @@ class ReceiveWorker extends BaseWorker {
           }
         })
       }
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
+      insertMessageQueuePush(message, async() => {
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
+      })
     } else if (data.category.endsWith('_POST')) {
       let plain = plaintext
       if (data.category === 'PLAIN_POST') {
@@ -471,8 +561,10 @@ class ReceiveWorker extends BaseWorker {
         quote_content: quoteContent
       }
       messageDao.insertMessage(message)
-      plain = contentUtil.renderMdToText(plain)
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
+      insertMessageQueuePush(message, async() => {
+        plain = contentUtil.renderMdToText(plain)
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
+      })
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)
       var mediaData = JSON.parse(decoded)
@@ -599,8 +691,10 @@ class ReceiveWorker extends BaseWorker {
       if (!sticker) {
         await this.refreshSticker(stickerData.sticker_id)
       }
-      const body = i18n.t('notification.sendSticker')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      insertMessageQueuePush(message, async() => {
+        const body = i18n.t('notification.sendSticker')
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      })
     } else if (data.category.endsWith('_CONTACT')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const contactData = JSON.parse(decoded)
@@ -618,8 +712,10 @@ class ReceiveWorker extends BaseWorker {
       }
       messageDao.insertMessage(message)
       await this.syncUser(contactData.user_id)
-      const body = i18n.t('notification.sendContact')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      insertMessageQueuePush(message, async() => {
+        const body = i18n.t('notification.sendContact')
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      })
     } else if (data.category.endsWith('_LIVE')) {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const liveData = JSON.parse(decoded)
@@ -639,14 +735,12 @@ class ReceiveWorker extends BaseWorker {
         quote_content: quoteContent
       }
       messageDao.insertMessage(message)
-      const body = i18n.t('notification.sendLive')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      insertMessageQueuePush(message, async() => {
+        const body = i18n.t('notification.sendLive')
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      })
     }
     this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
-    store.dispatch('refreshMessage', {
-      conversationId: data.conversation_id,
-      messageIds: [data.message_id]
-    })
   }
 
   showNotification(conversationId, userId, fullName, content, source, createdAt) {
@@ -736,18 +830,7 @@ class ReceiveWorker extends BaseWorker {
       message_id: messageId,
       status: status
     }
-    jobDao.insert({
-      job_id: uuidv4(),
-      action: 'CREATE_MESSAGE',
-      created_at: new Date().toISOString(),
-      order_id: null,
-      priority: 5,
-      user_id: null,
-      blaze_message: JSON.stringify(blazeMessage),
-      conversation_id: conversationId,
-      resend_message_id: null,
-      run_count: 0
-    })
+    makeMessageReadQueuePush(blazeMessage, conversationId, messageId)
   }
 }
 

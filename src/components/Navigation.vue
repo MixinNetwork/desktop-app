@@ -671,7 +671,7 @@ export default class Navigation extends Vue {
   }
 
   .search-wrapper {
-    background: #f2f3f3;
+    background: $bg-color;
     /deep/ .search {
       padding-top: 0.05rem;
     }
@@ -715,7 +715,7 @@ export default class Navigation extends Vue {
     .show-more {
       padding: 0.35rem 0.6rem;
       font-weight: 500;
-      background: #f2f3f3;
+      background: $bg-color;
       cursor: pointer;
       svg {
         margin: 0.2rem 0.35rem 0 0.7rem;
@@ -744,7 +744,7 @@ export default class Navigation extends Vue {
       }
     }
     .header {
-      background: #f2f3f3;
+      background: $bg-color;
       height: 2.875rem;
       display: flex;
       flex-direction: row;
@@ -804,7 +804,7 @@ export default class Navigation extends Vue {
       }
     }
     .status-wrapper {
-      background: #f2f3f3;
+      background: $bg-color;
     }
   }
 

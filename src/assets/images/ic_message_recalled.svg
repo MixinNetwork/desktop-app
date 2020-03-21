@@ -1,8 +1,1 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="14px" height="12px" viewBox="0 0 14 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect stroke="#B8BDC7" x="1.5" y="0.5" width="11" height="11" rx="5.5"></rect>
-        <rect fill="#B8BDC7" transform="translate(6.641890, 5.780143) scale(-1, 1) rotate(52.000000) translate(-6.641890, -5.780143) " x="6.14188988" y="0.280143491" width="1" height="11"></rect>
-    </g>
-</svg>
+<svg width="14" height="12" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><rect stroke="#B8BDC7" x="1.5" y=".5" width="11" height="11" rx="5.5"/><path fill="#B8BDC7" d="M2.615 2L2 2.788l8.668 6.772.616-.788z"/></g></svg>

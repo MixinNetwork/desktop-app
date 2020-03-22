@@ -75,6 +75,9 @@ function createWindow() {
         }
         win.hide()
       }
+      if (process.platform === 'linux') {
+        app.quit()
+      }
 
       if (process.platform === 'win32') {
         appTray = new Tray('resources/icon/icon.ico')

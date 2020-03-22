@@ -46,7 +46,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :class="{ show: showMessages }"
+        :class="{ show: showMessages, 'hide-time-divide': hideTimeDivide }"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -90,7 +90,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && !isBottom"
+        v-if="conversation && (!isBottom || this.infiniteDownLock)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -277,7 +277,6 @@ export default class ChatContainer extends Vue {
     let { firstIndex, lastIndex } = val
     const bfv = this.beforeViewport
     if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
-      this.udpateMessagesVisible()
       return
     }
 
@@ -355,6 +354,7 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 30
   showTopTips: boolean = false
+  hideTimeDivide: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -365,6 +365,7 @@ export default class ChatContainer extends Vue {
     return 0
   }
 
+  hideTimeDivideTimer: any = null
   mounted() {
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
@@ -418,9 +419,14 @@ export default class ChatContainer extends Vue {
         if (messages) {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
+          self.udpateMessagesVisible()
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
+        clearTimeout(self.hideTimeDivideTimer)
+        self.hideTimeDivideTimer = setTimeout(() => {
+          self.hideTimeDivide = false
+        }, 200)
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
@@ -505,7 +511,7 @@ export default class ChatContainer extends Vue {
   udpateMessagesVisible() {
     const list = this.getMessagesVisible()
     list.forEach((item: any, index: number) => {
-      if (item.messageId === this.messagesVisible[index].messageId) {
+      if (this.messagesVisible[index] && item.messageId === this.messagesVisible[index].messageId) {
         this.messagesVisible[index] = item
       }
     })
@@ -591,14 +597,17 @@ export default class ChatContainer extends Vue {
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
-      this.showTopTipsTimer = setTimeout(() => {
-        this.showTopTips = true
-      }, 200)
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true
+        if (!this.showTopTips) {
+          this.hideTimeDivide = true
+        }
         messageBox.infiniteUp()
       }
+      this.showTopTipsTimer = setTimeout(() => {
+        this.showTopTips = true
+      }, 150)
     }
 
     if (!this.scrollTimerThrottle) {
@@ -1081,6 +1090,11 @@ export default class ChatContainer extends Vue {
       padding: 0.2rem 0.5rem;
       margin-bottom: 0.5rem;
       box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
+    }
+  }
+  .hide-time-divide {
+    /deep/ .time-divide.inner {
+      opacity: 0;
     }
   }
 

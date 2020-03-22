@@ -45,7 +45,7 @@ function createWindow() {
       nodeIntegration: true,
       webSecurity: false
     },
-    frame: process.platform !== 'darwin'
+    frame: process.platform === 'linux'
   })
   if (win) {
     win.show()

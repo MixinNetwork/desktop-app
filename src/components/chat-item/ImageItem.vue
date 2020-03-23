@@ -159,11 +159,14 @@ export default class ImageItem extends Vue {
 
   borderSetObject(getWidth: boolean) {
     const { message } = this
-    const width = Math.min(message.mediaWidth, maxWidth)
+    let width = Math.min(message.mediaWidth, maxWidth)
     const scale = message.mediaWidth / message.mediaHeight
     if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
       if (getWidth) {
         return width
+      }
+      if (message.quoteContent) {
+        width -= 4
       }
       return { width: `${width}px`, height: `${width / scale}px` }
     }
@@ -171,7 +174,11 @@ export default class ImageItem extends Vue {
     if (getWidth) {
       return height * scale
     }
-    return { width: `${height * scale}px`, height: `${height}px` }
+    width = height * scale
+    if (message.quoteContent) {
+      width -= 4
+    }
+    return { width: `${width}px`, height: `${height}px` }
   }
 
   stopLoading() {

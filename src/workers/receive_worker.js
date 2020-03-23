@@ -583,8 +583,10 @@ class ReceiveWorker extends BaseWorker {
         quote_content: quoteContent
       }
       messageDao.insertMessage(message)
-      const body = i18n.t('notification.sendLocation')
-      this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      insertMessageQueuePush(message, async() => {
+        const body = i18n.t('notification.sendLocation')
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
+      })
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)
       var mediaData = JSON.parse(decoded)

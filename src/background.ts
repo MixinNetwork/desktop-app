@@ -8,6 +8,10 @@ import { setFocusWindow } from './updater'
 import { initPlayer } from './player'
 import path from 'path'
 
+ipcMain.on('updateBadgeNum', (event, num) => {
+  app.dock.setBadge(num)
+})
+
 ipcMain.on('checkUp', (event, _) => {
   autoUpdater.checkForUpdates()
 })

@@ -20,7 +20,10 @@ import {
 } from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
 
-function markRead(conversationId: any) {
+function markRead(commit: any, state: any, conversationId: any) {
+  if (state.conversations) {
+    commit('setUnseenBadgeNum', conversationId)
+  }
   const messages = messageDao.findUnreadMessage(conversationId)
   updateRemoteMessageStatusBatch(conversationId, messages, MessageStatus.READ)
   messageDao.markRead(conversationId)
@@ -260,8 +263,8 @@ export default {
   setCurrentConversation: async({ commit }: any, conversation: any) => {
     commit('setCurrentConversation', conversation)
   },
-  markRead: ({ commit }: any, conversationId: any) => {
-    markRead(conversationId)
+  markRead: ({ commit, state }: any, conversationId: any) => {
+    markRead(commit, state, conversationId)
     commit('refreshConversation', conversationId)
   },
   markMentionRead: ({ commit }: any, { conversationId, messageId }: any) => {
@@ -327,9 +330,9 @@ export default {
   setCurrentMessages: ({ commit }: any, messages: any) => {
     commit('setCurrentMessages', messages)
   },
-  sendMessage: ({ commit }: any, { msg, quoteId }: any) => {
+  sendMessage: ({ commit, state }: any, { msg, quoteId }: any) => {
     const { conversationId } = msg
-    markRead(conversationId)
+    markRead(commit, state, conversationId)
 
     let messageId = ''
     if (quoteId) {
@@ -352,11 +355,11 @@ export default {
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
   sendStickerMessage: (
-    { commit }: any,
+    { commit, state }: any,
     msg: { conversationId: any; stickerId?: any; category?: any; status?: any }
   ) => {
     const { conversationId, stickerId, category, status } = msg
-    markRead(conversationId)
+    markRead(commit, state, conversationId)
     const messageId = uuidv4().toLowerCase()
     const content = btoa(`{"sticker_id":"${stickerId}"}`)
     messageDao.insertMessage({

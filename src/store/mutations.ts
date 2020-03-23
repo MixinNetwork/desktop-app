@@ -9,6 +9,8 @@ import { LinkStatus, ConversationCategory } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
 
+import { ipcRenderer } from 'electron'
+
 let setCurrentConversationTimer: any = null
 let refreshConversationsTimer: any = null
 
@@ -40,6 +42,22 @@ function refreshConversations(state: any) {
   }, 150)
 }
 
+let updateBadgeNumTimer: any = null
+function setUnseenBadgeNum(conversations: any, conversationId: string) {
+  clearTimeout(updateBadgeNumTimer)
+  updateBadgeNumTimer = setTimeout(() => {
+    let unseenMessageCount: any = 0
+    Object.keys(conversations).forEach(id => {
+      const item = conversations[id]
+      unseenMessageCount += item.unseenMessageCount
+    })
+    if (unseenMessageCount < 1) {
+      unseenMessageCount = ''
+    }
+    ipcRenderer.send('updateBadgeNum', unseenMessageCount.toString())
+  }, 300)
+}
+
 let refreshConversationTimerMap: any = {}
 function refreshConversation(state: any, conversationId: string) {
   clearTimeout(refreshConversationTimerMap[conversationId])
@@ -55,6 +73,7 @@ function refreshConversation(state: any, conversationId: string) {
       state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
       conversations[conversationId] = conversation
     }
+    setUnseenBadgeNum(conversations, conversationId)
     state.conversations = conversations
 
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
@@ -225,6 +244,9 @@ export default {
     }
     // @ts-ignore
     state.me = JSON.parse(localStorage.getItem('account'))
+  },
+  setUnseenBadgeNum(state: any, conversationId: string) {
+    setUnseenBadgeNum(state.conversations, conversationId)
   },
   saveAccount(state: any, user: any) {
     state.me = user

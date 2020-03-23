@@ -131,6 +131,7 @@
         v-if="(dragging && conversation) || file"
         :file="file"
         :dragging="dragging"
+        :fileUnsupported="fileUnsupported"
         @close="closeFile"
         @sendFile="sendFile"
       ></FileContainer>
@@ -169,6 +170,7 @@
 </template>
 
 <script lang="ts">
+import fs from 'fs'
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
@@ -327,7 +329,8 @@ export default class ChatContainer extends Vue {
   details: any = false
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
-  dragging: any = false
+  dragging: boolean = false
+  fileUnsupported: boolean = false
   file: any = null
   isBottom: any = true
   boxMessage: any = null
@@ -875,10 +878,16 @@ export default class ChatContainer extends Vue {
     e.preventDefault()
   }
   onDrop(e: any) {
+    this.fileUnsupported = false
     e.preventDefault()
     let fileList = e.dataTransfer.files
     if (fileList.length > 0) {
       this.file = fileList[0]
+      try {
+        fs.readFileSync(this.file.path)
+      } catch (error) {
+        this.fileUnsupported = true
+      }
     }
     this.dragging = false
   }

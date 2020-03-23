@@ -863,7 +863,12 @@ export default class ChatContainer extends Vue {
       const { conversationId } = this.conversation
       const message = {
         conversationId,
-        payload
+        payload,
+        quoteId: ''
+      }
+      if (this.boxMessage) {
+        message.quoteId = this.boxMessage.messageId
+        this.boxMessage = null
       }
       this.$root.$emit('resetSearch')
       this.actionSendAttachmentMessage(message)

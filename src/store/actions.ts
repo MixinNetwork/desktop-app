@@ -406,13 +406,13 @@ export default {
     jobDao.insertSendingJob(messageId, conversationId)
     commit('refreshMessage', { conversationId, messageIds: [messageId] })
   },
-  sendAttachmentMessage: ({ commit }: any, { conversationId, payload }: any) => {
+  sendAttachmentMessage: ({ commit }: any, { conversationId, payload, quoteId }: any) => {
     const messageId = uuidv4().toLowerCase()
     payload.id = messageId
     putAttachment(
       payload,
       (data: AttachmentMessagePayload) => {
-        messageDao.insertMessage({
+        const msg: any = {
           message_id: messageId,
           conversation_id: conversationId,
           user_id: getAccount().user_id,
@@ -428,7 +428,15 @@ export default {
           status: MessageStatus.SENDING,
           created_at: new Date().toISOString(),
           name: data.mediaName
-        })
+        }
+        if (quoteId) {
+          let quoteItem = messageDao.findMessageItemById(conversationId, quoteId)
+          if (quoteItem) {
+            msg.quote_message_id = quoteId
+            msg.quote_content = JSON.stringify(quoteItem)
+          }
+        }
+        messageDao.insertMessage(msg)
         commit('startLoading', messageId)
         commit('refreshMessage', { conversationId, messageIds: [messageId] })
       },

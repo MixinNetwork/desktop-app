@@ -265,6 +265,7 @@ export default class ChatItem extends Vue {
 
     const htmlPieces = html.split('&nbsp;')
 
+    let done = false
     for (let i = htmlPieces.length - 1; i >= 0; i--) {
       let includes = false
       idsTemp.forEach((id: string) => {
@@ -273,25 +274,30 @@ export default class ChatItem extends Vue {
         }
       })
       if (!includes) {
-        const messageIds: any = []
-        const innerPieces = htmlPieces[i].split(' ')
-        for (let j = innerPieces.length - 1; j >= 0; j--) {
-          this.mentions.forEach((item: any) => {
-            const id = `@${item.identity_number}`
-            const name = `@${item.full_name}`
-            const idInPiece = innerPieces[j].split('<')[0]
-            if (
-              messageIds.indexOf(id) < 0 &&
+        const splitStrList = ['<br>', '\n', '<div>', ' ']
+        splitStrList.forEach(splitStr => {
+          if (done) return
+          const messageIds: any = []
+          const innerPieces = htmlPieces[i].split(splitStr)
+          for (let j = innerPieces.length - 1; j >= 0; j--) {
+            this.mentions.forEach((item: any) => {
+              const id = `@${item.identity_number}`
+              const name = `@${item.full_name}`
+              const idInPiece = innerPieces[j].split('<')[0]
+              if (
+                messageIds.indexOf(id) < 0 &&
               idsTemp.indexOf(id) < 0 &&
               (id.startsWith(idInPiece) || name.startsWith(idInPiece))
-            ) {
-              const hl = contentUtil.highlight(id, id, '')
-              innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
-            }
-            messageIds.push(id)
-          })
-        }
-        htmlPieces[i] = innerPieces.join(' ')
+              ) {
+                const hl = contentUtil.highlight(id, id, '')
+                innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
+                done = true
+              }
+              messageIds.push(id)
+            })
+          }
+          htmlPieces[i] = innerPieces.join(splitStr)
+        })
       }
     }
 

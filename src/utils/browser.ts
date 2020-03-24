@@ -10,7 +10,10 @@ export default {
         resizable: false,
         minimizable: false,
         fullscreenable: false,
-        show: false
+        show: false,
+        webPreferences: {
+          sandbox: true
+        }
       })
       browser.on('closed', () => {
         browser = null

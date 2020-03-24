@@ -367,6 +367,14 @@ export default class ChatContainer extends Vue {
 
   hideTimeDivideTimer: any = null
   mounted() {
+    this.$root.$on('selectAllKeyDown', (event: any) => {
+      const selectNes: any = document.getSelection()
+      const { className } = selectNes.baseNode.parentNode
+      if (!/(box|content)/.test(className)) {
+        return event.preventDefault()
+      }
+    })
+
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
       this.hideSearch()
@@ -450,6 +458,7 @@ export default class ChatContainer extends Vue {
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
+    this.$root.$off('selectAllKeyDown')
     this.$root.$off('escKeydown')
   }
 

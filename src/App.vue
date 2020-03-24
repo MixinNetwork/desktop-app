@@ -83,6 +83,10 @@ export default class App extends Vue {
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }
+        if (keyCode === 65) {
+          this.$root.$emit('selectAllKeyDown', e)
+        }
+
         clearTimeout(directionKeyDownTimeout)
       }
       if (keyCode === 38) {

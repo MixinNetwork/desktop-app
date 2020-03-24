@@ -8,8 +8,10 @@ import { setFocusWindow } from './updater'
 import { initPlayer } from './player'
 import path from 'path'
 
-ipcMain.on('updateBadgeNum', (event, num) => {
-  app.dock.setBadge(num)
+ipcMain.on('updateBadgeCount', (event, count) => {
+  if (process.platform === 'darwin') {
+    app.badgeCount = count
+  }
 })
 
 ipcMain.on('checkUp', (event, _) => {

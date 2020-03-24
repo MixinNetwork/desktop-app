@@ -253,7 +253,7 @@ export default class Navigation extends Vue {
     this.conversations.forEach((item: any) => {
       unseenMessageCount += item.unseenMessageCount
     })
-    ipcRenderer.send('updateBadgeNum', unseenMessageCount.toString())
+    ipcRenderer.send('updateBadgeCount', unseenMessageCount)
     this.menus = this.$t('menu.personal')
     this.$root.$on('directionKeyDownWithCtrl', (direction: string) => {
       const { draftText } = this.conversation

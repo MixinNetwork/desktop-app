@@ -39,22 +39,19 @@ function refreshConversations(state: any) {
     state.conversations = conversations
     state.conversationKeys = conversationKeys
     refreshConversationsTimer = null
-  }, 150)
+  }, 100)
 }
 
-let updateBadgeNumTimer: any = null
+let updateBadgeCountTimer: any = null
 function setUnseenBadgeNum(conversations: any, conversationId: string) {
-  clearTimeout(updateBadgeNumTimer)
-  updateBadgeNumTimer = setTimeout(() => {
+  clearTimeout(updateBadgeCountTimer)
+  updateBadgeCountTimer = setTimeout(() => {
     let unseenMessageCount: any = 0
     Object.keys(conversations).forEach(id => {
       const item = conversations[id]
       unseenMessageCount += item.unseenMessageCount
     })
-    if (unseenMessageCount < 1) {
-      unseenMessageCount = ''
-    }
-    ipcRenderer.send('updateBadgeNum', unseenMessageCount.toString())
+    ipcRenderer.send('updateBadgeCount', unseenMessageCount)
   }, 300)
 }
 
@@ -79,7 +76,7 @@ function refreshConversation(state: any, conversationId: string) {
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
       return item.conversationId
     })
-  }, 150)
+  }, 50)
 }
 
 let keywordCache: any = null
@@ -272,7 +269,7 @@ export default {
       } else {
         refreshConversation(state, conversationId)
       }
-    }, 100)
+    }, 50)
     state.currentConversationId = conversationId
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)

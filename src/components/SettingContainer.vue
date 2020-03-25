@@ -40,7 +40,7 @@ export default class SettingContainer extends Vue {
     ipcRenderer.send('checkUp')
   }
   open(url: string) {
-    browser.loadURL(url)
+    browser.loadURL(url, '')
   }
 }
 </script>

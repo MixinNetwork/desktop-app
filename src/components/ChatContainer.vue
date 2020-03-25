@@ -930,7 +930,7 @@ export default class ChatContainer extends Vue {
       const id = action.split('mention:')[1]
       this.showDetails(id)
     } else {
-      browser.loadURL(action)
+      browser.loadURL(action, this.conversation.conversationId)
     }
   }
   chatSearch() {
@@ -943,7 +943,7 @@ export default class ChatContainer extends Vue {
   openUrl() {
     let app = appDao.findAppByUserId(this.user.app_id)
     if (app) {
-      browser.loadURL(app.home_uri)
+      browser.loadURL(app.home_uri, this.conversation.conversationId)
     }
   }
 

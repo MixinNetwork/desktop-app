@@ -63,7 +63,7 @@ export default class TimeDivide extends Vue {
   &.fixed {
     position: absolute;
     top: 0.6rem;
-    z-index: 99;
+    z-index: 9;
     left: 0;
     right: 0;
     span {

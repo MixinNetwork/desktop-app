@@ -166,6 +166,8 @@ export function messageType(type: string) {
     return 'file'
   } else if (type.endsWith('_CONTACT')) {
     return 'contact'
+  } else if (type.endsWith('_LOCATION')) {
+    return 'location'
   } else if (type.endsWith('_POST')) {
     return 'post'
   } else if (type.startsWith('APP_')) {
@@ -210,6 +212,7 @@ export function canReply(message: any) {
     type === MessageCategories.SIGNAL_STICKER ||
     type === MessageCategories.SIGNAL_CONTACT ||
     type === MessageCategories.SIGNAL_LIVE ||
+    type === MessageCategories.SIGNAL_LOCATION ||
     type === MessageCategories.SIGNAL_POST ||
     type === MessageCategories.APP_CARD ||
     type === MessageCategories.PLAIN_TEXT ||
@@ -220,6 +223,7 @@ export function canReply(message: any) {
     type === MessageCategories.PLAIN_STICKER ||
     type === MessageCategories.PLAIN_CONTACT ||
     type === MessageCategories.PLAIN_LIVE ||
+    type === MessageCategories.PLAIN_LOCATION ||
     type === MessageCategories.PLAIN_POST
   )
 }
@@ -236,7 +240,9 @@ export function canForward(message: any) {
       type === MessageCategories.SIGNAL_STICKER ||
       type === MessageCategories.SIGNAL_CONTACT ||
       type === MessageCategories.SIGNAL_LIVE ||
+      type === MessageCategories.SIGNAL_LOCATION ||
       type === MessageCategories.SIGNAL_POST ||
+      type === MessageCategories.APP_CARD ||
       type === MessageCategories.PLAIN_TEXT ||
       type === MessageCategories.PLAIN_IMAGE ||
       type === MessageCategories.PLAIN_VIDEO ||
@@ -245,6 +251,7 @@ export function canForward(message: any) {
       type === MessageCategories.PLAIN_STICKER ||
       type === MessageCategories.PLAIN_CONTACT ||
       type === MessageCategories.PLAIN_LIVE ||
+      type === MessageCategories.PLAIN_LOCATION ||
       type === MessageCategories.PLAIN_POST) &&
     status
   )
@@ -271,6 +278,7 @@ export const MessageCategories = {
   SIGNAL_STICKER: 'SIGNAL_STICKER',
   SIGNAL_CONTACT: 'SIGNAL_CONTACT',
   SIGNAL_LIVE: 'SIGNAL_LIVE',
+  SIGNAL_LOCATION: 'SIGNAL_LOCATION',
   SIGNAL_POST: 'SIGNAL_POST',
   PLAIN_TEXT: 'PLAIN_TEXT',
   PLAIN_IMAGE: 'PLAIN_IMAGE',
@@ -280,6 +288,7 @@ export const MessageCategories = {
   PLAIN_STICKER: 'PLAIN_STICKER',
   PLAIN_CONTACT: 'PLAIN_CONTACT',
   PLAIN_LIVE: 'PLAIN_LIVE',
+  PLAIN_LOCATION: 'PLAIN_LOCATION',
   PLAIN_POST: 'PLAIN_POST',
   PLAIN_JSON: 'PLAIN_JSON',
   SYSTEM_CONVERSATION: 'SYSTEM_CONVERSATION',

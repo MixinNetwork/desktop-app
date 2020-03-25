@@ -32,7 +32,7 @@
     </header>
 
     <mixin-scrollbar
-      :style="(panelChoosing ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing ? `margin-bottom: ${panelHeight}rem;` : '')"
+      :style="(panelChoosing === 'stickerOpen' ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing === 'stickerOpen' ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
       :goBottom="!showScroll"
       @scroll="onScroll"
@@ -131,6 +131,7 @@
         v-if="(dragging && conversation) || file"
         :file="file"
         :dragging="dragging"
+        :fileUnsupported="fileUnsupported"
         @close="closeFile"
         @sendFile="sendFile"
       ></FileContainer>
@@ -169,6 +170,7 @@
 </template>
 
 <script lang="ts">
+import fs from 'fs'
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
@@ -227,6 +229,7 @@ export default class ChatContainer extends Vue {
     this.boxMessage = null
     this.scrollTimerThrottle = null
     this.showTopTips = false
+    this.hideTimeDivide = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
     if (!this.conversation) return
@@ -327,7 +330,8 @@ export default class ChatContainer extends Vue {
   details: any = false
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
-  dragging: any = false
+  dragging: boolean = false
+  fileUnsupported: boolean = false
   file: any = null
   isBottom: any = true
   boxMessage: any = null
@@ -343,7 +347,7 @@ export default class ChatContainer extends Vue {
   timeDivideShowForce: boolean = false
   timeDivideShow: boolean = false
   contentUtil: any = contentUtil
-  panelChoosing: boolean = false
+  panelChoosing: string = ''
   lastEnter: any = null
   goSearchPos: boolean = false
 
@@ -426,7 +430,7 @@ export default class ChatContainer extends Vue {
         clearTimeout(self.hideTimeDivideTimer)
         self.hideTimeDivideTimer = setTimeout(() => {
           self.hideTimeDivide = false
-        }, 200)
+        }, 300)
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
@@ -467,7 +471,7 @@ export default class ChatContainer extends Vue {
   panelChooseAction(data: any) {
     this.goBottom()
     requestAnimationFrame(() => {
-      this.panelChoosing = /Open/.test(data)
+      this.panelChoosing = data
     })
   }
 
@@ -606,7 +610,9 @@ export default class ChatContainer extends Vue {
         messageBox.infiniteUp()
       }
       this.showTopTipsTimer = setTimeout(() => {
-        this.showTopTips = true
+        if (this.infiniteUpLock) {
+          this.showTopTips = true
+        }
       }, 150)
     }
 
@@ -880,10 +886,16 @@ export default class ChatContainer extends Vue {
     e.preventDefault()
   }
   onDrop(e: any) {
+    this.fileUnsupported = false
     e.preventDefault()
     let fileList = e.dataTransfer.files
     if (fileList.length > 0) {
       this.file = fileList[0]
+      try {
+        fs.readFileSync(this.file.path)
+      } catch (error) {
+        this.fileUnsupported = true
+      }
     }
     this.dragging = false
   }

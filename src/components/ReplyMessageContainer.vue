@@ -150,6 +150,8 @@ export default class ReplyMessageContainer extends Vue {
       return this.message.sharedUserIdentityNumber
     } else if (this.message.type.endsWith('_LIVE')) {
       return this.$t('chat.chat_live')
+    } else if (this.message.type.endsWith('_LOCATION')) {
+      return this.$t('chat.chat_location')
     } else if (this.message.type.endsWith('_POST')) {
       return this.$t('chat.chat_post')
     } else {

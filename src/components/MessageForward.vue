@@ -167,7 +167,21 @@ export default class MessageForward extends Vue {
           payload
         }
         this.actionSendAttachmentMessage(msg)
-      } else if (message.type.endsWith('_POST') || message.type.endsWith('_TEXT')) {
+      } else if (message.type === 'APP_CARD') {
+        const msg = {
+          msg: {
+            conversationId,
+            content: message.content,
+            category: message.type,
+            status
+          }
+        }
+        this.actionSendMessage(msg)
+      } else if (
+        message.type.endsWith('_POST') ||
+        message.type.endsWith('_TEXT') ||
+        message.type.endsWith('_LOCATION')
+      ) {
         const typeEnds = message.type.split('_')[1]
         const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
 

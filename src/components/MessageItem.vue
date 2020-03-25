@@ -103,6 +103,16 @@
       @liveClick="liveClick"
     ></LiveItem>
 
+    <LocationItem
+      v-else-if="message.type.endsWith('_LOCATION')"
+      :message="message"
+      :me="me"
+      :showName="this.showUserName()"
+      :conversation="conversation"
+      @user-click="$emit('user-click',message.userId)"
+      @handleMenuClick="handleMenuClick"
+    ></LocationItem>
+
     <PostItem
       v-else-if="message.type.endsWith('_POST')"
       :message="message"
@@ -189,6 +199,7 @@ import TransferItem from './chat-item/TransferItem.vue'
 import ContactItem from './chat-item/ContactItem.vue'
 import FileItem from './chat-item/FileItem.vue'
 import PostItem from './chat-item/PostItem.vue'
+import LocationItem from './chat-item/LocationItem.vue'
 import AppCardItem from './chat-item/AppCardItem.vue'
 import AppButtonItem from './chat-item/AppButtonItem.vue'
 import AudioItem from './chat-item/AudioItem.vue'
@@ -223,6 +234,7 @@ import { Getter } from 'vuex-class'
     BadgeItem,
     LiveItem,
     PostItem,
+    LocationItem,
     AppCardItem,
     AppButtonItem,
     TimeAndStatus

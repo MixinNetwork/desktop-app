@@ -24,10 +24,10 @@ export default {
 
       browser.webContents.on('did-finish-load', () => {
         const mixinContext = {
-          conversationId,
+          conversation_id: conversationId,
           immersive: false,
-          appearance,
-          appVersion
+          app_version: appVersion,
+          appearance
         }
         browser.webContents.executeJavaScript(
           `window.MixinContext = {

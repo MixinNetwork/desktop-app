@@ -9,14 +9,15 @@
       <div class="file" v-else-if="fileName">
         <svg-icon style="font-size: 2rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
+        <b class="unsupported" v-show="fileUnsupported">{{$t('file_unsupported')}}</b>
       </div>
     </div>
     <p v-show="dragging" class="cover">{{$t('drag_file')}}</p>
     <font-awesome-icon
       class="create"
-      :class="{disabled: dragging}"
+      :class="{disabled: dragging || fileUnsupported}"
       icon="arrow-right"
-      @click="$emit('sendFile')"
+      @click="(dragging || fileUnsupported) ? '' : $emit('sendFile')"
     />
   </div>
 </template>
@@ -31,6 +32,7 @@ export default class FileContainer extends Vue {
   // @ts-ignore
   @Prop(File | Object) readonly file: any
   @Prop(Boolean) readonly dragging: any
+  @Prop(Boolean) readonly fileUnsupported: any
 
   getPath() {
     if (this.file) {
@@ -83,6 +85,10 @@ export default class FileContainer extends Vue {
       .info {
         margin-top: 0.8rem;
         word-break: break-all;
+        padding: 0 0.8rem;
+      }
+      .unsupported {
+        margin: 2rem 0 1rem;
         padding: 0 0.8rem;
       }
     }

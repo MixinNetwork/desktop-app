@@ -159,6 +159,17 @@ class ContentUtil {
         }
       }
       if (linkTemp.length > 0) {
+        let tempResult = result
+        linkTemp.forEach(item => {
+          tempResult = tempResult.replace(item[0], ' ')
+        })
+        const pieces: any = []
+        tempResult.split(' ').forEach((piece: string) => {
+          pieces.push([piece, piece.replace(regx, `<b class="highlight ${highlight}">$1</b>`)])
+        })
+        pieces.forEach((item: any) => {
+          result = result.replace(item[0], item[1])
+        })
         linkTemp.forEach(item => {
           result = result.replace(item[0], item[1])
         })

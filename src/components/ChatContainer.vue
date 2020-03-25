@@ -229,6 +229,7 @@ export default class ChatContainer extends Vue {
     this.boxMessage = null
     this.scrollTimerThrottle = null
     this.showTopTips = false
+    this.hideTimeDivide = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
     if (!this.conversation) return
@@ -429,7 +430,7 @@ export default class ChatContainer extends Vue {
         clearTimeout(self.hideTimeDivideTimer)
         self.hideTimeDivideTimer = setTimeout(() => {
           self.hideTimeDivide = false
-        }, 200)
+        }, 300)
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
@@ -609,7 +610,9 @@ export default class ChatContainer extends Vue {
         messageBox.infiniteUp()
       }
       this.showTopTipsTimer = setTimeout(() => {
-        this.showTopTips = true
+        if (this.infiniteUpLock) {
+          this.showTopTips = true
+        }
       }, 150)
     }
 

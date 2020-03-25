@@ -103,6 +103,7 @@ let transactions = {
       chat_audio: 'Audio',
       chat_video: 'Video',
       chat_live: 'LIVE',
+      chat_location: 'Location',
       chat_post: 'Post',
       chat_recall_delete: 'This message was deleted',
       chat_recall_me: 'You deleted this message',
@@ -151,6 +152,7 @@ let transactions = {
       sendVideo: 'send a video',
       sendSticker: 'send a sticker',
       sendContact: 'shared a contact',
+      sendLocation: 'shared a location',
       sendFile: 'send a file',
       sendAudio: 'send an audio message',
       sendLive: 'send a live message'
@@ -258,6 +260,7 @@ let transactions = {
       chat_audio: '语音',
       chat_video: '视频',
       chat_live: '直播',
+      chat_location: '位置',
       chat_post: '文章',
       chat_recall_delete: '此消息已撤回',
       chat_recall_me: '你撤回了一条消息',
@@ -306,6 +309,7 @@ let transactions = {
       sendVideo: '发送了一个视频',
       sendSticker: '发送了一个贴纸',
       sendContact: '分享了一个联系人',
+      sendLocation: '分享了一个位置',
       sendFile: '发送了一个文件',
       sendAudio: '发送了一条语音',
       sendLive: '发送了一个直播'

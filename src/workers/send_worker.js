@@ -39,7 +39,7 @@ class SendWorker extends BaseWorker {
       }
     }
     let result = false
-    if (message.category.startsWith('PLAIN_')) {
+    if (message.category === 'APP_CARD' || message.category.startsWith('PLAIN_')) {
       result = await this.sendPlainMessage(message, recipientId, mentions)
     } else {
       result = await this.sendSignalMessage(message, mentions)
@@ -53,7 +53,11 @@ class SendWorker extends BaseWorker {
     const conversation = conversationDao.getConversationById(message.conversation_id)
     await this.checkConversationExist(conversation)
     let content = message.content
-    if (message.category === MessageCategories.PLAIN_TEXT || message.category === MessageCategories.PLAIN_POST) {
+    if (
+      message.category === MessageCategories.APP_CARD ||
+      message.category === MessageCategories.PLAIN_TEXT ||
+      message.category === MessageCategories.PLAIN_POST
+    ) {
       content = btoa(unescape(encodeURIComponent(message.content)))
     }
     const blazeMessage = this.createBlazeMessage(message, content, recipientId, mentions)

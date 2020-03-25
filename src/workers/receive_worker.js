@@ -418,6 +418,7 @@ class ReceiveWorker extends BaseWorker {
     } else if (
       data.category === 'PLAIN_TEXT' ||
       data.category === 'PLAIN_POST' ||
+      data.category === 'PLAIN_LOCATION' ||
       data.category === 'PLAIN_IMAGE' ||
       data.category === 'PLAIN_VIDEO' ||
       data.category === 'PLAIN_DATA' ||
@@ -568,6 +569,27 @@ class ReceiveWorker extends BaseWorker {
       insertMessageQueuePush(message, async() => {
         plain = contentUtil.renderMdToText(plain)
         this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
+      })
+    } else if (data.category.endsWith('_LOCATION')) {
+      let plain = plaintext
+      if (data.category === 'PLAIN_LOCATION') {
+        plain = decodeURIComponent(escape(window.atob(plaintext)))
+      }
+      const message = {
+        message_id: data.message_id,
+        conversation_id: data.conversation_id,
+        user_id: data.user_id,
+        category: data.category,
+        content: plain,
+        status: status,
+        created_at: data.created_at,
+        quote_message_id: data.quote_message_id,
+        quote_content: quoteContent
+      }
+      messageDao.insertMessage(message)
+      insertMessageQueuePush(message, async() => {
+        const body = i18n.t('notification.sendLocation')
+        this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
     } else if (data.category.endsWith('_IMAGE')) {
       var decoded = window.atob(plaintext)

@@ -1,7 +1,7 @@
 const { remote, nativeTheme } = require('electron')
 
 if (remote) {
-  const conversationId = remote.app.name
+  const conversationId = remote.app.getConversationId()
   let appearance = 'light'
   if (nativeTheme && nativeTheme.shouldUseDarkColors) {
     appearance = 'dark'

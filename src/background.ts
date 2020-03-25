@@ -51,6 +51,15 @@ function createWindow() {
     win.show()
   }
 
+  let currentConversationId = ''
+  ipcMain.on('currentConversationId', (event, data) => {
+    currentConversationId = data
+  })
+  // @ts-ignore
+  app.getConversationId = function() {
+    return currentConversationId
+  }
+
   mainWindowState.manage(win)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

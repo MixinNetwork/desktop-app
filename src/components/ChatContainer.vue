@@ -786,7 +786,7 @@ export default class ChatContainer extends Vue {
         this.showScroll = true
       }, 100)
     }, waitTime)
-    messageBox.clearUnreadNum(0)
+    messageBox.clearUnreadNum()
   }
 
   markMentionReadTimer: any = null

@@ -176,7 +176,7 @@ class ReceiveWorker extends BaseWorker {
       await this.processDecryptSuccess(data, plaintext)
     } else {
       console.log('decrypt failed: ' + data.category)
-      console.log(data)
+      console.log(JSON.stringify(data))
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,

@@ -122,13 +122,13 @@ class MessageBox {
                   if (findMessage.status === MessageStatus.SENT) {
                     this.setConversationId(conversationId, -1, false)
                   }
-                } else {
+                } else if (!this.newMessageMap[id]) {
                   this.newMessageMap[id] = true
                   const newCount = Object.keys(this.newMessageMap).length
                   this.callback({ unreadNum: newCount })
                   this.tempCount = newCount % PerPageMessageCount
                   const lastCount = this.messagePositionIndex % PerPageMessageCount
-                  this.pageDown = Math.floor((newCount + lastCount) / PerPageMessageCount)
+                  this.pageDown += Math.floor((newCount + lastCount) / PerPageMessageCount)
                 }
               }
             }

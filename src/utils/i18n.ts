@@ -146,7 +146,6 @@ let transactions = {
     unread_message: 'Unread messages',
     date: ['/', '/', ''],
     today: 'Today',
-    yesterday: 'Yesterday',
     week_prefix: ['', ''],
     week: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     notification: {
@@ -305,7 +304,6 @@ let transactions = {
     unread_message: '未读消息',
     date: ['年', '月', '日'],
     today: '今天',
-    yesterday: '昨天',
     week_prefix: ['星期', '周'],
     week: ['日', '一', '二', '三', '四', '五', '六'],
     notification: {

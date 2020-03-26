@@ -72,9 +72,6 @@ class ContentUtil {
         return t.format('HH:mm')
       }
       return i18n.t('today')
-    } else if (moment(nd).diff(moment(td)) <= n.get('day') * daySeconds) {
-      // @ts-ignore
-      return `${i18n.t('week_prefix')[0]}${i18n.t('week')[t.get('day')]}`
     } else {
       const dateObj: any = i18n.t('date')
       let yearStr = dateObj[0]

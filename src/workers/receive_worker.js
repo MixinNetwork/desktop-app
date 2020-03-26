@@ -177,6 +177,17 @@ class ReceiveWorker extends BaseWorker {
     } else {
       console.log('decrypt failed: ' + data.category)
       console.log(data)
+      const message = {
+        message_id: data.message_id,
+        conversation_id: data.conversation_id,
+        user_id: data.user_id,
+        category: data.category,
+        status: MessageStatus.FAILED,
+        created_at: data.created_at,
+        quote_message_id: data.quote_message_id
+      }
+      messageDao.insertMessage(message)
+      insertMessageQueuePush(message, async() => {})
     }
   }
   async processApp(data) {

@@ -156,7 +156,7 @@ class MessageBox {
         data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
       } else {
         this.newMessageMap = {}
-        this.callback({ unreadNum: 0 })
+        this.callback({ unreadNum: 0, getLastMessage: true })
       }
     } else {
       data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)

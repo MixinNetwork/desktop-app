@@ -10,7 +10,7 @@ class MessageBox {
   messages: any
   pageDown: any
   tempCount: any
-  newCount: any
+  newMessageMap: any = {}
   page: any
   callback: any
   count: any
@@ -27,7 +27,7 @@ class MessageBox {
       this.page = page
       this.pageDown = page
       this.tempCount = 0
-      this.newCount = 0
+      this.newMessageMap = {}
 
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
@@ -60,8 +60,8 @@ class MessageBox {
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
   }
-  clearUnreadNum(count: any) {
-    this.newCount = count
+  clearUnreadNum() {
+    this.newMessageMap = {}
   }
   isMine(findMessage: any) {
     // @ts-ignore
@@ -109,12 +109,11 @@ class MessageBox {
               const isMyMsg = this.isMine(findMessage)
 
               if (this.pageDown === 0) {
-                this.newCount++
                 this.messages.push(findMessage)
-                let newCount = this.newCount
-                if (isMyMsg) {
-                  newCount = 0
+                if (!isMyMsg) {
+                  this.newMessageMap[id] = true
                 }
+                let newCount = Object.keys(this.newMessageMap).length
                 store.dispatch('setCurrentMessages', this.messages)
                 this.callback({ unreadNum: newCount })
                 this.scrollAction({ isMyMsg })
@@ -123,12 +122,13 @@ class MessageBox {
                   if (findMessage.status === MessageStatus.SENT) {
                     this.setConversationId(conversationId, -1, false)
                   }
-                } else {
-                  this.newCount++
-                  this.callback({ unreadNum: this.newCount })
-                  this.tempCount = this.newCount % PerPageMessageCount
+                } else if (!this.newMessageMap[id]) {
+                  this.newMessageMap[id] = true
+                  const newCount = Object.keys(this.newMessageMap).length
+                  this.callback({ unreadNum: newCount })
+                  this.tempCount = newCount % PerPageMessageCount
                   const lastCount = this.messagePositionIndex % PerPageMessageCount
-                  this.pageDown += Math.floor((this.newCount + lastCount) / PerPageMessageCount)
+                  this.pageDown += Math.floor((newCount + lastCount) / PerPageMessageCount)
                 }
               }
             }
@@ -155,8 +155,8 @@ class MessageBox {
       if (this.pageDown > 0) {
         data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
       } else {
-        this.newCount = 0
-        this.callback({ unreadNum: this.newCount })
+        this.newMessageMap = {}
+        this.callback({ unreadNum: 0, getLastMessage: true })
       }
     } else {
       data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
@@ -210,7 +210,7 @@ class MessageBox {
       this.infiniteUpLock = false
     } else {
       setTimeout(() => {
-        this.infiniteDown()
+        this.infiniteUp()
       }, 10)
     }
   }
@@ -234,7 +234,7 @@ class MessageBox {
     if (conversationId === this.conversationId && this.conversationId) {
       this.page = 0
       this.messages = []
-      this.newCount = 0
+      this.newMessageMap = {}
     }
   }
 }

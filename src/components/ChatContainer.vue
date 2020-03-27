@@ -90,7 +90,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && (!isBottom || this.infiniteDownLock)"
+        v-if="conversation && (!isBottom || !getLastMessage)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -350,6 +350,7 @@ export default class ChatContainer extends Vue {
   panelChoosing: string = ''
   lastEnter: any = null
   goSearchPos: boolean = false
+  getLastMessage: boolean = false
 
   scrollDirection: string = ''
   messageHeightMap: any = {}
@@ -413,7 +414,7 @@ export default class ChatContainer extends Vue {
     }
     messageBox.bindData(
       function(payload: any) {
-        const { messages, unreadNum, infiniteUpLock, infiniteDownLock } = payload
+        const { messages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
@@ -424,6 +425,8 @@ export default class ChatContainer extends Vue {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
           self.udpateMessagesVisible()
+        } else {
+          self.getLastMessage = getLastMessage
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
@@ -786,7 +789,7 @@ export default class ChatContainer extends Vue {
         this.showScroll = true
       }, 100)
     }, waitTime)
-    messageBox.clearUnreadNum(0)
+    messageBox.clearUnreadNum()
   }
 
   markMentionReadTimer: any = null
@@ -942,7 +945,7 @@ export default class ChatContainer extends Vue {
       const id = action.split('mention:')[1]
       this.showDetails(id)
     } else {
-      browser.loadURL(action)
+      browser.loadURL(action, this.conversation.conversationId)
     }
   }
   chatSearch() {
@@ -955,7 +958,7 @@ export default class ChatContainer extends Vue {
   openUrl() {
     let app = appDao.findAppByUserId(this.user.app_id)
     if (app) {
-      browser.loadURL(app.home_uri)
+      browser.loadURL(app.home_uri, this.conversation.conversationId)
     }
   }
 

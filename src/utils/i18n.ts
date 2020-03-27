@@ -93,6 +93,8 @@ let transactions = {
       chat_app_card: "[ You've received a card message. ]",
       chat_app_button: "[ You've received a button message. ]",
       chat_unknown: '[Unknown type of Message. View on phone. ]',
+      chat_decrypt_failed: 'Wait for {0} to go online to establish an encrypted session.',
+      chat_decrypt_failed_info: 'More.',
       chat_transfer: '[ Transfer ]',
       chat_create_group: 'Create group',
       chat_sticker: 'Sticker',
@@ -144,7 +146,6 @@ let transactions = {
     unread_message: 'Unread messages',
     date: ['/', '/', ''],
     today: 'Today',
-    yesterday: 'Yesterday',
     week_prefix: ['', ''],
     week: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     notification: {
@@ -251,6 +252,8 @@ let transactions = {
       chat_app_button: '[你收到一条 button 消息]',
       chat_transfer: '[转账]',
       chat_unknown: '[未知类型消息，请在手机查看]',
+      chat_decrypt_failed: '等待{0}上线后建立加密会话。',
+      chat_decrypt_failed_info: '了解更多。',
       chat_create_group: '创建群组',
       chat_sticker: '贴纸',
       chat_pic: '照片',
@@ -301,7 +304,6 @@ let transactions = {
     unread_message: '未读消息',
     date: ['年', '月', '日'],
     today: '今天',
-    yesterday: '昨天',
     week_prefix: ['星期', '周'],
     week: ['日', '一', '二', '三', '四', '五', '六'],
     notification: {

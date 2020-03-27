@@ -6,7 +6,6 @@ import deflist from 'markdown-it-deflist'
 import abbreviation from 'markdown-it-abbr'
 import insert from 'markdown-it-ins'
 import mark from 'markdown-it-mark'
-import katex from 'markdown-it-katex'
 import tasklists from 'markdown-it-task-lists'
 import hljs from 'highlight.js'
 import filter from './filter'
@@ -113,7 +112,6 @@ export default {
       .use(abbreviation)
       .use(insert)
       .use(mark)
-      .use(katex, { throwOnError: false, errorColor: ' #cc0000' })
       .use(tasklists, { enabled: this.taskLists })
 
     this.md.set({

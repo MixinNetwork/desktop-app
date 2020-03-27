@@ -17,7 +17,7 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
-              <div v-if="loading" v-show="showLoading" class="loading" @click.stop="stopLoading">
+              <div v-if="loading" class="loading" @click.stop="stopLoading">
                 <svg-icon class="stop" icon-class="loading-stop-black" />
                 <spinner class="circle" color="#fff"></spinner>
               </div>

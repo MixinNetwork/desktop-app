@@ -132,8 +132,11 @@ export default class ConversationItem extends Vue {
     } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
       return this.getMessageName() + this.$t('chat.chat_sticker')
     } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
-      let content = this.conversation.content
-      content = contentUtil.renderMention(content, this.conversation.mentions)
+      let content = conversation.content
+      if (!content) {
+        return this.$t('chat.chat_decrypt_failed', {})
+      }
+      content = contentUtil.renderMention(content, conversation.mentions)
       content = contentUtil.renderUrl(content)
       return this.getMessageName() + content
     } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
@@ -152,10 +155,10 @@ export default class ConversationItem extends Vue {
       return this.getMessageName() + this.$t('chat.chat_post')
     } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
       if (conversation.contentType === 'APP_CARD') {
-        return `[${JSON.parse(this.conversation.content).title}]`
+        return `[${JSON.parse(conversation.content).title}]`
       } else {
         let str = ''
-        JSON.parse(this.conversation.content).forEach((item: any) => {
+        JSON.parse(conversation.content).forEach((item: any) => {
           str += `[${item.label}]`
         })
         return str

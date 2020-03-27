@@ -9,6 +9,11 @@
     <span v-if="status === 'hide'"></span>
     <svg-icon
       icon-class="ic_status_clock"
+      v-else-if="message.status === MessageStatus.FAILED"
+      class="failed"
+    />
+    <svg-icon
+      icon-class="ic_status_clock"
       v-else-if="message.status === MessageStatus.SENDING"
       class="icon"
     />
@@ -61,21 +66,28 @@ export default class TimeAndStatus extends Vue {
     text-align: right;
   }
   .icon {
+    font-size: 0.7rem;
     width: 0.7rem;
     height: 0.7rem;
-    padding-left: 0.15rem;
+    padding-left: 0.1rem;
     &.lock {
-      width: 0.4rem;
-      margin-right: 0.15rem;
+      width: 0.45rem;
+      margin-right: 0.1rem;
+      vertical-align: top;
     }
   }
 }
 .receive {
   .icon {
+    font-size: 0.7rem;
     display: none;
     &.lock {
       display: inline;
     }
+  }
+  .failed {
+    font-size: 0.7rem;
+    margin-left: 0.1rem;
   }
 }
 </style>

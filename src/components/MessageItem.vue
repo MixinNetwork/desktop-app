@@ -425,6 +425,16 @@ export default class MessageItem extends Vue {
   }
   textMessage(message: any) {
     let content = message.content
+    if (!content) {
+      let result = ''
+      result += this.$t('chat.chat_decrypt_failed', {
+        0: message.userFullName
+      })
+      result += `<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t(
+        'chat.chat_decrypt_failed_info'
+      )}</a>`
+      return result
+    }
     content = contentUtil.renderUrl(content)
     content = contentUtil.renderMention(content, message.mentions)
     if (this.searchKeyword) {

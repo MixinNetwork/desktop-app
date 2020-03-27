@@ -20,7 +20,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     frame: process.platform !== 'darwin',
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false
+      sandbox: true
     },
     show: false
   })

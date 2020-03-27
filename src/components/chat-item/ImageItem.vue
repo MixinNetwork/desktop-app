@@ -117,20 +117,7 @@ export default class ImageItem extends Vue {
   preview() {
     if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
       let position = 0
-      const messages = this.currentMessages
-      let firstImage = null
-      for (let i = 0; i < messages.length; i++) {
-        if (messages[i].type.endsWith('_IMAGE') && this.message.mediaUrl) {
-          firstImage = messages[i]
-          break
-        }
-      }
-      if (!firstImage) {
-        return setTimeout(() => {
-          this.preview()
-        }, 100)
-      }
-      let local = messageDao.findImages(this.conversation.conversationId, firstImage.messageId)
+      let local = messageDao.findImages(this.conversation.conversationId, this.currentMessages[0].messageId)
       let images = local.map((item: any, index: any) => {
         if (item.message_id === this.message.messageId) {
           position = index

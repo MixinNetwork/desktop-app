@@ -8,7 +8,7 @@
         @click="$emit('user-click')"
       >
         {{message.userFullName}}
-        <svg-icon style="width: 0.6rem" icon-class="ic_robot" />
+        <svg-icon style="width: 0.6rem" icon-class="ic_robot" v-if="message.sharedUserAppId" />
       </span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="app-card" @click="$emit('action-click', messageContent.action)">

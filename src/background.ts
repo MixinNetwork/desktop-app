@@ -31,7 +31,7 @@ if (!isDevelopment) {
   setTimeout(() => {
     setSilentUpdate(true)
     autoUpdater.checkForUpdates()
-  }, 60000)
+  }, 600000)
 }
 
 // Keep a global reference of the window object, if you don't, the window will

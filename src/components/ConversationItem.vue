@@ -95,78 +95,91 @@ export default class ConversationItem extends Vue {
     return contentUtil.renderTime(this.conversation.createdAt, true)
   }
   get description() {
-    const { conversation } = this
+    let {
+      contentType,
+      messageStatus,
+      actionName,
+      senderId,
+      name,
+      groupName,
+      senderFullName,
+      participantUserId,
+      participantFullName,
+      content,
+      mentions
+    } = this.conversation
     // @ts-ignore
     const id = JSON.parse(localStorage.getItem('account')).user_id
-    if (conversation.contentType === 'SYSTEM_CONVERSATION') {
-      if (SystemConversationAction.CREATE === conversation.actionName) {
+    if (contentType && contentType.startsWith('SIGNAL_') && messageStatus === MessageStatus.FAILED) {
+      return this.$t('chat.chat_decrypt_failed', {
+        0: senderFullName
+      })
+    }
+    if (contentType === 'SYSTEM_CONVERSATION') {
+      if (SystemConversationAction.CREATE === actionName) {
         return this.$t('chat.chat_group_create', {
-          0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.name,
-          1: conversation.groupName
+          0: id === senderId ? this.$t('chat.chat_you_start') : name,
+          1: groupName
         })
-      } else if (SystemConversationAction.ADD === conversation.actionName) {
+      } else if (SystemConversationAction.ADD === actionName) {
         return this.$t('chat.chat_group_add', {
-          0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
-          1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
+          0: id === senderId ? this.$t('chat.chat_you_start') : senderFullName,
+          1: id === participantUserId ? this.$t('chat.chat_you') : participantFullName
         })
-      } else if (SystemConversationAction.REMOVE === conversation.actionName) {
+      } else if (SystemConversationAction.REMOVE === actionName) {
         return this.$t('chat.chat_group_remove', {
-          0: id === conversation.senderId ? this.$t('chat.chat_you_start') : conversation.senderFullName,
-          1: id === conversation.participantUserId ? this.$t('chat.chat_you') : conversation.participantFullName
+          0: id === senderId ? this.$t('chat.chat_you_start') : senderFullName,
+          1: id === participantUserId ? this.$t('chat.chat_you') : participantFullName
         })
-      } else if (SystemConversationAction.JOIN === conversation.actionName) {
+      } else if (SystemConversationAction.JOIN === actionName) {
         return this.$t('chat.chat_group_join', {
-          0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
+          0: id === participantUserId ? this.$t('chat.chat_you_start') : participantFullName
         })
-      } else if (SystemConversationAction.EXIT === conversation.actionName) {
+      } else if (SystemConversationAction.EXIT === actionName) {
         return this.$t('chat.chat_group_exit', {
-          0: id === conversation.participantUserId ? this.$t('chat.chat_you_start') : conversation.participantFullName
+          0: id === participantUserId ? this.$t('chat.chat_you_start') : participantFullName
         })
-      } else if (SystemConversationAction.ROLE === conversation.actionName) {
+      } else if (SystemConversationAction.ROLE === actionName) {
         return this.$t('chat.chat_group_role')
       } else {
         return ''
       }
-    } else if (conversation.contentType && conversation.contentType.endsWith('_IMAGE')) {
+    } else if (contentType && contentType.endsWith('_IMAGE')) {
       return this.getMessageName() + this.$t('chat.chat_pic')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_STICKER')) {
+    } else if (contentType && contentType.endsWith('_STICKER')) {
       return this.getMessageName() + this.$t('chat.chat_sticker')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_TEXT')) {
-      let content = conversation.content
-      if (!content) {
-        return this.$t('chat.chat_decrypt_failed', {})
-      }
-      content = contentUtil.renderMention(content, conversation.mentions)
+    } else if (contentType && contentType.endsWith('_TEXT')) {
+      content = contentUtil.renderMention(content, mentions)
       content = contentUtil.renderUrl(content)
       return this.getMessageName() + content
-    } else if (conversation.contentType && conversation.contentType.endsWith('_CONTACT')) {
+    } else if (contentType && contentType.endsWith('_CONTACT')) {
       return this.getMessageName() + this.$t('chat.chat_contact')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_DATA')) {
+    } else if (contentType && contentType.endsWith('_DATA')) {
       return this.getMessageName() + this.$t('chat.chat_file')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_AUDIO')) {
+    } else if (contentType && contentType.endsWith('_AUDIO')) {
       return this.getMessageName() + this.$t('chat.chat_audio')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_VIDEO')) {
+    } else if (contentType && contentType.endsWith('_VIDEO')) {
       return this.getMessageName() + this.$t('chat.chat_video')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_LIVE')) {
+    } else if (contentType && contentType.endsWith('_LIVE')) {
       return this.getMessageName() + this.$t('chat.chat_live')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_LOCATION')) {
+    } else if (contentType && contentType.endsWith('_LOCATION')) {
       return this.getMessageName() + this.$t('chat.chat_location')
-    } else if (conversation.contentType && conversation.contentType.endsWith('_POST')) {
+    } else if (contentType && contentType.endsWith('_POST')) {
       return this.getMessageName() + this.$t('chat.chat_post')
-    } else if (conversation.contentType && conversation.contentType.startsWith('APP_')) {
-      if (conversation.contentType === 'APP_CARD') {
-        return `[${JSON.parse(conversation.content).title}]`
+    } else if (contentType && contentType.startsWith('APP_')) {
+      if (contentType === 'APP_CARD') {
+        return `[${JSON.parse(content).title}]`
       } else {
         let str = ''
-        JSON.parse(conversation.content).forEach((item: any) => {
+        JSON.parse(content).forEach((item: any) => {
           str += `[${item.label}]`
         })
         return str
       }
-    } else if (conversation.contentType && conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+    } else if (contentType && contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
       return this.$t('chat.chat_transfer')
-    } else if (conversation.contentType && conversation.contentType === 'MESSAGE_RECALL') {
-      if (id === conversation.senderId) {
+    } else if (contentType && contentType === 'MESSAGE_RECALL') {
+      if (id === senderId) {
         return this.getMessageName() + this.$t('chat.chat_recall_me')
       } else {
         return this.getMessageName() + this.$t('chat.chat_recall_delete')

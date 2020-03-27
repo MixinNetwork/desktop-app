@@ -7,8 +7,32 @@
       <span>{{getTimeDivide(message)}}</span>
     </div>
 
+    <div
+      v-if="message.type.startsWith('SIGNAL_') && message.status === MessageStatus.FAILED"
+      :class="messageOwnership(message, me)"
+    >
+      <BadgeItem
+        @handleMenuClick="handleMenuClick"
+        :type="message.type"
+        :send="message.userId === me.user_id"
+      >
+        <div class="bubble text">
+          <div v-if="this.showUserName()">
+            <span
+              class="username"
+              :style="{color: getColor(message.userId)}"
+              @click="$emit('user-click',message.userId)"
+            >{{message.userFullName}}</span>
+          </div>
+          <span class="text" v-html="$w(decryptFailedText)"></span>
+          <span class="time-place"></span>
+          <TimeAndStatus :message="message" />
+        </div>
+      </BadgeItem>
+    </div>
+
     <StickerItem
-      v-if="message.type.endsWith('_STICKER')"
+      v-else-if="message.type.endsWith('_STICKER')"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -188,6 +212,7 @@ import {
   ConversationCategory,
   SystemConversationAction,
   MessageCategories,
+  MessageStatus,
   canReply,
   canRecall,
   canForward,
@@ -251,6 +276,7 @@ export default class MessageItem extends Vue {
 
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
+  MessageStatus: any = MessageStatus
   fouse: boolean = false
   show: boolean = false
   $moment: any
@@ -423,18 +449,15 @@ export default class MessageItem extends Vue {
       return 'unknown'
     }
   }
+
+  get decryptFailedText() {
+    return `${this.$t('chat.chat_decrypt_failed', {
+      0: this.message.userFullName
+    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_decrypt_failed_info')}</a>`
+  }
+
   textMessage(message: any) {
     let content = message.content
-    if (!content) {
-      let result = ''
-      result += this.$t('chat.chat_decrypt_failed', {
-        0: message.userFullName
-      })
-      result += `<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t(
-        'chat.chat_decrypt_failed_info'
-      )}</a>`
-      return result
-    }
     content = contentUtil.renderUrl(content)
     content = contentUtil.renderMention(content, message.mentions)
     if (this.searchKeyword) {

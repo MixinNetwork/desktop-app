@@ -227,7 +227,7 @@ class MessageDao {
     insertMany(messages)
   }
 
-  ftsMessageQuery(conversationId: any, keyword: any) {
+  ftsMessageQuery(conversationId: any, keyword: any, limit: number = 100, offset: number = 0) {
     const keywordFinal = contentUtil.fts5KeywordFilter(keyword)
     if (!keywordFinal) return []
     return db
@@ -240,9 +240,9 @@ class MessageDao {
         AND m_fts.content MATCH ?
         AND m.category IN ('SIGNAL_TEXT', 'PLAIN_TEXT', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_POST', 'PLAIN_POST')
         AND m.status != 'FAILED'
-        ORDER BY m.created_at DESC LIMIT 100`
+        ORDER BY m.created_at DESC LIMIT ? OFFSET ?`
       )
-      .all(conversationId, keywordFinal)
+      .all(conversationId, keywordFinal, limit, offset)
   }
 
   getMessages(conversationId: any, page = 0, tempCount = 0) {

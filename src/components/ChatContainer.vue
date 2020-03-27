@@ -604,7 +604,7 @@ export default class ChatContainer extends Vue {
     let list = this.$refs.messagesUl
     if (!list) return
 
-    this.isBottom = list.scrollHeight < list.scrollTop + list.clientHeight + 400
+    this.isBottom = list.scrollHeight < list.scrollTop + 1.5 * list.clientHeight
     if (this.isBottom) {
       if (!this.infiniteDownLock) {
         this.infiniteDownLock = true

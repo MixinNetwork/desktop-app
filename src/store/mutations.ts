@@ -381,6 +381,8 @@ export default {
     }, 1000)
   },
   toggleEditor(state: { editing: boolean }) {
-    state.editing = !state.editing
+    requestAnimationFrame(() => {
+      state.editing = !state.editing
+    })
   }
 }

@@ -9,6 +9,8 @@ import { LinkStatus, ConversationCategory } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
 
+import { ipcRenderer } from 'electron'
+
 let setCurrentConversationTimer: any = null
 let refreshConversationsTimer: any = null
 
@@ -37,7 +39,20 @@ function refreshConversations(state: any) {
     state.conversations = conversations
     state.conversationKeys = conversationKeys
     refreshConversationsTimer = null
-  }, 150)
+  }, 100)
+}
+
+let updateBadgeCountTimer: any = null
+function setUnseenBadgeNum(conversations: any, conversationId: string) {
+  clearTimeout(updateBadgeCountTimer)
+  updateBadgeCountTimer = setTimeout(() => {
+    let unseenMessageCount: any = 0
+    Object.keys(conversations).forEach(id => {
+      const item = conversations[id]
+      unseenMessageCount += item.unseenMessageCount
+    })
+    ipcRenderer.send('updateBadgeCount', unseenMessageCount)
+  }, 300)
 }
 
 let refreshConversationTimerMap: any = {}
@@ -55,12 +70,13 @@ function refreshConversation(state: any, conversationId: string) {
       state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
       conversations[conversationId] = conversation
     }
+    setUnseenBadgeNum(conversations, conversationId)
     state.conversations = conversations
 
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
       return item.conversationId
     })
-  }, 150)
+  }, 50)
 }
 
 let keywordCache: any = null
@@ -226,6 +242,9 @@ export default {
     // @ts-ignore
     state.me = JSON.parse(localStorage.getItem('account'))
   },
+  setUnseenBadgeNum(state: any, conversationId: string) {
+    setUnseenBadgeNum(state.conversations, conversationId)
+  },
   saveAccount(state: any, user: any) {
     state.me = user
   },
@@ -250,7 +269,7 @@ export default {
       } else {
         refreshConversation(state, conversationId)
       }
-    }, 100)
+    }, 50)
     state.currentConversationId = conversationId
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)

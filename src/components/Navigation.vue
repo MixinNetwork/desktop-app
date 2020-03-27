@@ -182,6 +182,7 @@
 </template>
 
 <script lang="ts">
+import { ipcRenderer } from 'electron'
 import ConversationItem from '@/components/ConversationItem.vue'
 import Search from '@/components/Search.vue'
 import spinner from '@/components/Spinner.vue'
@@ -248,6 +249,11 @@ export default class Navigation extends Vue {
   $t: any
 
   created() {
+    let unseenMessageCount = 0
+    this.conversations.forEach((item: any) => {
+      unseenMessageCount += item.unseenMessageCount
+    })
+    ipcRenderer.send('updateBadgeCount', unseenMessageCount)
     this.menus = this.$t('menu.personal')
     this.$root.$on('directionKeyDownWithCtrl', (direction: string) => {
       const { draftText } = this.conversation

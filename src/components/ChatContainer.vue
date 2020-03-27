@@ -374,9 +374,11 @@ export default class ChatContainer extends Vue {
   mounted() {
     this.$root.$on('selectAllKeyDown', (event: any) => {
       const selectNes: any = document.getSelection()
-      const { className } = selectNes.baseNode.parentNode
-      if (!/(box|content)/.test(className) && this.editing) {
-        return event.preventDefault()
+      if (selectNes && selectNes.baseNode) {
+        const { className } = selectNes.baseNode.parentNode
+        if (!/(box|content)/.test(className) && this.editing) {
+          return event.preventDefault()
+        }
       }
     })
 

@@ -127,7 +127,7 @@
     <transition name="slide-bottom">
       <FileContainer
         class="media"
-        :style="dragging?'pointer-events: none;':''"
+        :style="(showTitlebar ? 'top: 1.4rem;' : '') + (dragging ? 'pointer-events: none;' : '')"
         v-if="(dragging && conversation) || file"
         :file="file"
         :dragging="dragging"
@@ -368,6 +368,10 @@ export default class ChatContainer extends Vue {
       return mentions.length
     }
     return 0
+  }
+
+  get showTitlebar() {
+    return process.platform === 'win32'
   }
 
   hideTimeDivideTimer: any = null
@@ -1217,7 +1221,7 @@ export default class ChatContainer extends Vue {
 
   .media {
     position: absolute;
-    height: 100%;
+    top: 0;
     left: 14.4rem;
     right: 0;
     bottom: 0;

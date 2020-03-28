@@ -701,12 +701,6 @@ li {
     white-space: pre-line;
   }
 
-  .width-set {
-    max-width: 8rem;
-  }
-  .height-set {
-    max-height: 12rem;
-  }
   .time-place {
     float: right;
     margin-left: 0.45rem;

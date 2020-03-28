@@ -19,8 +19,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     icon: path.join(__static, 'icon.png'),
     frame: process.platform !== 'darwin',
     webPreferences: {
-      nodeIntegration: true,
-      sandbox: true
+      nodeIntegration: true
     },
     show: false
   })

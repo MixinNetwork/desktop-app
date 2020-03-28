@@ -71,8 +71,8 @@ export default class TimeAndStatus extends Vue {
     height: 0.7rem;
     padding-left: 0.1rem;
     &.lock {
-      width: 0.45rem;
-      margin-right: 0.1rem;
+      width: 0.4rem;
+      margin-right: 0.15rem;
       vertical-align: top;
     }
   }

@@ -75,6 +75,8 @@ class MessageBox {
     this.messages = messageDao.getMessages(conversationId, 0)
     store.dispatch('setCurrentMessages', this.messages)
   }
+
+  offsetPageDown: number = 0
   refreshMessage(payload: any) {
     const { conversationId, messageIds } = payload
     if (conversationId === this.conversationId && this.conversationId) {
@@ -128,7 +130,9 @@ class MessageBox {
                   this.callback({ unreadNum: newCount })
                   this.tempCount = newCount % PerPageMessageCount
                   const lastCount = this.messagePositionIndex % PerPageMessageCount
-                  this.pageDown += Math.floor((newCount + lastCount) / PerPageMessageCount)
+                  const offset = Math.floor((newCount + lastCount) / PerPageMessageCount) - this.offsetPageDown
+                  this.pageDown += offset
+                  this.offsetPageDown += offset
                 }
               }
             }
@@ -153,7 +157,7 @@ class MessageBox {
     let data: unknown = []
     if (direction === 'down') {
       if (this.pageDown > 0) {
-        data = messageDao.getMessages(this.conversationId, --this.pageDown, -this.tempCount)
+        data = messageDao.getMessages(this.conversationId, --this.pageDown, this.tempCount - PerPageMessageCount)
       } else {
         this.newMessageMap = {}
         this.callback({ unreadNum: 0, getLastMessage: true })

@@ -14,7 +14,7 @@
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
           <div class="content-in">
-            <div class="set" :style="borderSet()">
+            <div class="set">
               <ReplyMessageItem
                 v-if="message.quoteContent"
                 :message="JSON.parse(message.quoteContent)"
@@ -65,9 +65,6 @@ import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
 
 import messageDao from '@/dao/message_dao'
-
-let maxWidth = convertRemToPixels(10)
-let maxHeight = convertRemToPixels(15)
 
 @Component({
   components: {
@@ -136,15 +133,10 @@ export default class ImageItem extends Vue {
     }
     return message.mediaUrl
   }
-  borderSet() {
-    const { message } = this
-    if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-      return 'width-set'
-    }
-    return 'height-set'
-  }
 
   borderSetObject(getWidth: boolean) {
+    const maxWidth = convertRemToPixels(8)
+    const maxHeight = convertRemToPixels(12)
     const { message } = this
     let width = Math.min(message.mediaWidth, maxWidth)
     const scale = message.mediaWidth / message.mediaHeight

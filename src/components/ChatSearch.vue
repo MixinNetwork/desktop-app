@@ -15,9 +15,9 @@
         @input="onInput"
       />
     </header>
-    <mixin-scrollbar v-if="show">
-      <div class="ul">
-        <div v-if="resultList.length">
+    <mixin-scrollbar v-if="show" @scroll="onScroll">
+      <div class="ul" ref="messagesUl">
+        <div v-if="resultList.length" :class="{scrolling}">
           <SearchItem
             v-for="item in resultList"
             :key="item.message_id"
@@ -83,29 +83,63 @@ export default class ChatSearch extends Vue {
     return contentUtil.renderMdToText(content)
   }
 
+  scrolling: boolean = false
+  scrollingTimer: any = null
+  onScroll(obj: any) {
+    let list: any = this.$refs.messagesUl
+    if (!list) return
+
+    this.scrolling = true
+    clearTimeout(this.scrollingTimer)
+    this.scrollingTimer = setTimeout(() => {
+      this.scrolling = false
+    }, 200)
+
+    if (list.scrollHeight < list.scrollTop + 1.5 * list.clientHeight) {
+      if (!this.nextPageLock) {
+        this.nextPageLock = true
+        this.nextPage()
+      }
+    }
+  }
+
+  nextPageLock: boolean = false
+  nextPage() {
+    clearTimeout(this.timeoutListener)
+    const waitTime = this.resultList.length ? 0 : 150
+    this.timeoutListener = setTimeout(() => {
+      this.searching = false
+      this.nextPageLock = false
+      const data = messageDao.ftsMessageQuery(
+        this.conversation.conversationId,
+        this.keyword,
+        this.prePageMessageCount,
+        this.resultList.length
+      )
+      if (data) {
+        const list: any = []
+        const keys: any = []
+        data.forEach((item: any) => {
+          if (keys.indexOf(item.message_id) === -1) {
+            if (item.category.endsWith('_POST')) {
+              item.content = this.renderMdToText(item.content)
+            }
+            list.push(item)
+          }
+          keys.push(item.message_id)
+        })
+        this.resultList.push(...list)
+      }
+    }, waitTime)
+  }
+
+  prePageMessageCount: number = 50
   onInput(keyword: any) {
     this.keyword = keyword
     if (this.keyword.length > 0) {
       this.searching = true
-      clearTimeout(this.timeoutListener)
-      this.timeoutListener = setTimeout(() => {
-        this.searching = false
-        const data = messageDao.ftsMessageQuery(this.conversation.conversationId, this.keyword)
-        if (data) {
-          const list: any = []
-          const keys: any = []
-          data.forEach((item: any) => {
-            if (keys.indexOf(item.message_id) === -1) {
-              if (item.category.endsWith('_POST')) {
-                item.content = this.renderMdToText(item.content)
-              }
-              list.push(item)
-            }
-            keys.push(item.message_id)
-          })
-          this.resultList = list
-        }
-      }, 200)
+      this.resultList = []
+      this.nextPage()
     } else {
       this.resultList = []
       this.searching = false
@@ -143,6 +177,16 @@ export default class ChatSearch extends Vue {
     .input {
       padding: 0.2rem 0;
       border-bottom: 0.05rem solid #f0f0f0;
+    }
+  }
+  .ul {
+    padding-bottom: 1.5rem;
+  }
+  .scrolling {
+    /deep/ .search-item {
+      &:hover {
+        background: initial;
+      }
     }
   }
   .notify {

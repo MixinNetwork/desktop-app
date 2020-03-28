@@ -215,7 +215,7 @@ export default class AudioItem extends Vue {
     if (!audio.paused || audio.currentTime !== 0) {
       const audioProgress = this.$refs.audioProgress
       // @ts-ignore
-      let pgsWidth = parseFloat(window.getComputedStyle(audioProgress, null).width.replace('px', ''))
+      let pgsWidth = parseFloat(getComputedStyle(audioProgress, null).width)
       let rate = event.offsetX / pgsWidth
       audio.currentTime = audio.duration * rate
       this.timeUpdate()

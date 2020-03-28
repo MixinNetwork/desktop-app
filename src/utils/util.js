@@ -105,7 +105,7 @@ export function getNameColorById(id) {
 }
 
 export function convertRemToPixels(rem) {
-  return rem * parseFloat(getComputedStyle(document.documentElement).fontSize)
+  return rem * parseFloat(getComputedStyle(document.body).fontSize)
 }
 
 export function generateConversationChecksum(sessions) {

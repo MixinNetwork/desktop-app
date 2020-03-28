@@ -13,7 +13,7 @@
         :type="message.type"
       >
         <div class="content">
-          <div class="set" :style="borderSet()">
+          <div class="set">
             <div class="image" :style="borderSetObject()" @click="$emit('liveClick')"></div>
             <svg-icon icon-class="ic_play" class="play" @click="$emit('liveClick')" />
           </div>
@@ -33,8 +33,6 @@ import { MessageStatus } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
-let maxWidth = convertRemToPixels(10)
-let maxHeight = convertRemToPixels(15)
 
 @Component({
   components: {
@@ -60,15 +58,9 @@ export default class LiveItem extends Vue {
   getColor(id: string) {
     return getNameColorById(id)
   }
-  borderSet() {
-    let { message } = this
-    if (1.5 * message.mediaWidth > message.mediaHeight || 3 * message.mediaWidth < message.mediaHeight) {
-      return 'width-set'
-    }
-    return 'height-set'
-  }
-
   borderSetObject(getWidth: boolean) {
+    const maxWidth = convertRemToPixels(8)
+    const maxHeight = convertRemToPixels(12)
     const { message } = this
     let width = Math.min(message.mediaWidth, maxWidth)
     const scale = message.mediaWidth / message.mediaHeight

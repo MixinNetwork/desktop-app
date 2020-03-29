@@ -164,8 +164,8 @@ export default {
           this.scrollStyle.justifyContent = size.width * scale < $box.clientWidth ? 'center' : ''
 
           let zoom = 1
-          if (size.width * scale < 0.67 * window.innerWidth) {
-            zoom = 3
+          if (size.width * 3 < 0.67 * window.innerWidth) {
+            zoom = parseInt(window.innerWidth / size.width / 3)
           }
           this.imgSize = {
             width: zoom * size.width * scale + 'px',

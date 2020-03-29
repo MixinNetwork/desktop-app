@@ -38,7 +38,7 @@ export const AvatarColors = [
   '#A4DBDB',
   '#B2C8BD',
   '#F7C8C9',
-  '#E2D4E7',
+  '#DCC6E4',
   '#BABAE8',
   '#BABCD5',
   '#B5B5B5',

@@ -163,9 +163,13 @@ export default {
           this.scrollStyle.alignItems = size.height * scale < $box.clientHeight ? 'center' : ''
           this.scrollStyle.justifyContent = size.width * scale < $box.clientWidth ? 'center' : ''
 
+          let zoom = 1
+          if (size.width * scale < 0.67 * window.innerWidth) {
+            zoom = 3
+          }
           this.imgSize = {
-            width: size.width * scale + 'px',
-            height: size.height * scale + 'px',
+            width: zoom * size.width * scale + 'px',
+            height: zoom * size.height * scale + 'px',
             cursor: scale < 3 ? 'zoom-in' : 'zoom-out'
           }
 

@@ -15,6 +15,8 @@ class MessageBox {
   page: any
   callback: any
   count: any
+  infiniteUpLock: boolean = false
+  infiniteDownLock: boolean = false
 
   setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
     if (conversationId) {
@@ -30,6 +32,8 @@ class MessageBox {
       this.tempCount = 0
       this.offsetPageDown = 0
       this.newMessageMap = {}
+      this.infiniteDownLock = false
+      this.infiniteUpLock = false
 
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
@@ -80,69 +84,68 @@ class MessageBox {
 
   refreshMessage(payload: any) {
     const { conversationId, messageIds } = payload
-    if (conversationId === this.conversationId && this.conversationId) {
-      if (messageIds && messageIds.length > 0) {
-        const matchIds: any = []
-        let count: number = messageIds.length
 
-        for (let i = this.messages.length - 1; i >= 0; i--) {
-          const item = this.messages[i]
-          if (count <= 0) {
-            break
-          }
-          if (messageIds.indexOf(item.messageId) > -1) {
-            count--
-            matchIds.push(item.messageId)
-            const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
-            if (findMessage) {
-              findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
-              this.messages[i] = findMessage
-            }
-          }
-        }
+    if (!this.conversationId || conversationId !== this.conversationId) return
 
-        if (matchIds.length !== messageIds.length) {
-          messageIds.forEach((id: string) => {
-            if (matchIds.indexOf(id) < 0) {
-              const findMessage = messageDao.getConversationMessageById(conversationId, id)
-              if (!findMessage) return
-              if (this.messages[0] && findMessage.createdAt < this.messages[0].createdAt) return
-              findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+    if (this.infiniteDownLock || this.infiniteUpLock) return
 
-              const isMyMsg = this.isMine(findMessage)
+    if (!messageIds || messageIds.length === 0) return
 
-              if (this.pageDown === 0) {
-                this.messages.push(findMessage)
-                if (!isMyMsg) {
-                  this.newMessageMap[id] = true
-                }
-                let newCount = Object.keys(this.newMessageMap).length
-                store.dispatch('setCurrentMessages', this.messages)
-                this.callback({ unreadNum: newCount })
-                this.scrollAction({ isMyMsg })
-              } else {
-                if (isMyMsg) {
-                  if (findMessage.status === MessageStatus.SENT) {
-                    this.setConversationId(conversationId, -1, false)
-                  }
-                } else if (!this.newMessageMap[id]) {
-                  this.newMessageMap[id] = true
-                  const newCount = Object.keys(this.newMessageMap).length
-                  this.callback({ unreadNum: newCount })
-                  this.tempCount = newCount % PerPageMessageCount
-                  const lastCount = this.messagePositionIndex % PerPageMessageCount
-                  const offset = Math.ceil((newCount + lastCount) / PerPageMessageCount) - this.offsetPageDown
-                  this.pageDown += offset
-                  this.offsetPageDown += offset
-                }
-              }
-            }
-          })
-        } else {
-          store.dispatch('setCurrentMessages', this.messages)
-          this.callback({ messages: this.messages })
+    const matchIds: any = []
+    let count: number = messageIds.length
+
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      const item = this.messages[i]
+      if (count <= 0) {
+        break
+      }
+      if (messageIds.indexOf(item.messageId) > -1) {
+        count--
+        matchIds.push(item.messageId)
+        const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
+        if (findMessage) {
+          findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+          this.messages[i] = findMessage
         }
       }
+    }
+
+    if (matchIds.length !== messageIds.length) {
+      messageIds.forEach((id: string) => {
+        if (matchIds.indexOf(id) > -1) return
+        const findMessage = messageDao.getConversationMessageById(conversationId, id)
+        if (!findMessage || (this.messages[0] && findMessage.createdAt < this.messages[0].createdAt)) return
+        findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+        const isMyMsg = this.isMine(findMessage)
+        if (this.pageDown === 0) {
+          this.messages.push(findMessage)
+          if (!isMyMsg) {
+            this.newMessageMap[id] = true
+          }
+          let newCount = Object.keys(this.newMessageMap).length
+          store.dispatch('setCurrentMessages', this.messages)
+          this.callback({ unreadNum: newCount })
+          this.scrollAction({ isMyMsg })
+        } else {
+          if (isMyMsg) {
+            if (findMessage.status === MessageStatus.SENT) {
+              this.setConversationId(conversationId, -1, false)
+            }
+          } else if (!this.newMessageMap[id]) {
+            this.newMessageMap[id] = true
+            const newCount = Object.keys(this.newMessageMap).length
+            this.callback({ unreadNum: newCount })
+            this.tempCount = newCount % PerPageMessageCount
+            const lastCount = this.messagePositionIndex % PerPageMessageCount
+            const offset = Math.ceil((newCount + lastCount) / PerPageMessageCount) - this.offsetPageDown
+            this.pageDown += offset
+            this.offsetPageDown += offset
+          }
+        }
+      })
+    } else {
+      store.dispatch('setCurrentMessages', this.messages)
+      this.callback({ messages: this.messages })
     }
   }
   deleteMessages(messageIds: any[]) {
@@ -211,7 +214,6 @@ class MessageBox {
       }
     }
   }
-  infiniteUpLock: boolean = false
   infiniteUp() {
     if (!this.infiniteUpLock) {
       this.infiniteUpLock = true
@@ -223,7 +225,6 @@ class MessageBox {
       }, 10)
     }
   }
-  infiniteDownLock: boolean = false
   infiniteDown() {
     if (!this.infiniteDownLock) {
       this.infiniteDownLock = true

@@ -73,6 +73,7 @@ export async function downloadAttachment(message: any) {
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
         const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
+        // name to conversationId/messageId
         const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(resp))
 
@@ -411,48 +412,52 @@ function getAttachment(url: string, id: string) {
     })
 }
 
-function getImagePath() {
+function getImagePath(identityNumber?: string) {
   const dir = path.join(getMediaPath(), 'Image')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
+  return _getMediaPath(dir, 'Images', identityNumber)
 }
 
-function getVideoPath() {
+function getVideoPath(identityNumber?: string) {
   const dir = path.join(getMediaPath(), 'Video')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
+  return _getMediaPath(dir, 'Videos', identityNumber)
 }
 
-function getAudioPath() {
+function getAudioPath(identityNumber?: string) {
   const dir = path.join(getMediaPath(), 'Audio')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
+  return _getMediaPath(dir, 'Audios', identityNumber)
 }
 
-function getDocumentPath() {
+function getDocumentPath(identityNumber?: string) {
   const dir = path.join(getMediaPath(), 'Files')
+  return _getMediaPath(dir, 'Files', identityNumber)
+}
+
+function _getMediaPath(dir: any, type: string, identityNumber?: string) {
+  if (identityNumber) {
+    dir = path.join(getMediaPath(identityNumber), type)
+  }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
   return dir
 }
 
-function getMediaPath() {
-  const dir = path.join(getAppPath(), 'media')
+function getMediaPath(identityNumber?: string) {
+  let dir = path.join(getAppPath(), 'media')
+  if (identityNumber) {
+    dir = path.join(getAppPath(identityNumber), 'Media')
+  }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
   return dir
 }
 
-function getAppPath() {
-  const dir = remote.app.getPath('userData')
+function getAppPath(identityNumber?: string) {
+  let dir = remote.app.getPath('userData')
+  if (identityNumber) {
+    dir = path.join(dir, identityNumber)
+  }
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }

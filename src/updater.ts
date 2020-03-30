@@ -2,16 +2,21 @@ const { app, dialog, BrowserWindow } = require('electron')
 const { autoUpdater } = require('electron-updater')
 const log = require('electron-log')
 
-const lang = app.getLocale().split('-')[0]
-
 let updater: any, focusedWindow: any
 autoUpdater.autoDownload = false
+
+let silentUpdate: boolean = false
 
 autoUpdater.on('error', (error: { stack: any } | null) => {
   dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString())
 })
 
 autoUpdater.on('update-available', () => {
+  if (silentUpdate) {
+    autoUpdater.downloadUpdate()
+    return
+  }
+  const lang = app.getLocale().split('-')[0]
   let infoObj = {
     type: 'info',
     title: 'Found Updates',
@@ -39,6 +44,8 @@ autoUpdater.on('update-available', () => {
 })
 
 autoUpdater.on('update-not-available', () => {
+  if (silentUpdate) return
+  const lang = app.getLocale().split('-')[0]
   let infoObj = {
     title: 'No Updates',
     message: 'There are currently no updates available.'
@@ -62,6 +69,7 @@ autoUpdater.on('download-progress', (event: any) => {
 })
 
 autoUpdater.on('update-downloaded', () => {
+  const lang = app.getLocale().split('-')[0]
   let infoObj = {
     title: 'Install Updates',
     message: 'Updates downloaded, application will be quit for update...'
@@ -90,10 +98,15 @@ export function checkForUpdates(menuItem: any, focusedWindow: any, event: any) {
   if (updater) {
     updater.enabled = false
   }
+  silentUpdate = false
   autoUpdater.logger = log
   autoUpdater.checkForUpdates()
 }
 
 export function setFocusWindow(window: Electron.BrowserWindow) {
   focusedWindow = window
+}
+
+export function setSilentUpdate(flag: boolean) {
+  silentUpdate = flag
 }

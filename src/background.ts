@@ -4,7 +4,7 @@ import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Men
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { autoUpdater } from 'electron-updater'
-import { setFocusWindow } from './updater'
+import { setFocusWindow, setSilentUpdate } from './updater'
 import { initPlayer } from './player'
 import path from 'path'
 
@@ -15,9 +15,24 @@ ipcMain.on('updateBadgeCount', (event, count) => {
 })
 
 ipcMain.on('checkUp', (event, _) => {
+  setSilentUpdate(false)
   autoUpdater.checkForUpdates()
 })
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
+function ScheduledTask() {
+  setTimeout(() => {
+    autoUpdater.checkForUpdates()
+    ScheduledTask()
+  }, 86400000)
+}
+if (!isDevelopment) {
+  ScheduledTask()
+  setTimeout(() => {
+    setSilentUpdate(true)
+    autoUpdater.checkForUpdates()
+  }, 600000)
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

@@ -8,6 +8,7 @@ if (remote) {
   }
 
   const mixinContext = {
+    platform: 'Desktop',
     conversation_id: conversationId,
     immersive: false,
     app_version: remote.app.getVersion(),

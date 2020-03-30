@@ -14,14 +14,10 @@ if (remote) {
     appearance
   }
 
-  const { pathname, host } = window.location
-  if (['mixin-www.zeromesh.net', 'mixin.one'].indexOf(host) > -1 && pathname === '/oauth/authorize') {
-    window.MixinContext = {}
-  } else {
-    window.MixinContext = {
-      getContext: function() {
-        return JSON.stringify(mixinContext)
-      }
+  window.MixinContext = {
+    platform: 'desktop',
+    getContext: function() {
+      return JSON.stringify(mixinContext)
     }
   }
 }

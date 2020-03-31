@@ -177,6 +177,9 @@ class ReceiveWorker extends BaseWorker {
     } else {
       console.log('decrypt failed: ' + data.category)
       console.log(JSON.stringify(data))
+      if (data.category === MessageCategories.SIGNAL_KEY) {
+        return
+      }
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,

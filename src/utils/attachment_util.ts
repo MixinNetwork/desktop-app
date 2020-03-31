@@ -54,12 +54,13 @@ export async function updateCancelMap(id: string) {
 export async function mediaMigration(identityNumber: string) {
   const dbPath = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db`)
   if (!fs.existsSync(dbPath)) {
-    return
+    return -1
   }
 
   openDb(dbPath)
   const mediaMessages: any = getMediaMessages()
 
+  let count = 0
   mediaMessages.forEach((message: any) => {
     let dir = ''
     let newDir = ''
@@ -80,39 +81,67 @@ export async function mediaMigration(identityNumber: string) {
     const src = mediaUrl.split('file://')[1]
     if (src) {
       const dist = path.join(newDir, messageId)
-      fs.writeFileSync(dist, fs.readFileSync(src))
-      // updateMediaMessage(dist, messageId)
+      if (dist !== src && fs.existsSync(src)) {
+        count++
+        fs.writeFileSync(dist, fs.readFileSync(src))
+        // updateMediaMessage(`file://${dist}`, messageId)
+      }
     }
   })
+  return count
+}
+
+function getIdentityNumber() {
+  let identityNumber = ''
+  if (localStorage.account) {
+    const user = JSON.parse(localStorage.account)
+    identityNumber = user.identity_number
+  }
+  if (identityNumber) {
+    const dbPath = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db`)
+    if (!fs.existsSync(dbPath)) {
+      identityNumber = ''
+    }
+  }
+  return identityNumber
+}
+
+function getMediaNewDir(category: string, identityNumber: string, conversationId: string) {
+  let dir = ''
+  if (category.endsWith('_IMAGE')) {
+    dir = getImagePath(identityNumber, conversationId)
+  } else if (category.endsWith('_VIDEO')) {
+    dir = getVideoPath(identityNumber, conversationId)
+  } else if (category.endsWith('_DATA')) {
+    dir = getDocumentPath(identityNumber, conversationId)
+  } else if (category.endsWith('_AUDIO')) {
+    dir = getAudioPath(identityNumber, conversationId)
+  }
+  return dir
 }
 
 export async function downloadAttachment(message: any) {
   try {
-    const { conversationId, category, content } = message
+    const { category, content } = message
+    const conversationId = message.conversationId || message.conversation_id
     const response = await attachmentApi.getAttachment(content)
     if (response.data.data) {
-      let dir
-      let identityNumber = ''
-      if (category.endsWith('_IMAGE')) {
-        dir = getImagePath(identityNumber, conversationId)
-      } else if (category.endsWith('_VIDEO')) {
-        dir = getVideoPath(identityNumber, conversationId)
-      } else if (category.endsWith('_DATA')) {
-        dir = getDocumentPath(identityNumber, conversationId)
-      } else if (category.endsWith('_AUDIO')) {
-        dir = getAudioPath(identityNumber, conversationId)
-      } else {
+      const identityNumber = getIdentityNumber()
+      let dir = getMediaNewDir(category, identityNumber, conversationId)
+      if (!dir) {
         return null
       }
+      const m = message
+      let filePath = path.join(dir, m.message_id)
+      if (!identityNumber) {
+        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
+        filePath = path.join(dir, name)
+      }
       if (category.startsWith('SIGNAL_')) {
-        const m = message
         const data = await getAttachment(response.data.data.view_url, m.message_id)
         const mediaKey = base64ToUint8Array(m.media_key).buffer
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
-        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
-        // TODO: name to messageId
-        const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(resp))
 
         try {
@@ -123,10 +152,7 @@ export async function downloadAttachment(message: any) {
           return [m, filePath]
         }
       } else {
-        const m = message
         const data: any = await getAttachment(response.data.data.view_url, m.message_id)
-        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
-        const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(data))
         try {
           let { buffer } = await jo.rotate(filePath, {})
@@ -142,12 +168,22 @@ export async function downloadAttachment(message: any) {
   }
 }
 
-function processAttachment(imagePath: any, mimeType: string, category: any, id: any) {
+function processAttachment(imagePath: any, mimeType: string, category: any, id: any, conversationId: any) {
   const fileName = path.parse(imagePath).base
-  let type: string = mimeType
-  // @ts-ignore
-  if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
-  const destination = path.join(getImagePath(), generateName(fileName, type, category, id))
+  let destination = ''
+  const identityNumber = getIdentityNumber()
+  let dir = getMediaNewDir(category, identityNumber, conversationId)
+  if (dir) {
+    destination = path.join(dir, id)
+  }
+
+  if (!identityNumber) {
+    let type: string = mimeType
+    // @ts-ignore
+    if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
+    destination = path.join(getImagePath(), generateName(fileName, type, category, id))
+  }
+
   fs.copyFileSync(imagePath, destination)
   return { localPath: destination, name: fileName }
 }
@@ -210,7 +246,8 @@ export interface AttachmentMessagePayload {
   mediaSize?: number
   mediaName?: string
   thumbUrl?: string
-  mediaWaveform?: string
+  mediaWaveform?: string,
+  conversationId?: string
 }
 
 export async function putAttachment(
@@ -228,9 +265,10 @@ export async function putAttachment(
     mediaWidth = 0,
     mediaHeight = 0,
     thumbImage = '',
-    mediaDuration = 0
+    mediaDuration = 0,
+    conversationId
   } = payload
-  const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id)
+  const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id, conversationId)
   if (category.endsWith('_IMAGE')) {
     // @ts-ignore
     const dimensions = sizeOf(localPath)
@@ -477,7 +515,7 @@ function _getMediaPath(dir: string, type: string, identityNumber?: string, conve
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
-  if (conversationId) {
+  if (identityNumber && conversationId) {
     dir = path.join(dir, `${conversationId}`)
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir)

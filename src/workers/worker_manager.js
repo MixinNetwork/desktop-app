@@ -23,7 +23,8 @@ class WorkManager {
       this.stoppedExternally = false
       this.workerStatus = []
 
-      this.migration()
+      // TODO move to worker
+      // this.migration()
 
       interval(
         async(_, stop) => {
@@ -76,7 +77,8 @@ class WorkManager {
       }
 
       await dbMigration(identityNumber)
-      mediaMigration(identityNumber)
+      const count = await mediaMigration(identityNumber)
+      console.log('mediaMigration count:', count)
 
       // TODO: remove old data
       // localStorage.mediaAndDbMigration = ''

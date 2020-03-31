@@ -1,5 +1,5 @@
 import attachmentApi from '@/api/attachment'
-import { remote, nativeImage } from 'electron'
+import { remote, nativeImage, ipcRenderer } from 'electron'
 import { MimeType } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
@@ -15,6 +15,11 @@ import signalProtocol from '@/crypto/signal'
 import { openDb, getMediaMessages, updateMediaMessage } from '@/persistence/db_migration'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
+import mediaPath from '@/utils/media_path'
+const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, setUserDataPath } = mediaPath
+const userDataPath = remote.app.getPath('userData')
+setUserDataPath(userDataPath)
+
 export let downloadQueue = new SequentialTaskQueue()
 
 const cancelMap: any = {}
@@ -51,8 +56,8 @@ export async function updateCancelMap(id: string) {
   cancelMap[id] = true
 }
 
-export async function mediaMigration(identityNumber: string) {
-  const dbPath = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db`)
+export function mediaMigration(identityNumber: string) {
+  const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db`)
   if (!fs.existsSync(dbPath)) {
     return -1
   }
@@ -60,35 +65,7 @@ export async function mediaMigration(identityNumber: string) {
   openDb(dbPath)
   const mediaMessages: any = getMediaMessages()
 
-  let count = 0
-  mediaMessages.forEach((message: any) => {
-    let dir = ''
-    let newDir = ''
-    const { category, conversationId, messageId, mediaUrl } = message
-    if (category.endsWith('_IMAGE')) {
-      dir = getImagePath()
-      newDir = getImagePath(identityNumber, conversationId)
-    } else if (category.endsWith('_VIDEO')) {
-      dir = getVideoPath()
-      newDir = getVideoPath(identityNumber, conversationId)
-    } else if (category.endsWith('_DATA')) {
-      dir = getDocumentPath()
-      newDir = getDocumentPath(identityNumber, conversationId)
-    } else if (category.endsWith('_AUDIO')) {
-      dir = getAudioPath()
-      newDir = getAudioPath(identityNumber, conversationId)
-    }
-    const src = mediaUrl.split('file://')[1]
-    if (src) {
-      const dist = path.join(newDir, messageId)
-      if (dist !== src && fs.existsSync(src)) {
-        count++
-        fs.writeFileSync(dist, fs.readFileSync(src))
-        // updateMediaMessage(`file://${dist}`, messageId)
-      }
-    }
-  })
-  return count
+  ipcRenderer.send('workerTask', { action: 'copyFile', data: { mediaMessages, identityNumber, userDataPath } })
 }
 
 function getIdentityNumber() {
@@ -98,7 +75,7 @@ function getIdentityNumber() {
     identityNumber = user.identity_number
   }
   if (identityNumber) {
-    const dbPath = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db`)
+    const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db`)
     if (!fs.existsSync(dbPath)) {
       identityNumber = ''
     }
@@ -246,7 +223,7 @@ export interface AttachmentMessagePayload {
   mediaSize?: number
   mediaName?: string
   thumbUrl?: string
-  mediaWaveform?: string,
+  mediaWaveform?: string
   conversationId?: string
 }
 
@@ -486,62 +463,4 @@ function getAttachment(url: string, id: string) {
     .catch(error => {
       console.log('getAttachment err:', error)
     })
-}
-
-function getImagePath(identityNumber?: string, conversationId?: string) {
-  const dir = path.join(getMediaPath(), 'Image')
-  return _getMediaPath(dir, 'Images', identityNumber, conversationId)
-}
-
-function getVideoPath(identityNumber?: string, conversationId?: string) {
-  const dir = path.join(getMediaPath(), 'Video')
-  return _getMediaPath(dir, 'Videos', identityNumber, conversationId)
-}
-
-function getAudioPath(identityNumber?: string, conversationId?: string) {
-  const dir = path.join(getMediaPath(), 'Audio')
-  return _getMediaPath(dir, 'Audios', identityNumber, conversationId)
-}
-
-function getDocumentPath(identityNumber?: string, conversationId?: string) {
-  const dir = path.join(getMediaPath(), 'Files')
-  return _getMediaPath(dir, 'Files', identityNumber, conversationId)
-}
-
-function _getMediaPath(dir: string, type: string, identityNumber?: string, conversationId?: string) {
-  if (identityNumber) {
-    dir = path.join(getMediaPath(identityNumber), type)
-  }
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  if (identityNumber && conversationId) {
-    dir = path.join(dir, `${conversationId}`)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir)
-    }
-  }
-  return dir
-}
-
-function getMediaPath(identityNumber?: string) {
-  let dir = path.join(getAppPath(), 'media')
-  if (identityNumber) {
-    dir = path.join(getAppPath(identityNumber), 'Media')
-  }
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getAppPath(identityNumber?: string) {
-  let dir = remote.app.getPath('userData')
-  if (identityNumber) {
-    dir = path.join(dir, identityNumber)
-  }
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
 }

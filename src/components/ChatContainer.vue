@@ -350,7 +350,7 @@ export default class ChatContainer extends Vue {
   panelChoosing: string = ''
   lastEnter: any = null
   goSearchPos: boolean = false
-  getLastMessage: boolean = false
+  getLastMessage: boolean = true
 
   scrollDirection: string = ''
   messageHeightMap: any = {}

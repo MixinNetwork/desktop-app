@@ -4,7 +4,12 @@ import fs from 'fs'
 import { clearAllTables as clearSignal } from './signal_db'
 import { clearKeyTable } from './db'
 import store from '@/store/store'
-const Database = require('better-sqlite3')
+
+function getMixinDb(dbPath) {
+  const Database = require('better-sqlite3')
+  const mixinDb = new Database(dbPath, { readonly: false })
+  return mixinDb
+}
 
 export function getDbPath() {
   const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -20,7 +25,7 @@ export function getDbPath() {
     if (!fs.existsSync(newDir)) {
       localStorage.mediaAndDbMigration = identityNumber
     } else if (fs.existsSync(dbPath)) {
-      const mixinDb = new Database(dbPath, { readonly: false })
+      const mixinDb = getMixinDb(dbPath)
       const row = mixinDb.prepare('PRAGMA user_version').get()
       mixinDb.close()
       console.log('db version row: ', row)

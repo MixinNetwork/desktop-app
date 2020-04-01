@@ -23,15 +23,13 @@ import messageMentionDao from '@/dao/message_mention_dao'
 
 import interval from 'interval-promise'
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
-
-import {
+import {MessageCategories,
   MessageStatus,
   MediaStatus,
   ConversationStatus,
   SystemUser,
   SystemConversationAction,
-  ConversationCategory
-} from '@/utils/constants'
+  ConversationCategory} from '@/utils/constants'
 
 const insertMessageQueue = []
 const makeMessageReadQueue = []

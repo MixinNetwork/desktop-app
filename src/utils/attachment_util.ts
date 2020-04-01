@@ -69,6 +69,7 @@ export function mediaMigration(identityNumber: string) {
       'SELECT category, conversation_id as conversationId, message_id as messageId, media_url as mediaUrl FROM messages WHERE media_url IS NOT NULL'
     )
     .all()
+  mixinDb.close()
 
   ipcRenderer.send('workerTask', { action: 'copyFile', data: { mediaMessages, identityNumber, userDataPath, dbPath } })
 }

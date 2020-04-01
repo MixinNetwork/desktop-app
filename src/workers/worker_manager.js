@@ -80,8 +80,8 @@ class WorkManager {
       await dbMigration(identityNumber)
       mediaMigration(identityNumber)
 
-      // TODO: remove old data
-      // localStorage.mediaAndDbMigration = ''
+      localStorage.mediaAndDbMigration = ''
+      // TODO: remove old db and media manually
     }
   }
 

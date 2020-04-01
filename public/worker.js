@@ -40,6 +40,7 @@ parentPort.once('message', payload => {
           }
         }
       })
+      mixinDb.close()
 
       return
     }

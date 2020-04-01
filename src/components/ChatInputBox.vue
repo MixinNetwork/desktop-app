@@ -404,12 +404,8 @@ export default class ChatItem extends Vue {
       this.currentSelectMention = null
       this.mentionKeyword = ''
     }
-    const colorTag = /color/.test(input.innerHTML)
-    if (!input.innerText.trim() || colorTag) {
+    if (!input.innerText.trim()) {
       this.mentions = []
-      if (colorTag) {
-        input.innerHTML = input.innerText
-      }
       try {
         // @ts-ignore
         window.getSelection().collapse(input, input.childNodes.length)

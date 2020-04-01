@@ -1,5 +1,6 @@
 const { parentPort } = require('worker_threads')
 const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, setUserDataPath } = require('../src/utils/media_path')
+const Database = require('better-sqlite3')
 
 const fs = require('fs')
 const path = require('path')
@@ -7,9 +8,11 @@ const path = require('path')
 parentPort.once('message', payload => {
   if (payload) {
     const { action, data } = payload
-    const { mediaMessages, identityNumber, userDataPath } = data
 
     if (action === 'copyFile') {
+      const { mediaMessages, identityNumber, userDataPath, dbPath } = data
+
+      const mixinDb = new Database(dbPath, { readonly: false })
       setUserDataPath(userDataPath)
       mediaMessages.forEach(message => {
         let dir = ''
@@ -33,7 +36,7 @@ parentPort.once('message', payload => {
           const dist = path.join(newDir, messageId)
           if (dist !== src && fs.existsSync(src)) {
             fs.writeFileSync(dist, fs.readFileSync(src))
-            // updateMediaMessage(`file://${dist}`, messageId)
+            mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run([`file://${dist}`, messageId])
           }
         }
       })

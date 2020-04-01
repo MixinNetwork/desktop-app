@@ -12,10 +12,11 @@ import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util'
 import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
-import { openDb, getMediaMessages, updateMediaMessage } from '@/persistence/db_migration'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
 import mediaPath from '@/utils/media_path'
+
+const Database = require('better-sqlite3')
 const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, setUserDataPath } = mediaPath
 const userDataPath = remote.app.getPath('userData')
 setUserDataPath(userDataPath)
@@ -62,10 +63,14 @@ export function mediaMigration(identityNumber: string) {
     return -1
   }
 
-  openDb(dbPath)
-  const mediaMessages: any = getMediaMessages()
+  const mixinDb = new Database(dbPath, { readonly: false })
+  const mediaMessages: any = mixinDb
+    .prepare(
+      'SELECT category, conversation_id as conversationId, message_id as messageId, media_url as mediaUrl FROM messages WHERE media_url IS NOT NULL'
+    )
+    .all()
 
-  ipcRenderer.send('workerTask', { action: 'copyFile', data: { mediaMessages, identityNumber, userDataPath } })
+  ipcRenderer.send('workerTask', { action: 'copyFile', data: { mediaMessages, identityNumber, userDataPath, dbPath } })
 }
 
 function getIdentityNumber() {

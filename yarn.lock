@@ -2361,7 +2361,6 @@ boolean@^3.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  uid d79db099aa0136c31141b773614d72b88bde3962
   resolved "https://github.com/MixinNetwork/bot-api-js-client.git#d79db099aa0136c31141b773614d72b88bde3962"
   dependencies:
     crypto "^1.0.1"
@@ -4149,10 +4148,10 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^v7.1.14:
-  version "7.1.14"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-7.1.14.tgz#1a58aa5968677a4fe564442f3b72771166c8904c"
-  integrity sha512-y9Nbja4rl+5fPVw9e/lFudwRax3a+jenzS7WXzUkjF7GI8YFxNH2eH9K9PZFNuSwc/OOCja2ul70+D44tKTQEw==
+electron@^v7.2.1:
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-7.2.1.tgz#e32a034b299ecee5343b3a3b98487f4f0242d86d"
+  integrity sha512-Y8ehT8NMR7oltzJ/j5+PD9YU8qbJsYAqiPslwPrZV+e+vl76tiIkRZy78UaJq9gin3ddzpS2Yt0rACsfgYr85w==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^12.0.12"

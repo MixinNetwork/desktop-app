@@ -4,6 +4,7 @@ import fs from 'fs'
 import { clearAllTables as clearSignal } from './signal_db'
 import { clearKeyTable } from './db'
 import store from '@/store/store'
+const userDataPath = remote.app.getPath('userData')
 
 function getMixinDb(dbPath) {
   const Database = require('better-sqlite3')

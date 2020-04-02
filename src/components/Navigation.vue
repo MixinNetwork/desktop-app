@@ -4,6 +4,9 @@
       <div class="header" :style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}">
         <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile" />
         <div class="action_bar">
+          <div @click="showCircles">
+            <svg-icon icon-class="ic_circles" class="circles-icon" />
+          </div>
           <div id="edit" @click="showConveresation">
             <svg-icon icon-class="ic_edit" />
           </div>
@@ -246,6 +249,7 @@ export default class Navigation extends Vue {
   $Menu: any
   $blaze: any
   $t: any
+  $circles: any
 
   created() {
     let unseenMessageCount = 0
@@ -450,6 +454,9 @@ export default class Navigation extends Vue {
       }
     }
     return menu
+  }
+  showCircles() {
+    this.$circles.show()
   }
   showConveresation(event: any) {
     this.conversationShow = true
@@ -746,14 +753,13 @@ export default class Navigation extends Vue {
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding-left: 0.8rem;
-      padding-right: 0.8rem;
+      padding: 0 0.6rem;
       justify-content: space-between;
 
       #avatar {
         width: 2rem;
         height: 2rem;
-        margin-right: 1.9rem;
+        margin-right: 0.5rem;
         cursor: pointer;
       }
       .action_bar {
@@ -761,12 +767,17 @@ export default class Navigation extends Vue {
         flex-direction: row;
         align-items: baseline;
         #edit {
-          margin-right: 0.8rem;
+          margin: 0 0.3rem 0 1.5rem;
           cursor: pointer;
         }
         #menu {
           cursor: pointer;
         }
+      }
+      .circles-icon {
+        font-size: 0.9rem;
+        margin-top: -0.05rem;
+        stroke: #2f3032;
       }
     }
     h5 {

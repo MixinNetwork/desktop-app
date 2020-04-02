@@ -2,13 +2,13 @@
   <transition name="modal">
     <div class="root" v-if="visible">
       <div class="bg"></div>
-      <div class="circles" :style="{top: showTitlebar ? '1.4rem' : ''}">
+      <div class="circles">
         <div class="header">
           <svg-icon style="font-size: 1.2rem" @click="close" icon-class="ic_close" />Circles
         </div>
         <mixin-scrollbar>
           <div class="ul">
-            <CircleItem v-for="item in 3" :key="item" :item="item"></CircleItem>
+            <CircleItem v-for="item in circles" :key="item" :item="item"></CircleItem>
           </div>
         </mixin-scrollbar>
       </div>
@@ -28,9 +28,7 @@ export default class Circles extends Vue {
   post: any = ''
   visible: boolean = false
 
-  get showTitlebar() {
-    return process.platform === 'win32'
-  }
+  circles: any = []
 
   close() {
     this.visible = false
@@ -77,6 +75,7 @@ export default class Circles extends Vue {
     padding: 0.8rem 1.25rem;
     font-size: 0.8rem;
     font-weight: 500;
+    line-height: 1.1rem;
     .svg-icon {
       font-size: 1.45rem;
       cursor: pointer;

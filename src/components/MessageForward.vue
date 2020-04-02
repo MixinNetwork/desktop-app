@@ -336,6 +336,7 @@ export default class MessageForward extends Vue {
     padding: 0.8rem 1.25rem;
     font-size: 0.8rem;
     font-weight: 500;
+    line-height: 1.1rem;
     .svg-icon {
       font-size: 1.45rem;
       cursor: pointer;

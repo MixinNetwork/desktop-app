@@ -14,6 +14,7 @@ import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
+import { getIdentityNumber } from '@/persistence/db_util'
 import mediaPath from '@/utils/media_path'
 
 const Database = require('better-sqlite3')
@@ -72,21 +73,6 @@ export function mediaMigration(identityNumber: string) {
   mixinDb.close()
 
   ipcRenderer.send('workerTask', { action: 'copyFile', data: { mediaMessages, identityNumber, userDataPath, dbPath } })
-}
-
-function getIdentityNumber() {
-  let identityNumber = ''
-  if (localStorage.account) {
-    const user = JSON.parse(localStorage.account)
-    identityNumber = user.identity_number
-  }
-  if (identityNumber) {
-    const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db`)
-    if (!fs.existsSync(dbPath)) {
-      identityNumber = ''
-    }
-  }
-  return identityNumber
 }
 
 function getMediaNewDir(category: string, identityNumber: string, conversationId: string) {

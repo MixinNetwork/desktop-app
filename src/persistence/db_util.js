@@ -11,14 +11,28 @@ function getMixinDb(dbPath) {
   return mixinDb
 }
 
-export function getDbPath() {
-  const isDevelopment = process.env.NODE_ENV !== 'production'
-  let dir = remote.app.getPath('userData')
+export function getIdentityNumber(direct) {
   let identityNumber = ''
   if (localStorage.account) {
     const user = JSON.parse(localStorage.account)
     identityNumber = user.identity_number
   }
+  if (direct) {
+    return identityNumber
+  }
+  if (identityNumber) {
+    const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db`)
+    if (!fs.existsSync(dbPath)) {
+      identityNumber = ''
+    }
+  }
+  return identityNumber
+}
+
+export function getDbPath() {
+  const isDevelopment = process.env.NODE_ENV !== 'production'
+  let dir = remote.app.getPath('userData')
+  const identityNumber = getIdentityNumber(true)
   if (!isDevelopment && identityNumber) {
     const newDir = path.join(dir, identityNumber)
     const dbPath = path.join(newDir, `mixin.db3`)

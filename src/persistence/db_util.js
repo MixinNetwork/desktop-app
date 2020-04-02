@@ -36,9 +36,7 @@ export function getDbPath() {
   if (!isDevelopment && identityNumber) {
     const newDir = path.join(dir, identityNumber)
     const dbPath = path.join(newDir, `mixin.db3`)
-    if (!fs.existsSync(newDir)) {
-      localStorage.mediaAndDbMigration = identityNumber
-    } else if (fs.existsSync(dbPath)) {
+    if (fs.existsSync(dbPath)) {
       const mixinDb = getMixinDb(dbPath)
       const row = mixinDb.prepare('PRAGMA user_version').get()
       mixinDb.close()

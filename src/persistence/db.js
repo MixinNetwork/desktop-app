@@ -63,7 +63,6 @@ async function migrationAction() {
     await dbMigration(identityNumber)
     mediaMigration(identityNumber)
 
-    localStorage.mediaAndDbMigration = ''
     // TODO: remove old db and media manually
   }
 }

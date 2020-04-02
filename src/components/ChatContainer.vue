@@ -439,7 +439,7 @@ export default class ChatContainer extends Vue {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
           self.udpateMessagesVisible()
-        } else {
+        } else if (getLastMessage) {
           self.getLastMessage = getLastMessage
         }
         self.infiniteUpLock = infiniteUpLock

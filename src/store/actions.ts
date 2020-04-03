@@ -22,7 +22,7 @@ import appDao from '@/dao/app_dao'
 
 function markRead(commit: any, state: any, conversationId: any) {
   if (state.conversations) {
-    commit('setUnseenBadgeNum', conversationId)
+    commit('setUnseenBadgeNum')
   }
   const messages = messageDao.findUnreadMessage(conversationId)
   updateRemoteMessageStatusBatch(conversationId, messages, MessageStatus.READ)

@@ -1,5 +1,8 @@
 <template>
   <span class="layout" @mouseenter="enter" v-if="freeze">
+    <span class="expand-icon" v-if="showExpand">
+      <svg-icon icon-class="ic_expand" />
+    </span>
     <slot></slot>
   </span>
   <span
@@ -11,6 +14,9 @@
     @mouseenter="enter"
     @mouseleave="leave"
   >
+    <span class="expand-icon" v-if="showExpand">
+      <svg-icon icon-class="ic_expand" />
+    </span>
     <span class="shadow" :style="shadowStyle" v-show="show || focus">
       <a class="badge" href="javascript:void(0)">
         <transition name="slide-right">
@@ -37,11 +43,13 @@ export default class BadgeItem extends Vue {
   @Prop(String) readonly type: any
   @Prop(Boolean) readonly send: any
   @Prop(Boolean) readonly quote: any
+  @Prop(Boolean) readonly isLongPicture: any
 
   focus: Boolean = false
   show: Boolean = false
   mouseDown: Boolean = false
   freeze: Boolean = true
+  putExpand: Boolean = true
 
   down() {
     this.mouseDown = true
@@ -69,6 +77,10 @@ export default class BadgeItem extends Vue {
   }
   onBlur() {
     this.focus = false
+  }
+
+  get showExpand() {
+    return this.type.endsWith('_POST') || this.isLongPicture
   }
 
   get shadowStyle() {
@@ -133,6 +145,12 @@ export default class BadgeItem extends Vue {
 .layout {
   position: relative;
   z-index: 0;
+  .expand-icon {
+    position: absolute;
+    right: 0.35rem;
+    top: 0.25rem;
+    z-index: 100;
+  }
   .shadow {
     position: absolute;
     right: 0;

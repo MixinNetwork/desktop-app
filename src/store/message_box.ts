@@ -59,7 +59,7 @@ class MessageBox {
 
       store.dispatch('setCurrentMessages', this.messages)
       this.scrollAction({ goBottom: this.messages.length, message: posMessage, isInit })
-      this.callback({ unreadNum: 0 })
+      this.callback({ unreadNum: 0, getLastMessage: true })
     }
   }
 

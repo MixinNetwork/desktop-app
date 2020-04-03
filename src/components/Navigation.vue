@@ -198,7 +198,7 @@ import workerManager from '@/workers/worker_manager'
 import { clearDb } from '@/persistence/db_util'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
-import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration } from '@/utils/constants'
+import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration, isMuteCheck } from '@/utils/constants'
 
 import { Vue, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -241,7 +241,6 @@ export default class Navigation extends Vue {
   // @ts-ignore
   isMacOS: any = platform.os.family === 'OS X'
   primaryPlatform: any = localStorage.primaryPlatform
-  $moment: any
   $toast: any
   $Dialog: any
   $Menu: any
@@ -251,7 +250,9 @@ export default class Navigation extends Vue {
   created() {
     let unseenMessageCount = 0
     this.conversations.forEach((item: any) => {
-      unseenMessageCount += item.unseenMessageCount
+      if (!this.isMute(item) && item.unseenMessageCount) {
+        unseenMessageCount += item.unseenMessageCount
+      }
     })
     ipcRenderer.send('updateBadgeCount', unseenMessageCount)
     this.menus = this.$t('menu.personal')
@@ -418,17 +419,7 @@ export default class Navigation extends Vue {
     }
   }
   isMute(conversation: any) {
-    if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
-      if (this.$moment().isBefore(conversation.ownerMuteUntil)) {
-        return true
-      }
-    }
-    if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
-      if (this.$moment().isBefore(conversation.muteUntil)) {
-        return true
-      }
-    }
-    return false
+    return isMuteCheck(conversation)
   }
   getMenu(isContact: any, isExit: any, pinTime: any, isMute: any) {
     const conversationMenu: any = this.$t('menu.conversation')

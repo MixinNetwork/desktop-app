@@ -23,8 +23,13 @@
           v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
         >
           <svg-icon
+            v-if="conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT'"
+            icon-class="ic_transfer"
+            class="icon"
+          />
+          <svg-icon
             icon-class="ic_status_clock"
-            v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
+            v-else-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
             class="icon"
           />
           <svg-icon

@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export const API_URL = {
   HTTP: ['https://mixin-api.zeromesh.net/', 'https://api.mixin.one/'],
   WS: ['wss://mixin-blaze.zeromesh.net', 'wss://blaze.mixin.one']
@@ -261,6 +263,20 @@ export function canForward(message: any) {
       type === MessageCategories.PLAIN_POST) &&
     status
   )
+}
+
+export function isMuteCheck(conversation: any) {
+  if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+    if (moment().isBefore(conversation.ownerMuteUntil)) {
+      return true
+    }
+  }
+  if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+    if (moment().isBefore(conversation.muteUntil)) {
+      return true
+    }
+  }
+  return false
 }
 
 export function canRecall(

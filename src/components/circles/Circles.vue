@@ -4,34 +4,101 @@
       <div class="bg"></div>
       <div class="circles">
         <div class="header">
-          <svg-icon style="font-size: 1.2rem" @click="close" icon-class="ic_close" />Circles
+          <svg-icon
+            v-if="optionName === 'edit'"
+            style="font-size: 1rem"
+            @click="back"
+            icon-class="ic_back"
+          />
+          <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
+          <span class="header-name">{{optionName === 'edit' ? circleName : 'Circles'}}</span>
+          <svg-icon
+            v-if="optionName === 'list'"
+            style="font-size: 1.15rem; float: right"
+            @click="createCircle"
+            icon-class="ic_add"
+          />
+          <a v-else-if="optionName === 'edit' && currentCircle" class="save" @click="saveCircle">save</a>
         </div>
-        <mixin-scrollbar>
-          <div class="ul">
-            <CircleItem v-for="item in circles" :key="item" :item="item"></CircleItem>
-          </div>
-        </mixin-scrollbar>
+        <div class="list">
+          <mixin-scrollbar>
+            <div class="ul">
+              <Edit :circle="currentCircle" v-if="optionName === 'edit'" />
+              <div
+                v-else
+                v-for="item in circles"
+                :key="item.circleId"
+                :item="item"
+                class="circle-item"
+                @click="editCircle(item)"
+              >
+                {{item.name}}
+                <div class="options">
+                  <span @click.stop="editCircle(item)">Edit</span>
+                  <span @click.stop="deleteCircle(item.circleId)">Delete</span>
+                </div>
+              </div>
+            </div>
+          </mixin-scrollbar>
+        </div>
       </div>
     </div>
   </transition>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import CircleItem from './CircleItem.vue'
+import Edit from './Edit.vue'
 
 @Component({
   components: {
-    CircleItem
+    Edit
   }
 })
 export default class Circles extends Vue {
-  post: any = ''
   visible: boolean = false
 
-  circles: any = []
+  currentCircle: any = null
+
+  // TODO getter
+  circles: any = [{ circleId: '', name: 'circle demo' }]
+  circleName: string = '12'
+
+  optionName: string = 'list'
 
   close() {
-    this.visible = false
+    if (this.optionName === 'list') {
+      this.visible = false
+    } else {
+      this.optionName = 'list'
+    }
+  }
+
+  back() {
+    this.optionName = 'list'
+  }
+
+  createCircle() {
+    this.currentCircle = null
+    this.circleName = 'New circle'
+    this.optionName = 'edit'
+  }
+
+  saveCircle() {
+    this.optionName = 'list'
+  }
+
+  editCircle(circle: any) {
+    this.currentCircle = circle
+    const { circleId, name } = circle
+    // TODO get circleDetail
+    this.optionName = 'edit'
+    this.circleName = name
+  }
+
+  deleteCircle(circleId: string) {}
+
+  createEnd() {
+    this.optionName = 'list'
   }
 }
 </script>
@@ -80,10 +147,28 @@ export default class Circles extends Vue {
       font-size: 1.45rem;
       cursor: pointer;
     }
+    .save {
+      float: right;
+      cursor: pointer;
+    }
+    .header-name {
+      padding: 0 0.5rem;
+      user-select: none;
+    }
   }
   .list {
     font-size: 0.8rem;
     height: calc(72vh - 6.4rem);
+    .circle-item {
+      padding: 0.6rem 1.25rem;
+      cursor: pointer;
+      &:hover {
+        background: $hover-bg-color;
+      }
+      .options {
+        float: right;
+      }
+    }
   }
 }
 .modal-enter {

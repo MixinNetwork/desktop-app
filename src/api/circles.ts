@@ -4,6 +4,9 @@ export default {
   getCircles() {
     return api.get('/circles')
   },
+  getCircleById(id: string) {
+    return api.get(`/circles/${id}`)
+  },
   createCircle(body: any) {
     return api.post('/circles', body)
   },
@@ -13,7 +16,7 @@ export default {
   deleteCircle(id: string) {
     return api.post(`/circles/${id}/delete`)
   },
-  getCircle(id: string) {
+  updateCircleConversations(id: string) {
     return api.post(`/circles/${id}/conversations`)
   }
 }

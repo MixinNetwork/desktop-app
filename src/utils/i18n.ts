@@ -125,6 +125,7 @@ let transactions = {
       search_group_notify: 'Search for messages in {0}',
       search_id_or_phone: 'Search Mixin ID or phone number:',
       recent_chat: 'Recent chat',
+      chats: 'Chats',
       share_with: 'Share with',
       admin: 'Admin',
       owner: 'Owner'
@@ -285,6 +286,7 @@ let transactions = {
       search_group_notify: '在 {0} 中搜索消息',
       search_id_or_phone: '搜索 Mixin ID 或手机号码：',
       recent_chat: '最近聊天',
+      chats: '聊天',
       share_with: '分享给',
       admin: '管理员',
       owner: '群主'

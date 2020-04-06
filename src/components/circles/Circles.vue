@@ -42,12 +42,24 @@
               <div class="circle">
                 <mixin-scrollbar>
                   <div class="ul">
-                    <div class="title">{{i18n.t('chat.recent_chat')}}</div>
-                    <div v-for="chat in chats" :key="chat.conversationId">
+                    <div class="title">{{i18n.t('chat.chats')}}</div>
+                    <div class="item" v-for="chat in chats" :key="chat.conversationId">
+                      <svg-icon
+                        @click.stop="choiceClick(chat.conversationId)"
+                        :icon-class="selectedList.indexOf(chat.conversationId) > -1?'ic_choice_selected':'ic_choice'"
+                        :class="{selected: selectedList.indexOf(chat.conversationId) > -1}"
+                        class="choice-icon"
+                      />
                       <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
                     </div>
                     <div class="title">{{i18n.t('chat.chat_contact')}}</div>
-                    <div v-for="user in contacts" :key="user.user_id">
+                    <div class="item" v-for="user in contacts" :key="user.user_id">
+                      <svg-icon
+                        @click.stop="choiceClick(user.user_id)"
+                        :icon-class="selectedList.indexOf(user.user_id) > -1?'ic_choice_selected':'ic_choice'"
+                        :class="{selected: selectedList.indexOf(user.user_id) > -1}"
+                        class="choice-icon"
+                      />
                       <UserItem :user="user" @user-click="onUserClick"></UserItem>
                     </div>
                   </div>
@@ -132,6 +144,7 @@ export default class Circles extends Vue {
 
   chats: any = []
   contacts: any = []
+  selectedList: any = []
 
   $Dialog: any
   $goConversationPos: any
@@ -187,6 +200,22 @@ export default class Circles extends Vue {
     this.optionName = 'edit'
     this.cirlceName = ''
     this.inputFocus()
+  }
+
+  choiceClick(id: string) {
+    let index = -1
+    for (let i = 0; i < this.selectedList.length; i++) {
+      const currentId = this.selectedList[i]
+      if (this.selectedList[i] === id) {
+        index = i
+        break
+      }
+    }
+    if (index > -1) {
+      this.selectedList.splice(index, 1)
+    } else {
+      this.selectedList.unshift(id)
+    }
   }
 
   saveCircle() {
@@ -428,6 +457,24 @@ export default class Circles extends Vue {
   }
   .circle {
     height: calc(72vh - 9rem);
+    user-select: none;
+    .item {
+      position: relative;
+      li {
+        padding-left: 3rem;
+      }
+      .choice-icon {
+        position: absolute;
+        cursor: pointer;
+        z-index: 10;
+        left: 1rem;
+        top: 1rem;
+        font-size: 1.6rem;
+        &.selected {
+          top: 1.1rem;
+        }
+      }
+    }
   }
 }
 

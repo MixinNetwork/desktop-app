@@ -11,7 +11,11 @@
             icon-class="ic_back"
           />
           <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
-          <span class="header-name">{{optionName === 'edit' ? circleName : 'Circles'}}</span>
+          <span class="header-name" v-if="optionName === 'edit'">
+            <span>{{circleName}}</span>
+            <a class="edit-name" v-if="currentCircle" @click="editName">Edit</a>
+          </span>
+          <span class="header-name" v-else>Circles</span>
           <svg-icon
             v-if="optionName === 'list'"
             style="font-size: 1.15rem; float: right"
@@ -45,9 +49,9 @@
                     <div class="title">{{i18n.t('chat.chats')}}</div>
                     <div class="item" v-for="chat in chats" :key="chat.conversationId">
                       <svg-icon
-                        @click.stop="choiceClick(chat.conversationId)"
-                        :icon-class="selectedList.indexOf(chat.conversationId) > -1?'ic_choice_selected':'ic_choice'"
-                        :class="{selected: selectedList.indexOf(chat.conversationId) > -1}"
+                        @click.stop="choiceClick(chat.conversationId, 'conversation_id')"
+                        :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
+                        :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
                         class="choice-icon"
                       />
                       <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
@@ -55,9 +59,9 @@
                     <div class="title">{{i18n.t('chat.chat_contact')}}</div>
                     <div class="item" v-for="user in contacts" :key="user.user_id">
                       <svg-icon
-                        @click.stop="choiceClick(user.user_id)"
-                        :icon-class="selectedList.indexOf(user.user_id) > -1?'ic_choice_selected':'ic_choice'"
-                        :class="{selected: selectedList.indexOf(user.user_id) > -1}"
+                        @click.stop="choiceClick(user.user_id, 'contact_id')"
+                        :icon-class="selectedIndex(user.user_id, 'contact_id') > -1?'ic_choice_selected':'ic_choice'"
+                        :class="{selected: selectedIndex(user.user_id, 'contact_id') > -1}"
                         class="choice-icon"
                       />
                       <UserItem :user="user" @user-click="onUserClick"></UserItem>
@@ -82,7 +86,7 @@
             <div class="ul">
               <div
                 v-for="item in circles"
-                :key="item.circleId"
+                :key="item.circle_id"
                 class="circle-item"
                 @click="editCircle(item)"
               >
@@ -101,7 +105,7 @@
                   </div>
                   <div class="options">
                     <span class="edit" @click.stop="editCircle(item)">Edit</span>
-                    <span class="delete" @click.stop="deleteCircle(item.circleId)">Delete</span>
+                    <span class="delete" @click.stop="deleteCircle(item.circle_id)">Delete</span>
                   </div>
                 </div>
               </div>
@@ -154,8 +158,9 @@ export default class Circles extends Vue {
   onVisibleChanged(val: boolean) {
     if (val) {
       this.optionName = 'list'
-      // TODO get
-      this.circles = [{ circleId: 'c1', name: 'Circle Demo', conversations: 0, unreadNum: 1 }]
+      circleApi.getCircles().then((res: any) => {
+        this.circles = res.data.data
+      })
     }
   }
 
@@ -199,29 +204,41 @@ export default class Circles extends Vue {
     this.circleName = 'New circle'
     this.optionName = 'edit'
     this.cirlceName = ''
+    this.onSearch('')
     this.inputFocus()
   }
 
-  choiceClick(id: string) {
+  selectedIndex(id: string, type: string) {
     let index = -1
     for (let i = 0; i < this.selectedList.length; i++) {
       const currentId = this.selectedList[i]
-      if (this.selectedList[i] === id) {
+      if (this.selectedList[i][type] === id) {
         index = i
         break
       }
     }
+    return index
+  }
+
+  choiceClick(id: string, type: string) {
+    const index = this.selectedIndex(id, type)
     if (index > -1) {
       this.selectedList.splice(index, 1)
     } else {
-      this.selectedList.unshift(id)
+      const item: any = {}
+      item[type] = id
+      this.selectedList.unshift(item)
     }
   }
 
+  editName() {}
+
   saveCircle() {
     let currentIndex = -1
+    const circleId = this.currentCircle.circle_id
+
     for (let i = 0; i < this.circles.length; i++) {
-      if (this.circles[i].circleId === this.currentCircle.circleId) {
+      if (this.circles[i].circle_id === circleId) {
         currentIndex = i
         break
       }
@@ -231,7 +248,13 @@ export default class Circles extends Vue {
     } else {
       this.circles[currentIndex] = this.currentCircle
     }
-    this.optionName = 'list'
+    // circleApi.updateCircle(circleId, this.currentCircle).then(res => {
+    //   console.log(242, res)
+    // })
+
+    circleApi.updateCircleConversations(circleId, this.selectedList).then(res => {
+      this.optionName = 'list'
+    })
   }
 
   inputFocus() {
@@ -246,12 +269,13 @@ export default class Circles extends Vue {
   editCircle(circle: any) {
     this.currentCircle = circle
     this.searchName = ''
+    this.selectedList = []
     this.onSearch('')
     this.inputFocus()
-    const { circleId, name } = circle
-    // TODO get circleDetail
-    this.optionName = 'edit'
-    this.circleName = name
+    circleApi.getCircleById(circle.circle_id).then(res => {
+      this.optionName = 'edit'
+      this.circleName = circle.name
+    })
   }
 
   onSearch(keyword: string) {
@@ -277,11 +301,13 @@ export default class Circles extends Vue {
       () => {
         let index = -1
         this.circles.forEach((item: any, i: number) => {
-          if (item.circleId === circleId) {
+          if (item.circle_id === circleId) {
             index = i
           }
         })
-        this.circles.splice(index, 1)
+        circleApi.deleteCircle(circleId).then(res => {
+          this.circles.splice(index, 1)
+        })
       },
       i18n.t('cancel'),
       () => {}
@@ -290,11 +316,13 @@ export default class Circles extends Vue {
 
   createCircleAction() {
     if (!this.cirlceName) return
-    const payload = { name: this.cirlceName }
+    const payload: any = { name: this.cirlceName }
     circleApi.createCircle(payload).then(res => {
-      console.log(res)
+      if (res.data) {
+        payload.circleId = res.data.circle_id
+        this.currentCircle = payload
+      }
     })
-    this.currentCircle = payload
   }
 }
 </script>
@@ -359,6 +387,10 @@ export default class Circles extends Vue {
     .header-name {
       padding: 0 0.5rem;
       user-select: none;
+    }
+    .edit-name {
+      cursor: pointer;
+      margin-left: 0.2rem;
     }
   }
   .list {

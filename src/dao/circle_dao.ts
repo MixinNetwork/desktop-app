@@ -18,17 +18,35 @@ class CircleDao {
   observeAllCircleItem() {
     return db
       .prepare(
-        'SELECT ci.circle_id, ci.name, ci.created_at, count(c.conversation_id) as count, sum(c.unseen_message_count) as unseen_message_count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id LEFT JOIN conversations c  ON c.conversation_id == cc.conversation_id  GROUP BY ci.circle_id ORDER BY ci.order_at ASC, ci.created_at ASC'
+        'SELECT ci.circle_id, ci.name, ci.created_at, count(c.conversation_id) as count, sum(c.unseen_message_count) as unseen_message_count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id LEFT JOIN conversations c  ON c.conversation_id == cc.conversation_id  GROUP BY ci.circle_id ORDER BY ci.order_at ASC, ci.created_at DESC'
       )
       .all()
   }
 
-  getAllCircleItem() {
+  getIncludeCircleItem(conversationId: string) {
     return db
       .prepare(
-        'SELECT ci.circle_id, ci.name, ci.created_at, count(c.conversation_id) as count, sum(c.unseen_message_count) as unseen_message_count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id LEFT JOIN conversations c  ON c.conversation_id == cc.conversation_id  GROUP BY ci.circle_id ORDER BY ci.order_at ASC, ci.created_at ASC'
+        `SELECT ci.circle_id, ci.name, count(c.conversation_id) as count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id=cc.circle_id
+        LEFT JOIN conversations c ON c.conversation_id = cc.conversation_id
+        WHERE ci.circle_id IN (
+        SELECT cir.circle_id FROM circles cir LEFT JOIN circle_conversations ccr ON cir.circle_id = ccr.circle_id WHERE ccr.conversation_id = ?)
+        GROUP BY ci.circle_id
+        ORDER BY ci.order_at ASC, ci.created_at DESC`
       )
-      .all()
+      .all(conversationId)
+  }
+
+  getOtherCircleItem(conversationId: string) {
+    return db
+      .prepare(
+        `SELECT ci.circle_id,  ci.name, count(c.conversation_id) as count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id=cc.circle_id
+        LEFT JOIN conversations c  ON c.conversation_id = cc.conversation_id
+        WHERE ci.circle_id NOT IN (
+        SELECT cir.circle_id FROM circles cir LEFT JOIN circle_conversations ccr ON cir.circle_id = ccr.circle_id WHERE ccr.conversation_id = ?)
+        GROUP BY ci.circle_id
+        ORDER BY ci.order_at ASC, ci.created_at DESC`
+      )
+      .all(conversationId)
   }
 
   observeConversationsByCircleId(circleId: string) {
@@ -105,6 +123,29 @@ class CircleDao {
 
   updateOrderAt(circleId: string, orderAt: string) {
     db.prepare(`UPDATE circles SET order_at = ? WHERE circle_id = ?`).run([orderAt, circleId])
+  }
+
+  observeOtherCircleUnread(circleId: String) {
+    return db
+      .prepare(
+        `SELECT sum(c.unseen_message_count) as unseen_message_count 
+        FROM circles ci 
+        LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id 
+        LEFT JOIN conversations c ON c.conversation_id == cc.conversation_id 
+        WHERE ci.circle_id != ?`
+      )
+      .get(circleId)
+  }
+
+  findCirclesNameByConversationId(conversationId: String) {
+    return db
+      .prepare(
+        `SELECT ci.name FROM circles ci 
+        LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id 
+        LEFT JOIN conversations c ON c.conversation_id == cc.conversation_id
+        WHERE cc.conversation_id = ?`
+      )
+      .all(conversationId)
   }
 }
 

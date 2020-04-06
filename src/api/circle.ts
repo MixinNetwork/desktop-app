@@ -10,13 +10,13 @@ export default {
   createCircle(body: any) {
     return api.post('/circles', body)
   },
-  updateCircle(id: string) {
-    return api.post(`/circles/${id}`)
+  updateCircle(id: string, body: any) {
+    return api.post(`/circles/${id}`, body)
   },
   deleteCircle(id: string) {
     return api.post(`/circles/${id}/delete`)
   },
-  updateCircleConversations(id: string) {
-    return api.post(`/circles/${id}/conversations`)
+  updateCircleConversations(id: string, body: any) {
+    return api.post(`/circles/${id}/conversations`, body)
   }
 }

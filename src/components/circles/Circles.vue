@@ -26,25 +26,44 @@
           <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">save</a>
         </div>
         <div class="list">
-          <mixin-scrollbar>
-            <div class="ul">
-              <div class="edit" v-if="optionName === 'edit'">
-                <div v-if="currentCircle">
-                  like forward
-                  {{currentCircle}}
-                </div>
-                <div v-else>
-                  <input
-                    class="input"
-                    type="text"
-                    placeholder="Circle Name"
-                    v-model="cirlceName"
-                    required
-                  />
-                </div>
+          <div class="edit" v-if="optionName === 'edit'">
+            <div v-if="currentCircle">
+              <div class="input-wrapper">
+                <input
+                  class="input"
+                  ref="input"
+                  type="text"
+                  placeholder="Search name"
+                  v-model="searchName"
+                  required
+                />
               </div>
+              <div class="circle">
+                <mixin-scrollbar>
+                  <div class="ul">
+                    <div class="title">{{i18n.t('chat.recent_chat')}}</div>
+                    <ChatItem v-for="chat in chats" :key="chat.conversationId" :chat="chat"></ChatItem>
+                    <div class="title">{{i18n.t('chat.chat_contact')}}</div>
+                    <UserItem v-for="user in contacts" :key="user.user_id" :user="user"></UserItem>
+                  </div>
+                </mixin-scrollbar>
+              </div>
+            </div>
+            <div class="input-wrapper" v-else>
+              <input
+                class="input"
+                ref="input"
+                type="text"
+                placeholder="Circle Name"
+                v-model="cirlceName"
+                required
+              />
+            </div>
+          </div>
+
+          <mixin-scrollbar v-else>
+            <div class="ul">
               <div
-                v-else
                 v-for="item in circles"
                 :key="item.circleId"
                 class="circle-item"
@@ -56,7 +75,9 @@
                 <div class="content">
                   <div class="name">
                     <span>{{item.name}}</span>
-                    <div class="desc">{{i18n.t('chat.conversations', { '0': item.conversations || 0 })}}</div>
+                    <div
+                      class="desc"
+                    >{{i18n.t('chat.conversations', { '0': item.conversations || 0 })}}</div>
                   </div>
                   <div class="options">
                     <span @click.stop="editCircle(item)">Edit</span>
@@ -73,31 +94,45 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
+
 import circleApi from '@/api/circle'
 import i18n from '@/utils/i18n'
+import conversationDao from '@/dao/conversation_dao'
+import userDao from '@/dao/user_dao'
+import participantDao from '@/dao/participant_dao'
+import { ConversationCategory } from '@/utils/constants'
+
+import UserItem from '@/components/UserItem.vue'
+import ChatItem from '@/components/ChatItem.vue'
 
 @Component({
-  components: {}
+  components: {
+    UserItem,
+    ChatItem
+  }
 })
 export default class Circles extends Vue {
   visible: boolean = false
 
   currentCircle: any = null
-  cirlceName: any = ''
-
+  cirlceName: string = ''
+      searchName: string = ''
   // TODO getter
   circles: any = []
   circleName: string = ''
-
   optionName: string = 'list'
 
-  $Dialog: any
+  chats: any = []
+  contacts: any = []
 
+  $Dialog: any
   i18n: any = i18n
 
   @Watch('visible')
   onVisibleChanged(val: boolean) {
     if (val) {
+      this.optionName = 'list'
       this.circles = [{ circleId: 'c1', name: 'circle demo', conversations: 0 }]
     }
   }
@@ -119,19 +154,59 @@ export default class Circles extends Vue {
     this.circleName = 'New circle'
     this.optionName = 'edit'
     this.cirlceName = ''
+    this.inputFocus()
   }
 
   saveCircle() {
-    this.circles.unshift(this.currentCircle)
+    let currentIndex = -1
+    for (let i = 0; i < this.circles.length; i++) {
+      if (this.circles[i].circleId === this.currentCircle.circleId) {
+        currentIndex = i
+        break
+      }
+    }
+    if (currentIndex < 0) {
+      this.circles.unshift(this.currentCircle)
+    } else {
+      this.circles[currentIndex] = this.currentCircle
+    }
     this.optionName = 'list'
+  }
+
+  inputFocus() {
+    setTimeout(() => {
+      if (this.$refs.input) {
+        // @ts-ignore
+        this.$refs.input.focus()
+      }
+    }, 300)
   }
 
   editCircle(circle: any) {
     this.currentCircle = circle
+    this.searchName = ''
+    this.doSearch('')
+    this.inputFocus()
     const { circleId, name } = circle
     // TODO get circleDetail
     this.optionName = 'edit'
     this.circleName = name
+  }
+
+  doSearch(keyword: string) {
+    const chats = conversationDao.fuzzySearchConversation(keyword)
+    chats.forEach((item: any, index: number) => {
+      const participants = participantDao.getParticipantsByConversationId(item.conversationId)
+      chats[index].participants = participants
+    })
+    this.chats = [...chats]
+    const contacts = userDao.fuzzySearchUser(keyword).filter((item: any) => {
+      if (!chats) return []
+      return !chats.some((conversation: any) => {
+        return conversation.category === ConversationCategory.CONTACT && conversation.ownerId === item.user_id
+      })
+    })
+    this.contacts = [...contacts]
   }
 
   deleteCircle(circleId: string) {
@@ -154,7 +229,7 @@ export default class Circles extends Vue {
 
   createCircleAction() {
     if (!this.cirlceName) return
-    const payload = { name: 'circle name' }
+    const payload = { name: this.cirlceName }
     circleApi.createCircle(payload).then(res => {
       console.log(res)
     })
@@ -189,7 +264,7 @@ export default class Circles extends Vue {
   position: relative;
   z-index: 1000;
   width: 22.4rem;
-  padding: 0.2rem 0 0.8rem;
+  padding-top: 0.2rem;
   max-height: 72vh;
   overflow: hidden;
   list-style: none;
@@ -272,14 +347,20 @@ export default class Circles extends Vue {
   }
 }
 .edit {
-  padding: 0.4rem 1.25rem;
+  .input-wrapper {
+    padding: 0.4rem 1.25rem;
+  }
   .input {
-    padding: 0.5rem 0.8rem;
+    padding: 0.5rem 1rem;
     box-sizing: border-box;
-    border: 0.05rem solid #ddd;
-    border-radius: 0.3rem;
+    border: none;
+    border-radius: 1rem;
+    background: #f5f7fa;
     font-size: 0.7rem;
     width: 100%;
+  }
+  .circle {
+    height: calc(72vh - 9rem);
   }
 }
 

@@ -56,7 +56,7 @@
                 <div class="content">
                   <div class="name">
                     <span>{{item.name}}</span>
-                    <div class="desc">{{item.desc}}</div>
+                    <div class="desc">{{i18n.t('chat.conversations', { '0': item.conversations || 0 })}}</div>
                   </div>
                   <div class="options">
                     <span @click.stop="editCircle(item)">Edit</span>
@@ -93,10 +93,12 @@ export default class Circles extends Vue {
 
   $Dialog: any
 
+  i18n: any = i18n
+
   @Watch('visible')
   onVisibleChanged(val: boolean) {
     if (val) {
-      this.circles = [{ circleId: 'c1', name: 'circle demo', desc: 'desc' }]
+      this.circles = [{ circleId: 'c1', name: 'circle demo', conversations: 0 }]
     }
   }
 
@@ -120,6 +122,7 @@ export default class Circles extends Vue {
   }
 
   saveCircle() {
+    this.circles.unshift(this.currentCircle)
     this.optionName = 'list'
   }
 
@@ -151,7 +154,7 @@ export default class Circles extends Vue {
 
   createCircleAction() {
     if (!this.cirlceName) return
-    const payload = { name: this.cirlceName }
+    const payload = { name: 'circle name' }
     circleApi.createCircle(payload).then(res => {
       console.log(res)
     })

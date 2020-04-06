@@ -82,6 +82,8 @@ export default class MessageForward extends Vue {
   MessageStatus: any = MessageStatus
   hasEscKeyListener: boolean = false
 
+  $goConversationPos: any
+
   sendMessage() {
     setTimeout(() => {
       const message = this.message
@@ -232,6 +234,7 @@ export default class MessageForward extends Vue {
   onChatClick(conversation: any) {
     this.$emit('close')
     this.$store.dispatch('setCurrentConversation', conversation)
+    this.$goConversationPos('current')
     conversation.unseenMessageCount = 0
     setTimeout(() => {
       this.$store.dispatch('markRead', conversation.conversationId)

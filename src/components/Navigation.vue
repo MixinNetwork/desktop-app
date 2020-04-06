@@ -261,31 +261,46 @@ export default class Navigation extends Vue {
     ipcRenderer.send('updateBadgeCount', unseenMessageCount)
     this.menus = this.$t('menu.personal')
     this.$root.$on('directionKeyDownWithCtrl', (direction: string) => {
-      const { draftText } = this.conversation
-      if (draftText && draftText.trim()) {
-        return
-      }
-      const cLen = this.conversations.length
-      if (cLen < 2 || !this.currentConversationId) return
-      if (direction === 'up' && this.conversations[0].conversationId !== this.currentConversationId) {
-        for (let i = 1; i < cLen; i++) {
-          if (this.conversations[i].conversationId === this.currentConversationId) {
-            this.onConversationClick(this.conversations[i - 1])
-            this.goConversationPos(i - 1)
-            break
-          }
-        }
-      }
-      if (direction === 'down' && this.conversations[cLen - 1].conversationId !== this.currentConversationId) {
-        for (let i = 0; i < cLen - 1; i++) {
-          if (this.conversations[i].conversationId === this.currentConversationId) {
-            this.onConversationClick(this.conversations[i + 1])
-            this.goConversationPos(i + 1)
-            break
-          }
-        }
-      }
+      this.goConversationPosAction(direction)
     })
+    Vue.prototype.$goConversationPos = this.goConversationPosAction
+  }
+
+  goConversationPosAction(direction: string) {
+    const cLen = this.conversations.length
+    if (direction === 'current') {
+      for (let i = 0; i < cLen; i++) {
+        if (this.conversations[i].conversationId === this.currentConversationId) {
+          this.onConversationClick(this.conversations[i])
+          this.goConversationPos(i)
+          break
+        }
+      }
+      return
+    }
+    const { draftText } = this.conversation
+    if (draftText && draftText.trim()) {
+      return
+    }
+    if (cLen < 2 || !this.currentConversationId) return
+    if (direction === 'up' && this.conversations[0].conversationId !== this.currentConversationId) {
+      for (let i = 1; i < cLen; i++) {
+        if (this.conversations[i].conversationId === this.currentConversationId) {
+          this.onConversationClick(this.conversations[i - 1])
+          this.goConversationPos(i - 1)
+          break
+        }
+      }
+    }
+    if (direction === 'down' && this.conversations[cLen - 1].conversationId !== this.currentConversationId) {
+      for (let i = 0; i < cLen - 1; i++) {
+        if (this.conversations[i].conversationId === this.currentConversationId) {
+          this.onConversationClick(this.conversations[i + 1])
+          this.goConversationPos(i + 1)
+          break
+        }
+      }
+    }
   }
 
   beforeDestroy() {

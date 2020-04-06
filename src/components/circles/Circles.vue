@@ -21,9 +21,10 @@
           <a
             v-else-if="optionName === 'edit' && !currentCircle"
             class="save"
+            :class="{disabled: !cirlceName}"
             @click="createCircleAction"
-          >OK</a>
-          <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">save</a>
+          >Next</a>
+          <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">Save</a>
         </div>
         <div class="list">
           <div class="edit" v-if="optionName === 'edit'">
@@ -42,9 +43,13 @@
                 <mixin-scrollbar>
                   <div class="ul">
                     <div class="title">{{i18n.t('chat.recent_chat')}}</div>
-                    <ChatItem v-for="chat in chats" :key="chat.conversationId" :chat="chat"></ChatItem>
+                    <div v-for="chat in chats" :key="chat.conversationId">
+                      <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
+                    </div>
                     <div class="title">{{i18n.t('chat.chat_contact')}}</div>
-                    <UserItem v-for="user in contacts" :key="user.user_id" :user="user"></UserItem>
+                    <div v-for="user in contacts" :key="user.user_id">
+                      <UserItem :user="user" @user-click="onUserClick"></UserItem>
+                    </div>
                   </div>
                 </mixin-scrollbar>
               </div>
@@ -79,9 +84,12 @@
                       class="desc"
                     >{{i18n.t('chat.conversations', { '0': item.conversations || 0 })}}</div>
                   </div>
+                  <div class="badge" v-if="item.unreadNum">
+                    <span class="num">{{item.unreadNum}}</span>
+                  </div>
                   <div class="options">
-                    <span @click.stop="editCircle(item)">Edit</span>
-                    <span @click.stop="deleteCircle(item.circleId)">Delete</span>
+                    <span class="edit" @click.stop="editCircle(item)">Edit</span>
+                    <span class="delete" @click.stop="deleteCircle(item.circleId)">Delete</span>
                   </div>
                 </div>
               </div>
@@ -94,7 +102,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { Getter, Action } from 'vuex-class'
+import store from '@/store/store'
 
 import circleApi from '@/api/circle'
 import i18n from '@/utils/i18n'
@@ -117,8 +125,7 @@ export default class Circles extends Vue {
 
   currentCircle: any = null
   cirlceName: string = ''
-      searchName: string = ''
-  // TODO getter
+  searchName: string = ''
   circles: any = []
   circleName: string = ''
   optionName: string = 'list'
@@ -127,14 +134,39 @@ export default class Circles extends Vue {
   contacts: any = []
 
   $Dialog: any
+  $goConversationPos: any
   i18n: any = i18n
 
   @Watch('visible')
   onVisibleChanged(val: boolean) {
     if (val) {
       this.optionName = 'list'
-      this.circles = [{ circleId: 'c1', name: 'circle demo', conversations: 0 }]
+      // TODO get
+      this.circles = [{ circleId: 'c1', name: 'Circle Demo', conversations: 0, unreadNum: 1 }]
     }
+  }
+
+  @Watch('searchName')
+  onSearchNameChanged(val: string) {
+    this.onSearch(val)
+  }
+
+  onChatClick(conversation: any) {
+    this.visible = false
+
+    store.dispatch('setCurrentConversation', conversation)
+    this.$goConversationPos('current')
+    setTimeout(() => {
+      store.dispatch('markRead', conversation.conversationId)
+    }, 100)
+  }
+
+  onUserClick(user: any) {
+    this.visible = false
+    store.dispatch('createUserConversation', {
+      user
+    })
+    this.$goConversationPos('current')
   }
 
   close() {
@@ -185,7 +217,7 @@ export default class Circles extends Vue {
   editCircle(circle: any) {
     this.currentCircle = circle
     this.searchName = ''
-    this.doSearch('')
+    this.onSearch('')
     this.inputFocus()
     const { circleId, name } = circle
     // TODO get circleDetail
@@ -193,7 +225,7 @@ export default class Circles extends Vue {
     this.circleName = name
   }
 
-  doSearch(keyword: string) {
+  onSearch(keyword: string) {
     const chats = conversationDao.fuzzySearchConversation(keyword)
     chats.forEach((item: any, index: number) => {
       const participants = participantDao.getParticipantsByConversationId(item.conversationId)
@@ -285,11 +317,15 @@ export default class Circles extends Vue {
     .save {
       float: right;
       cursor: pointer;
+      user-select: none;
+      &.disabled {
+        opacity: 0.5;
+      }
     }
     .go-back {
       font-size: 0.8rem;
       margin-top: 0.2rem;
-      padding: 0 0.15rem;
+      padding: 0 0.2rem;
     }
     .header-name {
       padding: 0 0.5rem;
@@ -307,6 +343,14 @@ export default class Circles extends Vue {
       cursor: pointer;
       &:hover {
         background: $hover-bg-color;
+        .content {
+          .options {
+            display: flex;
+          }
+          .badge {
+            display: none;
+          }
+        }
       }
       .avatar {
         border-radius: 2rem;
@@ -335,11 +379,34 @@ export default class Circles extends Vue {
             color: #aaa;
           }
         }
-        .options {
+        .badge {
           display: flex;
           align-items: center;
+          .num {
+            background: $primary-color;
+            border-radius: 0.6rem;
+            box-sizing: border-box;
+            color: white;
+            font-size: 0.5rem;
+            padding: 0.15rem 0.35rem;
+          }
+        }
+        .options {
+          display: none;
+          align-items: center;
           span {
-            margin: 0 0.2rem;
+            margin: 0 0.1rem;
+            font-size: 0.7rem;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.1rem;
+          }
+          .edit {
+            background: $primary-color;
+            color: #fff;
+          }
+          .delete {
+            background: $danger-color;
+            color: #fff;
           }
         }
       }

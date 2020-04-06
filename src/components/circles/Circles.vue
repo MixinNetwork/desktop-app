@@ -18,7 +18,11 @@
             @click="createCircle"
             icon-class="ic_add"
           />
-          <a v-else-if="optionName === 'edit' && !currentCircle" class="save" @click="createCircleAction">OK</a>
+          <a
+            v-else-if="optionName === 'edit' && !currentCircle"
+            class="save"
+            @click="createCircleAction"
+          >OK</a>
           <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">save</a>
         </div>
         <div class="list">
@@ -43,14 +47,21 @@
                 v-else
                 v-for="item in circles"
                 :key="item.circleId"
-                :item="item"
                 class="circle-item"
                 @click="editCircle(item)"
               >
-                {{item.name}}
-                <div class="options">
-                  <span @click.stop="editCircle(item)">Edit</span>
-                  <span @click.stop="deleteCircle(item.circleId)">Delete</span>
+                <div class="avatar">
+                  <svg-icon icon-class="ic_circles" class="circles-icon" />
+                </div>
+                <div class="content">
+                  <div class="name">
+                    <span>{{item.name}}</span>
+                    <div class="desc">{{item.desc}}</div>
+                  </div>
+                  <div class="options">
+                    <span @click.stop="editCircle(item)">Edit</span>
+                    <span @click.stop="deleteCircle(item.circleId)">Delete</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -61,8 +72,9 @@
   </transition>
 </template>
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import circleApi from '@/api/circle'
+import i18n from '@/utils/i18n'
 
 @Component({
   components: {}
@@ -74,10 +86,19 @@ export default class Circles extends Vue {
   cirlceName: any = ''
 
   // TODO getter
-  circles: any = [{ circleId: '', name: 'circle demo' }]
-  circleName: string = '12'
+  circles: any = []
+  circleName: string = ''
 
   optionName: string = 'list'
+
+  $Dialog: any
+
+  @Watch('visible')
+  onVisibleChanged(val: boolean) {
+    if (val) {
+      this.circles = [{ circleId: 'c1', name: 'circle demo', desc: 'desc' }]
+    }
+  }
 
   close() {
     if (this.optionName === 'list') {
@@ -110,7 +131,23 @@ export default class Circles extends Vue {
     this.circleName = name
   }
 
-  deleteCircle(circleId: string) {}
+  deleteCircle(circleId: string) {
+    this.$Dialog.alert(
+      i18n.t('chat.remove_circle'),
+      i18n.t('ok'),
+      () => {
+        let index = -1
+        this.circles.forEach((item: any, i: number) => {
+          if (item.circleId === circleId) {
+            index = i
+          }
+        })
+        this.circles.splice(index, 1)
+      },
+      i18n.t('cancel'),
+      () => {}
+    )
+  }
 
   createCircleAction() {
     if (!this.cirlceName) return
@@ -119,10 +156,6 @@ export default class Circles extends Vue {
       console.log(res)
     })
     this.currentCircle = payload
-  }
-
-  createEnd() {
-    this.optionName = 'list'
   }
 }
 </script>
@@ -189,14 +222,48 @@ export default class Circles extends Vue {
     font-size: 0.8rem;
     height: calc(72vh - 6.4rem);
     .circle-item {
+      display: flex;
       user-select: none;
       padding: 0.6rem 1.25rem;
+      align-items: center;
       cursor: pointer;
       &:hover {
         background: $hover-bg-color;
       }
-      .options {
-        float: right;
+      .avatar {
+        border-radius: 2rem;
+        width: 2rem;
+        height: 2rem;
+        background: #aaaaaa33;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 0.6rem;
+        /deep/ .circles-icon {
+          font-size: 0.9rem;
+          margin-top: -0.05rem;
+          stroke: #2f3032;
+        }
+      }
+
+      .content {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        .name {
+          flex: 1;
+          .desc {
+            font-size: 0.7rem;
+            color: #aaa;
+          }
+        }
+        .options {
+          display: flex;
+          align-items: center;
+          span {
+            margin: 0 0.2rem;
+          }
+        }
       }
     }
   }
@@ -204,8 +271,12 @@ export default class Circles extends Vue {
 .edit {
   padding: 0.4rem 1.25rem;
   .input {
-    padding: 0.2rem;
-    border: 0.05rem solid #f0f0f0;
+    padding: 0.5rem 0.8rem;
+    box-sizing: border-box;
+    border: 0.05rem solid #ddd;
+    border-radius: 0.3rem;
+    font-size: 0.7rem;
+    width: 100%;
   }
 }
 

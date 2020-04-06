@@ -6,7 +6,7 @@
         <div class="header">
           <svg-icon
             v-if="optionName === 'edit'"
-            style="font-size: 1rem"
+            class="go-back"
             @click="back"
             icon-class="ic_back"
           />
@@ -18,12 +18,27 @@
             @click="createCircle"
             icon-class="ic_add"
           />
-          <a v-else-if="optionName === 'edit' && currentCircle" class="save" @click="saveCircle">save</a>
+          <a v-else-if="optionName === 'edit' && !currentCircle" class="save" @click="createCircleAction">OK</a>
+          <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">save</a>
         </div>
         <div class="list">
           <mixin-scrollbar>
             <div class="ul">
-              <Edit :circle="currentCircle" v-if="optionName === 'edit'" />
+              <div class="edit" v-if="optionName === 'edit'">
+                <div v-if="currentCircle">
+                  like forward
+                  {{currentCircle}}
+                </div>
+                <div v-else>
+                  <input
+                    class="input"
+                    type="text"
+                    placeholder="Circle Name"
+                    v-model="cirlceName"
+                    required
+                  />
+                </div>
+              </div>
               <div
                 v-else
                 v-for="item in circles"
@@ -47,17 +62,16 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import Edit from './Edit.vue'
+import circleApi from '@/api/circle'
 
 @Component({
-  components: {
-    Edit
-  }
+  components: {}
 })
 export default class Circles extends Vue {
   visible: boolean = false
 
   currentCircle: any = null
+  cirlceName: any = ''
 
   // TODO getter
   circles: any = [{ circleId: '', name: 'circle demo' }]
@@ -81,6 +95,7 @@ export default class Circles extends Vue {
     this.currentCircle = null
     this.circleName = 'New circle'
     this.optionName = 'edit'
+    this.cirlceName = ''
   }
 
   saveCircle() {
@@ -96,6 +111,15 @@ export default class Circles extends Vue {
   }
 
   deleteCircle(circleId: string) {}
+
+  createCircleAction() {
+    if (!this.cirlceName) return
+    const payload = { name: this.cirlceName }
+    circleApi.createCircle(payload).then(res => {
+      console.log(res)
+    })
+    this.currentCircle = payload
+  }
 
   createEnd() {
     this.optionName = 'list'
@@ -142,7 +166,7 @@ export default class Circles extends Vue {
     padding: 0.8rem 1.25rem;
     font-size: 0.8rem;
     font-weight: 500;
-    line-height: 1.1rem;
+    line-height: 1.2rem;
     .svg-icon {
       font-size: 1.45rem;
       cursor: pointer;
@@ -150,6 +174,11 @@ export default class Circles extends Vue {
     .save {
       float: right;
       cursor: pointer;
+    }
+    .go-back {
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+      padding: 0 0.15rem;
     }
     .header-name {
       padding: 0 0.5rem;
@@ -160,6 +189,7 @@ export default class Circles extends Vue {
     font-size: 0.8rem;
     height: calc(72vh - 6.4rem);
     .circle-item {
+      user-select: none;
       padding: 0.6rem 1.25rem;
       cursor: pointer;
       &:hover {
@@ -171,6 +201,14 @@ export default class Circles extends Vue {
     }
   }
 }
+.edit {
+  padding: 0.4rem 1.25rem;
+  .input {
+    padding: 0.2rem;
+    border: 0.05rem solid #f0f0f0;
+  }
+}
+
 .modal-enter {
   opacity: 0;
 }

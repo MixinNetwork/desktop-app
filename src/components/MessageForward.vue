@@ -15,7 +15,7 @@
         >{{showContactTitleFixed ? $t('chat.chat_contact') : $t('chat.recent_chat')}}</div>
         <div class="list">
           <mixin-scrollbar>
-            <div class="ul">
+            <div class="ul" ref="ul">
               <ChatItem
                 v-for="chat in chatList"
                 :key="chat.conversationId"
@@ -211,6 +211,9 @@ export default class MessageForward extends Vue {
           })
         }
       }, 500)
+      this.chats = []
+      this.contacts = []
+      return
     } else {
       this.hasEscKeyListener = false
       this.$root.$off('escKeydown')
@@ -229,6 +232,8 @@ export default class MessageForward extends Vue {
       })
     })
     this.contacts = [...contacts]
+    const ul: any = this.$refs.ul
+    ul.scrollTop = 0
   }
 
   onChatClick(conversation: any) {

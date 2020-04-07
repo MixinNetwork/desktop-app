@@ -13,7 +13,7 @@
           <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
           <span class="header-name" v-if="optionName === 'edit'">
             <span>{{circleName}}</span>
-            <a class="edit-name" v-if="currentCircle" @click="editName">Edit</a>
+            <!-- <a class="edit-name" v-if="currentCircle" @click="editName">Edit</a> -->
           </span>
           <span class="header-name" v-else>Circles</span>
           <svg-icon
@@ -45,9 +45,9 @@
               </div>
               <div class="circle">
                 <mixin-scrollbar>
-                  <div class="ul">
+                  <div class="ul" ref="ul">
                     <div class="title">{{i18n.t('chat.chats')}}</div>
-                    <div class="item" v-for="chat in chats" :key="chat.conversationId">
+                    <div class="item" v-for="chat in chatList" :key="chat.conversationId">
                       <svg-icon
                         @click.stop="choiceClick(chat.conversationId, 'conversation_id')"
                         :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
@@ -57,7 +57,7 @@
                       <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
                     </div>
                     <div class="title">{{i18n.t('chat.chat_contact')}}</div>
-                    <div class="item" v-for="user in contacts" :key="user.user_id">
+                    <div class="item" v-for="user in contactList" :key="user.user_id">
                       <svg-icon
                         @click.stop="choiceClick(user.user_id, 'contact_id')"
                         :icon-class="selectedIndex(user.user_id, 'contact_id') > -1?'ic_choice_selected':'ic_choice'"
@@ -83,7 +83,7 @@
           </div>
 
           <mixin-scrollbar v-else>
-            <div class="ul">
+            <div class="ul" ref="ul">
               <div
                 v-for="item in circles"
                 :key="item.circle_id"
@@ -167,6 +167,18 @@ export default class Circles extends Vue {
   @Watch('searchName')
   onSearchNameChanged(val: string) {
     this.onSearch(val)
+    const ul: any = this.$refs.ul
+    ul.scrollTop = 0
+  }
+
+  get chatList() {
+    if (this.chats.length || this.searchName) return this.chats
+    return store.getters.getConversations
+  }
+
+  get contactList() {
+    if (this.contacts.length || this.searchName) return this.contacts
+    return store.getters.findFriends
   }
 
   onChatClick(conversation: any) {
@@ -204,7 +216,6 @@ export default class Circles extends Vue {
     this.circleName = 'New circle'
     this.optionName = 'edit'
     this.cirlceName = ''
-    this.onSearch('')
     this.inputFocus()
   }
 
@@ -270,15 +281,19 @@ export default class Circles extends Vue {
     this.currentCircle = circle
     this.searchName = ''
     this.selectedList = []
-    this.onSearch('')
     this.inputFocus()
-    circleApi.getCircleById(circle.circle_id).then(res => {
-      this.optionName = 'edit'
-      this.circleName = circle.name
-    })
+    // circleApi.getCircleById(circle.circle_id).then(res => {
+    this.optionName = 'edit'
+    this.circleName = circle.name
+    // })
   }
 
   onSearch(keyword: string) {
+    if (!keyword) {
+      this.chats = []
+      this.contacts = []
+      return
+    }
     const chats = conversationDao.fuzzySearchConversation(keyword)
     chats.forEach((item: any, index: number) => {
       const participants = participantDao.getParticipantsByConversationId(item.conversationId)

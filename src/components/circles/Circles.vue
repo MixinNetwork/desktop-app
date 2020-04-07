@@ -11,10 +11,10 @@
             icon-class="ic_back"
           />
           <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
-          <span class="header-name" v-if="optionName === 'edit'">
+          <span class="header-name" v-if="optionName === 'list'">Circles</span>
+          <span class="header-name" v-else>
             <span>{{circleName}}</span>
           </span>
-          <span class="header-name" v-else>Circles</span>
           <svg-icon
             v-if="optionName === 'list'"
             style="font-size: 1.15rem; float: right"
@@ -32,7 +32,11 @@
 
         <div class="list">
           <div v-if="optionName === 'before-edit'">
-            <button class="edit-button" v-if="currentCircle" @click="editCircleName">Edit Circle Name</button>
+            <button
+              class="edit-button"
+              v-if="currentCircle"
+              @click="editCircleName"
+            >Edit Circle Name</button>
             <button class="edit-button" v-if="currentCircle" @click="editCircle">Edit Conversations</button>
           </div>
 
@@ -89,7 +93,7 @@
             </div>
           </div>
 
-          <mixin-scrollbar v-else>
+          <mixin-scrollbar v-else-if="circles.length">
             <div class="ul" ref="ul">
               <div
                 v-for="item in circles"
@@ -118,6 +122,11 @@
               </div>
             </div>
           </mixin-scrollbar>
+
+          <div
+            class="empty"
+            v-else
+          >Create circles for different groups of chats and quickly switch between them</div>
         </div>
       </div>
     </div>
@@ -132,6 +141,8 @@ import i18n from '@/utils/i18n'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
+import circleDao from '@/dao/circle_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import { ConversationCategory } from '@/utils/constants'
 
 import UserItem from '@/components/UserItem.vue'
@@ -151,13 +162,14 @@ export default class Circles extends Vue {
   searchName: string = ''
   circles: any = []
   circleName: string = ''
-  optionName: string = 'list'
+  optionName: string = ''
 
   chats: any = []
   contacts: any = []
   selectedList: any = []
 
   $Dialog: any
+  $toast: any
   $goConversationPos: any
   i18n: any = i18n
 
@@ -165,9 +177,13 @@ export default class Circles extends Vue {
   onVisibleChanged(val: boolean) {
     if (val) {
       this.optionName = 'list'
-      circleApi.getCircles().then((res: any) => {
-        this.circles = res.data.data
-      })
+    }
+  }
+
+  @Watch('optionName')
+  onOptionNameChanged(val: string) {
+    if (val === 'list') {
+      this.circles = circleDao.findAllCircles()
     }
   }
 
@@ -249,7 +265,11 @@ export default class Circles extends Vue {
     }
   }
 
-  editCircleName() {}
+  editCircleName() {
+    // circleApi.updateCircle(circleId, this.currentCircle).then(res => {
+    //   console.log('---', res)
+    // })
+  }
 
   saveCircle() {
     let currentIndex = -1
@@ -266,12 +286,22 @@ export default class Circles extends Vue {
     } else {
       this.circles[currentIndex] = this.currentCircle
     }
-    // circleApi.updateCircle(circleId, this.currentCircle).then(res => {
-    //   console.log(242, res)
-    // })
 
     circleApi.updateCircleConversations(circleId, this.selectedList).then(res => {
-      this.optionName = 'list'
+      if (res.data) {
+        const list: any = []
+        res.data.data.forEach((item: any) => {
+          list.push({
+            circle_id: item.circle_id,
+            conversation_id: item.conversation_id,
+            created_at: item.created_at,
+            pin_time: ''
+          })
+        })
+        circleConversationDao.insert(list)
+        this.optionName = 'list'
+        this.$toast(i18n.t('chat.circle_saved'), 3000)
+      }
     })
   }
 
@@ -287,8 +317,8 @@ export default class Circles extends Vue {
   viewCircle(circle: any) {
     this.currentCircle = circle
     this.searchName = ''
-    this.selectedList = []
-    // TODO show selected
+    const circleId = circle.circle_id
+    this.selectedList = circleConversationDao.findCircleConversationByCircleId(circleId)
     this.inputFocus()
     this.optionName = 'view'
     this.circleName = circle.name
@@ -301,16 +331,14 @@ export default class Circles extends Vue {
 
   editCircle() {
     this.searchName = ''
-    this.selectedList = []
+    const circleId = this.currentCircle.circle_id
+    this.selectedList = circleConversationDao.findCircleConversationByCircleId(circleId)
     this.inputFocus()
-    // circleApi.getCircleById(circle.circle_id).then(res => {
     this.optionName = 'edit'
     this.circleName = this.currentCircle.name
-    // })
   }
 
   onSearch(keyword: string) {
-    // TODO filter view
     if (!keyword) {
       this.chats = []
       this.contacts = []
@@ -343,6 +371,7 @@ export default class Circles extends Vue {
           }
         })
         circleApi.deleteCircle(circleId).then(res => {
+          circleDao.deleteCircleById(circleId)
           this.circles.splice(index, 1)
         })
       },
@@ -356,8 +385,15 @@ export default class Circles extends Vue {
     const payload: any = { name: this.cirlceName }
     circleApi.createCircle(payload).then(res => {
       if (res.data) {
-        payload.circleId = res.data.circle_id
+        const data = res.data.data
+        payload.circleId = data.circle_id
         this.currentCircle = payload
+        circleDao.insert({
+          circle_id: data.circle_id,
+          name: data.name,
+          created_at: data.created_at,
+          order_at: ''
+        })
       }
     })
   }
@@ -518,6 +554,13 @@ export default class Circles extends Vue {
   border-radius: 0.1rem;
   font-size: 0.7rem;
   padding: 0.3rem;
+}
+.empty {
+  color: #b8bdc7;
+  text-align: center;
+  font-size: 0.7rem;
+  line-height: 1.2rem;
+  padding: 1.25rem 4rem;
 }
 .edit,
 .view {

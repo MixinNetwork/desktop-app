@@ -199,6 +199,8 @@ import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
 import workerManager from '@/workers/worker_manager'
 import { clearDb } from '@/persistence/db_util'
+import participantDao from '@/dao/participant_dao'
+import circleDao from '@/dao/circle_dao'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration, isMuteCheck } from '@/utils/constants'
@@ -230,6 +232,7 @@ export default class Navigation extends Vue {
   @Getter('search') searchResult: any
   @Getter('linkStatus') linkStatus: any
   @Getter('currentConversation') conversation: any
+  @Getter('currentCircle') currentCircle: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -587,6 +590,14 @@ export default class Navigation extends Vue {
     lastIndex: 0
   }
   get conversationsVisible() {
+    if (this.currentCircle) {
+      const conversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
+      conversations.forEach((conversation: any) => {
+        const participants = participantDao.getParticipantsByConversationId(conversation.conversationId)
+        conversation.participants = participants
+      })
+      return conversations
+    }
     const list = []
     let { firstIndex, lastIndex } = this.viewport
     if (firstIndex < 0) {

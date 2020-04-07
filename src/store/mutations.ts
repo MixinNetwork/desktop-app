@@ -324,6 +324,9 @@ export default {
   refreshConversations(state: any) {
     refreshConversations(state)
   },
+  setCurrentCircle(state: any, circle: any) {
+    state.currentCircle = circle
+  },
   conversationClear(state: any, conversationId: string) {
     const index = state.conversationKeys.indexOf(conversationId)
     if (index > -1) {

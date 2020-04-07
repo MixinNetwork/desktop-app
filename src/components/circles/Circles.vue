@@ -14,7 +14,10 @@
           <span class="header-name" v-if="optionName === 'list'">Circles</span>
           <span class="header-name" v-else>
             <span>{{currentCircle && currentCircle.name || 'New circle'}}</span>
-            <div class="desc" v-if="currentCircle">{{i18n.t('chat.conversations', { '0': currentCircle.count || 0 })}}</div>
+            <div
+              class="desc"
+              v-if="currentCircle"
+            >{{i18n.t('chat.conversations', { '0': currentCircle.count || 0 })}}</div>
           </span>
           <svg-icon
             v-if="optionName === 'list'"
@@ -32,7 +35,7 @@
         </div>
 
         <div class="list">
-          <div v-if="optionName === 'before-edit'">
+          <div class="before-edit" v-if="optionName === 'before-edit'">
             <button
               class="edit-button"
               v-if="currentCircle"
@@ -41,7 +44,7 @@
             <button class="edit-button" v-if="currentCircle" @click="editCircle">Edit Conversations</button>
           </div>
 
-          <div :class="optionName" v-else-if="optionName === 'edit' || optionName === 'view'">
+          <div class="edit" v-else-if="optionName === 'edit'">
             <div v-if="currentCircle">
               <div class="input-wrapper">
                 <input
@@ -94,7 +97,7 @@
             </div>
           </div>
 
-          <mixin-scrollbar v-else-if="circles.length">
+          <mixin-scrollbar v-else-if="optionName === 'list' && circles.length > 1">
             <div class="ul" ref="ul">
               <div
                 v-for="item in circles"
@@ -108,12 +111,19 @@
                 <div class="content">
                   <div class="name">
                     <span>{{item.name}}</span>
-                    <div class="desc">{{i18n.t('chat.conversations', { '0': item.count || 0 })}}</div>
+                    <div
+                      class="desc"
+                      v-if="item.circle_id === 'mixin'"
+                    >{{i18n.t('chat.all_conversations')}}</div>
+                    <div
+                      class="desc"
+                      v-else
+                    >{{i18n.t('chat.conversations', { '0': item.count || 0 })}}</div>
                   </div>
                   <div class="badge" v-if="item.unseen_message_count">
                     <span class="num">{{item.unseen_message_count}}</span>
                   </div>
-                  <div class="options">
+                  <div class="options" v-if="item.circle_id !== 'mixin'">
                     <span class="edit" @click.stop="beforeEditCircle(item)">Edit</span>
                     <span class="delete" @click.stop="deleteCircle(item.circle_id)">Delete</span>
                   </div>
@@ -165,6 +175,7 @@ export default class Circles extends Vue {
   chats: any = []
   contacts: any = []
   selectedList: any = []
+  circleConversations: any = []
 
   $Dialog: any
   $toast: any
@@ -181,7 +192,12 @@ export default class Circles extends Vue {
   @Watch('optionName')
   onOptionNameChanged(val: string) {
     if (val === 'list') {
-      this.circles = circleDao.findAllCircleItem()
+      const circles = circleDao.findAllCircleItem()
+      circles.unshift({
+        name: 'Mixin',
+        circle_id: 'mixin'
+      })
+      this.circles = circles
     }
   }
 
@@ -311,12 +327,15 @@ export default class Circles extends Vue {
   }
 
   viewCircle(circle: any) {
-    this.currentCircle = circle
-    this.searchName = ''
-    const circleId = circle.circle_id
-    this.selectedList = circleConversationDao.findCircleConversationByCircleId(circleId)
-    this.inputFocus()
-    this.optionName = 'view'
+    if (circle.circle_id === 'mixin') {
+      store.dispatch('setCurrentCircle', null)
+      this.visible = false
+      return
+    }
+    if (circle.count > 0) {
+      store.dispatch('setCurrentCircle', circle)
+      this.visible = false
+    }
   }
 
   beforeEditCircle(circle: any) {
@@ -546,9 +565,13 @@ export default class Circles extends Vue {
     }
   }
 }
+
+.before-edit {
+  padding: 0.4rem 0;
+}
 .edit-button {
   display: block;
-  margin: 0 auto 0.4rem;
+  margin: 0 auto 0.6rem;
   width: 80%;
   border: none;
   background: $primary-color;
@@ -565,8 +588,7 @@ export default class Circles extends Vue {
   line-height: 1.2rem;
   padding: 1.25rem 4rem;
 }
-.edit,
-.view {
+.edit {
   .input-wrapper {
     padding: 0.4rem 1.25rem;
   }
@@ -599,11 +621,6 @@ export default class Circles extends Vue {
         }
       }
     }
-  }
-}
-.view {
-  .circle .item li {
-    padding-left: 1.2rem;
   }
 }
 

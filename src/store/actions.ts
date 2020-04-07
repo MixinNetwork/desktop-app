@@ -529,6 +529,9 @@ export default {
     }
     commit('refreshFriends', friends)
   },
+  setCurrentCircle: ({ commit }: any, circle: any) => {
+    commit('setCurrentCircle', circle)
+  },
   insertUser: (_: any, user: any) => {
     userDao.insertUser(user)
   },

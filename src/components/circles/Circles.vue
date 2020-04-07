@@ -106,7 +106,11 @@
                 @click="viewCircle(item)"
               >
                 <div class="avatar">
-                  <svg-icon icon-class="ic_circles" class="circles-icon" />
+                  <svg-icon
+                    icon-class="ic_circles"
+                    class="circles-icon"
+                    :style="{stroke: circleColor(item.circle_id)}"
+                  />
                 </div>
                 <div class="content">
                   <div class="name">
@@ -153,6 +157,7 @@ import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import { ConversationCategory } from '@/utils/constants'
+import { getNameColorById } from '@/utils/util'
 
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
@@ -226,6 +231,13 @@ export default class Circles extends Vue {
     setTimeout(() => {
       store.dispatch('markRead', conversation.conversationId)
     }, 100)
+  }
+
+  circleColor(id: string) {
+    if (id === 'mixin') {
+      return '#2f3032'
+    }
+    return getNameColorById(id)
   }
 
   onUserClick(user: any) {
@@ -513,7 +525,7 @@ export default class Circles extends Vue {
         justify-content: center;
         align-items: center;
         margin-right: 0.6rem;
-        /deep/ .circles-icon {
+        .circles-icon {
           font-size: 0.9rem;
           margin-top: -0.05rem;
           stroke: #2f3032;

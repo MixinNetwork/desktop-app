@@ -5,7 +5,11 @@
         <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile" />
         <div class="action_bar">
           <div @click="showCircles">
-            <svg-icon icon-class="ic_circles" class="circles-icon" />
+            <svg-icon
+              icon-class="ic_circles"
+              class="circles-icon"
+              :style="currentCircle ? `stroke: ${circleColor(currentCircle.circle_id)}` : ''"
+            />
           </div>
           <div id="edit" @click="showConveresation">
             <svg-icon icon-class="ic_edit" />
@@ -203,6 +207,8 @@ import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
+import { getNameColorById } from '@/utils/util'
+
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration, isMuteCheck } from '@/utils/constants'
 
 import { Vue, Component } from 'vue-property-decorator'
@@ -321,6 +327,7 @@ export default class Navigation extends Vue {
       workerManager.stop(this.exit)
     }
   }
+
   exit() {
     accountAPI.logout().then((resp: any) => {
       this.$blaze.closeBlaze()
@@ -328,12 +335,14 @@ export default class Navigation extends Vue {
       clearDb()
     })
   }
+
   showMoreBack() {
     this.showMoreType = ''
     this.$store.dispatch('search', {
       keyword: this.searchKeyword
     })
   }
+
   showMoreList(type: string) {
     this.showMoreType = type
     this.$store.dispatch('search', {
@@ -341,6 +350,15 @@ export default class Navigation extends Vue {
       type: this.showMoreType
     })
   }
+
+  showCircles() {
+    this.$circles.show()
+  }
+
+  circleColor(id: string) {
+    return getNameColorById(id)
+  }
+
   openMenu(conversation: any) {
     const isContact = conversation.category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
@@ -358,6 +376,7 @@ export default class Navigation extends Vue {
       )
     })
   }
+
   openDownMenu(conversation: any, index: number) {
     const isContact = conversation.category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
@@ -375,6 +394,7 @@ export default class Navigation extends Vue {
       )
     })
   }
+
   handlerMenu(position: any, isContact: any, conversationId: any, pinTime: any, ownerId: any) {
     if (position === 'exit_group') {
       this.$store.dispatch('exitGroup', conversationId)
@@ -440,9 +460,11 @@ export default class Navigation extends Vue {
       )
     }
   }
+
   isMute(conversation: any) {
     return isMuteCheck(conversation)
   }
+
   getMenu(isContact: any, isExit: any, pinTime: any, isMute: any) {
     const conversationMenu: any = this.$t('menu.conversation')
     const menu = []
@@ -473,9 +495,7 @@ export default class Navigation extends Vue {
     }
     return menu
   }
-  showCircles() {
-    this.$circles.show()
-  }
+
   showConveresation(event: any) {
     this.conversationShow = true
   }

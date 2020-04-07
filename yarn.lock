@@ -2361,14 +2361,15 @@ boolean@^3.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#d79db099aa0136c31141b773614d72b88bde3962"
+  uid "06bbfaf2e82bccf20e372cdb61c1c68179da141e"
+  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#06bbfaf2e82bccf20e372cdb61c1c68179da141e"
   dependencies:
     crypto "^1.0.1"
     int64-buffer "^0.99.1007"
     jsonwebtoken "^8.5.0"
     moment "^2.24.0"
     node-forge "^0.9.0"
-    uuid "^3.3.2"
+    uuid "^7.0.3"
 
 boxen@^4.2.0:
   version "4.2.0"

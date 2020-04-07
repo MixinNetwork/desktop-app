@@ -13,7 +13,6 @@
           <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
           <span class="header-name" v-if="optionName === 'edit'">
             <span>{{circleName}}</span>
-            <!-- <a class="edit-name" v-if="currentCircle" @click="editName">Edit</a> -->
           </span>
           <span class="header-name" v-else>Circles</span>
           <svg-icon
@@ -30,8 +29,14 @@
           >Next</a>
           <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">Save</a>
         </div>
+
         <div class="list">
-          <div class="edit" v-if="optionName === 'edit'">
+          <div v-if="optionName === 'before-edit'">
+            <button class="edit-button" v-if="currentCircle" @click="editCircleName">Edit Circle Name</button>
+            <button class="edit-button" v-if="currentCircle" @click="editCircle">Edit Conversations</button>
+          </div>
+
+          <div :class="optionName" v-else-if="optionName === 'edit' || optionName === 'view'">
             <div v-if="currentCircle">
               <div class="input-wrapper">
                 <input
@@ -49,6 +54,7 @@
                     <div class="title">{{i18n.t('chat.chats')}}</div>
                     <div class="item" v-for="chat in chatList" :key="chat.conversationId">
                       <svg-icon
+                        v-if="optionName === 'edit'"
                         @click.stop="choiceClick(chat.conversationId, 'conversation_id')"
                         :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
                         :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
@@ -59,6 +65,7 @@
                     <div class="title">{{i18n.t('chat.chat_contact')}}</div>
                     <div class="item" v-for="user in contactList" :key="user.user_id">
                       <svg-icon
+                        v-if="optionName === 'edit'"
                         @click.stop="choiceClick(user.user_id, 'contact_id')"
                         :icon-class="selectedIndex(user.user_id, 'contact_id') > -1?'ic_choice_selected':'ic_choice'"
                         :class="{selected: selectedIndex(user.user_id, 'contact_id') > -1}"
@@ -88,7 +95,7 @@
                 v-for="item in circles"
                 :key="item.circle_id"
                 class="circle-item"
-                @click="editCircle(item)"
+                @click="viewCircle(item)"
               >
                 <div class="avatar">
                   <svg-icon icon-class="ic_circles" class="circles-icon" />
@@ -104,7 +111,7 @@
                     <span class="num">{{item.unreadNum}}</span>
                   </div>
                   <div class="options">
-                    <span class="edit" @click.stop="editCircle(item)">Edit</span>
+                    <span class="edit" @click.stop="beforeEditCircle(item)">Edit</span>
                     <span class="delete" @click.stop="deleteCircle(item.circle_id)">Delete</span>
                   </div>
                 </div>
@@ -242,7 +249,7 @@ export default class Circles extends Vue {
     }
   }
 
-  editName() {}
+  editCircleName() {}
 
   saveCircle() {
     let currentIndex = -1
@@ -277,18 +284,33 @@ export default class Circles extends Vue {
     }, 300)
   }
 
-  editCircle(circle: any) {
+  viewCircle(circle: any) {
     this.currentCircle = circle
+    this.searchName = ''
+    this.selectedList = []
+    // TODO show selected
+    this.inputFocus()
+    this.optionName = 'view'
+    this.circleName = circle.name
+  }
+
+  beforeEditCircle(circle: any) {
+    this.currentCircle = circle
+    this.optionName = 'before-edit'
+  }
+
+  editCircle() {
     this.searchName = ''
     this.selectedList = []
     this.inputFocus()
     // circleApi.getCircleById(circle.circle_id).then(res => {
     this.optionName = 'edit'
-    this.circleName = circle.name
+    this.circleName = this.currentCircle.name
     // })
   }
 
   onSearch(keyword: string) {
+    // TODO filter view
     if (!keyword) {
       this.chats = []
       this.contacts = []
@@ -403,10 +425,6 @@ export default class Circles extends Vue {
       padding: 0 0.5rem;
       user-select: none;
     }
-    .edit-name {
-      cursor: pointer;
-      margin-left: 0.2rem;
-    }
   }
   .list {
     font-size: 0.8rem;
@@ -489,7 +507,20 @@ export default class Circles extends Vue {
     }
   }
 }
-.edit {
+.edit-button {
+  display: block;
+  margin: 0 auto 0.4rem;
+  width: 80%;
+  border: none;
+  background: $primary-color;
+  cursor: pointer;
+  color: white;
+  border-radius: 0.1rem;
+  font-size: 0.7rem;
+  padding: 0.3rem;
+}
+.edit,
+.view {
   .input-wrapper {
     padding: 0.4rem 1.25rem;
   }
@@ -522,6 +553,11 @@ export default class Circles extends Vue {
         }
       }
     }
+  }
+}
+.view {
+  .circle .item li {
+    padding-left: 1.2rem;
   }
 }
 

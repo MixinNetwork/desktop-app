@@ -13,7 +13,8 @@
           <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
           <span class="header-name" v-if="optionName === 'list'">Circles</span>
           <span class="header-name" v-else>
-            <span>{{circleName}}</span>
+            <span>{{currentCircle && currentCircle.name || 'New circle'}}</span>
+            <div class="desc" v-if="currentCircle">{{i18n.t('chat.conversations', { '0': currentCircle.count || 0 })}}</div>
           </span>
           <svg-icon
             v-if="optionName === 'list'"
@@ -24,7 +25,7 @@
           <a
             v-else-if="optionName === 'edit' && !currentCircle"
             class="save"
-            :class="{disabled: !cirlceName}"
+            :class="{disabled: !circleName}"
             @click="createCircleAction"
           >Next</a>
           <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">Save</a>
@@ -87,7 +88,7 @@
                 ref="input"
                 type="text"
                 placeholder="Circle Name"
-                v-model="cirlceName"
+                v-model="circleName"
                 required
               />
             </div>
@@ -107,12 +108,10 @@
                 <div class="content">
                   <div class="name">
                     <span>{{item.name}}</span>
-                    <div
-                      class="desc"
-                    >{{i18n.t('chat.conversations', { '0': item.conversations || 0 })}}</div>
+                    <div class="desc">{{i18n.t('chat.conversations', { '0': item.count || 0 })}}</div>
                   </div>
-                  <div class="badge" v-if="item.unreadNum">
-                    <span class="num">{{item.unreadNum}}</span>
+                  <div class="badge" v-if="item.unseen_message_count">
+                    <span class="num">{{item.unseen_message_count}}</span>
                   </div>
                   <div class="options">
                     <span class="edit" @click.stop="beforeEditCircle(item)">Edit</span>
@@ -158,7 +157,6 @@ export default class Circles extends Vue {
   visible: boolean = false
 
   currentCircle: any = null
-  cirlceName: string = ''
   searchName: string = ''
   circles: any = []
   circleName: string = ''
@@ -183,7 +181,7 @@ export default class Circles extends Vue {
   @Watch('optionName')
   onOptionNameChanged(val: string) {
     if (val === 'list') {
-      this.circles = circleDao.findAllCircles()
+      this.circles = circleDao.findAllCircleItem()
     }
   }
 
@@ -236,9 +234,7 @@ export default class Circles extends Vue {
 
   createCircle() {
     this.currentCircle = null
-    this.circleName = 'New circle'
     this.optionName = 'edit'
-    this.cirlceName = ''
     this.inputFocus()
   }
 
@@ -321,7 +317,6 @@ export default class Circles extends Vue {
     this.selectedList = circleConversationDao.findCircleConversationByCircleId(circleId)
     this.inputFocus()
     this.optionName = 'view'
-    this.circleName = circle.name
   }
 
   beforeEditCircle(circle: any) {
@@ -335,7 +330,6 @@ export default class Circles extends Vue {
     this.selectedList = circleConversationDao.findCircleConversationByCircleId(circleId)
     this.inputFocus()
     this.optionName = 'edit'
-    this.circleName = this.currentCircle.name
   }
 
   onSearch(keyword: string) {
@@ -381,8 +375,8 @@ export default class Circles extends Vue {
   }
 
   createCircleAction() {
-    if (!this.cirlceName) return
-    const payload: any = { name: this.cirlceName }
+    if (!this.circleName) return
+    const payload: any = { name: this.circleName }
     circleApi.createCircle(payload).then(res => {
       if (res.data) {
         const data = res.data.data
@@ -458,8 +452,17 @@ export default class Circles extends Vue {
       padding: 0 0.2rem;
     }
     .header-name {
+      display: inline-flex;
+      line-height: 0.8rem;
       padding: 0 0.5rem;
       user-select: none;
+      .desc {
+        font-size: 0.65rem;
+        margin-left: 0.5rem;
+        line-height: 0.9rem;
+        color: #aaa;
+        font-weight: normal;
+      }
     }
   }
   .list {
@@ -505,7 +508,7 @@ export default class Circles extends Vue {
         .name {
           flex: 1;
           .desc {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #aaa;
           }
         }

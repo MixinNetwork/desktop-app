@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `circles` (
     `circle_id` TEXT NOT NULL,
     `name` TEXT NOT NULL,
     `created_at` TEXT NOT NULL,
-    `order_at` TEXT,
+    `ordered_at` TEXT,
     PRIMARY KEY(`circle_id`)
 );
 

@@ -2,7 +2,7 @@ import db from '@/persistence/db'
 
 class CircleDao {
   insert(data: any) {
-    const stmt = db.prepare('INSERT OR REPLACE INTO circles VALUES (@circle_id, @name, @created_at, @order_at)')
+    const stmt = db.prepare('INSERT OR REPLACE INTO circles VALUES (@circle_id, @name, @created_at, @ordered_at)')
     stmt.run(data)
   }
 
@@ -23,7 +23,7 @@ class CircleDao {
   findAllCircleItem() {
     return db
       .prepare(
-        'SELECT ci.circle_id, ci.name, ci.created_at, count(c.conversation_id) as count, sum(c.unseen_message_count) as unseen_message_count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id LEFT JOIN conversations c  ON c.conversation_id == cc.conversation_id  GROUP BY ci.circle_id ORDER BY ci.order_at ASC, ci.created_at DESC'
+        'SELECT ci.circle_id, ci.name, ci.created_at, count(c.conversation_id) as count, sum(c.unseen_message_count) as unseen_message_count FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id LEFT JOIN conversations c  ON c.conversation_id == cc.conversation_id GROUP BY ci.circle_id ORDER BY ci.ordered_at ASC, ci.created_at DESC'
       )
       .all()
   }
@@ -36,7 +36,7 @@ class CircleDao {
         WHERE ci.circle_id IN (
         SELECT cir.circle_id FROM circles cir LEFT JOIN circle_conversations ccr ON cir.circle_id = ccr.circle_id WHERE ccr.conversation_id = ?)
         GROUP BY ci.circle_id
-        ORDER BY ci.order_at ASC, ci.created_at DESC`
+        ORDER BY ci.ordered_at ASC, ci.created_at DESC`
       )
       .all(conversationId)
   }
@@ -49,7 +49,7 @@ class CircleDao {
         WHERE ci.circle_id NOT IN (
         SELECT cir.circle_id FROM circles cir LEFT JOIN circle_conversations ccr ON cir.circle_id = ccr.circle_id WHERE ccr.conversation_id = ?)
         GROUP BY ci.circle_id
-        ORDER BY ci.order_at ASC, ci.created_at DESC`
+        ORDER BY ci.ordered_at ASC, ci.created_at DESC`
       )
       .all(conversationId)
   }
@@ -127,7 +127,7 @@ class CircleDao {
   }
 
   updateOrderAt(circleId: string, orderAt: string) {
-    db.prepare(`UPDATE circles SET order_at = ? WHERE circle_id = ?`).run([orderAt, circleId])
+    db.prepare(`UPDATE circles SET ordered_at = ? WHERE circle_id = ?`).run([orderAt, circleId])
   }
 
   findOtherCircleUnread(circleId: String) {

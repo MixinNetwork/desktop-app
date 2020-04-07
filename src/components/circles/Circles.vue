@@ -17,7 +17,7 @@
             <div
               class="desc"
               v-if="currentCircle"
-            >{{i18n.t('chat.conversations', { '0': currentCircle.count || 0 })}}</div>
+            >{{i18n.t('chat.conversations', { '0': selectedList.length || currentCircle.count || 0 })}}</div>
           </span>
           <svg-icon
             v-if="optionName === 'list'"
@@ -74,9 +74,9 @@
                     <div class="item" v-for="user in contactList" :key="user.user_id">
                       <svg-icon
                         v-if="optionName === 'edit'"
-                        @click.stop="choiceClick(user.user_id, 'contact_id')"
-                        :icon-class="selectedIndex(user.user_id, 'contact_id') > -1?'ic_choice_selected':'ic_choice'"
-                        :class="{selected: selectedIndex(user.user_id, 'contact_id') > -1}"
+                        @click.stop="choiceClick(user.user_id, 'user_id')"
+                        :icon-class="selectedIndex(user.user_id, 'user_id') > -1?'ic_choice_selected':'ic_choice'"
+                        :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
                         class="choice-icon"
                       />
                       <UserItem :user="user" @user-click="onUserClick"></UserItem>
@@ -97,7 +97,7 @@
             </div>
           </div>
 
-          <mixin-scrollbar v-else-if="optionName === 'list' && circles.length > 1">
+          <mixin-scrollbar v-else-if="optionName === 'list'">
             <div class="ul" ref="ul">
               <div
                 v-for="item in circles"
@@ -133,13 +133,13 @@
                   </div>
                 </div>
               </div>
+
+              <div
+                class="empty"
+                v-if="circles.length === 1"
+              >Create circles for different groups of chats and quickly switch between them</div>
             </div>
           </mixin-scrollbar>
-
-          <div
-            class="empty"
-            v-else
-          >Create circles for different groups of chats and quickly switch between them</div>
         </div>
       </div>
     </div>
@@ -157,7 +157,7 @@ import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import { ConversationCategory } from '@/utils/constants'
-import { getNameColorById } from '@/utils/util'
+import { getNameColorById, generateConversationId } from '@/utils/util'
 
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
@@ -262,6 +262,8 @@ export default class Circles extends Vue {
 
   createCircle() {
     this.currentCircle = null
+    this.selectedList = []
+    this.circleName = ''
     this.optionName = 'edit'
     this.inputFocus()
   }
@@ -284,7 +286,14 @@ export default class Circles extends Vue {
       this.selectedList.splice(index, 1)
     } else {
       const item: any = {}
-      item[type] = id
+      item.conversation_id = id
+      if (type === 'user_id') {
+        item.user_id = id
+        // @ts-ignore
+        const account = JSON.parse(localStorage.getItem('account'))
+        const conversationId = generateConversationId(account.user_id, id)
+        item.conversation_id = conversationId
+      }
       this.selectedList.unshift(item)
     }
   }
@@ -314,6 +323,7 @@ export default class Circles extends Vue {
     circleApi.updateCircleConversations(circleId, this.selectedList).then(res => {
       if (res.data) {
         const list: any = []
+        if (!res.data.data) return
         res.data.data.forEach((item: any) => {
           list.push({
             circle_id: item.circle_id,
@@ -357,8 +367,7 @@ export default class Circles extends Vue {
 
   editCircle() {
     this.searchName = ''
-    const circleId = this.currentCircle.circle_id
-    this.selectedList = circleConversationDao.findCircleConversationByCircleId(circleId)
+    this.selectedList = circleConversationDao.findCircleConversationByCircleId(this.currentCircle.circle_id)
     this.inputFocus()
     this.optionName = 'edit'
   }
@@ -411,13 +420,13 @@ export default class Circles extends Vue {
     circleApi.createCircle(payload).then(res => {
       if (res.data) {
         const data = res.data.data
-        payload.circleId = data.circle_id
-        this.currentCircle = payload
+        if (!data) return
+        this.currentCircle = data
         circleDao.insert({
           circle_id: data.circle_id,
           name: data.name,
           created_at: data.created_at,
-          order_at: ''
+          ordered_at: ''
         })
       }
     })
@@ -490,7 +499,7 @@ export default class Circles extends Vue {
       .desc {
         font-size: 0.65rem;
         margin-left: 0.5rem;
-        line-height: 0.9rem;
+        line-height: 1rem;
         color: #aaa;
         font-weight: normal;
       }

@@ -23,13 +23,16 @@ import messageMentionDao from '@/dao/message_mention_dao'
 
 import interval from 'interval-promise'
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
-import {MessageCategories,
+import {
+  MessageCategories,
   MessageStatus,
   MediaStatus,
   ConversationStatus,
   SystemUser,
   SystemConversationAction,
-  ConversationCategory} from '@/utils/constants'
+  ConversationCategory,
+  SyncSessionAction
+} from '@/utils/constants'
 
 const insertMessageQueue = []
 const makeMessageReadQueue = []
@@ -425,6 +428,49 @@ class ReceiveWorker extends BaseWorker {
       } else if (plainData.action === 'RESEND_KEY') {
         if (signalProtocol.containsUserSession(data.user_id)) {
           await this.sendSenderKey(data.conversation_id, data.user_id, data.session_id)
+        }
+      } else if (plainData.action === 'SYNC_SESSION_MESSAGE') {
+        const { syncSessionMessage } = plainData
+
+        // eslint-disable-next-line camelcase
+        const { action, conversation_id, user_id, circle_id, time } = syncSessionMessage
+        switch (action) {
+          case SyncSessionAction.CONVERSATION_PIN:
+            // conversationDao.updateConversationPinTimeById(conversationId, syncSessionMessage.time)
+            break
+
+          case SyncSessionAction.CONVERSATION_MUTE:
+            // jobManager.addJobInBackground(RefreshConversationJob(conversationId))
+            break
+
+          case SyncSessionAction.USER_ADD:
+          case SyncSessionAction.USER_REMOVE:
+          case SyncSessionAction.USER_BLOCK:
+            // jobManager.addJobInBackground(RefreshUserJob(listOf(userId)))
+            break
+
+          case SyncSessionAction.CIRCLE_CREATE:
+          case SyncSessionAction.CIRCLE_RENAME:
+            // jobManager.addJobInBackground(RefreshUserJob(listOf(userId)))
+            break
+
+          case SyncSessionAction.CIRCLE_CONVERSATION_PIN:
+            // val conversationId = syncSessionMessage.conversationId
+            // val circleId = syncSessionMessage.circleId
+            // if (conversationId != null && circleId != null) {
+            //     circleConversationDao.updateConversationPinTimeById(conversationId, circleId, syncSessionMessage.time)
+            // } else {
+            // }
+            break
+
+          case SyncSessionAction.CIRCLE_REMOVE:
+            // runInTransaction {
+            //     circleDao.deleteCircleById(circleId)
+            //     circleConversationDao.deleteByCircleId(circleId)
+            // }
+            break
+
+          default:
         }
       }
     } else if (

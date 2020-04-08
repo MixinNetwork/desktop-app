@@ -84,7 +84,7 @@
                   <Avatar class="avatar" v-if="item.user_id" :user="item" />
                   <Avatar class="avatar" v-else :conversation="item" />
                   <svg-icon class="close" @click="unselected(item)" icon-class="ic_circle_close" />
-                  <span class="name">{{item.name}}</span>
+                  <span class="name">{{item.groupName || item.name || item.full_name}}</span>
                 </div>
               </div>
             </div>
@@ -254,9 +254,10 @@ export default class Circles extends Vue {
 
   get contactList() {
     const exsitIds: any = []
-    this.chatList.forEach((item: any) => {
+    store.getters.getConversations.forEach((item: any) => {
       if (item.participants.length === 2) {
-        exsitIds.push(item.senderId)
+        exsitIds.push(item.participants[0].user_id)
+        exsitIds.push(item.participants[1].user_id)
       }
     })
     let result = []
@@ -412,10 +413,21 @@ export default class Circles extends Vue {
       this.circles[currentIndex] = this.currentCircle
     }
     const userIdMap: any = {}
+    const selectedList: any = []
     this.selectedList.forEach((item: any) => {
       userIdMap[item.conversation_id] = item.user_id
+      const temp: any = {
+        conversation_id: item.conversation_id
+      }
+      if (item.user_id) {
+        temp.user_id = item.user_id
+      }
+      if (item.part_user_id) {
+        temp.user_id = item.part_user_id
+      }
+      selectedList.push(temp)
     })
-    circleApi.updateCircleConversations(circleId, this.selectedList).then(res => {
+    circleApi.updateCircleConversations(circleId, selectedList).then(res => {
       const list: any = []
       if (!res.data || !res.data.data) return
       res.data.data.forEach((item: any) => {
@@ -460,18 +472,7 @@ export default class Circles extends Vue {
 
   editCircle() {
     this.searchName = ''
-    const list = circleConversationDao.findCircleConversationByCircleId(this.currentCircle.circle_id)
-    const selectedList: any = []
-    list.forEach((item: any) => {
-      const temp: any = {
-        conversation_id: item.conversation_id
-      }
-      if (item.user_id) {
-        temp.user_id = item.user_id
-      }
-      selectedList.push(temp)
-    })
-    this.selectedList = selectedList
+    this.selectedList = circleConversationDao.findCircleConversationByCircleId(this.currentCircle.circle_id)
     this.inputFocus()
     this.optionName = 'edit'
   }
@@ -784,10 +785,12 @@ export default class Circles extends Vue {
       height: 2.4rem;
     }
     .name {
+      text-align: center;
       font-size: 0.6rem;
       position: absolute;
       bottom: 0;
-      width: 100%;
+      left: -0.3rem;
+      width: 3rem;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

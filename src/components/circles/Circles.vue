@@ -11,13 +11,13 @@
             icon-class="ic_back"
           />
           <svg-icon v-else style="font-size: 1.2rem" @click="close" icon-class="ic_close" />
-          <span class="header-name" v-if="optionName === 'list'">Circles</span>
+          <span class="header-name" v-if="optionName === 'list'">{{i18n.t('circle.circles')}}</span>
           <span class="header-name" v-else>
-            <span>{{currentCircle && currentCircle.name || 'New circle'}}</span>
+            <span>{{currentCircle && currentCircle.name || i18n.t('circle.new_circle')}}</span>
             <div
               class="desc"
               v-if="optionName === 'edit'"
-            >{{i18n.t('chat.conversations', { '0': selectedList.length || currentCircle.count || 0 })}}</div>
+            >{{i18n.t('circle.conversations', { '0': selectedList.length || currentCircle.count || 0 })}}</div>
           </span>
           <svg-icon
             v-if="optionName === 'list'"
@@ -30,8 +30,12 @@
             class="save"
             :class="{disabled: !circleName}"
             @click="createCircleAction"
-          >{{!currentCircle?'Next':'Save'}}</a>
-          <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">Save</a>
+          >{{i18n.t(`circle.${!currentCircle?'next':'save'}`)}}</a>
+          <a
+            v-else-if="optionName === 'edit'"
+            class="save"
+            @click="saveCircle"
+          >{{i18n.t('circle.save')}}</a>
         </div>
 
         <div class="list">
@@ -40,8 +44,12 @@
               class="edit-button"
               v-if="currentCircle"
               @click="editCircleName"
-            >Edit Circle Name</button>
-            <button class="edit-button" v-if="currentCircle" @click="editCircle">Edit Conversations</button>
+            >{{i18n.t('circle.edit_circle_name')}}</button>
+            <button
+              class="edit-button"
+              v-if="currentCircle"
+              @click="editCircle"
+            >{{i18n.t('circle.edit_converstaions')}}</button>
           </div>
 
           <div class="input-wrapper" v-else-if="optionName === 'circle-name'">
@@ -73,7 +81,8 @@
                   v-for="item in selectedAvatarList"
                   :key="item.conversationId"
                 >
-                  <Avatar class="avatar" :conversation="item" />
+                  <Avatar class="avatar" v-if="item.user_id" :user="item" />
+                  <Avatar class="avatar" v-else :conversation="item" />
                   <svg-icon class="close" @click="unselected(item)" icon-class="ic_circle_close" />
                   <span class="name">{{item.name}}</span>
                 </div>
@@ -86,7 +95,7 @@
                   <div class="item" v-for="chat in chatList" :key="chat.conversationId">
                     <svg-icon
                       v-if="optionName === 'edit'"
-                      @click.stop="choiceClick(chat.conversationId, 'conversation_id')"
+                      @click.stop="choiceClick(chat, 'conversation_id')"
                       :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
                       :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
                       class="choice-icon"
@@ -97,7 +106,7 @@
                   <div class="item" v-for="user in contactList" :key="user.user_id">
                     <svg-icon
                       v-if="optionName === 'edit'"
-                      @click.stop="choiceClick(user.user_id, 'user_id')"
+                      @click.stop="choiceClick(user, 'user_id')"
                       :icon-class="selectedIndex(user.user_id, 'user_id') > -1?'ic_choice_selected':'ic_choice'"
                       :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
                       class="choice-icon"
@@ -130,11 +139,11 @@
                     <div
                       class="desc"
                       v-if="item.circle_id === 'mixin'"
-                    >{{i18n.t('chat.all_conversations')}}</div>
+                    >{{i18n.t('circle.all_conversations')}}</div>
                     <div
                       class="desc"
                       v-else
-                    >{{i18n.t('chat.conversations', { '0': item.count || 0 })}}</div>
+                    >{{i18n.t('circle.conversations', { '0': item.count || 0 })}}</div>
                   </div>
                   <div
                     class="checked"
@@ -147,16 +156,19 @@
                     <span class="num">{{item.unseen_message_count}}</span>
                   </div>
                   <div class="options" v-if="item.circle_id !== 'mixin'">
-                    <span class="edit-button" @click.stop="beforeEditCircle(item)">Edit</span>
-                    <span class="delete-button" @click.stop="deleteCircle(item.circle_id)">Delete</span>
+                    <span
+                      class="edit-button"
+                      @click.stop="beforeEditCircle(item)"
+                    >{{i18n.t('circle.edit')}}</span>
+                    <span
+                      class="delete-button"
+                      @click.stop="deleteCircle(item.circle_id)"
+                    >{{i18n.t('circle.delete')}}</span>
                   </div>
                 </div>
               </div>
 
-              <div
-                class="empty"
-                v-if="circles.length === 1"
-              >Create circles for different groups of chats and quickly switch between them</div>
+              <div class="empty" v-if="circles.length === 1" v-html="i18n.t('circle.empty')"></div>
             </div>
           </mixin-scrollbar>
         </div>
@@ -244,8 +256,7 @@ export default class Circles extends Vue {
     const exsitIds: any = []
     this.chatList.forEach((item: any) => {
       if (item.participants.length === 2) {
-        exsitIds.push(item.participants[0].user_id)
-        exsitIds.push(item.participants[1].user_id)
+        exsitIds.push(item.senderId)
       }
     })
     let result = []
@@ -269,8 +280,13 @@ export default class Circles extends Vue {
 
   get selectedAvatarList() {
     const cidList: any = []
+    const uidList: any = []
     this.selectedList.forEach((item: any) => {
-      cidList.push(item.conversation_id)
+      if (item.user_id) {
+        uidList.push(item.user_id)
+      } else {
+        cidList.push(item.conversation_id)
+      }
     })
     const list: any = []
     this.chatList.forEach((item: any) => {
@@ -278,11 +294,20 @@ export default class Circles extends Vue {
         list.push(item)
       }
     })
+    this.contactList.forEach((item: any) => {
+      if (uidList.indexOf(item.user_id) > -1) {
+        list.push(item)
+      }
+    })
     return list
   }
 
-  unselected(conversation: any) {
-    this.choiceClick(conversation.conversationId, 'conversation_id')
+  unselected(target: any) {
+    let type = 'conversation_id'
+    if (target.user_id) {
+      type = 'user_id'
+    }
+    this.choiceClick(target, type)
   }
 
   onChatClick(conversation: any) {
@@ -342,19 +367,24 @@ export default class Circles extends Vue {
     return index
   }
 
-  choiceClick(id: string, type: string) {
+  choiceClick(target: any, type: string) {
+    const item: any = {}
+    let id = target.conversationId
+    if (type === 'user_id') {
+      id = target.user_id
+    } else {
+      item.conversation_id = id
+    }
     const index = this.selectedIndex(id, type)
     if (index > -1) {
       this.selectedList.splice(index, 1)
     } else {
-      const item: any = {}
-      item.conversation_id = id
       if (type === 'user_id') {
-        item.user_id = id
         // @ts-ignore
         const account = JSON.parse(localStorage.getItem('account'))
         const conversationId = generateConversationId(account.user_id, id)
         item.conversation_id = conversationId
+        item.user_id = target.user_id
       }
       this.selectedList.unshift(item)
     }
@@ -381,7 +411,10 @@ export default class Circles extends Vue {
     } else {
       this.circles[currentIndex] = this.currentCircle
     }
-
+    const userIdMap: any = {}
+    this.selectedList.forEach((item: any) => {
+      userIdMap[item.conversation_id] = item.user_id
+    })
     circleApi.updateCircleConversations(circleId, this.selectedList).then(res => {
       const list: any = []
       if (!res.data || !res.data.data) return
@@ -390,13 +423,14 @@ export default class Circles extends Vue {
           circle_id: item.circle_id,
           conversation_id: item.conversation_id,
           created_at: item.created_at,
+          user_id: userIdMap[item.conversation_id],
           pin_time: ''
         })
       })
       circleConversationDao.deleteByCircleId(circleId)
       circleConversationDao.insert(list)
       this.optionName = 'list'
-      this.$toast(i18n.t('chat.circle_saved'), 3000)
+      this.$toast(i18n.t('circle.saved'), 3000)
     })
   }
 
@@ -426,7 +460,18 @@ export default class Circles extends Vue {
 
   editCircle() {
     this.searchName = ''
-    this.selectedList = circleConversationDao.findCircleConversationByCircleId(this.currentCircle.circle_id)
+    const list = circleConversationDao.findCircleConversationByCircleId(this.currentCircle.circle_id)
+    const selectedList: any = []
+    list.forEach((item: any) => {
+      const temp: any = {
+        conversation_id: item.conversation_id
+      }
+      if (item.user_id) {
+        temp.user_id = item.user_id
+      }
+      selectedList.push(temp)
+    })
+    this.selectedList = selectedList
     this.inputFocus()
     this.optionName = 'edit'
   }
@@ -454,7 +499,7 @@ export default class Circles extends Vue {
 
   deleteCircle(circleId: string) {
     this.$Dialog.alert(
-      i18n.t('chat.remove_circle'),
+      i18n.t('circle.remove'),
       i18n.t('ok'),
       () => {
         let index = -1
@@ -500,6 +545,7 @@ export default class Circles extends Vue {
         created_at: data.created_at,
         ordered_at: ''
       })
+      this.optionName = 'edit'
     })
   }
 }
@@ -611,8 +657,9 @@ export default class Circles extends Vue {
         }
       }
       .circle-checked {
+        font-size: 1rem;
         margin-top: 0.5rem;
-        margin-right: 0.2rem;
+        margin-right: 0.05rem;
       }
 
       .content {
@@ -646,6 +693,8 @@ export default class Circles extends Vue {
             font-size: 0.7rem;
             padding: 0.1rem 0.3rem;
             border-radius: 0.1rem;
+            white-space: nowrap;
+            text-align: center;
           }
           .edit-button {
             background: $primary-color;

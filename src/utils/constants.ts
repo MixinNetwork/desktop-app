@@ -43,8 +43,8 @@ export const AvatarColors = [
   '#DCC6E4',
   '#BABAE8',
   '#BABCD5',
-  '#B5B5B5',
-  '#979797'
+  '#AD98DA',
+  '#C097D9'
 ]
 
 export const NameColors = [

@@ -66,6 +66,17 @@
                 required
               />
             </div>
+            <div class="selected-preview">
+              <div
+                class="selected-avatar"
+                v-for="item in selectedAvatarList"
+                :key="item.conversationId"
+              >
+                <Avatar class="avatar" :conversation="item" />
+                <svg-icon class="close" @click="unselected(item)" icon-class="ic_circle_close" />
+                <span class="name">{{item.name}}</span>
+              </div>
+            </div>
             <div class="circle">
               <mixin-scrollbar>
                 <div class="ul" ref="ul">
@@ -123,12 +134,19 @@
                       v-else
                     >{{i18n.t('chat.conversations', { '0': item.count || 0 })}}</div>
                   </div>
+                  <div
+                    class="checked"
+                    :class="{normal: selectedCurrentCircle}"
+                    v-if="(!selectedCurrentCircle ? 'mixin' : selectedCurrentCircle.circle_id) === item.circle_id"
+                  >
+                    <svg-icon icon-class="ic_circle_checked" class="circle-checked" />
+                  </div>
                   <div class="badge" v-if="item.unseen_message_count">
                     <span class="num">{{item.unseen_message_count}}</span>
                   </div>
                   <div class="options" v-if="item.circle_id !== 'mixin'">
-                    <span class="edit" @click.stop="beforeEditCircle(item)">Edit</span>
-                    <span class="delete" @click.stop="deleteCircle(item.circle_id)">Delete</span>
+                    <span class="edit-button" @click.stop="beforeEditCircle(item)">Edit</span>
+                    <span class="delete-button" @click.stop="deleteCircle(item.circle_id)">Delete</span>
                   </div>
                 </div>
               </div>
@@ -160,11 +178,13 @@ import { getNameColorById, generateConversationId } from '@/utils/util'
 
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
+import Avatar from '@/components/Avatar.vue'
 
 @Component({
   components: {
     UserItem,
-    ChatItem
+    ChatItem,
+    Avatar
   }
 })
 export default class Circles extends Vue {
@@ -220,6 +240,28 @@ export default class Circles extends Vue {
   get contactList() {
     if (this.contacts.length || this.searchName) return this.contacts
     return store.getters.findFriends
+  }
+
+  get selectedCurrentCircle() {
+    return store.getters.currentCircle
+  }
+
+  get selectedAvatarList() {
+    const cidList: any = []
+    this.selectedList.forEach((item: any) => {
+      cidList.push(item.conversation_id)
+    })
+    const list: any = []
+    this.chatList.forEach((item: any) => {
+      if (cidList.indexOf(item.conversationId) > -1) {
+        list.push(item)
+      }
+    })
+    return list
+  }
+
+  unselected(conversation: any) {
+    this.choiceClick(conversation.conversationId, 'conversation_id')
   }
 
   onChatClick(conversation: any) {
@@ -466,6 +508,7 @@ export default class Circles extends Vue {
   background: #33333377;
 }
 .circles {
+  user-select: none;
   position: relative;
   z-index: 1000;
   width: 22.4rem;
@@ -490,7 +533,6 @@ export default class Circles extends Vue {
     .save {
       float: right;
       cursor: pointer;
-      user-select: none;
       &.disabled {
         opacity: 0.5;
       }
@@ -504,7 +546,6 @@ export default class Circles extends Vue {
       display: inline-flex;
       line-height: 0.8rem;
       padding: 0 0.5rem;
-      user-select: none;
       .desc {
         font-size: 0.65rem;
         margin-left: 0.5rem;
@@ -519,7 +560,6 @@ export default class Circles extends Vue {
     height: calc(72vh - 6.4rem);
     .circle-item {
       display: flex;
-      user-select: none;
       padding: 0.6rem 1.25rem;
       align-items: center;
       cursor: pointer;
@@ -529,7 +569,8 @@ export default class Circles extends Vue {
           .options {
             display: flex;
           }
-          .badge {
+          .badge,
+          .checked.normal {
             display: none;
           }
         }
@@ -538,7 +579,7 @@ export default class Circles extends Vue {
         border-radius: 2rem;
         width: 2rem;
         height: 2rem;
-        background: #aaaaaa33;
+        background: #cccccc33;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -548,6 +589,10 @@ export default class Circles extends Vue {
           margin-top: -0.05rem;
           stroke: #2f3032;
         }
+      }
+      .circle-checked {
+        margin-top: 0.6rem;
+        margin-right: 0.2rem;
       }
 
       .content {
@@ -582,11 +627,11 @@ export default class Circles extends Vue {
             padding: 0.1rem 0.3rem;
             border-radius: 0.1rem;
           }
-          .edit {
+          .edit-button {
             background: $primary-color;
             color: #fff;
           }
-          .delete {
+          .delete-button {
             background: $danger-color;
             color: #fff;
           }
@@ -621,6 +666,39 @@ export default class Circles extends Vue {
 .input-wrapper {
   padding: 0.4rem 1.25rem;
 }
+.selected-preview {
+  user-select: none;
+  padding: 0.4rem 1.25rem 0.6rem;
+  display: flex;
+  .selected-avatar {
+    position: relative;
+    display: flex;
+    width: 2.4rem;
+    height: 3.4rem;
+    margin-right: 0.6rem;
+    padding-right: 0.3rem;
+    .close {
+      position: absolute;
+      right: 0;
+      top: 0;
+      z-index: 9999;
+      cursor: pointer;
+    }
+    .avatar {
+      width: 2.4rem;
+      height: 2.4rem;
+    }
+    .name {
+      font-size: 0.6rem;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+}
 .input {
   padding: 0.5rem 1rem;
   box-sizing: border-box;
@@ -631,9 +709,12 @@ export default class Circles extends Vue {
   width: 100%;
 }
 .edit {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  user-select: none;
   .circle {
-    height: calc(72vh - 9rem);
-    user-select: none;
+    height: 100%;
     .item {
       position: relative;
       li {

@@ -26,11 +26,11 @@
             icon-class="ic_add"
           />
           <a
-            v-else-if="optionName === 'edit' && !currentCircle"
+            v-else-if="optionName === 'circle-name'"
             class="save"
             :class="{disabled: !circleName}"
             @click="createCircleAction"
-          >Next</a>
+          >{{!currentCircle?'Next':'Save'}}</a>
           <a v-else-if="optionName === 'edit'" class="save" @click="saveCircle">Save</a>
         </div>
 
@@ -44,56 +44,55 @@
             <button class="edit-button" v-if="currentCircle" @click="editCircle">Edit Conversations</button>
           </div>
 
+          <div class="input-wrapper" v-else-if="optionName === 'circle-name'">
+            <input
+              class="input"
+              ref="input"
+              type="text"
+              placeholder="Circle Name"
+              v-model="circleName"
+              required
+            />
+          </div>
+
           <div class="edit" v-else-if="optionName === 'edit'">
-            <div v-if="currentCircle">
-              <div class="input-wrapper">
-                <input
-                  class="input"
-                  ref="input"
-                  type="text"
-                  placeholder="Search name"
-                  v-model="searchName"
-                  required
-                />
-              </div>
-              <div class="circle">
-                <mixin-scrollbar>
-                  <div class="ul" ref="ul">
-                    <div class="title">{{i18n.t('chat.chats')}}</div>
-                    <div class="item" v-for="chat in chatList" :key="chat.conversationId">
-                      <svg-icon
-                        v-if="optionName === 'edit'"
-                        @click.stop="choiceClick(chat.conversationId, 'conversation_id')"
-                        :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
-                        :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
-                        class="choice-icon"
-                      />
-                      <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
-                    </div>
-                    <div class="title">{{i18n.t('chat.chat_contact')}}</div>
-                    <div class="item" v-for="user in contactList" :key="user.user_id">
-                      <svg-icon
-                        v-if="optionName === 'edit'"
-                        @click.stop="choiceClick(user.user_id, 'user_id')"
-                        :icon-class="selectedIndex(user.user_id, 'user_id') > -1?'ic_choice_selected':'ic_choice'"
-                        :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
-                        class="choice-icon"
-                      />
-                      <UserItem :user="user" @user-click="onUserClick"></UserItem>
-                    </div>
-                  </div>
-                </mixin-scrollbar>
-              </div>
-            </div>
-            <div class="input-wrapper" v-else>
+            <div class="input-wrapper">
               <input
                 class="input"
                 ref="input"
                 type="text"
-                placeholder="Circle Name"
-                v-model="circleName"
+                placeholder="Search name"
+                v-model="searchName"
                 required
               />
+            </div>
+            <div class="circle">
+              <mixin-scrollbar>
+                <div class="ul" ref="ul">
+                  <div class="title">{{i18n.t('chat.chats')}}</div>
+                  <div class="item" v-for="chat in chatList" :key="chat.conversationId">
+                    <svg-icon
+                      v-if="optionName === 'edit'"
+                      @click.stop="choiceClick(chat.conversationId, 'conversation_id')"
+                      :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
+                      :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
+                      class="choice-icon"
+                    />
+                    <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
+                  </div>
+                  <div class="title">{{i18n.t('chat.chat_contact')}}</div>
+                  <div class="item" v-for="user in contactList" :key="user.user_id">
+                    <svg-icon
+                      v-if="optionName === 'edit'"
+                      @click.stop="choiceClick(user.user_id, 'user_id')"
+                      :icon-class="selectedIndex(user.user_id, 'user_id') > -1?'ic_choice_selected':'ic_choice'"
+                      :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
+                      class="choice-icon"
+                    />
+                    <UserItem :user="user" @user-click="onUserClick"></UserItem>
+                  </div>
+                </div>
+              </mixin-scrollbar>
             </div>
           </div>
 
@@ -264,7 +263,7 @@ export default class Circles extends Vue {
     this.currentCircle = null
     this.selectedList = []
     this.circleName = ''
-    this.optionName = 'edit'
+    this.optionName = 'circle-name'
     this.inputFocus()
   }
 
@@ -299,9 +298,9 @@ export default class Circles extends Vue {
   }
 
   editCircleName() {
-    // circleApi.updateCircle(circleId, this.currentCircle).then(res => {
-    //   console.log('---', res)
-    // })
+    this.optionName = 'circle-name'
+    this.circleName = this.currentCircle.name
+    this.inputFocus()
   }
 
   saveCircle() {
@@ -321,21 +320,19 @@ export default class Circles extends Vue {
     }
 
     circleApi.updateCircleConversations(circleId, this.selectedList).then(res => {
-      if (res.data) {
-        const list: any = []
-        if (!res.data.data) return
-        res.data.data.forEach((item: any) => {
-          list.push({
-            circle_id: item.circle_id,
-            conversation_id: item.conversation_id,
-            created_at: item.created_at,
-            pin_time: ''
-          })
+      const list: any = []
+      if (!res.data || !res.data.data) return
+      res.data.data.forEach((item: any) => {
+        list.push({
+          circle_id: item.circle_id,
+          conversation_id: item.conversation_id,
+          created_at: item.created_at,
+          pin_time: ''
         })
-        circleConversationDao.insert(list)
-        this.optionName = 'list'
-        this.$toast(i18n.t('chat.circle_saved'), 3000)
-      }
+      })
+      circleConversationDao.insert(list)
+      this.optionName = 'list'
+      this.$toast(i18n.t('chat.circle_saved'), 3000)
     })
   }
 
@@ -417,18 +414,30 @@ export default class Circles extends Vue {
   createCircleAction() {
     if (!this.circleName) return
     const payload: any = { name: this.circleName }
-    circleApi.createCircle(payload).then(res => {
-      if (res.data) {
+    if (this.currentCircle) {
+      circleApi.updateCircle(this.currentCircle.circle_id, payload).then(res => {
+        if (!res.data || !res.data.data) return
         const data = res.data.data
-        if (!data) return
-        this.currentCircle = data
         circleDao.insert({
           circle_id: data.circle_id,
           name: data.name,
           created_at: data.created_at,
           ordered_at: ''
         })
-      }
+        this.optionName = 'list'
+      })
+      return
+    }
+    circleApi.createCircle(payload).then(res => {
+      if (!res.data || !res.data.data) return
+      const data = res.data.data
+      this.currentCircle = data
+      circleDao.insert({
+        circle_id: data.circle_id,
+        name: data.name,
+        created_at: data.created_at,
+        ordered_at: ''
+      })
     })
   }
 }
@@ -609,19 +618,19 @@ export default class Circles extends Vue {
   line-height: 1.2rem;
   padding: 1.25rem 4rem;
 }
+.input-wrapper {
+  padding: 0.4rem 1.25rem;
+}
+.input {
+  padding: 0.5rem 1rem;
+  box-sizing: border-box;
+  border: none;
+  border-radius: 1rem;
+  background: #f5f7fa;
+  font-size: 0.7rem;
+  width: 100%;
+}
 .edit {
-  .input-wrapper {
-    padding: 0.4rem 1.25rem;
-  }
-  .input {
-    padding: 0.5rem 1rem;
-    box-sizing: border-box;
-    border: none;
-    border-radius: 1rem;
-    background: #f5f7fa;
-    font-size: 0.7rem;
-    width: 100%;
-  }
   .circle {
     height: calc(72vh - 9rem);
     user-select: none;

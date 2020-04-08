@@ -16,7 +16,7 @@
             <span>{{currentCircle && currentCircle.name || 'New circle'}}</span>
             <div
               class="desc"
-              v-if="currentCircle"
+              v-if="optionName === 'edit'"
             >{{i18n.t('chat.conversations', { '0': selectedList.length || currentCircle.count || 0 })}}</div>
           </span>
           <svg-icon
@@ -66,21 +66,23 @@
                 required
               />
             </div>
-            <div class="selected-preview">
-              <div
-                class="selected-avatar"
-                v-for="item in selectedAvatarList"
-                :key="item.conversationId"
-              >
-                <Avatar class="avatar" :conversation="item" />
-                <svg-icon class="close" @click="unselected(item)" icon-class="ic_circle_close" />
-                <span class="name">{{item.name}}</span>
+            <div class="selected-preview" v-if="!searchName && selectedAvatarList.length">
+              <div class="in">
+                <div
+                  class="selected-avatar"
+                  v-for="item in selectedAvatarList"
+                  :key="item.conversationId"
+                >
+                  <Avatar class="avatar" :conversation="item" />
+                  <svg-icon class="close" @click="unselected(item)" icon-class="ic_circle_close" />
+                  <span class="name">{{item.name}}</span>
+                </div>
               </div>
             </div>
             <div class="circle">
               <mixin-scrollbar>
                 <div class="ul" ref="ul">
-                  <div class="title">{{i18n.t('chat.chats')}}</div>
+                  <div class="title" v-if="chatList.length">{{i18n.t('chat.chats')}}</div>
                   <div class="item" v-for="chat in chatList" :key="chat.conversationId">
                     <svg-icon
                       v-if="optionName === 'edit'"
@@ -91,7 +93,7 @@
                     />
                     <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
                   </div>
-                  <div class="title">{{i18n.t('chat.chat_contact')}}</div>
+                  <div class="title" v-if="contactList.length">{{i18n.t('chat.chat_contact')}}</div>
                   <div class="item" v-for="user in contactList" :key="user.user_id">
                     <svg-icon
                       v-if="optionName === 'edit'"
@@ -141,7 +143,7 @@
                   >
                     <svg-icon icon-class="ic_circle_checked" class="circle-checked" />
                   </div>
-                  <div class="badge" v-if="item.unseen_message_count">
+                  <div class="badge" v-else-if="item.unseen_message_count">
                     <span class="num">{{item.unseen_message_count}}</span>
                   </div>
                   <div class="options" v-if="item.circle_id !== 'mixin'">
@@ -229,6 +231,7 @@ export default class Circles extends Vue {
   onSearchNameChanged(val: string) {
     this.onSearch(val)
     const ul: any = this.$refs.ul
+    if (!ul) return
     ul.scrollTop = 0
   }
 
@@ -238,8 +241,26 @@ export default class Circles extends Vue {
   }
 
   get contactList() {
-    if (this.contacts.length || this.searchName) return this.contacts
-    return store.getters.findFriends
+    const exsitIds: any = []
+    this.chatList.forEach((item: any) => {
+      if (item.participants.length === 2) {
+        exsitIds.push(item.participants[0].user_id)
+        exsitIds.push(item.participants[1].user_id)
+      }
+    })
+    let result = []
+    if (this.contacts.length || this.searchName) {
+      result = this.contacts
+    } else {
+      result = store.getters.findFriends
+    }
+    const list: any = []
+    result.forEach((item: any) => {
+      if (exsitIds.indexOf(item.user_id) < 0) {
+        list.push(item)
+      }
+    })
+    return list
   }
 
   get selectedCurrentCircle() {
@@ -372,6 +393,7 @@ export default class Circles extends Vue {
           pin_time: ''
         })
       })
+      circleConversationDao.deleteByCircleId(circleId)
       circleConversationDao.insert(list)
       this.optionName = 'list'
       this.$toast(i18n.t('chat.circle_saved'), 3000)
@@ -393,10 +415,8 @@ export default class Circles extends Vue {
       this.visible = false
       return
     }
-    if (circle.count > 0) {
-      store.dispatch('setCurrentCircle', circle)
-      this.visible = false
-    }
+    store.dispatch('setCurrentCircle', circle)
+    this.visible = false
   }
 
   beforeEditCircle(circle: any) {
@@ -591,7 +611,7 @@ export default class Circles extends Vue {
         }
       }
       .circle-checked {
-        margin-top: 0.6rem;
+        margin-top: 0.5rem;
         margin-right: 0.2rem;
       }
 
@@ -666,13 +686,39 @@ export default class Circles extends Vue {
 .input-wrapper {
   padding: 0.4rem 1.25rem;
 }
+* {
+  ::-webkit-scrollbar {
+    width: 0.35rem;
+    height: 0.35rem;
+    background: transparent;
+  }
+  ::-webkit-scrollbar-track-piece,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 0.25rem;
+    width: 0.35rem;
+    background: #11111133;
+    cursor: pointer;
+  }
+}
 .selected-preview {
   user-select: none;
-  padding: 0.4rem 1.25rem 0.6rem;
-  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  height: 6rem;
+  padding: 0.4rem 1.25rem;
+
+  .in {
+    white-space: nowrap;
+  }
   .selected-avatar {
     position: relative;
-    display: flex;
+    display: inline-flex;
     width: 2.4rem;
     height: 3.4rem;
     margin-right: 0.6rem;

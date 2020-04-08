@@ -46,6 +46,14 @@
         v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"
       >{{$t('conversation.empty')}}</h5>
 
+      <h5
+        class="circle-empty"
+        v-else-if="conversationsVisible.length === 0 && !searchKeyword && !showMoreType"
+      >
+        <div>{{$t('conversation.circle_empty')}}</div>
+        <a @click="addConversations">{{$t('conversation.add_conversations')}}</a>
+      </h5>
+
       <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
           <ul
@@ -517,6 +525,9 @@ export default class Navigation extends Vue {
   hideSetting() {
     this.settingShow = false
   }
+  addConversations() {
+    this.$circles.addConversations(this.currentCircle)
+  }
   onInput(keyword: string) {
     this.searchKeyword = keyword
     let waitTime = 10
@@ -720,6 +731,15 @@ export default class Navigation extends Vue {
     margin: 0.45rem 0.3rem 0.3rem 1.3rem;
   }
 
+  .circle-empty {
+    width: 80%;
+    text-align: center;
+    a {
+      display: block;
+      margin-top: 1.2rem;
+      cursor: pointer;
+    }
+  }
   .search-wrapper {
     background: $bg-color;
     /deep/ .search {

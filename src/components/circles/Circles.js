@@ -27,6 +27,14 @@ Circles.newInstance = (props = {}) => {
       circles.visible = !!val
       return this
     },
+    editCircle(circle) {
+      circles.visible = true
+      setTimeout(() => {
+        circles.beforeEditCircle(circle)
+        circles.editCircle()
+      })
+      return this
+    },
     component: circles
   }
 }
@@ -44,6 +52,9 @@ Circles.show = () => {
 }
 Circles.hide = () => {
   getCirclesInstance().visible(false)
+}
+Circles.addConversations = circle => {
+  getCirclesInstance().editCircle(circle)
 }
 
 export default {

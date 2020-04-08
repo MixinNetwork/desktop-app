@@ -59,7 +59,9 @@ let transactions = {
       removed: "You can't send messages to this group because you're not a participant."
     },
     conversation: {
-      empty: 'No conversation'
+      empty: 'No conversation',
+      circle_empty: 'You can add contacts or groups to the current circle.',
+      add_conversations: 'Add Conversations'
     },
     group: {
       group_add: 'Add Participants',
@@ -222,7 +224,9 @@ let transactions = {
       removed: '您不能发送消息，因为您已经不再是此群组成员。'
     },
     conversation: {
-      empty: '无对话'
+      empty: '无对话',
+      circle_empty: '您可以添加联系人或者群组到当前 Circle',
+      add_conversations: '添加会话'
     },
     group: {
       group_add: '添加成员',

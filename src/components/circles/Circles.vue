@@ -293,11 +293,8 @@ export default class Circles extends Vue {
     const cidList: any = []
     const uidList: any = []
     this.selectedList.forEach((item: any) => {
-      if (item.user_id) {
-        uidList.push(item.user_id)
-      } else {
-        cidList.push(item.conversation_id)
-      }
+      uidList.push(item.user_id)
+      cidList.push(item.conversation_id)
     })
     const list: any = []
     this.chatList.forEach((item: any) => {
@@ -371,6 +368,9 @@ export default class Circles extends Vue {
       item.conversation_id = conversationId
     } else {
       item.conversation_id = id
+      if (target.category === 'CONTACT') {
+        item.user_id = target.ownerId
+      }
     }
 
     const count = circleConversationDao.getCircleConversationCount(item.conversation_id)
@@ -414,16 +414,10 @@ export default class Circles extends Vue {
     const selectedList: any = []
     this.selectedList.forEach((item: any) => {
       userIdMap[item.conversation_id] = item.user_id
-      const temp: any = {
-        conversation_id: item.conversation_id
-      }
-      if (item.user_id) {
-        temp.user_id = item.user_id
-      }
-      if (item.part_user_id) {
-        temp.user_id = item.part_user_id
-      }
-      selectedList.push(temp)
+      selectedList.push({
+        conversation_id: item.conversation_id,
+        user_id: item.user_id
+      })
     })
     circleApi.updateCircleConversations(circleId, selectedList).then(res => {
       const list: any = []

@@ -22,6 +22,7 @@ import {
   AttachmentMessagePayload
 } from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
+import circleDao from '@/dao/circle_dao'
 
 function markRead(commit: any, state: any, conversationId: any) {
   if (state.conversations) {
@@ -304,9 +305,9 @@ export default {
     const { conversationId, circlePinTime, pinTime } = payload
     if (circlePinTime !== undefined) {
       const newPinTime = circlePinTime ? '' : new Date().toISOString()
-      const cirlce = _.cloneDeepWith(state.currentCircle)
-      circleConversationDao.updateConversationPinTimeById(conversationId, cirlce.circle_id, newPinTime)
-      commit('setCurrentCircle', cirlce)
+      const circle = _.cloneDeepWith(state.currentCircle)
+      circleConversationDao.updateConversationPinTimeById(conversationId, circle.circle_id, newPinTime)
+      commit('setCurrentCircle', circle)
     } else {
       conversationDao.updateConversationPinTimeById(conversationId, pinTime ? null : new Date().toISOString())
       commit('refreshConversations')
@@ -572,7 +573,10 @@ export default {
   setLinkStatus: ({ commit }: any, status: any) => {
     commit('setLinkStatus', status)
   },
-  exitGroup: (_: any, conversationId: any) => {
+  exitGroup: ({ commit }: any, conversationId: any) => {
+    const circle = circleDao.findCircleByConversationId(conversationId)
+    circleConversationDao.deleteByIds(conversationId, circle.circle_id)
+    commit('setCurrentCircle', circle)
     conversationApi.exit(conversationId)
   },
   participantSetAsAdmin: (_: any, payload: { conversationId: any; userId: any }) => {

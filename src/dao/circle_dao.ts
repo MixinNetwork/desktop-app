@@ -144,15 +144,15 @@ class CircleDao {
       .get(circleId)
   }
 
-  findCirclesNameByConversationId(conversationId: String) {
+  findCircleByConversationId(conversationId: String) {
     return db
       .prepare(
-        `SELECT ci.name FROM circles ci 
+        `SELECT * FROM circles ci 
         LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id 
         LEFT JOIN conversations c ON c.conversation_id == cc.conversation_id
         WHERE cc.conversation_id = ?`
       )
-      .all(conversationId)
+      .get(conversationId)
   }
 }
 

@@ -67,7 +67,6 @@
               :class="{active:currentConversationId === conversation.conversationId}"
               v-intersect="onIntersect"
               @item-click="onConversationClick"
-              @item-more="openMenu"
               @item-menu-click="openDownMenu"
             />
           </ul>
@@ -213,9 +212,12 @@ import workerManager from '@/workers/worker_manager'
 import { clearDb } from '@/persistence/db_util'
 import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
 import { getNameColorById } from '@/utils/util'
+// @ts-ignore
+import _ from 'lodash'
 
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration, isMuteCheck } from '@/utils/constants'
 
@@ -367,28 +369,12 @@ export default class Navigation extends Vue {
     return getNameColorById(id)
   }
 
-  openMenu(conversation: any) {
-    const isContact = conversation.category === ConversationCategory.CONTACT
-    const isMute = this.isMute(conversation)
-    const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime, isMute)
-    // @ts-ignore
-    this.$Menu.alert(event.clientX, event.clientY, menu, index => {
-      const option = menu[index]
-      const conversationMenu: any = this.$t('menu.conversation')
-      this.handlerMenu(
-        Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
-        isContact,
-        conversation.conversationId,
-        conversation.pinTime,
-        conversation.ownerId
-      )
-    })
-  }
-
   openDownMenu(conversation: any, index: number) {
-    const isContact = conversation.category === ConversationCategory.CONTACT
+    const { pinTime, circlePinTime, category, status, conversationId, ownerId } = conversation
+    const isContact = category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
-    const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime, isMute)
+    const nowPinTime = circlePinTime === undefined ? pinTime : circlePinTime
+    const menu = this.getMenu(isContact, status === ConversationStatus.QUIT, nowPinTime, isMute)
     // @ts-ignore
     this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
       const option = menu[index]
@@ -396,20 +382,22 @@ export default class Navigation extends Vue {
       this.handlerMenu(
         Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
         isContact,
-        conversation.conversationId,
-        conversation.pinTime,
-        conversation.ownerId
+        conversationId,
+        circlePinTime,
+        pinTime,
+        ownerId
       )
     })
   }
 
-  handlerMenu(position: any, isContact: any, conversationId: any, pinTime: any, ownerId: any) {
+  handlerMenu(position: any, isContact: any, conversationId: any, circlePinTime: any, pinTime: any, ownerId: any) {
     if (position === 'exit_group') {
       this.$store.dispatch('exitGroup', conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
       this.$store.dispatch('pinTop', {
-        conversationId: conversationId,
-        pinTime: pinTime
+        conversationId,
+        circlePinTime,
+        pinTime
       })
     } else if (position === 'clear') {
       this.$store.dispatch('conversationClear', conversationId)
@@ -620,16 +608,21 @@ export default class Navigation extends Vue {
     firstIndex: 0,
     lastIndex: 0
   }
+
   get conversationsVisible() {
     if (this.currentCircle) {
-      const ids = this.getCircleConversationIds()
-      const list: any = []
+      const [ids, pinTimeList] = this.getCircleConversationIds()
+      let list: any = []
+
       this.conversations.forEach((item: any) => {
-        if (ids.indexOf(item.conversationId) > -1) {
+        const index = ids.indexOf(item.conversationId)
+        if (index > -1) {
+          item.circlePinTime = pinTimeList[index]
           list.push(item)
         }
       })
-      return list
+      list = _.orderBy(list, ['circlePinTime', 'createdAt'], ['desc', 'desc'])
+      return _.cloneDeepWith(list)
     }
     const list = []
     let { firstIndex, lastIndex } = this.viewport
@@ -643,6 +636,7 @@ export default class Navigation extends Vue {
       if (i >= lastIndex) {
         break
       }
+      delete this.conversations[i].circlePinTime
       list.push(this.conversations[i])
     }
     if (this.intersectLock) {
@@ -650,16 +644,23 @@ export default class Navigation extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    return list
+    return _.cloneDeepWith(list)
   }
 
   getCircleConversationIds() {
-    const circleConversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
+    const conversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
     const list: any = []
-    circleConversations.forEach((item: any) => {
+    const pinTimeList: any = []
+
+    conversations.forEach((item: any) => {
+      const circleConversation = circleConversationDao.findCircleConversationByCircleId(
+        this.currentCircle.circle_id,
+        item.conversationId
+      )
       list.push(item.conversationId)
+      pinTimeList.push(circleConversation.pin_time)
     })
-    return list
+    return [list, pinTimeList]
   }
 
   viewportLimit(index: number, offset: number) {

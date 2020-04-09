@@ -4,12 +4,15 @@ import stickerDao from '@/dao/sticker_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
+// @ts-ignore
+import _ from 'lodash'
 import jobDao from '@/dao/job_dao'
 import {
   downloadAttachment,
@@ -297,12 +300,17 @@ export default {
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)
   },
-  pinTop: ({ commit }: any, payload: { conversationId: any; pinTime: any }) => {
-    conversationDao.updateConversationPinTimeById(
-      payload.conversationId,
-      payload.pinTime ? null : new Date().toISOString()
-    )
-    commit('refreshConversations')
+  pinTop: ({ commit, state }: any, payload: { conversationId: any; circlePinTime: any; pinTime: any }) => {
+    const { conversationId, circlePinTime, pinTime } = payload
+    if (circlePinTime !== undefined) {
+      const newPinTime = circlePinTime ? '' : new Date().toISOString()
+      const cirlce = _.cloneDeepWith(state.currentCircle)
+      circleConversationDao.updateConversationPinTimeById(conversationId, cirlce.circle_id, newPinTime)
+      commit('setCurrentCircle', cirlce)
+    } else {
+      conversationDao.updateConversationPinTimeById(conversationId, pinTime ? null : new Date().toISOString())
+      commit('refreshConversations')
+    }
   },
   refreshUser: async({ commit }: any, { userId, conversationId }: any) => {
     const response = await userApi.getUserById(userId)

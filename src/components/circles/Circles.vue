@@ -434,7 +434,9 @@ export default class Circles extends Vue {
       circleConversationDao.deleteByCircleId(circleId)
       circleConversationDao.insert(list)
       this.optionName = 'list'
-      store.dispatch('setCurrentCircle', this.currentCircle)
+      if (this.selectedCurrentCircle && this.selectedCurrentCircle.circle_id === this.currentCircle.circle_id) {
+        store.dispatch('setCurrentCircle', this.currentCircle)
+      }
       this.$toast(i18n.t('circle.saved'), 3000)
     })
   }

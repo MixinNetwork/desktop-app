@@ -40,6 +40,10 @@ class CircleConversationDao {
   deleteByCircleId(circleId: string) {
     db.prepare(`DELETE FROM circle_conversations WHERE circle_id = ?`).run(circleId)
   }
+
+  getCircleConversationCount(conversationId: string) {
+    return db.prepare(`SELECT count(1) FROM circle_conversations WHERE conversation_id = ?`).get(conversationId)['count(1)']
+  }
 }
 
 export default new CircleConversationDao()

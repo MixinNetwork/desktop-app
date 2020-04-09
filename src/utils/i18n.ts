@@ -66,6 +66,7 @@ let transactions = {
     circle: {
       circles: 'Circles',
       new_circle: 'New circle',
+      circle_limit: 'The number has reached the limit',
       next: 'Next',
       save: 'Save',
       edit: 'Edit',
@@ -245,6 +246,7 @@ let transactions = {
     circle: {
       circles: '圈子',
       new_circle: '创建圈子',
+      circle_limit: '已达到上限',
       next: '继续',
       save: '保存',
       edit: '编辑',

@@ -195,7 +195,7 @@ import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
-import { ConversationCategory } from '@/utils/constants'
+import { ConversationCategory, CircleConfig } from '@/utils/constants'
 import { getNameColorById, generateConversationId } from '@/utils/util'
 
 import UserItem from '@/components/UserItem.vue'
@@ -365,18 +365,24 @@ export default class Circles extends Vue {
     let id = target.conversationId
     if (type === 'user_id') {
       id = target.user_id
+      // @ts-ignore
+      const account = JSON.parse(localStorage.getItem('account'))
+      const conversationId = generateConversationId(account.user_id, id)
+      item.conversation_id = conversationId
     } else {
       item.conversation_id = id
     }
+
+    const count = circleConversationDao.getCircleConversationCount(item.conversation_id)
+    if (CircleConfig.CIRCLE_CONVERSATION_LIMIT <= count) {
+      return this.$toast(i18n.t('circle.circle_limit'), 3000)
+    }
+
     const index = this.selectedIndex(id, type)
     if (index > -1) {
       this.selectedList.splice(index, 1)
     } else {
       if (type === 'user_id') {
-        // @ts-ignore
-        const account = JSON.parse(localStorage.getItem('account'))
-        const conversationId = generateConversationId(account.user_id, id)
-        item.conversation_id = conversationId
         item.user_id = target.user_id
       }
       this.selectedList.unshift(item)

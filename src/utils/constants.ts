@@ -14,6 +14,10 @@ export const ConversationStatus = {
   QUIT: 3
 }
 
+export const CircleConfig = {
+  CIRCLE_CONVERSATION_LIMIT: 5
+}
+
 export const AvatarColors = [
   '#FFD659',
   '#FFC168',

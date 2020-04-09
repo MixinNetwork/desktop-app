@@ -123,7 +123,7 @@ class ConversationDao {
           'LEFT JOIN snapshots s ON s.snapshot_id = m.snapshot_id ' +
           'LEFT JOIN users pu ON pu.user_id = m.participant_id ' +
           `WHERE c.category IS NOT NULL AND (c.category = 'GROUP' AND c.name LIKE '%${keyword}%') ` +
-          `OR (c.category = 'CONTACT' AND ou.relationship != 'FRIEND' AND (ou.full_name LIKE '%${keyword}%' ` +
+          `OR (c.category = 'CONTACT' AND (ou.full_name LIKE '%${keyword}%' ` +
           `OR ou.identity_number LIKE '%${keyword}%')) ` +
           'ORDER BY c.pin_time DESC, m.created_at DESC'
       )

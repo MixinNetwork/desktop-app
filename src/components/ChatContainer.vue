@@ -116,7 +116,7 @@
       @close="handleHideMessageForward"
     />
 
-    <div class="empty" v-if="!conversation">
+    <div class="empty" v-if="!conversation && startup">
       <span>
         <img src="../assets/empty.png" />
         <label id="title">{{$t('chat.keep_title')}}</label>
@@ -235,6 +235,7 @@ export default class ChatContainer extends Vue {
     if (!this.conversation) return
     const { groupName, name, conversationId } = this.conversation
     if (newVal) {
+      this.startup = false
       this.details = false
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
@@ -352,6 +353,7 @@ export default class ChatContainer extends Vue {
   lastEnter: any = null
   goSearchPos: boolean = false
   getLastMessage: boolean = false
+  startup: boolean = true
 
   scrollDirection: string = ''
   messageHeightMap: any = {}

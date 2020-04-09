@@ -197,7 +197,7 @@ export default class MessageForward extends Vue {
         }
         this.actionSendMessage(msg)
       }
-    }, 100)
+    }, 200)
   }
 
   onSearch(keyword: string) {

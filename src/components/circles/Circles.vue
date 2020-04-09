@@ -100,7 +100,7 @@
                       :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
                       class="choice-icon"
                     />
-                    <ChatItem :chat="chat" @item-click="onChatClick"></ChatItem>
+                    <ChatItem :keyword="searchName" :chat="chat" @item-click="onChatClick"></ChatItem>
                   </div>
                   <div class="title" v-if="contactList.length">{{i18n.t('chat.chat_contact')}}</div>
                   <div class="item" v-for="user in contactList" :key="user.user_id">
@@ -111,7 +111,7 @@
                       :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
                       class="choice-icon"
                     />
-                    <UserItem :user="user" @user-click="onUserClick"></UserItem>
+                    <UserItem :keyword="searchName" :user="user" @user-click="onUserClick"></UserItem>
                   </div>
                 </div>
               </mixin-scrollbar>

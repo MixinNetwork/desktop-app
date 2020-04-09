@@ -622,12 +622,14 @@ export default class Navigation extends Vue {
   }
   get conversationsVisible() {
     if (this.currentCircle) {
-      const conversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
-      conversations.forEach((conversation: any) => {
-        const participants = participantDao.getParticipantsByConversationId(conversation.conversationId)
-        conversation.participants = participants
+      const ids = this.getCircleConversationIds()
+      const list: any = []
+      this.conversations.forEach((item: any) => {
+        if (ids.indexOf(item.conversationId) > -1) {
+          list.push(item)
+        }
       })
-      return conversations
+      return list
     }
     const list = []
     let { firstIndex, lastIndex } = this.viewport
@@ -648,6 +650,15 @@ export default class Navigation extends Vue {
         this.intersectLock = false
       }, 200)
     }
+    return list
+  }
+
+  getCircleConversationIds() {
+    const circleConversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
+    const list: any = []
+    circleConversations.forEach((item: any) => {
+      list.push(item.conversationId)
+    })
     return list
   }
 

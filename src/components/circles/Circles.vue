@@ -232,6 +232,8 @@ export default class Circles extends Vue {
   onVisibleChanged(val: boolean) {
     if (val) {
       this.optionName = 'list'
+    } else {
+      this.optionName = ''
     }
   }
 
@@ -432,6 +434,7 @@ export default class Circles extends Vue {
       circleConversationDao.deleteByCircleId(circleId)
       circleConversationDao.insert(list)
       this.optionName = 'list'
+      store.dispatch('setCurrentCircle', this.currentCircle)
       this.$toast(i18n.t('circle.saved'), 3000)
     })
   }
@@ -502,6 +505,7 @@ export default class Circles extends Vue {
         circleApi.deleteCircle(circleId).then(res => {
           circleDao.deleteCircleById(circleId)
           this.circles.splice(index, 1)
+          this.$toast(i18n.t('circle.deleted'), 3000)
         })
       },
       i18n.t('cancel'),

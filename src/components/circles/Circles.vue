@@ -57,7 +57,7 @@
               class="input"
               ref="input"
               type="text"
-              placeholder="Circle Name"
+              :placeholder="i18n.t('circle.circle_name')"
               v-model="circleName"
               required
             />
@@ -69,7 +69,7 @@
                 class="input"
                 ref="input"
                 type="text"
-                placeholder="Search name"
+                :placeholder="i18n.t('circle.search_name')"
                 v-model="searchName"
                 required
               />
@@ -91,7 +91,7 @@
             <div class="circle">
               <mixin-scrollbar>
                 <div class="ul" ref="ul">
-                  <div class="title" v-if="chatList.length">{{i18n.t('chat.chats')}}</div>
+                  <div class="title">{{i18n.t('chat.chats')}}</div>
                   <div class="item" v-for="chat in chatList" :key="chat.conversationId">
                     <svg-icon
                       v-if="optionName === 'edit'"
@@ -102,7 +102,7 @@
                     />
                     <ChatItem :keyword="searchName" :chat="chat" @item-click="onChatClick"></ChatItem>
                   </div>
-                  <div class="title" v-if="contactList.length">{{i18n.t('chat.chat_contact')}}</div>
+                  <div class="title">{{i18n.t('chat.chat_contact')}}</div>
                   <div class="item" v-for="user in contactList" :key="user.user_id">
                     <svg-icon
                       v-if="optionName === 'edit'"

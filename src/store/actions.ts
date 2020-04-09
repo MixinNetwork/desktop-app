@@ -574,9 +574,6 @@ export default {
     commit('setLinkStatus', status)
   },
   exitGroup: ({ commit }: any, conversationId: any) => {
-    const circle = circleDao.findCircleByConversationId(conversationId)
-    circleConversationDao.deleteByIds(conversationId, circle.circle_id)
-    commit('setCurrentCircle', circle)
     conversationApi.exit(conversationId)
   },
   participantSetAsAdmin: (_: any, payload: { conversationId: any; userId: any }) => {

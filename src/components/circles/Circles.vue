@@ -92,26 +92,34 @@
               <mixin-scrollbar>
                 <div class="ul" ref="ul">
                   <div class="title">{{i18n.t('chat.chats')}}</div>
-                  <div class="item" v-for="chat in chatList" :key="chat.conversationId">
+                  <div
+                    class="item"
+                    v-for="chat in chatList"
+                    :key="chat.conversationId"
+                    @click.stop="choiceClick(chat, 'conversation_id')"
+                  >
                     <svg-icon
                       v-if="optionName === 'edit'"
-                      @click.stop="choiceClick(chat, 'conversation_id')"
                       :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
                       :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
                       class="choice-icon"
                     />
-                    <ChatItem :keyword="searchName" :chat="chat" @item-click="onChatClick"></ChatItem>
+                    <ChatItem :keyword="searchName" :chat="chat"></ChatItem>
                   </div>
                   <div class="title">{{i18n.t('chat.chat_contact')}}</div>
-                  <div class="item" v-for="user in contactList" :key="user.user_id">
+                  <div
+                    class="item"
+                    v-for="user in contactList"
+                    :key="user.user_id"
+                    @click.stop="choiceClick(user, 'user_id')"
+                  >
                     <svg-icon
                       v-if="optionName === 'edit'"
-                      @click.stop="choiceClick(user, 'user_id')"
                       :icon-class="selectedIndex(user.user_id, 'user_id') > -1?'ic_choice_selected':'ic_choice'"
                       :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
                       class="choice-icon"
                     />
-                    <UserItem :keyword="searchName" :user="user" @user-click="onUserClick"></UserItem>
+                    <UserItem :keyword="searchName" :user="user"></UserItem>
                   </div>
                 </div>
               </mixin-scrollbar>
@@ -311,29 +319,11 @@ export default class Circles extends Vue {
     this.choiceClick(target, type)
   }
 
-  onChatClick(conversation: any) {
-    this.visible = false
-
-    store.dispatch('setCurrentConversation', conversation)
-    this.$goConversationPos('current')
-    setTimeout(() => {
-      store.dispatch('markRead', conversation.conversationId)
-    }, 100)
-  }
-
   circleColor(id: string) {
     if (id === 'mixin') {
       return '#2f3032'
     }
     return getNameColorById(id)
-  }
-
-  onUserClick(user: any) {
-    this.visible = false
-    store.dispatch('createUserConversation', {
-      user
-    })
-    this.$goConversationPos('current')
   }
 
   close() {

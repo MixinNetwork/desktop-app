@@ -512,7 +512,9 @@ export default class Circles extends Vue {
         })
         circleApi.deleteCircle(circleId).then(res => {
           circleDao.deleteCircleById(circleId)
+          circleConversationDao.deleteByCircleId(circleId)
           this.circles.splice(index, 1)
+          store.dispatch('setCurrentCircle', null)
           this.$toast(i18n.t('circle.deleted'), 3000)
         })
       },

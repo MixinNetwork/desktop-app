@@ -17,7 +17,7 @@
             <div
               class="desc"
               v-if="optionName === 'edit'"
-            >{{i18n.t('circle.conversations', { '0': selectedList.length || currentCircle.count || 0 })}}</div>
+            >{{i18n.t('circle.conversations', { '0': selectedList.length })}}</div>
           </span>
           <svg-icon
             v-if="optionName === 'list'"

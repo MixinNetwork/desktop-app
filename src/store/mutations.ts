@@ -325,7 +325,7 @@ export default {
     refreshConversations(state)
   },
   setCurrentCircle(state: any, circle: any) {
-    state.currentCircle = circle
+    state.currentCircle = _.cloneDeepWith(circle)
   },
   conversationClear(state: any, conversationId: string) {
     const index = state.conversationKeys.indexOf(conversationId)

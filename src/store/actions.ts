@@ -305,8 +305,8 @@ export default {
     const { conversationId, circlePinTime, pinTime } = payload
     if (circlePinTime !== undefined) {
       const newPinTime = circlePinTime ? '' : new Date().toISOString()
-      const circle = _.cloneDeepWith(state.currentCircle)
-      circleConversationDao.updateConversationPinTimeById(conversationId, circle.circle_id, newPinTime)
+      const circle = state.currentCircle
+      circleConversationDao.updateConversationPinTimeById(conversationId, state.circle_id, newPinTime)
       commit('setCurrentCircle', circle)
     } else {
       conversationDao.updateConversationPinTimeById(conversationId, pinTime ? null : new Date().toISOString())

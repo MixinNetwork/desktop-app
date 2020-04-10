@@ -306,7 +306,7 @@ export default {
     if (circlePinTime !== undefined) {
       const newPinTime = circlePinTime ? '' : new Date().toISOString()
       const circle = state.currentCircle
-      circleConversationDao.updateConversationPinTimeById(conversationId, state.circle_id, newPinTime)
+      circleConversationDao.updateConversationPinTimeById(conversationId, circle.circle_id, newPinTime)
       commit('setCurrentCircle', circle)
     } else {
       conversationDao.updateConversationPinTimeById(conversationId, pinTime ? null : new Date().toISOString())

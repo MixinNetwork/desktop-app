@@ -5,6 +5,9 @@ import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
+import circleDao from '@/dao/circle_dao'
+import circleApi from '@/api/circle'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/constants'
@@ -16,10 +19,7 @@ import Vue from 'vue'
 
 export default class BaseWorker {
   async syncConversation(data) {
-    if (
-      data.conversation_id === SystemUser ||
-      data.conversation_id === this.getAccountId()
-    ) {
+    if (data.conversation_id === SystemUser || data.conversation_id === this.getAccountId()) {
       return
     }
     let conversation = conversationDao.getConversationById(data.conversation_id)
@@ -81,7 +81,27 @@ export default class BaseWorker {
       await this.refreshParticipants(conversation.conversation_id, conversation.participants)
       await this.refreshParticipantsSession(conversation.conversation_id, conversation.participant_sessions)
       await this.syncUser(ownerId)
+      await this.refreshCircle(conversation)
     }
+  }
+
+  async refreshCircle(conversation) {
+    if (!conversation.circles) return
+    conversation.circles.forEach(circle => {
+      const ret = circleDao.findCircleById(circle.circle_id)
+      if (!ret) {
+        circleApi.getCircleById(circle.circle_id).then(res => {
+          if (res.data && res.data.data) {
+            const temp = res.data.data
+            temp.ordered_at = temp.ordered_at || ''
+            circleDao.insert(temp)
+          }
+          circle.user_id = circle.user_id || ''
+          circle.pin_time = circle.pin_time || ''
+          circleConversationDao.insert([circle])
+        })
+      }
+    })
   }
 
   async refreshParticipants(conversationId, participants) {

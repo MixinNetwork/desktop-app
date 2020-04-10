@@ -274,6 +274,15 @@ export default class ChatContainer extends Vue {
       this.showTopTips = true
     }
     this.messagesVisible = this.getMessagesVisible()
+    if (this.isBottom) {
+      const lastMessage = this.messages[this.messages.length - 1]
+      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1]) {
+        this.actionMarkMentionRead({
+          conversationId: this.conversation.conversationId,
+          messageId: lastMessage.messageId
+        })
+      }
+    }
   }
 
   @Watch('viewport')

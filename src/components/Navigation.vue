@@ -644,7 +644,7 @@ export default class Navigation extends Vue {
         this.intersectLock = false
       }, 200)
     }
-    return _.cloneDeepWith(list)
+    return list
   }
 
   getCircleConversationIds() {

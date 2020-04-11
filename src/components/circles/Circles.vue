@@ -197,6 +197,8 @@ import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import { ConversationCategory, CircleConfig } from '@/utils/constants'
 import { getNameColorById, generateConversationId } from '@/utils/util'
+// @ts-ignore
+import _ from 'lodash'
 
 import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
@@ -221,6 +223,7 @@ export default class Circles extends Vue {
   chats: any = []
   contacts: any = []
   selectedList: any = []
+  initSelectedList: any = []
   circleConversations: any = []
 
   $Dialog: any
@@ -412,12 +415,23 @@ export default class Circles extends Vue {
     }
     const userIdMap: any = {}
     const selectedList: any = []
+    const addIds: any = []
     this.selectedList.forEach((item: any) => {
       userIdMap[item.conversation_id] = item.user_id
       selectedList.push({
         conversation_id: item.conversation_id,
-        user_id: item.user_id
+        user_id: item.user_id,
+        action: 'ADD'
       })
+      addIds.push(item.conversation_id)
+    })
+    this.initSelectedList.forEach((item: any) => {
+      if (addIds.indexOf(item.conversation_id) < 0) {
+        selectedList.push({
+          conversation_id: item.conversation_id,
+          action: 'REMOVE'
+        })
+      }
     })
     circleApi.updateCircleConversations(circleId, selectedList).then(res => {
       const list: any = []
@@ -468,6 +482,7 @@ export default class Circles extends Vue {
   editCircle() {
     this.searchName = ''
     this.selectedList = circleConversationDao.findCircleConversationByCircleId(this.currentCircle.circle_id)
+    this.initSelectedList = _.cloneDeepWith(this.selectedList)
     this.inputFocus()
     this.optionName = 'edit'
   }

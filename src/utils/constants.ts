@@ -18,8 +18,8 @@ export const CircleConfig = {
   CIRCLE_CONVERSATION_LIMIT: 5,
   CIRCLE_COLORS: [
     '#8E7BFF',
-    '#5377FF',
-    '#4B00D8',
+    '#657CFB',
+    '#A739C2',
     '#BD6DDA',
     '#FD89F1',
     '#FA7B95',
@@ -28,10 +28,10 @@ export const CircleConfig = {
     '#F1D22B',
     '#BAE361',
     '#5EDD5E',
-    '#49919C',
+    '#4BE6FF',
     '#45B7FE',
-    '#5DDEF3',
-    '#72B6E8',
+    '#00ECD0',
+    '#FFCCC0',
     '#CEA06B'
   ]
 }

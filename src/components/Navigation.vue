@@ -845,7 +845,7 @@ export default class Navigation extends Vue {
         flex-direction: row;
         align-items: baseline;
         #edit {
-          margin: 0 0.3rem 0 1.5rem;
+          margin: 0 0.4rem;
           cursor: pointer;
         }
         #menu {
@@ -854,7 +854,7 @@ export default class Navigation extends Vue {
       }
       .circles-icon {
         font-size: 0.9rem;
-        margin-top: -0.05rem;
+        margin: -0.05rem 0.5rem 0;
         stroke: #2f3032;
       }
     }

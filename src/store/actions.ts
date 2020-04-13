@@ -6,6 +6,8 @@ import participantDao from '@/dao/participant_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import conversationApi from '@/api/conversation'
+import circleDao from '@/dao/circle_dao'
+import circleApi from '@/api/circle'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
@@ -67,6 +69,7 @@ async function refreshConversation(conversationId: any, callback: () => void) {
     })
     await refreshParticipants(conversation.conversation_id, conversation.participants, callback)
     await syncUser(ownerId)
+    await refreshCircle(conversation)
   }
 }
 async function refreshParticipants(conversationId: any, participants: any[], callback: () => void) {
@@ -121,6 +124,25 @@ async function syncUser(userId: string) {
     }
   }
   return user
+}
+
+async function refreshCircle(conversation: any) {
+  if (!conversation.circles) return
+  conversation.circles.forEach((circle: any) => {
+    const ret = circleDao.findCircleById(circle.circle_id)
+    if (!ret) {
+      circleApi.getCircleById(circle.circle_id).then((res: any) => {
+        if (res.data && res.data.data) {
+          const temp = res.data.data
+          temp.ordered_at = temp.ordered_at || ''
+          circleDao.insertUpdate(temp)
+        }
+        circle.user_id = circle.user_id || ''
+        circle.pin_time = circle.pin_time || ''
+        circleConversationDao.insertUpdate([circle])
+      })
+    }
+  })
 }
 
 async function fetchUsers(users: any[]) {

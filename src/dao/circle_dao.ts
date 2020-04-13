@@ -24,7 +24,7 @@ class CircleDao {
     return db
       .prepare(
         `SELECT ci.circle_id, ci.name, ci.created_at, count(c.conversation_id) as count, sum(c.unseen_message_count) as unseen_message_count 
-        FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id == cc.circle_id LEFT JOIN conversations c  ON c.conversation_id == cc.conversation_id
+        FROM circles ci LEFT JOIN circle_conversations cc ON ci.circle_id = cc.circle_id LEFT JOIN conversations c  ON c.conversation_id = cc.conversation_id
         GROUP BY ci.circle_id ORDER BY ci.ordered_at ASC, ci.created_at ASC`
       )
       .all()
@@ -66,7 +66,7 @@ class CircleDao {
         ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId,
         m.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl,
         m.user_id AS senderId, m.action AS actionName, m.status AS messageStatus,
-        mu.full_name AS senderFullName, s.type AS SnapshotType,
+        mu.full_name AS senderFullName, s.type AS snapshotType,
         pu.full_name AS participantFullName, pu.user_id AS participantUserId,
         (SELECT count(*) FROM message_mentions me WHERE me.conversation_id = c.conversation_id AND me.has_read = 0) AS mentionCount,  
         mm.mentions AS mentions 
@@ -109,7 +109,7 @@ class CircleDao {
           ou.identity_number AS ownerIdentityNumber, ou.mute_until AS ownerMuteUntil, ou.app_id AS appId,
           m.content AS content, m.category AS contentType, m.created_at AS createdAt, m.media_url AS mediaUrl,
           m.user_id AS senderId, m.action AS actionName, m.status AS messageStatus,
-          mu.full_name AS senderFullName, s.type AS SnapshotType,
+          mu.full_name AS senderFullName, s.type AS snapshotType,
           pu.full_name AS participantFullName, pu.user_id AS participantUserId,
           (SELECT count(*) FROM message_mentions me WHERE me.conversation_id = c.conversation_id AND me.has_read = 0) AS mentionCount,  
           mm.mentions AS mentions 
@@ -137,8 +137,8 @@ class CircleDao {
       .prepare(
         `SELECT sum(c.unseen_message_count) as unseen_message_count 
         FROM circles ci 
-        LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id 
-        LEFT JOIN conversations c ON c.conversation_id == cc.conversation_id 
+        LEFT JOIN circle_conversations cc ON ci.circle_id = cc.circle_id 
+        LEFT JOIN conversations c ON c.conversation_id = cc.conversation_id 
         WHERE ci.circle_id != ?`
       )
       .get(circleId)
@@ -148,8 +148,8 @@ class CircleDao {
     return db
       .prepare(
         `SELECT * FROM circles ci 
-        LEFT JOIN circle_conversations cc ON ci.circle_id==cc.circle_id 
-        LEFT JOIN conversations c ON c.conversation_id == cc.conversation_id
+        LEFT JOIN circle_conversations cc ON ci.circle_id = cc.circle_id 
+        LEFT JOIN conversations c ON c.conversation_id = cc.conversation_id
         WHERE cc.conversation_id = ?`
       )
       .get(conversationId)

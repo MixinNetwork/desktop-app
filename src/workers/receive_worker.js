@@ -259,8 +259,6 @@ class ReceiveWorker extends BaseWorker {
       this.processSystemCircleMessage(data, systemMessage)
     } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
       this.processSystemSnapshotMessage(data, systemMessage)
-    } else if (data.category === 'SYSTEM_SESSION') {
-      this.processSystemSessionMessage(systemMessage)
     }
     this.updateRemoteMessageStatus(data.message_id, MessageStatus.READ)
   }
@@ -371,33 +369,6 @@ class ReceiveWorker extends BaseWorker {
         circleConversationDao.deleteByCircleId(systemMessage.circle_id)
         break
       default:
-    }
-  }
-
-  async processSystemSessionMessage(systemSession) {
-    if (systemSession.action === SystemSessionMessageAction.PROVISION) {
-      // Session.storeExtensionSessionId(systemSession.session_id)
-      signalProtocol.deleteSession(systemSession.user_id)
-      const conversations = conversationDao.getConversationsByUserId(systemSession.user_id)
-      const ps = conversations.map(function(item) {
-        return {
-          conversation_id: conversationId,
-          user_id: systemSession.user_id,
-          session_id: systemSession.session_id,
-          sent_to_server: null,
-          created_at: new Date().toISOString()
-        }
-      })
-      if (ps.length > 0) {
-        participantSessionDao.insertList(ps)
-      }
-    } else if (systemSession.action === SystemSessionMessageAction.DESTROY) {
-      // if (Session.getExtensionSessionId() != systemSession.session_id) {
-      //     return
-      // }
-      // Session.deleteExtensionSessionId()
-      signalProtocol.deleteSession(systemSession.user_id)
-      participantSessionDao.deleteByUserIdAndSessionId(systemSession.user_id, systemSession.session_id)
     }
   }
 

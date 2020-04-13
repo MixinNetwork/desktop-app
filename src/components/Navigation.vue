@@ -385,12 +385,13 @@ export default class Navigation extends Vue {
         conversationId,
         circlePinTime,
         pinTime,
+        category,
         ownerId
       )
     })
   }
 
-  handlerMenu(position: any, isContact: any, conversationId: any, circlePinTime: any, pinTime: any, ownerId: any) {
+  handlerMenu(position: any, isContact: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
     if (position === 'exit_group') {
       this.$store.dispatch('exitGroup', conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
@@ -416,7 +417,7 @@ export default class Navigation extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationAPI.mute(conversationId, duration).then((resp: any) => {
+          conversationAPI.mute(conversationId, duration, category).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -441,7 +442,7 @@ export default class Navigation extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationAPI.mute(conversationId, 0).then((resp: any) => {
+          conversationAPI.mute(conversationId, 0, category).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })

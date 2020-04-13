@@ -255,7 +255,7 @@ class ReceiveWorker extends BaseWorker {
       await this.processSystemConversationMessage(data, systemMessage)
     } else if (data.category === MessageCategory.SYSTEM_USER) {
       if (systemMessage.action === SystemUserMessageAction.UPDATE) {
-        store.dispatch('refreshUser', systemMessage.user_id)
+        await this.syncUser(systemMessage.user_id)
       }
     } else if (data.category === MessageCategory.SYSTEM_CIRCLE) {
       this.processSystemCircleMessage(data, systemMessage)

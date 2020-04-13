@@ -215,7 +215,7 @@ import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
-import { getNameColorById } from '@/utils/util'
+import { getCircleColorById } from '@/utils/util'
 // @ts-ignore
 import _ from 'lodash'
 
@@ -366,7 +366,7 @@ export default class Navigation extends Vue {
   }
 
   circleColor(id: string) {
-    return getNameColorById(id)
+    return getCircleColorById(id)
   }
 
   openDownMenu(conversation: any, index: number) {

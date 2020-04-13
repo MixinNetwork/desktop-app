@@ -3,7 +3,8 @@ import Bot from 'bot-api-js-client'
 import store from '@/store/store'
 import {
   AvatarColors,
-  NameColors
+  NameColors,
+  CircleConfig
 } from '@/utils/constants'
 import signalProtocol from '@/crypto/signal'
 import md5 from 'md5'
@@ -102,6 +103,11 @@ export function getAvatarColorById(id) {
 
 export function getNameColorById(id) {
   return NameColors[Math.abs(signalProtocol.convertToDeviceId(id)) % NameColors.length]
+}
+
+export function getCircleColorById(id) {
+  const colors = CircleConfig.CIRCLE_COLORS
+  return colors[Math.abs(signalProtocol.convertToDeviceId(id)) % colors.length]
 }
 
 export function convertRemToPixels(rem) {

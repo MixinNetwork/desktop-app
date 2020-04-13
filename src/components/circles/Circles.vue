@@ -196,7 +196,7 @@ import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import { ConversationCategory, CircleConfig } from '@/utils/constants'
-import { getNameColorById, generateConversationId } from '@/utils/util'
+import { getCircleColorById, generateConversationId } from '@/utils/util'
 // @ts-ignore
 import _ from 'lodash'
 
@@ -325,7 +325,7 @@ export default class Circles extends Vue {
     if (id === 'mixin') {
       return '#2f3032'
     }
-    return getNameColorById(id)
+    return getCircleColorById(id)
   }
 
   close() {

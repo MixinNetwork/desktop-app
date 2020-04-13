@@ -15,7 +15,25 @@ export const ConversationStatus = {
 }
 
 export const CircleConfig = {
-  CIRCLE_CONVERSATION_LIMIT: 5
+  CIRCLE_CONVERSATION_LIMIT: 5,
+  CIRCLE_COLORS: [
+    '#8E7BFF',
+    '#5377FF',
+    '#4B00D8',
+    '#BD6DDA',
+    '#FD89F1',
+    '#FA7B95',
+    '#E94156',
+    '#FA9652',
+    '#F1D22B',
+    '#BAE361',
+    '#5EDD5E',
+    '#49919C',
+    '#45B7FE',
+    '#5DDEF3',
+    '#72B6E8',
+    '#CEA06B'
+  ]
 }
 
 export const AvatarColors = [

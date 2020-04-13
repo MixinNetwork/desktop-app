@@ -370,7 +370,7 @@ export default class Navigation extends Vue {
   }
 
   openDownMenu(conversation: any, index: number) {
-    const { pinTime, circlePinTime, category, status, conversationId, ownerId } = conversation
+    const { pinTime, circlePinTime, category, status, conversationId, ownerId, participants } = conversation
     const isContact = category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
     const nowPinTime = circlePinTime === undefined ? pinTime : circlePinTime
@@ -381,7 +381,7 @@ export default class Navigation extends Vue {
       const conversationMenu: any = this.$t('menu.conversation')
       this.handlerMenu(
         Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
-        isContact,
+        participants,
         conversationId,
         circlePinTime,
         pinTime,
@@ -391,7 +391,7 @@ export default class Navigation extends Vue {
     })
   }
 
-  handlerMenu(position: any, isContact: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
+  handlerMenu(position: any, participants: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
     if (position === 'exit_group') {
       this.$store.dispatch('exitGroup', conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
@@ -417,7 +417,14 @@ export default class Navigation extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationAPI.mute(conversationId, duration, category).then((resp: any) => {
+          const payload: any = {
+            duration,
+            category
+          }
+          if (category === ConversationCategory.CONTACT) {
+            payload.participants = participants
+          }
+          conversationAPI.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -442,7 +449,14 @@ export default class Navigation extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationAPI.mute(conversationId, 0, category).then((resp: any) => {
+          const payload: any = {
+            duration: 0,
+            category
+          }
+          if (category === ConversationCategory.CONTACT) {
+            payload.participants = participants
+          }
+          conversationAPI.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })

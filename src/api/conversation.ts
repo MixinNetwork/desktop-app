@@ -30,8 +30,8 @@ export default {
   exit(id: string) {
     return api.post('conversations/' + id + '/exit')
   },
-  mute(id: string, duration: any, category: string) {
-    return api.post('conversations/' + id + '/mute', { duration, category })
+  mute(id: string, payload: any) {
+    return api.post('conversations/' + id + '/mute', payload)
   },
   participant(id: string, action: string, userId: any, role: string) {
     const data: any = {

@@ -371,7 +371,7 @@ export default class Circles extends Vue {
       item.conversation_id = conversationId
     } else {
       item.conversation_id = id
-      if (target.category === 'CONTACT') {
+      if (target.category === ConversationCategory.CONTACT) {
         item.user_id = target.ownerId
       }
     }

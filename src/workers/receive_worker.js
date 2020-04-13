@@ -57,6 +57,10 @@ function refreshMessages(messageIdsMap) {
   })
 }
 
+function getAccount() {
+  return JSON.parse(localStorage.getItem('account'))
+}
+
 interval(
   async(_, stop) => {
     if (insertMessageQueue.length) {
@@ -330,35 +334,34 @@ class ReceiveWorker extends BaseWorker {
   }
 
   async processSystemCircleMessage(data, systemMessage) {
+    const conversationId =
+      systemMessage.conversationId || generateConversationId(getAccount().user_id, systemMessage.userId)
     switch (systemMessage.action) {
       case SystemCircleMessageAction.CREATE:
       case SystemCircleMessageAction.UPDATE:
         // jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
         break
       case SystemCircleMessageAction.ADD:
-        // val conversationId = systemMessage.conversationId ?: generateConversationId(Session.getAccountId()!!, systemMessage.userId ?: return)
-        // if (circleDao.findCircleById(systemMessage.circleId) == null) {
-        //     jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
-        // }
-        // val circleConversation = CircleConversation(systemMessage.circleId, conversationId, systemMessage.userId, data.updatedAt, null)
-        // systemMessage.userId?.let { userId ->
-        //     syncUser(userId)
-        // }
-        // circleConversationDao.insertUpdate(circleConversation)
+        if (circleDao.findCircleById(systemMessage.circleId) == null) {
+          // jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
+        }
+        await this.syncUser(systemMessage.userId)
+        circleConversationDao.insertUpdate([
+          {
+            circle_id: systemMessage.circleId,
+            conversation_id: conversationId,
+            // systemMessage.userId
+            created_at: data.updatedAt,
+            pin_time: ''
+          }
+        ])
         break
       case SystemCircleMessageAction.REMOVE:
-        // val conversationId = systemMessage.conversationId ?: generateConversationId(Session.getAccountId()!!, systemMessage.userId ?: return)
-        // circleConversationDao.deleteByIds(conversationId, systemMessage.circleId)
+        circleConversationDao.deleteByIds(conversationId, systemMessage.circleId)
         break
       case SystemCircleMessageAction.DELETE:
-        // runInTransaction {
-        //     circleDao.deleteCircleById(systemMessage.circleId)
-        //     circleConversationDao.deleteByCircleId(systemMessage.circleId)
-        // }
-        // RxBus.publish(CircleDeleteEvent(systemMessage.circleId))
-        // if (systemMessage.circleId == MixinApplication.appContext.defaultSharedPreferences.getString(Constants.CIRCLE.CIRCLE_ID, null)) {
-        //     MixinApplication.appContext.defaultSharedPreferences.putString(Constants.CIRCLE.CIRCLE_ID, null)
-        // }
+        circleDao.deleteCircleById(systemMessage.circleId)
+        circleConversationDao.deleteByCircleId(systemMessage.circleId)
         break
       default:
     }
@@ -367,21 +370,27 @@ class ReceiveWorker extends BaseWorker {
   async processSystemSessionMessage(systemSession) {
     if (systemSession.action === SystemSessionMessageAction.PROVISION) {
       // Session.storeExtensionSessionId(systemSession.sessionId)
-      // signalProtocol.deleteSession(systemSession.userId)
-      // val conversations = conversationDao.getConversationsByUserId(systemSession.userId)
-      // val ps = conversations.map {
-      //     ParticipantSession(it, systemSession.userId, systemSession.sessionId)
-      // }
-      // if (ps.isNotEmpty()) {
-      //     participantSessionDao.insertList(ps)
-      // }
+      signalProtocol.deleteSession(systemSession.userId)
+      const conversations = conversationDao.getConversationsByUserId(systemSession.userId)
+      const ps = conversations.map(function(item) {
+        return {
+          conversation_id: conversationId,
+          user_id: systemSession.userId,
+          session_id: systemSession.sessionId,
+          sent_to_server: null,
+          created_at: new Date().toISOString()
+        }
+      })
+      if (ps.length > 0) {
+        participantSessionDao.insertList(ps)
+      }
     } else if (systemSession.action === SystemSessionMessageAction.DESTROY) {
       // if (Session.getExtensionSessionId() != systemSession.sessionId) {
       //     return
       // }
       // Session.deleteExtensionSessionId()
-      // signalProtocol.deleteSession(systemSession.userId)
-      // participantSessionDao.deleteByUserIdAndSessionId(systemSession.userId, systemSession.sessionId)
+      signalProtocol.deleteSession(systemSession.userId)
+      participantSessionDao.deleteByUserIdAndSessionId(systemSession.userId, systemSession.sessionId)
     }
   }
 

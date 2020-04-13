@@ -298,7 +298,7 @@ export default class Circles extends Vue {
             pin_time: ''
           })
         })
-        circleConversationDao.insert(list)
+        circleConversationDao.insertUpdate(list)
         this.optionName = 'list'
         this.$toast(i18n.t('chat.circle_saved'), 3000)
       }

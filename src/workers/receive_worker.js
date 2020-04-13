@@ -242,8 +242,11 @@ class ReceiveWorker extends BaseWorker {
       const json = decodeURIComponent(escape(window.atob(data.data)))
       const systemMessage = JSON.parse(json)
       await this.processSystemConversationMessage(data, systemMessage)
+    } else if (data.category === 'SYSTEM_USER') {
+    } else if (data.category === 'SYSTEM_CIRCLE') {
     } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
       this.processSystemSnapshotMessage(data)
+    } else if (data.category === 'SYSTEM_SESSION') {
     }
     store.dispatch('refreshMessage', {
       conversationId: data.conversation_id,

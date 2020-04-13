@@ -30,7 +30,10 @@ import {
   ConversationStatus,
   SystemUser,
   SystemConversationAction,
-  ConversationCategory
+  ConversationCategory,
+  SystemUserMessageAction,
+  SystemSessionMessageAction,
+  SystemCircleMessageAction
 } from '@/utils/constants'
 
 const insertMessageQueue = []
@@ -237,29 +240,30 @@ class ReceiveWorker extends BaseWorker {
   }
 
   async processSystemMessage(data) {
+    console.log('processSystemMessage:', data)
+    const json = decodeURIComponent(escape(window.atob(data.data)))
+    const systemMessage = JSON.parse(json)
     if (data.category === 'SYSTEM_CONVERSATION') {
-      const json = decodeURIComponent(escape(window.atob(data.data)))
-      const systemMessage = JSON.parse(json)
       await this.processSystemConversationMessage(data, systemMessage)
     } else if (data.category === 'SYSTEM_USER') {
+      if (systemMessage.action === SystemUserMessageAction.UPDATE) {
+        store.dispatch('refreshUser', systemMessage.userId)
+      }
     } else if (data.category === 'SYSTEM_CIRCLE') {
+      this.processSystemCircleMessage(data, systemMessage)
     } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-      this.processSystemSnapshotMessage(data)
+      this.processSystemSnapshotMessage(data, systemMessage)
     } else if (data.category === 'SYSTEM_SESSION') {
+      this.processSystemSessionMessage(systemMessage)
     }
-    store.dispatch('refreshMessage', {
-      conversationId: data.conversation_id,
-      messageIds: [data.message_id]
-    })
+    this.updateRemoteMessageStatus(data.message_id, MessageStatus.READ)
   }
 
-  async processSystemSnapshotMessage(data) {
+  async processSystemSnapshotMessage(data, decodedData) {
     var status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
-    const decoded = decodeURIComponent(escape(window.atob(data.data)))
-    const decodedData = JSON.parse(decoded)
 
     if (decodedData.snapshot_id) {
       const snapshotResp = await snapshotApi.getSnapshots(decodedData.snapshot_id)
@@ -314,7 +318,7 @@ class ReceiveWorker extends BaseWorker {
       conversation_id: data.conversation_id,
       user_id: data.user_id,
       category: data.category,
-      content: decoded,
+      content: JSON.stringify(decodedData),
       status: status,
       created_at: data.created_at,
       snapshot_id: decodedData.snapshot_id
@@ -323,6 +327,62 @@ class ReceiveWorker extends BaseWorker {
     insertMessageQueuePush(message, async() => {
       this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
+  }
+
+  async processSystemCircleMessage(data, systemMessage) {
+    switch (systemMessage.action) {
+      case SystemCircleMessageAction.CREATE:
+      case SystemCircleMessageAction.UPDATE:
+        // jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
+        break
+      case SystemCircleMessageAction.ADD:
+        // val conversationId = systemMessage.conversationId ?: generateConversationId(Session.getAccountId()!!, systemMessage.userId ?: return)
+        // if (circleDao.findCircleById(systemMessage.circleId) == null) {
+        //     jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
+        // }
+        // val circleConversation = CircleConversation(systemMessage.circleId, conversationId, systemMessage.userId, data.updatedAt, null)
+        // systemMessage.userId?.let { userId ->
+        //     syncUser(userId)
+        // }
+        // circleConversationDao.insertUpdate(circleConversation)
+        break
+      case SystemCircleMessageAction.REMOVE:
+        // val conversationId = systemMessage.conversationId ?: generateConversationId(Session.getAccountId()!!, systemMessage.userId ?: return)
+        // circleConversationDao.deleteByIds(conversationId, systemMessage.circleId)
+        break
+      case SystemCircleMessageAction.DELETE:
+        // runInTransaction {
+        //     circleDao.deleteCircleById(systemMessage.circleId)
+        //     circleConversationDao.deleteByCircleId(systemMessage.circleId)
+        // }
+        // RxBus.publish(CircleDeleteEvent(systemMessage.circleId))
+        // if (systemMessage.circleId == MixinApplication.appContext.defaultSharedPreferences.getString(Constants.CIRCLE.CIRCLE_ID, null)) {
+        //     MixinApplication.appContext.defaultSharedPreferences.putString(Constants.CIRCLE.CIRCLE_ID, null)
+        // }
+        break
+      default:
+    }
+  }
+
+  async processSystemSessionMessage(systemSession) {
+    if (systemSession.action === SystemSessionMessageAction.PROVISION) {
+      // Session.storeExtensionSessionId(systemSession.sessionId)
+      // signalProtocol.deleteSession(systemSession.userId)
+      // val conversations = conversationDao.getConversationsByUserId(systemSession.userId)
+      // val ps = conversations.map {
+      //     ParticipantSession(it, systemSession.userId, systemSession.sessionId)
+      // }
+      // if (ps.isNotEmpty()) {
+      //     participantSessionDao.insertList(ps)
+      // }
+    } else if (systemSession.action === SystemSessionMessageAction.DESTROY) {
+      // if (Session.getExtensionSessionId() != systemSession.sessionId) {
+      //     return
+      // }
+      // Session.deleteExtensionSessionId()
+      // signalProtocol.deleteSession(systemSession.userId)
+      // participantSessionDao.deleteByUserIdAndSessionId(systemSession.userId, systemSession.sessionId)
+    }
   }
 
   async processSystemConversationMessage(data, systemMessage) {

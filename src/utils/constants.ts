@@ -352,6 +352,23 @@ export const SystemConversationAction = {
   ROLE: 'ROLE'
 }
 
+export const SystemUserMessageAction = {
+  UPDATE: 'UPDATE'
+}
+
+export const SystemSessionMessageAction = {
+  PROVISION: 'PROVISION',
+  DESTROY: 'DESTROY'
+}
+
+export const SystemCircleMessageAction = {
+  CREATE: 'CREATE',
+  DELETE: 'DELETE',
+  UPDATE: 'UPDATE',
+  ADD: 'ADD',
+  REMOVE: 'REMOVE'
+}
+
 export const MimeType = {
   // ============== images ==============
   JPEG: { name: 'image/jpeg', extension: 'jpeg' },

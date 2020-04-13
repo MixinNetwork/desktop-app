@@ -97,6 +97,7 @@ export default class BaseWorker {
 
   async refreshCircle(conversation) {
     if (!conversation.circles) return
+    const list = []
     conversation.circles.forEach(circle => {
       const ret = circleDao.findCircleById(circle.circle_id)
       if (!ret) {
@@ -104,8 +105,9 @@ export default class BaseWorker {
       }
       circle.user_id = circle.user_id || ''
       circle.pin_time = circle.pin_time || ''
-      circleConversationDao.insertUpdate([circle])
+      list.push(circle)
     })
+    circleConversationDao.insertUpdate(list)
   }
 
   async refreshParticipants(conversationId, participants) {

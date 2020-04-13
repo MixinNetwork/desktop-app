@@ -128,6 +128,7 @@ async function syncUser(userId: string) {
 
 async function refreshCircle(conversation: any) {
   if (!conversation.circles) return
+  const list: any = []
   conversation.circles.forEach((circle: any) => {
     const ret = circleDao.findCircleById(circle.circle_id)
     if (!ret) {
@@ -141,8 +142,9 @@ async function refreshCircle(conversation: any) {
     }
     circle.user_id = circle.user_id || ''
     circle.pin_time = circle.pin_time || ''
-    circleConversationDao.insertUpdate([circle])
+    list.push(circle)
   })
+  circleConversationDao.insertUpdate(list)
 }
 
 async function fetchUsers(users: any[]) {

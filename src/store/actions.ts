@@ -137,11 +137,11 @@ async function refreshCircle(conversation: any) {
           temp.ordered_at = temp.ordered_at || ''
           circleDao.insertUpdate(temp)
         }
-        circle.user_id = circle.user_id || ''
-        circle.pin_time = circle.pin_time || ''
-        circleConversationDao.insertUpdate([circle])
       })
     }
+    circle.user_id = circle.user_id || ''
+    circle.pin_time = circle.pin_time || ''
+    circleConversationDao.insertUpdate([circle])
   })
 }
 

@@ -100,12 +100,11 @@ export default class BaseWorker {
     conversation.circles.forEach(circle => {
       const ret = circleDao.findCircleById(circle.circle_id)
       if (!ret) {
-        this.refreshCircleById(circle.circle_id).then(() => {
-          circle.user_id = circle.user_id || ''
-          circle.pin_time = circle.pin_time || ''
-          circleConversationDao.insertUpdate([circle])
-        })
+        this.refreshCircleById(circle.circle_id)
       }
+      circle.user_id = circle.user_id || ''
+      circle.pin_time = circle.pin_time || ''
+      circleConversationDao.insertUpdate([circle])
     })
   }
 

@@ -12,6 +12,7 @@
     <mixin-scrollbar>
       <ul class="list">
         <UserItem
+          :keyword="keyword"
           v-for="user in currentFriends"
           :key="user.user_id"
           :user="user"
@@ -61,7 +62,10 @@ export default class NewConversation extends Vue {
     const { keyword, friends } = this
     return friends.filter((item: any) => {
       if (keyword !== '') {
-        return item.full_name.toUpperCase().includes(keyword.toUpperCase())
+        return (
+          item.full_name.toUpperCase().includes(keyword.toUpperCase()) ||
+          item.identity_number.toUpperCase().includes(keyword)
+        )
       }
       return true
     })

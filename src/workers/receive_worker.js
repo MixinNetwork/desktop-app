@@ -34,7 +34,6 @@ import {
   SystemConversationAction,
   ConversationCategory,
   SystemUserMessageAction,
-  MessageCategory,
   SystemCircleMessageAction
 } from '@/utils/constants'
 
@@ -155,7 +154,7 @@ class ReceiveWorker extends BaseWorker {
     }
     const data = JSON.parse(floodMessage.data)
     const conversation = conversationDao.getSimpleConversationItem(data.conversation_id)
-    if (!conversation || data.category !== MessageCategory.SYSTEM_CONVERSATION) {
+    if (!conversation || data.category !== MessageCategories.SYSTEM_CONVERSATION) {
       await this.syncConversation(data)
     }
     if (data.category.startsWith('SIGNAL_')) {
@@ -248,18 +247,18 @@ class ReceiveWorker extends BaseWorker {
   async processSystemMessage(data) {
     const json = decodeURIComponent(escape(window.atob(data.data)))
     const systemMessage = JSON.parse(json)
-    if (data.category === MessageCategory.SYSTEM_CONVERSATION) {
+    if (data.category === MessageCategories.SYSTEM_CONVERSATION) {
       if (systemMessage.action !== SystemConversationAction.UPDATE) {
         await this.syncConversation(systemMessage)
       }
       await this.processSystemConversationMessage(data, systemMessage)
-    } else if (data.category === MessageCategory.SYSTEM_USER) {
+    } else if (data.category === MessageCategories.SYSTEM_USER) {
       if (systemMessage.action === SystemUserMessageAction.UPDATE) {
         await this.syncUser(systemMessage.user_id)
       }
-    } else if (data.category === MessageCategory.SYSTEM_CIRCLE) {
+    } else if (data.category === MessageCategories.SYSTEM_CIRCLE) {
       this.processSystemCircleMessage(data, systemMessage)
-    } else if (data.category === MessageCategory.SYSTEM_ACCOUNT_SNAPSHOT) {
+    } else if (data.category === MessageCategories.SYSTEM_ACCOUNT_SNAPSHOT) {
       this.processSystemSnapshotMessage(data, systemMessage)
     }
     this.updateRemoteMessageStatus(data.message_id, MessageStatus.READ)

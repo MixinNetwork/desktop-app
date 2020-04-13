@@ -98,7 +98,7 @@ export default class BaseWorker {
           }
           circle.user_id = circle.user_id || ''
           circle.pin_time = circle.pin_time || ''
-          circleConversationDao.insert([circle])
+          circleConversationDao.insertUpdate([circle])
         })
       }
     })

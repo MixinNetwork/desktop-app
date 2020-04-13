@@ -66,7 +66,6 @@ class ContentUtil {
     const td = t.format('YYYY-MM-DD')
     const n = moment()
     const nd = n.format('YYYY-MM-DD')
-    const daySeconds = 86400000
     if (nd === td) {
       if (showDetail) {
         return t.format('HH:mm')

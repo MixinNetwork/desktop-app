@@ -14,6 +14,7 @@ const state = {
   conversations: {},
   conversationKeys: [],
   friends: [],
+  currentCircle: null,
   currentUser: {},
   searching: '',
   currentMessages: [],

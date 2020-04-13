@@ -32,6 +32,10 @@ export default {
     return state.currentUser
   },
 
+  currentCircle: (state: { currentCircle: any }) => {
+    return state.currentCircle
+  },
+
   searching: (state: { searching: string }) => {
     return state.searching
   },

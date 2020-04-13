@@ -18,11 +18,7 @@ class ParticipantSessionDao {
   }
 
   getParticipantSessionsByConversationId(conversationId: any) {
-    return db
-      .prepare(
-        'SELECT * FROM participant_session WHERE conversation_id = ?'
-      )
-      .all(conversationId)
+    return db.prepare('SELECT * FROM participant_session WHERE conversation_id = ?').all(conversationId)
   }
 
   getNotSendSessionParticipants(conversationId: any, sessionId: any) {
@@ -34,11 +30,7 @@ class ParticipantSessionDao {
   }
 
   getParticipantsSession(conversationId: any) {
-    return db
-      .prepare(
-        'SELECT * FROM participant_session WHERE conversation_id = ?'
-      )
-      .all(conversationId)
+    return db.prepare('SELECT * FROM participant_session WHERE conversation_id = ?').all(conversationId)
   }
 
   updateList(sessionParticipants: any) {
@@ -65,7 +57,9 @@ class ParticipantSessionDao {
   }
 
   deleteList(del: any) {
-    const deleteStmt = db.prepare('DELETE FROM participant_session WHERE conversation_id = ? AND user_id = ? AND session_id = ?')
+    const deleteStmt = db.prepare(
+      'DELETE FROM participant_session WHERE conversation_id = ? AND user_id = ? AND session_id = ?'
+    )
     const deleteMany = db.transaction((del: any) => {
       for (const item of del) {
         deleteStmt.run(item.conversation_id, item.user_id, item.session_id)
@@ -80,10 +74,13 @@ class ParticipantSessionDao {
   }
 
   updateStatusByConversationId(conversationId: any) {
-    const stmt = db.prepare(
-      'UPDATE participant_session SET sent_to_server = NULL WHERE conversation_id = ?'
-    )
+    const stmt = db.prepare('UPDATE participant_session SET sent_to_server = NULL WHERE conversation_id = ?')
     stmt.run(conversationId)
+  }
+
+  deleteByUserIdAndSessionId(userId: String, sessionId: String) {
+    const stmt = db.prepare('DELETE FROM participant_session WHERE user_id = ? AND session_id = ?')
+    stmt.run(userId, sessionId)
   }
 
   insertList(sessions: any) {

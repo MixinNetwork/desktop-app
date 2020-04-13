@@ -15,7 +15,7 @@
         >{{showContactTitleFixed ? $t('chat.chat_contact') : $t('chat.recent_chat')}}</div>
         <div class="list">
           <mixin-scrollbar>
-            <div class="ul">
+            <div class="ul" ref="ul">
               <ChatItem
                 v-for="chat in chatList"
                 :key="chat.conversationId"
@@ -81,6 +81,8 @@ export default class MessageForward extends Vue {
   showContactTitleFixed: boolean = false
   MessageStatus: any = MessageStatus
   hasEscKeyListener: boolean = false
+
+  $goConversationPos: any
 
   sendMessage() {
     setTimeout(() => {
@@ -195,7 +197,7 @@ export default class MessageForward extends Vue {
         }
         this.actionSendMessage(msg)
       }
-    }, 100)
+    }, 200)
   }
 
   onSearch(keyword: string) {
@@ -209,6 +211,9 @@ export default class MessageForward extends Vue {
           })
         }
       }, 500)
+      this.chats = []
+      this.contacts = []
+      return
     } else {
       this.hasEscKeyListener = false
       this.$root.$off('escKeydown')
@@ -227,11 +232,14 @@ export default class MessageForward extends Vue {
       })
     })
     this.contacts = [...contacts]
+    const ul: any = this.$refs.ul
+    ul.scrollTop = 0
   }
 
   onChatClick(conversation: any) {
     this.$emit('close')
     this.$store.dispatch('setCurrentConversation', conversation)
+    this.$goConversationPos('current')
     conversation.unseenMessageCount = 0
     setTimeout(() => {
       this.$store.dispatch('markRead', conversation.conversationId)
@@ -336,6 +344,7 @@ export default class MessageForward extends Vue {
     padding: 0.8rem 1.25rem;
     font-size: 0.8rem;
     font-weight: 500;
+    line-height: 1.1rem;
     .svg-icon {
       font-size: 1.45rem;
       cursor: pointer;

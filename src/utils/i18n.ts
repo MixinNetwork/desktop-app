@@ -59,7 +59,28 @@ let transactions = {
       removed: "You can't send messages to this group because you're not a participant."
     },
     conversation: {
-      empty: 'No conversation'
+      empty: 'No conversation',
+      circle_empty: 'You can add contacts or groups to the current circle.',
+      add_conversations: 'Add Conversations'
+    },
+    circle: {
+      circles: 'Circles',
+      new_circle: 'New circle',
+      circle_limit: 'The number has reached the limit',
+      next: 'Next',
+      save: 'Save',
+      edit: 'Edit',
+      delete: 'Delete',
+      deleted: 'Circle deleted',
+      circle_name: 'Circle Name',
+      search_name: 'Search name',
+      edit_circle_name: 'Edit Circle Name',
+      edit_converstaions: 'Edit Conversations',
+      empty: 'Create circles for different groups of chats and quickly switch between them',
+      remove: 'Remove circle?',
+      saved: 'Circle saved',
+      conversations: '{0} Conversations',
+      all_conversations: 'All Conversations'
     },
     group: {
       group_add: 'Add Participants',
@@ -123,6 +144,7 @@ let transactions = {
       search_group_notify: 'Search for messages in {0}',
       search_id_or_phone: 'Search Mixin ID or phone number:',
       recent_chat: 'Recent chat',
+      chats: 'Chats',
       share_with: 'Share with',
       admin: 'Admin',
       owner: 'Owner'
@@ -217,7 +239,28 @@ let transactions = {
       removed: '您不能发送消息，因为您已经不再是此群组成员。'
     },
     conversation: {
-      empty: '无对话'
+      empty: '无对话',
+      circle_empty: '您可以添加联系人或者群组到当前圈子',
+      add_conversations: '添加会话'
+    },
+    circle: {
+      circles: '圈子',
+      new_circle: '创建圈子',
+      circle_limit: '已达到上限',
+      next: '继续',
+      save: '保存',
+      edit: '编辑',
+      delete: '删除',
+      deleted: '删除成功',
+      circle_name: '圈子名称',
+      search_name: '搜索名称',
+      edit_circle_name: '编辑圈子名称',
+      edit_converstaions: '编辑圈内对话',
+      empty: '为不同的聊天群组创建圈子<br>然后在它们之间快速切换',
+      remove: '删除圈子？',
+      saved: '保存成功',
+      conversations: '{0} 对话',
+      all_conversations: '全部对话'
     },
     group: {
       group_add: '添加成员',
@@ -281,6 +324,7 @@ let transactions = {
       search_group_notify: '在 {0} 中搜索消息',
       search_id_or_phone: '搜索 Mixin ID 或手机号码：',
       recent_chat: '最近聊天',
+      chats: '聊天',
       share_with: '分享给',
       admin: '管理员',
       owner: '群主'

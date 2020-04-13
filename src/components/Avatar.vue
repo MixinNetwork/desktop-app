@@ -11,7 +11,7 @@
   </div>
 </template>
 <script lang="ts">
-import { ConversationCategory, LinkStatus } from '@/utils/constants'
+import { ConversationCategory } from '@/utils/constants'
 import { getAvatarColorById } from '@/utils/util'
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -41,8 +41,6 @@ export default class Avatar extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly user: any
 
-  @Getter('linkStatus') linkStatus: any
-
   @Watch('conversation.conversationId')
   onConversationChange(newConversation: any, oldConversation: any) {
     if (newConversation) {
@@ -53,15 +51,6 @@ export default class Avatar extends Vue {
   onUserChange(user: any) {
     if (user) {
       this.onChange()
-    }
-  }
-  @Watch('linkStatus')
-  onLinkStatus(status: any) {
-    if (status === LinkStatus.CONNECTED) {
-      this.loaded = false
-      requestAnimationFrame(() => {
-        this.loaded = true
-      })
     }
   }
 
@@ -130,7 +119,7 @@ export default class Avatar extends Vue {
   .empty {
     width: 100%;
     height: 100%;
-    background: #f2f2f2;
+    background: #dddddd77;
   }
 
   .avatar-group {

@@ -4,6 +4,13 @@
       <div class="header" :style="{'justify-content': this.isMacOS ? 'flex-end': 'space-between'}">
         <Avatar id="avatar" :user="me" :conversaton="null" @onAvatarClick="showProfile" />
         <div class="action_bar">
+          <div @click="showCircles">
+            <svg-icon
+              icon-class="ic_circles"
+              class="circles-icon"
+              :style="currentCircle ? `stroke: ${circleColor(currentCircle.circle_id)}` : ''"
+            />
+          </div>
           <div id="edit" @click="showConveresation">
             <svg-icon icon-class="ic_edit" />
           </div>
@@ -39,6 +46,14 @@
         v-if="Object.keys(conversations).length === 0 && !searchKeyword && !showMoreType"
       >{{$t('conversation.empty')}}</h5>
 
+      <h5
+        class="circle-empty"
+        v-else-if="conversationsVisible.length === 0 && !searchKeyword && !showMoreType"
+      >
+        <div>{{$t('conversation.circle_empty')}}</div>
+        <a @click="addConversations">{{$t('conversation.add_conversations')}}</a>
+      </h5>
+
       <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
           <ul
@@ -52,7 +67,6 @@
               :class="{active:currentConversationId === conversation.conversationId}"
               v-intersect="onIntersect"
               @item-click="onConversationClick"
-              @item-more="openMenu"
               @item-menu-click="openDownMenu"
             />
           </ul>
@@ -196,8 +210,15 @@ import UserItem from '@/components/UserItem.vue'
 import ChatItem from '@/components/ChatItem.vue'
 import workerManager from '@/workers/worker_manager'
 import { clearDb } from '@/persistence/db_util'
+import participantDao from '@/dao/participant_dao'
+import circleDao from '@/dao/circle_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import accountAPI from '@/api/account'
 import conversationAPI from '@/api/conversation'
+import { getCircleColorById } from '@/utils/util'
+// @ts-ignore
+import _ from 'lodash'
+
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration, isMuteCheck } from '@/utils/constants'
 
 import { Vue, Component } from 'vue-property-decorator'
@@ -227,6 +248,7 @@ export default class Navigation extends Vue {
   @Getter('search') searchResult: any
   @Getter('linkStatus') linkStatus: any
   @Getter('currentConversation') conversation: any
+  @Getter('currentCircle') currentCircle: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -246,6 +268,7 @@ export default class Navigation extends Vue {
   $Menu: any
   $blaze: any
   $t: any
+  $circles: any
 
   created() {
     let unseenMessageCount = 0
@@ -257,31 +280,46 @@ export default class Navigation extends Vue {
     ipcRenderer.send('updateBadgeCount', unseenMessageCount)
     this.menus = this.$t('menu.personal')
     this.$root.$on('directionKeyDownWithCtrl', (direction: string) => {
-      const { draftText } = this.conversation
-      if (draftText && draftText.trim()) {
-        return
-      }
-      const cLen = this.conversations.length
-      if (cLen < 2 || !this.currentConversationId) return
-      if (direction === 'up' && this.conversations[0].conversationId !== this.currentConversationId) {
-        for (let i = 1; i < cLen; i++) {
-          if (this.conversations[i].conversationId === this.currentConversationId) {
-            this.onConversationClick(this.conversations[i - 1])
-            this.goConversationPos(i - 1)
-            break
-          }
-        }
-      }
-      if (direction === 'down' && this.conversations[cLen - 1].conversationId !== this.currentConversationId) {
-        for (let i = 0; i < cLen - 1; i++) {
-          if (this.conversations[i].conversationId === this.currentConversationId) {
-            this.onConversationClick(this.conversations[i + 1])
-            this.goConversationPos(i + 1)
-            break
-          }
-        }
-      }
+      this.goConversationPosAction(direction)
     })
+    Vue.prototype.$goConversationPos = this.goConversationPosAction
+  }
+
+  goConversationPosAction(direction: string) {
+    const cLen = this.conversations.length
+    if (direction === 'current') {
+      for (let i = 0; i < cLen; i++) {
+        if (this.conversations[i].conversationId === this.currentConversationId) {
+          this.onConversationClick(this.conversations[i])
+          this.goConversationPos(i)
+          break
+        }
+      }
+      return
+    }
+    const { draftText } = this.conversation
+    if (draftText && draftText.trim()) {
+      return
+    }
+    if (cLen < 2 || !this.currentConversationId) return
+    if (direction === 'up' && this.conversations[0].conversationId !== this.currentConversationId) {
+      for (let i = 1; i < cLen; i++) {
+        if (this.conversations[i].conversationId === this.currentConversationId) {
+          this.onConversationClick(this.conversations[i - 1])
+          this.goConversationPos(i - 1)
+          break
+        }
+      }
+    }
+    if (direction === 'down' && this.conversations[cLen - 1].conversationId !== this.currentConversationId) {
+      for (let i = 0; i < cLen - 1; i++) {
+        if (this.conversations[i].conversationId === this.currentConversationId) {
+          this.onConversationClick(this.conversations[i + 1])
+          this.goConversationPos(i + 1)
+          break
+        }
+      }
+    }
   }
 
   beforeDestroy() {
@@ -299,6 +337,7 @@ export default class Navigation extends Vue {
       workerManager.stop(this.exit)
     }
   }
+
   exit() {
     accountAPI.logout().then((resp: any) => {
       this.$blaze.closeBlaze()
@@ -306,12 +345,14 @@ export default class Navigation extends Vue {
       clearDb()
     })
   }
+
   showMoreBack() {
     this.showMoreType = ''
     this.$store.dispatch('search', {
       keyword: this.searchKeyword
     })
   }
+
   showMoreList(type: string) {
     this.showMoreType = type
     this.$store.dispatch('search', {
@@ -319,47 +360,45 @@ export default class Navigation extends Vue {
       type: this.showMoreType
     })
   }
-  openMenu(conversation: any) {
-    const isContact = conversation.category === ConversationCategory.CONTACT
-    const isMute = this.isMute(conversation)
-    const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime, isMute)
-    // @ts-ignore
-    this.$Menu.alert(event.clientX, event.clientY, menu, index => {
-      const option = menu[index]
-      const conversationMenu: any = this.$t('menu.conversation')
-      this.handlerMenu(
-        Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
-        isContact,
-        conversation.conversationId,
-        conversation.pinTime,
-        conversation.ownerId
-      )
-    })
+
+  showCircles() {
+    this.$circles.show()
   }
+
+  circleColor(id: string) {
+    return getCircleColorById(id)
+  }
+
   openDownMenu(conversation: any, index: number) {
-    const isContact = conversation.category === ConversationCategory.CONTACT
+    const { pinTime, circlePinTime, category, status, conversationId, ownerId, participants } = conversation
+    const isContact = category === ConversationCategory.CONTACT
     const isMute = this.isMute(conversation)
-    const menu = this.getMenu(isContact, conversation.status === ConversationStatus.QUIT, conversation.pinTime, isMute)
+    const nowPinTime = circlePinTime === undefined ? pinTime : circlePinTime
+    const menu = this.getMenu(isContact, status === ConversationStatus.QUIT, nowPinTime, isMute)
     // @ts-ignore
     this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
       const option = menu[index]
       const conversationMenu: any = this.$t('menu.conversation')
       this.handlerMenu(
         Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
-        isContact,
-        conversation.conversationId,
-        conversation.pinTime,
-        conversation.ownerId
+        participants,
+        conversationId,
+        circlePinTime,
+        pinTime,
+        category,
+        ownerId
       )
     })
   }
-  handlerMenu(position: any, isContact: any, conversationId: any, pinTime: any, ownerId: any) {
+
+  handlerMenu(position: any, participants: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
     if (position === 'exit_group') {
       this.$store.dispatch('exitGroup', conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
       this.$store.dispatch('pinTop', {
-        conversationId: conversationId,
-        pinTime: pinTime
+        conversationId,
+        circlePinTime,
+        pinTime
       })
     } else if (position === 'clear') {
       this.$store.dispatch('conversationClear', conversationId)
@@ -378,7 +417,14 @@ export default class Navigation extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationAPI.mute(conversationId, duration).then((resp: any) => {
+          const payload: any = {
+            duration,
+            category
+          }
+          if (category === ConversationCategory.CONTACT) {
+            payload.participants = participants
+          }
+          conversationAPI.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -403,7 +449,14 @@ export default class Navigation extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationAPI.mute(conversationId, 0).then((resp: any) => {
+          const payload: any = {
+            duration: 0,
+            category
+          }
+          if (category === ConversationCategory.CONTACT) {
+            payload.participants = participants
+          }
+          conversationAPI.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -418,9 +471,11 @@ export default class Navigation extends Vue {
       )
     }
   }
+
   isMute(conversation: any) {
     return isMuteCheck(conversation)
   }
+
   getMenu(isContact: any, isExit: any, pinTime: any, isMute: any) {
     const conversationMenu: any = this.$t('menu.conversation')
     const menu = []
@@ -451,6 +506,7 @@ export default class Navigation extends Vue {
     }
     return menu
   }
+
   showConveresation(event: any) {
     this.conversationShow = true
   }
@@ -471,6 +527,9 @@ export default class Navigation extends Vue {
   }
   hideSetting() {
     this.settingShow = false
+  }
+  addConversations() {
+    this.$circles.addConversations(this.currentCircle)
   }
   onInput(keyword: string) {
     this.searchKeyword = keyword
@@ -564,7 +623,22 @@ export default class Navigation extends Vue {
     firstIndex: 0,
     lastIndex: 0
   }
+
   get conversationsVisible() {
+    if (this.currentCircle) {
+      const [ids, pinTimeList] = this.getCircleConversationIds()
+      let list: any = []
+
+      this.conversations.forEach((item: any) => {
+        const index = ids.indexOf(item.conversationId)
+        if (index > -1) {
+          item.circlePinTime = pinTimeList[index]
+          list.push(item)
+        }
+      })
+      list = _.orderBy(list, ['circlePinTime', 'createdAt'], ['desc', 'desc'])
+      return _.cloneDeepWith(list)
+    }
     const list = []
     let { firstIndex, lastIndex } = this.viewport
     if (firstIndex < 0) {
@@ -577,6 +651,7 @@ export default class Navigation extends Vue {
       if (i >= lastIndex) {
         break
       }
+      delete this.conversations[i].circlePinTime
       list.push(this.conversations[i])
     }
     if (this.intersectLock) {
@@ -585,6 +660,22 @@ export default class Navigation extends Vue {
       }, 200)
     }
     return list
+  }
+
+  getCircleConversationIds() {
+    const conversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
+    const list: any = []
+    const pinTimeList: any = []
+
+    conversations.forEach((item: any) => {
+      const circleConversation = circleConversationDao.findCircleConversationByCircleId(
+        this.currentCircle.circle_id,
+        item.conversationId
+      )
+      list.push(item.conversationId)
+      pinTimeList.push(circleConversation.pin_time)
+    })
+    return [list, pinTimeList]
   }
 
   viewportLimit(index: number, offset: number) {
@@ -667,6 +758,15 @@ export default class Navigation extends Vue {
     margin: 0.45rem 0.3rem 0.3rem 1.3rem;
   }
 
+  .circle-empty {
+    width: 80%;
+    text-align: center;
+    a {
+      display: block;
+      margin-top: 1.2rem;
+      cursor: pointer;
+    }
+  }
   .search-wrapper {
     background: $bg-color;
     /deep/ .search {
@@ -746,14 +846,13 @@ export default class Navigation extends Vue {
       display: flex;
       flex-direction: row;
       align-items: center;
-      padding-left: 0.8rem;
-      padding-right: 0.8rem;
+      padding: 0 0.6rem;
       justify-content: space-between;
 
       #avatar {
         width: 2rem;
         height: 2rem;
-        margin-right: 1.9rem;
+        margin-right: 0.5rem;
         cursor: pointer;
       }
       .action_bar {
@@ -761,12 +860,17 @@ export default class Navigation extends Vue {
         flex-direction: row;
         align-items: baseline;
         #edit {
-          margin-right: 0.8rem;
+          margin: 0 0.4rem;
           cursor: pointer;
         }
         #menu {
           cursor: pointer;
         }
+      }
+      .circles-icon {
+        font-size: 0.9rem;
+        margin: -0.05rem 0.5rem 0;
+        stroke: #2f3032;
       }
     }
     h5 {

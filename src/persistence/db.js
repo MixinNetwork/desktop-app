@@ -21,7 +21,7 @@ DB({
 
 const mixinDb = DB().connection()
 
-const MixinDatabaseVersion = 4
+const MixinDatabaseVersion = 5
 
 setTimeout(() => {
   const row = mixinDb.prepare('PRAGMA user_version').get()

@@ -58,6 +58,7 @@ export default class App extends Vue {
 
   isLoading: boolean = false
   $postViewer: any
+  $circles: any
 
   created() {
     let directionKeyDownTimeout: any = null
@@ -104,6 +105,7 @@ export default class App extends Vue {
       let keyCode = e.keyCode
       if (keyCode === 27) {
         this.$postViewer.hide()
+        this.$circles.hide()
         this.$root.$emit('escKeydown')
       }
     }

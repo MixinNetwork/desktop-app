@@ -9,13 +9,15 @@ import jobDao from '@/dao/job_dao'
 import assetDao from '@/dao/asset_dao'
 import snapshotDao from '@/dao/snapshot_dao'
 import stickerDao from '@/dao/sticker_dao'
+import circleDao from '@/dao/circle_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
 import BaseWorker from './base_worker'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
-import { sendNotification } from '@/utils/util'
+import { sendNotification, generateConversationId } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
@@ -23,13 +25,18 @@ import messageMentionDao from '@/dao/message_mention_dao'
 
 import interval from 'interval-promise'
 import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
-import {MessageCategories,
+import {
+  MessageCategories,
   MessageStatus,
   MediaStatus,
   ConversationStatus,
   SystemUser,
   SystemConversationAction,
-  ConversationCategory} from '@/utils/constants'
+  ConversationCategory,
+  SystemUserMessageAction,
+  MessageCategory,
+  SystemCircleMessageAction
+} from '@/utils/constants'
 
 const insertMessageQueue = []
 const makeMessageReadQueue = []
@@ -50,6 +57,10 @@ function refreshMessages(messageIdsMap) {
       messageIds
     })
   })
+}
+
+function getAccount() {
+  return JSON.parse(localStorage.getItem('account'))
 }
 
 interval(
@@ -144,7 +155,7 @@ class ReceiveWorker extends BaseWorker {
     }
     const data = JSON.parse(floodMessage.data)
     const conversation = conversationDao.getSimpleConversationItem(data.conversation_id)
-    if (!conversation) {
+    if (!conversation || data.category !== MessageCategory.SYSTEM_CONVERSATION) {
       await this.syncConversation(data)
     }
     if (data.category.startsWith('SIGNAL_')) {
@@ -235,26 +246,30 @@ class ReceiveWorker extends BaseWorker {
   }
 
   async processSystemMessage(data) {
-    if (data.category === 'SYSTEM_CONVERSATION') {
-      const json = decodeURIComponent(escape(window.atob(data.data)))
-      const systemMessage = JSON.parse(json)
+    const json = decodeURIComponent(escape(window.atob(data.data)))
+    const systemMessage = JSON.parse(json)
+    if (data.category === MessageCategory.SYSTEM_CONVERSATION) {
+      if (systemMessage.action !== SystemConversationAction.UPDATE) {
+        await this.syncConversation(systemMessage)
+      }
       await this.processSystemConversationMessage(data, systemMessage)
-    } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-      this.processSystemSnapshotMessage(data)
+    } else if (data.category === MessageCategory.SYSTEM_USER) {
+      if (systemMessage.action === SystemUserMessageAction.UPDATE) {
+        await this.syncUser(systemMessage.user_id)
+      }
+    } else if (data.category === MessageCategory.SYSTEM_CIRCLE) {
+      this.processSystemCircleMessage(data, systemMessage)
+    } else if (data.category === MessageCategory.SYSTEM_ACCOUNT_SNAPSHOT) {
+      this.processSystemSnapshotMessage(data, systemMessage)
     }
-    store.dispatch('refreshMessage', {
-      conversationId: data.conversation_id,
-      messageIds: [data.message_id]
-    })
+    this.updateRemoteMessageStatus(data.message_id, MessageStatus.READ)
   }
 
-  async processSystemSnapshotMessage(data) {
+  async processSystemSnapshotMessage(data, decodedData) {
     var status = data.status
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
-    const decoded = decodeURIComponent(escape(window.atob(data.data)))
-    const decodedData = JSON.parse(decoded)
 
     if (decodedData.snapshot_id) {
       const snapshotResp = await snapshotApi.getSnapshots(decodedData.snapshot_id)
@@ -309,7 +324,7 @@ class ReceiveWorker extends BaseWorker {
       conversation_id: data.conversation_id,
       user_id: data.user_id,
       category: data.category,
-      content: decoded,
+      content: JSON.stringify(decodedData),
       status: status,
       created_at: data.created_at,
       snapshot_id: decodedData.snapshot_id
@@ -318,6 +333,45 @@ class ReceiveWorker extends BaseWorker {
     insertMessageQueuePush(message, async() => {
       this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)
     })
+  }
+
+  async processSystemCircleMessage(data, systemMessage) {
+    let conversationId = systemMessage.conversation_id
+    switch (systemMessage.action) {
+      case SystemCircleMessageAction.CREATE:
+      case SystemCircleMessageAction.UPDATE:
+        this.refreshCircleById(systemMessage.circle_id)
+        break
+      case SystemCircleMessageAction.ADD:
+        if (circleDao.findCircleById(systemMessage.circle_id) == null) {
+          this.refreshCircleById(systemMessage.circle_id)
+        }
+        if (systemMessage.user_id) {
+          await this.syncUser(systemMessage.user_id)
+          conversationId = generateConversationId(getAccount().user_id, systemMessage.user_id)
+        }
+        circleConversationDao.insertUpdate([
+          {
+            circle_id: systemMessage.circle_id,
+            conversation_id: conversationId,
+            user_id: systemMessage.user_id,
+            created_at: data.updated_at,
+            pin_time: ''
+          }
+        ])
+        break
+      case SystemCircleMessageAction.REMOVE:
+        if (systemMessage.user_id) {
+          conversationId = generateConversationId(getAccount().user_id, systemMessage.user_id)
+        }
+        circleConversationDao.deleteByIds(conversationId, systemMessage.circle_id)
+        break
+      case SystemCircleMessageAction.DELETE:
+        circleDao.deleteCircleById(systemMessage.circle_id)
+        circleConversationDao.deleteByCircleId(systemMessage.circle_id)
+        break
+      default:
+    }
   }
 
   async processSystemConversationMessage(data, systemMessage) {
@@ -384,7 +438,11 @@ class ReceiveWorker extends BaseWorker {
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      this.refreshConversation(data.conversation_id)
+      if (!systemMessage.participant_id) {
+        await this.syncUser(systemMessage.participant_id)
+      } else {
+        await this.refreshConversation(data.conversation_id)
+      }
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
       participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)

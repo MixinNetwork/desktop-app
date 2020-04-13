@@ -10,6 +10,7 @@ import Menu from '@/components/menu/Menu'
 import ImageViewer from '@/components/image-viewer/ImageViewer'
 import Scrollbar from '@/components/scrollbar/Scrollbar'
 import PostViewer from '@/components/post-viewer/PostViewer'
+import Circles from '@/components/circles/Circles'
 import Toast from '@/components/toast/Toast'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import blaze from '@/blaze/blaze'
@@ -34,6 +35,7 @@ Vue.use(Toast)
 Vue.use(ImageViewer)
 Vue.use(Scrollbar)
 Vue.use(PostViewer)
+Vue.use(Circles)
 Vue.use(Markdown)
 Vue.use(Wrapper)
 Vue.use(VueIntersect)

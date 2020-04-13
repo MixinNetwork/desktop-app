@@ -116,7 +116,7 @@
       @close="handleHideMessageForward"
     />
 
-    <div class="empty" v-if="!conversation">
+    <div class="empty" v-if="!conversation && startup">
       <span>
         <img src="../assets/empty.png" />
         <label id="title">{{$t('chat.keep_title')}}</label>
@@ -235,6 +235,7 @@ export default class ChatContainer extends Vue {
     if (!this.conversation) return
     const { groupName, name, conversationId } = this.conversation
     if (newVal) {
+      this.startup = false
       this.details = false
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
@@ -273,6 +274,15 @@ export default class ChatContainer extends Vue {
       this.showTopTips = true
     }
     this.messagesVisible = this.getMessagesVisible()
+    if (this.isBottom && this.conversation) {
+      const lastMessage = this.messages[this.messages.length - 1]
+      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1]) {
+        this.actionMarkMentionRead({
+          conversationId: this.conversation.conversationId,
+          messageId: lastMessage.messageId
+        })
+      }
+    }
   }
 
   @Watch('viewport')
@@ -322,6 +332,7 @@ export default class ChatContainer extends Vue {
 
   $t: any
   $toast: any
+  $goConversationPos: any
   $refs: any
   $selectNes: any
   name: any = ''
@@ -351,6 +362,7 @@ export default class ChatContainer extends Vue {
   lastEnter: any = null
   goSearchPos: boolean = false
   getLastMessage: boolean = false
+  startup: boolean = true
 
   scrollDirection: string = ''
   messageHeightMap: any = {}
@@ -944,6 +956,7 @@ export default class ChatContainer extends Vue {
     this.actionCreateUserConversation({
       user
     })
+    this.$goConversationPos('current')
   }
   handleAction(action: any) {
     if (action.startsWith('input:')) {

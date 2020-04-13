@@ -350,7 +350,7 @@ class ReceiveWorker extends BaseWorker {
           {
             circle_id: systemMessage.circleId,
             conversation_id: conversationId,
-            // systemMessage.userId
+            user_id: systemMessage.userId,
             created_at: data.updatedAt,
             pin_time: ''
           }

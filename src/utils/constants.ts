@@ -335,7 +335,13 @@ export const MessageCategories = {
   PLAIN_LOCATION: 'PLAIN_LOCATION',
   PLAIN_POST: 'PLAIN_POST',
   PLAIN_JSON: 'PLAIN_JSON',
+  MESSAGE_RECALL: 'MESSAGE_RECALL',
+  STRANGER: 'STRANGER',
+  SECRET: 'SECRET',
   SYSTEM_CONVERSATION: 'SYSTEM_CONVERSATION',
+  SYSTEM_USER: 'SYSTEM_USER',
+  SYSTEM_CIRCLE: 'SYSTEM_CIRCLE',
+  SYSTEM_SESSION: 'SYSTEM_SESSION',
   SYSTEM_ACCOUNT_SNAPSHOT: 'SYSTEM_ACCOUNT_SNAPSHOT',
   APP_BUTTON_GROUP: 'APP_BUTTON_GROUP',
   APP_CARD: 'APP_CARD',
@@ -366,6 +372,23 @@ export const SystemConversationAction = {
   CREATE: 'CREATE',
   UPDATE: 'UPDATE',
   ROLE: 'ROLE'
+}
+
+export const SystemUserMessageAction = {
+  UPDATE: 'UPDATE'
+}
+
+export const SystemSessionMessageAction = {
+  PROVISION: 'PROVISION',
+  DESTROY: 'DESTROY'
+}
+
+export const SystemCircleMessageAction = {
+  CREATE: 'CREATE',
+  DELETE: 'DELETE',
+  UPDATE: 'UPDATE',
+  ADD: 'ADD',
+  REMOVE: 'REMOVE'
 }
 
 export const MimeType = {

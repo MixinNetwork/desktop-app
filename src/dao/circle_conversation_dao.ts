@@ -1,7 +1,7 @@
 import db from '@/persistence/db'
 
 class CircleConversationDao {
-  insert(list: any) {
+  insertUpdate(list: any) {
     const stmt = db.prepare(
       'INSERT OR REPLACE INTO circle_conversations VALUES (@conversation_id, @circle_id, @user_id, @created_at, @pin_time)'
     )

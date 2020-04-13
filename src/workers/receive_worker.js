@@ -339,11 +339,11 @@ class ReceiveWorker extends BaseWorker {
     switch (systemMessage.action) {
       case SystemCircleMessageAction.CREATE:
       case SystemCircleMessageAction.UPDATE:
-        // jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
+        this.refreshCircleById(systemMessage.circleId)
         break
       case SystemCircleMessageAction.ADD:
         if (circleDao.findCircleById(systemMessage.circleId) == null) {
-          // jobManager.addJobInBackground(RefreshCircleJob(systemMessage.circleId))
+          this.refreshCircleById(systemMessage.circleId)
         }
         await this.syncUser(systemMessage.userId)
         circleConversationDao.insertUpdate([

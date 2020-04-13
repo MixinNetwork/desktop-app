@@ -539,7 +539,7 @@ export default class Circles extends Vue {
       circleApi.updateCircle(this.currentCircle.circle_id, payload).then(res => {
         if (!res.data || !res.data.data) return
         const data = res.data.data
-        circleDao.insert({
+        circleDao.insertUpdate({
           circle_id: data.circle_id,
           name: data.name,
           created_at: data.created_at,
@@ -553,7 +553,7 @@ export default class Circles extends Vue {
       if (!res.data || !res.data.data) return
       const data = res.data.data
       this.currentCircle = data
-      circleDao.insert({
+      circleDao.insertUpdate({
         circle_id: data.circle_id,
         name: data.name,
         created_at: data.created_at,

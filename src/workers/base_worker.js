@@ -85,17 +85,22 @@ export default class BaseWorker {
     }
   }
 
+  refreshCircleById(circleId) {
+    return circleApi.getCircleById(circleId).then(res => {
+      if (res.data && res.data.data) {
+        const temp = res.data.data
+        temp.ordered_at = temp.ordered_at || ''
+        circleDao.insertUpdate(temp)
+      }
+    })
+  }
+
   async refreshCircle(conversation) {
     if (!conversation.circles) return
     conversation.circles.forEach(circle => {
       const ret = circleDao.findCircleById(circle.circle_id)
       if (!ret) {
-        circleApi.getCircleById(circle.circle_id).then(res => {
-          if (res.data && res.data.data) {
-            const temp = res.data.data
-            temp.ordered_at = temp.ordered_at || ''
-            circleDao.insert(temp)
-          }
+        this.refreshCircleById(circle.circle_id).then(() => {
           circle.user_id = circle.user_id || ''
           circle.pin_time = circle.pin_time || ''
           circleConversationDao.insertUpdate([circle])

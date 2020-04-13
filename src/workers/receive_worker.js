@@ -34,7 +34,7 @@ import {
   SystemConversationAction,
   ConversationCategory,
   SystemUserMessageAction,
-  SystemSessionMessageAction,
+  MessageCategory,
   SystemCircleMessageAction
 } from '@/utils/constants'
 
@@ -155,7 +155,7 @@ class ReceiveWorker extends BaseWorker {
     }
     const data = JSON.parse(floodMessage.data)
     const conversation = conversationDao.getSimpleConversationItem(data.conversation_id)
-    if (!conversation) {
+    if (!conversation || data.category !== MessageCategory.SYSTEM_CONVERSATION) {
       await this.syncConversation(data)
     }
     if (data.category.startsWith('SIGNAL_')) {
@@ -248,16 +248,18 @@ class ReceiveWorker extends BaseWorker {
   async processSystemMessage(data) {
     const json = decodeURIComponent(escape(window.atob(data.data)))
     const systemMessage = JSON.parse(json)
-    // console.log('processSystemMessage:', data, systemMessage)
-    if (data.category === 'SYSTEM_CONVERSATION') {
+    if (data.category === MessageCategory.SYSTEM_CONVERSATION) {
+      if (systemMessage.action !== SystemConversationAction.UPDATE) {
+        await this.syncConversation(systemMessage)
+      }
       await this.processSystemConversationMessage(data, systemMessage)
-    } else if (data.category === 'SYSTEM_USER') {
+    } else if (data.category === MessageCategory.SYSTEM_USER) {
       if (systemMessage.action === SystemUserMessageAction.UPDATE) {
         store.dispatch('refreshUser', systemMessage.user_id)
       }
-    } else if (data.category === 'SYSTEM_CIRCLE') {
+    } else if (data.category === MessageCategory.SYSTEM_CIRCLE) {
       this.processSystemCircleMessage(data, systemMessage)
-    } else if (data.category === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+    } else if (data.category === MessageCategory.SYSTEM_ACCOUNT_SNAPSHOT) {
       this.processSystemSnapshotMessage(data, systemMessage)
     }
     this.updateRemoteMessageStatus(data.message_id, MessageStatus.READ)
@@ -436,7 +438,11 @@ class ReceiveWorker extends BaseWorker {
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      this.refreshConversation(data.conversation_id)
+      if (!systemMessage.participant_id) {
+        await this.syncUser(systemMessage.participant_id)
+      } else {
+        await this.refreshConversation(data.conversation_id)
+      }
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
       participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)

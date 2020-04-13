@@ -22,7 +22,6 @@ import {
   AttachmentMessagePayload
 } from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
-import circleDao from '@/dao/circle_dao'
 
 function markRead(commit: any, state: any, conversationId: any) {
   if (state.conversations) {

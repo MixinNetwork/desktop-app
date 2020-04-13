@@ -9,13 +9,15 @@ import jobDao from '@/dao/job_dao'
 import assetDao from '@/dao/asset_dao'
 import snapshotDao from '@/dao/snapshot_dao'
 import stickerDao from '@/dao/sticker_dao'
+import circleDao from '@/dao/circle_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import resendMessageDao from '@/dao/resend_message_dao'
 import BaseWorker from './base_worker'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
-import { sendNotification } from '@/utils/util'
+import { sendNotification, generateConversationId } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
@@ -244,14 +246,14 @@ class ReceiveWorker extends BaseWorker {
   }
 
   async processSystemMessage(data) {
-    console.log('processSystemMessage:', data)
     const json = decodeURIComponent(escape(window.atob(data.data)))
     const systemMessage = JSON.parse(json)
+    // console.log('processSystemMessage:', data, systemMessage)
     if (data.category === 'SYSTEM_CONVERSATION') {
       await this.processSystemConversationMessage(data, systemMessage)
     } else if (data.category === 'SYSTEM_USER') {
       if (systemMessage.action === SystemUserMessageAction.UPDATE) {
-        store.dispatch('refreshUser', systemMessage.userId)
+        store.dispatch('refreshUser', systemMessage.user_id)
       }
     } else if (data.category === 'SYSTEM_CIRCLE') {
       this.processSystemCircleMessage(data, systemMessage)
@@ -334,34 +336,39 @@ class ReceiveWorker extends BaseWorker {
   }
 
   async processSystemCircleMessage(data, systemMessage) {
-    const conversationId =
-      systemMessage.conversationId || generateConversationId(getAccount().user_id, systemMessage.userId)
+    let conversationId = systemMessage.conversation_id
     switch (systemMessage.action) {
       case SystemCircleMessageAction.CREATE:
       case SystemCircleMessageAction.UPDATE:
-        this.refreshCircleById(systemMessage.circleId)
+        this.refreshCircleById(systemMessage.circle_id)
         break
       case SystemCircleMessageAction.ADD:
-        if (circleDao.findCircleById(systemMessage.circleId) == null) {
-          this.refreshCircleById(systemMessage.circleId)
+        if (circleDao.findCircleById(systemMessage.circle_id) == null) {
+          this.refreshCircleById(systemMessage.circle_id)
         }
-        await this.syncUser(systemMessage.userId)
+        if (systemMessage.user_id) {
+          await this.syncUser(systemMessage.user_id)
+          conversationId = generateConversationId(getAccount().user_id, systemMessage.user_id)
+        }
         circleConversationDao.insertUpdate([
           {
-            circle_id: systemMessage.circleId,
+            circle_id: systemMessage.circle_id,
             conversation_id: conversationId,
-            user_id: systemMessage.userId,
-            created_at: data.updatedAt,
+            user_id: systemMessage.user_id,
+            created_at: data.updated_at,
             pin_time: ''
           }
         ])
         break
       case SystemCircleMessageAction.REMOVE:
-        circleConversationDao.deleteByIds(conversationId, systemMessage.circleId)
+        if (systemMessage.user_id) {
+          conversationId = generateConversationId(getAccount().user_id, systemMessage.user_id)
+        }
+        circleConversationDao.deleteByIds(conversationId, systemMessage.circle_id)
         break
       case SystemCircleMessageAction.DELETE:
-        circleDao.deleteCircleById(systemMessage.circleId)
-        circleConversationDao.deleteByCircleId(systemMessage.circleId)
+        circleDao.deleteCircleById(systemMessage.circle_id)
+        circleConversationDao.deleteByCircleId(systemMessage.circle_id)
         break
       default:
     }
@@ -369,14 +376,14 @@ class ReceiveWorker extends BaseWorker {
 
   async processSystemSessionMessage(systemSession) {
     if (systemSession.action === SystemSessionMessageAction.PROVISION) {
-      // Session.storeExtensionSessionId(systemSession.sessionId)
-      signalProtocol.deleteSession(systemSession.userId)
-      const conversations = conversationDao.getConversationsByUserId(systemSession.userId)
+      // Session.storeExtensionSessionId(systemSession.session_id)
+      signalProtocol.deleteSession(systemSession.user_id)
+      const conversations = conversationDao.getConversationsByUserId(systemSession.user_id)
       const ps = conversations.map(function(item) {
         return {
           conversation_id: conversationId,
-          user_id: systemSession.userId,
-          session_id: systemSession.sessionId,
+          user_id: systemSession.user_id,
+          session_id: systemSession.session_id,
           sent_to_server: null,
           created_at: new Date().toISOString()
         }
@@ -385,12 +392,12 @@ class ReceiveWorker extends BaseWorker {
         participantSessionDao.insertList(ps)
       }
     } else if (systemSession.action === SystemSessionMessageAction.DESTROY) {
-      // if (Session.getExtensionSessionId() != systemSession.sessionId) {
+      // if (Session.getExtensionSessionId() != systemSession.session_id) {
       //     return
       // }
       // Session.deleteExtensionSessionId()
-      signalProtocol.deleteSession(systemSession.userId)
-      participantSessionDao.deleteByUserIdAndSessionId(systemSession.userId, systemSession.sessionId)
+      signalProtocol.deleteSession(systemSession.user_id)
+      participantSessionDao.deleteByUserIdAndSessionId(systemSession.user_id, systemSession.session_id)
     }
   }
 

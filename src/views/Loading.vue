@@ -8,6 +8,9 @@
 <script lang="ts">
 import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account'
+import circleApi from '@/api/circle'
+import circleDao from '@/dao/circle_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
 import { clearDb } from '@/persistence/db_util'
@@ -46,6 +49,9 @@ export default class Loading extends Vue {
         }
         return
       }
+      if (!localStorage.circleSynced) {
+        this.syncCircles()
+      }
       userAPI.updateSession({platform: 'Desktop', app_version: this.$electron.remote.app.getVersion()}).then(() => {
       })
       this.pushSignalKeys().then(() => {
@@ -58,6 +64,32 @@ export default class Loading extends Vue {
         }
       })
     }
+  }
+
+  syncCircles() {
+    circleApi.getCircles().then(res => {
+      if (res.data && res.data.data) {
+        const circles = res.data.data
+        if (!circles.length) return
+        circles.forEach((circle: any) => {
+          circle.ordered_at = circle.ordered_at || ''
+          circleDao.insertUpdate(circle)
+          circleApi.getCircleConversations(circle.circle_id).then(res => {
+            if (res.data && res.data.data) {
+              const list: any = []
+              const conversations = res.data.data
+              conversations.forEach((item: any) => {
+                item.user_id = item.user_id || ''
+                item.pin_time = item.pin_time || ''
+                list.push(item)
+              })
+              circleConversationDao.insertUpdate(list)
+            }
+          })
+        })
+        localStorage.circleSynced = true
+      }
+    })
   }
 
   pushSignalKeys() {

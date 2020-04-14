@@ -19,7 +19,7 @@ import Vue from 'vue'
 
 export default class BaseWorker {
   async syncConversation(data) {
-    if (data.conversation_id === SystemUser || data.conversation_id === this.getAccountId()) {
+    if (data.conversation_id === SystemUser || data.conversation_id === this.getAccountId() || !data.conversation_id) {
       return
     }
     let conversation = conversationDao.getConversationById(data.conversation_id)

@@ -18,7 +18,7 @@
         <svg-icon icon-class="ic_search" />
       </div>
       <div class="attachment" @click="chooseAttachment">
-        <input type="file" v-show="!file" ref="attachmentInput" @change="chooseAttachmentDone" />
+        <input type="file" style="display: none" ref="attachmentInput" @change="chooseAttachmentDone" />
         <svg-icon icon-class="ic_attach" />
       </div>
       <div class="bot" v-show="user && user.app_id!=null" @click="openUrl">

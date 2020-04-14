@@ -65,6 +65,22 @@ export default class Loading extends Vue {
     }
   }
 
+  getCircleConversations(circleId: any, list: any, offset: string) {
+    return circleApi.getCircleConversations(circleId, offset).then(res => {
+      if (!res.data || !res.data.data) return
+      const conversations = res.data.data
+      conversations.forEach((item: any) => {
+        list.push(item)
+      })
+      if (conversations.length < 500) {
+        circleConversationDao.insertUpdate(list)
+        return
+      }
+      offset = conversations[0].created_at
+      this.getCircleConversations(circleId, list, offset)
+    })
+  }
+
   syncCircles() {
     circleApi.getCircles().then(res => {
       if (!res.data || !res.data.data) return
@@ -72,15 +88,7 @@ export default class Loading extends Vue {
       if (!circles.length) return
       circles.forEach((circle: any) => {
         circleDao.insertUpdate(circle)
-        circleApi.getCircleConversations(circle.circle_id).then(res => {
-          if (!res.data || !res.data.data) return
-          const list: any = []
-          const conversations = res.data.data
-          conversations.forEach((item: any) => {
-            list.push(item)
-          })
-          circleConversationDao.insertUpdate(list)
-        })
+        this.getCircleConversations(circle.circle_id, [], '')
       })
       localStorage.circleSynced = true
     })

@@ -89,7 +89,6 @@ export default class BaseWorker {
     return circleApi.getCircleById(circleId).then(res => {
       if (res.data && res.data.data) {
         const temp = res.data.data
-        temp.ordered_at = temp.ordered_at || ''
         circleDao.insertUpdate(temp)
       }
     })
@@ -103,8 +102,6 @@ export default class BaseWorker {
       if (!ret) {
         this.refreshCircleById(circle.circle_id)
       }
-      circle.user_id = circle.user_id || ''
-      circle.pin_time = circle.pin_time || ''
       list.push(circle)
     })
     circleConversationDao.insertUpdate(list)

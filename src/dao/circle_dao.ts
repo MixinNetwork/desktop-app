@@ -2,6 +2,7 @@ import db from '@/persistence/db'
 
 class CircleDao {
   insertUpdate(data: any) {
+    data.ordered_at = data.ordered_at || ''
     const stmt = db.prepare('INSERT OR REPLACE INTO circles VALUES (@circle_id, @name, @created_at, @ordered_at)')
     stmt.run(data)
   }

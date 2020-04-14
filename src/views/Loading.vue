@@ -49,17 +49,16 @@ export default class Loading extends Vue {
         }
         return
       }
-      if (!localStorage.circleSynced) {
-        this.syncCircles()
-      }
-      userAPI.updateSession({platform: 'Desktop', app_version: this.$electron.remote.app.getVersion()}).then(() => {
-      })
+      userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
       this.pushSignalKeys().then(() => {
         const user = account.data.data
         if (user) {
           localStorage.account = JSON.stringify(user)
           this.$store.dispatch('insertUser', user)
           this.$blaze.connect()
+          if (!localStorage.circleSynced) {
+            this.syncCircles()
+          }
           this.$router.push('/home')
         }
       })
@@ -68,27 +67,22 @@ export default class Loading extends Vue {
 
   syncCircles() {
     circleApi.getCircles().then(res => {
-      if (res.data && res.data.data) {
-        const circles = res.data.data
-        if (!circles.length) return
-        circles.forEach((circle: any) => {
-          circle.ordered_at = circle.ordered_at || ''
-          circleDao.insertUpdate(circle)
-          circleApi.getCircleConversations(circle.circle_id).then(res => {
-            if (res.data && res.data.data) {
-              const list: any = []
-              const conversations = res.data.data
-              conversations.forEach((item: any) => {
-                item.user_id = item.user_id || ''
-                item.pin_time = item.pin_time || ''
-                list.push(item)
-              })
-              circleConversationDao.insertUpdate(list)
-            }
+      if (!res.data || !res.data.data) return
+      const circles = res.data.data
+      if (!circles.length) return
+      circles.forEach((circle: any) => {
+        circleDao.insertUpdate(circle)
+        circleApi.getCircleConversations(circle.circle_id).then(res => {
+          if (!res.data || !res.data.data) return
+          const list: any = []
+          const conversations = res.data.data
+          conversations.forEach((item: any) => {
+            list.push(item)
           })
+          circleConversationDao.insertUpdate(list)
         })
-        localStorage.circleSynced = true
-      }
+      })
+      localStorage.circleSynced = true
     })
   }
 

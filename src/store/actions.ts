@@ -135,13 +135,10 @@ async function refreshCircle(conversation: any) {
       circleApi.getCircleById(circle.circle_id).then((res: any) => {
         if (res.data && res.data.data) {
           const temp = res.data.data
-          temp.ordered_at = temp.ordered_at || ''
           circleDao.insertUpdate(temp)
         }
       })
     }
-    circle.user_id = circle.user_id || ''
-    circle.pin_time = circle.pin_time || ''
     list.push(circle)
   })
   circleConversationDao.insertUpdate(list)

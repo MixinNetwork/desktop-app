@@ -116,7 +116,7 @@
       @close="handleHideMessageForward"
     />
 
-    <div class="empty" v-if="!conversation">
+    <div class="empty" v-if="!conversation && startup">
       <span>
         <img src="../assets/empty.png" />
         <label id="title">{{$t('chat.keep_title')}}</label>
@@ -235,6 +235,7 @@ export default class ChatContainer extends Vue {
     if (!this.conversation) return
     const { groupName, name, conversationId } = this.conversation
     if (newVal) {
+      this.startup = false
       this.details = false
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
@@ -273,6 +274,15 @@ export default class ChatContainer extends Vue {
       this.showTopTips = true
     }
     this.messagesVisible = this.getMessagesVisible()
+    if (this.isBottom && this.conversation) {
+      const lastMessage = this.messages[this.messages.length - 1]
+      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1]) {
+        this.actionMarkMentionRead({
+          conversationId: this.conversation.conversationId,
+          messageId: lastMessage.messageId
+        })
+      }
+    }
   }
 
   @Watch('viewport')
@@ -322,6 +332,7 @@ export default class ChatContainer extends Vue {
 
   $t: any
   $toast: any
+  $goConversationPos: any
   $refs: any
   $selectNes: any
   name: any = ''
@@ -350,7 +361,8 @@ export default class ChatContainer extends Vue {
   panelChoosing: string = ''
   lastEnter: any = null
   goSearchPos: boolean = false
-  getLastMessage: boolean = true
+  getLastMessage: boolean = false
+  startup: boolean = true
 
   scrollDirection: string = ''
   messageHeightMap: any = {}
@@ -439,7 +451,7 @@ export default class ChatContainer extends Vue {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
           self.udpateMessagesVisible()
-        } else {
+        } else if (getLastMessage) {
           self.getLastMessage = getLastMessage
         }
         self.infiniteUpLock = infiniteUpLock
@@ -944,6 +956,7 @@ export default class ChatContainer extends Vue {
     this.actionCreateUserConversation({
       user
     })
+    this.$goConversationPos('current')
   }
   handleAction(action: any) {
     if (action.startsWith('input:')) {
@@ -1045,8 +1058,10 @@ export default class ChatContainer extends Vue {
       z-index: 1;
       text-align: left;
       cursor: pointer;
+      max-width: calc(100% - 8rem);
       & > div {
-        max-width: 9.5rem;
+        min-width: 8rem;
+        max-width: calc(100% - 2rem);
         padding: 0 0.6rem;
         overflow: hidden;
         display: flex;

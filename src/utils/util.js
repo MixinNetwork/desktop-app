@@ -3,7 +3,8 @@ import Bot from 'bot-api-js-client'
 import store from '@/store/store'
 import {
   AvatarColors,
-  NameColors
+  NameColors,
+  CircleConfig
 } from '@/utils/constants'
 import signalProtocol from '@/crypto/signal'
 import md5 from 'md5'
@@ -47,7 +48,7 @@ export function getToken(method, uri, data) {
     const sid = account.session_id
     const m = method.toUpperCase()
     const scp =
-      'PROFILE:READ PROFILE:WRITE PHONE:READ PHONE:WRITE CONTACTS:READ CONTACTS:WRITE MESSAGES:READ MESSAGES:WRITE ASSETS:READ SNAPSHOTS:READ'
+      'PROFILE:READ PROFILE:WRITE PHONE:READ PHONE:WRITE CONTACTS:READ CONTACTS:WRITE MESSAGES:READ MESSAGES:WRITE ASSETS:READ SNAPSHOTS:READ CIRCLES:READ CIRCLES:WRITE'
     token = new Bot().signAuthenticationToken(uid, sid, privateKey, m, uri, data, scp)
   }
   return token
@@ -102,6 +103,11 @@ export function getAvatarColorById(id) {
 
 export function getNameColorById(id) {
   return NameColors[Math.abs(signalProtocol.convertToDeviceId(id)) % NameColors.length]
+}
+
+export function getCircleColorById(id) {
+  const colors = CircleConfig.CIRCLE_COLORS
+  return colors[Math.abs(signalProtocol.convertToDeviceId(id)) % colors.length]
 }
 
 export function convertRemToPixels(rem) {

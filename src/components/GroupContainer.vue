@@ -20,6 +20,7 @@
           <UserItem
             v-for="(user,key) in unSlected"
             :key="key"
+            :keyword="keyword"
             :user="user"
             @user-click="onClickUser"
           ></UserItem>
@@ -81,7 +82,10 @@ export default class GroupContainer extends Vue {
     const result = friends.concat(slected).filter((v: any) => !friends.includes(v) || !slected.includes(v))
     return result.filter((item: any) => {
       if (keyword !== '') {
-        return item.full_name.toUpperCase().includes(keyword.toUpperCase())
+        return (
+          item.full_name.toUpperCase().includes(keyword.toUpperCase()) ||
+          item.identity_number.toUpperCase().includes(keyword)
+        )
       }
       return true
     })

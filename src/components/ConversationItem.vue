@@ -5,7 +5,7 @@
     @click="$emit('item-click',conversation)"
     @mouseenter="enter"
     @mouseleave="leave"
-    @contextmenu.prevent="$emit('item-more',conversation)"
+    @contextmenu.prevent
   >
     <Avatar id="avatar" :conversation="conversation" />
     <slot name="check"></slot>
@@ -23,8 +23,13 @@
           v-if="conversation.contentType !== 'SYSTEM_CONVERSATION' && conversation.contentType !== 'MESSAGE_RECALL'"
         >
           <svg-icon
+            v-if="conversation.contentType === 'SYSTEM_ACCOUNT_SNAPSHOT'"
+            icon-class="ic_transfer"
+            class="icon"
+          />
+          <svg-icon
             icon-class="ic_status_clock"
-            v-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
+            v-else-if="isSelf && conversation.messageStatus === MessageStatus.SENDING"
             class="icon"
           />
           <svg-icon
@@ -50,7 +55,7 @@
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
         <svg-icon icon-class="ic_mute" v-if="this.isMute()" class="mute_icon" />
-        <svg-icon icon-class="ic_pin_top" v-if="conversation.pinTime" class="icon" />
+        <svg-icon icon-class="ic_pin_top" v-if="showPinTime" class="icon" />
         <transition name="slide-right">
           <a
             @click.stop="$emit('item-menu-click',conversation)"
@@ -91,6 +96,10 @@ export default class ConversationItem extends Vue {
   MessageStatus: any = MessageStatus
   $moment: any
 
+  get showPinTime() {
+    const { circlePinTime, pinTime } = this.conversation
+    return circlePinTime || (circlePinTime === undefined && pinTime)
+  }
   get timeAgo() {
     return contentUtil.renderTime(this.conversation.createdAt, true)
   }

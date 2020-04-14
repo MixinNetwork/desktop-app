@@ -11,6 +11,7 @@
         @handleMenuClick="$emit('handleMenuClick')"
         :style="{maxWidth: `calc(${borderSetObject(true)}px)`}"
         :type="message.type"
+        :isLongPicture="isLongPicture"
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
           <div class="content-in">
@@ -158,6 +159,11 @@ export default class ImageItem extends Vue {
       width -= 4
     }
     return { width: `${width}px`, height: `${height}px` }
+  }
+
+  get isLongPicture() {
+    const { mediaWidth, mediaHeight } = this.message
+    return 3 * mediaWidth < mediaHeight
   }
 
   stopLoading() {

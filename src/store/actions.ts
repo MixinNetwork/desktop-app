@@ -4,12 +4,15 @@ import stickerDao from '@/dao/sticker_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
+import circleConversationDao from '@/dao/circle_conversation_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
+// @ts-ignore
+import _ from 'lodash'
 import jobDao from '@/dao/job_dao'
 import {
   downloadAttachment,
@@ -22,7 +25,7 @@ import appDao from '@/dao/app_dao'
 
 function markRead(commit: any, state: any, conversationId: any) {
   if (state.conversations) {
-    commit('setUnseenBadgeNum', conversationId)
+    commit('setUnseenBadgeNum')
   }
   const messages = messageDao.findUnreadMessage(conversationId)
   updateRemoteMessageStatusBatch(conversationId, messages, MessageStatus.READ)
@@ -297,12 +300,17 @@ export default {
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)
   },
-  pinTop: ({ commit }: any, payload: { conversationId: any; pinTime: any }) => {
-    conversationDao.updateConversationPinTimeById(
-      payload.conversationId,
-      payload.pinTime ? null : new Date().toISOString()
-    )
-    commit('refreshConversations')
+  pinTop: ({ commit, state }: any, payload: { conversationId: any; circlePinTime: any; pinTime: any }) => {
+    const { conversationId, circlePinTime, pinTime } = payload
+    if (circlePinTime !== undefined) {
+      const newPinTime = circlePinTime ? '' : new Date().toISOString()
+      const circle = state.currentCircle
+      circleConversationDao.updateConversationPinTimeById(conversationId, circle.circle_id, newPinTime)
+      commit('setCurrentCircle', circle)
+    } else {
+      conversationDao.updateConversationPinTimeById(conversationId, pinTime ? null : new Date().toISOString())
+      commit('refreshConversations')
+    }
   },
   refreshUser: async({ commit }: any, { userId, conversationId }: any) => {
     const response = await userApi.getUserById(userId)
@@ -530,6 +538,9 @@ export default {
     }
     commit('refreshFriends', friends)
   },
+  setCurrentCircle: ({ commit }: any, circle: any) => {
+    commit('setCurrentCircle', circle)
+  },
   insertUser: (_: any, user: any) => {
     userDao.insertUser(user)
   },
@@ -562,7 +573,7 @@ export default {
   setLinkStatus: ({ commit }: any, status: any) => {
     commit('setLinkStatus', status)
   },
-  exitGroup: (_: any, conversationId: any) => {
+  exitGroup: ({ commit }: any, conversationId: any) => {
     conversationApi.exit(conversationId)
   },
   participantSetAsAdmin: (_: any, payload: { conversationId: any; userId: any }) => {

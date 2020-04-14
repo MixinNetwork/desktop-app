@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export const API_URL = {
   HTTP: ['https://mixin-api.zeromesh.net/', 'https://api.mixin.one/'],
   WS: ['wss://mixin-blaze.zeromesh.net', 'wss://blaze.mixin.one']
@@ -10,6 +12,28 @@ export const ConversationStatus = {
   FAILURE: 1,
   SUCCESS: 2,
   QUIT: 3
+}
+
+export const CircleConfig = {
+  CIRCLE_CONVERSATION_LIMIT: 5,
+  CIRCLE_COLORS: [
+    '#8E7BFF',
+    '#657CFB',
+    '#A739C2',
+    '#BD6DDA',
+    '#FD89F1',
+    '#FA7B95',
+    '#E94156',
+    '#FA9652',
+    '#F1D22B',
+    '#BAE361',
+    '#5EDD5E',
+    '#4BE6FF',
+    '#45B7FE',
+    '#00ECD0',
+    '#FFCCC0',
+    '#CEA06B'
+  ]
 }
 
 export const AvatarColors = [
@@ -41,8 +65,8 @@ export const AvatarColors = [
   '#DCC6E4',
   '#BABAE8',
   '#BABCD5',
-  '#B5B5B5',
-  '#979797'
+  '#AD98DA',
+  '#C097D9'
 ]
 
 export const NameColors = [
@@ -263,6 +287,20 @@ export function canForward(message: any) {
   )
 }
 
+export function isMuteCheck(conversation: any) {
+  if (conversation.category === ConversationCategory.CONTACT && conversation.ownerMuteUntil) {
+    if (moment().isBefore(conversation.ownerMuteUntil)) {
+      return true
+    }
+  }
+  if (conversation.category === ConversationCategory.GROUP && conversation.muteUntil) {
+    if (moment().isBefore(conversation.muteUntil)) {
+      return true
+    }
+  }
+  return false
+}
+
 export function canRecall(
   message: { createdAt: string | number | Date; userId: any; type: any; status: string },
   userId: any
@@ -297,7 +335,13 @@ export const MessageCategories = {
   PLAIN_LOCATION: 'PLAIN_LOCATION',
   PLAIN_POST: 'PLAIN_POST',
   PLAIN_JSON: 'PLAIN_JSON',
+  MESSAGE_RECALL: 'MESSAGE_RECALL',
+  STRANGER: 'STRANGER',
+  SECRET: 'SECRET',
   SYSTEM_CONVERSATION: 'SYSTEM_CONVERSATION',
+  SYSTEM_USER: 'SYSTEM_USER',
+  SYSTEM_CIRCLE: 'SYSTEM_CIRCLE',
+  SYSTEM_SESSION: 'SYSTEM_SESSION',
   SYSTEM_ACCOUNT_SNAPSHOT: 'SYSTEM_ACCOUNT_SNAPSHOT',
   APP_BUTTON_GROUP: 'APP_BUTTON_GROUP',
   APP_CARD: 'APP_CARD',
@@ -328,6 +372,23 @@ export const SystemConversationAction = {
   CREATE: 'CREATE',
   UPDATE: 'UPDATE',
   ROLE: 'ROLE'
+}
+
+export const SystemUserMessageAction = {
+  UPDATE: 'UPDATE'
+}
+
+export const SystemSessionMessageAction = {
+  PROVISION: 'PROVISION',
+  DESTROY: 'DESTROY'
+}
+
+export const SystemCircleMessageAction = {
+  CREATE: 'CREATE',
+  DELETE: 'DELETE',
+  UPDATE: 'UPDATE',
+  ADD: 'ADD',
+  REMOVE: 'REMOVE'
 }
 
 export const MimeType = {

@@ -5,7 +5,7 @@ import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap } from '@/utils/attachment_util'
-import { LinkStatus, ConversationCategory } from '@/utils/constants'
+import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
 
@@ -43,13 +43,15 @@ function refreshConversations(state: any) {
 }
 
 let updateBadgeCountTimer: any = null
-function setUnseenBadgeNum(conversations: any, conversationId: string) {
+function setUnseenBadgeNum(conversations: any) {
   clearTimeout(updateBadgeCountTimer)
   updateBadgeCountTimer = setTimeout(() => {
     let unseenMessageCount: any = 0
     Object.keys(conversations).forEach(id => {
       const item = conversations[id]
-      unseenMessageCount += item.unseenMessageCount
+      if (!isMuteCheck(item) && item.unseenMessageCount) {
+        unseenMessageCount += item.unseenMessageCount
+      }
     })
     ipcRenderer.send('updateBadgeCount', unseenMessageCount)
   }, 300)
@@ -70,7 +72,7 @@ function refreshConversation(state: any, conversationId: string) {
       state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
       conversations[conversationId] = conversation
     }
-    setUnseenBadgeNum(conversations, conversationId)
+    setUnseenBadgeNum(conversations)
     state.conversations = conversations
 
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
@@ -242,8 +244,8 @@ export default {
     // @ts-ignore
     state.me = JSON.parse(localStorage.getItem('account'))
   },
-  setUnseenBadgeNum(state: any, conversationId: string) {
-    setUnseenBadgeNum(state.conversations, conversationId)
+  setUnseenBadgeNum(state: any) {
+    setUnseenBadgeNum(state.conversations)
   },
   saveAccount(state: any, user: any) {
     state.me = user
@@ -321,6 +323,9 @@ export default {
   },
   refreshConversations(state: any) {
     refreshConversations(state)
+  },
+  setCurrentCircle(state: any, circle: any) {
+    state.currentCircle = _.cloneDeepWith(circle)
   },
   conversationClear(state: any, conversationId: string) {
     const index = state.conversationKeys.indexOf(conversationId)

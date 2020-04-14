@@ -158,7 +158,15 @@ export default class ChatContainerMenu extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          conversationApi.mute(self.conversation.conversationId, duration).then((resp: any) => {
+          const { category, conversationId, participants } = self.conversation
+          const payload: any = {
+            duration,
+            category
+          }
+          if (category === ConversationCategory.CONTACT) {
+            payload.participants = participants
+          }
+          conversationApi.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
@@ -184,7 +192,15 @@ export default class ChatContainerMenu extends Vue {
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          conversationApi.mute(self.conversation.conversationId, 0).then((resp: any) => {
+          const { category, conversationId, participants } = self.conversation
+          const payload: any = {
+            duration: 0,
+            category
+          }
+          if (category === ConversationCategory.CONTACT) {
+            payload.participants = participants
+          }
+          conversationApi.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })

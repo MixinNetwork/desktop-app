@@ -96,6 +96,12 @@ export default class ChatContainerMenu extends Vue {
     this.menus = menu
   }
 
+  updateMenuDelay() {
+    setTimeout(() => {
+      this.updateMenu(this.conversation)
+    }, 200)
+  }
+
   changeContactRelationship(action: string) {
     userApi
       .updateRelationship({ user_id: this.user.user_id, full_name: this.user.full_name, action })
@@ -103,7 +109,7 @@ export default class ChatContainerMenu extends Vue {
         if (res.data) {
           const user = res.data.data
           this.actionSetCurrentUser(user)
-          this.updateMenu(this.conversation)
+          this.updateMenuDelay()
         }
       })
   }
@@ -177,6 +183,7 @@ export default class ChatContainerMenu extends Vue {
               } else {
                 this.$toast(this.$t('chat.mute_year'))
               }
+              self.updateMenuDelay()
             }
           })
         },
@@ -205,6 +212,7 @@ export default class ChatContainerMenu extends Vue {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
               this.$toast(this.$t('chat.mute_cancel'))
+              self.updateMenuDelay()
             }
           })
         },

@@ -40,7 +40,7 @@ parentPort.once('message', payload => {
           }
         }
       })
-      mixinDb.prepare(`PRAGMA user_version = 5`).run()
+      mixinDb.prepare(`PRAGMA user_version = 6`).run()
       mixinDb.close()
 
       return

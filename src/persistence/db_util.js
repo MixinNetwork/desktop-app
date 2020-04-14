@@ -42,7 +42,7 @@ export function getDbPath() {
       const row = mixinDb.prepare('PRAGMA user_version').get()
       mixinDb.close()
       console.log('db version row: ', row)
-      if (row && row.user_version > 4) {
+      if (row && row.user_version > 5) {
         dir = newDir
       }
     }

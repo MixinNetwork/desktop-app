@@ -27,7 +27,7 @@ DB({
 
 const mixinDb = DB().connection()
 
-const MixinDatabaseVersion = 5
+const MixinDatabaseVersion = 6
 
 setTimeout(() => {
   const row = mixinDb.prepare('PRAGMA user_version').get()
@@ -44,7 +44,7 @@ setTimeout(() => {
           'CREATE TABLE IF NOT EXISTS `snapshots` (`snapshot_id` TEXT NOT NULL,`type` TEXT NOT NULL,`asset_id` TEXT NOT NULL,`amount` TEXT NOT NULL,`created_at` TEXT NOT NULL,`opponent_id` TEXT,`transaction_hash` TEXT,`sender` TEXT,`receiver` TEXT,`memo` TEXT,`confirmations` INTEGER,PRIMARY KEY(`snapshot_id`))'
         )
       }
-      if (row.user_version < 5) {
+      if (row.user_version < 6) {
         migrationAction()
       }
       stmt.run()

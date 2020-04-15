@@ -42,6 +42,7 @@
 <script lang="ts">
 import stickerDao from '@/dao/sticker_dao'
 import stickerApi from '@/api/sticker'
+import { downloadSticker, updateStickerAlbums } from '@/utils/attachment_util'
 
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -68,6 +69,7 @@ export default class ChatSticker extends Vue {
     if (findAlbums.length) {
       setTimeout(() => {
         this.albums = JSON.parse(JSON.stringify(findAlbums))
+        updateStickerAlbums(this.albums)
         this.albumPos()
       })
     } else {
@@ -94,6 +96,7 @@ export default class ChatSticker extends Vue {
     clearTimeout(this.resizeStickerTimeout)
     this.resizeStickerTimeout = setTimeout(() => {
       const element = document.querySelector('.container')
+      if (!element) return
       let { m } = this.stickerStyle
       // @ts-ignore
       const width = element.offsetWidth - 20
@@ -121,6 +124,14 @@ export default class ChatSticker extends Vue {
   getStickers(id: string) {
     let stickers = stickerDao.getStickersByAlbumId(id)
     if (stickers && stickers.length) {
+      stickers.forEach((sticker: any) => {
+        if (!sticker.asset_url.startsWith('file://')) {
+          const stickerId = sticker.sticker_id
+          downloadSticker(stickerId).then(filePath => {
+            sticker.asset_url = 'file://' + filePath
+          })
+        }
+      })
       this.stickers = stickers
       this.resizeSticker()
     } else {

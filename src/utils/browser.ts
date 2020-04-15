@@ -18,7 +18,7 @@ export default {
         minimizable: false,
         fullscreenable: false,
         webPreferences: {
-          sandbox: true,
+          // sandbox: true,
           preload: preloadFile
         }
       })

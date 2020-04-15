@@ -3,8 +3,6 @@ import participantDao from '@/dao/participant_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
-import stickerDao from '@/dao/sticker_dao'
-import stickerApi from '@/api/sticker'
 import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import circleConversationDao from '@/dao/circle_conversation_dao'
@@ -229,13 +227,6 @@ export default class BaseWorker {
         }
       })
       participantSessionDao.insertList(add)
-    }
-  }
-
-  async refreshSticker(stickerId) {
-    const response = await stickerApi.getStickerById(stickerId)
-    if (response.data.data) {
-      stickerDao.insertUpdate(response.data.data)
     }
   }
 

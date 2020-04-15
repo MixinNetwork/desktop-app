@@ -6,12 +6,6 @@ import { clearKeyTable } from './db'
 import store from '@/store/store'
 const userDataPath = remote.app.getPath('userData')
 
-function getMixinDb(dbPath) {
-  const Database = require('better-sqlite3')
-  const mixinDb = new Database(dbPath, { readonly: false })
-  return mixinDb
-}
-
 export function getIdentityNumber(direct) {
   let identityNumber = ''
   if (localStorage.account) {
@@ -38,13 +32,7 @@ export function getDbPath() {
     const newDir = path.join(dir, identityNumber)
     const dbPath = path.join(newDir, `mixin.db3`)
     if (fs.existsSync(dbPath)) {
-      const mixinDb = getMixinDb(dbPath)
-      const row = mixinDb.prepare('PRAGMA user_version').get()
-      mixinDb.close()
-      console.log('db version row: ', row)
-      if (row && row.user_version > 5) {
-        dir = newDir
-      }
+      dir = newDir
     }
   }
   return path.join(isDevelopment ? path.join(__static, '../') : dir)

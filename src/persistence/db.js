@@ -1,11 +1,5 @@
 import DB from './wrapper'
 
-import { remote } from 'electron'
-import fs from 'fs'
-
-import { mediaMigration } from '@/utils/attachment_util'
-import { dbMigration, getIdentityNumber } from '@/persistence/db_util'
-
 import path from 'path'
 import { getDbPath } from './db_util'
 
@@ -27,7 +21,7 @@ DB({
 
 const mixinDb = DB().connection()
 
-const MixinDatabaseVersion = 6
+const MixinDatabaseVersion = 5
 
 setTimeout(() => {
   const row = mixinDb.prepare('PRAGMA user_version').get()
@@ -44,28 +38,10 @@ setTimeout(() => {
           'CREATE TABLE IF NOT EXISTS `snapshots` (`snapshot_id` TEXT NOT NULL,`type` TEXT NOT NULL,`asset_id` TEXT NOT NULL,`amount` TEXT NOT NULL,`created_at` TEXT NOT NULL,`opponent_id` TEXT,`transaction_hash` TEXT,`sender` TEXT,`receiver` TEXT,`memo` TEXT,`confirmations` INTEGER,PRIMARY KEY(`snapshot_id`))'
         )
       }
-      if (row.user_version < 6) {
-        migrationAction()
-      }
       stmt.run()
     })()
   }
 })
-
-async function migrationAction() {
-  const identityNumber = getIdentityNumber(true)
-  if (identityNumber) {
-    const newDir = path.join(remote.app.getPath('userData'), identityNumber)
-    if (!fs.existsSync(newDir)) {
-      fs.mkdirSync(newDir)
-    }
-
-    await dbMigration(identityNumber)
-    mediaMigration(identityNumber)
-
-    // TODO: remove old db and media manually
-  }
-}
 
 export function clearKeyTable(sessionId) {
   mixinDb.transaction(() => {

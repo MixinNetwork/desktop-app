@@ -10,9 +10,15 @@ import spinner from '@/components/Spinner.vue'
 import accountAPI from '@/api/account'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
-import { clearDb } from '@/persistence/db_util'
+import { clearDb, dbMigration, getIdentityNumber } from '@/persistence/db_util'
 
 import { Vue, Component } from 'vue-property-decorator'
+
+import { remote } from 'electron'
+import fs from 'fs'
+import path from 'path'
+
+import { mediaMigration } from '@/utils/attachment_util'
 
 @Component({
   components: {
@@ -46,17 +52,33 @@ export default class Loading extends Vue {
         }
         return
       }
-      userAPI.updateSession({platform: 'Desktop', app_version: this.$electron.remote.app.getVersion()}).then(() => {
-      })
+      userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
       this.pushSignalKeys().then(() => {
         const user = account.data.data
         if (user) {
           localStorage.account = JSON.stringify(user)
           this.$store.dispatch('insertUser', user)
           this.$blaze.connect()
+          this.migrationAction()
           this.$router.push('/home')
         }
       })
+    }
+  }
+
+  async migrationAction() {
+    const identityNumber = getIdentityNumber(true)
+    if (identityNumber) {
+      const newDir = path.join(remote.app.getPath('userData'), identityNumber)
+      if (!fs.existsSync(newDir)) {
+        fs.mkdirSync(newDir)
+      }
+
+      console.log('migrationAction')
+      await dbMigration(identityNumber)
+      mediaMigration(identityNumber)
+
+      // TODO: remove old db and media manually
     }
   }
 

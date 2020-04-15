@@ -57,7 +57,6 @@
       <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
           <ul
-            :style="`padding: ${72 * viewport.firstIndex}px 0 ${72 * (conversations.length - viewport.lastIndex - 1)}px 0;`"
             v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
           >
             <ConversationItem
@@ -711,7 +710,10 @@ export default class Navigation extends Vue {
       (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
       (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
     ) {
-      this.viewport = this.viewportLimit(index, offset)
+      const viewport = this.viewportLimit(index, offset)
+      if (viewport.firstIndex !== firstIndex || viewport.lastIndex !== lastIndex) {
+        this.viewport = viewport
+      }
     }
   }
 

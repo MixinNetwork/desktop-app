@@ -185,9 +185,8 @@ export default class Details extends Vue {
         const user = userDao.findUserByIdentityNumber(this.userId)
         this.actionSetCurrentUser(user)
       }
-    } else {
-      this.actionSyncConversation(this.conversation.conversationId)
     }
+    this.actionSyncConversation(this.conversation.conversationId)
   }
   mounted() {
     this.updateView()

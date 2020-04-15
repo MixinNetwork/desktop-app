@@ -24,7 +24,7 @@ function newToken(config: any) {
     data = JSON.parse(data)
   }
   const urlObj = new Url(url)
-  const token = getToken(method.toUpperCase(), urlObj.pathname, data)
+  const token = getToken(method.toUpperCase(), urlObj.pathname + urlObj.query, data)
   return 'Bearer ' + token
 }
 

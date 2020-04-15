@@ -785,14 +785,14 @@ class ReceiveWorker extends BaseWorker {
       }
       messageDao.insertMessage(message)
       const sticker = stickerDao.getStickerByUnique(stickerId)
-      if (!sticker) {
+      if (!sticker || !sticker.asset_url.startsWith('file://')) {
         const response = await stickerApi.getStickerById(stickerId)
         if (response.data.data) {
           const resData = response.data.data
           stickerDao.insertUpdate(resData)
           const filePath = await downloadSticker(resData.asset_url, stickerId)
           if (filePath) {
-            messageDao.updateStickerUrl('file://' + filePath, stickerId)
+            stickerDao.updateStickerUrl('file://' + filePath, stickerId)
           }
         }
       }

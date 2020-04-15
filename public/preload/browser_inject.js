@@ -7,16 +7,6 @@ if (remote) {
     appearance = 'dark'
   }
 
-  setInterval(() => {
-    const list = document.querySelectorAll('audio')
-    if (list.length < 1) return
-    list.forEach(item => {
-      if (item.volume < 1) {
-        item.volume = 1
-      }
-    })
-  }, 1000)
-
   const mixinContext = {
     platform: 'Desktop',
     conversation_id: conversationId,

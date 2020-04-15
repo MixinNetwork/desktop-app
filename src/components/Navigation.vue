@@ -285,6 +285,7 @@ export default class Navigation extends Vue {
   }
 
   goConversationPosAction(direction: string) {
+    if (this.currentCircle) return
     const cLen = this.conversations.length
     if (direction === 'current') {
       for (let i = 0; i < cLen; i++) {

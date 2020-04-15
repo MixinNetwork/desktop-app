@@ -437,6 +437,14 @@ class MessageDao {
       .run([path, status, id])
   }
 
+  updateStickerUrl(path: any, id: any) {
+    return db
+      .prepare(
+        `UPDATE stickers SET asset_url = ? WHERE sticker_id = ?`
+      )
+      .run([path, id])
+  }
+
   findImages(conversationId: any, messageId: any) {
     return db
       .prepare(

@@ -94,6 +94,7 @@ export default class ChatSticker extends Vue {
     clearTimeout(this.resizeStickerTimeout)
     this.resizeStickerTimeout = setTimeout(() => {
       const element = document.querySelector('.container')
+      if (!element) return
       let { m } = this.stickerStyle
       // @ts-ignore
       const width = element.offsetWidth - 20

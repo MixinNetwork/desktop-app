@@ -8,6 +8,7 @@ import participantSessionDao from '@/dao/participant_session_dao'
 import jobDao from '@/dao/job_dao'
 import assetDao from '@/dao/asset_dao'
 import snapshotDao from '@/dao/snapshot_dao'
+import stickerApi from '@/api/sticker'
 import stickerDao from '@/dao/sticker_dao'
 import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
@@ -24,7 +25,7 @@ import snapshotApi from '@/api/snapshot'
 import messageMentionDao from '@/dao/message_mention_dao'
 
 import interval from 'interval-promise'
-import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
+import { downloadAttachment, downloadSticker, downloadQueue } from '@/utils/attachment_util'
 import {
   MessageCategories,
   MessageStatus,
@@ -768,6 +769,7 @@ class ReceiveWorker extends BaseWorker {
     } else if (data.category.endsWith('_STICKER')) {
       const decoded = window.atob(plaintext)
       const stickerData = JSON.parse(decoded)
+      const stickerId = stickerData.sticker_id
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
@@ -777,14 +779,22 @@ class ReceiveWorker extends BaseWorker {
         created_at: data.created_at,
         name: stickerData.name,
         album_id: stickerData.album_id,
-        sticker_id: stickerData.sticker_id,
+        sticker_id: stickerId,
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
       messageDao.insertMessage(message)
-      const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
+      const sticker = stickerDao.getStickerByUnique(stickerId)
       if (!sticker) {
-        await this.refreshSticker(stickerData.sticker_id)
+        const response = await stickerApi.getStickerById(stickerId)
+        if (response.data.data) {
+          const resData = response.data.data
+          stickerDao.insertUpdate(resData)
+          const filePath = await downloadSticker(resData.asset_url, stickerId)
+          if (filePath) {
+            messageDao.updateStickerUrl('file://' + filePath, stickerId)
+          }
+        }
       }
       insertMessageQueuePush(message, async() => {
         const body = i18n.t('notification.sendSticker')

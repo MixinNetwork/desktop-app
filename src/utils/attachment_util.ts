@@ -50,6 +50,14 @@ export async function updateCancelMap(id: string) {
   cancelMap[id] = true
 }
 
+export async function downloadSticker(url: string, stickerId: string) {
+  const data: any = await getAttachment(url, stickerId)
+  const dir = getStickerPath()
+  const filePath = path.join(dir, stickerId)
+  fs.writeFileSync(filePath, Buffer.from(data))
+  return filePath
+}
+
 export async function downloadAttachment(message: any) {
   try {
     const response = await attachmentApi.getAttachment(message.content)
@@ -413,6 +421,14 @@ function getAttachment(url: string, id: string) {
 
 function getImagePath() {
   const dir = path.join(getMediaPath(), 'Image')
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir)
+  }
+  return dir
+}
+
+function getStickerPath() {
+  const dir = path.join(getMediaPath(), 'Sticker')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }

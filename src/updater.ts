@@ -7,8 +7,10 @@ autoUpdater.autoDownload = false
 
 let silentUpdate: boolean = false
 
-autoUpdater.on('error', (error: { stack: any } | null) => {
-  dialog.showErrorBox('Error: ', error == null ? 'unknown' : (error.stack || error).toString())
+autoUpdater.on('error', (error: any) => {
+  const err: any = 'Error: ' + error == null ? 'unknown' : (error.stack || error).toString()
+  console.log(err)
+  log.debug(err)
 })
 
 autoUpdater.on('update-available', () => {

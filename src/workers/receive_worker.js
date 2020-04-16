@@ -24,7 +24,7 @@ import snapshotApi from '@/api/snapshot'
 import messageMentionDao from '@/dao/message_mention_dao'
 
 import interval from 'interval-promise'
-import { downloadAttachment, downloadQueue } from '@/utils/attachment_util'
+import { downloadAttachment, downloadSticker, downloadQueue } from '@/utils/attachment_util'
 import {
   MessageCategories,
   MessageStatus,
@@ -154,7 +154,7 @@ class ReceiveWorker extends BaseWorker {
     }
     const data = JSON.parse(floodMessage.data)
     const conversation = conversationDao.getSimpleConversationItem(data.conversation_id)
-    if (!conversation || data.category !== MessageCategories.SYSTEM_CONVERSATION) {
+    if (!conversation && data.category !== MessageCategories.SYSTEM_CONVERSATION) {
       await this.syncConversation(data)
     }
     if (data.category.startsWith('SIGNAL_')) {
@@ -768,6 +768,7 @@ class ReceiveWorker extends BaseWorker {
     } else if (data.category.endsWith('_STICKER')) {
       const decoded = window.atob(plaintext)
       const stickerData = JSON.parse(decoded)
+      const stickerId = stickerData.sticker_id
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
@@ -777,14 +778,14 @@ class ReceiveWorker extends BaseWorker {
         created_at: data.created_at,
         name: stickerData.name,
         album_id: stickerData.album_id,
-        sticker_id: stickerData.sticker_id,
+        sticker_id: stickerId,
         quote_message_id: data.quote_message_id,
         quote_content: quoteContent
       }
       messageDao.insertMessage(message)
-      const sticker = stickerDao.getStickerByUnique(stickerData.sticker_id)
-      if (!sticker) {
-        await this.refreshSticker(stickerData.sticker_id)
+      const sticker = stickerDao.getStickerByUnique(stickerId)
+      if (!sticker || !sticker.asset_url.startsWith('file://')) {
+        await downloadSticker(stickerId)
       }
       insertMessageQueuePush(message, async() => {
         const body = i18n.t('notification.sendSticker')

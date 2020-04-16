@@ -54,6 +54,7 @@ function getVideoPath(identityNumber, conversationId) {
   const dir = path.join(getMediaPath(), 'Video')
   return _getMediaPath(dir, 'Videos', identityNumber, conversationId)
 }
+
 function getAudioPath(identityNumber, conversationId) {
   const dir = path.join(getMediaPath(), 'Audio')
   return _getMediaPath(dir, 'Audios', identityNumber, conversationId)
@@ -64,10 +65,16 @@ function getDocumentPath(identityNumber, conversationId) {
   return _getMediaPath(dir, 'Files', identityNumber, conversationId)
 }
 
+function getStickerPath(identityNumber, conversationId) {
+  const dir = path.join(getMediaPath(), 'Sticker')
+  return _getMediaPath(dir, 'Stickers', identityNumber, conversationId)
+}
+
 module.exports = {
   getImagePath,
   getVideoPath,
   getAudioPath,
   getDocumentPath,
+  getStickerPath,
   setUserDataPath
 }

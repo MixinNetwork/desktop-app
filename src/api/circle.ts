@@ -18,5 +18,8 @@ export default {
   },
   updateCircleConversations(id: string, body: any) {
     return api.post(`/circles/${id}/conversations`, body)
+  },
+  getCircleConversations(id: string, offset?: string) {
+    return api.get(`/circles/${id}/conversations?limit=500&offset=${offset}`)
   }
 }

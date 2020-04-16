@@ -3,8 +3,6 @@ import participantDao from '@/dao/participant_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 import userDao from '@/dao/user_dao'
 import appDao from '@/dao/app_dao'
-import stickerDao from '@/dao/sticker_dao'
-import stickerApi from '@/api/sticker'
 import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import circleConversationDao from '@/dao/circle_conversation_dao'
@@ -19,7 +17,7 @@ import Vue from 'vue'
 
 export default class BaseWorker {
   async syncConversation(data) {
-    if (data.conversation_id === SystemUser || data.conversation_id === this.getAccountId()) {
+    if (data.conversation_id === SystemUser || data.conversation_id === this.getAccountId() || !data.conversation_id) {
       return
     }
     let conversation = conversationDao.getConversationById(data.conversation_id)
@@ -89,7 +87,6 @@ export default class BaseWorker {
     return circleApi.getCircleById(circleId).then(res => {
       if (res.data && res.data.data) {
         const temp = res.data.data
-        temp.ordered_at = temp.ordered_at || ''
         circleDao.insertUpdate(temp)
       }
     })
@@ -97,16 +94,15 @@ export default class BaseWorker {
 
   async refreshCircle(conversation) {
     if (!conversation.circles) return
+    const list = []
     conversation.circles.forEach(circle => {
       const ret = circleDao.findCircleById(circle.circle_id)
       if (!ret) {
-        this.refreshCircleById(circle.circle_id).then(() => {
-          circle.user_id = circle.user_id || ''
-          circle.pin_time = circle.pin_time || ''
-          circleConversationDao.insertUpdate([circle])
-        })
+        this.refreshCircleById(circle.circle_id)
       }
+      list.push(circle)
     })
+    circleConversationDao.insertUpdate(list)
   }
 
   async refreshParticipants(conversationId, participants) {
@@ -231,13 +227,6 @@ export default class BaseWorker {
         }
       })
       participantSessionDao.insertList(add)
-    }
-  }
-
-  async refreshSticker(stickerId) {
-    const response = await stickerApi.getStickerById(stickerId)
-    if (response.data.data) {
-      stickerDao.insertUpdate(response.data.data)
     }
   }
 

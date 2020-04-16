@@ -122,6 +122,7 @@ export default class AudioItem extends Vue {
     } else {
       if (mixinAudio.paused) {
         this.audioStatus = 'pause'
+        mixinAudio.volume = 1
         mixinAudio.play()
       }
     }
@@ -163,6 +164,7 @@ export default class AudioItem extends Vue {
     if (mixinAudio.paused) {
       this.audioStatus = 'pause'
       this.$store.dispatch('setCurrentAudio', this.message)
+      mixinAudio.volume = 1
       mixinAudio.play()
     } else {
       this.audioStatus = 'play'

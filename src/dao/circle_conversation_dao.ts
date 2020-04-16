@@ -7,6 +7,8 @@ class CircleConversationDao {
     )
     const insertMany = db.transaction((list: any) => {
       for (const item of list) {
+        item.user_id = item.user_id || ''
+        item.pin_time = item.pin_time || ''
         stmt.run(item)
       }
     })

@@ -12,13 +12,15 @@ import cryptoAttachment from '@/crypto/crypto_attachment'
 import { base64ToUint8Array } from '@/utils/util'
 import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
+import stickerApi from '@/api/sticker'
+import stickerDao from '@/dao/sticker_dao'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
 import { getIdentityNumber } from '@/persistence/db_util'
 import mediaPath from '@/utils/media_path'
 
 const Database = require('better-sqlite3')
-const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, setUserDataPath } = mediaPath
+const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, getStickerPath, setUserDataPath } = mediaPath
 const userDataPath = remote.app.getPath('userData')
 setUserDataPath(userDataPath)
 
@@ -85,8 +87,41 @@ function getMediaNewDir(category: string, identityNumber: string, conversationId
     dir = getDocumentPath(identityNumber, conversationId)
   } else if (category.endsWith('_AUDIO')) {
     dir = getAudioPath(identityNumber, conversationId)
+  } else if (category.endsWith('_STICKER')) {
+    dir = getStickerPath(identityNumber, conversationId)
   }
   return dir
+}
+
+export async function downloadSticker(stickerId: string) {
+  const response = await stickerApi.getStickerById(stickerId)
+  if (response.data.data) {
+    const resData = response.data.data
+    stickerDao.insertUpdate(resData)
+    const data: any = await getAttachment(resData.asset_url, stickerId)
+    const dir = getStickerPath()
+    const filePath = path.join(dir, stickerId)
+    fs.writeFileSync(filePath, Buffer.from(data))
+    if (filePath) {
+      stickerDao.updateStickerUrl('file://' + filePath, stickerId)
+    }
+    return filePath
+  }
+}
+
+export async function updateStickerAlbums(albums: any) {
+  albums.forEach((item: any) => {
+    const url = item.icon_url
+    if (!url.startsWith('file://')) {
+      getAttachment(url, item.album_id).then((data: any) => {
+        const dir = getStickerPath()
+        const filePath = path.join(dir, item.album_id)
+        fs.writeFileSync(filePath, Buffer.from(data))
+        stickerDao.updateAlbumUrl('file://' + filePath, item.album_id)
+        item.icon_url = 'file://' + filePath
+      })
+    }
+  })
 }
 
 export async function downloadAttachment(message: any) {

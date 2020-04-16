@@ -49,6 +49,12 @@ class StickerDao {
     ).run(s)
     db.prepare(`INSERT OR REPLACE INTO sticker_relationships VALUES (@album_id, @sticker_id)`).run(s)
   }
+  updateStickerUrl(path: any, id: any) {
+    return db.prepare(`UPDATE stickers SET asset_url = ? WHERE sticker_id = ?`).run([path, id])
+  }
+  updateAlbumUrl(path: any, id: any) {
+    return db.prepare(`UPDATE sticker_albums SET icon_url = ? WHERE album_id = ?`).run([path, id])
+  }
 }
 
 export default new StickerDao()

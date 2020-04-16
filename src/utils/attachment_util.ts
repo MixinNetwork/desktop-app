@@ -61,7 +61,7 @@ export async function updateCancelMap(id: string) {
 }
 
 export function mediaMigration(identityNumber: string) {
-  const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db`)
+  const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db3`)
   if (!fs.existsSync(dbPath)) {
     return -1
   }
@@ -88,7 +88,7 @@ function getMediaNewDir(category: string, identityNumber: string, conversationId
   } else if (category.endsWith('_AUDIO')) {
     dir = getAudioPath(identityNumber, conversationId)
   } else if (category.endsWith('_STICKER')) {
-    dir = getStickerPath(identityNumber, conversationId)
+    dir = getStickerPath(identityNumber)
   }
   return dir
 }
@@ -99,7 +99,8 @@ export async function downloadSticker(stickerId: string) {
     const resData = response.data.data
     stickerDao.insertUpdate(resData)
     const data: any = await getAttachment(resData.asset_url, stickerId)
-    const dir = getStickerPath()
+    const identityNumber = getIdentityNumber()
+    const dir = getStickerPath(identityNumber)
     const filePath = path.join(dir, stickerId)
     fs.writeFileSync(filePath, Buffer.from(data))
     if (filePath) {
@@ -114,7 +115,8 @@ export async function updateStickerAlbums(albums: any) {
     const url = item.icon_url
     if (!url.startsWith('file://')) {
       getAttachment(url, item.album_id).then((data: any) => {
-        const dir = getStickerPath()
+        const identityNumber = getIdentityNumber()
+        const dir = getStickerPath(identityNumber)
         const filePath = path.join(dir, item.album_id)
         fs.writeFileSync(filePath, Buffer.from(data))
         stickerDao.updateAlbumUrl('file://' + filePath, item.album_id)

@@ -30,6 +30,9 @@ parentPort.once('message', payload => {
         } else if (category.endsWith('_AUDIO')) {
           dir = getAudioPath()
           newDir = getAudioPath(identityNumber, conversationId)
+        } else if (category.endsWith('_STICKER')) {
+          dir = getStickerPath()
+          newDir = getStickerPath(identityNumber)
         }
         const src = mediaUrl.split('file://')[1]
         if (src) {
@@ -37,9 +40,12 @@ parentPort.once('message', payload => {
           if (dist !== src && fs.existsSync(src)) {
             fs.writeFileSync(dist, fs.readFileSync(src))
             mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run([`file://${dist}`, messageId])
+            fs.unlinkSync(src)
           }
         }
       })
+      const oldMediaDir = path.join(userDataPath, 'media')
+      fs.rmdirSync(oldMediaDir)
       mixinDb.close()
 
       return

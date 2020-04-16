@@ -11,12 +11,12 @@ function _getMediaPath(dir, type, identityNumber, conversationId) {
   if (identityNumber) {
     dir = path.join(getMediaPath(identityNumber), type)
   }
-  if (!fs.existsSync(dir)) {
+  if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
   if (identityNumber && conversationId) {
     dir = path.join(dir, `${conversationId}`)
-    if (!fs.existsSync(dir)) {
+    if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
       fs.mkdirSync(dir)
     }
   }
@@ -28,7 +28,7 @@ function getMediaPath(identityNumber) {
   if (identityNumber) {
     dir = path.join(getAppPath(identityNumber), 'Media')
   }
-  if (!fs.existsSync(dir)) {
+  if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
   return dir
@@ -39,7 +39,7 @@ function getAppPath(identityNumber) {
   if (identityNumber) {
     dir = path.join(dir, identityNumber)
   }
-  if (!fs.existsSync(dir)) {
+  if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
     fs.mkdirSync(dir)
   }
   return dir
@@ -65,9 +65,9 @@ function getDocumentPath(identityNumber, conversationId) {
   return _getMediaPath(dir, 'Files', identityNumber, conversationId)
 }
 
-function getStickerPath(identityNumber, conversationId) {
+function getStickerPath(identityNumber) {
   const dir = path.join(getMediaPath(), 'Sticker')
-  return _getMediaPath(dir, 'Stickers', identityNumber, conversationId)
+  return _getMediaPath(dir, 'Stickers', identityNumber)
 }
 
 module.exports = {

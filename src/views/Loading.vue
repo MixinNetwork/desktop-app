@@ -76,15 +76,19 @@ export default class Loading extends Vue {
     const identityNumber = getIdentityNumber(true)
     if (identityNumber) {
       const newDir = path.join(remote.app.getPath('userData'), identityNumber)
+      const oldMediaDir = path.join(remote.app.getPath('userData'), 'media')
+      if (fs.existsSync(newDir) && !fs.existsSync(oldMediaDir)) {
+        localStorage.newUserDirExist = true
+        return
+      }
       if (!fs.existsSync(newDir)) {
         fs.mkdirSync(newDir)
       }
 
-      console.log('migrationAction')
       await dbMigration(identityNumber)
       mediaMigration(identityNumber)
 
-      // TODO: remove old db and media manually
+      localStorage.newUserDirExist = true
     }
   }
 

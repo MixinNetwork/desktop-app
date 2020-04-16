@@ -4,7 +4,6 @@ import fs from 'fs'
 import { clearAllTables as clearSignal } from './signal_db'
 import { clearKeyTable } from './db'
 import store from '@/store/store'
-const userDataPath = remote.app.getPath('userData')
 
 export function getIdentityNumber(direct) {
   let identityNumber = ''
@@ -15,11 +14,8 @@ export function getIdentityNumber(direct) {
   if (direct) {
     return identityNumber
   }
-  if (identityNumber) {
-    const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db`)
-    if (!fs.existsSync(dbPath)) {
-      identityNumber = ''
-    }
+  if (identityNumber && !localStorage.newUserDirExist) {
+    return ''
   }
   return identityNumber
 }

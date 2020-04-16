@@ -7,16 +7,20 @@ function setUserDataPath(dir) {
   userDataPath = dir
 }
 
+const fsExistMap = {}
+
 function _getMediaPath(dir, type, identityNumber, conversationId) {
   if (identityNumber) {
     dir = path.join(getMediaPath(identityNumber), type)
   }
-  if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
+  if (!fsExistMap[dir] && !fs.existsSync(dir)) {
+    fsExistMap[dir] = true
     fs.mkdirSync(dir)
   }
   if (identityNumber && conversationId) {
     dir = path.join(dir, `${conversationId}`)
-    if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
+    if (!fsExistMap[dir] && !fs.existsSync(dir)) {
+      fsExistMap[dir] = true
       fs.mkdirSync(dir)
     }
   }
@@ -28,7 +32,8 @@ function getMediaPath(identityNumber) {
   if (identityNumber) {
     dir = path.join(getAppPath(identityNumber), 'Media')
   }
-  if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
+  if (!fsExistMap[dir] && !fs.existsSync(dir)) {
+    fsExistMap[dir] = true
     fs.mkdirSync(dir)
   }
   return dir
@@ -39,7 +44,8 @@ function getAppPath(identityNumber) {
   if (identityNumber) {
     dir = path.join(dir, identityNumber)
   }
-  if (localStorage.newUserDirExist && !fs.existsSync(dir)) {
+  if (!fsExistMap[dir] && !fs.existsSync(dir)) {
+    fsExistMap[dir] = true
     fs.mkdirSync(dir)
   }
   return dir

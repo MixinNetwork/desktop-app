@@ -1,5 +1,12 @@
 const { parentPort } = require('worker_threads')
-const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, setUserDataPath } = require('../src/utils/media_path')
+const {
+  getImagePath,
+  getVideoPath,
+  getAudioPath,
+  getDocumentPath,
+  getStickerPath,
+  setUserDataPath
+} = require('../src/utils/media_path')
 const Database = require('better-sqlite3')
 
 const fs = require('fs')
@@ -17,7 +24,7 @@ parentPort.once('message', payload => {
       mediaMessages.forEach(message => {
         let dir = ''
         let newDir = ''
-        const { category, conversationId, messageId, mediaUrl } = message
+        const { category, conversationId, messageId, mediaUrl, assetUrl } = message
         if (category.endsWith('_IMAGE')) {
           dir = getImagePath()
           newDir = getImagePath(identityNumber, conversationId)
@@ -34,7 +41,13 @@ parentPort.once('message', payload => {
           dir = getStickerPath()
           newDir = getStickerPath(identityNumber)
         }
-        const src = mediaUrl.split('file://')[1]
+        let src = ''
+        if (mediaUrl) {
+          src = mediaUrl.split('file://')[1]
+        }
+        if (!src && assetUrl) {
+          src = assetUrl.split('file://')[1]
+        }
         if (src) {
           const dist = path.join(newDir, messageId)
           if (dist !== src && fs.existsSync(src)) {
@@ -45,7 +58,9 @@ parentPort.once('message', payload => {
         }
       })
       const oldMediaDir = path.join(userDataPath, 'media')
-      fs.rmdirSync(oldMediaDir)
+      try {
+        fs.rmdirSync(oldMediaDir)
+      } catch (error) {}
       mixinDb.close()
 
       return

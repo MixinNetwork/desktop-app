@@ -17,8 +17,7 @@ module.exports = {
   chainWebpack: config => {
     config.module
       .rule('svg')
-      .exclude
-      .add(resolve('src/assets/images'))
+      .exclude.add(resolve('src/assets/images'))
       .end()
     config.module
       .rule('svg1')
@@ -29,8 +28,7 @@ module.exports = {
         symbolId: 'icon-[name]'
       })
       .end()
-      .include
-      .add(resolve('src/assets/images'))
+      .include.add(resolve('src/assets/images'))
       .end()
   },
   pluginOptions: {
@@ -42,6 +40,12 @@ module.exports = {
         productName: 'Mixin',
         appId: 'one.mixin.messenger',
         copyright: 'Copyright © 2020 Mixin Team',
+        publish: [
+          {
+            provider: 'generic',
+            url: ''
+          }
+        ],
         mac: {
           category: 'public.app-category.social-networking',
           target: [

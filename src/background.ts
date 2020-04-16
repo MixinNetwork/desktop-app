@@ -176,7 +176,7 @@ function createWindow() {
       const worker = new Worker(path.join(__static, 'worker.js'))
       worker.postMessage(payload)
       worker.once('message', (ret: any) => {
-        // console.log(ret)
+        console.log('workerTask ret:', ret)
       })
     }
   })

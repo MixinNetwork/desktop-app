@@ -69,9 +69,7 @@ export function mediaMigration(identityNumber: string) {
   const mixinDb = new Database(dbPath, { readonly: false })
   const mediaMessages: any = mixinDb
     .prepare(
-      `SELECT m.category as category, m.conversation_id as conversationId, m.message_id as messageId, m.media_url as mediaUrl, st.asset_url AS assetUrl 
-      FROM messages m LEFT JOIN stickers st ON st.sticker_id = m.sticker_id 
-      WHERE m.media_url IS NOT NULL OR m.sticker_id IS NOT NULL`
+      'SELECT category, conversation_id as conversationId, message_id as messageId, media_url as mediaUrl FROM messages WHERE media_url IS NOT NULL'
     )
     .all()
   mixinDb.close()

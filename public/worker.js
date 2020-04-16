@@ -4,13 +4,28 @@ const {
   getVideoPath,
   getAudioPath,
   getDocumentPath,
-  getStickerPath,
   setUserDataPath
 } = require('../src/utils/media_path')
 const Database = require('better-sqlite3')
 
 const fs = require('fs')
 const path = require('path')
+
+function delDir(path) {
+  let files = []
+  if (fs.existsSync(path)) {
+    files = fs.readdirSync(path)
+    files.forEach(file => {
+      let curPath = path + '/' + file
+      if (fs.statSync(curPath).isDirectory()) {
+        delDir(curPath)
+      } else {
+        fs.unlinkSync(curPath)
+      }
+    })
+    fs.rmdirSync(path)
+  }
+}
 
 parentPort.once('message', payload => {
   if (payload) {
@@ -22,32 +37,18 @@ parentPort.once('message', payload => {
       const mixinDb = new Database(dbPath, { readonly: false })
       setUserDataPath(userDataPath)
       mediaMessages.forEach(message => {
-        let dir = ''
         let newDir = ''
-        const { category, conversationId, messageId, mediaUrl, assetUrl } = message
+        const { category, conversationId, messageId, mediaUrl } = message
         if (category.endsWith('_IMAGE')) {
-          dir = getImagePath()
           newDir = getImagePath(identityNumber, conversationId)
         } else if (category.endsWith('_VIDEO')) {
-          dir = getVideoPath()
           newDir = getVideoPath(identityNumber, conversationId)
         } else if (category.endsWith('_DATA')) {
-          dir = getDocumentPath()
           newDir = getDocumentPath(identityNumber, conversationId)
         } else if (category.endsWith('_AUDIO')) {
-          dir = getAudioPath()
           newDir = getAudioPath(identityNumber, conversationId)
-        } else if (category.endsWith('_STICKER')) {
-          dir = getStickerPath()
-          newDir = getStickerPath(identityNumber)
         }
-        let src = ''
-        if (mediaUrl) {
-          src = mediaUrl.split('file://')[1]
-        }
-        if (!src && assetUrl) {
-          src = assetUrl.split('file://')[1]
-        }
+        const src = mediaUrl.split('file://')[1]
         if (src) {
           const dist = path.join(newDir, messageId)
           if (dist !== src && fs.existsSync(src)) {
@@ -58,9 +59,10 @@ parentPort.once('message', payload => {
         }
       })
       const oldMediaDir = path.join(userDataPath, 'media')
-      try {
-        fs.rmdirSync(oldMediaDir)
-      } catch (error) {}
+      mixinDb.prepare('DELETE FROM stickers').run()
+      mixinDb.prepare('DELETE FROM sticker_relationships').run()
+      mixinDb.prepare('DELETE FROM sticker_albums').run()
+      delDir(oldMediaDir)
       mixinDb.close()
 
       return

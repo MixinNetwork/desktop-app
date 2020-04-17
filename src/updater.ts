@@ -5,6 +5,11 @@ const log = require('electron-log')
 let updater: any, focusedWindow: any
 autoUpdater.autoDownload = false
 
+autoUpdater.setFeedURL({
+  provider: 'generic',
+  url: ''
+})
+
 let silentUpdate: boolean = false
 
 autoUpdater.on('error', (error: any) => {
@@ -102,6 +107,10 @@ export function checkForUpdates(menuItem: any, focusedWindow: any, event: any) {
   }
   silentUpdate = false
   autoUpdater.logger = log
+  autoUpdater.checkForUpdates()
+}
+
+export function checkForUpdatesOrign() {
   autoUpdater.checkForUpdates()
 }
 

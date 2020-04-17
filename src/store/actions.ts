@@ -9,7 +9,8 @@ import conversationApi from '@/api/conversation'
 import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import userApi from '@/api/user'
-import { generateConversationId } from '@/utils/util'
+import { delMedia, generateConversationId } from '@/utils/util'
+
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
@@ -318,6 +319,8 @@ export default {
   },
   conversationClear: ({ commit }: any, conversationId: any) => {
     messageDao.ftsMessagesDelete(conversationId)
+    const messages = messageDao.findConversationMediaMessages(conversationId)
+    delMedia(messages)
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)
   },

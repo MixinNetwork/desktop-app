@@ -43,6 +43,15 @@ export function dirSize(path) {
   return size
 }
 
+export function delMedia(messages) {
+  messages.forEach(message => {
+    const path = message.media_url.split('file://')[1]
+    if (path && fs.existsSync(path)) {
+      fs.unlinkSync(path)
+    }
+  })
+}
+
 export function generateConversationId(userId, recipientId) {
   userId = userId.toString()
   recipientId = recipientId.toString()

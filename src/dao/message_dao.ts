@@ -361,6 +361,10 @@ class MessageDao {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
 
+  getMessagesByIds(messageIds: any) {
+    return db.prepare(`SELECT * FROM messages WHERE message_id IN (${messageIds.map(() => '?').join(',')})`).all(messageIds)
+  }
+
   recallMessage(messageId: any) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,
@@ -382,6 +386,10 @@ class MessageDao {
   findMessageStatusById(messageId: any) {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status
+  }
+
+  findConversationMediaMessages(conversationId: any) {
+    return db.prepare('SELECT * FROM messages WHERE conversation_id = ? AND media_url IS NOT NULL').all(conversationId)
   }
 
   findSimpleMessageById(messageId: any) {

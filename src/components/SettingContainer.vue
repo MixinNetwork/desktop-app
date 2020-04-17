@@ -120,6 +120,7 @@ export default class SettingContainer extends Vue {
       small {
         font-weight: normal;
         line-height: 1;
+        color: $light-font-color;
       }
     }
   }

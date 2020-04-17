@@ -1,6 +1,7 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
 import { PerPageMessageCount, MessageStatus } from '@/utils/constants'
+import { delMedia } from '@/utils/util'
 import store from '@/store/store'
 
 class MessageBox {
@@ -149,6 +150,8 @@ class MessageBox {
     }
   }
   deleteMessages(messageIds: any[]) {
+    const messages = messageDao.getMessagesByIds(messageIds)
+    delMedia(messages)
     messageDao.deleteMessagesById(messageIds)
     for (let i = this.messages.length - 1; i >= 0; i--) {
       if (messageIds[0] === this.messages[i].messageId) {

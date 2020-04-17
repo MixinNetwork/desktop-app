@@ -647,6 +647,8 @@ export default {
     })
   },
   recallMessage: ({ commit }: any, { messageId, conversationId }: any) => {
+    const message = messageDao.getMessageById(messageId)
+    delMedia([message])
     messageDao.recallMessageAndSend(messageId)
     jobDao.insert({
       job_id: uuidv4(),

@@ -45,6 +45,7 @@ export function dirSize(path) {
 
 export function delMedia(messages) {
   messages.forEach(message => {
+    if (!message.media_url) return
     const path = message.media_url.split('file://')[1]
     if (path && fs.existsSync(path)) {
       fs.unlinkSync(path)

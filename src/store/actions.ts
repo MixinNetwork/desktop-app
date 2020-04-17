@@ -318,9 +318,9 @@ export default {
     commit('refreshConversations')
   },
   conversationClear: ({ commit }: any, conversationId: any) => {
-    messageDao.ftsMessagesDelete(conversationId)
     const messages = messageDao.findConversationMediaMessages(conversationId)
     delMedia(messages)
+    messageDao.ftsMessagesDelete(conversationId)
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)
   },

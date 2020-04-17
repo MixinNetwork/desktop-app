@@ -13,7 +13,7 @@
       <span class="item" @click="backupRestore">{{$t('backup_restore')}}</span>
       <span class="item" @click="manageStorage">
         {{$t('storage_usage')}}
-        <small v-if="storageUsage">{{storageUsage}} MB</small>
+        <small v-if="storageUsage">{{storageUsage.toFixed(2)}} MB</small>
       </span>
       <span
         class="item"
@@ -28,7 +28,12 @@
 import { Vue, Component } from 'vue-property-decorator'
 
 import browser from '@/utils/browser'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
+
+import { getIdentityNumber, dirSize } from '@/utils/util'
+
+import fs from 'fs'
+import path from 'path'
 
 @Component
 export default class SettingContainer extends Vue {
@@ -37,6 +42,12 @@ export default class SettingContainer extends Vue {
   $electron: any
 
   storageUsage: number = 0
+
+  created() {
+    const identityNumber = getIdentityNumber(true)
+    const newDir = path.join(remote.app.getPath('userData'), identityNumber)
+    this.storageUsage = dirSize(newDir)
+  }
 
   get version() {
     let version = this.$t('version')

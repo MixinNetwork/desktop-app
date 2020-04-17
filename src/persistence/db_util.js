@@ -5,25 +5,14 @@ import { clearAllTables as clearSignal } from './signal_db'
 import { clearKeyTable } from './db'
 import store from '@/store/store'
 
-export function getIdentityNumber(direct) {
+export function getDbPath() {
+  const isDevelopment = process.env.NODE_ENV !== 'production'
+  let dir = remote.app.getPath('userData')
   let identityNumber = ''
   if (localStorage.account) {
     const user = JSON.parse(localStorage.account)
     identityNumber = user.identity_number
   }
-  if (direct) {
-    return identityNumber
-  }
-  if (identityNumber && !localStorage.newUserDirExist) {
-    return ''
-  }
-  return identityNumber
-}
-
-export function getDbPath() {
-  const isDevelopment = process.env.NODE_ENV !== 'production'
-  let dir = remote.app.getPath('userData')
-  const identityNumber = getIdentityNumber(true)
   if (!isDevelopment && identityNumber) {
     const newDir = path.join(dir, identityNumber)
     const dbPath = path.join(newDir, `mixin.db3`)

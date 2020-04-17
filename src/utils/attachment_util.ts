@@ -9,14 +9,13 @@ import fs from 'fs'
 import path from 'path'
 import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
-import { base64ToUint8Array } from '@/utils/util'
+import { base64ToUint8Array, getIdentityNumber } from '@/utils/util'
 import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
 import stickerApi from '@/api/sticker'
 import stickerDao from '@/dao/sticker_dao'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
-import { getIdentityNumber } from '@/persistence/db_util'
 import mediaPath from '@/utils/media_path'
 
 const Database = require('better-sqlite3')

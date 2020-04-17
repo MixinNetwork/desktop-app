@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import fs from 'fs'
 import Bot from 'bot-api-js-client'
 import store from '@/store/store'
 import {
@@ -9,6 +10,39 @@ import {
 import signalProtocol from '@/crypto/signal'
 import md5 from 'md5'
 import { ipcRenderer } from 'electron'
+
+export function getIdentityNumber(direct) {
+  let identityNumber = ''
+  if (localStorage.account) {
+    const user = JSON.parse(localStorage.account)
+    identityNumber = user.identity_number
+  }
+  if (direct) {
+    return identityNumber
+  }
+  if (identityNumber && !localStorage.newUserDirExist) {
+    return ''
+  }
+  return identityNumber
+}
+
+export function dirSize(path) {
+  let files = []
+  let size = 0
+  if (fs.existsSync(path)) {
+    files = fs.readdirSync(path)
+    files.forEach(file => {
+      let curPath = path + '/' + file
+      const fileItem = fs.statSync(curPath)
+      if (fileItem.isDirectory()) {
+        size += dirSize(curPath)
+      } else {
+        size += fileItem.size / 1024 / 1024
+      }
+    })
+  }
+  return size
+}
 
 export function generateConversationId(userId, recipientId) {
   userId = userId.toString()

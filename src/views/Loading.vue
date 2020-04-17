@@ -13,7 +13,8 @@ import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
-import { clearDb, dbMigration, getIdentityNumber } from '@/persistence/db_util'
+import { clearDb, dbMigration } from '@/persistence/db_util'
+import { getIdentityNumber } from '@/utils/util'
 
 import { Vue, Component } from 'vue-property-decorator'
 

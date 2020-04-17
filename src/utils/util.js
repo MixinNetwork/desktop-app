@@ -27,10 +27,9 @@ export function getIdentityNumber(direct) {
 }
 
 export function dirSize(path) {
-  let files = []
   let size = 0
   if (fs.existsSync(path)) {
-    files = fs.readdirSync(path)
+    const files = fs.readdirSync(path)
     files.forEach(file => {
       let curPath = path + '/' + file
       const fileItem = fs.statSync(curPath)

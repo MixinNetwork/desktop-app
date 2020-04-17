@@ -12,9 +12,8 @@ const fs = require('fs')
 const path = require('path')
 
 function delDir(path) {
-  let files = []
   if (fs.existsSync(path)) {
-    files = fs.readdirSync(path)
+    const files = fs.readdirSync(path)
     files.forEach(file => {
       let curPath = path + '/' + file
       if (fs.statSync(curPath).isDirectory()) {

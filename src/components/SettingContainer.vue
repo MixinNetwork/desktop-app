@@ -9,12 +9,12 @@
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
-      <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
-      <span class="item" @click="backupRestore">{{$t('backup_restore')}}</span>
-      <span class="item" @click="manageStorage">
+      <!-- <span class="item" @click="backupRestore">{{$t('backup_restore')}}</span> -->
+      <span class="item storage" @click="manageStorage">
         {{$t('storage_usage')}}
         <small v-if="storageUsage">{{storageUsage.toFixed(2)}} MB</small>
       </span>
+      <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
       <span
         class="item"
         @click="open('https://mixinmessenger.zendesk.com/hc/en-us')"
@@ -121,6 +121,12 @@ export default class SettingContainer extends Vue {
         font-weight: normal;
         line-height: 1;
         color: $light-font-color;
+      }
+      &.storage {
+        cursor: default;
+        &:hover {
+          background: initial;
+        }
       }
     }
   }

@@ -60,7 +60,12 @@ export async function updateCancelMap(id: string) {
 }
 
 export function mediaMigration(identityNumber: string) {
-  const dbPath = path.join(userDataPath, `${identityNumber}/mixin.db3`)
+  const isDevelopment = process.env.NODE_ENV !== 'production'
+  let dbPath = path.join(userDataPath, `${identityNumber}/mixin.db3`)
+  if (isDevelopment) {
+    // @ts-ignore
+    dbPath = path.join(path.join(__static, '../'), `/mixin.db3`)
+  }
   if (!fs.existsSync(dbPath)) {
     return -1
   }

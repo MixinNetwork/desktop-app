@@ -24,6 +24,8 @@ export function getDbPath() {
 }
 
 export async function dbMigration(identityNumber) {
+  const isDevelopment = process.env.NODE_ENV !== 'production'
+  if (isDevelopment) return
   const src = path.join(getDbPath(), 'mixin.db3')
   const dist = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db3`)
   fs.writeFileSync(dist, fs.readFileSync(src))

@@ -3,8 +3,7 @@
 import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
-import { autoUpdater } from 'electron-updater'
-import { setFocusWindow, setSilentUpdate } from './updater'
+import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater'
 import { initPlayer } from './player'
 import path from 'path'
 
@@ -16,13 +15,13 @@ ipcMain.on('updateBadgeCount', (event, count) => {
 
 ipcMain.on('checkUp', (event, _) => {
   setSilentUpdate(false)
-  autoUpdater.checkForUpdates()
+  checkForUpdatesOrign()
 })
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 function ScheduledTask() {
   setTimeout(() => {
-    autoUpdater.checkForUpdates()
+    checkForUpdatesOrign()
     ScheduledTask()
   }, 86400000)
 }
@@ -30,7 +29,7 @@ if (!isDevelopment) {
   ScheduledTask()
   setTimeout(() => {
     setSilentUpdate(true)
-    autoUpdater.checkForUpdates()
+    checkForUpdatesOrign()
   }, 600000)
 }
 

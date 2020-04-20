@@ -154,7 +154,7 @@ class ReceiveWorker extends BaseWorker {
     }
     const data = JSON.parse(floodMessage.data)
     const conversation = conversationDao.getSimpleConversationItem(data.conversation_id)
-    if (!conversation && data.category !== MessageCategories.SYSTEM_CONVERSATION) {
+    if (data.conversation_id && (!conversation || data.category !== MessageCategories.SYSTEM_CONVERSATION)) {
       await this.syncConversation(data)
     }
     if (data.category.startsWith('SIGNAL_')) {

@@ -232,6 +232,7 @@ export default class ChatContainer extends Vue {
     this.hideTimeDivide = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    this.startup = true
     if (!this.conversation) return
     const { groupName, name, conversationId } = this.conversation
     if (newVal) {

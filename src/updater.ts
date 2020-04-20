@@ -5,10 +5,11 @@ const log = require('electron-log')
 let updater: any, focusedWindow: any
 autoUpdater.autoDownload = false
 
-autoUpdater.setFeedURL({
-  provider: 'generic',
-  url: ''
-})
+// TODO
+// autoUpdater.setFeedURL({
+//   provider: 'generic',
+//   url: ''
+// })
 
 let silentUpdate: boolean = false
 

@@ -9,7 +9,7 @@
       <div class="select" v-if="current">
         <div class="select-title">
           <span class="name">{{current.name}}</span>
-          <a class="clear" @click="clear()">clear</a>
+          <a class="clear" @click="clear()">{{$t('setting.clear')}}</a>
         </div>
         <div class="select-item" v-for="key in Object.keys(currentMedia)" :key="key">
           <div class="type" @click="onSelected(key)">
@@ -18,7 +18,7 @@
               :class="{unselected: unselected[key]}"
               class="choice-icon"
             />
-            {{key}}
+            {{$t(`chat.chat_${key}`)}}
           </div>
           <span class="size">{{currentMedia[key].toFixed(2)}} MB</span>
         </div>
@@ -48,8 +48,13 @@ import Search from '@/components/Search.vue'
 import Avatar from '@/components/Avatar.vue'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
+import messageDao from '@/dao/message_dao'
 
+import { delMedia, listFilePath, getIdentityNumber } from '@/utils/util'
+import mediaPath from '@/utils/media_path'
 import { Vue, Component, Prop } from 'vue-property-decorator'
+
+const { getImagePath, getVideoPath, getAudioPath, getDocumentPath } = mediaPath
 
 @Component({
   components: {
@@ -61,7 +66,8 @@ export default class StorageContainer extends Vue {
   @Prop(Object) readonly storages: any
 
   keyword: any = ''
-  $toast: any
+  // $toast: any
+  $Dialog: any
   conversations: any = []
   current: any = null
   unselected: any = {}
@@ -75,7 +81,6 @@ export default class StorageContainer extends Vue {
         this.conversations.push(conversation)
       }
     })
-    this.unselected = {}
   }
 
   back() {
@@ -93,10 +98,39 @@ export default class StorageContainer extends Vue {
   }
 
   clear() {
-    console.log(this.unselected)
-    // $alert
-    this.back()
-    // this.$toast
+    let size = 0
+
+    const messages: any = []
+    const messageIds: any = []
+    Object.keys(this.currentMedia).forEach(key => {
+      if (!this.unselected[key]) {
+        size += this.currentMedia[key]
+        const curPath = this.getMediaPath(key, this.current.conversationId)
+        const list = listFilePath(curPath)
+        list.forEach(path => {
+          messages.push({ path })
+          const mid = path.split(`${curPath}/`)[1]
+          if (mid) {
+            messageIds.push(mid)
+          }
+        })
+      }
+    })
+
+    this.$Dialog.alert(
+      this.$t('setting.remove_messages', { 0: messages.length, 1: `(${size.toFixed(2)} MB)` }),
+      this.$t('setting.clear'),
+      () => {
+        setTimeout(() => {
+          delMedia(messages)
+          messageDao.deleteMessageByIds(messageIds)
+        })
+        // TODO update view
+        this.back()
+      },
+      this.$t('cancel'),
+      () => {}
+    )
   }
 
   get currentMedia() {
@@ -106,6 +140,27 @@ export default class StorageContainer extends Vue {
     data.audio = data.audio || 0
     data.file = data.file || 0
     return data
+  }
+
+  getMediaPath(type: string, conversationId: string) {
+    let path = ''
+    const identityNumber = getIdentityNumber(true)
+    switch (type) {
+      case 'image':
+        path = getImagePath(identityNumber, conversationId)
+        break
+      case 'video':
+        path = getVideoPath(identityNumber, conversationId)
+        break
+      case 'audio':
+        path = getAudioPath(identityNumber, conversationId)
+        break
+      case 'file':
+        path = getDocumentPath(identityNumber, conversationId)
+        break
+      default:
+    }
+    return path
   }
 
   getStorage(id: string) {
@@ -121,6 +176,7 @@ export default class StorageContainer extends Vue {
   }
 
   chooseConversation(item: any) {
+    this.unselected = {}
     this.current = item
   }
 
@@ -146,7 +202,7 @@ main {
       flex-flow: row nowrap;
       .back {
         cursor: pointer;
-        padding: 0.8rem 0.2rem 0.8rem 1.35rem;
+        padding: 0.8rem 0.2rem 0.8rem 1.15rem;
       }
       h3 {
         padding: 0.4rem;
@@ -210,13 +266,15 @@ main {
         justify-content: space-between;
         .choice-icon {
           font-size: 1.5rem;
+          margin-top: 0.1rem;
           &.unselected {
-            margin-top: -0.1rem;
+            margin-top: 0;
             margin-bottom: 0.1rem;
           }
         }
         .type {
           cursor: pointer;
+          line-height: 1.1rem;
         }
         .size {
           font-size: 0.7rem;

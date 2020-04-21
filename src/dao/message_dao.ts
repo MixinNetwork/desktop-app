@@ -35,7 +35,13 @@ class MessageDao {
   }
 
   deleteMessageFts(msgIds: string[]) {
-    return db.prepare('DELETE FROM messages_fts WHERE message_id = ?').run(msgIds)
+    const stmt = db.prepare('DELETE FROM messages_fts WHERE message_id = ?')
+    const deleteMany = db.transaction((msgIds: any) => {
+      for (const id of msgIds) {
+        stmt.run(id)
+      }
+    })
+    deleteMany(msgIds)
   }
 
   insertTextMessage(message: { conversationId: any; category: any; content: any; status: any }) {
@@ -137,7 +143,7 @@ class MessageDao {
     insertMany(messages)
   }
 
-  deleteMessagesById(mIds: any) {
+  deleteMessageByIds(mIds: any) {
     const stmt = db.prepare('DELETE FROM messages WHERE message_id = ?')
     const insertMany = db.transaction((mIds: any) => {
       for (let mId of mIds) {

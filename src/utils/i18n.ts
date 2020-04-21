@@ -124,6 +124,7 @@ let transactions = {
       chat_pic: 'Photo',
       chat_contact: 'Contact',
       chat_more: 'more',
+      chat_image: 'Image',
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
@@ -160,7 +161,9 @@ let transactions = {
       reload: 'Reload Code'
     },
     setting: {
-      title: 'Settings'
+      title: 'Settings',
+      clear: 'Clear',
+      remove_messages: 'Clear {0} messages {1}?'
     },
     profile: {
       title: 'Info',
@@ -306,6 +309,7 @@ let transactions = {
       chat_pic: '照片',
       chat_contact: '联系人',
       chat_more: '更多',
+      chat_image: '图片',
       chat_file: '文件',
       chat_audio: '语音',
       chat_video: '视频',
@@ -342,7 +346,9 @@ let transactions = {
       reload: '点击重新载入二维码'
     },
     setting: {
-      title: '设置'
+      title: '设置',
+      clear: '清理',
+      remove_messages: '清除 {0} 条消息 {1} 吗?'
     },
     profile: {
       title: '联系人资料',

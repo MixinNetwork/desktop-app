@@ -52,13 +52,25 @@ export function dirSize(path) {
 
 export function delMedia(messages) {
   messages.forEach(message => {
-    if (message && message.media_url) {
-      const path = message.media_url.split('file://')[1]
+    if (message && (message.path || message.media_url)) {
+      const path = message.path || message.media_url.split('file://')[1]
       if (path && fs.existsSync(path)) {
         fs.unlinkSync(path)
       }
     }
   })
+}
+
+export function listFilePath(path) {
+  const list = []
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path)
+    files.forEach(file => {
+      let curPath = path + '/' + file
+      list.push(curPath)
+    })
+  }
+  return list
 }
 
 export function generateConversationId(userId, recipientId) {

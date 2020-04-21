@@ -22,10 +22,19 @@
       <span class="item" @click="open('https://mixin.one/pages/terms')">{{$t('terms_service')}}</span>
       <span class="item" @click="open('https://mixin.one/pages/privacy')">{{$t('privacy_policy')}}</span>
     </div>
+    <transition name="slide-right">
+      <StorageContainer
+        class="overlay"
+        :storages="storages"
+        v-if="storageView"
+        @back="storageView = false"
+      ></StorageContainer>
+    </transition>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import StorageContainer from '@/components/StorageContainer.vue'
 
 import browser from '@/utils/browser'
 import { ipcRenderer, remote } from 'electron'
@@ -35,18 +44,53 @@ import { getIdentityNumber, dirSize } from '@/utils/util'
 import fs from 'fs'
 import path from 'path'
 
-@Component
+@Component({
+  components: {
+    StorageContainer
+  }
+})
 export default class SettingContainer extends Vue {
   group: boolean = false
   title: string = ''
   $electron: any
 
   storageUsage: number = 0
+  storageView: boolean = false
+  storages: any = {}
 
   created() {
     const identityNumber = getIdentityNumber(true)
     const newDir = path.join(remote.app.getPath('userData'), identityNumber)
-    this.storageUsage = dirSize(newDir)
+    const dirsMap: any = dirSize(newDir)
+    this.storageUsage = dirsMap[newDir]
+    Object.keys(dirsMap).forEach(dir => {
+      const subDir = dir.split(`${newDir}/Media`)[1]
+      if (subDir) {
+        const type = this.getMediaType(subDir)
+        if (!type) return
+        const pieces = subDir.split('/')
+        const conversationId = pieces[pieces.length - 1]
+
+        this.storages[conversationId] = this.storages[conversationId] || {}
+        this.storages[conversationId][type] = dirsMap[dir]
+      }
+    })
+  }
+
+  getMediaType(dir: string) {
+    if (dir.includes('/Images/')) {
+      return 'image'
+    }
+    if (dir.includes('/Videos/')) {
+      return 'video'
+    }
+    if (dir.includes('/Audios/')) {
+      return 'audio'
+    }
+    if (dir.includes('/Files/')) {
+      return 'file'
+    }
+    return ''
   }
 
   get version() {
@@ -60,7 +104,9 @@ export default class SettingContainer extends Vue {
 
   backupRestore() {}
 
-  manageStorage() {}
+  manageStorage() {
+    this.storageView = true
+  }
 
   open(url: string) {
     browser.loadURL(url, '')
@@ -122,12 +168,6 @@ export default class SettingContainer extends Vue {
         line-height: 1;
         color: $light-font-color;
       }
-      &.storage {
-        cursor: default;
-        &:hover {
-          background: initial;
-        }
-      }
     }
   }
   .version {
@@ -135,5 +175,23 @@ export default class SettingContainer extends Vue {
     font-size: 0.7rem;
     font-weight: 500;
   }
+}
+.overlay {
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+}
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-right-enter,
+.slide-right-leave-to {
+  transform: translateX(200%);
 }
 </style>

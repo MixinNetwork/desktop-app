@@ -26,7 +26,7 @@ export function getIdentityNumber(direct) {
   return identityNumber
 }
 
-export function dirSize(path) {
+function dirSizeAction(path, dirsMap) {
   let size = 0
   if (fs.existsSync(path)) {
     const files = fs.readdirSync(path)
@@ -34,13 +34,20 @@ export function dirSize(path) {
       let curPath = path + '/' + file
       const fileItem = fs.statSync(curPath)
       if (fileItem.isDirectory()) {
-        size += dirSize(curPath)
+        size += dirSizeAction(curPath, dirsMap)
       } else {
         size += fileItem.size / 1024 / 1024
       }
     })
   }
+  dirsMap[path] = size
   return size
+}
+
+export function dirSize(path) {
+  const dirsMap = []
+  dirSizeAction(path, dirsMap)
+  return dirsMap
 }
 
 export function delMedia(messages) {

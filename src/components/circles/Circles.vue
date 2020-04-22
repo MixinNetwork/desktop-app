@@ -773,7 +773,7 @@ export default class Circles extends Vue {
   box-sizing: border-box;
   overflow-x: scroll;
   overflow-y: hidden;
-  height: 6rem;
+  height: 4.5rem;
   padding: 0.4rem 1.25rem;
 
   .in {
@@ -820,7 +820,6 @@ export default class Circles extends Vue {
   width: 100%;
 }
 .edit {
-  display: flex;
   flex-direction: column;
   height: 100%;
   user-select: none;

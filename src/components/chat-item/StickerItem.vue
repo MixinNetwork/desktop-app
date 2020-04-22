@@ -18,11 +18,12 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-
+import { downloadSticker } from '@/utils/attachment_util'
 import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
+import stickerDao from '@/dao/sticker_dao'
 
 @Component({
   components: {
@@ -48,6 +49,18 @@ export default class StickerItem extends Vue {
   }
 
   mounted() {
+    const { assetUrl, stickerId } = this.message
+    if (!assetUrl) {
+      return downloadSticker(stickerId).then(() => {
+        const stickerData = stickerDao.getStickerByUnique(stickerId)
+        if (stickerData) {
+          this.message.assetUrl = stickerData.asset_url
+          this.message.assetWidth = stickerData.asset_width
+          this.message.assetHeight = stickerData.asset_height
+          this.loaded = true
+        }
+      })
+    }
     if (this.message.fastLoad) {
       this.loaded = true
     } else {

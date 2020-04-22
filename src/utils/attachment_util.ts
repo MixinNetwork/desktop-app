@@ -9,7 +9,7 @@ import fs from 'fs'
 import path from 'path'
 import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
-import { base64ToUint8Array, getIdentityNumber } from '@/utils/util'
+import { base64ToUint8Array, getIdentityNumber, dirSize } from '@/utils/util'
 import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
 import stickerApi from '@/api/sticker'
@@ -66,7 +66,9 @@ export function mediaMigration(identityNumber: string) {
     // @ts-ignore
     dbPath = path.join(path.join(__static, '../'), `/mixin.db3`)
   }
-  if (!fs.existsSync(dbPath)) {
+  const oldMediaDir = path.join(userDataPath, 'media')
+  const sizeMap: any = dirSize(oldMediaDir)
+  if (!fs.existsSync(dbPath) || !sizeMap[oldMediaDir]) {
     return -1
   }
 

@@ -12,7 +12,7 @@
       <!-- <span class="item" @click="backupRestore">{{$t('backup_restore')}}</span> -->
       <span class="item storage" @click="manageStorage">
         {{$t('storage_usage')}}
-        <small v-if="storageUsage">{{storageUsage.toFixed(2)}} MB</small>
+        <small v-if="storageUsage">{{(storageUsage-tempClearSize).toFixed(2)}} MB</small>
       </span>
       <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
       <span
@@ -26,8 +26,8 @@
       <StorageContainer
         class="overlay"
         :storages="storages"
-        v-if="storageView"
-        @back="storageView = false"
+        v-show="storageView"
+        @back="storageBack"
       ></StorageContainer>
     </transition>
   </div>
@@ -57,6 +57,7 @@ export default class SettingContainer extends Vue {
   storageUsage: number = 0
   storageView: boolean = false
   storages: any = {}
+  tempClearSize: number = 0
 
   created() {
     const identityNumber = getIdentityNumber(true)
@@ -106,6 +107,11 @@ export default class SettingContainer extends Vue {
 
   manageStorage() {
     this.storageView = true
+  }
+
+  storageBack(size: number) {
+    this.storageView = false
+    this.tempClearSize = size
   }
 
   open(url: string) {

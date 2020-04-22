@@ -29,12 +29,12 @@
             <div
               class="conversation"
               @click="chooseConversation(item)"
-              v-if="getStorage(item.conversationId)"
+              v-if="getSize(item.conversationId)"
             >
               <Avatar :conversation="item" />
               <div class="content">
                 <span class="name">{{item.groupName?item.groupName:item.name}}</span>
-                <span class="size">{{getStorage(item.conversationId)}} MB</span>
+                <span class="size">{{getSize(item.conversationId).toFixed(2)}} MB</span>
               </div>
             </div>
           </div>
@@ -72,22 +72,26 @@ export default class StorageContainer extends Vue {
   current: any = null
   unselected: any = {}
 
+  tempClearSize: number = 0
+
   beforeMount() {
+    const conversations: any = []
     Object.keys(this.storages).forEach((id: any) => {
       const conversation = conversationDao.getConversationItemByConversationId(id)
       if (conversation) {
         const participants = participantDao.getParticipantsByConversationId(id)
         conversation.participants = participants
-        this.conversations.push(conversation)
+        conversations.push(conversation)
       }
     })
+    this.conversations = conversations
   }
 
   back() {
     if (this.current) {
       this.current = null
     } else {
-      this.$emit('back')
+      this.$emit('back', this.tempClearSize)
     }
   }
 
@@ -102,10 +106,12 @@ export default class StorageContainer extends Vue {
 
     const messages: any = []
     const messageIds: any = []
+    const mediaTypes: any = []
     Object.keys(this.currentMedia).forEach(key => {
       if (!this.unselected[key]) {
+        mediaTypes.push(key)
         size += this.currentMedia[key]
-        const curPath = this.getMediaPath(key, this.current.conversationId)
+        const curPath = this.getMediaPath(key, this.curCid)
         const list = listFilePath(curPath)
         list.forEach(path => {
           messages.push({ path })
@@ -125,7 +131,10 @@ export default class StorageContainer extends Vue {
           delMedia(messages)
           messageDao.deleteMessageByIds(messageIds)
         })
-        // TODO update view
+        mediaTypes.forEach((key: string) => {
+          this.tempClearSize += this.storages[this.curCid][key]
+          this.storages[this.curCid][key] = 0
+        })
         this.back()
       },
       this.$t('cancel'),
@@ -133,8 +142,12 @@ export default class StorageContainer extends Vue {
     )
   }
 
+  get curCid() {
+    return this.current.conversationId
+  }
+
   get currentMedia() {
-    const data = this.storages[this.current.conversationId]
+    const data = this.storages[this.curCid]
     data.image = data.image || 0
     data.video = data.video || 0
     data.audio = data.audio || 0
@@ -163,16 +176,16 @@ export default class StorageContainer extends Vue {
     return path
   }
 
-  getStorage(id: string) {
-    const storages: any = this.storages[id]
-    let storage = 0
-    Object.keys(storages).forEach(key => {
-      storage += storages[key]
+  getSize(id: string) {
+    const sizes: any = this.storages[id]
+    let size = 0
+    Object.keys(sizes).forEach(key => {
+      size += sizes[key]
     })
-    if (storage < 0.0001) {
+    if (size < 0.0001) {
       return 0
     }
-    return storage.toFixed(2)
+    return size
   }
 
   chooseConversation(item: any) {

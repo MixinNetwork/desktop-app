@@ -121,9 +121,18 @@ export default class ChatSticker extends Vue {
       })
     }
   }
-  getStickers(id: string) {
+  getStickersMap: any = {}
+  async getStickers(id: string) {
+    let stickersData:any = []
+    if (!this.getStickersMap[id]) {
+      const stickersRet = await stickerApi.getStickersByAlbumId(id)
+      if (stickersRet.data.data) {
+        stickersData = stickersRet.data.data
+      }
+      this.getStickersMap[id] = true
+    }
     let stickers = stickerDao.getStickersByAlbumId(id)
-    if (stickers && stickers.length) {
+    if (stickers && stickers.length !== stickersData.length) {
       stickers.forEach((sticker: any) => {
         if (!sticker.asset_url.startsWith('file://')) {
           const stickerId = sticker.sticker_id
@@ -133,18 +142,16 @@ export default class ChatSticker extends Vue {
         }
       })
       this.stickers = stickers
-      this.resizeSticker()
     } else {
-      stickerApi.getStickersByAlbumId(id).then((res: any) => {
-        if (res.data.data) {
-          res.data.data.forEach((item: any) => {
-            stickerDao.insertUpdate(item)
-          })
-          this.stickers = stickerDao.getStickersByAlbumId(id)
-          this.resizeSticker()
+      stickersData.forEach((item: any) => {
+        const before = stickerDao.getStickersByAlbumId(item.sticker_id)
+        if (!before) {
+          stickerDao.insertUpdate(item)
         }
       })
+      this.stickers = stickerDao.getStickersByAlbumId(id)
     }
+    this.resizeSticker()
   }
   changeTab(id: string) {
     this.stickers = ''

@@ -78,6 +78,7 @@ export default class BaseWorker {
       })
       await this.refreshParticipants(conversation.conversation_id, conversation.participants)
       await this.refreshParticipantsSession(conversation.conversation_id, conversation.participant_sessions)
+      await this.refreshMute(conversation, ownerId)
       await this.syncUser(ownerId)
       await this.refreshCircle(conversation)
     }
@@ -90,6 +91,10 @@ export default class BaseWorker {
         circleDao.insertUpdate(temp)
       }
     })
+  }
+
+  async refreshMute(conversation, ownerId) {
+    store.dispatch('updateConversationMute', { conversation, ownerId })
   }
 
   async refreshCircle(conversation) {

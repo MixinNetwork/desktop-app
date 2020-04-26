@@ -56,7 +56,7 @@
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
         <svg-icon icon-class="ic_mute" v-if="this.isMute()" class="mute_icon" />
-        <svg-icon icon-class="ic_pin_top" v-if="showPinTime" class="icon" />
+        <svg-icon icon-class="ic_pin_top" v-if="showPinTime" class="pin_icon" />
         <transition name="slide-right">
           <a
             @click.stop="$emit('item-menu-click',conversation)"
@@ -326,7 +326,8 @@ li.conversation.item {
         }
       }
       .mute_icon,
-      .icon {
+      .pin_icon {
+        color: $gray-color;
         font-size: 0.9rem;
         margin-right: 0.15rem;
       }
@@ -361,7 +362,7 @@ li.conversation.item {
           font-size: 0.6rem;
         }
         &.gray {
-          background: $gray;
+          background: $gray-color;
         }
       }
     }

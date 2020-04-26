@@ -52,6 +52,7 @@
         <span class="badge mention" v-if="showMention">@</span>
         <span
           class="badge"
+          :class="{gray: this.isMute()}"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
         <svg-icon icon-class="ic_mute" v-if="this.isMute()" class="mute_icon" />
@@ -62,7 +63,7 @@
             @focus="onFocus"
             @blur="onBlur"
             href="javascript:void(0)"
-            v-show="show || fouse"
+            v-show="show || focus"
             class="down"
           >
             <font-awesome-icon icon="chevron-down" />
@@ -92,7 +93,7 @@ export default class ConversationItem extends Vue {
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
   show: boolean = false
-  fouse: boolean = false
+  focus: boolean = false
   MessageStatus: any = MessageStatus
   $moment: any
 
@@ -220,10 +221,10 @@ export default class ConversationItem extends Vue {
     this.show = false
   }
   onFocus() {
-    this.fouse = true
+    this.focus = true
   }
   onBlur() {
-    this.fouse = false
+    this.focus = false
   }
   isMute() {
     if (this.conversation.category === ConversationCategory.CONTACT && this.conversation.ownerMuteUntil) {
@@ -358,6 +359,9 @@ li.conversation.item {
         &.mention {
           padding: 0.1rem 0.25rem;
           font-size: 0.6rem;
+        }
+        &.gray {
+          background: $gray;
         }
       }
     }

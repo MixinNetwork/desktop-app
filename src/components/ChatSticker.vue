@@ -32,9 +32,11 @@
         >
           <img :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
         </span>
-        <i v-for="i in 30"
+        <i
+          v-for="i in 30"
           :style="{width: `${stickerStyle.w}px`, margin: `0 ${stickerStyle.m}px`}"
-          :key="i"></i>
+          :key="i"
+        ></i>
       </div>
     </mixin-scrollbar>
   </div>
@@ -105,7 +107,9 @@ export default class ChatSticker extends Vue {
       const fit = (width - size * (80 + m * 2)) / size
       if (fit < 80) {
         this.stickerStyle = {
-          w: 80 + fit, h: 80 + fit, m
+          w: 80 + fit,
+          h: 80 + fit,
+          m
         }
       }
     }, 50)
@@ -113,7 +117,7 @@ export default class ChatSticker extends Vue {
 
   albumPos() {
     const list = stickerDao.getLastUseStickers()
-    if ((!list || list.length === 0) && (this.albums && this.albums.length > 0)) {
+    if ((!list || list.length === 0) && this.albums && this.albums.length > 0) {
       setTimeout(() => {
         const albumId = this.albums[0].album_id
         this.getStickers(albumId)
@@ -123,7 +127,7 @@ export default class ChatSticker extends Vue {
   }
   getStickersMap: any = {}
   async getStickers(id: string) {
-    let stickersData:any = []
+    let stickersData: any = []
     if (!this.getStickersMap[id]) {
       const stickersRet = await stickerApi.getStickersByAlbumId(id)
       if (stickersRet.data.data) {
@@ -131,26 +135,22 @@ export default class ChatSticker extends Vue {
       }
       this.getStickersMap[id] = true
     }
+    stickersData.forEach((item: any) => {
+      const before = stickerDao.getStickerByUnique(item.sticker_id)
+      if (!before) {
+        stickerDao.insertUpdate(item)
+      }
+    })
     let stickers = stickerDao.getStickersByAlbumId(id)
-    if (stickers && stickers.length !== stickersData.length) {
-      stickers.forEach((sticker: any) => {
-        if (!sticker.asset_url.startsWith('file://')) {
-          const stickerId = sticker.sticker_id
-          downloadSticker(stickerId).then(filePath => {
-            sticker.asset_url = 'file://' + filePath
-          })
-        }
-      })
-      this.stickers = stickers
-    } else {
-      stickersData.forEach((item: any) => {
-        const before = stickerDao.getStickersByAlbumId(item.sticker_id)
-        if (!before) {
-          stickerDao.insertUpdate(item)
-        }
-      })
-      this.stickers = stickerDao.getStickersByAlbumId(id)
-    }
+    stickers.forEach((sticker: any) => {
+      if (!sticker.asset_url.startsWith('file://')) {
+        const stickerId = sticker.sticker_id
+        downloadSticker(stickerId).then(filePath => {
+          sticker.asset_url = 'file://' + filePath
+        })
+      }
+    })
+    this.stickers = stickers
     this.resizeSticker()
   }
   changeTab(id: string) {

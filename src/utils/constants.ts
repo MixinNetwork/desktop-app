@@ -413,7 +413,8 @@ export const MimeType = {
 export const LinkStatus = {
   NOT_CONNECTED: 0,
   CONNECTED: 1,
-  CONNECTING: 2
+  CONNECTING: 2,
+  ERROR: 3
 }
 
 export const MuteDuration = {

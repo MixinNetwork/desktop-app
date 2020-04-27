@@ -2,6 +2,8 @@ import interval from 'interval-promise'
 import sendWorker from '@/workers/send_worker'
 import receiveWorker from '@/workers/receive_worker'
 import ackWorker from '@/workers/ack_worker'
+import store from '@/store/store'
+import { LinkStatus } from '@/utils/constants'
 
 const Status = {
   RUNNING: 0,
@@ -26,7 +28,9 @@ class WorkManager {
             this.workerStatus[0] = Status.STOP
             this.check()
           }
-          await sendWorker.doWork()
+          if (store.state.linkStatus === LinkStatus.CONNECTED) {
+            await sendWorker.doWork()
+          }
         },
         200,
         { stopOnError: false }
@@ -39,7 +43,9 @@ class WorkManager {
             this.workerStatus[1] = Status.STOP
             this.check()
           }
-          await receiveWorker.doWork()
+          if (store.state.linkStatus === LinkStatus.CONNECTED) {
+            await receiveWorker.doWork()
+          }
         },
         30,
         { stopOnError: false }
@@ -52,7 +58,9 @@ class WorkManager {
             this.workerStatus[2] = Status.STOP
             this.check()
           }
-          await ackWorker.doWork()
+          if (store.state.linkStatus === LinkStatus.CONNECTED) {
+            await ackWorker.doWork()
+          }
         },
         500,
         { stopOnError: false }

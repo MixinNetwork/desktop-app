@@ -2464,8 +2464,8 @@ boolean@^3.0.0:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  uid a8d115899ae6d038d48e8c7852432eec0e88ccff
-  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#a8d115899ae6d038d48e8c7852432eec0e88ccff"
+  uid "8dff3632359254b78e6a9853485ff63cb835d67f"
+  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#8dff3632359254b78e6a9853485ff63cb835d67f"
   dependencies:
     crypto "^1.0.1"
     int64-buffer "^0.99.1007"
@@ -11264,10 +11264,10 @@ vue-hot-reload-api@^2.3.0:
   resolved "https://registry.yarnpkg.com/vue-hot-reload-api/-/vue-hot-reload-api-2.3.4.tgz#532955cc1eb208a3d990b3a9f9a70574657e08f2"
   integrity sha512-BXq3jwIagosjgNVae6tkHzzIk6a8MHFtzAdwhnV5VlvPTFxDCvIttgSiHWjdGoTJvXtmRu5HacExfdarRcFhog==
 
-vue-i18n@^8.17.1:
-  version "8.17.1"
-  resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.17.1.tgz#6caa66fb277ccbe133a270bdeb8fd614dd546dbf"
-  integrity sha512-S5pB4aS4M9/eL7W6+dPjRZQwOerIgmuzGVrer5EhZaDpJG2FvZ1lAlkc5fmYVwebdeqhfXffioOjy974y+o4jw==
+vue-i18n@^8.17.3:
+  version "8.17.3"
+  resolved "https://registry.yarnpkg.com/vue-i18n/-/vue-i18n-8.17.3.tgz#f366082d5784c3c35e8ffda733cb3f3990a3900d"
+  integrity sha512-sWjGOL7dXo6rYcPQmlY8FN/beLxq2aCnTZMSxfW0yW78rRGpqWrqXJURH56kvMYCnyNCepBjGWEEW0rbFiig5Q==
 
 vue-loader@^15.9.1:
   version "15.9.1"
@@ -11323,10 +11323,10 @@ vuex-class@^0.3.2:
   resolved "https://registry.yarnpkg.com/vuex-class/-/vuex-class-0.3.2.tgz#c7e96a076c1682137d4d23a8dcfdc63f220e17a8"
   integrity sha512-m0w7/FMsNcwJgunJeM+wcNaHzK2KX1K1rw2WUQf7Q16ndXHo7pflRyOV/E8795JO/7fstyjH3EgqBI4h4n4qXQ==
 
-vuex@^3.1.3:
-  version "3.1.3"
-  resolved "https://registry.yarnpkg.com/vuex/-/vuex-3.1.3.tgz#f2ad73e3fb73691698b38c93f66e58e267947180"
-  integrity sha512-k8vZqNMSNMgKelVZAPYw5MNb2xWSmVgCKtYKAptvm9YtZiOXnRXFWu//Y9zQNORTrm3dNj1n/WaZZI26tIX6Mw==
+vuex@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/vuex/-/vuex-3.2.0.tgz#86da7f26c3e131ff374870580109145a640ee5a8"
+  integrity sha512-qBZGJJ1gUNWZbfZlH7ylIPwENg3R0Ckpq+qPexF065kOMOt1Ixt8WDJmtssVv7OhepWD0+Qie7pOS8f0oQy1JA==
 
 watchpack@^1.6.0:
   version "1.6.0"

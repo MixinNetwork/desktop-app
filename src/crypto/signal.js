@@ -67,7 +67,7 @@ class SignalProtocol {
   }
 
   clearSenderKey(groupId, senderId, deviceId) {
-    signalDb.removeSenderKey(groupId, senderId + ':' + deviceId)
+    signalDao.removeSenderKey(groupId, senderId + ':' + deviceId)
   }
 
   convertToDeviceId(sessionId) {

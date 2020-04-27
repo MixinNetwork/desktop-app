@@ -432,11 +432,12 @@ class ReceiveWorker extends BaseWorker {
       if (systemMessage.participant_id === accountId) {
         conversationDao.updateConversationStatusById(data.conversation_id, ConversationStatus.QUIT)
       }
-      participantDao.deleteAll(data.conversation_id, [systemMessage.participant_id])
       store.dispatch('refreshParticipants', data.conversation_id)
       await this.syncUser(systemMessage.participant_id)
+      participantDao.deleteAll(data.conversation_id, [systemMessage.participant_id])
       participantSessionDao.delete(data.conversation_id, systemMessage.participant_id)
       participantSessionDao.updateStatusByConversationId(data.conversation_id)
+      signalProtocol.clearSenderKey(data.conversation_id, this.getAccountId(), this.getDeviceId())
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
       if (!systemMessage.participant_id) {

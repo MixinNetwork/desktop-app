@@ -26,7 +26,7 @@ class Blaze {
       if (this.ws.readyState === WebSocket.CONNECTING) {
         this.resetLinkStatus()
       } else {
-        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
+        // store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       }
     }, 3000)
   }
@@ -57,9 +57,9 @@ class Blaze {
       this.ws.addEventListener('open', function(event) {
         self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function(resp) {
           console.log(resp)
+          store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
         })
         resolve()
-        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
     })
   }
@@ -90,6 +90,7 @@ class Blaze {
   _onError(event) {
     console.log('-------onerrror--')
     console.log(event)
+    store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
   _sendGzip(data, result) {
     this.transactions[data.id] = result

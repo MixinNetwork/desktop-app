@@ -18,6 +18,7 @@ class Blaze {
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
     this.sendMessageTimer = null
+    this.wsInterval = null
   }
 
   connect() {
@@ -53,6 +54,13 @@ class Blaze {
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
     })
+    clearInterval(this.wsInterval)
+    this.wsInterval = setInterval(() => {
+      if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
+        console.log('---ws reconnect---')
+        this.connect()
+      }
+    }, 7000)
   }
 
   async _onMessage(event) {

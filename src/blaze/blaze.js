@@ -60,7 +60,7 @@ class Blaze {
         console.log('---ws reconnect---')
         this.connect()
       }
-    }, 7000)
+    }, 15000)
   }
 
   async _onMessage(event) {
@@ -95,6 +95,7 @@ class Blaze {
   }
   closeBlaze() {
     if (this.ws) {
+      clearInterval(this.wsInterval)
       this.ws.close(3001, 'Unauthorized')
       clearDb()
       router.push('/sign_in')

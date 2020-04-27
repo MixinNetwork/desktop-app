@@ -24,12 +24,18 @@
               ></ReplyMessageItem>
               <div :style="borderSetObject()">
                 <img
-                  v-if="loaded"
                   class="image"
                   style="width: 100%"
                   :src="media()"
                   :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+                  ref="img"
                   @click="preview"
+                />
+                <Blurhash
+                  v-if="isBlur && !imgLoaded"
+                  :image="message.thumbImage"
+                  :width="message.mediaWidth"
+                  :height="message.mediaHeight"
                 />
               </div>
             </div>
@@ -59,11 +65,13 @@ import { Getter } from 'vuex-class'
 
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import Blurhash from '@/components/blurhash/Blurhash.vue'
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
+import { isBlurhashValid } from 'blurhash'
 
 import messageDao from '@/dao/message_dao'
 
@@ -73,6 +81,7 @@ import messageDao from '@/dao/message_dao'
     BadgeItem,
     spinner,
     AttachmentIcon,
+    Blurhash,
     TimeAndStatus
   }
 })
@@ -85,10 +94,10 @@ export default class ImageItem extends Vue {
   @Getter('attachment') attachment: any
   @Getter('currentMessages') currentMessages: any
 
-  loaded: boolean = false
   $imageViewer: any
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
+  imgLoaded: boolean = false
 
   messageOwnership() {
     let { message, me } = this
@@ -99,12 +108,9 @@ export default class ImageItem extends Vue {
   }
 
   mounted() {
-    if (this.message.fastLoad) {
-      this.loaded = true
-    } else {
-      requestAnimationFrame(() => {
-        this.loaded = true
-      })
+    // @ts-ignore
+    this.$refs.img.onload = () => {
+      this.imgLoaded = true
     }
   }
 
@@ -164,6 +170,11 @@ export default class ImageItem extends Vue {
   get isLongPicture() {
     const { mediaWidth, mediaHeight } = this.message
     return 3 * mediaWidth < mediaHeight
+  }
+
+  get isBlur() {
+    const data = isBlurhashValid(this.message.thumbImage)
+    return data.result
   }
 
   stopLoading() {

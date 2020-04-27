@@ -17,12 +17,20 @@ class Blaze {
     this.retryCount = 0
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.reconnecting = false
     this.sendMessageTimer = null
+    this.connectTimer = null
   }
 
   connect() {
-    if (this.ws) {
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+      clearTimeout(this.connectTimer)
+      this.connectTimer = setTimeout(() => {
+        this.connect()
+      }, 1500)
+      return
+    }
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close(1000, 'Normal close, should reconnect')
       this.ws = null
     }
@@ -63,13 +71,8 @@ class Blaze {
     }
   }
   _onClose(event) {
-    if (this.reconnecting) return
     console.log('---onclose--')
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
-    this.reconnecting = true
-    setTimeout(() => {
-      this.reconnecting = false
-    })
     if (event.code === 1008) return
     console.log('---should reconnect--')
     this.connect()
@@ -118,9 +121,7 @@ class Blaze {
       if (blazeMsg.action === 'ERROR' && blazeMsg.error.code === 401) {
         accountApi.checkPing().then(
           _ => {
-            setTimeout(() => {
-              this.connect()
-            }, 1500)
+            this.connect()
           },
           err => {
             console.log(err)
@@ -176,10 +177,8 @@ class Blaze {
           clearTimeout(this.sendMessageTimer)
         })
       })
-    } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
-      setTimeout(() => {
-        this.connect()
-      }, 1500)
+    } else {
+      this.connect()
     }
   }
 

@@ -22,10 +22,8 @@ import contentUtil from '@/utils/content_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
 import messageMentionDao from '@/dao/message_mention_dao'
-
-import interval from 'interval-promise'
-import { downloadAttachment, downloadSticker, downloadQueue } from '@/utils/attachment_util'
 import {
+  messageType,
   MessageCategories,
   MessageStatus,
   MediaStatus,
@@ -36,6 +34,9 @@ import {
   SystemUserMessageAction,
   SystemCircleMessageAction
 } from '@/utils/constants'
+
+import interval from 'interval-promise'
+import { downloadAttachment, downloadSticker, downloadQueue } from '@/utils/attachment_util'
 
 const insertMessageQueue = []
 const makeMessageReadQueue = []
@@ -578,7 +579,8 @@ class ReceiveWorker extends BaseWorker {
     if (quoteMessage) {
       quoteContent = JSON.stringify(quoteMessage)
     }
-    if (data.category.endsWith('_TEXT')) {
+    const curMessageType = messageType(data.category)
+    if (curMessageType === 'text') {
       let plain = plaintext
       if (data.category === 'PLAIN_TEXT') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
@@ -619,7 +621,7 @@ class ReceiveWorker extends BaseWorker {
       insertMessageQueuePush(message, async() => {
         this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
       })
-    } else if (data.category.endsWith('_POST')) {
+    } else if (curMessageType === 'post') {
       let plain = plaintext
       if (data.category === 'PLAIN_POST') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
@@ -640,7 +642,7 @@ class ReceiveWorker extends BaseWorker {
         plain = contentUtil.renderMdToText(plain)
         this.showNotification(data.conversation_id, user.user_id, user.full_name, plain, data.source, data.created_at)
       })
-    } else if (data.category.endsWith('_LOCATION')) {
+    } else if (curMessageType === 'location') {
       let plain = plaintext
       if (data.category === 'PLAIN_LOCATION') {
         plain = decodeURIComponent(escape(window.atob(plaintext)))
@@ -661,7 +663,7 @@ class ReceiveWorker extends BaseWorker {
         const body = i18n.t('notification.sendLocation')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
-    } else if (data.category.endsWith('_IMAGE')) {
+    } else if (curMessageType === 'image') {
       var decoded = window.atob(plaintext)
       var mediaData = JSON.parse(decoded)
       if (mediaData.width === null || mediaData.width === 0 || mediaData.height === null || mediaData.height === 0) {
@@ -690,7 +692,7 @@ class ReceiveWorker extends BaseWorker {
       this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendPhoto')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
-    } else if (data.category.endsWith('_VIDEO')) {
+    } else if (curMessageType === 'video') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
       if (mediaData.width === null || mediaData.width === 0 || mediaData.height === null || mediaData.height === 0) {
@@ -720,7 +722,7 @@ class ReceiveWorker extends BaseWorker {
       this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendVideo')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
-    } else if (data.category.endsWith('_DATA')) {
+    } else if (curMessageType === 'file') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
       const message = {
@@ -743,7 +745,7 @@ class ReceiveWorker extends BaseWorker {
       this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendFile')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
-    } else if (data.category.endsWith('_AUDIO')) {
+    } else if (curMessageType === 'audio') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
       const message = {
@@ -766,7 +768,7 @@ class ReceiveWorker extends BaseWorker {
       this.insertDownloadMessage(message)
       const body = i18n.t('notification.sendAudio')
       this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
-    } else if (data.category.endsWith('_STICKER')) {
+    } else if (curMessageType === 'sticker') {
       const decoded = window.atob(plaintext)
       const stickerData = JSON.parse(decoded)
       const stickerId = stickerData.sticker_id
@@ -792,7 +794,7 @@ class ReceiveWorker extends BaseWorker {
         const body = i18n.t('notification.sendSticker')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
-    } else if (data.category.endsWith('_CONTACT')) {
+    } else if (curMessageType === 'contact') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const contactData = JSON.parse(decoded)
       const message = {
@@ -813,7 +815,7 @@ class ReceiveWorker extends BaseWorker {
         const body = i18n.t('notification.sendContact')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
-    } else if (data.category.endsWith('_LIVE')) {
+    } else if (curMessageType === 'live') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const liveData = JSON.parse(decoded)
       const message = {

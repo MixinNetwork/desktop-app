@@ -48,9 +48,10 @@ import ChatItem from '@/components/ChatItem.vue'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 import participantDao from '@/dao/participant_dao'
+import { messageType, MessageStatus, ConversationCategory } from '@/utils/constants'
 
 import { Getter, Action } from 'vuex-class'
-import { MessageStatus, ConversationCategory } from '@/utils/constants'
+
 import { AttachmentMessagePayload } from '@/utils/attachment_util'
 
 @Component({
@@ -90,8 +91,8 @@ export default class MessageForward extends Vue {
       const { conversationId, appId } = this.conversation
       const msg: any = {}
       const status: any = MessageStatus.SENDING
-
-      if (message.type.endsWith('_STICKER')) {
+      const curMessageType = messageType(message.type)
+      if (curMessageType === 'sticker') {
         const { stickerId } = message
         const category = appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
         const msg = {
@@ -101,7 +102,7 @@ export default class MessageForward extends Vue {
           status
         }
         this.actionSendStickerMessage(msg)
-      } else if (message.type.endsWith('_CONTACT')) {
+      } else if (curMessageType === 'contact') {
         const { content, sharedUserId } = message
         const category = appId ? 'PLAIN_CONTACT' : 'SIGNAL_CONTACT'
         const msg = {
@@ -114,7 +115,7 @@ export default class MessageForward extends Vue {
           }
         }
         this.actionSendMessage(msg)
-      } else if (message.type.endsWith('_LIVE')) {
+      } else if (curMessageType === 'live') {
         const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
         let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name, mediaName } = message
         const msg = {
@@ -131,7 +132,7 @@ export default class MessageForward extends Vue {
           }
         }
         this.actionSendLiveMessage(msg)
-      } else if (this.isFileType(message.type)) {
+      } else if (['image', 'file', 'audio', 'video', 'image'].indexOf(curMessageType) > -1) {
         let {
           mediaUrl,
           mediaName,
@@ -179,11 +180,7 @@ export default class MessageForward extends Vue {
           }
         }
         this.actionSendMessage(msg)
-      } else if (
-        message.type.endsWith('_POST') ||
-        message.type.endsWith('_TEXT') ||
-        message.type.endsWith('_LOCATION')
-      ) {
+      } else if (['post', 'text', 'location'].indexOf(curMessageType) > -1) {
         const typeEnds = message.type.split('_')[1]
         const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
 
@@ -272,16 +269,6 @@ export default class MessageForward extends Vue {
   beforeDestroy() {
     this.$root.$off('escKeydown')
     this.observer = null
-  }
-
-  isFileType(type: string) {
-    return (
-      type.endsWith('_IMAGE') ||
-      type.endsWith('_DATA') ||
-      type.endsWith('_AUDIO') ||
-      type.endsWith('_VIDEO') ||
-      type.endsWith('_IMAGE')
-    )
   }
 
   get chatList() {

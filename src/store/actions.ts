@@ -10,7 +10,8 @@ import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
-import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
+import { messageType, ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
+
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
 // @ts-ignore
@@ -374,7 +375,7 @@ export default {
       }
     }
     if (!messageId) {
-      if (msg.category.endsWith('_CONTACT')) {
+      if (messageType(msg.category) === 'contact') {
         messageId = messageDao.insertContactMessage(msg)
       } else {
         messageId = messageDao.insertTextMessage(msg)

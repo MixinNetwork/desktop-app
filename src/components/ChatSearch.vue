@@ -45,6 +45,7 @@ import SearchItem from '@/components/SearchItem.vue'
 import messageDao from '@/dao/message_dao'
 import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'
+import { messageType } from '@/utils/constants'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -121,7 +122,7 @@ export default class ChatSearch extends Vue {
         const keys: any = []
         data.forEach((item: any) => {
           if (keys.indexOf(item.message_id) === -1) {
-            if (item.category.endsWith('_POST')) {
+            if (messageType(item.category) === 'post') {
               item.content = this.renderMdToText(item.content)
             }
             list.push(item)

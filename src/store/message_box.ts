@@ -1,6 +1,6 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
-import { PerPageMessageCount, MessageStatus } from '@/utils/constants'
+import { PerPageMessageCount, MessageStatus, messageType } from '@/utils/constants'
 import store from '@/store/store'
 
 class MessageBox {
@@ -48,7 +48,7 @@ class MessageBox {
       let markdownCount = 5
       for (let i = this.messages.length - 1; i >= 0; i--) {
         const type = this.messages[i].type
-        if (type.endsWith('_POST') || type.endsWith('_IMAGE') || type.endsWith('_STICKER')) {
+        if (['post', 'image', 'sticker'].indexOf(messageType(type)) > -1) {
           this.messages[i].fastLoad = true
           markdownCount--
         }

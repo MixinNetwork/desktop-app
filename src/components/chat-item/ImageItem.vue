@@ -69,7 +69,7 @@ import Blurhash from '@/components/blurhash/Blurhash.vue'
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import { MessageStatus, MediaStatus } from '@/utils/constants'
+import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
 import { isBlurhashValid } from 'blurhash'
 
@@ -119,7 +119,7 @@ export default class ImageItem extends Vue {
   }
 
   preview() {
-    if (this.message.type.endsWith('_IMAGE') && this.message.mediaUrl) {
+    if (messageType(this.message.type) === 'image' && this.message.mediaUrl) {
       let position = 0
       let local = messageDao.findImages(this.conversation.conversationId, this.currentMessages[0].messageId)
       let images = local.map((item: any, index: any) => {

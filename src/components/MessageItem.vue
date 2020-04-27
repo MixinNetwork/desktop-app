@@ -32,7 +32,7 @@
     </div>
 
     <StickerItem
-      v-else-if="message.type.endsWith('_STICKER')"
+      v-else-if="messageType() === 'sticker'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -51,7 +51,7 @@
     ></TransferItem>
 
     <ContactItem
-      v-else-if="message.type.endsWith('_CONTACT')"
+      v-else-if="messageType() === 'contact'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -62,7 +62,7 @@
     ></ContactItem>
 
     <FileItem
-      v-else-if="message.type.endsWith('_DATA')"
+      v-else-if="messageType() === 'file'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -74,7 +74,7 @@
     ></FileItem>
 
     <AudioItem
-      v-else-if="message.type.endsWith('_AUDIO')"
+      v-else-if="messageType() === 'audio'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -89,7 +89,7 @@
       :me="me"
       :showName="this.showUserName()"
       :conversation="conversation"
-      v-else-if="message.type.endsWith('_VIDEO')"
+      v-else-if="messageType() === 'video'"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -106,7 +106,7 @@
     ></RecallItem>
 
     <ImageItem
-      v-else-if="message.type.endsWith('_IMAGE')"
+      v-else-if="messageType() === 'image'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -117,7 +117,7 @@
     ></ImageItem>
 
     <LiveItem
-      v-else-if="message.type.endsWith('_LIVE')"
+      v-else-if="messageType() === 'live'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -128,7 +128,7 @@
     ></LiveItem>
 
     <LocationItem
-      v-else-if="message.type.endsWith('_LOCATION')"
+      v-else-if="messageType() === 'location'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -138,7 +138,7 @@
     ></LocationItem>
 
     <PostItem
-      v-else-if="message.type.endsWith('_POST')"
+      v-else-if="messageType() === 'post'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -216,7 +216,8 @@ import {
   canReply,
   canRecall,
   canForward,
-  MediaStatus
+  MediaStatus,
+  messageType
 } from '@/utils/constants'
 
 import ReplyMessageItem from './chat-item/ReplyMessageItem.vue'
@@ -422,32 +423,9 @@ export default class MessageItem extends Vue {
       receive: message.userId !== me.user_id
     }
   }
+
   messageType() {
-    let { message } = this
-    let type = message.type
-    if (type.endsWith('_STICKER')) {
-      return 'sticker'
-    } else if (type.endsWith('_IMAGE')) {
-      return 'image'
-    } else if (type.endsWith('_TEXT')) {
-      return 'text'
-    } else if (type.endsWith('_VIDEO')) {
-      return 'video'
-    } else if (type.endsWith('_AUDIO')) {
-      return 'audio'
-    } else if (type.endsWith('_DATA')) {
-      return 'file'
-    } else if (type.endsWith('_CONTACT')) {
-      return 'contact'
-    } else if (type.startsWith('APP_')) {
-      if (type === 'APP_CARD') {
-        return 'app_card'
-      } else {
-        return 'app_button'
-      }
-    } else {
-      return 'unknown'
-    }
+    return messageType(this.message.type)
   }
 
   get decryptFailedText() {

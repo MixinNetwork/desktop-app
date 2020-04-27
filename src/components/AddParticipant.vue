@@ -115,6 +115,10 @@ export default class AddParticipant extends Vue {
   }
 
   choiceClick(id: any) {
+    if (this.beforeSelected.indexOf(id) > -1) {
+      return
+    }
+
     const index = this.selectedList.indexOf(id)
     if (index > -1) {
       this.selectedList.splice(index, 1)

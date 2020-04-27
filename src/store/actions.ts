@@ -287,7 +287,6 @@ export default {
         }
       })
     )
-    commit('refreshParticipants', conversationId)
   },
   saveAccount: ({ commit }: any, user: any) => {
     userDao.insertUser(user)

@@ -274,6 +274,21 @@ export default {
       commit('setCurrentConversation', conversation)
     }
   },
+  addParticipants: async({ commit }: any, payload: { participants: any; conversationId: string }) => {
+    const { participants, conversationId } = payload
+    participantDao.insertAll(
+      participants.map((item: any) => {
+        conversationApi.participant(conversationId, 'ADD', item.user_id, '')
+        return {
+          conversation_id: conversationId,
+          user_id: item.user_id,
+          role: '',
+          created_at: item.created_at
+        }
+      })
+    )
+    commit('refreshParticipants', conversationId)
+  },
   saveAccount: ({ commit }: any, user: any) => {
     userDao.insertUser(user)
     commit('saveAccount', user)

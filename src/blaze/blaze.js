@@ -20,17 +20,6 @@ class Blaze {
     this.reconnecting = false
   }
 
-  resetLinkStatus() {
-    setTimeout(() => {
-      if (!this.ws) return
-      if (this.ws.readyState === WebSocket.CONNECTING) {
-        this.resetLinkStatus()
-      } else {
-        // store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-      }
-    }, 3000)
-  }
-
   connect() {
     if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
       return
@@ -44,7 +33,6 @@ class Blaze {
     const token = getToken('GET', '/', '')
     setTimeout(() => {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
-      this.resetLinkStatus()
     })
     if (!token) return
     this.ws = new RobustWebSocket(API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token, 'Mixin-Blaze-1')

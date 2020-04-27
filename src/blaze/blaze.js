@@ -21,11 +21,8 @@ class Blaze {
   }
 
   connect() {
-    if (this.ws && (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)) {
-      return
-    }
     if (this.ws) {
-      this.ws.close(3001, 'Unauthorized')
+      this.ws.close(1000, 'Normal close, should reconnect')
       this.ws = null
     }
 
@@ -74,7 +71,7 @@ class Blaze {
     })
     if (event.code === 1008) return
     console.log('---should reconnect--')
-    this.reconnectBlaze()
+    this.connect()
   }
   _onError(event) {
     console.log('-------onerrror--')
@@ -91,14 +88,6 @@ class Blaze {
       clearDb()
       router.push('/sign_in')
     }
-  }
-  reconnectBlaze() {
-    if (this.ws) {
-      this.ws.close(1000, 'Normal close, should reconnect')
-    }
-    setTimeout(() => {
-      this.connect()
-    }, 1500)
   }
   isConnect() {
     if (this.ws) {
@@ -128,7 +117,9 @@ class Blaze {
       if (blazeMsg.action === 'ERROR' && blazeMsg.error.code === 401) {
         accountApi.checkPing().then(
           _ => {
-            this.reconnectBlaze()
+            setTimeout(() => {
+              this.connect()
+            }, 1500)
           },
           err => {
             console.log(err)
@@ -182,7 +173,7 @@ class Blaze {
           clearTimeout(timer)
         })
         timer = setTimeout(function() {
-          self.reconnectBlaze()
+          self.connect()
           reject(timeout)
         }, 5000)
       })

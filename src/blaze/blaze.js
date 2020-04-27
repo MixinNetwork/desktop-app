@@ -79,6 +79,7 @@ class Blaze {
   _onClose(event) {
     if (this.reconnecting) return
     console.log('---onclose--')
+    store.dispatch('setLinkStatus', LinkStatus.ERROR)
     this.reconnecting = true
     setTimeout(() => {
       this.reconnecting = false

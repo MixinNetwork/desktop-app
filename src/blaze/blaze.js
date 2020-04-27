@@ -18,17 +18,10 @@ class Blaze {
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
     this.sendMessageTimer = null
-    this.connectTimer = null
   }
 
   connect() {
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      clearTimeout(this.connectTimer)
-      this.connectTimer = setTimeout(() => {
-        this.connect()
-      }, 1500)
-      return
-    }
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close(1000, 'Normal close, should reconnect')
@@ -41,19 +34,23 @@ class Blaze {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     })
     if (!token) return
-    this.ws = new RobustWebSocket(API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token, 'Mixin-Blaze-1')
+    this.ws = new RobustWebSocket(
+      API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
+      'Mixin-Blaze-1',
+      {
+        shouldReconnect: function() {
+          return false
+        }
+      }
+    )
     this.retryCount += 1
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
-    var self = this
-    return new Promise((resolve, reject) => {
-      this.ws.addEventListener('open', function(event) {
-        self._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function(resp) {
-          console.log(resp)
-          store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-        })
-        resolve()
+    this.ws.addEventListener('open', event => {
+      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function(resp) {
+        console.log(resp)
+        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
     })
   }
@@ -83,8 +80,10 @@ class Blaze {
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
   _sendGzip(data, result) {
-    this.transactions[data.id] = result
-    this.ws.send(pako.gzip(JSON.stringify(data)))
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.transactions[data.id] = result
+      this.ws.send(pako.gzip(JSON.stringify(data)))
+    }
   }
   closeBlaze() {
     if (this.ws) {
@@ -153,33 +152,28 @@ class Blaze {
   }
 
   sendMessage(message) {
-    if (this.ws) {
-      this._sendGzip(message, function(resp) { })
-    }
+    this._sendGzip(message, function(resp) {})
   }
 
   sendMessagePromise(message) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
+      clearTimeout(this.sendMessageTimer)
+      this.sendMessageTimer = setTimeout(() => {
+        this.connecting = false
+        this.connect()
+        reject(this.TIMEOUT)
+      }, 5000)
+      this._sendGzip(message, resp => {
+        if (resp.data) {
+          resolve(resp.data)
+        } else if (resp.error) {
+          reject(resp.error)
+        } else {
+          resolve(resp)
+        }
         clearTimeout(this.sendMessageTimer)
-        this.sendMessageTimer = setTimeout(() => {
-          this.connect()
-          reject(this.TIMEOUT)
-        }, 5000)
-        this._sendGzip(message, (resp) => {
-          if (resp.data) {
-            resolve(resp.data)
-          } else if (resp.error) {
-            reject(resp.error)
-          } else {
-            resolve(resp)
-          }
-          clearTimeout(this.sendMessageTimer)
-        })
       })
-    } else {
-      this.connect()
-    }
+    })
   }
 
   makeMessageStatus(status, messageId) {

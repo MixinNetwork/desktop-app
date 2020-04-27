@@ -18,6 +18,7 @@ class Blaze {
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
     this.reconnecting = false
+    this.sendMessageTimer = null
   }
 
   connect() {
@@ -158,11 +159,13 @@ class Blaze {
 
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      var self = this
       return new Promise((resolve, reject) => {
-        let timer
-        let timeout = this.TIMEOUT
-        this._sendGzip(message, function(resp) {
+        clearTimeout(this.sendMessageTimer)
+        this.sendMessageTimer = setTimeout(() => {
+          this.connect()
+          reject(this.TIMEOUT)
+        }, 5000)
+        this._sendGzip(message, (resp) => {
           if (resp.data) {
             resolve(resp.data)
           } else if (resp.error) {
@@ -170,12 +173,8 @@ class Blaze {
           } else {
             resolve(resp)
           }
-          clearTimeout(timer)
+          clearTimeout(this.sendMessageTimer)
         })
-        timer = setTimeout(function() {
-          self.connect()
-          reject(timeout)
-        }, 5000)
       })
     } else if (this.ws && this.ws.readyState === WebSocket.CLOSED) {
       setTimeout(() => {

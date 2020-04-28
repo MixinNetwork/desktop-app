@@ -71,27 +71,8 @@ class SignalProtocol {
   }
 
   convertToDeviceId(sessionId) {
-    let components = sessionId.split('-')
-    components = components.map(item => '0x' + item)
-    let mostSigBits = BigInt(components[0])
-    mostSigBits <<= 16n
-    let c1 = BigInt(components[1])
-    mostSigBits |= c1
-    mostSigBits = mostSigBits << 16n
-    mostSigBits = BigInt.asIntN(64, mostSigBits)
-    let c2 = BigInt(components[2])
-    mostSigBits |= c2
-    let leastSigBits = BigInt(components[3])
-    leastSigBits <<= 48n
-    leastSigBits = BigInt.asIntN(64, leastSigBits)
-    let c4 = BigInt(components[4])
-    leastSigBits |= c4
-    let hilo = mostSigBits ^ leastSigBits
-    hilo = BigInt.asIntN(64, hilo)
-    let m = BigInt.asIntN(32, (hilo >> 32n))
-    let n = BigInt.asIntN(32, hilo)
-    let result = Number(m ^ n)
-    return Math.abs(result)
+    const deviceId = uuidHashCodeFromGo(sessionId)
+    return deviceId
   }
   isExistSenderKey(groupId, senderId, deviceId) {
     const result = isExistSenderKeyFromGo(groupId, senderId, deviceId)

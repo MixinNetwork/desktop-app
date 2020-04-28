@@ -8,7 +8,6 @@ const mixinPath = path.join(getDbPath(), 'mixin.db3')
 const migration = path.join(__static, '/migrations')
 DB({
   path: mixinPath,
-  memory: false,
   readonly: false,
   fileMustExist: false,
   WAL: true,

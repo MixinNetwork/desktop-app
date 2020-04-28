@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import signalDb from '@/persistence/signal_db'
 import signalDao from './signal_dao'
-import {hexToBytes} from '@/utils/util'
+import { hexToBytes } from '@/utils/util'
 
 class SignalProtocol {
   createKeyPair(privKey) {
@@ -23,7 +23,7 @@ class SignalProtocol {
       const preKey = preKeys[i]
       const str = String.fromCharCode.apply(String, hexToBytes(preKey))
       const row = JSON.parse(str)
-      rows.push({id: row.ID, record: str})
+      rows.push({ id: row.ID, record: str })
     }
 
     const stmt = signalDb.prepare('INSERT OR REPLACE INTO prekeys (prekey_id, record) VALUES (@id, @record)')
@@ -46,7 +46,7 @@ class SignalProtocol {
 
     const signed = JSON.parse(result)
     const stmt = signalDb.prepare('INSERT OR REPLACE INTO signed_prekeys (prekey_id, record) VALUES (@id, @record)')
-    stmt.run({id: signed.ID, record: result})
+    stmt.run({ id: signed.ID, record: result })
     return signed
   }
 
@@ -71,8 +71,27 @@ class SignalProtocol {
   }
 
   convertToDeviceId(sessionId) {
-    const deviceId = uuidHashCodeFromGo(sessionId)
-    return deviceId
+    let components = sessionId.split('-')
+    components = components.map(item => '0x' + item)
+    let mostSigBits = BigInt(components[0])
+    mostSigBits <<= 16n
+    let c1 = BigInt(components[1])
+    mostSigBits |= c1
+    mostSigBits = mostSigBits << 16n
+    mostSigBits = BigInt.asIntN(64, mostSigBits)
+    let c2 = BigInt(components[2])
+    mostSigBits |= c2
+    let leastSigBits = BigInt(components[3])
+    leastSigBits <<= 48n
+    leastSigBits = BigInt.asIntN(64, leastSigBits)
+    let c4 = BigInt(components[4])
+    leastSigBits |= c4
+    let hilo = mostSigBits ^ leastSigBits
+    hilo = BigInt.asIntN(64, hilo)
+    let m = BigInt.asIntN(32, (hilo >> 32n))
+    let n = BigInt.asIntN(32, hilo)
+    let result = Number(m ^ n)
+    return Math.abs(result)
   }
   isExistSenderKey(groupId, senderId, deviceId) {
     const result = isExistSenderKeyFromGo(groupId, senderId, deviceId)

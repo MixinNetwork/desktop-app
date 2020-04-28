@@ -1,5 +1,5 @@
 <template>
-  <div ref="scroll" class="blurhash">
+  <div ref="blurhash" class="blurhash">
     <canvas ref="canvas" />
   </div>
 </template>
@@ -11,20 +11,24 @@ import { encodeImageToBlurhash, decodeImageToCanvas } from './index'
 @Component
 export default class Blurhash extends Vue {
   @Prop(String) readonly image: any
-  @Prop(Number) readonly width: any
-  @Prop(Number) readonly height: any
+  @Prop(String) readonly mediaUrl: any
 
   data: any = null
 
-  mounted() {
-    // this.data = await encodeImageToBlurhash(this.image)
-    // const pixels = decodeImageToCanvas('UXC%BZbHIVs:4nayNGWB~pa}R*of4nayt6WB', 32, 32)
-    const pixels = decodeImageToCanvas(this.image, this.width, this.height)
+  async mounted() {
+    const target: any = this.$refs.blurhash
+    const width = target.offsetWidth
+    const height = target.offsetHeight
+    // // encode demo, too slow
+    // this.data = await encodeImageToBlurhash(this.mediaUrl)
+    // this.data = 'UGHn:600%L%g8^MxNbo}~pxvS6V?00kWxaix'
+    // const pixels = decodeImageToCanvas(this.data, width, height)
+    const pixels = decodeImageToCanvas(this.image, width, height)
     const canvas: any = this.$refs.canvas
     const ctx: any = canvas.getContext('2d')
-    canvas.width = this.width
-    canvas.height = this.height
-    const imageData = ctx.createImageData(this.width, this.height)
+    canvas.width = width
+    canvas.height = height
+    const imageData = ctx.createImageData(width, height)
     imageData.data.set(pixels)
     ctx.putImageData(imageData, 0, 0)
   }
@@ -35,6 +39,7 @@ export default class Blurhash extends Vue {
 .blurhash {
   position: absolute;
   cursor: default;
+  overflow: hidden;
   width: 100%;
   height: 100%;
   top: 0;

@@ -34,8 +34,7 @@
                 <Blurhash
                   v-if="isBlur && !imgLoaded"
                   :image="message.thumbImage"
-                  :width="message.mediaWidth"
-                  :height="message.mediaHeight"
+                  :mediaUrl="message.mediaUrl"
                 />
               </div>
             </div>

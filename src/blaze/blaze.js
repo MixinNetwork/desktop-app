@@ -22,6 +22,15 @@ class Blaze {
   }
 
   connect() {
+    clearInterval(this.wsInterval)
+    this.wsInterval = setInterval(() => {
+      if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
+        console.log('---ws reconnect---')
+        this.ws = null
+        this.connect()
+      }
+    }, 15000)
+
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -54,13 +63,6 @@ class Blaze {
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
     })
-    clearInterval(this.wsInterval)
-    this.wsInterval = setInterval(() => {
-      if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
-        console.log('---ws reconnect---')
-        this.connect()
-      }
-    }, 15000)
   }
 
   async _onMessage(event) {

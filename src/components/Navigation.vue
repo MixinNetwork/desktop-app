@@ -25,7 +25,7 @@
             <label class="info">{{getLinkContent()}}</label>
           </div>
         </div>
-        <div v-else-if="linkStatus === LinkStatus.CONNECTING">
+        <div v-else-if="linkStatus !== LinkStatus.CONNECTED">
           <spinner class="loading" stroke="#aaa" />
           <label style="line-height: 1.9rem; color: #555">{{getConnectingTitle()}}</label>
         </div>

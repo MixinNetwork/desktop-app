@@ -55,6 +55,7 @@ class Blaze {
       }
     )
     this.retryCount += 1
+    this.reconnectAfter = new Date().getTime() + 15 * 1000
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)

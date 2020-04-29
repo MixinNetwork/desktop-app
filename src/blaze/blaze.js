@@ -17,7 +17,6 @@ class Blaze {
     this.retryCount = 0
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.sendMessageTimer = null
     this.wsInterval = null
     this.reconnectAfter = 0
   }
@@ -176,8 +175,7 @@ class Blaze {
 
   sendMessagePromise(message) {
     return new Promise((resolve, reject) => {
-      clearTimeout(this.sendMessageTimer)
-      this.sendMessageTimer = setTimeout(() => {
+      const sendMessageTimer = setTimeout(() => {
         this.connect()
         reject(this.TIMEOUT)
       }, 5000)
@@ -189,7 +187,7 @@ class Blaze {
         } else {
           resolve(resp)
         }
-        clearTimeout(this.sendMessageTimer)
+        clearTimeout(sendMessageTimer)
       })
     })
   }

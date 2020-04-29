@@ -25,6 +25,7 @@ class Blaze {
   connect() {
     clearInterval(this.wsInterval)
     this.wsInterval = setInterval(() => {
+      console.log('-----ws status----', this.ws.readyState)
       if (this.reconnectAfter - new Date().getTime() < 0) {
         console.log('---ws reconnect---')
         this.ws = null
@@ -96,6 +97,10 @@ class Blaze {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.transactions[data.id] = result
       this.ws.send(pako.gzip(JSON.stringify(data)))
+    } else {
+      setTimeout(() => {
+        this._sendGzip(data, result)
+      }, 5000)
     }
   }
   closeBlaze() {
@@ -173,7 +178,6 @@ class Blaze {
     return new Promise((resolve, reject) => {
       clearTimeout(this.sendMessageTimer)
       this.sendMessageTimer = setTimeout(() => {
-        this.connecting = false
         this.connect()
         reject(this.TIMEOUT)
       }, 5000)

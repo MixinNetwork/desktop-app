@@ -102,9 +102,10 @@ function uuidHashCode(sessionId) {
   components = components.map(item => '0x' + item)
   let mostSigBits = BigInt(components[0])
   mostSigBits <<= 16n
+  mostSigBits = BigInt.asIntN(64, mostSigBits)
   let c1 = BigInt(components[1])
   mostSigBits |= c1
-  mostSigBits = mostSigBits << 16n
+  mostSigBits <<= 16n
   mostSigBits = BigInt.asIntN(64, mostSigBits)
   let c2 = BigInt(components[2])
   mostSigBits |= c2

@@ -112,7 +112,7 @@ export default class BadgeItem extends Vue {
     } else if (this.messageType() === 'image' || this.messageType() === 'live') {
       style.width = '4rem'
       style.background = `linear-gradient(23deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-    } else if (this.type.startsWith('APP_BUTTON')) {
+    } else if (this.messageType() === 'app_button_group') {
       style.width = '1.74rem'
       style.height = '0.8rem'
       style.padding = '0.2rem 0.1rem'

@@ -148,7 +148,7 @@
     ></PostItem>
 
     <AppCardItem
-      v-else-if="message.type.startsWith('APP_CARD')"
+      v-else-if="messageType() === 'app_card'"
       :message="message"
       :me="me"
       :showName="this.showUserName()"
@@ -157,7 +157,7 @@
     ></AppCardItem>
 
     <AppButtonItem
-      v-else-if="message.type.startsWith('APP_BUTTON')"
+      v-else-if="messageType() === 'app_button_group'"
       :message="message"
       :showName="this.showUserName()"
       @action-click="actionClick"
@@ -377,7 +377,7 @@ export default class MessageItem extends Vue {
   showUserName() {
     if (
       !this.conversation ||
-      ((this.message.type.startsWith('APP_CARD') || this.message.type.startsWith('APP_BUTTON')) &&
+      (['app_card', 'app_button_group'].indexOf(this.messageType()) > -1 &&
         this.conversation.category === ConversationCategory.CONTACT)
     ) {
       return false

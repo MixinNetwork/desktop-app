@@ -57,7 +57,7 @@
         <svg-icon
           icon-class="ic_message_bot_menu"
           class="reply_icon"
-          v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
+          v-else-if="messageType() === 'app_card' || messageType() === 'app_button_group'"
         />
         <span v-html="$w(getContent)"></span>
       </span>
@@ -151,7 +151,7 @@ export default class ReplyMessageItem extends Vue {
       return this.$t('chat.chat_live')
     } else if (curMessageType === 'audio') {
       return this.$moment((Math.round((this.message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss')
-    } else if (this.message.type.startsWith('APP_CARD')) {
+    } else if (curMessageType === 'app_card') {
       return JSON.parse(this.message.content).description
     } else if (curMessageType === 'file') {
       return this.message.mediaName

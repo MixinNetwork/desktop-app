@@ -176,16 +176,14 @@ export default class ConversationItem extends Vue {
       return this.getMessageName() + this.$t('chat.chat_location')
     } else if (curMessageType === 'post') {
       return this.getMessageName() + this.$t('chat.chat_post')
-    } else if (contentType.startsWith('APP_')) {
-      if (contentType === 'APP_CARD') {
-        return `[${JSON.parse(content).title}]`
-      } else {
-        let str = ''
-        JSON.parse(content).forEach((item: any) => {
-          str += `[${item.label}]`
-        })
-        return str
-      }
+    } else if (curMessageType === 'app_card') {
+      return `[${JSON.parse(content).title}]`
+    } else if (curMessageType === 'app_button_group') {
+      let str = ''
+      JSON.parse(content).forEach((item: any) => {
+        str += `[${item.label}]`
+      })
+      return str
     } else if (contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
       return this.$t('chat.chat_transfer')
     } else if (contentType === 'MESSAGE_RECALL') {

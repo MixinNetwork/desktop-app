@@ -1,6 +1,6 @@
 import attachmentApi from '@/api/attachment'
 import { remote, nativeImage, ipcRenderer } from 'electron'
-import { MimeType } from '@/utils/constants'
+import { MimeType, messageType } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
 // @ts-ignore
@@ -281,7 +281,7 @@ export async function putAttachment(
     conversationId
   } = payload
   const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id, conversationId)
-  if (category.endsWith('_IMAGE')) {
+  if (messageType(category) === 'image') {
     // @ts-ignore
     const dimensions = sizeOf(localPath)
     mediaWidth = dimensions.width
@@ -408,14 +408,14 @@ function generateName(fileName: string, mimeType: string, category: string, id: 
     signalProtocol.convertToDeviceId(id)
   )}`
   let header
-  if (category.endsWith('_IMAGE')) {
+  if (messageType(category) === 'image') {
     header = 'IMG'
-  } else if (category.endsWith('_VIDEO')) {
+  } else if (messageType(category) === 'video') {
     header = 'VID'
     return `${header}_${name}.mp4`
-  } else if (category.endsWith('_DATA')) {
+  } else if (messageType(category) === 'file') {
     header = 'FILE'
-  } else if (category.endsWith('_AUDIO')) {
+  } else if (messageType(category) === 'audio') {
     header = 'AUDIO'
     return `${header}_${name}.ogg`
   }

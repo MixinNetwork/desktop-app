@@ -100,7 +100,7 @@
                   >
                     <svg-icon
                       v-if="optionName === 'edit'"
-                      :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1 ? 'ic_choice_selected' : 'ic_choice'"
+                      :icon-class="selectedIndex(chat.conversationId, 'conversation_id') > -1?'ic_choice_selected':'ic_choice'"
                       :class="{selected: selectedIndex(chat.conversationId, 'conversation_id') > -1}"
                       class="choice-icon"
                     />
@@ -115,7 +115,7 @@
                   >
                     <svg-icon
                       v-if="optionName === 'edit'"
-                      :icon-class="selectedIndex(user.user_id, 'user_id') > -1 ? 'ic_choice_selected' : 'ic_choice'"
+                      :icon-class="selectedIndex(user.user_id, 'user_id') > -1?'ic_choice_selected':'ic_choice'"
                       :class="{selected: selectedIndex(user.user_id, 'user_id') > -1}"
                       class="choice-icon"
                     />

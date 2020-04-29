@@ -17,6 +17,7 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 
 import contentUtil from '@/utils/content_util'
 import Avatar from '@/components/Avatar.vue'
+import { messageType } from '@/utils/constants'
 
 @Component({
   components: {
@@ -35,7 +36,7 @@ export default class SearchItem extends Vue {
   }
   get content() {
     let content = this.item.content
-    if (this.item.category.endsWith('_DATA')) {
+    if (messageType(this.item.category) === 'file') {
       content = this.item.name
     }
     return content

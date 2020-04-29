@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import contentUtil from '@/utils/content_util'
-import { MessageStatus, SystemConversationAction, ConversationCategory } from '@/utils/constants'
+import { MessageStatus, SystemConversationAction, ConversationCategory, messageType } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
@@ -120,7 +120,8 @@ export default class ConversationItem extends Vue {
     } = this.conversation
     // @ts-ignore
     const id = JSON.parse(localStorage.getItem('account')).user_id
-    if (contentType && contentType.startsWith('SIGNAL_') && messageStatus === MessageStatus.FAILED) {
+    const curMessageType = messageType(contentType)
+    if (contentType.startsWith('SIGNAL_') && messageStatus === MessageStatus.FAILED) {
       return this.$t('chat.chat_decrypt_failed', {
         0: senderFullName
       })
@@ -154,41 +155,39 @@ export default class ConversationItem extends Vue {
       } else {
         return ''
       }
-    } else if (contentType && contentType.endsWith('_IMAGE')) {
+    } else if (curMessageType === 'image') {
       return this.getMessageName() + this.$t('chat.chat_pic')
-    } else if (contentType && contentType.endsWith('_STICKER')) {
+    } else if (curMessageType === 'sticker') {
       return this.getMessageName() + this.$t('chat.chat_sticker')
-    } else if (contentType && contentType.endsWith('_TEXT')) {
+    } else if (curMessageType === 'text') {
       content = contentUtil.renderMention(content, mentions)
       content = contentUtil.renderUrl(content)
       return this.getMessageName() + content
-    } else if (contentType && contentType.endsWith('_CONTACT')) {
+    } else if (curMessageType === 'contact') {
       return this.getMessageName() + this.$t('chat.chat_contact')
-    } else if (contentType && contentType.endsWith('_DATA')) {
+    } else if (curMessageType === 'file') {
       return this.getMessageName() + this.$t('chat.chat_file')
-    } else if (contentType && contentType.endsWith('_AUDIO')) {
+    } else if (curMessageType === 'audio') {
       return this.getMessageName() + this.$t('chat.chat_audio')
-    } else if (contentType && contentType.endsWith('_VIDEO')) {
+    } else if (curMessageType === 'video') {
       return this.getMessageName() + this.$t('chat.chat_video')
-    } else if (contentType && contentType.endsWith('_LIVE')) {
+    } else if (curMessageType === 'live') {
       return this.getMessageName() + this.$t('chat.chat_live')
-    } else if (contentType && contentType.endsWith('_LOCATION')) {
+    } else if (curMessageType === 'location') {
       return this.getMessageName() + this.$t('chat.chat_location')
-    } else if (contentType && contentType.endsWith('_POST')) {
+    } else if (curMessageType === 'post') {
       return this.getMessageName() + this.$t('chat.chat_post')
-    } else if (contentType && contentType.startsWith('APP_')) {
-      if (contentType === 'APP_CARD') {
-        return `[${JSON.parse(content).title}]`
-      } else {
-        let str = ''
-        JSON.parse(content).forEach((item: any) => {
-          str += `[${item.label}]`
-        })
-        return str
-      }
-    } else if (contentType && contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
+    } else if (curMessageType === 'app_card') {
+      return `[${JSON.parse(content).title}]`
+    } else if (curMessageType === 'app_button_group') {
+      let str = ''
+      JSON.parse(content).forEach((item: any) => {
+        str += `[${item.label}]`
+      })
+      return str
+    } else if (contentType === 'SYSTEM_ACCOUNT_SNAPSHOT') {
       return this.$t('chat.chat_transfer')
-    } else if (contentType && contentType === 'MESSAGE_RECALL') {
+    } else if (contentType === 'MESSAGE_RECALL') {
       if (id === senderId) {
         return this.getMessageName() + this.$t('chat.chat_recall_me')
       } else {

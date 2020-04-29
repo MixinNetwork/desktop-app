@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import db from '@/persistence/db'
 import contentUtil from '@/utils/content_util'
 import messageMentionDao from '@/dao/message_mention_dao'
-import { PerPageMessageCount, getCompleteMessage } from '@/utils/constants'
+import { PerPageMessageCount, getCompleteMessage, messageType } from '@/utils/constants'
 
 class MessageDao {
   me() {
@@ -22,13 +22,13 @@ class MessageDao {
   }
 
   insertOrReplaceMessageFtsWrapper(message: any) {
-    if (message.category.endsWith('_TEXT')) {
+    if (messageType(message.category) === 'text') {
       this.insertOrReplaceMessageFts(message.message_id, message.content)
     }
-    if (message.category.endsWith('_DATA')) {
+    if (messageType(message.category) === 'file') {
       this.insertOrReplaceMessageFts(message.message_id, message.name)
     }
-    if (message.category.endsWith('_POST')) {
+    if (messageType(message.category) === 'post') {
       const content = contentUtil.renderMdToText(message.content)
       this.insertOrReplaceMessageFts(message.message_id, content)
     }
@@ -61,9 +61,9 @@ class MessageDao {
       createdAt
     ])
     let content = message.content
-    if (message.category.endsWith('_POST')) {
+    if (messageType(message.category) === 'post') {
       content = contentUtil.renderMdToText(content)
-    } else if (message.category.endsWith('_TEXT')) {
+    } else if (messageType(message.category) === 'text') {
       contentUtil.parseMention(message.content, message.conversationId, messageId, messageMentionDao)
     }
     this.insertOrReplaceMessageFts(messageId, content)
@@ -112,7 +112,7 @@ class MessageDao {
       quoteMessageId,
       quoteContent
     ])
-    if (message.category.endsWith('_TEXT')) {
+    if (messageType(message.category) === 'text') {
       this.insertOrReplaceMessageFts(messageId, message.content)
       contentUtil.parseMention(message.content, message.conversationId, messageId, messageMentionDao)
     }
@@ -215,15 +215,15 @@ class MessageDao {
     )
     const insertMany = db.transaction((messages: any[]) => {
       messages.forEach((message: any) => {
-        if (message.content && message.category.endsWith('_TEXT')) {
+        if (message.content && messageType(message.category) === 'text') {
           message.content = contentUtil.fts5ContentFilter(message.content)
           insert.run(message)
         }
-        if (message.name && message.category.endsWith('_DATA')) {
+        if (message.name && messageType(message.category) === 'file') {
           message.content = contentUtil.fts5ContentFilter(message.name)
           insert.run(message)
         }
-        if (message.content && message.category.endsWith('_POST')) {
+        if (message.content && messageType(message.category) === 'post') {
           message.content = contentUtil.renderMdToText(message.content)
           message.content = contentUtil.fts5ContentFilter(message.content)
           insert.run(message)
@@ -333,7 +333,9 @@ class MessageDao {
   }
 
   findConversationsByMessages(messageIds: any) {
-    const sql = `SELECT DISTINCT conversation_id FROM messages WHERE message_id IN (${messageIds.map(() => '?').join(',')})`
+    const sql = `SELECT DISTINCT conversation_id FROM messages WHERE message_id IN (${messageIds
+      .map(() => '?')
+      .join(',')})`
     return db.prepare(sql).all(messageIds)
   }
 
@@ -342,7 +344,9 @@ class MessageDao {
   }
 
   markMessageRead(messageIds: any) {
-    const sql = `UPDATE messages SET status = 'READ' WHERE message_id IN (${messageIds.map(() => '?').join(',')}) AND status != 'FAILED'`
+    const sql = `UPDATE messages SET status = 'READ' WHERE message_id IN (${messageIds
+      .map(() => '?')
+      .join(',')}) AND status != 'FAILED'`
     db.prepare(sql).run(messageIds)
   }
 

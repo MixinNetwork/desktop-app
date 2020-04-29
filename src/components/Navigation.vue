@@ -39,7 +39,7 @@
         }}
       </div>
       <div class="search-wrapper">
-        <Search id="navigationSearch" class="nav" @input="onInput" />
+        <Search id="navigationSearch" class="nav" @input="onInput" @searchBack="showMoreBack" />
       </div>
 
       <h5

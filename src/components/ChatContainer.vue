@@ -18,7 +18,12 @@
         <svg-icon icon-class="ic_search" />
       </div>
       <div class="attachment" @click="chooseAttachment">
-        <input type="file" style="display: none" ref="attachmentInput" @change="chooseAttachmentDone" />
+        <input
+          type="file"
+          style="display: none"
+          ref="attachmentInput"
+          @change="chooseAttachmentDone"
+        />
         <svg-icon icon-class="ic_attach" />
       </div>
       <div class="bot" v-show="user && user.app_id!=null" @click="openUrl">
@@ -116,6 +121,13 @@
       @close="handleHideMessageForward"
     />
 
+    <AddParticipant
+      v-if="participantAdd"
+      :participants="conversation.participants"
+      @close="participantAdd=false"
+      @done="participantAddDone"
+    />
+
     <div class="empty" v-if="!conversation && startup">
       <span>
         <img src="../assets/empty.png" />
@@ -145,6 +157,7 @@
         v-show="details"
         :details="details"
         @close="hideDetails"
+        @add-participant="participantAdd=true"
       ></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
@@ -189,6 +202,7 @@ import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import MessageForward from '@/components/MessageForward.vue'
+import AddParticipant from '@/components/AddParticipant.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
@@ -206,6 +220,7 @@ import appDao from '@/dao/app_dao'
     MessageItem,
     FileContainer,
     MessageForward,
+    AddParticipant,
     Editor
   }
 })
@@ -374,6 +389,8 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
   hideTimeDivide: boolean = false
 
+  participantAdd: boolean = false
+
   get currentMentionNum() {
     if (!this.conversation) return
     const mentions = this.conversationUnseenMentionsMap[this.conversation.conversationId]
@@ -492,6 +509,15 @@ export default class ChatContainer extends Vue {
     if (this.$refs.inputBox) {
       this.$refs.inputBox.hideChoosePanel()
     }
+  }
+
+  participantAddDone(participants: any) {
+    this.participantAdd = false
+    const { conversationId } = this.conversation
+    this.$store.dispatch('addParticipants', {
+      participants,
+      conversationId
+    })
   }
 
   panelHeight: number = 12

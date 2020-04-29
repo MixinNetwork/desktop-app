@@ -24,7 +24,6 @@ class Blaze {
   connect() {
     clearInterval(this.wsInterval)
     this.wsInterval = setInterval(() => {
-      console.log('-----ws status----', this.ws.readyState)
       if (this.reconnectAfter - new Date().getTime() < 0) {
         console.log('---ws reconnect---')
         this.ws = null
@@ -32,7 +31,10 @@ class Blaze {
       }
     }, 15000)
 
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+      this.reconnectAfter = new Date().getTime() + 15 * 1000
+      return
+    }
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close(1000, 'Normal close, should reconnect')
@@ -55,7 +57,6 @@ class Blaze {
       }
     )
     this.retryCount += 1
-    this.reconnectAfter = new Date().getTime() + 15 * 1000
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)

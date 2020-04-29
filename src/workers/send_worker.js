@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import signalProtocol from '@/crypto/signal'
 import Vue from 'vue'
 import BaseWorker from './base_worker'
-import { MessageStatus, MessageCategories } from '@/utils/constants'
+import { MessageStatus, MessageCategories, messageType } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 
 class SendWorker extends BaseWorker {
@@ -26,7 +26,7 @@ class SendWorker extends BaseWorker {
 
     let recipientId = ''
     let mentions
-    if (message.category.endsWith('_TEXT')) {
+    if (messageType(message.category) === 'text') {
       const botNumber = contentUtil.getBotNumber(message.content)
       if (botNumber) {
         const recipient = userDao.findUserIdByAppNumber(message.conversation_id, botNumber)

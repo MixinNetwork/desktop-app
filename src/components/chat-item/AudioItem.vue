@@ -76,7 +76,7 @@ import ReplyMessageItem from './ReplyMessageItem.vue'
 import spinner from '@/components/Spinner.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import { MessageStatus, MediaStatus } from '@/utils/constants'
+import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
@@ -185,7 +185,7 @@ export default class AudioItem extends Vue {
       let nextAudioMessage = null
       let currentAudioId = ''
       for (let i = 0; i < messages.length; i++) {
-        if (messages[i].type.endsWith('_AUDIO') && this.message.mediaUrl) {
+        if (messageType(messages[i].type) === 'audio' && this.message.mediaUrl) {
           if (currentAudioId) {
             nextAudioMessage = messages[i]
             break

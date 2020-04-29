@@ -10,7 +10,8 @@ import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import userApi from '@/api/user'
 import { generateConversationId } from '@/utils/util'
-import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
+import { messageType, ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
+
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
 // @ts-ignore
@@ -274,20 +275,6 @@ export default {
       commit('setCurrentConversation', conversation)
     }
   },
-  addParticipants: async({ commit }: any, payload: { participants: any; conversationId: string }) => {
-    const { participants, conversationId } = payload
-    participantDao.insertAll(
-      participants.map((item: any) => {
-        conversationApi.participant(conversationId, 'ADD', item.user_id, '')
-        return {
-          conversation_id: conversationId,
-          user_id: item.user_id,
-          role: '',
-          created_at: item.created_at
-        }
-      })
-    )
-  },
   saveAccount: ({ commit }: any, user: any) => {
     userDao.insertUser(user)
     commit('saveAccount', user)
@@ -388,7 +375,7 @@ export default {
       }
     }
     if (!messageId) {
-      if (msg.category.endsWith('_CONTACT')) {
+      if (messageType(msg.category) === 'contact') {
         messageId = messageDao.insertContactMessage(msg)
       } else {
         messageId = messageDao.insertTextMessage(msg)

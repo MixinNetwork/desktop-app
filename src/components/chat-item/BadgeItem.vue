@@ -37,6 +37,7 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
+import { messageType } from '@/utils/constants'
 
 @Component
 export default class BadgeItem extends Vue {
@@ -79,13 +80,17 @@ export default class BadgeItem extends Vue {
     this.focus = false
   }
 
+  messageType() {
+    return messageType(this.type)
+  }
+
   get showExpand() {
-    return this.type.endsWith('_POST') || this.isLongPicture
+    return this.messageType() === 'post' || this.isLongPicture
   }
 
   get shadowStyle() {
     const style: any = {}
-    if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
+    if (this.type === 'MESSAGE_RECALL' || this.messageType() === 'text') {
       if (this.send) {
         style.right = '0.6rem'
         if (this.quote) {
@@ -104,10 +109,10 @@ export default class BadgeItem extends Vue {
           style.background = `linear-gradient(23deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 55%,rgba(255, 255, 255, 1) 65%,rgba(255, 255, 255, 1) 100%`
         }
       }
-    } else if (this.type.endsWith('_IMAGE') || this.type.endsWith('_LIVE')) {
+    } else if (this.messageType() === 'image' || this.messageType() === 'live') {
       style.width = '4rem'
       style.background = `linear-gradient(23deg,rgba(0, 0, 0, 0) 0%,rgba(0, 0, 0, 0) 50%,rgba(0, 0, 0, 0.45) 100%`
-    } else if (this.type.startsWith('APP_BUTTON')) {
+    } else if (this.messageType() === 'app_button_group') {
       style.width = '1.74rem'
       style.height = '0.8rem'
       style.padding = '0.2rem 0.1rem'
@@ -120,7 +125,7 @@ export default class BadgeItem extends Vue {
   }
   get iconStyle() {
     const color: any = { color: 'white' }
-    if (this.type === 'MESSAGE_RECALL' || this.type.endsWith('_TEXT')) {
+    if (this.type === 'MESSAGE_RECALL' || this.messageType() === 'text') {
       if (this.send) {
         color.right = '0.6rem'
         if (this.quote) {

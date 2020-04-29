@@ -200,12 +200,10 @@ export function messageType(type: string) {
     return 'location'
   } else if (type.endsWith('_POST')) {
     return 'post'
-  } else if (type.startsWith('APP_')) {
-    if (type === 'APP_CARD') {
-      return 'app_card'
-    } else {
-      return 'app_button'
-    }
+  } else if (type === 'APP_CARD') {
+    return 'app_card'
+  } else if (type === 'APP_BUTTON_GROUP') {
+    return 'app_button_group'
   } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
     return 'transfer'
   } else {

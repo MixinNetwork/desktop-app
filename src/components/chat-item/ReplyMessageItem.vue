@@ -57,35 +57,35 @@
         <svg-icon
           icon-class="ic_message_bot_menu"
           class="reply_icon"
-          v-else-if="messageType() === 'app_card' || messageType() === 'app_button'"
+          v-else-if="messageType() === 'app_card' || messageType() === 'app_button_group'"
         />
         <span v-html="$w(getContent)"></span>
       </span>
     </div>
     <img
       class="image"
-      v-if="message.type.endsWith('_IMAGE') && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'image' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
     />
     <img
       class="image"
-      v-if="message.type.endsWith('_VIDEO') && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'video' && (message.mediaUrl || message.assetUrl)"
       :src="'data:image/jpeg;base64,' + message.thumbImage"
     />
 
     <img
       class="image"
-      v-if="message.type.endsWith('_LIVE') && message.thumbUrl"
+      v-if="messageType() === 'live' && message.thumbUrl"
       :src="message.thumbUrl"
     />
     <img
       class="image"
-      v-if="message.type.endsWith('_STICKER') && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'sticker' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
     />
-    <Avatar class="avatar" v-if="message.type.endsWith('_CONTACT')" id="avatar" :user="user" />
+    <Avatar class="avatar" v-if="messageType() === 'contact'" id="avatar" :user="user" />
   </div>
 </template>
 <script lang="ts">
@@ -129,13 +129,14 @@ export default class ReplyMessageItem extends Vue {
     return null
   }
   get getContent() {
-    if (this.message.type.endsWith('_TEXT')) {
+    const curMessageType = this.messageType()
+    if (curMessageType === 'text') {
       let { mentions, content } = this.message
       content = contentUtil.renderMention(content, mentions)
       return content
-    } else if (this.message.type.endsWith('_STICKER')) {
+    } else if (curMessageType === 'sticker') {
       return this.$t('chat.chat_sticker')
-    } else if (this.message.type.endsWith('_IMAGE')) {
+    } else if (curMessageType === 'image') {
       return this.$t('chat.chat_pic')
     } else if (this.message.type === 'MESSAGE_RECALL') {
       let { message, me } = this
@@ -144,21 +145,21 @@ export default class ReplyMessageItem extends Vue {
       } else {
         return this.$t('chat.chat_recall_delete')
       }
-    } else if (this.message.type.endsWith('_VIDEO')) {
+    } else if (curMessageType === 'video') {
       return this.$t('chat.chat_video')
-    } else if (this.message.type.endsWith('_LIVE')) {
+    } else if (curMessageType === 'live') {
       return this.$t('chat.chat_live')
-    } else if (this.message.type.endsWith('_AUDIO')) {
+    } else if (curMessageType === 'audio') {
       return this.$moment((Math.round((this.message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss')
-    } else if (this.message.type.startsWith('APP_CARD')) {
+    } else if (curMessageType === 'app_card') {
       return JSON.parse(this.message.content).description
-    } else if (this.message.type.endsWith('_DATA')) {
+    } else if (curMessageType === 'file') {
       return this.message.mediaName
-    } else if (this.message.type.endsWith('_CONTACT')) {
+    } else if (curMessageType === 'contact') {
       return this.message.sharedUserIdentityNumber
-    } else if (this.message.type.endsWith('_LOCATION')) {
+    } else if (curMessageType === 'location') {
       return this.$t('chat.chat_location')
-    } else if (this.message.type.endsWith('_POST')) {
+    } else if (curMessageType === 'post') {
       return contentUtil.renderMdToText(this.message.content.substr(0, 50))
     } else {
       return null

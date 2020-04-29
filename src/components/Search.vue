@@ -103,6 +103,7 @@ export default class Search extends Vue {
     this.$emit('input', '')
     // @ts-ignore
     this.$refs.box.blur()
+    this.$emit('searchBack')
   }
   keyup(e: any) {
     if (e.keyCode === 27 && this.focus) {

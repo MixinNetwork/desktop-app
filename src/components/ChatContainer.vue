@@ -121,13 +121,6 @@
       @close="handleHideMessageForward"
     />
 
-    <AddParticipant
-      v-if="participantAdd"
-      :participants="conversation.participants"
-      @close="participantAdd=false"
-      @done="participantAddDone"
-    />
-
     <div class="empty" v-if="!conversation && startup">
       <span>
         <img src="../assets/empty.png" />
@@ -157,7 +150,6 @@
         v-show="details"
         :details="details"
         @close="hideDetails"
-        @add-participant="participantAdd=true"
       ></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
@@ -202,7 +194,6 @@ import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import MessageForward from '@/components/MessageForward.vue'
-import AddParticipant from '@/components/AddParticipant.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
@@ -220,7 +211,6 @@ import appDao from '@/dao/app_dao'
     MessageItem,
     FileContainer,
     MessageForward,
-    AddParticipant,
     Editor
   }
 })
@@ -291,7 +281,10 @@ export default class ChatContainer extends Vue {
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = this.messages[this.messages.length - 1]
-      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1]) {
+      if (
+        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
+        lastMessage.mentions
+      ) {
         this.actionMarkMentionRead({
           conversationId: this.conversation.conversationId,
           messageId: lastMessage.messageId
@@ -387,8 +380,6 @@ export default class ChatContainer extends Vue {
   threshold: number = 30
   showTopTips: boolean = false
   hideTimeDivide: boolean = false
-
-  participantAdd: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -508,15 +499,6 @@ export default class ChatContainer extends Vue {
     if (this.$refs.inputBox) {
       this.$refs.inputBox.hideChoosePanel()
     }
-  }
-
-  participantAddDone(participants: any) {
-    this.participantAdd = false
-    const { conversationId } = this.conversation
-    this.$store.dispatch('addParticipants', {
-      participants,
-      conversationId
-    })
   }
 
   panelHeight: number = 12

@@ -17,11 +17,21 @@ class Blaze {
     this.retryCount = 0
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.sendMessageTimer = null
     this.wsInterval = null
+    this.reconnectAfter = 0
   }
 
   connect() {
+    clearInterval(this.wsInterval)
+    this.wsInterval = setInterval(() => {
+      console.log('-----ws status----', this.ws.readyState)
+      if (this.reconnectAfter - new Date().getTime() < 0) {
+        console.log('---ws reconnect---')
+        this.ws = null
+        this.connect()
+      }
+    }, 15000)
+
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -45,22 +55,17 @@ class Blaze {
       }
     )
     this.retryCount += 1
+    this.reconnectAfter = new Date().getTime() + 15 * 1000
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
     this.ws.addEventListener('open', event => {
-      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, function(resp) {
+      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, (resp) => {
         console.log(resp)
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
+        this.reconnectAfter = new Date().getTime() + 1800 * 1000
       })
     })
-    clearInterval(this.wsInterval)
-    this.wsInterval = setInterval(() => {
-      if (this.ws && this.ws.readyState !== WebSocket.OPEN) {
-        console.log('---ws reconnect---')
-        this.connect()
-      }
-    }, 15000)
   }
 
   async _onMessage(event) {
@@ -91,6 +96,10 @@ class Blaze {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.transactions[data.id] = result
       this.ws.send(pako.gzip(JSON.stringify(data)))
+    } else {
+      setTimeout(() => {
+        this._sendGzip(data, result)
+      }, 5000)
     }
   }
   closeBlaze() {
@@ -166,9 +175,7 @@ class Blaze {
 
   sendMessagePromise(message) {
     return new Promise((resolve, reject) => {
-      clearTimeout(this.sendMessageTimer)
-      this.sendMessageTimer = setTimeout(() => {
-        this.connecting = false
+      const sendMessageTimer = setTimeout(() => {
         this.connect()
         reject(this.TIMEOUT)
       }, 5000)
@@ -180,7 +187,7 @@ class Blaze {
         } else {
           resolve(resp)
         }
-        clearTimeout(this.sendMessageTimer)
+        clearTimeout(sendMessageTimer)
       })
     })
   }

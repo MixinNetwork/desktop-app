@@ -68,11 +68,13 @@ export default class ChatSearch extends Vue {
   resultList: any = []
 
   @Watch('conversation')
-  onConversationChanged() {
-    this.resultList = []
-    this.searching = true
-    const keyword = this.searchingBefore.replace(/^key:/, '')
-    this.onInput(keyword)
+  onConversationChanged(val: any, oldVal: any) {
+    if (val.conversationId !== oldVal.conversationId || !this.resultList.length) {
+      this.resultList = []
+      this.searching = true
+      const keyword = this.searchingBefore.replace(/^key:/, '')
+      this.onInput(keyword)
+    }
   }
 
   @Watch('show')

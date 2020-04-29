@@ -19,6 +19,7 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.wsInterval = null
     this.reconnectAfter = 0
+    this.connecting = false
   }
 
   connect() {
@@ -27,12 +28,13 @@ class Blaze {
       if (this.reconnectAfter - new Date().getTime() < 0) {
         console.log('---ws reconnect---')
         this.ws = null
+        this.connecting = false
         this.connect()
       }
     }, 15000)
 
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      this.reconnectAfter = new Date().getTime() + 5 * 1000
+    if ((this.ws && this.ws.readyState === WebSocket.CONNECTING) || this.connecting) {
+      this.reconnectAfter = 0
       return
     }
 
@@ -43,6 +45,7 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
+    this.connecting = true
     setTimeout(() => {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     })
@@ -63,6 +66,7 @@ class Blaze {
     this.ws.addEventListener('open', event => {
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, (resp) => {
         console.log(resp)
+        this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
         this.reconnectAfter = new Date().getTime() + 1800 * 1000
       })

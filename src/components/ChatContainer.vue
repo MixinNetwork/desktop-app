@@ -18,7 +18,12 @@
         <svg-icon icon-class="ic_search" />
       </div>
       <div class="attachment" @click="chooseAttachment">
-        <input type="file" style="display: none" ref="attachmentInput" @change="chooseAttachmentDone" />
+        <input
+          type="file"
+          style="display: none"
+          ref="attachmentInput"
+          @change="chooseAttachmentDone"
+        />
         <svg-icon icon-class="ic_attach" />
       </div>
       <div class="bot" v-show="user && user.app_id!=null" @click="openUrl">
@@ -276,7 +281,10 @@ export default class ChatContainer extends Vue {
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = this.messages[this.messages.length - 1]
-      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1]) {
+      if (
+        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
+        lastMessage.mentions
+      ) {
         this.actionMarkMentionRead({
           conversationId: this.conversation.conversationId,
           messageId: lastMessage.messageId

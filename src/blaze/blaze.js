@@ -19,20 +19,24 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.wsInterval = null
     this.reconnectAfter = 0
+    this.connecting = false
   }
 
   connect() {
     clearInterval(this.wsInterval)
     this.wsInterval = setInterval(() => {
-      console.log('-----ws status----', this.ws.readyState)
       if (this.reconnectAfter - new Date().getTime() < 0) {
         console.log('---ws reconnect---')
         this.ws = null
+        this.connecting = false
         this.connect()
       }
     }, 15000)
 
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
+    if ((this.ws && this.ws.readyState === WebSocket.CONNECTING) || this.connecting) {
+      this.reconnectAfter = 0
+      return
+    }
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close(1000, 'Normal close, should reconnect')
@@ -41,6 +45,7 @@ class Blaze {
 
     this.account = JSON.parse(localStorage.getItem('account'))
     const token = getToken('GET', '/', '')
+    this.connecting = true
     setTimeout(() => {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     })
@@ -55,13 +60,13 @@ class Blaze {
       }
     )
     this.retryCount += 1
-    this.reconnectAfter = new Date().getTime() + 15 * 1000
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
     this.ws.addEventListener('open', event => {
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, (resp) => {
         console.log(resp)
+        this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
         this.reconnectAfter = new Date().getTime() + 1800 * 1000
       })
@@ -85,7 +90,9 @@ class Blaze {
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
     if (event.code === 1008) return
     console.log('---should reconnect--')
-    this.connect()
+    setTimeout(() => {
+      this.connect()
+    }, 1500)
   }
   _onError(event) {
     console.log('-------onerrror--')

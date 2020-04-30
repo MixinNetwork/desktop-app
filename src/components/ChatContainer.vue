@@ -19,6 +19,7 @@
       </div>
       <div class="attachment" @click="chooseAttachment">
         <input
+          v-if="hasFileInput"
           type="file"
           style="display: none"
           ref="attachmentInput"
@@ -371,6 +372,7 @@ export default class ChatContainer extends Vue {
   goSearchPos: boolean = false
   getLastMessage: boolean = false
   startup: boolean = true
+  hasFileInput: boolean = true
 
   scrollDirection: string = ''
   messageHeightMap: any = {}
@@ -689,6 +691,10 @@ export default class ChatContainer extends Vue {
   }
   chooseAttachmentDone(event: any) {
     this.file = event.target.files[0]
+    this.hasFileInput = false
+    setTimeout(() => {
+      this.hasFileInput = true
+    }, 10)
   }
 
   goMessagePosType: string = ''

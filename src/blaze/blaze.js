@@ -90,9 +90,7 @@ class Blaze {
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
     if (event.code === 1008) return
     console.log('---should reconnect--')
-    setTimeout(() => {
-      this.connect()
-    }, 1500)
+    this.connect()
   }
   _onError(event) {
     console.log('-------onerrror--')

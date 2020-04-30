@@ -32,7 +32,7 @@ class Blaze {
     }, 15000)
 
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      this.reconnectAfter = new Date().getTime() + 5 * 1000
+      this.reconnectAfter = 0
       return
     }
 
@@ -83,6 +83,7 @@ class Blaze {
   }
   _onClose(event) {
     console.log('---onclose--')
+    this.reconnectAfter = 0
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
     if (event.code === 1008) return
     console.log('---should reconnect--')
@@ -90,6 +91,7 @@ class Blaze {
   }
   _onError(event) {
     console.log('-------onerrror--')
+    this.reconnectAfter = 0
     console.log(event)
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }

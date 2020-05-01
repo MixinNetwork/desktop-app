@@ -18,14 +18,14 @@ class Blaze {
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
     this.connecting = false
-    this.connectTimeout = null
+    this.connectInterval = null
   }
 
   connect() {
-    const isNotClosing = this.ws && this.ws.readyState !== WebSocket.CLOSING
-    if (this.connecting && (!this.ws || isNotClosing)) return
+    if (this.connecting) return
     this.connecting = true
-    this.connectTimeout = setTimeout(() => {
+    clearInterval(this.connectInterval)
+    this.connectInterval = setInterval(() => {
       this.connecting = false
       this.connect()
     }, 15000)
@@ -59,7 +59,7 @@ class Blaze {
     this.ws.onopen = () => {
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, resp => {
         console.log(resp)
-        clearTimeout(this.connectTimeout)
+        clearInterval(this.connectInterval)
         this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })

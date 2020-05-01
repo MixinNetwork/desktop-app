@@ -22,7 +22,8 @@ class Blaze {
   }
 
   connect() {
-    if (this.connecting) return
+    const isNotClosing = this.ws && this.ws.readyState !== WebSocket.CLOSING
+    if (this.connecting && (!this.ws || isNotClosing)) return
     this.connecting = true
     this.connectTimeout = setTimeout(() => {
       this.connecting = false
@@ -55,14 +56,14 @@ class Blaze {
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
-    this.ws.addEventListener('open', event => {
-      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, (resp) => {
+    this.ws.onopen = () => {
+      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, resp => {
         console.log(resp)
         clearTimeout(this.connectTimeout)
         this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
-    })
+    }
   }
 
   async _onMessage(event) {

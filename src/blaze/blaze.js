@@ -17,24 +17,19 @@ class Blaze {
     this.retryCount = 0
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.wsInterval = null
-    this.reconnectAfter = 0
+    this.connecting = false
+    this.connectTimeout = null
   }
 
   connect() {
-    clearInterval(this.wsInterval)
-    this.wsInterval = setInterval(() => {
-      if (this.reconnectAfter - new Date().getTime() < 0) {
-        console.log('---ws reconnect---')
-        this.ws = null
-        this.connect()
-      }
+    if (this.connecting) return
+    this.connecting = true
+    this.connectTimeout = setTimeout(() => {
+      this.connecting = false
+      this.connect()
     }, 15000)
 
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      this.reconnectAfter = 0
-      return
-    }
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close(1000, 'Normal close, should reconnect')
@@ -63,8 +58,9 @@ class Blaze {
     this.ws.addEventListener('open', event => {
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, (resp) => {
         console.log(resp)
+        clearTimeout(this.connectTimeout)
+        this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-        this.reconnectAfter = new Date().getTime() + 1800 * 1000
       })
     })
   }
@@ -83,7 +79,6 @@ class Blaze {
   }
   _onClose(event) {
     console.log('---onclose--')
-    this.reconnectAfter = 0
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
     if (event.code === 1008) return
     console.log('---should reconnect--')
@@ -91,7 +86,6 @@ class Blaze {
   }
   _onError(event) {
     console.log('-------onerrror--')
-    this.reconnectAfter = 0
     console.log(event)
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
@@ -107,7 +101,6 @@ class Blaze {
   }
   closeBlaze() {
     if (this.ws) {
-      clearInterval(this.wsInterval)
       this.ws.close(3001, 'Unauthorized')
       clearDb()
       router.push('/sign_in')

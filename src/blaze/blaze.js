@@ -27,7 +27,7 @@ class Blaze {
     clearInterval(this.connectInterval)
     this.connectInterval = setInterval(() => {
       this.connecting = false
-      if (store.state.linkStatus === LinkStatus.CONNECTING || (this.ws && this.ws.readyState === WebSocket.CLOSED)) {
+      if (store.state.linkStatus !== LinkStatus.CONNECTED || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
         console.log('--- connect interval --', new Date().toTimeString())
         store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
         this.connect()

@@ -64,7 +64,7 @@
     "xss": "^1.0.6"
   },
   "devDependencies": {
-    "@types/node": "^12.12.29",
+    "@types/node": "^13.13.4",
     "@types/url-parse": "^1.4.3",
     "@vue/cli-plugin-babel": "^4.3.1",
     "@vue/cli-plugin-eslint": "^4.3.1",

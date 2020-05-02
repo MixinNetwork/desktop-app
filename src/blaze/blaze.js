@@ -27,8 +27,14 @@ class Blaze {
     clearInterval(this.connectInterval)
     this.connectInterval = setInterval(() => {
       this.connecting = false
-      this.connect()
+      if (store.state.linkStatus === LinkStatus.CONNECTING || (this.ws && this.ws.readyState === WebSocket.CLOSED)) {
+        console.log('--- connect interval --', new Date().toTimeString())
+        store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+        this.connect()
+      }
     }, 15000)
+
+    if (store.state.linkStatus === LinkStatus.ERROR) return
 
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
@@ -59,7 +65,6 @@ class Blaze {
     this.ws.onopen = () => {
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, resp => {
         console.log(resp)
-        clearInterval(this.connectInterval)
         this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
@@ -81,8 +86,9 @@ class Blaze {
   _onClose(event) {
     console.log('---onclose--')
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
-    if (event.code === 1008) return
+    if (event.code === 1008 || event.code === 1000) return
     console.log('---should reconnect--')
+    this.connecting = false
     this.connect()
   }
   _onError(event) {

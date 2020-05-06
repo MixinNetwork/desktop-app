@@ -360,6 +360,7 @@ export default class Circles extends Vue {
     return index
   }
 
+  tempUnselected: any = {}
   choiceClick(target: any, type: string) {
     const item: any = {}
     let id = target.conversationId
@@ -376,19 +377,20 @@ export default class Circles extends Vue {
       }
     }
 
-    const count = circleConversationDao.getCircleConversationCount(item.conversation_id)
-    if (CircleConfig.CIRCLE_CONVERSATION_LIMIT <= count) {
-      return this.$toast(i18n.t('circle.circle_limit'), 3000)
-    }
-
     const index = this.selectedIndex(id, type)
     if (index > -1) {
       this.selectedList.splice(index, 1)
+      this.tempUnselected[id] = true
     } else {
+      const count = circleConversationDao.getCircleConversationCount(id)
+      if (CircleConfig.CIRCLE_CONVERSATION_LIMIT <= count && !this.tempUnselected[id]) {
+        return this.$toast(i18n.t('circle.circle_limit'), 3000)
+      }
       if (type === 'user_id') {
         item.user_id = target.user_id
       }
       this.selectedList.unshift(item)
+      this.tempUnselected[id] = false
     }
   }
 
@@ -773,7 +775,7 @@ export default class Circles extends Vue {
   box-sizing: border-box;
   overflow-x: scroll;
   overflow-y: hidden;
-  height: 6rem;
+  height: 4.5rem;
   padding: 0.4rem 1.25rem;
 
   .in {
@@ -820,7 +822,6 @@ export default class Circles extends Vue {
   width: 100%;
 }
 .edit {
-  display: flex;
   flex-direction: column;
   height: 100%;
   user-select: none;

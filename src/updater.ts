@@ -5,11 +5,10 @@ const log = require('electron-log')
 let updater: any, focusedWindow: any
 autoUpdater.autoDownload = false
 
-// TODO
-// autoUpdater.setFeedURL({
-//   provider: 'generic',
-//   url: ''
-// })
+autoUpdater.setFeedURL({
+  provider: 'generic',
+  url: 'https://newbie.zeromesh.net'
+})
 
 let silentUpdate: boolean = false
 

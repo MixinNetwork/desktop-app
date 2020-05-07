@@ -77,6 +77,7 @@
 import contentUtil from '@/utils/content_util'
 import { MessageStatus, SystemConversationAction, ConversationCategory, messageType } from '@/utils/constants'
 import Avatar from '@/components/Avatar.vue'
+import { getAccount } from '@/utils/util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -117,8 +118,8 @@ export default class ConversationItem extends Vue {
       content,
       mentions
     } = this.conversation
-    // @ts-ignore
-    const id = JSON.parse(localStorage.getItem('account')).user_id
+    const account: any = getAccount()
+    const id = account.user_id
     const curMessageType = messageType(contentType)
     if (contentType.startsWith('SIGNAL_') && messageStatus === MessageStatus.FAILED) {
       return this.$t('chat.chat_decrypt_failed', {
@@ -209,8 +210,8 @@ export default class ConversationItem extends Vue {
   }
 
   getAccount() {
-    // @ts-ignore
-    return JSON.parse(localStorage.getItem('account'))
+    const account: any = getAccount()
+    return account
   }
   enter() {
     this.show = true

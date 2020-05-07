@@ -2,7 +2,7 @@ import axios from 'axios'
 import Url from 'url-parse'
 // @ts-ignore
 import jwt from 'jsonwebtoken'
-import { getToken } from '@/utils/util'
+import { getToken, safeParse } from '@/utils/util'
 import { clearDb } from '@/persistence/db_util'
 import { API_URL } from '@/utils/constants'
 import store from '@/store/store'
@@ -20,9 +20,7 @@ const axiosApi = axios.create({
 
 function newToken(config: any) {
   let { url, method, data } = config
-  if (typeof data === 'string') {
-    data = JSON.parse(data)
-  }
+  data = safeParse(data)
   const urlObj = new Url(url)
   const token = getToken(method.toUpperCase(), urlObj.pathname + urlObj.query, data)
   return 'Bearer ' + token

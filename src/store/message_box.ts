@@ -2,6 +2,7 @@ import moment from 'moment'
 import messageDao from '@/dao/message_dao'
 import { PerPageMessageCount, MessageStatus, messageType } from '@/utils/constants'
 import store from '@/store/store'
+import { getAccount } from '@/utils/util'
 
 class MessageBox {
   conversationId: any
@@ -70,8 +71,7 @@ class MessageBox {
     this.newMessageMap = {}
   }
   isMine(findMessage: any) {
-    // @ts-ignore
-    const account: any = JSON.parse(localStorage.getItem('account'))
+    const account: any = getAccount()
     return findMessage.userId === account.user_id
   }
   refreshConversation(conversationId: any) {

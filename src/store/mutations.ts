@@ -8,6 +8,7 @@ import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
+import { getAccount } from '@/utils/util'
 
 import { ipcRenderer } from 'electron'
 
@@ -241,8 +242,7 @@ export default {
     if (friends.length > 0) {
       state.friends = friends
     }
-    // @ts-ignore
-    state.me = JSON.parse(localStorage.getItem('account'))
+    state.me = getAccount()
   },
   setUnseenBadgeNum(state: any) {
     setUnseenBadgeNum(state.conversations)

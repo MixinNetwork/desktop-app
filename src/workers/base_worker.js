@@ -9,7 +9,7 @@ import circleConversationDao from '@/dao/circle_conversation_dao'
 import conversationApi from '@/api/conversation'
 import userApi from '@/api/user'
 import { ConversationStatus, ConversationCategory, SystemUser } from '@/utils/constants'
-import { generateConversationChecksum } from '@/utils/util'
+import { generateConversationChecksum, getAccount } from '@/utils/util'
 import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
 import { v4 as uuidv4 } from 'uuid'
@@ -52,7 +52,7 @@ export default class BaseWorker {
     const c = await conversationApi.getConversation(conversationId)
     if (c.data.data) {
       const conversation = c.data.data
-      const me = JSON.parse(localStorage.getItem('account'))
+      const me = getAccount()
       const result = conversation.participants.some(function(item) {
         return item.user_id === me.user_id
       })
@@ -244,7 +244,8 @@ export default class BaseWorker {
   }
 
   getAccountId() {
-    return JSON.parse(localStorage.getItem('account')).user_id
+    const account = getAccount()
+    return account.user_id
   }
 
   getCheckSum(conversationId) {

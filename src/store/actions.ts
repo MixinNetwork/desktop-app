@@ -9,7 +9,8 @@ import conversationApi from '@/api/conversation'
 import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import userApi from '@/api/user'
-import { generateConversationId } from '@/utils/util'
+import { generateConversationId, getAccount } from '@/utils/util'
+
 import { messageType, ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
 
 // @ts-ignore
@@ -35,16 +36,11 @@ function markRead(commit: any, state: any, conversationId: any) {
   messageDao.markRead(conversationId)
 }
 
-function getAccount() {
-  // @ts-ignore
-  return JSON.parse(localStorage.getItem('account'))
-}
-
 async function refreshConversation(conversationId: any, callback: () => void) {
   const c = await conversationApi.getConversation(conversationId)
   if (c.data.data) {
     const conversation = c.data.data
-    const me = getAccount()
+    const me: any = getAccount()
     const result = conversation.participants.some(function(item: any) {
       return item.user_id === me.user_id
     })
@@ -188,7 +184,7 @@ function updateRemoteMessageStatusBatch(conversationId: any, messages: any, stat
 export default {
   createUserConversation: ({ commit, state }: any, payload: { user: any }) => {
     const { user } = payload
-    const account = getAccount()
+    const account: any = getAccount()
     if (user.user_id === account.user_id) {
       return
     }
@@ -392,10 +388,11 @@ export default {
     markRead(commit, state, conversationId)
     const messageId = uuidv4().toLowerCase()
     const content = btoa(`{"sticker_id":"${stickerId}"}`)
+    const account: any = getAccount()
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
-      user_id: getAccount().user_id,
+      user_id: account.user_id,
       category,
       content,
       status,
@@ -419,10 +416,11 @@ export default {
       url: mediaUrl
     }
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(data))))
+    const account: any = getAccount()
     messageDao.insertMessage({
       message_id: messageId,
       conversation_id: conversationId,
-      user_id: getAccount().user_id,
+      user_id: account.user_id,
       content: content,
       category: category,
       media_url: mediaUrl,
@@ -442,13 +440,14 @@ export default {
   sendAttachmentMessage: ({ commit }: any, { conversationId, payload, quoteId }: any) => {
     const messageId = uuidv4().toLowerCase()
     payload.id = messageId
+    const account: any = getAccount()
     putAttachment(
       payload,
       (data: AttachmentMessagePayload) => {
         const msg: any = {
           message_id: messageId,
           conversation_id: conversationId,
-          user_id: getAccount().user_id,
+          user_id: account.user_id,
           category: data.category,
           media_url: data.mediaUrl,
           media_mime_type: data.mediaMimeType,

@@ -208,6 +208,7 @@
 </template>
 
 <script lang="ts">
+import fs from 'fs'
 import {
   ConversationCategory,
   SystemConversationAction,
@@ -280,6 +281,7 @@ export default class MessageItem extends Vue {
   MessageStatus: any = MessageStatus
   show: boolean = false
   $moment: any
+  $electron: any
   $Dialog: any
   $Menu: any
 
@@ -506,6 +508,9 @@ export default class MessageItem extends Vue {
     if (canReply(this.message)) {
       messageMenu.push(menu.reply)
     }
+    if (this.message.type.endsWith('_VIDEO')) {
+      messageMenu.push(menu.store)
+    }
     messageMenu.push(menu.delete)
     if (canRecall(this.message, this.me.user_id)) {
       messageMenu.push(menu.recal)
@@ -524,6 +529,9 @@ export default class MessageItem extends Vue {
           break
         case 'forward':
           this.handleForward()
+          break
+        case 'store':
+          this.handleStore()
           break
         case 'delete':
           this.handleRemove()
@@ -547,6 +555,27 @@ export default class MessageItem extends Vue {
       type: 'Forward',
       message: this.message
     })
+  }
+  handleStore() {
+    let sourcePath = this.message.mediaUrl
+    let defaultPath = this.message.mediaUrl.split('/Video')[1]
+    const suffix = '.' + this.message.mediaMimeType.split('/')[1]
+    if (defaultPath.startsWith('s/')) {
+      defaultPath = defaultPath.split('/')[2] + suffix
+    }
+    if (!/\./.test(defaultPath)) {
+      defaultPath += suffix
+    }
+    const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
+      defaultPath
+    })
+    if (!savePath) {
+      return
+    }
+    if (sourcePath.startsWith('file://')) {
+      sourcePath = sourcePath.replace('file://', '')
+    }
+    fs.copyFileSync(sourcePath, savePath)
   }
   handleRemove() {
     let { message } = this

@@ -78,9 +78,11 @@ export default class Search extends Vue {
   mounted() {
     if (this.autofocus) {
       setTimeout(() => {
-        // @ts-ignore
-        this.$refs.box.focus()
-      }, 100)
+        const $target: any = this.$refs.box
+        if ($target) {
+          $target.focus()
+        }
+      }, 300)
     }
     this.$root.$on('resetSearch', () => {
       this.back()

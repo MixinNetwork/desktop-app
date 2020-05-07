@@ -51,6 +51,7 @@ let transactions = {
       chat_operation: {
         reply: 'Reply',
         forward: 'Forward',
+        store: 'Store As',
         delete: 'Delete',
         recal: 'Recall'
       }
@@ -236,6 +237,7 @@ let transactions = {
       chat_operation: {
         reply: '回复',
         forward: '转发',
+        store: '存储',
         delete: '删除',
         recal: '撤回'
       }

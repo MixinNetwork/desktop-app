@@ -21,9 +21,12 @@ class ContentUtil {
     return ''
   }
   messageFilteredText(e: { innerHTML: string; innerText: string }) {
-    e.innerHTML = e.innerHTML.replace(/<br><br><\/div>/g, '<br></div>').replace(/<div><br><\/div>/g, '<div>　</div>')
-    // eslint-disable-next-line
-    return e.innerText.replace(/\n　\n/g, '\n\n')
+    e.innerHTML = e.innerHTML
+      .replace(/<div>\r<\/div>/g, '<div><br></div>')
+      .replace(/\r/g, '')
+      .replace(/<\/div><div><br><\/div>/g, '<br></div>')
+      .replace(/<div><br><\/div>/g, '<br>')
+    return e.innerText
   }
   relLen(str: string) {
     var len = 0

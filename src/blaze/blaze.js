@@ -17,20 +17,24 @@ class Blaze {
     this.retryCount = 0
     this.account = JSON.parse(localStorage.getItem('account'))
     this.TIMEOUT = 'Time out'
-    this.wsInterval = null
-    this.reconnectAfter = 0
+    this.connecting = false
+    this.connectInterval = null
   }
 
   connect() {
-    clearInterval(this.wsInterval)
-    this.wsInterval = setInterval(() => {
-      console.log('-----ws status----', this.ws.readyState)
-      if (this.reconnectAfter - new Date().getTime() < 0) {
-        console.log('---ws reconnect---')
-        this.ws = null
+    if (this.connecting) return
+    this.connecting = true
+    clearInterval(this.connectInterval)
+    this.connectInterval = setInterval(() => {
+      this.connecting = false
+      if (store.state.linkStatus !== LinkStatus.CONNECTED || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
+        console.log('--- connect interval --')
+        store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
         this.connect()
       }
     }, 15000)
+
+    if (store.state.linkStatus === LinkStatus.ERROR) return
 
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
@@ -55,17 +59,16 @@ class Blaze {
       }
     )
     this.retryCount += 1
-    this.reconnectAfter = new Date().getTime() + 15 * 1000
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
-    this.ws.addEventListener('open', event => {
-      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, (resp) => {
+    this.ws.onopen = () => {
+      this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, resp => {
         console.log(resp)
+        this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-        this.reconnectAfter = new Date().getTime() + 1800 * 1000
       })
-    })
+    }
   }
 
   async _onMessage(event) {
@@ -83,8 +86,9 @@ class Blaze {
   _onClose(event) {
     console.log('---onclose--')
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
-    if (event.code === 1008) return
+    if (event.code === 1008 || event.code === 1000) return
     console.log('---should reconnect--')
+    this.connecting = false
     this.connect()
   }
   _onError(event) {
@@ -104,7 +108,6 @@ class Blaze {
   }
   closeBlaze() {
     if (this.ws) {
-      clearInterval(this.wsInterval)
       this.ws.close(3001, 'Unauthorized')
       clearDb()
       router.push('/sign_in')

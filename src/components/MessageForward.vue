@@ -156,7 +156,7 @@ export default class MessageForward extends Vue {
           mediaUrl,
           mediaName: mediaName || name,
           mediaMimeType,
-          mediaDuration,
+          mediaDuration: parseInt(mediaDuration),
           mediaWidth,
           mediaHeight,
           mediaSize,

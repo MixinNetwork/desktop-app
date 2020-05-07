@@ -45,6 +45,7 @@ export default class Loading extends Vue {
         return
       }
       if (!account) {
+        console.log('----- account')
         return
       }
       if (account && account.data.error) {
@@ -54,11 +55,13 @@ export default class Loading extends Vue {
         } else {
           // ?
         }
+        console.log('----- account')
         return
       }
       userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
       await this.pushSignalKeys()
       const user = account.data.data
+      console.log('----- account', !!user)
       if (user) {
         localStorage.account = JSON.stringify(user)
         this.$store.dispatch('insertUser', user)

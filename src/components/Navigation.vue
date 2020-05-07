@@ -26,7 +26,8 @@
           </div>
         </div>
         <div v-else-if="linkStatus !== LinkStatus.CONNECTED">
-          <spinner class="loading" stroke="#aaa" />
+          <!-- <spinner class="loading" stroke="#aaa" /> -->
+          <Lottie class="loading" name="confusion" />
           <label style="line-height: 1.9rem; color: #555">{{getConnectingTitle()}}</label>
         </div>
       </div>
@@ -56,9 +57,7 @@
 
       <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
-          <ul
-            v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
-          >
+          <ul v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)">
             <ConversationItem
               v-for="conversation in conversationsVisible"
               :key="conversation.conversationId"
@@ -197,6 +196,7 @@
 <script lang="ts">
 import { ipcRenderer } from 'electron'
 import ConversationItem from '@/components/ConversationItem.vue'
+import Lottie from '@/components/lottie/Lottie.vue'
 import Search from '@/components/Search.vue'
 import spinner from '@/components/Spinner.vue'
 import GroupContainer from '@/components/GroupContainer.vue'
@@ -225,6 +225,7 @@ import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
+    Lottie,
     ConversationItem,
     Search,
     spinner,

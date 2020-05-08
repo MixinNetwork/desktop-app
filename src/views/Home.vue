@@ -19,6 +19,7 @@ import { clearDb } from '@/persistence/db_util'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import conversationDao from '@/dao/conversation_dao'
+import { getAccount } from '@/utils/util'
 
 import { Vue, Component } from 'vue-property-decorator'
 
@@ -52,8 +53,8 @@ export default class Home extends Vue {
   }
 
   async created() {
-    // @ts-ignore
-    if (!userDao.isMe(JSON.parse(localStorage.getItem('account')).user_id)) {
+    const account: any = getAccount()
+    if (!userDao.isMe(account.user_id)) {
       accountApi.logout().then((resp: any) => {
         this.$blaze.closeBlaze()
         this.$router.push('/sign_in')

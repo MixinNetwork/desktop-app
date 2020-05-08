@@ -50,6 +50,7 @@ import { Getter, Action } from 'vuex-class'
 import UserItem from '@/components/UserItem.vue'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
+import { getAccount } from '@/utils/util'
 import { ConversationCategory } from '@/utils/constants'
 import userApi from '@/api/user'
 import userDao from '@/dao/user_dao'
@@ -140,8 +141,7 @@ export default class Details extends Vue {
   }
 
   get me() {
-    // @ts-ignore
-    const account = JSON.parse(localStorage.getItem('account'))
+    const account: any = getAccount()
     const { participants, conversationId } = this.conversation
     return participants.filter((item: any) => {
       return item.user_id === account.user_id

@@ -196,7 +196,7 @@ import participantDao from '@/dao/participant_dao'
 import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import { ConversationCategory, CircleConfig } from '@/utils/constants'
-import { getCircleColorById, generateConversationId } from '@/utils/util'
+import { getCircleColorById, generateConversationId, getAccount } from '@/utils/util'
 // @ts-ignore
 import _ from 'lodash'
 
@@ -366,8 +366,7 @@ export default class Circles extends Vue {
     let id = target.conversationId
     if (type === 'user_id') {
       id = target.user_id
-      // @ts-ignore
-      const account = JSON.parse(localStorage.getItem('account'))
+      const account: any = getAccount()
       const conversationId = generateConversationId(account.user_id, id)
       item.conversation_id = conversationId
     } else {

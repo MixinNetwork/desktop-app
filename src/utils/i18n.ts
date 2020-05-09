@@ -49,7 +49,7 @@ let transactions = {
       chat_operation: {
         reply: 'Reply',
         forward: 'Forward',
-        store: 'Store As',
+        store: 'Save As',
         delete: 'Delete',
         recal: 'Recall'
       }

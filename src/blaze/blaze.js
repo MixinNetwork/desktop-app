@@ -29,7 +29,10 @@ class Blaze {
       this.connecting = false
       if (store.state.linkStatus !== LinkStatus.CONNECTED || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
         console.log('--- connect interval --', this.ws && this.ws.readyState, store.state.linkStatus)
-        this.ws = null
+        if (this.ws) {
+          this.ws.close(1000, 'Normal close')
+          this.ws = null
+        }
         store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
         this.connect()
       }

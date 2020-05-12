@@ -6,9 +6,9 @@
       </div>
       <div class="title-content">{{$t('profile.title')}}</div>
     </header>
-    <mixin-scrollbar>
+    <mixin-scrollbar v-if="!changed">
       <div class="ul content">
-        <header class="content-header" v-if="!changed">
+        <header class="content-header">
           <div>
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
@@ -30,7 +30,7 @@
         <div class="share">
           <a @click="shareContact">{{$t('chat.share_contact')}}</a>
         </div>
-        <div class="participants" v-if="!isContact && !changed">
+        <div class="participants" v-if="!isContact">
           <span class="title">{{participantTitle}}</span>
           <UserItem
             class="participant"
@@ -135,7 +135,7 @@ export default class Details extends Vue {
   }
 
   shareContact() {
-
+    this.$emit('share', this.user)
   }
 
   addContact() {

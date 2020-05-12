@@ -63,6 +63,7 @@ import { AttachmentMessagePayload } from '@/utils/attachment_util'
 })
 export default class MessageForward extends Vue {
   @Prop(Object) readonly message: any
+  @Prop(Object) readonly contact: any
   @Prop(Object) readonly category: any
 
   @Getter('currentConversation') conversation: any
@@ -87,22 +88,21 @@ export default class MessageForward extends Vue {
 
   sendMessage() {
     setTimeout(() => {
-      const message = this.message
+      let message = this.message
       const { conversationId, appId } = this.conversation
+      let curMessageType = 'contact'
+      if (this.contact) {
+        const sharedUserId = this.contact.user_id
+        message = {
+          content: btoa(`{"user_id":"${sharedUserId}"}`),
+          sharedUserId
+        }
+      } else {
+        curMessageType = messageType(message.type)
+      }
       const msg: any = {}
       const status: any = MessageStatus.SENDING
-      const curMessageType = messageType(message.type)
-      if (curMessageType === 'sticker') {
-        const { stickerId } = message
-        const category = appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
-        const msg = {
-          conversationId,
-          stickerId,
-          category,
-          status
-        }
-        this.actionSendStickerMessage(msg)
-      } else if (curMessageType === 'contact') {
+      if (curMessageType === 'contact') {
         const { content, sharedUserId } = message
         const category = appId ? 'PLAIN_CONTACT' : 'SIGNAL_CONTACT'
         const msg = {
@@ -115,6 +115,16 @@ export default class MessageForward extends Vue {
           }
         }
         this.actionSendMessage(msg)
+      } else if (curMessageType === 'sticker') {
+        const { stickerId } = message
+        const category = appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+        const msg = {
+          conversationId,
+          stickerId,
+          category,
+          status
+        }
+        this.actionSendStickerMessage(msg)
       } else if (curMessageType === 'live') {
         const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
         let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name, mediaName } = message

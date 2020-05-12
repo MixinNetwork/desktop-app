@@ -117,8 +117,9 @@
     />
 
     <MessageForward
-      v-if="forwardMessage"
+      v-if="forwardMessage || shareContact"
       :message="forwardMessage"
+      :contact="shareContact"
       @close="handleHideMessageForward"
     />
 
@@ -152,6 +153,7 @@
         :changed="changeConversation"
         :details="details"
         @close="hideDetails"
+        @share="handleContactForward"
       ></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
@@ -357,6 +359,7 @@ export default class ChatContainer extends Vue {
   isBottom: any = true
   boxMessage: any = null
   forwardMessage: any = null
+  shareContact: any = null
   currentUnreadNum: any = 0
   beforeUnseenMessageCount: any = 0
   showMessages: any = true
@@ -1030,8 +1033,12 @@ export default class ChatContainer extends Vue {
   handleForward(message: any) {
     this.forwardMessage = message
   }
+  handleContactForward(contact: any) {
+    this.shareContact = contact
+  }
   handleHideMessageForward() {
     this.forwardMessage = null
+    this.shareContact = null
   }
   handleRemove(message: any) {
     if (!message) return

@@ -319,7 +319,7 @@ let transactions = {
       chat_messages: '消息',
       chat_records: '{0} 条相关消息',
       preview: '预览',
-      share_contact: '发送名片',
+      share_contact: '分享他的名片',
       sendMessage: '发送',
       search: '搜索聊天记录',
       searching: '正在搜索聊天 ...',

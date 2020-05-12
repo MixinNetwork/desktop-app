@@ -1,7 +1,7 @@
 <template>
   <div class="delails">
     <header class="titlebar" v-if="!changed">
-      <div @click="$emit('close')">
+      <div @click="$emit('close');nameEditing=false">
         <svg-icon style="font-size: 1.2rem; cursor: pointer" icon-class="ic_close" />
       </div>
       <div class="title-content">{{$t('profile.title')}}</div>
@@ -13,19 +13,28 @@
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
           </div>
-          <span class="name">{{name}}</span>
+          <span class="name">
+            <span v-if="!nameEditing">{{name}}</span>
+            <div v-else class="inputbox center"><input type="text" v-model="nameEditingVal" required /></div>
+            <span @click="editToggle" v-if="me.role === 'OWNER' || user.role === 'ADMIN'">
+              <svg-icon v-if="!nameEditing" class="edit" icon-class="ic_edit_pen" />
+              <svg-icon class="edit" v-else icon-class="ic_edit_check" />
+            </span>
+          </span>
+
           <span class="id" v-if="isContact">Mixin ID: {{userId || conversation.ownerIdentityNumber}}</span>
           <span class="add" v-if="showAddContact" @click="addContact">
             <span>+</span>
             <small>{{$t('menu.chat.add_contact')}}</small>
           </span>
-          <div
-            v-if="!isContact && conversation.category === 'GROUP'"
-            class="announcement"
-            v-html="$w(contentUtil.renderUrl(conversation.announcement))"
-          ></div>
-          <div v-else-if="isContact" class="biography" v-html="$w(user.biography)"></div>
-          <div v-else class="biography" v-html="$w(conversation.biography)"></div>
+          <div v-if="!isContact && conversation.category === 'GROUP'" class="announcement">
+            <span v-html="$w(contentUtil.renderUrl(conversation.announcement))"></span>
+            <!-- <svg-icon class="edit" icon-class="ic_edit_pen" /> -->
+          </div>
+          <div v-else class="biography">
+            <span v-html="isContact ? $w(user.biography) : $w(conversation.biography)"></span>
+            <!-- <svg-icon class="edit" icon-class="ic_edit_pen" /> -->
+          </div>
         </header>
         <div class="share" v-if="isContact">
           <a @click="shareContact">{{$t('chat.share_contact')}}</a>
@@ -87,9 +96,18 @@ export default class Details extends Vue {
     }
   }
 
+  @Watch('nameEditing')
+  onNameEditingChanged(val: boolean) {
+    if (!val) {
+      console.log(val, this.nameEditingVal)
+    }
+  }
+
   contentUtil: any = contentUtil
   $t: any
   $Menu: any
+  nameEditing: boolean = false
+  nameEditingVal: string = ''
 
   participantClick(user: any) {
     const participantMenu = this.$t('menu.participant')
@@ -132,6 +150,13 @@ export default class Details extends Vue {
         })
       }
     })
+  }
+
+  editToggle() {
+    if (!this.nameEditing) {
+      this.nameEditingVal = this.name
+    }
+    this.nameEditing = !this.nameEditing
   }
 
   shareContact() {
@@ -234,6 +259,11 @@ export default class Details extends Vue {
       align-items: center;
       flex-flow: column nowrap;
       padding: 0 1rem 1.6rem;
+      .edit {
+        cursor: pointer;
+        user-select: none;
+        margin: 0.15rem -0.8rem 0 0.3rem;
+      }
       .avatar {
         width: 8rem;
         height: 8rem;
@@ -248,6 +278,7 @@ export default class Details extends Vue {
         overflow: hidden;
         text-overflow: ellipsis;
         user-select: text;
+        padding: 0 1rem;
       }
       .id {
         font-size: 0.8rem;

@@ -11,7 +11,24 @@
           <div class="item-wrap">
             <div class="item">
               <a>{{$t('chat.user_name')}}</a>
-              <label>{{me.full_name}}</label>
+              <label>
+                <span v-if="!nameEditing">{{me.full_name}}</span>
+                <div v-else class="inputbox">
+                  <input type="text" v-model="me.full_name" required />
+                </div>
+                <svg-icon
+                  class="edit"
+                  v-if="!nameEditing"
+                  @click="nameEditing = true"
+                  icon-class="ic_edit_pen"
+                />
+                <svg-icon
+                  class="edit"
+                  v-else
+                  @click="nameEditing = false"
+                  icon-class="ic_edit_check"
+                />
+              </label>
             </div>
             <div class="item">
               <a>Mixin ID</a>
@@ -19,7 +36,24 @@
             </div>
             <div class="item">
               <a>{{$t('profile.user_biography')}}</a>
-              <label class="desc">{{me.biography}}</label>
+              <label class="desc">
+                <span v-if="!descEditing">{{me.biography}}</span>
+                <div v-else class="inputbox">
+                  <input type="text" v-model="me.biography" required />
+                </div>
+                <svg-icon
+                  class="edit"
+                  v-if="!descEditing"
+                  @click="descEditing = true"
+                  icon-class="ic_edit_pen"
+                />
+                <svg-icon
+                  class="edit"
+                  v-else
+                  @click="descEditing = false"
+                  icon-class="ic_edit_check"
+                />
+              </label>
             </div>
           </div>
         </div>
@@ -27,19 +61,36 @@
     </div>
   </main>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import Avatar from '@/components/Avatar.vue'
-import { mapGetters } from 'vuex'
-export default {
-  components: { Avatar },
-  data: function() {
-    return {
-      group: false,
-      title: ''
+
+@Component({
+  components: {
+    Avatar
+  }
+})
+export default class ProfileContainer extends Vue {
+  @Getter('me') me: any
+
+  nameEditing: boolean = false
+  descEditing: boolean = false
+  group: boolean = false
+  title: string = ''
+
+  @Watch('nameEditing')
+  onNameEditingChanged(val: boolean) {
+    if (!val) {
+      console.log(val, this.me.full_name)
     }
-  },
-  computed: {
-    ...mapGetters({ me: 'me' })
+  }
+
+  @Watch('descEditing')
+  onDescEditingChanged(val: boolean) {
+    if (!val) {
+      console.log(val, this.me.biography)
+    }
   }
 }
 </script>
@@ -92,9 +143,21 @@ main {
         margin: 0.5rem 1rem 0;
         font-size: 0.85rem;
         user-select: text;
+        line-height: 1rem;
+        display: flex;
+        justify-content: space-between;
         &.desc {
           font-size: 0.75rem;
         }
+        .edit {
+          user-select: none;
+          cursor: pointer;
+          font-size: 0.9rem;
+          margin-top: 0.05rem;
+        }
+      }
+      .inputbox input {
+        width: 11rem;
       }
     }
   }

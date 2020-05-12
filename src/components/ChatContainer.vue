@@ -143,12 +143,13 @@
       ></FileContainer>
     </transition>
 
-    <transition name="slide-right">
+    <transition :name="changeConversation ? '' : 'slide-right'">
       <Details
         class="overlay"
         :userId="detailUserId"
         v-if="conversation"
         v-show="details"
+        :changed="changeConversation"
         :details="details"
         @close="hideDetails"
       ></Details>

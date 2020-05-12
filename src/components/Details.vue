@@ -1,6 +1,6 @@
 <template>
   <div class="delails">
-    <header class="titlebar" v-if="details">
+    <header class="titlebar" v-if="!changed">
       <div @click="$emit('close')">
         <svg-icon style="font-size: 1.2rem; cursor: pointer" icon-class="ic_close" />
       </div>
@@ -8,7 +8,7 @@
     </header>
     <mixin-scrollbar>
       <div class="ul content">
-        <header class="content-header" v-if="details">
+        <header class="content-header" v-if="!changed">
           <div>
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
@@ -27,7 +27,10 @@
           <div v-else-if="isContact" class="biography" v-html="$w(user.biography)"></div>
           <div v-else class="biography" v-html="$w(conversation.biography)"></div>
         </header>
-        <div class="participants" v-if="!isContact && details">
+        <div class="share">
+          <a @click="shareContact">{{$t('chat.share_contact')}}</a>
+        </div>
+        <div class="participants" v-if="!isContact && !changed">
           <span class="title">{{participantTitle}}</span>
           <UserItem
             class="participant"
@@ -64,6 +67,7 @@ import userDao from '@/dao/user_dao'
 export default class Details extends Vue {
   @Prop(String) readonly userId: any
   @Prop(Boolean) readonly details: any
+  @Prop(Boolean) readonly changed: any
 
   @Getter('currentConversation') conversation: any
   @Getter('currentUser') user: any
@@ -128,6 +132,10 @@ export default class Details extends Vue {
         })
       }
     })
+  }
+
+  shareContact() {
+
   }
 
   addContact() {
@@ -225,9 +233,7 @@ export default class Details extends Vue {
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      padding-bottom: 1.6rem;
-      padding-left: 1.6rem;
-      padding-right: 1.6rem;
+      padding: 0 1rem 1.6rem;
       .avatar {
         width: 8rem;
         height: 8rem;
@@ -263,26 +269,36 @@ export default class Details extends Vue {
     .announcement,
     .biography {
       word-break: break-all;
-      margin-top: 0.8rem;
+      margin-top: 0.4rem;
       font-weight: 400;
       font-size: 0.75rem;
       user-select: text;
     }
+    .share {
+      background: white;
+      margin-top: 0.4rem;
+      padding: 0.8rem 1rem;
+      a {
+        cursor: pointer;
+        display: block;
+        font-weight: 500;
+      }
+    }
     .participants {
-      margin-top: 0.8rem;
+      margin-top: 0.4rem;
       background: white;
       display: flex;
       flex: 1;
       flex-direction: column;
       font-size: 0.8rem;
       .title {
-        padding: 0.8rem;
+        padding: 0.8rem 1rem;
         color: #3a7ee4;
         font-weight: 500;
       }
       .participant {
-        padding-left: 0.8rem;
-        padding-right: 0.8rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         min-height: 2rem;
         height: 2rem;
       }

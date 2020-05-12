@@ -117,9 +117,8 @@
     />
 
     <MessageForward
-      v-if="forwardMessage || shareContact"
+      v-if="forwardMessage"
       :message="forwardMessage"
-      :contact="shareContact"
       @close="handleHideMessageForward"
     />
 
@@ -285,10 +284,7 @@ export default class ChatContainer extends Vue {
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = this.messages[this.messages.length - 1]
-      if (
-        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
-        lastMessage.mentions
-      ) {
+      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1] && lastMessage.mentions) {
         this.actionMarkMentionRead({
           conversationId: this.conversation.conversationId,
           messageId: lastMessage.messageId
@@ -1034,11 +1030,16 @@ export default class ChatContainer extends Vue {
     this.forwardMessage = message
   }
   handleContactForward(contact: any) {
-    this.shareContact = contact
+    const sharedUserId = contact.user_id
+    const message = {
+      content: btoa(`{"user_id":"${sharedUserId}"}`),
+      curMessageType: 'contact',
+      sharedUserId
+    }
+    this.forwardMessage = message
   }
   handleHideMessageForward() {
     this.forwardMessage = null
-    this.shareContact = null
   }
   handleRemove(message: any) {
     if (!message) return

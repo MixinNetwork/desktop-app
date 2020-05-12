@@ -52,7 +52,7 @@
       <ul
         class="messages"
         ref="messagesUl"
-        :class="{ show: showMessages, 'hide-time-divide': hideTimeDivide }"
+        :class="{ show: showMessages }"
         @dragenter="onDragEnter"
         @drop="onDrop"
         @dragover="onDragOver"
@@ -237,7 +237,6 @@ export default class ChatContainer extends Vue {
     this.boxMessage = null
     this.scrollTimerThrottle = null
     this.showTopTips = false
-    this.hideTimeDivide = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
     if (!this.conversation) return
@@ -381,7 +380,6 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 30
   showTopTips: boolean = false
-  hideTimeDivide: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -396,7 +394,6 @@ export default class ChatContainer extends Vue {
     return process.platform === 'win32'
   }
 
-  hideTimeDivideTimer: any = null
   mounted() {
     this.$root.$on('selectAllKeyDown', (event: any) => {
       const selectNes: any = document.getSelection()
@@ -461,15 +458,12 @@ export default class ChatContainer extends Vue {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
           self.udpateMessagesVisible()
-        } else if (getLastMessage) {
-          self.getLastMessage = getLastMessage
+        }
+        if (getLastMessage) {
+          self.getLastMessage = true
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
-        clearTimeout(self.hideTimeDivideTimer)
-        self.hideTimeDivideTimer = setTimeout(() => {
-          self.hideTimeDivide = false
-        }, 300)
       },
       function(payload: any) {
         const { message, isMyMsg, isInit, goBottom }: any = payload
@@ -644,9 +638,6 @@ export default class ChatContainer extends Vue {
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true
-        if (!this.showTopTips) {
-          this.hideTimeDivide = true
-        }
         messageBox.infiniteUp()
       }
       this.showTopTipsTimer = setTimeout(() => {
@@ -1163,11 +1154,6 @@ export default class ChatContainer extends Vue {
       padding: 0.2rem 0.5rem;
       margin-bottom: 0.5rem;
       box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
-    }
-  }
-  .hide-time-divide {
-    /deep/ .time-divide.inner {
-      opacity: 0;
     }
   }
 

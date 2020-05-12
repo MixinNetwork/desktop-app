@@ -27,7 +27,7 @@
           <div v-else-if="isContact" class="biography" v-html="$w(user.biography)"></div>
           <div v-else class="biography" v-html="$w(conversation.biography)"></div>
         </header>
-        <div class="share">
+        <div class="share" v-if="isContact">
           <a @click="shareContact">{{$t('chat.share_contact')}}</a>
         </div>
         <div class="participants" v-if="!isContact">

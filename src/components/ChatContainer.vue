@@ -339,7 +339,6 @@ export default class ChatContainer extends Vue {
 
   $t: any
   $toast: any
-  $goConversationPos: any
   $refs: any
   $selectNes: any
   name: any = ''
@@ -961,7 +960,6 @@ export default class ChatContainer extends Vue {
     this.actionCreateUserConversation({
       user
     })
-    this.$goConversationPos('current')
   }
   handleAction(action: any) {
     if (action.startsWith('input:')) {

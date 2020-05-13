@@ -90,6 +90,7 @@ export default class ProfileContainer extends Vue {
       const payload = {
         full_name: this.fullname
       }
+      if (this.me.full_name === this.fullname) return
       this.me.full_name = this.fullname
       userApi.updateProfile(payload).then((res) => {
         this.$toast(this.$t('profile.saved'))
@@ -108,6 +109,7 @@ export default class ProfileContainer extends Vue {
       const payload = {
         biography: this.biography
       }
+      if (this.me.biography === this.biography) return
       this.me.biography = this.biography
       userApi.updateProfile(payload).then((res) => {
         this.$toast(this.$t('profile.saved'))

@@ -14,7 +14,7 @@
               <label>
                 <span v-if="!nameEditing">{{me.full_name}}</span>
                 <div v-else class="inputbox">
-                  <input type="text" v-model="me.full_name" required />
+                  <input type="text" v-model="fullname" required />
                 </div>
                 <svg-icon
                   class="edit"
@@ -25,7 +25,7 @@
                 <svg-icon
                   class="edit"
                   v-else
-                  @click="nameEditing = false"
+                  @click="fullname ? nameEditing = false : ''"
                   icon-class="ic_edit_check"
                 />
               </label>
@@ -39,7 +39,8 @@
               <label class="desc">
                 <span v-if="!descEditing">{{me.biography}}</span>
                 <div v-else class="inputbox">
-                  <input type="text" v-model="me.biography" required />
+                  <pre><span>{{biography}}</span><br></pre>
+                  <textarea type="text" v-model="biography" required />
                 </div>
                 <svg-icon
                   class="edit"
@@ -50,7 +51,7 @@
                 <svg-icon
                   class="edit"
                   v-else
-                  @click="descEditing = false"
+                  @click="biography ? descEditing = false : ''"
                   icon-class="ic_edit_check"
                 />
               </label>
@@ -65,6 +66,8 @@
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import Avatar from '@/components/Avatar.vue'
+import userApi from '@/api/user'
+import { updateAccount } from '@/utils/util'
 
 @Component({
   components: {
@@ -76,20 +79,44 @@ export default class ProfileContainer extends Vue {
 
   nameEditing: boolean = false
   descEditing: boolean = false
+  fullname: string = ''
+  biography: string = ''
   group: boolean = false
   title: string = ''
 
   @Watch('nameEditing')
   onNameEditingChanged(val: boolean) {
     if (!val) {
-      console.log(val, this.me.full_name)
+      const payload = {
+        full_name: this.fullname
+      }
+      this.me.full_name = this.fullname
+      userApi.updateProfile(payload).then((res) => {
+        this.$toast(this.$t('profile.saved'))
+        if (res.data.data) {
+          updateAccount(res.data.data)
+        }
+      })
+    } else {
+      this.fullname = this.me.full_name
     }
   }
 
   @Watch('descEditing')
   onDescEditingChanged(val: boolean) {
     if (!val) {
-      console.log(val, this.me.biography)
+      const payload = {
+        biography: this.biography
+      }
+      this.me.biography = this.biography
+      userApi.updateProfile(payload).then((res) => {
+        this.$toast(this.$t('profile.saved'))
+        if (res.data.data) {
+          updateAccount(res.data.data)
+        }
+      })
+    } else {
+      this.biography = this.me.biography
     }
   }
 }
@@ -147,17 +174,26 @@ main {
         display: flex;
         justify-content: space-between;
         &.desc {
+          word-wrap: break-word;
+          white-space: pre-wrap;
           font-size: 0.75rem;
+          span {
+            width: calc(100% - 1rem);
+          }
         }
         .edit {
+          flex-shrink: 0;
           user-select: none;
           cursor: pointer;
           font-size: 0.9rem;
           margin-top: 0.05rem;
         }
       }
-      .inputbox input {
-        width: 11rem;
+      .inputbox {
+        pre, input, textarea {
+          line-height: 1.2rem;
+          width: 11rem;
+        }
       }
     }
   }

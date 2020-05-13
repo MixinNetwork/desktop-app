@@ -165,7 +165,8 @@ let transactions = {
     profile: {
       title: 'Info',
       announcement: 'Announcement',
-      user_biography: 'Biography'
+      user_biography: 'Biography',
+      saved: 'Profile saved'
     },
     unread_message: 'Unread messages',
     date: ['/', '/', ''],
@@ -347,7 +348,8 @@ let transactions = {
     profile: {
       title: '联系人资料',
       announcement: '公告',
-      user_biography: '个人简介'
+      user_biography: '个人简介',
+      saved: '保存成功'
     },
     unread_message: '未读消息',
     date: ['年', '月', '日'],

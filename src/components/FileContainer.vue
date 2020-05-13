@@ -84,7 +84,8 @@ export default class FileContainer extends Vue {
       align-items: center;
       .info {
         margin-top: 0.8rem;
-        word-break: break-all;
+        word-wrap: break-word;
+        white-space: pre-wrap;
         padding: 0 0.8rem;
       }
       .unsupported {

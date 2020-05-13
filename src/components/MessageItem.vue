@@ -679,7 +679,8 @@ li {
     border-radius: 0.2rem;
     padding: 0.3rem 0.45rem;
     text-align: left;
-    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
     font-size: 0.6rem;
     background: #def6ca;
   }
@@ -701,7 +702,8 @@ li {
   &.transfer {
     border-radius: 0.2rem;
     text-align: left;
-    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
     user-select: text;
     font-size: 0.8rem;
     padding: 0.3rem 0.45rem;

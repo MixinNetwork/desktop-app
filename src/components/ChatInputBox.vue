@@ -446,7 +446,8 @@ export default class ChatItem extends Vue {
     overflow-y: auto;
     flex-grow: 1;
     * {
-      word-break: break-all;
+      word-wrap: break-word;
+      white-space: pre-wrap;
     }
     .box {
       padding: 0.35rem 0.15rem 0.35rem 0.45rem;

@@ -299,7 +299,8 @@ export default class Details extends Vue {
     }
     .announcement,
     .biography {
-      word-break: break-all;
+      word-wrap: break-word;
+      white-space: pre-wrap;
       margin-top: 0.4rem;
       font-weight: 400;
       font-size: 0.75rem;

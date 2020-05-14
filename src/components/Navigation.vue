@@ -291,7 +291,7 @@ export default class Navigation extends Vue {
       for (let i = 0; i < cLen; i++) {
         if (this.conversations[i].conversationId === this.currentConversationId) {
           this.onConversationClick(this.conversations[i])
-          this.goConversationPos(i)
+          this.goConversationPos(i, true)
           break
         }
       }
@@ -595,14 +595,14 @@ export default class Navigation extends Vue {
       user
     })
   }
-  goConversationPos(index: number) {
+  goConversationPos(index: number, isUp: boolean) {
     const container: any = document.querySelector('.conversations.ul')
     const item: any = document.querySelector('.conversation.item')
     if (container && item) {
       const itemHeight = item.getBoundingClientRect().height
       const outUp = itemHeight * index <= container.scrollTop
       const outDown = container.clientHeight + container.scrollTop <= itemHeight * (index + 1)
-      if (outUp) {
+      if (outUp || isUp) {
         container.scrollTop = itemHeight * index
       } else if (outDown) {
         container.scrollTop = itemHeight * (index + 1) - container.clientHeight

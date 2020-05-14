@@ -237,6 +237,7 @@ export default class ChatContainer extends Vue {
     this.boxMessage = null
     this.scrollTimerThrottle = null
     this.showTopTips = false
+    this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
     if (!this.conversation) return

@@ -240,21 +240,16 @@ export default class ChatContainer extends Vue {
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
     if (!this.conversation) return
-    const { groupName, name, conversationId } = this.conversation
+    const { conversationId, unseenMessageCount } = this.conversation
     if (newVal) {
       this.startup = false
       this.details = false
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
       }
-      if (groupName) {
-        this.name = groupName
-      } else if (name) {
-        this.name = name
-      }
       this.hideChoosePanel()
 
-      this.beforeUnseenMessageCount = this.conversation.unseenMessageCount
+      this.beforeUnseenMessageCount = unseenMessageCount
       this.changeConversation = true
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
@@ -341,7 +336,6 @@ export default class ChatContainer extends Vue {
   $toast: any
   $refs: any
   $selectNes: any
-  name: any = ''
   identity: any = ''
   participant: boolean = true
   details: any = false
@@ -391,6 +385,15 @@ export default class ChatContainer extends Vue {
 
   get showTitlebar() {
     return process.platform === 'win32'
+  }
+
+  get name() {
+    if (!this.conversation) return
+    const { groupName, name } = this.conversation
+    if (groupName) {
+      return groupName
+    }
+    return name
   }
 
   mounted() {

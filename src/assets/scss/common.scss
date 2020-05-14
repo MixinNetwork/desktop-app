@@ -109,9 +109,10 @@ b.highlight {
   pre {
     font-size: 0.8rem;
     display: block;
+    background: #ccc;
     visibility: hidden;
+    width: calc(100% + 1rem);
     margin: 0;
-    margin-right: 0.4rem;
   }
   textarea {
     position: absolute;

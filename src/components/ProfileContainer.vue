@@ -186,6 +186,7 @@ main {
         .edit {
           flex-shrink: 0;
           user-select: none;
+          opacity: 0.9;
           cursor: pointer;
           font-size: 0.9rem;
           margin-top: 0.05rem;

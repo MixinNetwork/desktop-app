@@ -14,9 +14,9 @@
             <Avatar v-else class="avatar" :conversation="conversation" />
           </div>
           <span class="name">
-            <span v-if="!nameEditing">{{name}}</span>
+            <span v-if="!nameEditing">{{nameEditingVal || name}}</span>
             <div v-else class="inputbox center"><input type="text" v-model="nameEditingVal" required /></div>
-            <span @click="editToggle('name')" v-if="profileEdit">
+            <span @click="editToggle('name')" v-if="profileEdit && !editLock">
               <svg-icon v-if="!nameEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0.2rem" />
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.25rem" />
             </span>
@@ -28,12 +28,12 @@
             <small>{{$t('menu.chat.add_contact')}}</small>
           </span>
           <div v-if="!isContact && conversation.category === 'GROUP'" class="announcement">
-            <span v-if="!announEditing" v-html="$w(contentUtil.renderUrl(conversation.announcement))"></span>
+            <span v-if="!announEditing" v-html="$w(contentUtil.renderUrl(announEditingVal || conversation.announcement))"></span>
             <div v-else class="inputbox">
               <pre><span>{{announEditingVal}}</span><br></pre>
               <textarea type="text" v-model="announEditingVal" required />
             </div>
-            <span @click="editToggle('announcement')" v-if="profileEdit">
+            <span @click="editToggle('announcement')" v-if="profileEdit && !editLock">
               <svg-icon v-if="!announEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0" />
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.2rem" />
             </span>
@@ -109,6 +109,7 @@ export default class Details extends Vue {
     if (!val) {
       this.updateConversation(this.nameEditingVal, '')
     } else {
+      if (this.editLock) return
       this.announEditing = false
     }
   }
@@ -118,6 +119,7 @@ export default class Details extends Vue {
     if (!val) {
       this.updateConversation('', this.announEditingVal)
     } else {
+      if (this.editLock) return
       this.nameEditing = false
     }
   }
@@ -125,25 +127,29 @@ export default class Details extends Vue {
   contentUtil: any = contentUtil
   $t: any
   $Menu: any
+  $toast: any
   nameEditing: boolean = false
   nameEditingVal: string = ''
   announEditing: boolean = false
   announEditingVal: string = ''
+  editLock: boolean = false
 
-  updateConversation(nameEditing: string, announEditing: string) {
-    if (!nameEditing && !announEditing) return
-    const { conversationId, ownerId, category, name, announcement, createdAt, status, muteUntil } = this.conversation
+  updateConversation(nameVal: string, announ: string) {
+    if (!nameVal && !announ) return
+    const { conversationId, ownerId, category, groupName, announcement, createdAt, status, muteUntil } = this.conversation
     const payload: any = {
-      name: nameEditing || name,
-      announcement: announEditing || announcement
+      name: nameVal || groupName,
+      announcement: announ || announcement
     }
-    if (!announEditing && nameEditing === name) return
-    if (!nameEditing && announcement === announEditing) return
-    this.conversation.groupName = payload.name
-    this.conversation.announcement = payload.announcement
+    this.editLock = true
+    let timeout = setTimeout(() => {
+      this.editLock = false
+    }, 10000)
     conversationApi.updateConversation(conversationId, payload).then((res) => {
-      this.$toast(this.$t('profile.saved'))
       if (res.data && res.data.data) {
+        this.$toast(this.$t('profile.saved'))
+        this.conversation.groupName = payload.name
+        this.conversation.announcement = payload.announcement
         conversationDao.updateConversation({
           conversation_id: conversationId,
           owner_id: ownerId,
@@ -155,6 +161,8 @@ export default class Details extends Vue {
           mute_until: muteUntil
         })
       }
+      clearTimeout(timeout)
+      this.editLock = false
     })
   }
 
@@ -202,6 +210,7 @@ export default class Details extends Vue {
   }
 
   editToggle(key: string) {
+    if (this.editLock) return
     if (key === 'name') {
       if (!this.nameEditing) {
         this.nameEditingVal = this.name

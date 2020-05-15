@@ -83,6 +83,7 @@ export default class ProfileContainer extends Vue {
   biography: string = ''
   group: boolean = false
   title: string = ''
+  $toast: any
 
   @Watch('nameEditing')
   onNameEditingChanged(val: boolean) {

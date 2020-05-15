@@ -53,7 +53,7 @@
     "sequential-task-queue": "^1.2.1",
     "urijs": "^1.19.2",
     "url-parse": "^1.4.7",
-    "uuid": "^7.0.3",
+    "uuid": "^8.0.0",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
     "vue-i18n": "^8.17.6",

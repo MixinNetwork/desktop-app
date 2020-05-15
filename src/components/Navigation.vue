@@ -409,10 +409,12 @@ export default class Navigation extends Vue {
         this.$t('chat.mute_menu'),
         this.$t('ok'),
         (picked: number) => {
-          let duration = MuteDuration.HOURS
+          let duration = MuteDuration.HOUR
           if (picked === 0) {
-            duration = MuteDuration.HOURS
+            duration = MuteDuration.HOUR
           } else if (picked === 1) {
+            duration = MuteDuration.HOURS
+          } else if (picked === 2) {
             duration = MuteDuration.WEEK
           } else {
             duration = MuteDuration.YEAR
@@ -429,8 +431,10 @@ export default class Navigation extends Vue {
               const c = resp.data.data
               self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
               if (picked === 0) {
-                this.$toast(this.$t('chat.mute_hours'))
+                this.$toast(this.$t('chat.mute_hour'))
               } else if (picked === 1) {
+                this.$toast(this.$t('chat.mute_hours'))
+              } else if (picked === 2) {
                 this.$toast(this.$t('chat.mute_week'))
               } else {
                 this.$toast(this.$t('chat.mute_year'))

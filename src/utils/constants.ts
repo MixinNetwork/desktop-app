@@ -416,6 +416,7 @@ export const LinkStatus = {
 }
 
 export const MuteDuration = {
+  HOUR: 1 * 60 * 60,
   HOURS: 8 * 60 * 60,
   WEEK: 7 * 24 * 60 * 60,
   YEAR: 365 * 24 * 60 * 60

@@ -599,7 +599,7 @@ export default class Navigation extends Vue {
       user
     })
   }
-  goConversationPos(index: number, isUp: boolean) {
+  goConversationPos(index: number, isUp?: boolean) {
     const container: any = document.querySelector('.conversations.ul')
     const item: any = document.querySelector('.conversation.item')
     if (container && item) {

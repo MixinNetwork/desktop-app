@@ -125,6 +125,7 @@ export default class Details extends Vue {
   contentUtil: any = contentUtil
   $t: any
   $Menu: any
+  $toast: any
   nameEditing: boolean = false
   nameEditingVal: string = ''
   announEditing: boolean = false

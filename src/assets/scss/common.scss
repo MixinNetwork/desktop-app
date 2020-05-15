@@ -95,6 +95,68 @@ b.highlight {
     border-radius: 0.2rem;
   }
 }
+
+.inputbox {
+  position: relative;
+  display: inline-flex;
+  input,
+  textarea {
+    font-size: 0.8rem;
+    border: none;
+    background: transparent;
+    border-bottom: 0.1rem solid #397ee4;
+  }
+  pre {
+    font-size: 0.8rem;
+    display: block;
+    background: #ccc;
+    visibility: hidden;
+    width: calc(100% + 1rem);
+    margin: 0;
+  }
+  textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    resize: none;
+  }
+  pre,
+  textarea {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 0.9rem;
+    font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif;
+  }
+  &.center {
+    input {
+      text-align: center;
+    }
+  }
+  input:focus {
+    outline: none;
+  }
+
+  label {
+    color: #999;
+    font-size: 0.8rem;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    color: #8a8a8a;
+    left: 0.6rem;
+    top: 0.6rem;
+    transition: 0.2s ease all;
+  }
+
+  input:focus ~ label,
+  input:valid ~ label {
+    top: -0.6rem;
+    font-size: 0.6rem;
+    color: #8d8d8d;
+  }
+}
+
 .markdown {
   word-break: break-word;
   line-height: 1.5;
@@ -147,7 +209,7 @@ b.highlight {
   }
   pre {
     background: #f4f4f4;
-    word-break: break-all;
+    white-space: pre-wrap;
     padding: 0.16rem 0.3rem;
     border-radius: 0.16rem;
     overflow: hidden;

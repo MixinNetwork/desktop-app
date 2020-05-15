@@ -83,7 +83,8 @@ export default class RecallItem extends Vue {
   max-width: 80%;
   border-radius: 0.2rem;
   text-align: left;
-  word-break: break-all;
+  word-wrap: break-word;
+  white-space: pre-wrap;
   user-select: text;
   font-size: 0.8rem;
   padding: 0.3rem 0.45rem;

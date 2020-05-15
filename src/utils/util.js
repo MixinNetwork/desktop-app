@@ -48,6 +48,13 @@ export function getAccount() {
   return safeParse(localStorage.getItem('account'))
 }
 
+export function updateAccount(user) {
+  const account = safeParse(localStorage.getItem('account'))
+  account.full_name = user.full_name
+  account.biography = user.biography
+  localStorage.account = JSON.stringify(account)
+}
+
 export function getToken(method, uri, data) {
   const privateKey = localStorage.getItem('sessionToken')
   const account = safeParse(localStorage.getItem('account'))

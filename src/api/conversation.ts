@@ -27,6 +27,9 @@ export default {
   getConversation(id: string) {
     return api.get('/conversations/' + id)
   },
+  updateConversation(id: string, body: any) {
+    return api.post('/conversations/' + id, body)
+  },
   exit(id: string) {
     return api.post('conversations/' + id + '/exit')
   },

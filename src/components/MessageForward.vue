@@ -83,15 +83,16 @@ export default class MessageForward extends Vue {
   MessageStatus: any = MessageStatus
   hasEscKeyListener: boolean = false
 
-  $goConversationPos: any
-
   sendMessage() {
     setTimeout(() => {
       const message = this.message
       const { conversationId, appId } = this.conversation
       const msg: any = {}
       const status: any = MessageStatus.SENDING
-      const curMessageType = messageType(message.type)
+      let curMessageType = message.curMessageType
+      if (!curMessageType) {
+        curMessageType = messageType(message.type)
+      }
       if (curMessageType === 'sticker') {
         const { stickerId } = message
         const category = appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
@@ -236,7 +237,6 @@ export default class MessageForward extends Vue {
   onChatClick(conversation: any) {
     this.$emit('close')
     this.$store.dispatch('setCurrentConversation', conversation)
-    this.$goConversationPos('current')
     conversation.unseenMessageCount = 0
     setTimeout(() => {
       this.$store.dispatch('markRead', conversation.conversationId)

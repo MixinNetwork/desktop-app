@@ -228,7 +228,6 @@ export default class Circles extends Vue {
 
   $Dialog: any
   $toast: any
-  $goConversationPos: any
   i18n: any = i18n
 
   @Watch('visible')

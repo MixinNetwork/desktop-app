@@ -96,7 +96,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && (!isBottom || !getLastMessage)"
+        v-if="conversation && !changeConversation && (!isBottom || !getLastMessage)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -461,7 +461,9 @@ export default class ChatContainer extends Vue {
           self.udpateMessagesVisible()
         }
         if (getLastMessage) {
-          self.getLastMessage = true
+          setTimeout(() => {
+            self.getLastMessage = true
+          })
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock

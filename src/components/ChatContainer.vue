@@ -225,7 +225,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  conversationChangedTimer: any = null
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
@@ -257,11 +256,10 @@ export default class ChatContainer extends Vue {
           this.$refs.inputBox.boxFocusAction()
         }
         this.$root.$emit('updateMenu', this.conversation)
-        clearTimeout(this.conversationChangedTimer)
-        this.conversationChangedTimer = setTimeout(() => {
-          this.changeConversation = false
-          this.actionMarkRead(conversationId)
-        }, 50)
+      })
+      setTimeout(() => {
+        this.changeConversation = false
+        this.actionMarkRead(conversationId)
       })
       const msgLen = this.messages.length
       if (msgLen > 0 && msgLen < PerPageMessageCount) {
@@ -794,7 +792,6 @@ export default class ChatContainer extends Vue {
     }, 100)
   }
 
-  goBottomTimer: any = null
   goBottom(currentMessageLen: number = 0) {
     this.showScroll = false
     this.isBottom = true
@@ -804,9 +801,7 @@ export default class ChatContainer extends Vue {
     this.currentUnreadNum = 0
     this.searchKeyword = ''
     const msgLen = this.messages.length
-    const waitTime = currentMessageLen > 0 && currentMessageLen !== msgLen ? 100 : 10
-    clearTimeout(this.goBottomTimer)
-    this.goBottomTimer = setTimeout(() => {
+    setTimeout(() => {
       let list = this.$refs.messagesUl
       if (!list) {
         return
@@ -823,7 +818,7 @@ export default class ChatContainer extends Vue {
         }
         this.showScroll = true
       }, 100)
-    }, waitTime)
+    })
     messageBox.clearUnreadNum()
   }
 

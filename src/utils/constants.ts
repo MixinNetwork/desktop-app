@@ -421,3 +421,5 @@ export const MuteDuration = {
   WEEK: 7 * 24 * 60 * 60,
   YEAR: 365 * 24 * 60 * 60
 }
+
+export const DefaultImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'

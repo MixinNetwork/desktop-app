@@ -41,6 +41,7 @@ class ContentUtil {
     return len
   }
   renderUrl(content: string) {
+    if (!content) return ''
     content = content
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')

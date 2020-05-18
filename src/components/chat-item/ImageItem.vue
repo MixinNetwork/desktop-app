@@ -28,6 +28,7 @@
                   style="width: 100%"
                   :src="media()"
                   :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+                  :onerror="`this.src='${defaultImg}';this.onerror=null`"
                   ref="img"
                   @click="preview"
                 />
@@ -68,7 +69,7 @@ import Blurhash from '@/components/blurhash/Blurhash.vue'
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
+import { MessageStatus, MediaStatus, messageType, DefaultImg } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
 import { isBlurhashValid } from 'blurhash'
 
@@ -117,6 +118,10 @@ export default class ImageItem extends Vue {
     return getNameColorById(id)
   }
 
+  get defaultImg() {
+    return DefaultImg
+  }
+
   preview() {
     if (messageType(this.message.type) === 'image' && this.message.mediaUrl) {
       let position = 0
@@ -134,7 +139,10 @@ export default class ImageItem extends Vue {
   }
   media() {
     const { message } = this
-    if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
+    if (!message.mediaUrl) {
+      if (!message.thumbImage) {
+        return this.defaultImg
+      }
       return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
     }
     return message.mediaUrl

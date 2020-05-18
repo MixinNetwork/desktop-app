@@ -47,6 +47,7 @@
         ref="timeDivide"
         v-if="messagesVisible[0] && timeDivideShowForce && !details"
         v-show="showMessages && timeDivideShow"
+        :scrolling="scrolling"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
       <ul
@@ -68,6 +69,7 @@
           :message="item"
           :prev="messagesVisible[index - 1]"
           :unread="unreadMessageId"
+          :beforeCreateAt="scrolling ? messagesVisible[0].createdAt : ''"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @loaded="onMessageLoaded"
@@ -96,7 +98,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && (!isBottom || !getLastMessage)"
+        v-if="conversation && !changeConversation && (!isBottom || !getLastMessage)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -225,7 +227,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  conversationChangedTimer: any = null
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
@@ -257,11 +258,10 @@ export default class ChatContainer extends Vue {
           this.$refs.inputBox.boxFocusAction()
         }
         this.$root.$emit('updateMenu', this.conversation)
-        clearTimeout(this.conversationChangedTimer)
-        this.conversationChangedTimer = setTimeout(() => {
-          this.changeConversation = false
-          this.actionMarkRead(conversationId)
-        }, 50)
+      })
+      setTimeout(() => {
+        this.changeConversation = false
+        this.actionMarkRead(conversationId)
       })
       const msgLen = this.messages.length
       if (msgLen > 0 && msgLen < PerPageMessageCount) {
@@ -463,7 +463,9 @@ export default class ChatContainer extends Vue {
           self.udpateMessagesVisible()
         }
         if (getLastMessage) {
-          self.getLastMessage = true
+          setTimeout(() => {
+            self.getLastMessage = true
+          })
         }
         self.infiniteUpLock = infiniteUpLock
         self.infiniteDownLock = infiniteDownLock
@@ -602,11 +604,13 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  scrolling: boolean = false
   scrollStopTimer: any = null
   scrollStop() {
     clearTimeout(this.scrollStopTimer)
     this.scrollStopTimer = setTimeout(() => {
       this.timeDivideShowForce = true
+      this.scrolling = false
       if (this.goMessagePosLock) return
       if (!this.infiniteUpLock && this.overflowMap.top) {
         this.viewport = this.viewportLimit(0, 2 * this.threshold)
@@ -655,6 +659,7 @@ export default class ChatContainer extends Vue {
         this.scrollTimerThrottle = null
       }, 50)
       clearTimeout(this.scrollTimer)
+      this.scrolling = true
       this.scrollTimer = setTimeout(() => {
         if (list.scrollTop < toTop && !this.infiniteUpLock) {
           list.scrollTop = toTop
@@ -794,7 +799,6 @@ export default class ChatContainer extends Vue {
     }, 100)
   }
 
-  goBottomTimer: any = null
   goBottom(currentMessageLen: number = 0) {
     this.showScroll = false
     this.isBottom = true
@@ -804,9 +808,7 @@ export default class ChatContainer extends Vue {
     this.currentUnreadNum = 0
     this.searchKeyword = ''
     const msgLen = this.messages.length
-    const waitTime = currentMessageLen > 0 && currentMessageLen !== msgLen ? 100 : 10
-    clearTimeout(this.goBottomTimer)
-    this.goBottomTimer = setTimeout(() => {
+    setTimeout(() => {
       let list = this.$refs.messagesUl
       if (!list) {
         return
@@ -823,7 +825,7 @@ export default class ChatContainer extends Vue {
         }
         this.showScroll = true
       }, 100)
-    }, waitTime)
+    })
     messageBox.clearUnreadNum()
   }
 

@@ -61,12 +61,14 @@
       class="image"
       v-if="messageType() === 'image' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
       :src="mediaUrl"
     />
     <img
       class="image"
       v-if="messageType() === 'video' && (message.mediaUrl || message.assetUrl)"
       :src="'data:image/jpeg;base64,' + message.thumbImage"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
 
     <img
@@ -74,17 +76,20 @@
       v-if="messageType() === 'sticker' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
     <img
       class="image"
       v-if="messageType() === 'contact'"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="message.sharedUserAvatarUrl"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
     <img
       class="image"
       v-if="messageType() === 'live' && (message.thumbUrl)"
       :src="message.thumbUrl"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
     <span class="icon-close" @click="$emit('hidenReplyBox')">
       <svg-icon style="font-size: 1.2rem" icon-class="ic_close" />
@@ -93,7 +98,7 @@
 </template>
 <script lang="ts">
 import { getNameColorById } from '@/utils/util'
-import { messageType } from '@/utils/constants'
+import { messageType, DefaultImg } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
@@ -108,6 +113,10 @@ export default class ReplyMessageContainer extends Vue {
   get bg() {
     let color = getNameColorById(this.message.userId)
     return { background: color }
+  }
+
+  get defaultImg() {
+    return DefaultImg
   }
 
   get font() {
@@ -161,7 +170,10 @@ export default class ReplyMessageContainer extends Vue {
   }
 
   media(message: any) {
-    if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
+    if (!message.mediaUrl) {
+      if (!message.thumbImage) {
+        return this.defaultImg
+      }
       return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
     }
     return message.mediaUrl

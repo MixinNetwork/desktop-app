@@ -67,23 +67,27 @@
       v-if="messageType() === 'image' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
     <img
       class="image"
       v-if="messageType() === 'video' && (message.mediaUrl || message.assetUrl)"
       :src="'data:image/jpeg;base64,' + message.thumbImage"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
 
     <img
       class="image"
       v-if="messageType() === 'live' && message.thumbUrl"
       :src="message.thumbUrl"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
     <img
       class="image"
       v-if="messageType() === 'sticker' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
+      :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
     <Avatar class="avatar" v-if="messageType() === 'contact'" id="avatar" :user="user" />
   </div>
@@ -92,7 +96,7 @@
 import { getNameColorById } from '@/utils/util'
 import Avatar from '@/components/Avatar.vue'
 import userDao from '@/dao/user_dao'
-import { messageType } from '@/utils/constants'
+import { messageType, DefaultImg } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
@@ -165,6 +169,11 @@ export default class ReplyMessageItem extends Vue {
       return null
     }
   }
+
+  get defaultImg() {
+    return DefaultImg
+  }
+
   get user() {
     return userDao.findUserById(this.message.sharedUserId)
   }
@@ -178,7 +187,10 @@ export default class ReplyMessageItem extends Vue {
   }
 
   media(message: any) {
-    if (message.mediaUrl === null || message.mediaUrl === undefined || message.mediaUrl === '') {
+    if (!message.mediaUrl) {
+      if (!message.thumbImage) {
+        return this.defaultImg
+      }
       return 'data:' + message.mediaMimeType + ';base64,' + message.thumbImage
     }
     return message.mediaUrl

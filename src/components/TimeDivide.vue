@@ -12,18 +12,13 @@ import { Vue, Prop, Component } from 'vue-property-decorator'
 @Component
 export default class TimeDivide extends Vue {
   @Prop(String) readonly messageTime: any
+  @Prop(Boolean) readonly scrolling: any
 
   timeDivide: any = ''
   timeDivideCurrentIndex: any = 0
   scrollTimeout: any = null
-  scrolling: any = false
 
   action(data: any) {
-    this.scrolling = true
-    clearTimeout(this.scrollTimeout)
-    this.scrollTimeout = setTimeout(() => {
-      this.scrolling = false
-    }, 500)
     const divideList = document.querySelectorAll('.time-divide.inner')
     this.timeDivide = this.messageTime
     if (divideList.length) {

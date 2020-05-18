@@ -745,6 +745,7 @@ export default class ChatContainer extends Vue {
         this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       } else {
         goDone = true
+        this.getLastMessage = false
         if (messageDom) {
           if (
             this.goMessagePosType === 'search' ||

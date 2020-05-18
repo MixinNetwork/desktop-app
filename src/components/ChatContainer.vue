@@ -47,6 +47,7 @@
         ref="timeDivide"
         v-if="messagesVisible[0] && timeDivideShowForce && !details"
         v-show="showMessages && timeDivideShow"
+        :scrolling="scrolling"
         :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
       />
       <ul
@@ -68,6 +69,7 @@
           :message="item"
           :prev="messagesVisible[index - 1]"
           :unread="unreadMessageId"
+          :beforeCreateAt="scrolling ? messagesVisible[0].createdAt : ''"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @loaded="onMessageLoaded"
@@ -602,11 +604,13 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  scrolling: boolean = false
   scrollStopTimer: any = null
   scrollStop() {
     clearTimeout(this.scrollStopTimer)
     this.scrollStopTimer = setTimeout(() => {
       this.timeDivideShowForce = true
+      this.scrolling = false
       if (this.goMessagePosLock) return
       if (!this.infiniteUpLock && this.overflowMap.top) {
         this.viewport = this.viewportLimit(0, 2 * this.threshold)
@@ -655,6 +659,7 @@ export default class ChatContainer extends Vue {
         this.scrollTimerThrottle = null
       }, 50)
       clearTimeout(this.scrollTimer)
+      this.scrolling = true
       this.scrollTimer = setTimeout(() => {
         if (list.scrollTop < toTop && !this.infiniteUpLock) {
           list.scrollTop = toTop

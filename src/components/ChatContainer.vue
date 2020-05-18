@@ -745,7 +745,9 @@ export default class ChatContainer extends Vue {
         this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       } else {
         goDone = true
-        this.getLastMessage = false
+        if (!this.isBottom) {
+          this.getLastMessage = false
+        }
         if (messageDom) {
           if (
             this.goMessagePosType === 'search' ||
@@ -830,7 +832,6 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum()
   }
 
-  markMentionReadTimer: any = null
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
     const { conversationId } = this.conversation
@@ -844,12 +845,11 @@ export default class ChatContainer extends Vue {
         }
       })
     }
-    clearTimeout(this.markMentionReadTimer)
-    this.markMentionReadTimer = setTimeout(() => {
+    setTimeout(() => {
       if (this.isBottom && isIntersecting) {
         this.actionMarkMentionRead({ conversationId, messageId })
       }
-    }, 100)
+    }, 10)
   }
 
   mentionClick() {

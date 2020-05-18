@@ -69,7 +69,7 @@
           :message="item"
           :prev="messagesVisible[index - 1]"
           :unread="unreadMessageId"
-          :beforeCreateAt="scrolling ? messagesVisible[0].createdAt : ''"
+          :beforeCreateAt="!isBottom && !infiniteUpLock && scrolling ? messagesVisible[0].createdAt : ''"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @loaded="onMessageLoaded"

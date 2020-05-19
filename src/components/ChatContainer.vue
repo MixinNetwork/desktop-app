@@ -805,9 +805,10 @@ export default class ChatContainer extends Vue {
     this.currentUnreadNum = 0
     this.searchKeyword = ''
     const msgLen = this.messages.length
-    setTimeout(() => {
+    this.$nextTick(() => {
       let list = this.$refs.messagesUl
       if (!list) {
+        this.goBottom(currentMessageLen)
         return
       }
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
@@ -839,11 +840,11 @@ export default class ChatContainer extends Vue {
         }
       })
     }
-    setTimeout(() => {
+    this.$nextTick(() => {
       if (this.isBottom && isIntersecting) {
         this.actionMarkMentionRead({ conversationId, messageId })
       }
-    }, 10)
+    })
   }
 
   mentionClick() {

@@ -59,7 +59,7 @@ function setUnseenBadgeNum(conversations: any) {
 
 let refreshConversationTimerMap: any = {}
 function refreshConversation(state: any, conversationId: string) {
-  clearTimeout(refreshConversationTimerMap[conversationId])
+  if (refreshConversationTimerMap[conversationId]) return
   refreshConversationTimerMap[conversationId] = setTimeout(() => {
     const mentionsMap = state.conversationUnseenMentionsMap
     const conversation = conversationDao.getConversationItemByConversationId(conversationId)
@@ -78,6 +78,7 @@ function refreshConversation(state: any, conversationId: string) {
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
       return item.conversationId
     })
+    refreshConversationTimerMap[conversationId] = null
   }, 130)
 }
 

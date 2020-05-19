@@ -435,9 +435,10 @@ export default class ChatContainer extends Vue {
         }
       }
       if (blob !== null) {
-        let reader = new FileReader()
+        let reader: any = new FileReader()
         reader.onload = async function(event: any) {
           self.file = await base64ToImage(event.target.result, mimeType)
+          reader = null
         }
         reader.readAsDataURL(blob)
         return

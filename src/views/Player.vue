@@ -21,6 +21,7 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 export default class Player extends Vue {
   show: boolean = false
   pin: boolean = false
+  chimee: any
 
   @Watch('pin')
   onPinChange(newPin: any) {
@@ -46,7 +47,7 @@ export default class Player extends Vue {
     this.pin = localStorage.pinTop === 'true'
     let args = this.$route.query
     let player = this.$refs.player
-    let chimee = new Chimee({
+    this.chimee = new Chimee({
       wrapper: player,
       isLive: true,
       kernels: {
@@ -58,8 +59,11 @@ export default class Player extends Vue {
       poster: args.thumb,
       controls: true
     })
-    chimee.load(args.url)
-    chimee.play()
+    this.chimee.load(args.url)
+    this.chimee.play()
+  }
+  beforeDestroy() {
+    this.chimee = null
   }
 }
 </script>

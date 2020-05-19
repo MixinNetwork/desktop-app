@@ -251,7 +251,6 @@ export default class ChatContainer extends Vue {
       }
       this.hideChoosePanel()
 
-      this.beforeUnseenMessageCount = unseenMessageCount
       this.changeConversation = true
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
@@ -259,10 +258,12 @@ export default class ChatContainer extends Vue {
         }
         this.$root.$emit('updateMenu', this.conversation)
       })
-      this.actionMarkRead(conversationId)
+      if (unseenMessageCount) {
+        this.actionMarkRead(conversationId)
+      }
       setTimeout(() => {
         this.changeConversation = false
-      })
+      }, 30)
       const msgLen = this.messages.length
       if (msgLen > 0 && msgLen < PerPageMessageCount) {
         this.showTopTips = true
@@ -350,7 +351,6 @@ export default class ChatContainer extends Vue {
   forwardMessage: any = null
   shareContact: any = null
   currentUnreadNum: any = 0
-  beforeUnseenMessageCount: any = 0
   showMessages: any = true
   showScroll: any = true
   infiniteUpLock: any = false
@@ -800,7 +800,6 @@ export default class ChatContainer extends Vue {
     this.showScroll = false
     this.isBottom = true
     this.intersectLock = true
-    this.beforeUnseenMessageCount = 0
     this.beforeViewport = {}
     this.currentUnreadNum = 0
     this.searchKeyword = ''

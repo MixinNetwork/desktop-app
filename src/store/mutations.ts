@@ -57,29 +57,22 @@ function setUnseenBadgeNum(conversations: any) {
   }, 300)
 }
 
-let refreshConversationTimerMap: any = {}
 function refreshConversation(state: any, conversationId: string) {
-  if (refreshConversationTimerMap[conversationId]) return
-  refreshConversationTimerMap[conversationId] = setTimeout(() => {
-    const mentionsMap = state.conversationUnseenMentionsMap
-    const conversation = conversationDao.getConversationItemByConversationId(conversationId)
-    const conversations = _.cloneDeepWith(state.conversations)
-    if (conversation) {
-      const participants = participantDao.getParticipantsByConversationId(conversationId)
-      conversation.participants = participants
-      const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
-      mentionsMap[conversationId] = mentionMessages
-      state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
-      conversations[conversationId] = conversation
-    }
-    setUnseenBadgeNum(conversations)
-    state.conversations = conversations
+  const mentionsMap = state.conversationUnseenMentionsMap
+  const conversation = conversationDao.getConversationItemByConversationId(conversationId)
+  const conversations = state.conversations
+  if (conversation) {
+    const participants = participantDao.getParticipantsByConversationId(conversationId)
+    conversation.participants = participants
+    const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+    mentionsMap[conversationId] = mentionMessages
+    state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
+    conversations[conversationId] = conversation
+  }
 
-    state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
-      return item.conversationId
-    })
-    refreshConversationTimerMap[conversationId] = null
-  }, 130)
+  state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
+    return item.conversationId
+  })
 }
 
 let keywordCache: any = null

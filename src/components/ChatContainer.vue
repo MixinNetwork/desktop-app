@@ -98,7 +98,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && !changeConversation && (!isBottom || !getLastMessage)"
+        v-if="conversation && showScroll && !changeConversation && (!isBottom || !getLastMessage)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -259,9 +259,9 @@ export default class ChatContainer extends Vue {
         }
         this.$root.$emit('updateMenu', this.conversation)
       })
+      this.actionMarkRead(conversationId)
       setTimeout(() => {
         this.changeConversation = false
-        this.actionMarkRead(conversationId)
       })
       const msgLen = this.messages.length
       if (msgLen > 0 && msgLen < PerPageMessageCount) {

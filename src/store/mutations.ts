@@ -65,8 +65,10 @@ function refreshConversation(state: any, conversationId: string) {
     const participants = participantDao.getParticipantsByConversationId(conversationId)
     conversation.participants = participants
     const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
-    mentionsMap[conversationId] = mentionMessages
-    state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
+    if (mentionMessages.length) {
+      mentionsMap[conversationId] = mentionMessages
+      state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
+    }
     conversations[conversationId] = conversation
   }
 

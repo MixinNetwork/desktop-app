@@ -372,7 +372,7 @@ export default class ChatContainer extends Vue {
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
-  threshold: number = 30
+  threshold: number = 60
   showTopTips: boolean = false
 
   get currentMentionNum() {
@@ -563,16 +563,10 @@ export default class ChatContainer extends Vue {
   viewportLimit(firstIndex: number, lastIndex: number) {
     if (firstIndex < 0) {
       firstIndex = 0
-      if (lastIndex < this.viewport.lastIndex) {
-        lastIndex = this.viewport.lastIndex
-      }
     }
     const cLen = this.messageIds.length
     if (lastIndex >= cLen) {
       lastIndex = cLen - 1
-      if (firstIndex > this.viewport.firstIndex) {
-        firstIndex = this.viewport.firstIndex
-      }
     }
     return {
       firstIndex,

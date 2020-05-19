@@ -73,7 +73,6 @@
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @loaded="onMessageLoaded"
-          @mention-visible="mentionVisibleUpdate"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -596,6 +595,7 @@ export default class ChatContainer extends Vue {
     ) {
       this.viewport = this.viewportLimit(index - offset, index + offset)
     }
+    this.mentionVisibleUpdate({ messageId: target.id, isIntersecting })
   }
 
   scrolling: boolean = false
@@ -838,12 +838,12 @@ export default class ChatContainer extends Vue {
           }
         }
       })
+      this.$nextTick(() => {
+        if (this.isBottom && isIntersecting) {
+          this.actionMarkMentionRead({ conversationId, messageId })
+        }
+      })
     }
-    this.$nextTick(() => {
-      if (this.isBottom && isIntersecting) {
-        this.actionMarkMentionRead({ conversationId, messageId })
-      }
-    })
   }
 
   mentionClick() {

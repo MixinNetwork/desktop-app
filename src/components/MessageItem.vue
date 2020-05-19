@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :id="message.messageId" v-intersect="onIntersect">
+  <li ref="messageItem" :id="message.messageId">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -313,12 +313,6 @@ export default class MessageItem extends Vue {
           }
         }
       }
-    }
-  }
-  onIntersect({ target, isIntersecting }: any) {
-    const { messageId, mentions, quoteId } = this.message
-    if (mentions || quoteId) {
-      this.$emit('mention-visible', { messageId, isIntersecting })
     }
   }
   mediaClick() {

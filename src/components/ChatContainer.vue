@@ -240,7 +240,10 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
-    if (!this.conversation) return
+    if (!this.conversation) {
+      this.startup = true
+      return
+    }
     const { conversationId, unseenMessageCount } = this.conversation
     if (newVal) {
       this.startup = false

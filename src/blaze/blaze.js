@@ -98,6 +98,7 @@ class Blaze {
   }
   _onError(event) {
     console.log('-------onerrror--')
+    this.connecting = false
     console.log(event)
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }

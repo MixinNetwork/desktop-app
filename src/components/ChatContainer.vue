@@ -596,7 +596,10 @@ export default class ChatContainer extends Vue {
     ) {
       this.viewport = this.viewportLimit(index - offset, index + offset)
     }
-    this.mentionVisibleUpdate({ messageId: target.id, isIntersecting })
+    const curMessage = this.messages[index]
+    if (curMessage && isIntersecting && (curMessage.quoteId || curMessage.mentions)) {
+      this.mentionVisibleUpdate(target.id)
+    }
   }
 
   scrolling: boolean = false
@@ -816,6 +819,9 @@ export default class ChatContainer extends Vue {
       this.showMessages = true
       requestAnimationFrame(() => {
         list.scrollTop = list.scrollHeight
+        this.messagesVisible.forEach((item: any) => {
+          this.mentionVisibleUpdate(item.messageId)
+        })
       })
       setTimeout(() => {
         if (list.scrollTop !== list.scrollHeight) {
@@ -827,20 +833,15 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum()
   }
 
-  mentionVisibleUpdate(payload: any) {
-    const { messageId, isIntersecting } = payload
+  mentionMarkedMap: any = {}
+  mentionVisibleUpdate(messageId: string) {
+    if (this.mentionMarkedMap[messageId]) return
+    this.mentionMarkedMap[messageId] = true
     const { conversationId } = this.conversation
     const mentions = this.conversationUnseenMentionsMap[conversationId]
     if (mentions && mentions.length > 0) {
       mentions.forEach((item: any) => {
         if (item.message_id === messageId) {
-          if (isIntersecting) {
-            this.actionMarkMentionRead({ conversationId, messageId })
-          }
-        }
-      })
-      this.$nextTick(() => {
-        if (this.isBottom && isIntersecting) {
           this.actionMarkMentionRead({ conversationId, messageId })
         }
       })

@@ -43,6 +43,9 @@ Vue.use(VueTitlebar)
 
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false
+Vue.config.devtools = false
+// console.log(__VUE_DEVTOOLS_GLOBAL_HOOK__)
+
 Vue.prototype.$blaze = blaze
 moment.locale(navigator.language)
 Vue.prototype.$moment = moment

@@ -69,11 +69,10 @@
           :message="item"
           :prev="messagesVisible[index - 1]"
           :unread="unreadMessageId"
-          :beforeCreateAt="scrolling ? messagesVisible[0].createdAt : ''"
+          :beforeCreateAt="!isBottom && !infiniteUpLock && scrolling ? messagesVisible[0].createdAt : ''"
           :searchKeyword="searchKeyword"
           v-intersect="onIntersect"
           @loaded="onMessageLoaded"
-          @mention-visible="mentionVisibleUpdate"
           @user-click="onUserClick"
           @action-click="handleAction"
           @handle-item-click="handleItemClick"
@@ -98,7 +97,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && !changeConversation && (!isBottom || !getLastMessage)"
+        v-if="conversation && showScroll && !changeConversation && (!isBottom || !getLastMessage)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -251,7 +250,6 @@ export default class ChatContainer extends Vue {
       }
       this.hideChoosePanel()
 
-      this.beforeUnseenMessageCount = unseenMessageCount
       this.changeConversation = true
       this.$nextTick(() => {
         if (this.$refs.inputBox) {
@@ -259,10 +257,12 @@ export default class ChatContainer extends Vue {
         }
         this.$root.$emit('updateMenu', this.conversation)
       })
+      if (unseenMessageCount) {
+        this.actionMarkRead(conversationId)
+      }
       setTimeout(() => {
         this.changeConversation = false
-        this.actionMarkRead(conversationId)
-      })
+      }, 30)
       const msgLen = this.messages.length
       if (msgLen > 0 && msgLen < PerPageMessageCount) {
         this.showTopTips = true
@@ -350,7 +350,6 @@ export default class ChatContainer extends Vue {
   forwardMessage: any = null
   shareContact: any = null
   currentUnreadNum: any = 0
-  beforeUnseenMessageCount: any = 0
   showMessages: any = true
   showScroll: any = true
   infiniteUpLock: any = false
@@ -372,7 +371,7 @@ export default class ChatContainer extends Vue {
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
-  threshold: number = 30
+  threshold: number = 60
   showTopTips: boolean = false
 
   get currentMentionNum() {
@@ -436,9 +435,10 @@ export default class ChatContainer extends Vue {
         }
       }
       if (blob !== null) {
-        let reader = new FileReader()
+        let reader: any = new FileReader()
         reader.onload = async function(event: any) {
           self.file = await base64ToImage(event.target.result, mimeType)
+          reader = null
         }
         reader.readAsDataURL(blob)
         return
@@ -563,16 +563,10 @@ export default class ChatContainer extends Vue {
   viewportLimit(firstIndex: number, lastIndex: number) {
     if (firstIndex < 0) {
       firstIndex = 0
-      if (lastIndex < this.viewport.lastIndex) {
-        lastIndex = this.viewport.lastIndex
-      }
     }
     const cLen = this.messageIds.length
     if (lastIndex >= cLen) {
       lastIndex = cLen - 1
-      if (firstIndex > this.viewport.firstIndex) {
-        firstIndex = this.viewport.firstIndex
-      }
     }
     return {
       firstIndex,
@@ -602,6 +596,7 @@ export default class ChatContainer extends Vue {
     ) {
       this.viewport = this.viewportLimit(index - offset, index + offset)
     }
+    this.mentionVisibleUpdate({ messageId: target.id, isIntersecting })
   }
 
   scrolling: boolean = false
@@ -745,6 +740,9 @@ export default class ChatContainer extends Vue {
         this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       } else {
         goDone = true
+        if (!this.isBottom) {
+          this.getLastMessage = false
+        }
         if (messageDom) {
           if (
             this.goMessagePosType === 'search' ||
@@ -803,14 +801,14 @@ export default class ChatContainer extends Vue {
     this.showScroll = false
     this.isBottom = true
     this.intersectLock = true
-    this.beforeUnseenMessageCount = 0
     this.beforeViewport = {}
     this.currentUnreadNum = 0
     this.searchKeyword = ''
     const msgLen = this.messages.length
-    setTimeout(() => {
+    this.$nextTick(() => {
       let list = this.$refs.messagesUl
       if (!list) {
+        this.goBottom(currentMessageLen)
         return
       }
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
@@ -829,7 +827,6 @@ export default class ChatContainer extends Vue {
     messageBox.clearUnreadNum()
   }
 
-  markMentionReadTimer: any = null
   mentionVisibleUpdate(payload: any) {
     const { messageId, isIntersecting } = payload
     const { conversationId } = this.conversation
@@ -842,13 +839,12 @@ export default class ChatContainer extends Vue {
           }
         }
       })
+      this.$nextTick(() => {
+        if (this.isBottom && isIntersecting) {
+          this.actionMarkMentionRead({ conversationId, messageId })
+        }
+      })
     }
-    clearTimeout(this.markMentionReadTimer)
-    this.markMentionReadTimer = setTimeout(() => {
-      if (this.isBottom && isIntersecting) {
-        this.actionMarkMentionRead({ conversationId, messageId })
-      }
-    }, 100)
   }
 
   mentionClick() {

@@ -1,5 +1,5 @@
 <template>
-  <li ref="messageItem" :id="message.messageId" v-intersect="onIntersect">
+  <li ref="messageItem" :id="message.messageId">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -280,8 +280,6 @@ export default class MessageItem extends Vue {
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
   MessageStatus: any = MessageStatus
-  fouse: boolean = false
-  show: boolean = false
   $moment: any
   $electron: any
   $Dialog: any
@@ -315,12 +313,6 @@ export default class MessageItem extends Vue {
           }
         }
       }
-    }
-  }
-  onIntersect({ target, isIntersecting }: any) {
-    const { messageId, mentions, quoteId } = this.message
-    if (mentions || quoteId) {
-      this.$emit('mention-visible', { messageId, isIntersecting })
     }
   }
   mediaClick() {
@@ -494,18 +486,6 @@ export default class MessageItem extends Vue {
   }
   getColor(id: any) {
     return getNameColorById(id)
-  }
-  enter() {
-    this.show = true
-  }
-  leave() {
-    this.show = false
-  }
-  onFocus() {
-    this.fouse = true
-  }
-  onBlur() {
-    this.fouse = false
   }
   handleMenuClick() {
     let menu: any = this.$t('menu.chat_operation')

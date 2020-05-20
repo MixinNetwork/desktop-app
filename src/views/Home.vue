@@ -22,6 +22,7 @@ import conversationDao from '@/dao/conversation_dao'
 import { getAccount } from '@/utils/util'
 
 import { Vue, Component } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -31,6 +32,10 @@ import { Vue, Component } from 'vue-property-decorator'
   }
 })
 export default class Home extends Vue {
+  @Action('setLinkStatus') actionSetLinkStatus: any
+
+  emitLock: boolean = false
+  sleepTime: number = 0
   select: any = 0
   $blaze: any
 
@@ -76,29 +81,36 @@ export default class Home extends Vue {
         console.log(err)
       }
     )
-    const self = this
     if (window.navigator.onLine) {
-      self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
+      this.actionSetLinkStatus(LinkStatus.CONNECTED)
     } else {
-      self.$store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
+      this.actionSetLinkStatus(LinkStatus.NOT_CONNECTED)
     }
-    window.addEventListener('offline', function(e) {
-      self.$store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
+    window.addEventListener('offline', (e) => {
+      this.actionSetLinkStatus(LinkStatus.NOT_CONNECTED)
       console.log('----offline')
     })
 
-    let emitLock = false
-    window.addEventListener('online', function(e) {
+    window.addEventListener('online', (e) => {
       console.log('----online')
-      if (!self.$blaze.isConnect() && !emitLock) {
-        emitLock = true
+      if (!this.$blaze.isConnect() && !this.emitLock) {
+        this.emitLock = true
         setTimeout(() => {
-          emitLock = false
+          this.emitLock = false
         })
-        self.$blaze.connect()
+        this.$blaze.connect()
       }
-      self.$store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
+      this.actionSetLinkStatus(LinkStatus.CONNECTED)
     })
+
+    setInterval(() => {
+      const nowTime = new Date().getTime()
+      if (this.sleepTime && nowTime - this.sleepTime > 10000) {
+        console.log('----wakeup')
+        this.actionSetLinkStatus(LinkStatus.ERROR)
+      }
+      this.sleepTime = nowTime
+    }, 5000)
   }
 }
 </script>

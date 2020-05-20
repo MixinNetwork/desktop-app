@@ -13,7 +13,6 @@ import { getAccount } from '@/utils/util'
 import { ipcRenderer } from 'electron'
 
 let refreshConversationsTimer: any = null
-let setLinkStatusTimer: any = null
 
 function refreshConversations(state: any) {
   if (refreshConversationsTimer) {
@@ -363,10 +362,6 @@ export default {
   },
   setLinkStatus(state: { linkStatus: any }, status: any) {
     state.linkStatus = status
-    clearTimeout(setLinkStatusTimer)
-    setLinkStatusTimer = setTimeout(() => {
-      state.linkStatus = LinkStatus.NOT_CONNECTED
-    }, 1800000)
   },
   startLoading(state: { attachment: any[] }, messageId: any) {
     state.attachment.push(messageId)

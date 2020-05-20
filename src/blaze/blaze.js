@@ -19,7 +19,6 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.connecting = false
     this.connectInterval = null
-    this.connectedStatusTimer = null
   }
 
   connect() {
@@ -78,12 +77,6 @@ class Blaze {
   }
 
   async _onMessage(event) {
-    if (!this.connectedStatusTimer) {
-      this.connectedStatusTimer = setTimeout(() => {
-        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
-        this.connectedStatusTimer = null
-      }, 5000)
-    }
     try {
       const content = await readArrayBuffer(event.data)
       const data = pako.ungzip(new Uint8Array(content), { to: 'string' })

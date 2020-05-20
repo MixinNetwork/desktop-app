@@ -1,9 +1,8 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
-import { delMedia } from '@/utils/util'
+import { delMedia, getAccount } from '@/utils/util'
 import { PerPageMessageCount, MessageStatus, messageType } from '@/utils/constants'
 import store from '@/store/store'
-import { getAccount } from '@/utils/util'
 
 class MessageBox {
   conversationId: any

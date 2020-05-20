@@ -19,6 +19,7 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.connecting = false
     this.connectInterval = null
+    this.connectedStatusTimer = null
   }
 
   connect() {
@@ -27,7 +28,7 @@ class Blaze {
     clearInterval(this.connectInterval)
     this.connectInterval = setInterval(() => {
       this.connecting = false
-      if (!this.ws || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
+      if (store.state.linkStatus !== LinkStatus.CONNECTED || !this.ws || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
         console.log('--- connect interval --', this.ws && this.ws.readyState, store.state.linkStatus)
         if (this.ws) {
           this.ws.close(1000, 'Normal close')
@@ -77,6 +78,12 @@ class Blaze {
   }
 
   async _onMessage(event) {
+    if (!this.connectedStatusTimer) {
+      this.connectedStatusTimer = setTimeout(() => {
+        store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
+        this.connectedStatusTimer = null
+      }, 5000)
+    }
     try {
       const content = await readArrayBuffer(event.data)
       const data = pako.ungzip(new Uint8Array(content), { to: 'string' })

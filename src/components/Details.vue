@@ -248,6 +248,7 @@ export default class Details extends Vue {
   }
 
   get profileEdit() {
+    if (!this.me || !this.user) return false
     return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
   }
 

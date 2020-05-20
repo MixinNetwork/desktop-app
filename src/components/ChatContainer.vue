@@ -735,9 +735,7 @@ export default class ChatContainer extends Vue {
         return
       }
       let list = this.$refs.messagesUl
-      if (!list) {
-        return this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
-      }
+      if (!list) return
       if (!goDone && beforeScrollTop !== list.scrollTop) {
         beforeScrollTop = list.scrollTop
         this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
@@ -810,10 +808,7 @@ export default class ChatContainer extends Vue {
     const msgLen = this.messages.length
     this.$nextTick(() => {
       let list = this.$refs.messagesUl
-      if (!list) {
-        this.goBottom(currentMessageLen)
-        return
-      }
+      if (!list) return
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       this.infiniteUpLock = false
       this.showMessages = true

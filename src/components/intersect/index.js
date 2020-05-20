@@ -21,6 +21,7 @@ function parseIntersectValue(value) {
 
 export default {
   install(Vue, options) {
+    const observerMap = {}
     Vue.directive('intersect', {
       inserted(el, {value}) {
         const config = parseIntersectValue(value)
@@ -30,6 +31,13 @@ export default {
         }, except(config, ['callback']))
 
         observer.observe(el)
+        observerMap[el.id] = observer
+      },
+      unbind(el) {
+        if (observerMap[el.id]) {
+          observerMap[el.id].disconnect()
+        }
+        delete observerMap[el.id]
       }
     })
   }

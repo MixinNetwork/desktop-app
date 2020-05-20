@@ -57,28 +57,24 @@ function setUnseenBadgeNum(conversations: any) {
   }, 300)
 }
 
-let refreshConversationTimerMap: any = {}
 function refreshConversation(state: any, conversationId: string) {
-  clearTimeout(refreshConversationTimerMap[conversationId])
-  refreshConversationTimerMap[conversationId] = setTimeout(() => {
-    const mentionsMap = state.conversationUnseenMentionsMap
-    const conversation = conversationDao.getConversationItemByConversationId(conversationId)
-    const conversations = _.cloneDeepWith(state.conversations)
-    if (conversation) {
-      const participants = participantDao.getParticipantsByConversationId(conversationId)
-      conversation.participants = participants
-      const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+  const mentionsMap = state.conversationUnseenMentionsMap
+  const conversation = conversationDao.getConversationItemByConversationId(conversationId)
+  const conversations = state.conversations
+  if (conversation) {
+    const participants = participantDao.getParticipantsByConversationId(conversationId)
+    conversation.participants = participants
+    const mentionMessages = messageMentionDao.getUnreadMentionMessagesByConversationId(conversationId)
+    if (mentionMessages.length) {
       mentionsMap[conversationId] = mentionMessages
       state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
-      conversations[conversationId] = conversation
     }
-    setUnseenBadgeNum(conversations)
-    state.conversations = conversations
+    conversations[conversationId] = conversation
+  }
 
-    state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
-      return item.conversationId
-    })
-  }, 130)
+  state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
+    return item.conversationId
+  })
 }
 
 let keywordCache: any = null

@@ -1,33 +1,51 @@
 <template>
   <div class="delails">
-    <header class="titlebar" v-if="details">
-      <div @click="$emit('close')">
+    <header class="titlebar" v-if="!changed">
+      <div @click="$emit('close');nameEditing=false">
         <svg-icon style="font-size: 1.2rem; cursor: pointer" icon-class="ic_close" />
       </div>
       <div class="title-content">{{$t('profile.title')}}</div>
     </header>
-    <mixin-scrollbar>
+    <mixin-scrollbar v-if="!changed">
       <div class="ul content">
-        <header class="content-header" v-if="details">
+        <header class="content-header">
           <div>
             <Avatar v-if="isContact" class="avatar" :user="user" />
             <Avatar v-else class="avatar" :conversation="conversation" />
           </div>
-          <span class="name">{{name}}</span>
+          <span class="name">
+            <span v-if="!nameEditing">{{nameEditingVal || name}}</span>
+            <div v-else class="inputbox center"><input type="text" v-model="nameEditingVal" required /></div>
+            <span @click="editToggle('name')" v-if="profileEdit && !editLock">
+              <svg-icon v-if="!nameEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0.2rem" />
+              <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.25rem" />
+            </span>
+          </span>
+
           <span class="id" v-if="isContact">Mixin ID: {{userId || conversation.ownerIdentityNumber}}</span>
           <span class="add" v-if="showAddContact" @click="addContact">
             <span>+</span>
             <small>{{$t('menu.chat.add_contact')}}</small>
           </span>
-          <div
-            v-if="!isContact && conversation.category === 'GROUP'"
-            class="announcement"
-            v-html="$w(contentUtil.renderUrl(conversation.announcement))"
-          ></div>
-          <div v-else-if="isContact" class="biography" v-html="$w(user.biography)"></div>
-          <div v-else class="biography" v-html="$w(conversation.biography)"></div>
+          <div v-if="!isContact && conversation.category === 'GROUP'" class="announcement">
+            <span v-if="!announEditing" v-html="$w(contentUtil.renderUrl(announEditingVal || conversation.announcement))"></span>
+            <div v-else class="inputbox">
+              <pre><span>{{announEditingVal}}</span><br></pre>
+              <textarea type="text" v-model="announEditingVal" required />
+            </div>
+            <span @click="editToggle('announcement')" v-if="profileEdit && !editLock">
+              <svg-icon v-if="!announEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0" />
+              <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.2rem" />
+            </span>
+          </div>
+          <div v-else class="biography">
+            <span v-html="isContact ? $w(user.biography) : $w(conversation.biography)"></span>
+          </div>
         </header>
-        <div class="participants" v-if="!isContact && details">
+        <div class="share option" v-if="isContact">
+          <a @click="shareContact">{{$t('chat.share_contact')}}</a>
+        </div>
+        <div class="participants" v-if="!isContact">
           <span class="title">{{participantTitle}}</span>
           <UserItem
             class="participant"
@@ -50,9 +68,12 @@ import { Getter, Action } from 'vuex-class'
 import UserItem from '@/components/UserItem.vue'
 import Avatar from '@/components/Avatar.vue'
 import contentUtil from '@/utils/content_util'
+import { getAccount } from '@/utils/util'
 import { ConversationCategory } from '@/utils/constants'
 import userApi from '@/api/user'
+import conversationApi from '@/api/conversation'
 import userDao from '@/dao/user_dao'
+import conversationDao from '@/dao/conversation_dao'
 
 @Component({
   components: {
@@ -63,6 +84,7 @@ import userDao from '@/dao/user_dao'
 export default class Details extends Vue {
   @Prop(String) readonly userId: any
   @Prop(Boolean) readonly details: any
+  @Prop(Boolean) readonly changed: any
 
   @Getter('currentConversation') conversation: any
   @Getter('currentUser') user: any
@@ -82,9 +104,67 @@ export default class Details extends Vue {
     }
   }
 
+  @Watch('nameEditing')
+  onNameEditingChanged(val: boolean) {
+    if (!val) {
+      this.updateConversation(this.nameEditingVal, '')
+    } else {
+      if (this.editLock) return
+      this.announEditing = false
+    }
+  }
+
+  @Watch('announEditing')
+  onAnnounEditingChanged(val: boolean) {
+    if (!val) {
+      this.updateConversation('', this.announEditingVal)
+    } else {
+      if (this.editLock) return
+      this.nameEditing = false
+    }
+  }
+
   contentUtil: any = contentUtil
   $t: any
   $Menu: any
+  $toast: any
+  nameEditing: boolean = false
+  nameEditingVal: string = ''
+  announEditing: boolean = false
+  announEditingVal: string = ''
+  editLock: boolean = false
+
+  updateConversation(nameVal: string, announ: string) {
+    if (!nameVal && !announ) return
+    const { conversationId, ownerId, category, groupName, announcement, createdAt, status, muteUntil } = this.conversation
+    const payload: any = {
+      name: nameVal || groupName,
+      announcement: announ || announcement
+    }
+    this.editLock = true
+    let timeout = setTimeout(() => {
+      this.editLock = false
+    }, 10000)
+    conversationApi.updateConversation(conversationId, payload).then((res) => {
+      if (res.data && res.data.data) {
+        this.$toast(this.$t('profile.saved'))
+        this.conversation.groupName = payload.name
+        this.conversation.announcement = payload.announcement
+        conversationDao.updateConversation({
+          conversation_id: conversationId,
+          owner_id: ownerId,
+          category,
+          name: payload.name,
+          announcement: payload.announcement,
+          created_at: createdAt,
+          status,
+          mute_until: muteUntil
+        })
+      }
+      clearTimeout(timeout)
+      this.editLock = false
+    })
+  }
 
   participantClick(user: any) {
     const participantMenu = this.$t('menu.participant')
@@ -129,6 +209,26 @@ export default class Details extends Vue {
     })
   }
 
+  editToggle(key: string) {
+    if (this.editLock) return
+    if (key === 'name') {
+      if (!this.nameEditing) {
+        this.nameEditingVal = this.name
+      }
+      this.nameEditing = !this.nameEditing
+    }
+    if (key === 'announcement') {
+      if (!this.announEditing) {
+        this.announEditingVal = this.conversation.announcement
+      }
+      this.announEditing = !this.announEditing
+    }
+  }
+
+  shareContact() {
+    this.$emit('share', this.user)
+  }
+
   addContact() {
     const userId = this.user.user_id
     const { conversationId } = this.conversation
@@ -140,12 +240,15 @@ export default class Details extends Vue {
   }
 
   get me() {
-    // @ts-ignore
-    const account = JSON.parse(localStorage.getItem('account'))
+    const account: any = getAccount()
     const { participants, conversationId } = this.conversation
     return participants.filter((item: any) => {
       return item.user_id === account.user_id
     })[0]
+  }
+
+  get profileEdit() {
+    return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
   }
 
   get showAddContact() {
@@ -225,9 +328,14 @@ export default class Details extends Vue {
       display: flex;
       align-items: center;
       flex-flow: column nowrap;
-      padding-bottom: 1.6rem;
-      padding-left: 1.6rem;
-      padding-right: 1.6rem;
+      padding: 0 1rem 1.6rem;
+      .edit {
+        cursor: pointer;
+        user-select: none;
+        opacity: 0.9;
+        font-size: 0.8rem;
+        margin: 0.15rem -0.8rem 0 0.3rem;
+      }
       .avatar {
         width: 8rem;
         height: 8rem;
@@ -242,6 +350,7 @@ export default class Details extends Vue {
         overflow: hidden;
         text-overflow: ellipsis;
         user-select: text;
+        padding: 0 1rem;
       }
       .id {
         font-size: 0.8rem;
@@ -263,29 +372,54 @@ export default class Details extends Vue {
     .announcement,
     .biography {
       word-break: break-all;
-      margin-top: 0.8rem;
+      margin-top: 0.4rem;
       font-weight: 400;
       font-size: 0.75rem;
       user-select: text;
     }
+    .option {
+      a {
+        font-size: 0.7rem;
+      }
+    }
+    .share {
+      background: white;
+      margin-top: 0.4rem;
+      padding: 0.8rem 1rem;
+      a {
+        cursor: pointer;
+        display: block;
+        font-weight: 500;
+      }
+    }
     .participants {
-      margin-top: 0.8rem;
+      margin-top: 0.4rem;
       background: white;
       display: flex;
       flex: 1;
       flex-direction: column;
       font-size: 0.8rem;
       .title {
-        padding: 0.8rem;
+        padding: 0.8rem 1rem;
         color: #3a7ee4;
         font-weight: 500;
       }
       .participant {
-        padding-left: 0.8rem;
-        padding-right: 0.8rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
         min-height: 2rem;
         height: 2rem;
       }
+    }
+  }
+  .inputbox {
+    width: calc(100% - 2rem);
+    min-width: 8rem;
+    margin-left: 1rem;
+    pre, input, textarea {
+      line-height: 1.2rem;
+      left: 0;
+      width: 100%;
     }
   }
 }

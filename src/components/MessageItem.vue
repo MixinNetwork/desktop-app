@@ -3,7 +3,7 @@
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
-    <div v-if="!prev || !equalDay(message, prev)" class="time-divide inner">
+    <div v-if="!prev || !equalDay(message, prev)" :class="{transparent: beforeCreateAt && beforeCreateAt === message.createdAt}" class="time-divide inner">
       <span>{{getTimeDivide(message)}}</span>
     </div>
 
@@ -272,6 +272,7 @@ export default class MessageItem extends Vue {
   @Prop(Object) readonly prev: any
   @Prop(String) readonly unread: any
   @Prop(String) readonly searchKeyword: any
+  @Prop(String) readonly beforeCreateAt: any
 
   @Getter('me') me: any
   @Getter('currentConversation') conversation: any
@@ -672,7 +673,8 @@ li {
     border-radius: 0.2rem;
     padding: 0.3rem 0.45rem;
     text-align: left;
-    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
     font-size: 0.6rem;
     background: #def6ca;
   }
@@ -694,7 +696,8 @@ li {
   &.transfer {
     border-radius: 0.2rem;
     text-align: left;
-    word-break: break-all;
+    word-wrap: break-word;
+    white-space: pre-wrap;
     user-select: text;
     font-size: 0.8rem;
     padding: 0.3rem 0.45rem;
@@ -797,5 +800,8 @@ li {
       border-left: 0.45rem solid white;
     }
   }
+}
+.time-divide.transparent {
+  opacity: 0;
 }
 </style>

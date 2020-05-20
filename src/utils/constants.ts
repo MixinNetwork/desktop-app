@@ -253,7 +253,7 @@ export function canReply(message: any) {
     type === MessageCategories.PLAIN_LIVE ||
     type === MessageCategories.PLAIN_LOCATION ||
     type === MessageCategories.PLAIN_POST
-  )
+  ) && message.status !== MessageStatus.SENDING
 }
 
 export function canForward(message: any) {
@@ -282,7 +282,7 @@ export function canForward(message: any) {
       type === MessageCategories.PLAIN_LOCATION ||
       type === MessageCategories.PLAIN_POST) &&
     status
-  )
+  ) && message.status !== MessageStatus.SENDING
 }
 
 export function isMuteCheck(conversation: any) {
@@ -307,7 +307,7 @@ export function canRecall(
   if (offset > 3600000) {
     return false
   }
-  return message.userId === userId && canReply(message) && message.status !== MessageStatus.SENDING
+  return message.userId === userId && canReply(message)
 }
 
 export const MessageCategories = {
@@ -416,7 +416,10 @@ export const LinkStatus = {
 }
 
 export const MuteDuration = {
+  HOUR: 1 * 60 * 60,
   HOURS: 8 * 60 * 60,
   WEEK: 7 * 24 * 60 * 60,
   YEAR: 365 * 24 * 60 * 60
 }
+
+export const DefaultImg = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'

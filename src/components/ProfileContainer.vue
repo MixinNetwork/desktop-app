@@ -11,7 +11,24 @@
           <div class="item-wrap">
             <div class="item">
               <a>{{$t('chat.user_name')}}</a>
-              <label>{{me.full_name}}</label>
+              <label>
+                <span v-if="!nameEditing">{{me.full_name}}</span>
+                <div v-else class="inputbox">
+                  <input type="text" v-model="fullname" required />
+                </div>
+                <svg-icon
+                  class="edit"
+                  v-if="!nameEditing"
+                  @click="nameEditing = true"
+                  icon-class="ic_edit_pen"
+                />
+                <svg-icon
+                  class="edit"
+                  v-else
+                  @click="fullname ? nameEditing = false : ''"
+                  icon-class="ic_edit_check"
+                />
+              </label>
             </div>
             <div class="item">
               <a>Mixin ID</a>
@@ -19,7 +36,25 @@
             </div>
             <div class="item">
               <a>{{$t('profile.user_biography')}}</a>
-              <label class="desc">{{me.biography}}</label>
+              <label class="desc">
+                <span v-if="!descEditing">{{me.biography}}</span>
+                <div v-else class="inputbox">
+                  <pre><span>{{biography}}</span><br></pre>
+                  <textarea type="text" v-model="biography" required />
+                </div>
+                <svg-icon
+                  class="edit"
+                  v-if="!descEditing"
+                  @click="descEditing = true"
+                  icon-class="ic_edit_pen"
+                />
+                <svg-icon
+                  class="edit"
+                  v-else
+                  @click="biography ? descEditing = false : ''"
+                  icon-class="ic_edit_check"
+                />
+              </label>
             </div>
           </div>
         </div>
@@ -27,19 +62,65 @@
     </div>
   </main>
 </template>
-<script>
+<script lang="ts">
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import Avatar from '@/components/Avatar.vue'
-import { mapGetters } from 'vuex'
-export default {
-  components: { Avatar },
-  data: function() {
-    return {
-      group: false,
-      title: ''
+import userApi from '@/api/user'
+import { updateAccount } from '@/utils/util'
+
+@Component({
+  components: {
+    Avatar
+  }
+})
+export default class ProfileContainer extends Vue {
+  @Getter('me') me: any
+
+  nameEditing: boolean = false
+  descEditing: boolean = false
+  fullname: string = ''
+  biography: string = ''
+  group: boolean = false
+  title: string = ''
+  $toast: any
+
+  @Watch('nameEditing')
+  onNameEditingChanged(val: boolean) {
+    if (!val) {
+      const payload = {
+        full_name: this.fullname
+      }
+      if (this.me.full_name === this.fullname) return
+      this.me.full_name = this.fullname
+      userApi.updateProfile(payload).then((res) => {
+        this.$toast(this.$t('profile.saved'))
+        if (res.data.data) {
+          updateAccount(res.data.data)
+        }
+      })
+    } else {
+      this.fullname = this.me.full_name
     }
-  },
-  computed: {
-    ...mapGetters({ me: 'me' })
+  }
+
+  @Watch('descEditing')
+  onDescEditingChanged(val: boolean) {
+    if (!val) {
+      const payload = {
+        biography: this.biography
+      }
+      if (this.me.biography === this.biography) return
+      this.me.biography = this.biography
+      userApi.updateProfile(payload).then((res) => {
+        this.$toast(this.$t('profile.saved'))
+        if (res.data.data) {
+          updateAccount(res.data.data)
+        }
+      })
+    } else {
+      this.biography = this.me.biography
+    }
   }
 }
 </script>
@@ -92,8 +173,30 @@ main {
         margin: 0.5rem 1rem 0;
         font-size: 0.85rem;
         user-select: text;
+        line-height: 1rem;
+        display: flex;
+        justify-content: space-between;
         &.desc {
+          word-wrap: break-word;
+          white-space: pre-wrap;
           font-size: 0.75rem;
+          span {
+            width: calc(100% - 1rem);
+          }
+        }
+        .edit {
+          flex-shrink: 0;
+          user-select: none;
+          opacity: 0.9;
+          cursor: pointer;
+          font-size: 0.9rem;
+          margin-top: 0.05rem;
+        }
+      }
+      .inputbox {
+        pre, input, textarea {
+          line-height: 1.2rem;
+          width: 11rem;
         }
       }
     }

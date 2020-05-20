@@ -7,7 +7,6 @@ import {
   NameColors,
   CircleConfig
 } from '@/utils/constants'
-import signalProtocol from '@/crypto/signal'
 import md5 from 'md5'
 import { ipcRenderer } from 'electron'
 
@@ -97,9 +96,31 @@ export function generateConversationId(userId, recipientId) {
   )}`
 }
 
+export function safeParse(data) {
+  // use ts
+  let res = {}
+  if (typeof data === 'string') {
+    try {
+      res = JSON.parse(data)
+    } catch (error) {}
+  }
+  return res
+}
+
+export function getAccount() {
+  return safeParse(localStorage.getItem('account'))
+}
+
+export function updateAccount(user) {
+  const account = safeParse(localStorage.getItem('account'))
+  account.full_name = user.full_name
+  account.biography = user.biography
+  localStorage.account = JSON.stringify(account)
+}
+
 export function getToken(method, uri, data) {
   const privateKey = localStorage.getItem('sessionToken')
-  const account = JSON.parse(localStorage.getItem('account'))
+  const account = safeParse(localStorage.getItem('account'))
   let token = ''
   if (typeof data === 'object') {
     data = JSON.stringify(data)

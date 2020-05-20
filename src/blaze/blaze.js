@@ -1,5 +1,5 @@
 import RobustWebSocket from 'robust-websocket'
-import { getToken, readArrayBuffer } from '@/utils/util'
+import { getToken, readArrayBuffer, getAccount, safeParse } from '@/utils/util'
 import { MessageStatus, LinkStatus, API_URL } from '@/utils/constants'
 import { clearDb } from '@/persistence/db_util'
 import { v4 as uuidv4 } from 'uuid'
@@ -15,7 +15,7 @@ class Blaze {
     this.transactions = {}
     this.ws = null
     this.retryCount = 0
-    this.account = JSON.parse(localStorage.getItem('account'))
+    this.account = getAccount()
     this.TIMEOUT = 'Time out'
     this.connecting = false
     this.connectInterval = null
@@ -28,7 +28,11 @@ class Blaze {
     this.connectInterval = setInterval(() => {
       this.connecting = false
       if (store.state.linkStatus !== LinkStatus.CONNECTED || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
-        console.log('--- connect interval --')
+        console.log('--- connect interval --', this.ws && this.ws.readyState, store.state.linkStatus)
+        if (this.ws) {
+          this.ws.close(1000, 'Normal close')
+          this.ws = null
+        }
         store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
         this.connect()
       }
@@ -43,7 +47,7 @@ class Blaze {
       this.ws = null
     }
 
-    this.account = JSON.parse(localStorage.getItem('account'))
+    this.account = getAccount()
     const token = getToken('GET', '/', '')
     setTimeout(() => {
       store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
@@ -53,6 +57,7 @@ class Blaze {
       API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
       'Mixin-Blaze-1',
       {
+        timeout: 8000,
         shouldReconnect: function() {
           return false
         }
@@ -122,7 +127,7 @@ class Blaze {
     }
   }
   handleMessage(data) {
-    var blazeMsg = JSON.parse(data)
+    var blazeMsg = safeParse(data)
     if (!blazeMsg.error) {
       const transaction = this.transactions[blazeMsg.id]
       if (transaction) {

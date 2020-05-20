@@ -60,10 +60,6 @@ function refreshMessages(messageIdsMap) {
   })
 }
 
-function getAccount() {
-  return JSON.parse(localStorage.getItem('account'))
-}
-
 interval(
   async(_, stop) => {
     if (insertMessageQueue.length) {
@@ -350,7 +346,7 @@ class ReceiveWorker extends BaseWorker {
         }
         if (systemMessage.user_id) {
           await this.syncUser(systemMessage.user_id)
-          conversationId = generateConversationId(getAccount().user_id, systemMessage.user_id)
+          conversationId = generateConversationId(this.getAccountId(), systemMessage.user_id)
         }
         circleConversationDao.insertUpdate([
           {
@@ -364,7 +360,7 @@ class ReceiveWorker extends BaseWorker {
         break
       case SystemCircleMessageAction.REMOVE:
         if (systemMessage.user_id) {
-          conversationId = generateConversationId(getAccount().user_id, systemMessage.user_id)
+          conversationId = generateConversationId(this.getAccountId(), systemMessage.user_id)
         }
         circleConversationDao.deleteByIds(conversationId, systemMessage.circle_id)
         break

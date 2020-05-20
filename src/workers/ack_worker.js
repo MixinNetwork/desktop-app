@@ -4,6 +4,7 @@ import jobDao from '@/dao/job_dao'
 import messageApi from '@/api/message'
 import Vue from 'vue'
 import participantDao from '@/dao/participant_dao'
+import { getAccount } from '@/utils/util'
 class AckWorker extends BaseWorker {
   async doWork() {
     await this.sendAckMessages()
@@ -66,7 +67,8 @@ class AckWorker extends BaseWorker {
     if (jobs.length <= 0) {
       return
     }
-    const userId = JSON.parse(localStorage.getItem('account')).user_id
+    const account = getAccount()
+    const userId = account.user_id
     const conversationId = participantDao.getRandomJoinConversationId(userId)
     const messages = jobs.map(function(item) {
       return JSON.parse(item.blaze_message)

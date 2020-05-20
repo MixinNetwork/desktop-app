@@ -51,7 +51,7 @@ let transactions = {
       chat_operation: {
         reply: 'Reply',
         forward: 'Forward',
-        store: 'Store As',
+        store: 'Save As',
         delete: 'Delete',
         recal: 'Recall'
       }
@@ -99,7 +99,8 @@ let transactions = {
       keep_des: 'No conversation selected',
       remove_contact: 'Remove contact? Chat will be retained',
       mute_title: 'Mute notifications for…',
-      mute_menu: ['8 Hours', '1 Week', '1 Year'],
+      mute_menu: ['1 Hour', '8 Hours', '1 Week', '1 Year'],
+      mute_hour: 'Mute 1 hour',
       mute_hours: 'Mute 8 hours',
       mute_week: 'Mute 1 week',
       mute_year: 'Mute 1 year',
@@ -140,6 +141,7 @@ let transactions = {
       chat_messages: 'Messages',
       chat_records: '{0} Records',
       preview: 'Preview',
+      share_contact: 'Share Contact Card',
       sendMessage: 'Send',
       search: 'Search',
       searching: 'Searching for messages ...',
@@ -169,7 +171,8 @@ let transactions = {
     profile: {
       title: 'Info',
       announcement: 'Announcement',
-      user_biography: 'Biography'
+      user_biography: 'Biography',
+      saved: 'Profile saved'
     },
     unread_message: 'Unread messages',
     date: ['/', '/', ''],
@@ -285,7 +288,8 @@ let transactions = {
       keep_des: '尚未选择对话。',
       remove_contact: '删除好友？聊天记录将会保留',
       mute_title: '静音通知',
-      mute_menu: ['8 小时', '1 星期', '1 年'],
+      mute_menu: ['1 小时', '8 小时', '1 星期', '1 年'],
+      mute_hour: '静音 1 小时',
       mute_hours: '静音 8 小时',
       mute_week: '静音 1 周',
       mute_year: '静音 1 年',
@@ -326,6 +330,7 @@ let transactions = {
       chat_messages: '消息',
       chat_records: '{0} 条相关消息',
       preview: '预览',
+      share_contact: '分享他的名片',
       sendMessage: '发送',
       search: '搜索聊天记录',
       searching: '正在搜索聊天 ...',
@@ -355,7 +360,8 @@ let transactions = {
     profile: {
       title: '联系人资料',
       announcement: '公告',
-      user_biography: '个人简介'
+      user_biography: '个人简介',
+      saved: '保存成功'
     },
     unread_message: '未读消息',
     date: ['年', '月', '日'],

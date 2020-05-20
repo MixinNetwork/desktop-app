@@ -197,34 +197,6 @@ main {
       position: relative;
       margin-top: 5rem;
       margin-left: 0.8rem;
-      input {
-        font-size: 0.8rem;
-        border: none;
-        background: transparent;
-        border-bottom: 0.1rem solid #397ee4;
-      }
-      input:focus {
-        outline: none;
-      }
-
-      label {
-        color: #999;
-        font-size: 0.8rem;
-        font-weight: normal;
-        position: absolute;
-        pointer-events: none;
-        color: #8a8a8a;
-        left: 0.6rem;
-        top: 0.6rem;
-        transition: 0.2s ease all;
-      }
-
-      input:focus ~ label,
-      input:valid ~ label {
-        top: -0.6rem;
-        font-size: 0.6rem;
-        color: #8d8d8d;
-      }
     }
     .create {
       width: 1.4rem;

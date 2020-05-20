@@ -2,14 +2,15 @@ import moment from 'moment'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
 import db from '@/persistence/db'
+import { getAccount } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
 import messageMentionDao from '@/dao/message_mention_dao'
 import { PerPageMessageCount, getCompleteMessage, messageType } from '@/utils/constants'
 
 class MessageDao {
   me() {
-    // @ts-ignore
-    return JSON.parse(localStorage.getItem('account'))
+    const account: any = getAccount()
+    return account
   }
 
   insertOrReplaceMessageFts(messageId: string, content: string) {

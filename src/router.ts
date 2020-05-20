@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import SignIn from './views/SignIn.vue'
 import Loading from './views/Loading.vue'
 import Player from './views/Player.vue'
+import { getAccount } from '@/utils/util'
 const originalPush = Router.prototype.push
 // @ts-ignore
 Router.prototype.push = function push(location, onResolve, onReject) {
@@ -43,9 +44,8 @@ const publicPages: any = {
 }
 
 router.beforeEach((to, from, next) => {
-  // @ts-ignore
-  const account = JSON.parse(localStorage.getItem('account'))
-  if (!publicPages[to.path] && !account) {
+  const account: any = getAccount()
+  if (!publicPages[to.path] && !account.user_id) {
     return next('/sign_in')
   }
   next()

@@ -8,10 +8,10 @@ import { updateCancelMap } from '@/utils/attachment_util'
 import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
+import { getAccount } from '@/utils/util'
 
 import { ipcRenderer } from 'electron'
 
-let setCurrentConversationTimer: any = null
 let refreshConversationsTimer: any = null
 
 function refreshConversations(state: any) {
@@ -78,7 +78,7 @@ function refreshConversation(state: any, conversationId: string) {
     state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {
       return item.conversationId
     })
-  }, 50)
+  }, 130)
 }
 
 let keywordCache: any = null
@@ -241,8 +241,7 @@ export default {
     if (friends.length > 0) {
       state.friends = friends
     }
-    // @ts-ignore
-    state.me = JSON.parse(localStorage.getItem('account'))
+    state.me = getAccount()
   },
   setUnseenBadgeNum(state: any) {
     setUnseenBadgeNum(state.conversations)
@@ -260,18 +259,13 @@ export default {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
     messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
-    clearTimeout(setCurrentConversationTimer)
-    setCurrentConversationTimer = setTimeout(() => {
-      if (
-        !state.conversationKeys.some((item: any) => {
-          return item === conversationId
-        })
-      ) {
-        refreshConversations(state)
-      } else {
-        refreshConversation(state, conversationId)
-      }
-    }, 50)
+    if (!state.conversationKeys.some((item: any) => {
+      return item === conversationId
+    })) {
+      refreshConversations(state)
+    } else {
+      refreshConversation(state, conversationId)
+    }
     state.currentConversationId = conversationId
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)

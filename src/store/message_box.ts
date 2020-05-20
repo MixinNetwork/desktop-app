@@ -3,6 +3,7 @@ import messageDao from '@/dao/message_dao'
 import { delMedia } from '@/utils/util'
 import { PerPageMessageCount, MessageStatus, messageType } from '@/utils/constants'
 import store from '@/store/store'
+import { getAccount } from '@/utils/util'
 
 class MessageBox {
   conversationId: any
@@ -60,7 +61,11 @@ class MessageBox {
 
       store.dispatch('setCurrentMessages', this.messages)
       this.scrollAction({ goBottom: this.messages.length, message: posMessage, isInit })
-      this.callback({ unreadNum: 0, getLastMessage: true })
+      let getLastMessage = false
+      if (this.pageDown === 0) {
+        getLastMessage = true
+      }
+      this.callback({ unreadNum: 0, getLastMessage })
     }
   }
 
@@ -71,8 +76,7 @@ class MessageBox {
     this.newMessageMap = {}
   }
   isMine(findMessage: any) {
-    // @ts-ignore
-    const account: any = JSON.parse(localStorage.getItem('account'))
+    const account: any = getAccount()
     return findMessage.userId === account.user_id
   }
   refreshConversation(conversationId: any) {

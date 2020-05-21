@@ -29,9 +29,9 @@ export async function dbMigration(identityNumber) {
   const src = path.join(getDbPath(true), 'mixin.db3')
   const dist = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db3`)
   fs.writeFileSync(dist, fs.readFileSync(src))
-  const signalSrc = path.join(getDbPath(true), 'signal.db3')
-  const signalDist = path.join(remote.app.getPath('userData'), `${identityNumber}/signal.db3`)
-  fs.writeFileSync(signalDist, fs.readFileSync(signalSrc))
+  // const signalSrc = path.join(getDbPath(true), 'signal.db3')
+  // const signalDist = path.join(remote.app.getPath('userData'), `${identityNumber}/signal.db3`)
+  // fs.writeFileSync(signalDist, fs.readFileSync(signalSrc))
 }
 
 let clearing = false

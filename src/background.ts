@@ -172,7 +172,11 @@ function createWindow() {
   ipcMain.on('workerTask', (event, payload) => {
     if (win) {
       // @ts-ignore
-      const worker = new Worker(path.join(__static, 'worker.js'))
+      let workerPath = path.join(__static, 'worker.js')
+      if (!isDevelopment) {
+        workerPath = path.join(__dirname, '../worker.js')
+      }
+      const worker = new Worker(workerPath)
       worker.postMessage(payload)
       worker.once('message', (ret: any) => {
         console.log('workerTask ret:', ret)

@@ -50,6 +50,7 @@
             {{participantTitle}}
             <span
               class="add"
+              v-if="me.role === 'OWNER' && me.role !== 'ADMIN'"
               @click="addParticipant"
             >{{$t('chat.add_participant')}}</span>
           </span>
@@ -294,7 +295,7 @@ export default class Details extends Vue {
   }
 
   get profileEdit() {
-    return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
+    return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.me.role === 'ADMIN')
   }
 
   get showAddContact() {

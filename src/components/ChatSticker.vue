@@ -66,24 +66,20 @@ export default class ChatSticker extends Vue {
   }
   resizeStickerTimeout: any
 
-  created() {
+  async created() {
+    const res = await stickerApi.getStickerAlbums()
+    if (res.data.data) {
+      this.albums = res.data.data
+      this.albums.forEach((item: any) => {
+        stickerDao.insertAlbum(item)
+      })
+    }
     const findAlbums = stickerDao.getStickerAlbums()
     if (findAlbums.length) {
       setTimeout(() => {
         this.albums = JSON.parse(JSON.stringify(findAlbums))
         updateStickerAlbums(this.albums)
         this.albumPos()
-      })
-    } else {
-      stickerApi.getStickerAlbums().then((res: any) => {
-        if (res.data.data) {
-          this.albums = res.data.data
-          this.albums.forEach((item: any) => {
-            stickerDao.insertAlbum(item)
-          })
-          this.albums = stickerDao.getStickerAlbums()
-          this.albumPos()
-        }
       })
     }
     setTimeout(() => {

@@ -107,7 +107,7 @@
 
     <ChatInputBox
       ref="inputBox"
-      v-if="conversation"
+      v-show="conversation"
       :participant="participant"
       :conversation="conversation"
       :boxMessage="boxMessage"
@@ -250,6 +250,7 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    this.hideChoosePanel()
     if (!this.conversation) {
       this.startup = true
       return
@@ -261,7 +262,6 @@ export default class ChatContainer extends Vue {
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
       }
-      this.hideChoosePanel()
 
       this.changeConversation = true
       this.$nextTick(() => {

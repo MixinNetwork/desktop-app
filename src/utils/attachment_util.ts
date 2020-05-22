@@ -120,7 +120,7 @@ export function mediaMigration(identityNumber: string) {
   mixinDb.prepare('DELETE FROM stickers').run()
   mixinDb.prepare('DELETE FROM sticker_relationships').run()
   mixinDb.prepare('DELETE FROM sticker_albums').run()
-  delDir(oldMediaDir)
+  // delDir(oldMediaDir)
   mixinDb.close()
 }
 

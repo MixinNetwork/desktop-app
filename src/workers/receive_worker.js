@@ -442,7 +442,8 @@ class ReceiveWorker extends BaseWorker {
       }
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
-      participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)
+      participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role || '')
+      store.dispatch('refreshParticipants', data.conversation_id)
       if (message.participant_id !== accountId) {
         return
       }

@@ -10,7 +10,7 @@ import tasklists from 'markdown-it-task-lists'
 import hljs from 'highlight.js'
 import filter from './filter'
 
-let md = new MarkdownIt()
+const md = new MarkdownIt()
 
 const regx = /<a href=(.+?)>(.+?)<\/a>/g
 function renderUrl(content) {
@@ -152,10 +152,5 @@ export default {
     this.$watch('source', () => {
       this.sourceData = this.prerender(this.source)
     })
-  },
-
-  beforeDestroy() {
-    this.md = null
-    md = null
   }
 }

@@ -5,7 +5,7 @@ import { clearAllTables as clearSignal } from './signal_db'
 import { clearKeyTable } from './db'
 import store from '@/store/store'
 
-export function getDbPath(isOld) {
+export function getDbPath() {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   let dir = remote.app.getPath('userData')
   let identityNumber = ''
@@ -13,7 +13,7 @@ export function getDbPath(isOld) {
     const user = JSON.parse(localStorage.account)
     identityNumber = user.identity_number
   }
-  if (!isDevelopment && identityNumber && !isOld) {
+  if (!isDevelopment && identityNumber) {
     const newDir = path.join(dir, identityNumber)
     const dbPath = path.join(newDir, `mixin.db3`)
     if (fs.existsSync(dbPath)) {
@@ -23,15 +23,22 @@ export function getDbPath(isOld) {
   return path.join(isDevelopment ? path.join(__static, '../') : dir)
 }
 
+async function copyFile(filename, dbPath, identityNumber) {
+  const src = path.join(dbPath, filename)
+  if (fs.existsSync(src)) {
+    const dist = path.join(remote.app.getPath('userData'), `${identityNumber}/${filename}`)
+    fs.writeFileSync(dist, fs.readFileSync(src))
+  }
+}
+
 export async function dbMigration(identityNumber) {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   if (isDevelopment) return
-  const src = path.join(getDbPath(true), 'mixin.db3')
-  const dist = path.join(remote.app.getPath('userData'), `${identityNumber}/mixin.db3`)
-  fs.writeFileSync(dist, fs.readFileSync(src))
-  // const signalSrc = path.join(getDbPath(true), 'signal.db3')
-  // const signalDist = path.join(remote.app.getPath('userData'), `${identityNumber}/signal.db3`)
-  // fs.writeFileSync(signalDist, fs.readFileSync(signalSrc))
+  const dbPath = getDbPath()
+  await copyFile('mixin.db3', dbPath, identityNumber)
+  await copyFile('mixin.db3-shm', dbPath, identityNumber)
+  await copyFile('mixin.db3-wal', dbPath, identityNumber)
+  await copyFile('signal.db3', dbPath, identityNumber)
 }
 
 let clearing = false

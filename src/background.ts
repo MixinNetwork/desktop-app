@@ -7,8 +7,6 @@ import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater
 import { initPlayer } from './player'
 import path from 'path'
 
-import { Worker } from 'worker_threads'
-
 ipcMain.on('updateBadgeCount', (event, count) => {
   if (process.platform === 'darwin') {
     app.badgeCount = count
@@ -167,20 +165,6 @@ function createWindow() {
   ipcMain.on('openDevTools', (event, _) => {
     if (win) {
       win.webContents.openDevTools()
-    }
-  })
-  ipcMain.on('workerTask', (event, payload) => {
-    if (win) {
-      // @ts-ignore
-      let workerPath = path.join(__static, 'worker.js')
-      if (!isDevelopment) {
-        workerPath = path.join(__dirname, '../worker.js')
-      }
-      const worker = new Worker(workerPath)
-      worker.postMessage(payload)
-      worker.once('message', (ret: any) => {
-        console.log('workerTask ret:', ret)
-      })
     }
   })
 }

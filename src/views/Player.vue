@@ -62,9 +62,6 @@ export default class Player extends Vue {
     this.chimee.load(args.url)
     this.chimee.play()
   }
-  beforeDestroy() {
-    this.chimee = null
-  }
 }
 </script>
 <style lang="scss" scoped>

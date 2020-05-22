@@ -1,6 +1,6 @@
 <template>
-  <div class="loading">
-    <spinner v-if="isLoading" />
+  <div class="loading" v-if="isLoading">
+    <spinner />
     <h4>{{$t('loading.initializing')}}</h4>
   </div>
 </template>
@@ -35,6 +35,9 @@ export default class Loading extends Vue {
   $blaze: any
 
   async created() {
+    if (sessionStorage.tempHideLoading) {
+      this.isLoading = false
+    }
     if (localStorage.account && localStorage.sessionToken) {
       const account = await accountAPI.getMe().catch((err: any) => {
         console.log(err)
@@ -69,8 +72,10 @@ export default class Loading extends Vue {
         if (!localStorage.circleSynced) {
           this.syncCircles()
         }
-        await this.migrationAction()
-        this.$router.push('/home')
+        const skip = await this.migrationAction()
+        if (skip) {
+          this.$router.push('/home')
+        }
       }
     }
   }
@@ -80,19 +85,23 @@ export default class Loading extends Vue {
     if (identityNumber) {
       const newDir = path.join(remote.app.getPath('userData'), identityNumber)
       const oldMediaDir = path.join(remote.app.getPath('userData'), 'media')
-      if (fs.existsSync(newDir) && !fs.existsSync(oldMediaDir)) {
+      if (fs.existsSync(newDir)) {
         localStorage.newUserDirExist = true
-        return
+        return true
       }
       if (!fs.existsSync(newDir)) {
         fs.mkdirSync(newDir)
       }
 
       await dbMigration(identityNumber)
-      mediaMigration(identityNumber)
+      await mediaMigration(identityNumber)
 
       localStorage.newUserDirExist = true
+      sessionStorage.tempHideLoading = true
+      location.reload()
+      return false
     }
+    return true
   }
 
   getCircleConversations(circleId: any, list: any, offset: string) {

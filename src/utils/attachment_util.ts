@@ -59,6 +59,21 @@ export async function updateCancelMap(id: string) {
   cancelMap[id] = true
 }
 
+function delDir(_path: string) {
+  if (fs.existsSync(_path)) {
+    const files = fs.readdirSync(_path)
+    files.forEach((file: string) => {
+      let curPath = _path + '/' + file
+      if (fs.statSync(curPath).isDirectory()) {
+        delDir(curPath)
+      } else {
+        fs.unlinkSync(curPath)
+      }
+    })
+    fs.rmdirSync(_path)
+  }
+}
+
 export function mediaMigration(identityNumber: string) {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   let dbPath = path.join(userDataPath, `${identityNumber}/mixin.db3`)
@@ -78,9 +93,35 @@ export function mediaMigration(identityNumber: string) {
       'SELECT category, conversation_id as conversationId, message_id as messageId, media_url as mediaUrl FROM messages WHERE media_url IS NOT NULL'
     )
     .all()
-  mixinDb.close()
 
-  ipcRenderer.send('workerTask', { action: 'copyFile', data: { mediaMessages, identityNumber, userDataPath, dbPath } })
+  setUserDataPath(userDataPath)
+  mediaMessages.forEach((message: any) => {
+    let newDir = ''
+    const { category, conversationId, messageId, mediaUrl } = message
+    if (category.endsWith('_IMAGE')) {
+      newDir = getImagePath(identityNumber, conversationId)
+    } else if (category.endsWith('_VIDEO')) {
+      newDir = getVideoPath(identityNumber, conversationId)
+    } else if (category.endsWith('_DATA')) {
+      newDir = getDocumentPath(identityNumber, conversationId)
+    } else if (category.endsWith('_AUDIO')) {
+      newDir = getAudioPath(identityNumber, conversationId)
+    }
+    const src = mediaUrl.split('file://')[1]
+    if (src) {
+      const dist = path.join(newDir, messageId)
+      if (dist !== src && fs.existsSync(src)) {
+        fs.writeFileSync(dist, fs.readFileSync(src))
+        mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run(`file://${dist}`, messageId)
+        fs.unlinkSync(src)
+      }
+    }
+  })
+  mixinDb.prepare('DELETE FROM stickers').run()
+  mixinDb.prepare('DELETE FROM sticker_relationships').run()
+  mixinDb.prepare('DELETE FROM sticker_albums').run()
+  delDir(oldMediaDir)
+  mixinDb.close()
 }
 
 function getMediaNewDir(category: string, identityNumber: string, conversationId: string) {

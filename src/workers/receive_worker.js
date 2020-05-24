@@ -435,7 +435,7 @@ class ReceiveWorker extends BaseWorker {
       signalProtocol.clearSenderKey(data.conversation_id, this.getAccountId(), this.getDeviceId())
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      if (!systemMessage.participant_id) {
+      if (systemMessage.participant_id) {
         await this.syncUser(systemMessage.participant_id)
       }
       await this.refreshConversation(data.conversation_id)

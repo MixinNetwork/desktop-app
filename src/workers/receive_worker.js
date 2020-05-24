@@ -437,9 +437,8 @@ class ReceiveWorker extends BaseWorker {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
       if (!systemMessage.participant_id) {
         await this.syncUser(systemMessage.participant_id)
-      } else {
-        await this.refreshConversation(data.conversation_id)
       }
+      await this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
       participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role || '')

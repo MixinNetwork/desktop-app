@@ -429,12 +429,12 @@ export default class MessageItem extends Vue {
   get decryptFailedText() {
     return `${this.$t('chat.chat_decrypt_failed', {
       0: this.message.userFullName
-    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_decrypt_failed_info')}</a>`
+    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_learn')}</a>`
   }
 
   get unknownMessage() {
     return this.$t('chat.chat_not_support', {
-      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_not_support_url')}</a>`
+      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_learn')}</a>`
     })
   }
 

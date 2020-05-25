@@ -107,7 +107,7 @@ export default class Home extends Vue {
       const nowTime = new Date().getTime()
       if (this.sleepTime && nowTime - this.sleepTime > 10000) {
         console.log('----wakeup')
-        this.actionSetLinkStatus(LinkStatus.ERROR)
+        this.actionSetLinkStatus(LinkStatus.NOT_CONNECTED)
       }
       this.sleepTime = nowTime
     }, 5000)

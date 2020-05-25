@@ -137,7 +137,8 @@ export const MessageStatus = {
   SENT: 'SENT',
   DELIVERED: 'DELIVERED',
   READ: 'READ',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
+  UNKNOWN: 'UNKNOWN'
 }
 
 const BaseMessage = {

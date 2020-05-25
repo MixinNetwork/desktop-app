@@ -198,7 +198,9 @@
           <span v-if="messageType() === 'text'" class="text">
             <span v-html="$w(textMessage(message))"></span>
           </span>
-          <span v-else-if="messageType() === 'unknown'" class="unknown">{{$t('chat.chat_unknown') }}</span>
+          <span v-else-if="messageType() === 'unknown'" class="unknown">
+            <span v-html="$w(unknownMessage)"></span>
+          </span>
           <span class="time-place"></span>
           <TimeAndStatus :message="message" />
         </div>
@@ -427,6 +429,12 @@ export default class MessageItem extends Vue {
     return `${this.$t('chat.chat_decrypt_failed', {
       0: this.message.userFullName
     })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_decrypt_failed_info')}</a>`
+  }
+
+  get unknownMessage() {
+    return this.$t('chat.chat_not_support', {
+      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_not_support_url')}</a>`
+    })
   }
 
   textMessage(message: any) {

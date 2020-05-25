@@ -600,6 +600,10 @@ export default {
     const { conversationId, userId } = payload
     conversationApi.participant(conversationId, 'ROLE', userId, 'ADMIN')
   },
+  participantDismissAdmin: (_: any, payload: { conversationId: any; userId: any }) => {
+    const { conversationId, userId } = payload
+    conversationApi.participant(conversationId, 'ROLE', userId, 'USER')
+  },
   participantRemove: (_: any, payload: { conversationId: any; userId: any }) => {
     const { conversationId, userId } = payload
     conversationApi.participant(conversationId, 'REMOVE', userId, '')

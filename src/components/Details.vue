@@ -28,13 +28,16 @@
             <small>{{$t('menu.chat.add_contact')}}</small>
           </span>
           <div v-if="!isContact && conversation.category === 'GROUP'" class="announcement">
-            <span v-if="!announEditing" v-html="$w(contentUtil.renderUrl(announEditingVal || conversation.announcement))"></span>
+            <span v-if="!announEditing">
+              <span class="gray-text" v-if="!announEditingVal && !conversation.announcement">{{$t('group.group_info_edit')}}</span>
+              <span v-html="$w(contentUtil.renderUrl(announEditingVal || conversation.announcement))"></span>
+            </span>
             <div v-else class="inputbox">
               <pre><span>{{announEditingVal}}</span><br></pre>
               <textarea type="text" v-model="announEditingVal" required />
             </div>
             <span @click="editToggle('announcement')" v-if="profileEdit && !editLock">
-              <svg-icon v-if="!announEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0" />
+              <svg-icon v-if="!announEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0.1rem" />
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.2rem" />
             </span>
           </div>
@@ -95,6 +98,7 @@ export default class Details extends Vue {
   @Action('syncConversation') actionSyncConversation: any
 
   @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
+  @Action('participantDismissAdmin') actionParticipantDismissAdmin: any
   @Action('participantRemove') actionParticipantRemove: any
 
   @Watch('details')
@@ -177,8 +181,12 @@ export default class Details extends Vue {
     }
     menu.push(participantMenu.send_message)
     if (user.role !== 'OWNER') {
-      if (me.role === 'OWNER' && user.role !== 'ADMIN') {
-        menu.push(participantMenu.set_as_admin)
+      if (me.role === 'OWNER') {
+        if (user.role === 'ADMIN') {
+          menu.push(participantMenu.dismiss_admin)
+        } else {
+          menu.push(participantMenu.set_as_admin)
+        }
       }
       if (me.role === 'OWNER' || (me.role === 'ADMIN' && user.role !== 'ADMIN')) {
         menu.push(participantMenu.remove)
@@ -197,6 +205,11 @@ export default class Details extends Vue {
       } else if (position === 'profile') {
       } else if (position === 'set_as_admin') {
         this.actionParticipantSetAsAdmin({
+          conversationId,
+          userId: user.user_id
+        })
+      } else if (position === 'dismiss_admin') {
+        this.actionParticipantDismissAdmin({
           conversationId,
           userId: user.user_id
         })

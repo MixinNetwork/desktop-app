@@ -42,7 +42,8 @@ let transactions = {
       participant: {
         profile: 'Profile',
         send_message: 'Send Message',
-        set_as_admin: 'Set As Administrator',
+        set_as_admin: 'Set As Admin',
+        dismiss_admin: 'Dismiss Admin',
         remove: 'Remove'
       },
       personal: ['New Group', 'Profile', 'Settings', 'Logout'],
@@ -86,7 +87,8 @@ let transactions = {
     group: {
       group_add: 'Add Participants',
       group_new_title: 'New Group',
-      group_new_name: 'Group Name'
+      group_new_name: 'Group Name',
+      group_info_edit: 'Edit group description'
     },
     chat: {
       user_name: 'Your name',
@@ -227,6 +229,7 @@ let transactions = {
         profile: '信息',
         send_message: '发送信息',
         set_as_admin: '设为管理员',
+        dismiss_admin: '撤销管理员',
         remove: '从群组中移除'
       },
       personal: ['新建群组', '个人信息', '设置', '登出'],
@@ -270,7 +273,8 @@ let transactions = {
     group: {
       group_add: '添加成员',
       group_new_title: '新建群组',
-      group_new_name: '群组名称'
+      group_new_name: '群组名称',
+      group_info_edit: '编辑群公告'
     },
     chat: {
       user_name: '您的名字',

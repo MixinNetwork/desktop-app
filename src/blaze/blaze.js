@@ -27,7 +27,7 @@ class Blaze {
     clearInterval(this.connectInterval)
     this.connectInterval = setInterval(() => {
       this.connecting = false
-      if (store.state.linkStatus !== LinkStatus.CONNECTED || !this.ws || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
+      if (store.state.linkStatus !== LinkStatus.CONNECTED || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
         console.log('--- connect interval --', this.ws && this.ws.readyState, store.state.linkStatus)
         if (this.ws) {
           this.ws.close(1000, 'Normal close')
@@ -57,7 +57,7 @@ class Blaze {
       API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
       'Mixin-Blaze-1',
       {
-        timeout: 8000,
+        timeout: 15000,
         shouldReconnect: function() {
           return false
         }

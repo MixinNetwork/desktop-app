@@ -196,7 +196,8 @@ export default class ReplyMessageItem extends Vue {
     return message.mediaUrl
   }
   messageType() {
-    return messageType(this.message.type)
+    const { type, content } = this.message
+    return messageType(type, content)
   }
 }
 </script>

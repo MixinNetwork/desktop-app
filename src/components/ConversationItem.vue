@@ -120,14 +120,7 @@ export default class ConversationItem extends Vue {
     } = this.conversation
     const account: any = getAccount()
     const id = account.user_id
-    let curMessageType = messageType(contentType)
-    if (curMessageType === 'app_card' || curMessageType === 'app_button_group') {
-      try {
-        JSON.parse(content)
-      } catch (error) {
-        curMessageType = ''
-      }
-    }
+    let curMessageType = messageType(contentType, content)
     if (contentType.startsWith('SIGNAL_') && messageStatus === MessageStatus.FAILED) {
       return this.$t('chat.chat_decrypt_failed', {
         0: senderFullName

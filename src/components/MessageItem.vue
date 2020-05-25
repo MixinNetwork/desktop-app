@@ -422,15 +422,8 @@ export default class MessageItem extends Vue {
   }
 
   messageType() {
-    let curMessageType = messageType(this.message.type)
-    if (curMessageType === 'app_card' || curMessageType === 'app_button_group') {
-      try {
-        JSON.parse(this.message.content)
-      } catch (error) {
-        curMessageType = 'unknown'
-      }
-    }
-    return curMessageType
+    const { type, content } = this.message
+    return messageType(type, content)
   }
 
   get decryptFailedText() {

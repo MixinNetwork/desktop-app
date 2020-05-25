@@ -834,7 +834,7 @@ class ReceiveWorker extends BaseWorker {
         const body = i18n.t('notification.sendLive')
         this.showNotification(data.conversation_id, user.user_id, user.full_name, body, data.source, data.created_at)
       })
-    } else if (curMessageType === 'unknown') {
+    } else if (curMessageType === 'unknown' && data.category !== MessageCategories.SIGNAL_KEY) {
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,

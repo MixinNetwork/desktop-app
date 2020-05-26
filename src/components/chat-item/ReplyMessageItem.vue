@@ -1,13 +1,13 @@
 <template>
-  <div class="message" :style="abg">
-    <div class="diver" :style="bg"></div>
+  <div class="message" :style="!message ? 'background: #f1f1f1' : abg">
+    <div class="diver" :style="!message ? 'background: #157efb' : bg"></div>
     <div class="layout" @click.stop="reply">
-      <span class="name" :style="font">{{message.userFullName}}</span>
-      <span class="content">
+      <span class="name" v-if="message" :style="font">{{message.userFullName}}</span>
+      <span class="content" :class="{recall: !message}">
         <svg-icon
           icon-class="if_recall"
           class="reply_icon"
-          v-if="message.type === 'MESSAGE_RECALL'"
+          v-if="!message || message.type === 'MESSAGE_RECALL'"
         />
         <svg-icon
           icon-class="ic_message_audio"
@@ -134,6 +134,9 @@ export default class ReplyMessageItem extends Vue {
   }
   get getContent() {
     const curMessageType = this.messageType()
+    if (!this.message) {
+      return this.$t('chat.chat_recall_delete')
+    }
     if (curMessageType === 'text') {
       let { mentions, content } = this.message
       content = contentUtil.renderMention(content, mentions)
@@ -179,6 +182,7 @@ export default class ReplyMessageItem extends Vue {
   }
 
   reply() {
+    if (!this.message) return
     this.$root.$emit('goSearchMessagePos', {
       message: this.message,
       keyword: '',
@@ -196,6 +200,7 @@ export default class ReplyMessageItem extends Vue {
     return message.mediaUrl
   }
   messageType() {
+    if (!this.message) return ''
     const { type, content } = this.message
     return messageType(type, content)
   }
@@ -238,6 +243,10 @@ export default class ReplyMessageItem extends Vue {
       color: #9b9b9b;
       /deep/ * {
         color: #9b9b9b;
+      }
+      &.recall {
+        padding: 0.15rem;
+        font-size: 0.65rem;
       }
     }
   }

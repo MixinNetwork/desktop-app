@@ -168,7 +168,7 @@
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else :class="messageOwnership(message, me)">
-      <div v-if="this.showUserName()&&message.quoteContent">
+      <div v-if="this.showUserName()&&message.quoteId">
         <span
           class="username reply"
           :style="{color: getColor(message.userId)}"
@@ -179,10 +179,10 @@
         @handleMenuClick="handleMenuClick"
         :type="message.type"
         :send="message.userId === me.user_id"
-        :quote="message.quoteContent!==null"
+        :quote="message.quoteId!==null"
       >
         <div class="bubble" :class="messageType()">
-          <div v-if="this.showUserName()&&!message.quoteContent">
+          <div v-if="this.showUserName()&&!message.quoteId">
             <span
               class="username"
               :style="{color: getColor(message.userId)}"
@@ -190,8 +190,8 @@
             >{{message.userFullName}}</span>
           </div>
           <ReplyMessageItem
-            v-if="message.quoteContent"
-            :message="JSON.parse(message.quoteContent)"
+            v-if="message.quoteId"
+            :message="messageType(message.quoteContent) === 'unknown' ? '' : JSON.parse(message.quoteContent)"
             :me="me"
             class="reply"
           ></ReplyMessageItem>
@@ -421,9 +421,9 @@ export default class MessageItem extends Vue {
     }
   }
 
-  messageType() {
+  messageType(srcContent?: string) {
     const { type, content } = this.message
-    return messageType(type, content)
+    return messageType(type, srcContent || content)
   }
 
   get decryptFailedText() {

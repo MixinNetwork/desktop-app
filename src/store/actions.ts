@@ -313,6 +313,11 @@ export default {
     }
     commit('refreshConversations')
   },
+  setUnseenBadgeNum({ commit }: any) {
+    setTimeout(() => {
+      commit('setUnseenBadgeNum')
+    }, 100)
+  },
   conversationClear: ({ commit }: any, conversationId: any) => {
     messageDao.ftsMessagesDelete(conversationId)
     conversationDao.deleteConversation(conversationId)

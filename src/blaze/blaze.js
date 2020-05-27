@@ -113,13 +113,13 @@ class Blaze {
     }
     if (this.sendGzipQueue.length > 0) {
       setTimeout(() => {
-        _clearSendGzipQueue()
+        this._clearSendGzipQueue()
       }, 300)
     }
   }
   _sendGzip(data, result) {
     this.sendGzipQueue.push([data, result])
-    _clearSendGzipQueue()
+    this._clearSendGzipQueue()
   }
   closeBlaze() {
     if (this.ws) {

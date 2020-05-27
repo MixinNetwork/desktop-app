@@ -19,6 +19,7 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.connecting = false
     this.connectInterval = null
+    this.sendGzipQueue = []
   }
 
   connect() {
@@ -101,13 +102,26 @@ class Blaze {
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
   _sendGzip(data, result) {
+    const pendingTask = this.sendGzipQueue.shift()
+    if (pendingTask) {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.transactions[pendingTask[0].id] = pendingTask[1]
+        this.ws.send(pako.gzip(JSON.stringify(pendingTask[0])))
+      } else {
+        this.sendGzipQueue.unshift(pendingTask)
+      }
+    }
+    if (this.sendGzipQueue.length > 0) {
+      setTimeout(() => {
+        _sendGzip(data, result)
+      }, 300)
+      return
+    }
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.transactions[data.id] = result
       this.ws.send(pako.gzip(JSON.stringify(data)))
     } else {
-      setTimeout(() => {
-        this._sendGzip(data, result)
-      }, 5000)
+      this.sendGzipQueue.push([data, result])
     }
   }
   closeBlaze() {

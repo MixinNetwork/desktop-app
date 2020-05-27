@@ -92,8 +92,6 @@ class Blaze {
   _onClose(event) {
     console.log('---onclose--')
     this.connecting = false
-    if (event.code === 1008 || event.code === 1000) return
-    console.log('---should reconnect--')
   }
   _onError(event) {
     console.log('-------onerrror--')

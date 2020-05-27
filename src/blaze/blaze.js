@@ -101,7 +101,7 @@ class Blaze {
     console.log(event)
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
-  _sendGzip(data, result) {
+  _clearSendGzipQueue() {
     const pendingTask = this.sendGzipQueue.shift()
     if (pendingTask) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -113,16 +113,13 @@ class Blaze {
     }
     if (this.sendGzipQueue.length > 0) {
       setTimeout(() => {
-        _sendGzip(data, result)
+        _clearSendGzipQueue()
       }, 300)
-      return
     }
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.transactions[data.id] = result
-      this.ws.send(pako.gzip(JSON.stringify(data)))
-    } else {
-      this.sendGzipQueue.push([data, result])
-    }
+  }
+  _sendGzip(data, result) {
+    this.sendGzipQueue.push([data, result])
+    _clearSendGzipQueue()
   }
   closeBlaze() {
     if (this.ws) {

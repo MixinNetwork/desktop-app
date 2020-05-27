@@ -57,7 +57,7 @@ class Blaze {
       API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
       'Mixin-Blaze-1',
       {
-        timeout: 8000,
+        timeout: 15000,
         shouldReconnect: function() {
           return false
         }

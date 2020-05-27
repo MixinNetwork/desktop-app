@@ -19,6 +19,7 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.connecting = false
     this.connectInterval = null
+    this.sendGzipQueue = []
   }
 
   connect() {
@@ -29,14 +30,14 @@ class Blaze {
       this.connecting = false
       if (store.state.linkStatus !== LinkStatus.CONNECTED || !this.ws || this.ws.readyState !== WebSocket.OPEN) {
         console.log('--- connect interval --', this.ws && this.ws.readyState, store.state.linkStatus)
-        if (this.ws) {
+        if (this.ws && this.ws.readyState !== WebSocket.CONNECTING) {
           this.ws.close(1000, 'Normal close')
           this.ws = null
         }
         store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
         this.connect()
       }
-    }, 15000)
+    }, 5000)
 
     if (store.state.linkStatus === LinkStatus.ERROR) return
 
@@ -90,11 +91,7 @@ class Blaze {
   }
   _onClose(event) {
     console.log('---onclose--')
-    store.dispatch('setLinkStatus', LinkStatus.ERROR)
-    if (event.code === 1008 || event.code === 1000) return
-    console.log('---should reconnect--')
     this.connecting = false
-    this.connect()
   }
   _onError(event) {
     console.log('-------onerrror--')
@@ -102,15 +99,25 @@ class Blaze {
     console.log(event)
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
-  _sendGzip(data, result) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.transactions[data.id] = result
-      this.ws.send(pako.gzip(JSON.stringify(data)))
-    } else {
-      setTimeout(() => {
-        this._sendGzip(data, result)
-      }, 5000)
+  _clearSendGzipQueue() {
+    const pendingTask = this.sendGzipQueue.shift()
+    if (pendingTask) {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.transactions[pendingTask[0].id] = pendingTask[1]
+        this.ws.send(pako.gzip(JSON.stringify(pendingTask[0])))
+      } else {
+        this.sendGzipQueue.unshift(pendingTask)
+      }
     }
+    if (this.sendGzipQueue.length > 0) {
+      setTimeout(() => {
+        this._clearSendGzipQueue()
+      }, 300)
+    }
+  }
+  _sendGzip(data, result) {
+    this.sendGzipQueue.push([data, result])
+    this._clearSendGzipQueue()
   }
   closeBlaze() {
     if (this.ws) {

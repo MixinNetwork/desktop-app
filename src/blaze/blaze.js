@@ -19,12 +19,23 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.connecting = false
     this.connectInterval = null
+    this.pingInterval = null
+    this.messageSending = false
     this.sendGzipQueue = []
   }
 
   connect() {
     if (this.connecting) return
     this.connecting = true
+
+    if (!this.pingInterval) {
+      this.pingInterval = setInterval(() => {
+        if (!this.messageSending) {
+          this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }).catch(() => {})
+        }
+      }, 15000)
+    }
+
     clearInterval(this.connectInterval)
     this.connectInterval = setInterval(() => {
       this.connecting = false
@@ -190,10 +201,12 @@ class Blaze {
   }
 
   sendMessagePromise(message) {
+    this.messageSending = true
     return new Promise((resolve, reject) => {
       const sendMessageTimer = setTimeout(() => {
         this.connect()
         reject(this.TIMEOUT)
+        this.messageSending = false
       }, 5000)
       this._sendGzip(message, resp => {
         if (resp.data) {
@@ -204,6 +217,7 @@ class Blaze {
           resolve(resp)
         }
         clearTimeout(sendMessageTimer)
+        this.messageSending = false
       })
     })
   }

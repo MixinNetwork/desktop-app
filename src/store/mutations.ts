@@ -70,6 +70,7 @@ function refreshConversation(state: any, conversationId: string) {
       state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
     }
     conversations[conversationId] = conversation
+    setUnseenBadgeNum(state.conversations)
   }
 
   state.conversationKeys = conversationDao.getConversationsIds().map((item: { conversationId: any }) => {

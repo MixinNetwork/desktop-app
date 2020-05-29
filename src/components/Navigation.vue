@@ -221,7 +221,7 @@ import _ from 'lodash'
 import { ConversationCategory, ConversationStatus, LinkStatus, MuteDuration, isMuteCheck } from '@/utils/constants'
 
 import { Vue, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -248,6 +248,9 @@ export default class Navigation extends Vue {
   @Getter('linkStatus') linkStatus: any
   @Getter('currentConversation') conversation: any
   @Getter('currentCircle') currentCircle: any
+
+  @Action('setUnseenBadgeNum') actionSetUnseenBadgeNum: any
+  @Action('updateConversationMute') actionUpdateConversationMute: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -429,7 +432,8 @@ export default class Navigation extends Vue {
           conversationAPI.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              this.actionUpdateConversationMute({ conversation: c, ownerId: ownerId })
+              this.actionSetUnseenBadgeNum()
               if (picked === 0) {
                 this.$toast(this.$t('chat.mute_hour'))
               } else if (picked === 1) {
@@ -463,7 +467,8 @@ export default class Navigation extends Vue {
           conversationAPI.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              this.actionUpdateConversationMute({ conversation: c, ownerId: ownerId })
+              this.actionSetUnseenBadgeNum()
               this.$toast(this.$t('chat.mute_cancel'))
             }
           })

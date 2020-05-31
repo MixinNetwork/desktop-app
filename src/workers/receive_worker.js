@@ -437,14 +437,14 @@ class ReceiveWorker extends BaseWorker {
       signalProtocol.clearSenderKey(data.conversation_id, this.getAccountId(), this.getDeviceId())
     } else if (systemMessage.action === SystemConversationAction.CREATE) {
     } else if (systemMessage.action === SystemConversationAction.UPDATE) {
-      if (!systemMessage.participant_id) {
+      if (systemMessage.participant_id) {
         await this.syncUser(systemMessage.participant_id)
-      } else {
-        await this.refreshConversation(data.conversation_id)
       }
+      await this.refreshConversation(data.conversation_id)
       return
     } else if (systemMessage.action === SystemConversationAction.ROLE) {
-      participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role)
+      participantDao.updateParticipantRole(data.conversation_id, systemMessage.participant_id, systemMessage.role || '')
+      store.dispatch('refreshParticipants', data.conversation_id)
       if (message.participant_id !== accountId) {
         return
       }

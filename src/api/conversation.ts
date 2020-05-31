@@ -42,6 +42,9 @@ export default {
     }
     if (role) {
       data.role = role
+      if (role === 'USER') {
+        data.role = ''
+      }
     }
     return api.post('conversations/' + id + '/participants/' + action, [data])
   },

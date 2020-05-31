@@ -1,8 +1,8 @@
 import moment from 'moment'
 
 export const API_URL = {
-  HTTP: ['https://mixin-api.zeromesh.net/', 'https://api.mixin.one/'],
-  WS: ['wss://mixin-blaze.zeromesh.net', 'wss://blaze.mixin.one']
+  HTTP: ['https://api.mixin.one/', 'https://mixin-api.zeromesh.net/'],
+  WS: ['wss://blaze.mixin.one', 'wss://mixin-blaze.zeromesh.net']
 }
 
 export const PerPageMessageCount = 20

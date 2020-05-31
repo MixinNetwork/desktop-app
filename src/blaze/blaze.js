@@ -17,47 +17,39 @@ class Blaze {
     this.retryCount = 0
     this.account = getAccount()
     this.TIMEOUT = 'Time out'
-    this.connecting = false
-    this.connectInterval = null
+    this.pingInterval = null
+    this.messageSending = false
+    this.sendGzipQueue = []
   }
 
   connect() {
-    if (this.connecting) return
-    this.connecting = true
-    clearInterval(this.connectInterval)
-    this.connectInterval = setInterval(() => {
-      this.connecting = false
-      if (store.state.linkStatus !== LinkStatus.CONNECTED || !this.ws || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
-        console.log('--- connect interval --', this.ws && this.ws.readyState, store.state.linkStatus)
-        if (this.ws) {
-          this.ws.close(1000, 'Normal close')
-          this.ws = null
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+
+    if (!this.pingInterval) {
+      this.pingInterval = setInterval(() => {
+        if (!this.messageSending && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+          this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
         }
-        store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
-        this.connect()
-      }
-    }, 15000)
+      }, 15000)
+    }
 
     if (store.state.linkStatus === LinkStatus.ERROR) return
 
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.close(1000, 'Normal close, should reconnect')
+      this.ws.close(1000, 'Normal close')
       this.ws = null
     }
 
     this.account = getAccount()
     const token = getToken('GET', '/', '')
-    setTimeout(() => {
-      store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
-    })
     if (!token) return
     this.ws = new RobustWebSocket(
       API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
       'Mixin-Blaze-1',
       {
-        timeout: 8000,
+        timeout: 15000,
         shouldReconnect: function() {
           return false
         }
@@ -70,7 +62,6 @@ class Blaze {
     this.ws.onopen = () => {
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, resp => {
         console.log(resp)
-        this.connecting = false
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
       })
     }
@@ -90,27 +81,31 @@ class Blaze {
   }
   _onClose(event) {
     console.log('---onclose--')
-    store.dispatch('setLinkStatus', LinkStatus.ERROR)
-    if (event.code === 1008 || event.code === 1000) return
-    console.log('---should reconnect--')
-    this.connecting = false
-    this.connect()
   }
   _onError(event) {
     console.log('-------onerrror--')
-    this.connecting = false
     console.log(event)
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
-  _sendGzip(data, result) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.transactions[data.id] = result
-      this.ws.send(pako.gzip(JSON.stringify(data)))
-    } else {
-      setTimeout(() => {
-        this._sendGzip(data, result)
-      }, 5000)
+  _clearSendGzipQueue() {
+    const pendingTask = this.sendGzipQueue.shift()
+    if (pendingTask) {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.transactions[pendingTask[0].id] = pendingTask[1]
+        this.ws.send(pako.gzip(JSON.stringify(pendingTask[0])))
+      } else {
+        this.sendGzipQueue.unshift(pendingTask)
+      }
     }
+    if (this.sendGzipQueue.length > 0) {
+      setTimeout(() => {
+        this._clearSendGzipQueue()
+      }, 300)
+    }
+  }
+  _sendGzip(data, result) {
+    this.sendGzipQueue.push([data, result])
+    this._clearSendGzipQueue()
   }
   closeBlaze() {
     if (this.ws) {
@@ -183,10 +178,12 @@ class Blaze {
   }
 
   sendMessagePromise(message) {
+    this.messageSending = true
     return new Promise((resolve, reject) => {
       const sendMessageTimer = setTimeout(() => {
         this.connect()
         reject(this.TIMEOUT)
+        this.messageSending = false
       }, 5000)
       this._sendGzip(message, resp => {
         if (resp.data) {
@@ -197,6 +194,7 @@ class Blaze {
           resolve(resp)
         }
         clearTimeout(sendMessageTimer)
+        this.messageSending = false
       })
     })
   }

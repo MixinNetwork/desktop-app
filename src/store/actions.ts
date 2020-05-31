@@ -326,6 +326,11 @@ export default {
     }
     commit('refreshConversations')
   },
+  setUnseenBadgeNum({ commit }: any) {
+    setTimeout(() => {
+      commit('setUnseenBadgeNum')
+    }, 100)
+  },
   conversationClear: ({ commit }: any, conversationId: any) => {
     const messages = messageDao.findConversationMediaMessages(conversationId)
     delMedia(messages)
@@ -615,6 +620,10 @@ export default {
   participantSetAsAdmin: (_: any, payload: { conversationId: any; userId: any }) => {
     const { conversationId, userId } = payload
     conversationApi.participant(conversationId, 'ROLE', userId, 'ADMIN')
+  },
+  participantDismissAdmin: (_: any, payload: { conversationId: any; userId: any }) => {
+    const { conversationId, userId } = payload
+    conversationApi.participant(conversationId, 'ROLE', userId, 'USER')
   },
   participantRemove: (_: any, payload: { conversationId: any; userId: any }) => {
     const { conversationId, userId } = payload

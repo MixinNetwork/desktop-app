@@ -26,6 +26,7 @@ export default class ChatContainerMenu extends Vue {
   @Action('exitGroup') actionExitGroup: any
   @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('conversationClear') actionConversationClear: any
+  @Action('updateConversationMute') actionUpdateConversationMute: any
 
   $t: any
   $toast: any
@@ -149,7 +150,6 @@ export default class ChatContainerMenu extends Vue {
         }
       )
     } else if (key === 'mute') {
-      let self = this
       let ownerId = this.conversation.ownerId
       this.$Dialog.options(
         this.$t('chat.mute_title'),
@@ -166,7 +166,7 @@ export default class ChatContainerMenu extends Vue {
           } else {
             duration = MuteDuration.YEAR
           }
-          const { category, conversationId, participants } = self.conversation
+          const { category, conversationId, participants } = this.conversation
           const payload: any = {
             duration,
             category
@@ -177,7 +177,7 @@ export default class ChatContainerMenu extends Vue {
           conversationApi.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              this.actionUpdateConversationMute({ conversation: c, ownerId: ownerId })
               if (picked === 0) {
                 this.$toast(this.$t('chat.mute_hour'))
               } else if (picked === 1) {
@@ -187,7 +187,7 @@ export default class ChatContainerMenu extends Vue {
               } else {
                 this.$toast(this.$t('chat.mute_year'))
               }
-              self.updateMenuDelay()
+              this.updateMenuDelay()
             }
           })
         },
@@ -197,13 +197,12 @@ export default class ChatContainerMenu extends Vue {
         }
       )
     } else if (key === 'cancel_mute') {
-      let self = this
       let ownerId = this.conversation.ownerId
       this.$Dialog.alert(
         this.$t('chat.chat_mute_cancel'),
         this.$t('ok'),
         () => {
-          const { category, conversationId, participants } = self.conversation
+          const { category, conversationId, participants } = this.conversation
           const payload: any = {
             duration: 0,
             category
@@ -214,9 +213,9 @@ export default class ChatContainerMenu extends Vue {
           conversationApi.mute(conversationId, payload).then((resp: any) => {
             if (resp.data.data) {
               const c = resp.data.data
-              self.$store.dispatch('updateConversationMute', { conversation: c, ownerId: ownerId })
+              this.actionUpdateConversationMute({ conversation: c, ownerId: ownerId })
               this.$toast(this.$t('chat.mute_cancel'))
-              self.updateMenuDelay()
+              this.updateMenuDelay()
             }
           })
         },

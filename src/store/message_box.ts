@@ -128,7 +128,7 @@ class MessageBox {
           }
           let newCount = Object.keys(this.newMessageMap).length
           store.dispatch('setCurrentMessages', this.messages)
-          this.callback({ unreadNum: newCount })
+          this.callback({ unreadNum: newCount, getLastMessage: true })
           this.scrollAction({ isMyMsg })
         } else {
           if (isMyMsg) {

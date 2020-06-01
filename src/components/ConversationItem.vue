@@ -121,7 +121,7 @@ export default class ConversationItem extends Vue {
     } = this.conversation
     const account: any = getAccount()
     const id = account.user_id
-    const curMessageType = messageType(contentType)
+    let curMessageType = messageType(contentType, content)
     if (contentType.startsWith('SIGNAL_') && messageStatus === MessageStatus.FAILED) {
       return this.$t('chat.chat_decrypt_failed', {
         0: senderFullName
@@ -195,7 +195,9 @@ export default class ConversationItem extends Vue {
         return this.getMessageName() + this.$t('chat.chat_recall_delete')
       }
     } else {
-      return this.$t('chat.chat_unknown')
+      return this.$t('chat.chat_not_support', {
+        0: ''
+      })
     }
   }
   get isSelf() {

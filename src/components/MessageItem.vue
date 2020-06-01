@@ -168,7 +168,7 @@
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else :class="messageOwnership(message, me)">
-      <div v-if="this.showUserName()&&message.quoteContent">
+      <div v-if="this.showUserName()&&message.quoteId">
         <span
           class="username reply"
           :style="{color: getColor(message.userId)}"
@@ -179,10 +179,10 @@
         @handleMenuClick="handleMenuClick"
         :type="message.type"
         :send="message.userId === me.user_id"
-        :quote="message.quoteContent!==null"
+        :quote="message.quoteId!==null"
       >
         <div class="bubble" :class="messageType()">
-          <div v-if="this.showUserName()&&!message.quoteContent">
+          <div v-if="this.showUserName()&&!message.quoteId">
             <span
               class="username"
               :style="{color: getColor(message.userId)}"
@@ -190,15 +190,17 @@
             >{{message.userFullName}}</span>
           </div>
           <ReplyMessageItem
-            v-if="message.quoteContent"
-            :message="JSON.parse(message.quoteContent)"
+            v-if="message.quoteId"
+            :message="messageType(message.quoteContent) === 'unknown' ? '' : JSON.parse(message.quoteContent)"
             :me="me"
             class="reply"
           ></ReplyMessageItem>
           <span v-if="messageType() === 'text'" class="text">
             <span v-html="$w(textMessage(message))"></span>
           </span>
-          <span v-else-if="messageType() === 'unknown'" class="unknown">{{$t('chat.chat_unknown') }}</span>
+          <span v-else-if="messageType() === 'unknown'" class="unknown">
+            <span v-html="$w(unknownMessage)"></span>
+          </span>
           <span class="time-place"></span>
           <TimeAndStatus :message="message" />
         </div>
@@ -419,14 +421,21 @@ export default class MessageItem extends Vue {
     }
   }
 
-  messageType() {
-    return messageType(this.message.type)
+  messageType(srcContent?: string) {
+    const { type, content } = this.message
+    return messageType(type, srcContent || content)
   }
 
   get decryptFailedText() {
     return `${this.$t('chat.chat_decrypt_failed', {
       0: this.message.userFullName
-    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_decrypt_failed_info')}</a>`
+    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_learn')}</a>`
+  }
+
+  get unknownMessage() {
+    return this.$t('chat.chat_not_support', {
+      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_learn')}</a>`
+    })
   }
 
   textMessage(message: any) {

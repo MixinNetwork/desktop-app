@@ -137,7 +137,8 @@ export const MessageStatus = {
   SENT: 'SENT',
   DELIVERED: 'DELIVERED',
   READ: 'READ',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
+  UNKNOWN: 'UNKNOWN'
 }
 
 const BaseMessage = {
@@ -179,36 +180,45 @@ export function getCompleteMessage(message: any) {
   return initMessage
 }
 
-export function messageType(type: string) {
+export function messageType(type: string, content?: any) {
+  let msgType = ''
   if (type.endsWith('_STICKER')) {
-    return 'sticker'
+    msgType = 'sticker'
   } else if (type.endsWith('_IMAGE')) {
-    return 'image'
+    msgType = 'image'
   } else if (type.endsWith('_TEXT')) {
-    return 'text'
+    msgType = 'text'
   } else if (type.endsWith('_VIDEO')) {
-    return 'video'
+    msgType = 'video'
   } else if (type.endsWith('_LIVE')) {
-    return 'live'
+    msgType = 'live'
   } else if (type.endsWith('_AUDIO')) {
-    return 'audio'
+    msgType = 'audio'
   } else if (type.endsWith('_DATA')) {
-    return 'file'
+    msgType = 'file'
   } else if (type.endsWith('_CONTACT')) {
-    return 'contact'
+    msgType = 'contact'
   } else if (type.endsWith('_LOCATION')) {
-    return 'location'
+    msgType = 'location'
   } else if (type.endsWith('_POST')) {
-    return 'post'
+    msgType = 'post'
   } else if (type === 'APP_CARD') {
-    return 'app_card'
+    msgType = 'app_card'
   } else if (type === 'APP_BUTTON_GROUP') {
-    return 'app_button_group'
+    msgType = 'app_button_group'
   } else if (type === 'SYSTEM_ACCOUNT_SNAPSHOT') {
-    return 'transfer'
+    msgType = 'transfer'
   } else {
-    return 'unknown'
+    msgType = 'unknown'
   }
+  if (msgType === 'app_card' || msgType === 'app_button_group') {
+    try {
+      JSON.parse(content)
+    } catch (error) {
+      msgType = 'unknown'
+    }
+  }
+  return msgType
 }
 
 function mediaCheck(type: string, status: string) {
@@ -230,7 +240,7 @@ function mediaCheck(type: string, status: string) {
 }
 
 export function canReply(message: any) {
-  const { type } = message
+  const { type, content } = message
   return (
     type === MessageCategories.SIGNAL_TEXT ||
     type === MessageCategories.SIGNAL_IMAGE ||
@@ -253,11 +263,11 @@ export function canReply(message: any) {
     type === MessageCategories.PLAIN_LIVE ||
     type === MessageCategories.PLAIN_LOCATION ||
     type === MessageCategories.PLAIN_POST
-  ) && message.status !== MessageStatus.SENDING
+  ) && message.status !== MessageStatus.SENDING && messageType(type, content) !== 'unknown'
 }
 
 export function canForward(message: any) {
-  const { type, mediaStatus } = message
+  const { type, mediaStatus, content } = message
   const status = mediaCheck(type, mediaStatus)
   return (
     (type === MessageCategories.SIGNAL_TEXT ||
@@ -282,7 +292,7 @@ export function canForward(message: any) {
       type === MessageCategories.PLAIN_LOCATION ||
       type === MessageCategories.PLAIN_POST) &&
     status
-  ) && message.status !== MessageStatus.SENDING
+  ) && message.status !== MessageStatus.SENDING && messageType(type, content) !== 'unknown'
 }
 
 export function isMuteCheck(conversation: any) {

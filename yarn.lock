@@ -6505,21 +6505,25 @@ jimp@^0.9.3:
     core-js "^3.4.1"
     regenerator-runtime "^0.13.3"
 
-jpeg-autorotate@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/jpeg-autorotate/-/jpeg-autorotate-5.0.3.tgz#a42e4f04d6ca5ad695ee6847e0f0db4d22a8b084"
-  integrity sha512-4/ITPnLzXwGmivQg8QmevGr3sn/4Z0AvjrPnsEgOR5+FkfENSUlkD2j1NgF0MtunGFY71uH9tO0QcKmQQSLH2Q==
+jpeg-autorotate@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/jpeg-autorotate/-/jpeg-autorotate-6.0.0.tgz#8c4216eaa16e3fcef953681f42297b1ec846776b"
+  integrity sha512-VANCFRykZkEjuwRf5xX8vMCN+zmnOl+ME24LAMfZbFCpUhnxHR5PXBtX9ny20IqtuCc6oZEH65sY9S30FT+lsQ==
   dependencies:
     colors "^1.4.0"
     glob "^7.1.6"
-    jpeg-js "^0.3.6"
+    jpeg-js "^0.4.0"
     piexifjs "^1.0.6"
-    yargs "^15.0.2"
 
-jpeg-js@^0.3.4, jpeg-js@^0.3.6:
+jpeg-js@^0.3.4:
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.3.7.tgz#471a89d06011640592d314158608690172b1028d"
   integrity sha512-9IXdWudL61npZjvLuVe/ktHiA41iE8qFyLB+4VDTblEsWBzeg8WQTlktdUK4CdncUqtUgUg0bbOmTE2bKBKaBQ==
+
+jpeg-js@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/jpeg-js/-/jpeg-js-0.4.0.tgz#39adab7245b6d11e918ba5d4b49263ff2fc6a2f9"
+  integrity sha512-960VHmtN1vTpasX/1LupLohdP5odwAT7oK/VSm6mW0M58LbrBnowLAPWAZhWGhDAGjzbMnPXZxzB/QYgBwkN0w==
 
 js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.5.2"
@@ -11864,7 +11868,7 @@ yargs@^14.0.0:
     y18n "^4.0.0"
     yargs-parser "^15.0.0"
 
-yargs@^15.0.0, yargs@^15.0.2, yargs@^15.1.0:
+yargs@^15.0.0, yargs@^15.1.0:
   version "15.1.0"
   resolved "https://registry.yarnpkg.com/yargs/-/yargs-15.1.0.tgz#e111381f5830e863a89550bd4b136bb6a5f37219"
   integrity sha512-T39FNN1b6hCW4SOIk1XyTOWxtXdcen0t+XYrysQmChzSipvhBO8Bj0nK1ozAasdk24dNWuMZvr4k24nz+8HHLg==

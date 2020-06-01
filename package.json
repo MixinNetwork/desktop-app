@@ -33,7 +33,7 @@
     "highlight.js": "^9.18.1",
     "image-size": "^0.8.3",
     "interval-promise": "^1.4.0",
-    "jpeg-autorotate": "^5.0.3",
+    "jpeg-autorotate": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "markdown-it": "^10.0.0",
     "markdown-it-abbr": "^1.0.4",

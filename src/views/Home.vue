@@ -35,7 +35,6 @@ export default class Home extends Vue {
   @Action('setLinkStatus') actionSetLinkStatus: any
 
   emitLock: boolean = false
-  sleepTime: number = 0
   select: any = 0
   $blaze: any
 
@@ -102,15 +101,6 @@ export default class Home extends Vue {
       }
       this.actionSetLinkStatus(LinkStatus.CONNECTED)
     })
-
-    setInterval(() => {
-      const nowTime = new Date().getTime()
-      if (this.sleepTime && nowTime - this.sleepTime > 10000) {
-        console.log('----wakeup')
-        this.$blaze.connect()
-      }
-      this.sleepTime = nowTime
-    }, 5000)
   }
 }
 </script>

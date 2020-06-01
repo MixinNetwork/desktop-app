@@ -375,7 +375,8 @@ export default class MessageItem extends Vue {
     if (
       !this.conversation ||
       (['app_card', 'app_button_group'].indexOf(this.messageType()) > -1 &&
-        this.conversation.category === ConversationCategory.CONTACT)
+        this.conversation.category === ConversationCategory.CONTACT &&
+        this.conversation.senderId === this.message.userId)
     ) {
       return false
     }

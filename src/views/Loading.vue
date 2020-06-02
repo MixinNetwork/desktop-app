@@ -79,7 +79,7 @@ export default class Loading extends Vue {
 
   async migrationAction() {
     const identityNumber = getIdentityNumber(true)
-    if (identityNumber) {
+    if (identityNumber && !sessionStorage.tempHideLoading) {
       const newDir = path.join(remote.app.getPath('userData'), identityNumber)
       const oldMediaDir = path.join(remote.app.getPath('userData'), 'media')
 

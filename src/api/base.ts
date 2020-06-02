@@ -55,7 +55,7 @@ axiosApi.interceptors.request.use(
   (config: any) => {
     config.retry = 2 ** 31
     config.headers.common['Authorization'] = newToken(config)
-    config.headers.common['Accept-Language'] = navigator.language
+    config.headers.common['Accept-Language'] = navigator.language.split('-')[0]
     return config
   },
   (error: any) => {

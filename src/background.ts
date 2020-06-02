@@ -21,6 +21,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production'
 
 function ScheduledTask() {
   setTimeout(() => {
+    setSilentUpdate(true)
     checkForUpdatesOrign()
     ScheduledTask()
   }, 86400000)

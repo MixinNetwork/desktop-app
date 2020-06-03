@@ -293,6 +293,8 @@ class SendWorker extends BaseWorker {
           console.log('checkSessionSenderKey checksum failed')
           await self.refreshConversation(conversationId)
           await self.checkSessionSenderKey(conversationId)
+        } else if (error === 'Time out') {
+          throw error
         } else {
           console.log(error)
         }

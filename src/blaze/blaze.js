@@ -20,6 +20,7 @@ class Blaze {
     this.pingInterval = null
     this.messageSending = false
     this.sendGzipQueue = []
+    this.queueHandling = false
   }
 
   connect() {
@@ -88,6 +89,8 @@ class Blaze {
     store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
   _clearSendGzipQueue() {
+    if (this.queueHandling) return
+    this.queueHandling = true
     const pendingTask = this.sendGzipQueue.shift()
     if (pendingTask) {
       if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -99,12 +102,17 @@ class Blaze {
     }
     if (this.sendGzipQueue.length > 0) {
       setTimeout(() => {
+        this.queueHandling = false
         this._clearSendGzipQueue()
-      }, 300)
+      }, 50)
+    } else {
+      this.queueHandling = false
     }
   }
   _sendGzip(data, result) {
-    this.sendGzipQueue.push([data, result])
+    if (data.aciton !== 'PING') {
+      this.sendGzipQueue.push([data, result])
+    }
     this._clearSendGzipQueue()
   }
   closeBlaze() {

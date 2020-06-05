@@ -234,7 +234,7 @@ class ReceiveWorker extends BaseWorker {
       }
       store.dispatch('refreshMessage', {
         conversationId: data.conversation_id,
-        messageIds: [recallMassage.message_id, message.message_id]
+        messageIds: [recallMassage.message_id]
       })
     }
 

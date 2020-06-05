@@ -15,7 +15,6 @@ class MessageBox {
   newMessageMap: any = {}
   page: any
   callback: any
-  count: any
   infiniteUpLock: boolean = false
   infiniteDownLock: boolean = false
 
@@ -96,20 +95,22 @@ class MessageBox {
     if (!messageIds || messageIds.length === 0) return
 
     const matchIds: any = []
-    let count: number = messageIds.length
 
     for (let i = this.messages.length - 1; i >= 0; i--) {
       const item = this.messages[i]
-      if (count <= 0) {
-        break
-      }
-      if (messageIds.indexOf(item.messageId) > -1) {
-        count--
-        matchIds.push(item.messageId)
+      const isQuote = messageIds.indexOf(item.quoteId) > -1
+      if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
         const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
         if (findMessage) {
           findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
-          this.messages[i] = findMessage
+          if (isQuote) {
+            const quoteContent = JSON.parse(item.quoteContent)
+            quoteContent.type = 'MESSAGE_RECALL'
+            this.messages[i].quoteContent = JSON.stringify(quoteContent)
+          } else {
+            matchIds.push(item.messageId)
+            this.messages[i] = findMessage
+          }
         }
       }
     }

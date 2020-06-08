@@ -251,6 +251,7 @@ export default class Navigation extends Vue {
 
   @Action('setUnseenBadgeNum') actionSetUnseenBadgeNum: any
   @Action('updateConversationMute') actionUpdateConversationMute: any
+  @Action('conversationClear') actionConversationClear: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -404,7 +405,17 @@ export default class Navigation extends Vue {
         pinTime
       })
     } else if (position === 'clear') {
-      this.$store.dispatch('conversationClear', conversationId)
+      this.$Dialog.alert(
+        this.$t('chat.chat_clear'),
+        this.$t('ok'),
+        () => {
+          this.actionConversationClear(conversationId)
+        },
+        this.$t('cancel'),
+        () => {
+          console.log('cancel')
+        }
+      )
     } else if (position === 'mute') {
       let self = this
       this.$Dialog.options(

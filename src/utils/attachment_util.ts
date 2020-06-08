@@ -165,9 +165,9 @@ function toArrayBuffer(buf: string | any[] | Buffer) {
 function base64Thumbnail(url: string, width: number, height: number) {
   let image = nativeImage.createFromPath(url)
   if (width > height) {
-    image = image.resize({ width: 48, height: height / (width / 48), quality: 'good' })
+    image = image.resize({ width: 8, height: height / (width / 8), quality: 'good' })
   } else {
-    image = image.resize({ width: width / (height / 48), height: 48, quality: 'good' })
+    image = image.resize({ width: width / (height / 8), height: 8, quality: 'good' })
   }
   let base64str = image.toPNG().toString('base64')
 

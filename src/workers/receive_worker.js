@@ -213,6 +213,9 @@ class ReceiveWorker extends BaseWorker {
       status: status,
       created_at: data.created_at
     }
+    if (data.representative_id) {
+      message.user_id = data.representative_id
+    }
     messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       this.makeMessageRead(data.conversation_id, data.message_id, data.user_id, status)

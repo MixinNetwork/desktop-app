@@ -42,6 +42,14 @@ class ContentUtil {
   }
   renderUrl(content: string) {
     if (!content) return ''
+    const urlList: any = []
+    URI.withinString(content, (url: string) => {
+      let l = url
+      if (!url.startsWith('http')) {
+        l = 'https://' + url
+      }
+      urlList.push([url, `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`])
+    })
     content = content
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
@@ -52,14 +60,11 @@ class ContentUtil {
       const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+?)?&quot;&gt;(.+?)?&lt;/b&gt;`, 'g')
       content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
     }
-
-    return URI.withinString(content, function(url: string) {
-      let l = url
-      if (!url.startsWith('http')) {
-        l = 'https://' + url
-      }
-      return `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`
+    urlList.forEach((item: any) => {
+      const urlRegx = new RegExp(item[0], 'g')
+      content = content.replace(urlRegx, item[1])
     })
+    return content
   }
   renderMdToText(content: string) {
     const html = md.render(content)

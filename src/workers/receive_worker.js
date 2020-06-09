@@ -126,7 +126,7 @@ interval(
   { stopOnError: false }
 )
 
-let lastChechSignalTime = 0
+let lastCheckSignalTime = 0
 
 class ReceiveWorker extends BaseWorker {
   async doWork() {
@@ -185,13 +185,12 @@ class ReceiveWorker extends BaseWorker {
     } else {
       console.log('decrypt failed: ' + data.category)
       console.log(JSON.stringify(data))
-      lastChechSignalTime = lastChechSignalTime || 0
+
       const nowTime = new Date().getTime()
-      if (nowTime - lastChechSignalTime > 3600000) {
-        lastChechSignalTime = nowTime
-        wasmObject.then(() => {
-          checkSignalKey()
-        })
+      if (nowTime - lastCheckSignalTime > 3600000) {
+        lastCheckSignalTime = nowTime
+        await wasmObject.then(() => {})
+        await checkSignalKey()
       }
 
       if (data.category === MessageCategories.SIGNAL_KEY) {

@@ -19,6 +19,7 @@ import i18n from '@/utils/i18n'
 import moment from 'moment'
 import { sendNotification, generateConversationId } from '@/utils/util'
 import contentUtil from '@/utils/content_util'
+import { checkSignalKey } from '@/utils/signal_key_util'
 import { remote } from 'electron'
 import snapshotApi from '@/api/snapshot'
 import messageMentionDao from '@/dao/message_mention_dao'
@@ -125,6 +126,8 @@ interval(
   { stopOnError: false }
 )
 
+let lastChechSignalTime = 0
+
 class ReceiveWorker extends BaseWorker {
   async doWork() {
     await wasmObject.then(result => {})
@@ -182,6 +185,15 @@ class ReceiveWorker extends BaseWorker {
     } else {
       console.log('decrypt failed: ' + data.category)
       console.log(JSON.stringify(data))
+      lastChechSignalTime = lastChechSignalTime || 0
+      const nowTime = new Date().getTime()
+      if (nowTime - lastChechSignalTime > 3600000) {
+        lastChechSignalTime = nowTime
+        wasmObject.then(() => {
+          checkSignalKey()
+        })
+      }
+
       if (data.category === MessageCategories.SIGNAL_KEY) {
         return
       }

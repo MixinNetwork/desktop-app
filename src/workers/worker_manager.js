@@ -4,6 +4,7 @@ import receiveWorker from '@/workers/receive_worker'
 import ackWorker from '@/workers/ack_worker'
 import store from '@/store/store'
 import { LinkStatus } from '@/utils/constants'
+import { checkSignalKey } from '@/utils/signal_key_util'
 
 const Status = {
   RUNNING: 0,
@@ -19,6 +20,13 @@ class WorkManager {
     if (this.stoppedExternally) {
       this.stoppedExternally = false
       this.workerStatus = []
+
+      setInterval(() => {
+        console.log('-----checkSignalKey interval')
+        wasmObject.then(() => {
+          checkSignalKey()
+        })
+      }, 86400000)
 
       interval(
         async(_, stop) => {

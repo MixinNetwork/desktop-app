@@ -30,7 +30,8 @@
           v-for="item in stickers"
           :key="item.sticker_id"
         >
-          <img :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
+          <Lottie v-if="item.asset_type === 'json'" :path="item.asset_url" @click="sendSticker(item.sticker_id)" />
+          <img v-else :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
         </span>
         <i v-for="i in 30"
           :style="{width: `${stickerStyle.w}px`, margin: `0 ${stickerStyle.m}px`}"
@@ -47,7 +48,13 @@ import { downloadSticker, updateStickerAlbums } from '@/utils/attachment_util'
 import { Vue, Component, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
-@Component
+import Lottie from '@/components/lottie/Lottie.vue'
+
+@Component({
+  components: {
+    Lottie
+  }
+})
 export default class ChatSticker extends Vue {
   @Prop(Number) readonly height: any
 

@@ -73,7 +73,7 @@ class ContentUtil {
       const urlRegx = new RegExp(this.htmlEscape(url, true), 'g')
       content = content.replace(urlRegx, `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`)
     })
-    return content
+    return content.replace('&temp;', '?')
   }
   renderMdToText(content: string) {
     const html = md.render(content)

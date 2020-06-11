@@ -40,29 +40,38 @@ class ContentUtil {
     }
     return len
   }
+  htmlEscape(str: string, expand?: boolean) {
+    str = str.replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+    if (expand) {
+      str = str.replace(/\?/g, '&temp;')
+    }
+    return str
+  }
   renderUrl(content: string) {
     if (!content) return ''
     const urlList: any = []
     URI.withinString(content, (url: string) => {
-      let l = url
-      if (!url.startsWith('http')) {
-        l = 'https://' + url
+      if (urlList.indexOf(url) === -1) {
+        urlList.push(url)
       }
-      urlList.push([url, `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`])
     })
-    content = content
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
+    content = this.htmlEscape(content, true)
 
     if (/highlight mention/.test(content)) {
       const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+?)?&quot;&gt;(.+?)?&lt;/b&gt;`, 'g')
       content = content.replace(mentionRegx, '<b class="highlight mention id-$1">$2</b>')
     }
-    urlList.forEach((item: any) => {
-      const urlRegx = new RegExp(item[0], 'g')
-      content = content.replace(urlRegx, item[1])
+
+    urlList.forEach((url: string) => {
+      let l = url
+      if (!url.startsWith('http')) {
+        l = 'https://' + url
+      }
+      const urlRegx = new RegExp(this.htmlEscape(url, true), 'g')
+      content = content.replace(urlRegx, `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`)
     })
     return content
   }

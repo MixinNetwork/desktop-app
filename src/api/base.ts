@@ -4,7 +4,7 @@ import Url from 'url-parse'
 import jwt from 'jsonwebtoken'
 import { getToken } from '@/utils/util'
 import { clearDb } from '@/persistence/db_util'
-import { API_URL } from '@/utils/constants'
+import { API_URL, LinkStatus } from '@/utils/constants'
 import store from '@/store/store'
 // @ts-ignore
 import router from '@/router'
@@ -30,9 +30,13 @@ function newToken(config: any) {
 
 const backOff = () => {
   return new Promise(resolve => {
+    let waitTime = 30000
+    if (store.state.linkStatus === LinkStatus.CONNECTED) {
+      waitTime = 1500
+    }
     setTimeout(() => {
       resolve()
-    }, 1500)
+    }, waitTime)
   })
 }
 

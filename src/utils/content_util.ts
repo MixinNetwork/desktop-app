@@ -40,14 +40,12 @@ class ContentUtil {
     }
     return len
   }
-  htmlEscape(str: string, expand?: boolean) {
+  htmlEscape(str: string) {
     str = str.replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
-    if (expand) {
-      str = str.replace(/\?/g, '&temp;')
-    }
+      .replace(/\?/g, '&#63;')
     return str
   }
   renderUrl(content: string) {
@@ -58,7 +56,7 @@ class ContentUtil {
         urlList.push(url)
       }
     })
-    content = this.htmlEscape(content, true)
+    content = this.htmlEscape(content)
 
     if (/highlight mention/.test(content)) {
       const mentionRegx = new RegExp(`&lt;b class=&quot;highlight mention id-(.+?)?&quot;&gt;(.+?)?&lt;/b&gt;`, 'g')
@@ -70,10 +68,10 @@ class ContentUtil {
       if (!url.startsWith('http')) {
         l = 'https://' + url
       }
-      const urlRegx = new RegExp(this.htmlEscape(url, true), 'g')
+      const urlRegx = new RegExp(this.htmlEscape(url), 'g')
       content = content.replace(urlRegx, `<a href='${l}' target='_blank' rel='noopener noreferrer nofollow'>${url}</a>`)
     })
-    return content.replace('&temp;', '?')
+    return content
   }
   renderMdToText(content: string) {
     const html = md.render(content)

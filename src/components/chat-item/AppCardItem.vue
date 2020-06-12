@@ -73,6 +73,7 @@ export default class AppCardItem extends Vue {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
   flex-direction: column;
+  font-size: 0;
 }
 .username {
   margin-left: 0.3rem;

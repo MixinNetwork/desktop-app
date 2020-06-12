@@ -68,6 +68,7 @@
           :key="item.messageId"
           :message="item"
           :prev="messagesVisible[index - 1]"
+          :next="messagesVisible[index + 1]"
           :unread="unreadMessageId"
           :beforeCreateAt="!isBottom && !infiniteUpLock && scrolling ? messagesVisible[0].createdAt : ''"
           :searchKeyword="searchKeyword"

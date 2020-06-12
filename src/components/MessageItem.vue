@@ -1,5 +1,8 @@
 <template>
-  <li ref="messageItem" :id="message.messageId">
+  <li ref="messageItem" :class="{
+      'prev-same': this.prev && this.prev.userId === this.message.userId,
+      'same': this.next && this.next.userId === this.message.userId
+    }" :id="message.messageId">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
@@ -17,7 +20,7 @@
         :send="message.userId === me.user_id"
       >
         <div class="bubble text">
-          <div v-if="this.showUserName()">
+          <div v-if="showUserName()">
             <span
               class="username"
               :style="{color: getColor(message.userId)}"
@@ -35,7 +38,7 @@
       v-else-if="messageType() === 'sticker'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @handleMenuClick="handleMenuClick"
       @user-click="$emit('user-click',message.userId)"
@@ -54,7 +57,7 @@
       v-else-if="messageType() === 'contact'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @user-share-click="$emit('user-click',message.sharedUserId)"
       @user-click="$emit('user-click',message.userId)"
@@ -65,7 +68,7 @@
       v-else-if="messageType() === 'file'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       :searchKeyword="searchKeyword"
       @mediaClick="mediaClick"
@@ -77,7 +80,7 @@
       v-else-if="messageType() === 'audio'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
@@ -87,7 +90,7 @@
     <VideoItem
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       v-else-if="messageType() === 'video'"
       @mediaClick="mediaClick"
@@ -99,7 +102,7 @@
       v-else-if="message.type==='MESSAGE_RECALL'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -109,7 +112,7 @@
       v-else-if="messageType() === 'image'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -120,7 +123,7 @@
       v-else-if="messageType() === 'live'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -131,7 +134,7 @@
       v-else-if="messageType() === 'location'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -141,7 +144,7 @@
       v-else-if="messageType() === 'post'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
@@ -151,7 +154,7 @@
       v-else-if="messageType() === 'app_card'"
       :message="message"
       :me="me"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       @action-click="actionClick"
       @handleMenuClick="handleMenuClick"
     ></AppCardItem>
@@ -159,7 +162,7 @@
     <AppButtonItem
       v-else-if="messageType() === 'app_button_group'"
       :message="message"
-      :showName="this.showUserName()"
+      :showName="showUserName()"
       @action-click="actionClick"
       @handleMenuClick="handleMenuClick"
     ></AppButtonItem>
@@ -168,7 +171,7 @@
       <div class="bubble">{{getInfo(message, me)}}</div>
     </div>
     <div v-else :class="messageOwnership(message, me)">
-      <div v-if="this.showUserName()&&message.quoteId">
+      <div v-if="showUserName()&&message.quoteId">
         <span
           class="username reply"
           :style="{color: getColor(message.userId)}"
@@ -182,7 +185,7 @@
         :quote="message.quoteId!==null"
       >
         <div class="bubble" :class="messageType()">
-          <div v-if="this.showUserName()&&!message.quoteId">
+          <div v-if="showUserName()&&!message.quoteId">
             <span
               class="username"
               :style="{color: getColor(message.userId)}"
@@ -272,6 +275,7 @@ import { Getter } from 'vuex-class'
 export default class MessageItem extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Object) readonly prev: any
+  @Prop(Object) readonly next: any
   @Prop(String) readonly unread: any
   @Prop(String) readonly searchKeyword: any
   @Prop(String) readonly beforeCreateAt: any
@@ -609,6 +613,14 @@ li {
   pointer-events: none;
   * {
     pointer-events: all;
+  }
+  &.same {
+    margin-bottom: 0.2rem;
+  }
+  &.prev-same {
+    .unread-divide, .time-divide {
+      margin-top: 0.25rem;
+    }
   }
   &.notice {
     .send,

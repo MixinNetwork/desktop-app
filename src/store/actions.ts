@@ -521,6 +521,7 @@ export default {
           width: mediaWidth,
           height: mediaHeight,
           name: mediaName,
+          // media_waveform: '',
           thumbnail: thumbImage,
           digest: digest,
           key: key

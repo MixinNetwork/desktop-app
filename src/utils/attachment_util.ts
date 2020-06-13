@@ -280,6 +280,7 @@ export async function putAttachment(
             duration: mediaDuration,
             name: name,
             thumbnail: thumbImage,
+            waveform: mediaWaveform,
             digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
             key: btoa(String.fromCharCode(...new Uint8Array(key)))
           })

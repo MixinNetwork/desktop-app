@@ -459,6 +459,7 @@ export default {
           media_size: data.mediaSize,
           media_width: data.mediaWidth,
           media_height: data.mediaHeight,
+          media_waveform: data.mediaWaveform,
           media_duration: data.mediaDuration,
           thumb_image: data.thumbImage,
           media_status: 'PENDING',

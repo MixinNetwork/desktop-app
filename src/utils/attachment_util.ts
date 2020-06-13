@@ -222,7 +222,8 @@ export async function putAttachment(
     mediaWidth = 0,
     mediaHeight = 0,
     thumbImage = '',
-    mediaDuration = 0
+    mediaDuration = 0,
+    mediaWaveform = ''
   } = payload
   const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id)
   if (messageType(category) === 'image') {
@@ -245,6 +246,7 @@ export async function putAttachment(
     mediaUrl: `file://${localPath}`,
     mediaMimeType,
     mediaDuration,
+    mediaWaveform,
     thumbImage
   }
   if (category.startsWith('SIGNAL_')) {

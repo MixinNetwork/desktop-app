@@ -87,16 +87,8 @@ export async function downloadAttachment(message: any) {
   try {
     const response = await attachmentApi.getAttachment(message.content)
     if (response.data.data) {
-      let dir
-      if (messageType(message.category) === 'image') {
-        dir = getImagePath()
-      } else if (messageType(message.category) === 'video') {
-        dir = getVideoPath()
-      } else if (messageType(message.category) === 'file') {
-        dir = getDocumentPath()
-      } else if (messageType(message.category) === 'audio') {
-        dir = getAudioPath()
-      } else {
+      let dir = getMediaDir(message.category)
+      if (!dir) {
         return null
       }
       if (message.category.startsWith('SIGNAL_')) {
@@ -136,13 +128,27 @@ export async function downloadAttachment(message: any) {
   }
 }
 
-function processAttachment(imagePath: any, mimeType: string, category: any, id: any) {
-  const fileName = path.parse(imagePath).base
+function getMediaDir(category: string) {
+  let dir = ''
+  if (messageType(category) === 'image') {
+    dir = getImagePath()
+  } else if (messageType(category) === 'video') {
+    dir = getVideoPath()
+  } else if (messageType(category) === 'file') {
+    dir = getDocumentPath()
+  } else if (messageType(category) === 'audio') {
+    dir = getAudioPath()
+  }
+  return dir
+}
+
+function processAttachment(localPath: any, mimeType: string, category: any, id: any) {
+  const fileName = path.parse(localPath).base
   let type: string = mimeType
   // @ts-ignore
-  if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
-  const destination = path.join(getImagePath(), generateName(fileName, type, category, id))
-  fs.copyFileSync(imagePath, destination)
+  if (mimeType && mimeType.length > 0) type = path.parse(localPath).extension
+  const destination = path.join(getMediaDir(category), generateName(fileName, type, category, id))
+  fs.copyFileSync(localPath, destination)
   return { localPath: destination, name: fileName }
 }
 

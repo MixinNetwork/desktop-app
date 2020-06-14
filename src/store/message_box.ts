@@ -129,6 +129,7 @@ class MessageBox {
           }
           let newCount = Object.keys(this.newMessageMap).length
           store.dispatch('setCurrentMessages', this.messages)
+          this.page = Math.floor(this.messages.length / PerPageMessageCount) - 1
           this.callback({ unreadNum: newCount, getLastMessage: true })
           this.scrollAction({ isMyMsg })
         } else {
@@ -183,40 +184,44 @@ class MessageBox {
 
   infiniteScroll(direction: any) {
     const messages = this.nextPage(direction)
-    if (messages.length) {
-      if (direction === 'down') {
-        const newMessages = []
-        const lastMessageId = this.messages[this.messages.length - 1].messageId
-        for (let i = messages.length - 1; i >= 0; i--) {
-          const temp = messages[i]
-          if (temp.messageId === lastMessageId) {
-            break
-          }
-          newMessages.unshift(temp)
-        }
-        this.messages.push(...newMessages)
-        store.dispatch('setCurrentMessages', this.messages)
-        this.callback({ messages: this.messages })
+    if (direction === 'down') {
+      if (!messages.length) {
         setTimeout(() => {
-          this.callback({ infiniteDownLock: false })
+          this.callback({ infiniteDownLock: true })
         }, 100)
-      } else {
-        const newMessages = []
-        const firstMessageId = this.messages[0].messageId
-        for (let i = 0; i < messages.length; i++) {
-          const temp = messages[i]
-          if (temp.messageId === firstMessageId) {
-            break
-          }
-          newMessages.push(temp)
-        }
-        this.messages.unshift(...newMessages)
-        store.dispatch('setCurrentMessages', this.messages)
-        this.callback({ messages: this.messages })
-        setTimeout(() => {
-          this.callback({ infiniteUpLock: false })
-        }, 100)
+        return
       }
+      const newMessages = []
+      const lastMessageId = this.messages[this.messages.length - 1].messageId
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const temp = messages[i]
+        if (temp.messageId === lastMessageId) {
+          break
+        }
+        newMessages.unshift(temp)
+      }
+      this.messages.push(...newMessages)
+      store.dispatch('setCurrentMessages', this.messages)
+      this.callback({ messages: this.messages })
+    } else {
+      if (!messages.length) {
+        setTimeout(() => {
+          this.callback({ infiniteUpLock: true })
+        }, 100)
+        return
+      }
+      const newMessages = []
+      const firstMessageId = this.messages[0].messageId
+      for (let i = 0; i < messages.length; i++) {
+        const temp = messages[i]
+        if (temp.messageId === firstMessageId) {
+          break
+        }
+        newMessages.push(temp)
+      }
+      this.messages.unshift(...newMessages)
+      store.dispatch('setCurrentMessages', this.messages)
+      this.callback({ messages: this.messages })
     }
   }
   infiniteUp() {
@@ -224,10 +229,6 @@ class MessageBox {
       this.infiniteUpLock = true
       this.infiniteScroll('up')
       this.infiniteUpLock = false
-    } else {
-      setTimeout(() => {
-        this.infiniteUp()
-      }, 10)
     }
   }
   infiniteDown() {
@@ -235,10 +236,6 @@ class MessageBox {
       this.infiniteDownLock = true
       this.infiniteScroll('down')
       this.infiniteDownLock = false
-    } else {
-      setTimeout(() => {
-        this.infiniteDown()
-      }, 10)
     }
   }
   bindData(callback: any, scrollAction: any) {

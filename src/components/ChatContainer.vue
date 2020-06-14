@@ -732,10 +732,14 @@ export default class ChatContainer extends Vue {
         }
       }
       if (!targetDom && !messageDom) {
-        setTimeout(() => {
-          this.showMessages = true
-        })
+        this.showMessages = true
         return
+      }
+      if (!this.goMessagePosTimer) {
+        this.goMessagePosTimer = setTimeout(() => {
+          console.log('------goMessagePosition Done')
+          goDone = true
+        }, 300)
       }
       let list = this.$refs.messagesUl
       if (!list) return
@@ -744,6 +748,7 @@ export default class ChatContainer extends Vue {
         this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       } else {
         goDone = true
+        clearTimeout(this.goMessagePosTimer)
         if (!this.isBottom) {
           this.getLastMessage = false
         }
@@ -762,9 +767,7 @@ export default class ChatContainer extends Vue {
           list.scrollTop = targetDom.offsetTop - 1
         }
         this.showMessages = true
-        this.goMessagePosTimer = setTimeout(() => {
-          this.goMessagePosLock = false
-        }, 600)
+        this.goMessagePosLock = false
       }
     })
   }
@@ -794,6 +797,7 @@ export default class ChatContainer extends Vue {
     this.beforeViewport = {}
     this.goMessagePosLock = true
     clearTimeout(this.goMessagePosTimer)
+    this.goMessagePosTimer = null
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
     setTimeout(() => {
       this.goMessagePosAction(posMessage, goDone, beforeScrollTop)

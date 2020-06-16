@@ -46,6 +46,7 @@ import conversationDao from '@/dao/conversation_dao'
 import participantSessionDao from '@/dao/participant_session_dao'
 
 import { Vue, Component } from 'vue-property-decorator'
+import { generateKeys } from '@/utils/signal_key_util'
 
 @Component({
   components: {
@@ -173,23 +174,7 @@ export default class SignIn extends Vue {
   pushSignalKeys() {
     // @ts-ignore
     return wasmObject.then(() => {
-      const identityKeyPair = signalDao.getIdentityKeyPair()
-      const preKeys = signalProtocol.generatePreKeys()
-      const signedPreKey = signalProtocol.generateSignedPreKey()
-      let otpks = []
-      for (let i in preKeys) {
-        const p = JSON.parse(preKeys[i].record)
-        otpks.push({ key_id: p.ID, pub_key: p.PublicKey })
-      }
-      const body = {
-        identity_key: identityKeyPair.public_key,
-        signed_pre_key: {
-          key_id: signedPreKey.ID,
-          pub_key: signedPreKey.PublicKey,
-          signature: signedPreKey.Signature
-        },
-        one_time_pre_keys: otpks
-      }
+      const body = generateKeys()
       return signalAPI.postSignalKeys(body)
     })
   }

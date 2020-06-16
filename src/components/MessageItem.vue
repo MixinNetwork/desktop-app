@@ -561,6 +561,9 @@ export default class MessageItem extends Vue {
   handleStore() {
     let sourcePath = this.message.mediaUrl
     let defaultPath = this.message.mediaUrl.split('/Video')[1]
+    if (!defaultPath) {
+      defaultPath = this.message.mediaUrl.split('/Image')[1]
+    }
     const suffix = '.' + this.message.mediaMimeType.split('/')[1]
     if (defaultPath.startsWith('s/')) {
       defaultPath = defaultPath.split('/')[2] + suffix

@@ -193,8 +193,6 @@ class ReceiveWorker extends BaseWorker {
         await checkSignalKey()
       }
 
-      await this.refreshConversation(data.conversation_id)
-
       if (data.category === MessageCategories.SIGNAL_KEY) {
         return
       }

@@ -58,10 +58,10 @@ const executeCommand = (cmd, callback) => {
   })
 }
 
-const generateCertificate = (options, callback) => {
+const signcode = (options, callback) => {
   const source = options.certificate
   const target = options.certificateOutput
-  if (!fs.existsSync(target + 'output.key') || !fs.existsSync(target + 'output.spc')) {
+  if (!fs.existsSync(target + 'output.key')) {
     const directory = path.dirname(target)
     if (directory !== '.') {
       exec(`mkdir -p ${directory}`, () => {})
@@ -81,16 +81,6 @@ const generateCertificate = (options, callback) => {
 
     commands.push('openssl rsa' + ' -in ' + target + 'tmp_key.pem -outform DER' + ' -out ' + target + 'output.key')
 
-    commands.push(
-      'openssl crl2pkcs7' +
-        ' -nocrl -certfile ' +
-        target +
-        'tmp_cert.pem -outform DER' +
-        ' -out ' +
-        target +
-        'output.spc'
-    )
-
     executeCommandList(commands, callback)
   } else {
     if (callback) {
@@ -99,8 +89,8 @@ const generateCertificate = (options, callback) => {
   }
 }
 
-// run
-generateCertificate(options, () => {
+// run: yarn signapp
+signcode(options, () => {
   const commands = []
 
   const out = options.output ? options.output : options.sign + '.out'
@@ -111,22 +101,26 @@ generateCertificate(options, () => {
   }
 
   commands.push(
-    'osslsigncode' +
-      ' -spc ' +
+    'osslsigncode sign' +
+      ' -h sha256 ' +
+      ' -n "' +
+      options.name +
+      '" -i "' +
+      options.url +
+      '" -t ' +
+      options.timestamp +
+      ' -certs ' +
       options.certificateOutput +
-      'output.spc' +
+      'tmp_cert.pem' +
       ' -key ' +
       options.certificateOutput +
       'output.key' +
-      ' -t ' +
-      options.timestamp +
+      ' -pass ' +
+      options.password +
       ' -in ' +
       options.sign +
       ' -out ' +
-      out +
-      (options.password ? ' -pass ' + options.password : '') +
-      (options.name ? ' -n "' + options.name + '"' : '') +
-      (options.url ? ' -i "' + options.url + '"' : '')
+      out
   )
 
   executeCommandList(commands, () => {

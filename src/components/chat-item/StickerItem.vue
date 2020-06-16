@@ -9,7 +9,8 @@
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="img-box" :style="getStyle">
-          <img v-if="loaded" :src="message.assetUrl" />
+          <Lottie v-if="loaded && message.assetType === 'json'" :path="message.assetUrl" />
+          <img v-else-if="loaded" :src="message.assetUrl" />
         </div>
       </BadgeItem>
       <TimeAndStatus :relative="true" style="padding-right: 0.3rem" :message="message" />
@@ -23,11 +24,13 @@ import { MessageStatus } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
+import Lottie from '@/components/lottie/Lottie.vue'
 
 @Component({
   components: {
     BadgeItem,
-    TimeAndStatus
+    TimeAndStatus,
+    Lottie
   }
 })
 export default class StickerItem extends Vue {

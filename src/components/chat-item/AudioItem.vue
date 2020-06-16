@@ -15,7 +15,7 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <div class="mixin-audio" onselectstart="return false">
+          <div class="mixin-audio" :class="{ played: audioPlayedMap[message.messageId] || messageOwnership().send }" onselectstart="return false">
             <span class="audio-status">
               <div v-if="loading" class="loading" @click.stop="stopLoading">
                 <svg-icon class="stop" icon-class="loading-stop" />
@@ -104,6 +104,7 @@ export default class AudioItem extends Vue {
   dotStyle: any = { left: '' }
   audioStatus: string = 'play'
   $moment: any
+  audioPlayedMap: any = {}
 
   @Getter('attachment') attachment: any
   @Getter('currentAudio') currentAudio: any
@@ -128,6 +129,14 @@ export default class AudioItem extends Vue {
     }
   }
 
+  @Watch('audioStatus')
+  onAudioStatus(status: string) {
+    const { messageId } = this.message
+    this.audioPlayedMap = this.getAudioPlayedMap()
+    this.audioPlayedMap[messageId] = true
+    localStorage.audioPlayedMap = JSON.stringify(this.audioPlayedMap)
+  }
+
   @Watch('message')
   onMessageChange(data: any) {
     if (data.mediaStatus === MediaStatus.DONE) {
@@ -136,6 +145,7 @@ export default class AudioItem extends Vue {
   }
 
   created() {
+    this.audioPlayedMap = this.getAudioPlayedMap()
     if (this.message.mediaStatus === MediaStatus.DONE) {
       this.audioStatus = 'play'
     }
@@ -143,6 +153,11 @@ export default class AudioItem extends Vue {
 
   stopLoading() {
     this.$store.dispatch('stopLoading', this.message.messageId)
+  }
+
+  getAudioPlayedMap() {
+    const AudioPlayedMapSrc = localStorage.audioPlayedMap || '{}'
+    return JSON.parse(AudioPlayedMapSrc)
   }
 
   messageOwnership() {
@@ -313,7 +328,7 @@ export default class AudioItem extends Vue {
         width: 8.8rem;
         height: 0.1rem;
         margin: 0.2rem 0 0.1rem;
-        background-color: #e6e5eb;
+        background-color: #4b7ed2dd;
         border-radius: 0.1rem;
         position: relative;
       }
@@ -324,11 +339,22 @@ export default class AudioItem extends Vue {
         display: inline-block;
         position: absolute;
       }
-      .audio-time,
       .audio-duration {
-        font-size: 0.6rem;
+        color: #4b7ed2;
         font-weight: 400;
+        font-size: 0.6rem;
+      }
+      .audio-time {
         color: #777;
+      }
+
+      &.played {
+        .audio-progress {
+          background-color: #dddddd;
+        }
+        .audio-duration {
+          color: #9b9b9b;
+        }
       }
     }
   }

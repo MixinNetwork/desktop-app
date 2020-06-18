@@ -20,6 +20,10 @@
               <svg-icon v-if="!nameEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0.2rem" />
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.25rem" />
             </span>
+            <span class="bot-icon">
+              <svg-icon icon-class="ic_verify" v-if="conversation.ownerVerified" />
+              <svg-icon icon-class="ic_robot" v-else-if="conversation.appId" />
+            </span>
           </span>
 
           <span class="id" v-if="isContact">Mixin ID: {{userId || conversation.ownerIdentityNumber}}</span>
@@ -365,6 +369,10 @@ export default class Details extends Vue {
         text-overflow: ellipsis;
         user-select: text;
         padding: 0 1rem;
+        .bot-icon {
+          vertical-align: middle;
+          padding: 0.2rem;
+        }
       }
       .id {
         font-size: 0.8rem;

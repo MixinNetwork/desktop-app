@@ -13,7 +13,8 @@
       <div class="title">
         <div class="username">
           <span>{{conversation.groupName?conversation.groupName:conversation.name}}</span>
-          <svg-icon style="width: 0.7rem" icon-class="ic_robot" v-if="conversation.appId" />
+          <svg-icon style="width: 0.7rem" icon-class="ic_verify" v-if="conversation.ownerVerified" />
+          <svg-icon style="width: 0.7rem" icon-class="ic_robot" v-else-if="conversation.appId" />
         </div>
         <div class="time">{{timeAgo}}</div>
       </div>

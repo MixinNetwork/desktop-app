@@ -161,7 +161,7 @@ let transactions = {
     },
     sign_in: {
       title: 'To use Mixin Messenger on your PC',
-      desc: 'Open Mixin Messenger on your phone, capture the code',
+      desc: 'Open Mixin Messenger on your phone, and scan the code',
       reload: 'Reload Code'
     },
     setting: {

@@ -38,6 +38,7 @@ import {
 
 import interval from 'interval-promise'
 import { downloadAttachment, downloadSticker, downloadQueue } from '@/utils/attachment_util'
+let { BrowserWindow } = remote
 
 const insertMessageQueue = []
 const makeMessageReadQueue = []
@@ -77,6 +78,15 @@ interval(
           const messageId = temp[0].message_id
           messageIdsMap[conversationId] = messageIdsMap[conversationId] || []
           messageIdsMap[conversationId].push(messageId)
+          if (store.state.currentConversationId === conversationId) {
+            if (!BrowserWindow.getFocusedWindow()) {
+              store.dispatch('setTempUnseenCount', 1)
+            } else {
+              setTimeout(() => {
+                store.dispatch('setTempUnseenCount', 0)
+              }, 200)
+            }
+          }
         }
       }
       // messageDao.insertMessages(messageList)

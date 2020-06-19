@@ -229,6 +229,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
+    this.actionSetTempUnseenCount(0)
     clearTimeout(this.scrollStopTimer)
     this.overflowMap = { top: false, bottom: false }
     this.infiniteDownLock = false
@@ -337,6 +338,7 @@ export default class ChatContainer extends Vue {
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
+  @Action('setTempUnseenCount') actionSetTempUnseenCount: any
 
   $t: any
   $toast: any

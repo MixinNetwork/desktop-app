@@ -74,7 +74,7 @@
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/eslint-config-typescript": "^4.0.0",
     "babel-eslint": "^10.1.0",
-    "electron": "^v8.3.0",
+    "electron": "^v9.0.4",
     "electron-icon-builder": "^1.0.2",
     "electron-notarize": "^1.0.0",
     "eslint": "^6.8.0",

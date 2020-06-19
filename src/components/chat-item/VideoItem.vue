@@ -8,7 +8,7 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content" :class="{reply: message.quoteContent}">
+        <div class="content" :class="{reply: message.quoteContent}" :style="message.quoteContent ? `width: ${videoSize.width+8}px` : ''">
           <div class="content-in">
             <ReplyMessageItem
               v-if="message.quoteContent"
@@ -28,7 +28,7 @@
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
               ></AttachmentIcon>
-              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus" :style="video"></video>
+              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus" :style="`width: ${videoSize.width+4}px; height: ${videoSize.height}px`"></video>
             </div>
           </div>
           <div class="bottom">
@@ -102,7 +102,7 @@ export default class VideoItem extends Vue {
     return this.attachment.includes(this.message.messageId)
   }
 
-  get video() {
+  get videoSize() {
     let { mediaWidth, mediaHeight } = this.message
     let width = 200
     let height = (200 / mediaWidth) * mediaHeight
@@ -111,8 +111,8 @@ export default class VideoItem extends Vue {
       width = (400 / mediaHeight) * mediaWidth
     }
     return {
-      width: `${width}px`,
-      height: `${height}px`
+      width,
+      height
     }
   }
 }

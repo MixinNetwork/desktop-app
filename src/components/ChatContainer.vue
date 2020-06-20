@@ -871,6 +871,7 @@ export default class ChatContainer extends Vue {
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
+      this.actionSetTempUnseenCount(0)
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)
     }, 100)

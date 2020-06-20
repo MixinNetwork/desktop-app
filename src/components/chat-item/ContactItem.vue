@@ -82,7 +82,7 @@ export default class ContactItem extends Vue {
   display: flex;
   margin-left: 0.3rem;
   margin-right: 0.3rem;
-  font-size: 0;
+
   .username {
     margin-left: 0.3rem;
     display: inline-block;

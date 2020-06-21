@@ -91,35 +91,34 @@ function messageSearch(state: any, type: string, keyword: any) {
     if (i < conversations.length) {
       const conversation = conversations[i]
       const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
-      let waitTime = 0
       if (count > 0) {
         isEmpty = false
         num++
         const temp = _.cloneDeepWith(state.conversations[conversation.conversationId])
         temp.records = count
-
         messageAll.push(temp)
+        if (num <= limit) {
+          message.push(temp)
+        }
+      }
+      const stopFlag = limit > 0 && num > limit
+      if ((messageAll.length > 0 && messageAll.length % 6 === 0) || stopFlag) {
         requestAnimationFrame(() => {
           state.search.messageAll = messageAll
-          if (num <= limit) {
-            message.push(temp)
-            state.search.message = message
-          }
+          state.search.message = message
         })
-        if (limit > 0 && num > limit) {
-          return
-        }
-        if (num < 10) {
-          waitTime = 0
-        } else if (num < 50) {
-          waitTime = 50
-        } else {
-          waitTime = 100
-        }
+      }
+      if (stopFlag) {
+        return
       }
       messageSearchTimer = setTimeout(() => {
         action(conversations, limit, ++i)
-      }, waitTime)
+      }, 10)
+    } else {
+      requestAnimationFrame(() => {
+        state.search.messageAll = messageAll
+        state.search.message = message
+      })
     }
   }
 
@@ -256,9 +255,11 @@ export default {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
     messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
-    if (!state.conversationKeys.some((item: any) => {
-      return item === conversationId
-    })) {
+    if (
+      !state.conversationKeys.some((item: any) => {
+        return item === conversationId
+      })
+    ) {
       refreshConversations(state)
     } else {
       refreshConversation(state, conversationId)

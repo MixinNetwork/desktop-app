@@ -553,9 +553,9 @@ export default class Navigation extends Vue {
   }
   onInput(keyword: string) {
     this.searchKeyword = keyword
-    let waitTime = 10
+    let waitTime = 100
     if (this.showMoreType) {
-      waitTime = 100
+      waitTime = 150
     }
     if (!keyword) {
       this.$store.dispatch('setSearching', '')

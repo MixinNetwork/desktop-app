@@ -81,20 +81,34 @@ function refreshConversation(state: any, conversationId: string) {
 let keywordCache: any = null
 
 let messageSearchTimer: any = null
+let messageLastSearchTime: any = 0
+let messageSearchCountTemp: any = {}
 function messageSearch(state: any, type: string, keyword: any) {
   const message: any = []
   const messageAll: any = []
   let num: number = 0
   let isEmpty: boolean = true
 
+  const nowTime = new Date().getTime()
+  if (nowTime - messageLastSearchTime > 60000) {
+    messageSearchCountTemp = {}
+  }
+  messageLastSearchTime = nowTime
+
   function action(conversations: any, limit: any, i: number) {
     if (i < conversations.length) {
       const conversation = conversations[i]
-      const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
+      const { conversationId } = conversation
+      const tempkey = conversationId + keyword
+      let count = messageSearchCountTemp[tempkey]
+      if (!count && count !== 0) {
+        count = messageDao.ftsMessageCount(conversationId, keyword)
+        messageSearchCountTemp[tempkey] = count
+      }
       if (count > 0) {
         isEmpty = false
         num++
-        const temp = _.cloneDeepWith(state.conversations[conversation.conversationId])
+        const temp = _.cloneDeepWith(state.conversations[conversationId])
         temp.records = count
         messageAll.push(temp)
         if (num <= limit) {
@@ -113,7 +127,7 @@ function messageSearch(state: any, type: string, keyword: any) {
       }
       messageSearchTimer = setTimeout(() => {
         action(conversations, limit, ++i)
-      }, 10)
+      })
     } else {
       requestAnimationFrame(() => {
         state.search.messageAll = messageAll

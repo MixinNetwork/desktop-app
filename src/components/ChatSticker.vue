@@ -33,9 +33,11 @@
           <Lottie v-if="item.asset_type === 'json'" :path="item.asset_url" @click="sendSticker(item.sticker_id)" />
           <img v-else :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
         </span>
-        <i v-for="i in 30"
+        <i
+          v-for="i in 30"
           :style="{width: `${stickerStyle.w}px`, margin: `0 ${stickerStyle.m}px`}"
-          :key="i"></i>
+          :key="i"
+        ></i>
       </div>
     </mixin-scrollbar>
   </div>
@@ -71,24 +73,20 @@ export default class ChatSticker extends Vue {
   }
   resizeStickerTimeout: any
 
-  created() {
+  async created() {
+    const res = await stickerApi.getStickerAlbums()
+    if (res.data.data) {
+      this.albums = res.data.data
+      this.albums.forEach((item: any) => {
+        stickerDao.insertAlbum(item)
+      })
+    }
     const findAlbums = stickerDao.getStickerAlbums()
     if (findAlbums.length) {
       setTimeout(() => {
         this.albums = JSON.parse(JSON.stringify(findAlbums))
         updateStickerAlbums(this.albums)
         this.albumPos()
-      })
-    } else {
-      stickerApi.getStickerAlbums().then((res: any) => {
-        if (res.data.data) {
-          this.albums = res.data.data
-          this.albums.forEach((item: any) => {
-            stickerDao.insertAlbum(item)
-          })
-          this.albums = stickerDao.getStickerAlbums()
-          this.albumPos()
-        }
       })
     }
     setTimeout(() => {
@@ -112,7 +110,9 @@ export default class ChatSticker extends Vue {
       const fit = (width - size * (80 + m * 2)) / size
       if (fit < 80) {
         this.stickerStyle = {
-          w: 80 + fit, h: 80 + fit, m
+          w: 80 + fit,
+          h: 80 + fit,
+          m
         }
       }
     }, 50)
@@ -120,7 +120,7 @@ export default class ChatSticker extends Vue {
 
   albumPos() {
     const list = stickerDao.getLastUseStickers()
-    if ((!list || list.length === 0) && (this.albums && this.albums.length > 0)) {
+    if ((!list || list.length === 0) && this.albums && this.albums.length > 0) {
       setTimeout(() => {
         const albumId = this.albums[0].album_id
         this.getStickers(albumId)
@@ -128,30 +128,33 @@ export default class ChatSticker extends Vue {
       })
     }
   }
-  getStickers(id: string) {
-    let stickers = stickerDao.getStickersByAlbumId(id)
-    if (stickers && stickers.length) {
-      stickers.forEach((sticker: any) => {
-        if (!sticker.asset_url.startsWith('file://')) {
-          const stickerId = sticker.sticker_id
-          downloadSticker(stickerId).then(filePath => {
-            sticker.asset_url = 'file://' + filePath
-          })
-        }
-      })
-      this.stickers = stickers
-      this.resizeSticker()
-    } else {
-      stickerApi.getStickersByAlbumId(id).then((res: any) => {
-        if (res.data.data) {
-          res.data.data.forEach((item: any) => {
-            stickerDao.insertUpdate(item)
-          })
-          this.stickers = stickerDao.getStickersByAlbumId(id)
-          this.resizeSticker()
-        }
-      })
+  getStickersMap: any = {}
+  async getStickers(id: string) {
+    let stickersData: any = []
+    if (!this.getStickersMap[id]) {
+      const stickersRet = await stickerApi.getStickersByAlbumId(id)
+      if (stickersRet.data.data) {
+        stickersData = stickersRet.data.data
+      }
+      this.getStickersMap[id] = true
     }
+    stickersData.forEach((item: any) => {
+      const before = stickerDao.getStickerByUnique(item.sticker_id)
+      if (!before) {
+        stickerDao.insertUpdate(item)
+      }
+    })
+    let stickers = stickerDao.getStickersByAlbumId(id)
+    stickers.forEach((sticker: any) => {
+      if (!sticker.asset_url.startsWith('file://')) {
+        const stickerId = sticker.sticker_id
+        downloadSticker(stickerId).then(filePath => {
+          sticker.asset_url = 'file://' + filePath
+        })
+      }
+    })
+    this.stickers = stickers
+    this.resizeSticker()
   }
   changeTab(id: string) {
     this.stickers = ''

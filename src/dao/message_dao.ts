@@ -36,7 +36,13 @@ class MessageDao {
   }
 
   deleteMessageFts(msgIds: string[]) {
-    return db.prepare('DELETE FROM messages_fts WHERE message_id = ?').run(msgIds)
+    const stmt = db.prepare('DELETE FROM messages_fts WHERE message_id = ?')
+    const deleteMany = db.transaction((msgIds: any) => {
+      for (const id of msgIds) {
+        stmt.run(id)
+      }
+    })
+    deleteMany(msgIds)
   }
 
   insertTextMessage(message: { conversationId: any; category: any; content: any; status: any }) {
@@ -138,7 +144,7 @@ class MessageDao {
     insertMany(messages)
   }
 
-  deleteMessagesById(mIds: any) {
+  deleteMessageByIds(mIds: any) {
     const stmt = db.prepare('DELETE FROM messages WHERE message_id = ?')
     const insertMany = db.transaction((mIds: any) => {
       for (let mId of mIds) {
@@ -257,7 +263,7 @@ class MessageDao {
         'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
         'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
         's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
-        'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, st.sticker_id AS stickerId, ' +
+        'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, m.sticker_id AS stickerId, ' +
         'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
         'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
         'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
@@ -294,7 +300,7 @@ class MessageDao {
           'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
           'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
           's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
-          'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, st.sticker_id AS stickerId, ' +
+          'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, m.sticker_id AS stickerId, ' +
           'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
           'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
           'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
@@ -366,6 +372,10 @@ class MessageDao {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
 
+  getMessagesByIds(messageIds: any) {
+    return db.prepare(`SELECT * FROM messages WHERE message_id IN (${messageIds.map(() => '?').join(',')})`).all(messageIds)
+  }
+
   recallMessage(messageId: any) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,
@@ -387,6 +397,10 @@ class MessageDao {
   findMessageStatusById(messageId: any) {
     const status = db.prepare('SELECT status FROM messages WHERE message_id = ?').get(messageId)
     return status ? status.status : status
+  }
+
+  findConversationMediaMessages(conversationId: any) {
+    return db.prepare('SELECT * FROM messages WHERE conversation_id = ? AND media_url IS NOT NULL').all(conversationId)
   }
 
   findSimpleMessageById(messageId: any) {
@@ -461,7 +475,7 @@ class MessageDao {
         m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth,
         m.media_height AS mediaHeight, m.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration,
         m.quote_message_id as quoteId, m.quote_content as quoteContent, st.asset_url AS assetUrl, st.asset_width AS assetWidth,
-        st.asset_height AS assetHeight, st.sticker_id AS stickerId, st.name AS assetName, st.asset_type AS assetType,
+        st.asset_height AS assetHeight, m.sticker_id AS stickerId, st.name AS assetName, st.asset_type AS assetType,
         m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions,
         su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId
         FROM messages m INNER JOIN users u ON m.user_id = u.user_id LEFT JOIN stickers st ON st.sticker_id = m.sticker_id

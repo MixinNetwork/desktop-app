@@ -17,7 +17,8 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
-import { sendNotification, generateConversationId } from '@/utils/util'
+import { sendNotification, generateConversationId, delMedia } from '@/utils/util'
+
 import contentUtil from '@/utils/content_util'
 import { checkSignalKey } from '@/utils/signal_key_util'
 import { remote } from 'electron'
@@ -236,6 +237,7 @@ class ReceiveWorker extends BaseWorker {
   async processRecallMessage(data) {
     const recallMassage = JSON.parse(decodeURIComponent(escape(window.atob(data.data))))
     let message = messageDao.getMessageById(recallMassage.message_id)
+    delMedia([message])
     if (message) {
       messageDao.recallMessage(recallMassage.message_id)
       let quoteItem = messageDao.findMessageItemById(data.conversation_id, recallMassage.message_id)

@@ -1,5 +1,5 @@
 import attachmentApi from '@/api/attachment'
-import { remote, nativeImage } from 'electron'
+import { remote, nativeImage, ipcRenderer } from 'electron'
 import { MimeType, messageType } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
@@ -9,13 +9,20 @@ import fs from 'fs'
 import path from 'path'
 import sizeOf from 'image-size'
 import cryptoAttachment from '@/crypto/crypto_attachment'
-import { base64ToUint8Array } from '@/utils/util'
+import { base64ToUint8Array, getIdentityNumber, dirSize } from '@/utils/util'
 import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
 import stickerApi from '@/api/sticker'
 import stickerDao from '@/dao/sticker_dao'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
+import mediaPath from '@/utils/media_path'
+
+const Database = require('better-sqlite3')
+const { getImagePath, getVideoPath, getAudioPath, getDocumentPath, getStickerPath, setUserDataPath } = mediaPath
+const userDataPath = remote.app.getPath('userData')
+setUserDataPath(userDataPath)
+
 export let downloadQueue = new SequentialTaskQueue()
 
 const cancelMap: any = {}
@@ -52,13 +59,95 @@ export async function updateCancelMap(id: string) {
   cancelMap[id] = true
 }
 
+function delDir(_path: string) {
+  if (fs.existsSync(_path)) {
+    const files = fs.readdirSync(_path)
+    files.forEach((file: string) => {
+      let curPath = _path + '/' + file
+      if (fs.statSync(curPath).isDirectory()) {
+        delDir(curPath)
+      } else {
+        fs.unlinkSync(curPath)
+      }
+    })
+    fs.rmdirSync(_path)
+  }
+}
+
+export function mediaMigration(identityNumber: string) {
+  const isDevelopment = process.env.NODE_ENV !== 'production'
+  let dbPath = path.join(userDataPath, `${identityNumber}/mixin.db3`)
+  if (isDevelopment) {
+    // @ts-ignore
+    dbPath = path.join(path.join(__static, '../'), `/mixin.db3`)
+  }
+  const oldMediaDir = path.join(userDataPath, 'media')
+  const sizeMap: any = dirSize(oldMediaDir)
+  if (!fs.existsSync(dbPath) || !sizeMap[oldMediaDir]) {
+    return -1
+  }
+
+  const mixinDb = new Database(dbPath, { readonly: false })
+  const mediaMessages: any = mixinDb
+    .prepare(
+      'SELECT category, conversation_id as conversationId, message_id as messageId, media_url as mediaUrl FROM messages WHERE media_url IS NOT NULL'
+    )
+    .all()
+
+  setUserDataPath(userDataPath)
+  mediaMessages.forEach((message: any) => {
+    let newDir = ''
+    const { category, conversationId, messageId, mediaUrl } = message
+    if (category.endsWith('_IMAGE')) {
+      newDir = getImagePath(identityNumber, conversationId)
+    } else if (category.endsWith('_VIDEO')) {
+      newDir = getVideoPath(identityNumber, conversationId)
+    } else if (category.endsWith('_DATA')) {
+      newDir = getDocumentPath(identityNumber, conversationId)
+    } else if (category.endsWith('_AUDIO')) {
+      newDir = getAudioPath(identityNumber, conversationId)
+    }
+    const src = mediaUrl.split('file://')[1]
+    if (src) {
+      const dist = path.join(newDir, messageId)
+      if (dist !== src && fs.existsSync(src)) {
+        fs.writeFileSync(dist, fs.readFileSync(src))
+        mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run(`file://${dist}`, messageId)
+        fs.unlinkSync(src)
+      }
+    }
+  })
+  mixinDb.prepare('DELETE FROM stickers').run()
+  mixinDb.prepare('DELETE FROM sticker_relationships').run()
+  mixinDb.prepare('DELETE FROM sticker_albums').run()
+  // delDir(oldMediaDir)
+  mixinDb.close()
+}
+
+function getMediaNewDir(category: string, identityNumber: string, conversationId: string) {
+  let dir = ''
+  if (category.endsWith('_IMAGE')) {
+    dir = getImagePath(identityNumber, conversationId)
+  } else if (category.endsWith('_VIDEO')) {
+    dir = getVideoPath(identityNumber, conversationId)
+  } else if (category.endsWith('_DATA')) {
+    dir = getDocumentPath(identityNumber, conversationId)
+  } else if (category.endsWith('_AUDIO')) {
+    dir = getAudioPath(identityNumber, conversationId)
+  } else if (category.endsWith('_STICKER')) {
+    dir = getStickerPath(identityNumber)
+  }
+  return dir
+}
+
 export async function downloadSticker(stickerId: string) {
   const response = await stickerApi.getStickerById(stickerId)
   if (response.data.data) {
     const resData = response.data.data
     stickerDao.insertUpdate(resData)
     const data: any = await getAttachment(resData.asset_url, stickerId)
-    const dir = getStickerPath()
+    const identityNumber = getIdentityNumber()
+    const dir = getStickerPath(identityNumber)
     const filePath = path.join(dir, stickerId)
     fs.writeFileSync(filePath, Buffer.from(data))
     if (filePath) {
@@ -73,7 +162,8 @@ export async function updateStickerAlbums(albums: any) {
     const url = item.icon_url
     if (!url.startsWith('file://')) {
       getAttachment(url, item.album_id).then((data: any) => {
-        const dir = getStickerPath()
+        const identityNumber = getIdentityNumber()
+        const dir = getStickerPath(identityNumber)
         const filePath = path.join(dir, item.album_id)
         fs.writeFileSync(filePath, Buffer.from(data))
         stickerDao.updateAlbumUrl('file://' + filePath, item.album_id)
@@ -85,20 +175,27 @@ export async function updateStickerAlbums(albums: any) {
 
 export async function downloadAttachment(message: any) {
   try {
-    const response = await attachmentApi.getAttachment(message.content)
+    const { category, content } = message
+    const conversationId = message.conversationId || message.conversation_id
+    const response = await attachmentApi.getAttachment(content)
     if (response.data.data) {
-      let dir = getMediaDir(message.category)
+      // let dir = getMediaDir(message.category)
+      const identityNumber = getIdentityNumber()
+      let dir = getMediaNewDir(category, identityNumber, conversationId)
       if (!dir) {
         return null
       }
-      if (message.category.startsWith('SIGNAL_')) {
-        const m = message
+      const m = message
+      let filePath = path.join(dir, m.message_id)
+      if (!identityNumber) {
+        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
+        filePath = path.join(dir, name)
+      }
+      if (category.startsWith('SIGNAL_')) {
         const data = await getAttachment(response.data.data.view_url, m.message_id)
         const mediaKey = base64ToUint8Array(m.media_key).buffer
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)
-        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
-        const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(resp))
 
         try {
@@ -109,10 +206,7 @@ export async function downloadAttachment(message: any) {
           return [m, filePath]
         }
       } else {
-        const m = message
         const data: any = await getAttachment(response.data.data.view_url, m.message_id)
-        const name = generateName(m.name, m.media_mime_type, m.category, m.message_id)
-        const filePath = path.join(dir, name)
         fs.writeFileSync(filePath, Buffer.from(data))
         try {
           let { buffer } = await jo.rotate(filePath, {})
@@ -128,27 +222,23 @@ export async function downloadAttachment(message: any) {
   }
 }
 
-function getMediaDir(category: string) {
-  let dir = ''
-  if (messageType(category) === 'image') {
-    dir = getImagePath()
-  } else if (messageType(category) === 'video') {
-    dir = getVideoPath()
-  } else if (messageType(category) === 'file') {
-    dir = getDocumentPath()
-  } else if (messageType(category) === 'audio') {
-    dir = getAudioPath()
+function processAttachment(imagePath: any, mimeType: string, category: any, id: any, conversationId: any) {
+  const fileName = path.parse(imagePath).base
+  let destination = ''
+  const identityNumber = getIdentityNumber()
+  let dir = getMediaNewDir(category, identityNumber, conversationId)
+  if (dir) {
+    destination = path.join(dir, id)
   }
-  return dir
-}
 
-function processAttachment(localPath: any, mimeType: string, category: any, id: any) {
-  const fileName = path.parse(localPath).base
-  let type: string = mimeType
-  // @ts-ignore
-  if (mimeType && mimeType.length > 0) type = path.parse(localPath).extension
-  const destination = path.join(getMediaDir(category), generateName(fileName, type, category, id))
-  fs.copyFileSync(localPath, destination)
+  if (!identityNumber) {
+    let type: string = mimeType
+    // @ts-ignore
+    if (mimeType && mimeType.length > 0) type = path.parse(imagePath).extension
+    destination = path.join(getImagePath(), generateName(fileName, type, category, id))
+  }
+
+  fs.copyFileSync(imagePath, destination)
   return { localPath: destination, name: fileName }
 }
 
@@ -211,6 +301,7 @@ export interface AttachmentMessagePayload {
   mediaName?: string
   thumbUrl?: string
   mediaWaveform?: string
+  conversationId?: string
 }
 
 export async function putAttachment(
@@ -229,9 +320,10 @@ export async function putAttachment(
     mediaHeight = 0,
     thumbImage = '',
     mediaDuration = 0,
-    mediaWaveform = ''
+    mediaWaveform = '',
+    conversationId
   } = payload
-  const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id)
+  const { localPath, name } = processAttachment(mediaUrl, mediaMimeType, category, id, conversationId)
   if (messageType(category) === 'image') {
     // @ts-ignore
     const dimensions = sizeOf(localPath)
@@ -451,60 +543,4 @@ function getAttachment(url: string, id: string) {
     .catch(error => {
       console.log('getAttachment err:', error)
     })
-}
-
-function getImagePath() {
-  const dir = path.join(getMediaPath(), 'Image')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getStickerPath() {
-  const dir = path.join(getMediaPath(), 'Sticker')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getVideoPath() {
-  const dir = path.join(getMediaPath(), 'Video')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getAudioPath() {
-  const dir = path.join(getMediaPath(), 'Audio')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getDocumentPath() {
-  const dir = path.join(getMediaPath(), 'Files')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getMediaPath() {
-  const dir = path.join(getAppPath(), 'media')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
-}
-
-function getAppPath() {
-  const dir = remote.app.getPath('userData')
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir)
-  }
-  return dir
 }

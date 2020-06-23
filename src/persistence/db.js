@@ -24,7 +24,7 @@ const MixinDatabaseVersion = 5
 
 setTimeout(() => {
   const row = mixinDb.prepare('PRAGMA user_version').get()
-  if (!!row && row.user_version < MixinDatabaseVersion) {
+  if (row && row.user_version < MixinDatabaseVersion) {
     const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)
     mixinDb.transaction(() => {
       if (row.user_version < 1) {

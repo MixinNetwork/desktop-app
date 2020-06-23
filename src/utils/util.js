@@ -1,4 +1,5 @@
 import crypto from 'crypto'
+import fs from 'fs'
 import Bot from 'bot-api-js-client'
 import store from '@/store/store'
 import {
@@ -8,6 +9,68 @@ import {
 } from '@/utils/constants'
 import md5 from 'md5'
 import { ipcRenderer } from 'electron'
+
+export function getIdentityNumber(direct) {
+  let identityNumber = ''
+  if (localStorage.account) {
+    const user = JSON.parse(localStorage.account)
+    identityNumber = user.identity_number
+  }
+  if (direct) {
+    return identityNumber
+  }
+  if (identityNumber && !localStorage.newUserDirExist) {
+    return ''
+  }
+  return identityNumber
+}
+
+function dirSizeAction(path, dirsMap) {
+  let size = 0
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path)
+    files.forEach(file => {
+      let curPath = path + '/' + file
+      const fileItem = fs.statSync(curPath)
+      if (fileItem.isDirectory()) {
+        size += dirSizeAction(curPath, dirsMap)
+      } else {
+        size += fileItem.size / 1024 / 1024
+      }
+    })
+  }
+  dirsMap[path] = size
+  return size
+}
+
+export function dirSize(path) {
+  const dirsMap = []
+  dirSizeAction(path, dirsMap)
+  return dirsMap
+}
+
+export function delMedia(messages) {
+  messages.forEach(message => {
+    if (message && (message.path || message.media_url)) {
+      const path = message.path || message.media_url.split('file://')[1]
+      if (path && fs.existsSync(path)) {
+        fs.unlinkSync(path)
+      }
+    }
+  })
+}
+
+export function listFilePath(path) {
+  const list = []
+  if (fs.existsSync(path)) {
+    const files = fs.readdirSync(path)
+    files.forEach(file => {
+      let curPath = path + '/' + file
+      list.push(curPath)
+    })
+  }
+  return list
+}
 
 export function generateConversationId(userId, recipientId) {
   userId = userId.toString()

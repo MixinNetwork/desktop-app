@@ -1,8 +1,8 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
+import { delMedia, getAccount } from '@/utils/util'
 import { PerPageMessageCount, MessageStatus, messageType } from '@/utils/constants'
 import store from '@/store/store'
-import { getAccount } from '@/utils/util'
 
 class MessageBox {
   conversationId: any
@@ -155,7 +155,9 @@ class MessageBox {
     }
   }
   deleteMessages(messageIds: any[]) {
-    messageDao.deleteMessagesById(messageIds)
+    const messages = messageDao.getMessagesByIds(messageIds)
+    delMedia(messages)
+    messageDao.deleteMessageByIds(messageIds)
     for (let i = this.messages.length - 1; i >= 0; i--) {
       if (messageIds[0] === this.messages[i].messageId) {
         this.messages.splice(i, 1)

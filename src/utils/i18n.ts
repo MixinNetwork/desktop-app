@@ -14,6 +14,8 @@ let transactions = {
     drag_file: 'Drag and drop file into the here',
     file_unsupported: 'Sorry, this file type is not supported. Try uploading a .zip version of this file instead.',
     version: 'Version',
+    backup_restore: 'Backup and Restore',
+    storage_usage: 'Storage Usage',
     check_update: 'Check Updates',
     privacy_policy: 'Privacy Policy',
     terms_service: 'Terms of Service',
@@ -95,6 +97,8 @@ let transactions = {
       personal_info: 'Personal info',
       new_conversation: 'New Conversation',
       title_participants: '{0} participants',
+      add_participant: 'Add participant',
+      add_participant_done: 'Done',
       keep_title: '',
       keep_des: 'No conversation selected',
       remove_contact: 'Remove contact? Chat will be retained',
@@ -128,6 +132,7 @@ let transactions = {
       chat_pic: 'Photo',
       chat_contact: 'Contact',
       chat_more: 'more',
+      chat_image: 'Image',
       chat_file: 'File',
       chat_audio: 'Audio',
       chat_video: 'Video',
@@ -165,7 +170,9 @@ let transactions = {
       reload: 'Reload Code'
     },
     setting: {
-      title: 'Settings'
+      title: 'Settings',
+      clear: 'Clear',
+      remove_messages: 'Clear {0} messages {1}?'
     },
     profile: {
       title: 'Info',
@@ -202,6 +209,8 @@ let transactions = {
     drag_file: '拖放文件到此处',
     file_unsupported: '抱歉，不支持此文件类型。请尝试上传此文件的.zip压缩包',
     version: '版本',
+    backup_restore: '备份与恢复',
+    storage_usage: '存储空间',
     check_update: '检测更新',
     privacy_policy: '隐私政策',
     terms_service: '服务条款',
@@ -283,6 +292,8 @@ let transactions = {
       personal_info: '个人信息',
       new_conversation: '新建对话',
       title_participants: '{0} 成员',
+      add_participant: '添加成员',
+      add_participant_done: '完成',
       keep_title: '',
       keep_des: '尚未选择对话。',
       remove_contact: '删除好友？聊天记录将会保留',
@@ -316,6 +327,7 @@ let transactions = {
       chat_pic: '照片',
       chat_contact: '联系人',
       chat_more: '更多',
+      chat_image: '图片',
       chat_file: '文件',
       chat_audio: '语音',
       chat_video: '视频',
@@ -353,7 +365,9 @@ let transactions = {
       reload: '点击重新载入二维码'
     },
     setting: {
-      title: '设置'
+      title: '设置',
+      clear: '清理',
+      remove_messages: '清除 {0} 条消息 {1} 吗?'
     },
     profile: {
       title: '联系人资料',

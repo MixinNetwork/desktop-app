@@ -4,11 +4,11 @@ import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
-import { updateCancelMap } from '@/utils/attachment_util'
-import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
+import { updateCancelMap, downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
+import { LinkStatus, ConversationCategory, isMuteCheck, isMedia, PerPageMessageCount } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
-import { getAccount } from '@/utils/util'
+import { getAccount, keyToLine } from '@/utils/util'
 
 import { ipcRenderer } from 'electron'
 
@@ -269,6 +269,23 @@ export default {
       refreshConversations(state)
     } else {
       refreshConversation(state, conversationId)
+    }
+    const messages = messageDao.getMessages(conversationId, 0)
+    let i = PerPageMessageCount
+    if (messages.length < i) {
+      i = messages.length
+    }
+    while (i-- > 0) {
+      const message: any = {}
+      Object.keys(messages[i]).forEach(key => {
+        message[keyToLine(key)] = messages[i][key]
+      })
+      message.category = message.type
+      if (!message.media_url && isMedia(message.type) && new Date().valueOf() - new Date(message.created_at).valueOf() < 1800000) {
+        downloadQueue.push(downloadAndRefresh, {
+          args: message
+        })
+      }
     }
     state.currentConversationId = conversationId
     state.editing = false

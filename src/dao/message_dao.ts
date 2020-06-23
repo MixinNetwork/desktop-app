@@ -253,7 +253,7 @@ class MessageDao {
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
         'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
         'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
-        'm.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
+        'm.media_key AS mediaKey, m.media_digest AS mediaDigest, m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
         'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
         'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
         's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
@@ -290,7 +290,7 @@ class MessageDao {
         'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
           'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
           'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
-          'm.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
+          'm.media_key AS mediaKey, m.media_digest AS mediaDigest, m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
           'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
           'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
           's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
@@ -458,7 +458,7 @@ class MessageDao {
         `SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, u.full_name AS userFullName,
         u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, m.content AS content,
         m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform,
-        m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth,
+        m.media_key AS mediaKey, m.media_digest AS mediaDigest, m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth,
         m.media_height AS mediaHeight, m.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration,
         m.quote_message_id as quoteId, m.quote_content as quoteContent, st.asset_url AS assetUrl, st.asset_width AS assetWidth,
         st.asset_height AS assetHeight, st.sticker_id AS stickerId, st.name AS assetName, st.asset_type AS assetType,

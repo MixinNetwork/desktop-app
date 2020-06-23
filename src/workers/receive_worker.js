@@ -560,7 +560,7 @@ class ReceiveWorker extends BaseWorker {
     messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-      if (offset <= 7200000) {
+      if (offset <= 1800000 && store.state.currentConversationId === message.conversation_id) {
         store.dispatch('startLoading', message.message_id)
         downloadQueue.push(this.download, {
           args: message

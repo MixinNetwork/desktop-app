@@ -204,6 +204,8 @@ import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
+import { remote } from 'electron'
+let { BrowserWindow } = remote
 
 @Component({
   components: {
@@ -294,6 +296,14 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  @Watch('tempUnseenCount')
+  onTempUnseenCount(val: any) {
+    if (val > 0) {
+      const index = this.messageIds.length - val
+      this.unreadMessageId = this.messageIds[index]
+    }
+  }
+
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
     let { firstIndex, lastIndex } = val
@@ -330,6 +340,7 @@ export default class ChatContainer extends Vue {
   @Getter('currentUser') user: any
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
+  @Getter('tempUnseenCount') tempUnseenCount: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
@@ -413,6 +424,14 @@ export default class ChatContainer extends Vue {
         }
       }
     })
+
+    setInterval(() => {
+      if (this.tempUnseenCount > 0 && BrowserWindow.getFocusedWindow()) {
+        setTimeout(() => {
+          this.actionSetTempUnseenCount(0)
+        }, 3000)
+      }
+    }, 2000)
 
     this.$root.$on('escKeydown', () => {
       this.hideDetails()

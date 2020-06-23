@@ -108,6 +108,16 @@ export function base64ToUint8Array(base64) {
   return bytes
 }
 
+export function keyToHump(name) {
+  return name.replace(/_(\w)/g, function(all, letter) {
+    return letter.toUpperCase()
+  })
+}
+
+export function keyToLine(name) {
+  return name.replace(/([A-Z])/g, '_$1').toLowerCase()
+}
+
 export function sendNotification(title, body, conversation) {
   let newNotification = new Notification(title, {
     body: body

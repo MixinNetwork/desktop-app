@@ -425,14 +425,6 @@ export default class ChatContainer extends Vue {
       }
     })
 
-    setInterval(() => {
-      if (this.tempUnseenCount > 0 && BrowserWindow.getFocusedWindow()) {
-        setTimeout(() => {
-          this.actionSetTempUnseenCount(0)
-        }, 1500)
-      }
-    }, 3000)
-
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
       this.hideSearch()

@@ -38,7 +38,8 @@ import {
 } from '@/utils/constants'
 
 import interval from 'interval-promise'
-import { downloadAttachment, downloadSticker, downloadQueue } from '@/utils/attachment_util'
+import { downloadAndRefresh, downloadSticker, downloadQueue } from '@/utils/attachment_util'
+let { BrowserWindow } = remote
 
 const insertMessageQueue = []
 const makeMessageReadQueue = []
@@ -78,6 +79,15 @@ interval(
           const messageId = temp[0].message_id
           messageIdsMap[conversationId] = messageIdsMap[conversationId] || []
           messageIdsMap[conversationId].push(messageId)
+          if (store.state.currentConversationId === conversationId) {
+            if (!BrowserWindow.getFocusedWindow()) {
+              store.dispatch('setTempUnseenCount', 1)
+            } else {
+              setTimeout(() => {
+                store.dispatch('setTempUnseenCount', 0)
+              }, 200)
+            }
+          }
         }
       }
       // messageDao.insertMessages(messageList)
@@ -552,32 +562,12 @@ class ReceiveWorker extends BaseWorker {
     messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-      if (offset <= 7200000) {
-        store.dispatch('startLoading', message.message_id)
-        downloadQueue.push(this.download, {
+      if (offset <= 1800000 && store.state.currentConversationId === message.conversation_id) {
+        downloadQueue.push(downloadAndRefresh, {
           args: message
         })
       }
     })
-  }
-
-  async download(message) {
-    try {
-      const [m, filePath] = await downloadAttachment(message)
-      messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-      store.dispatch('stopLoading', m.message_id)
-      store.dispatch('refreshMessage', {
-        conversationId: m.conversation_id,
-        messageIds: [m.message_id]
-      })
-    } catch (e) {
-      messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
-      store.dispatch('stopLoading', message.message_id)
-      store.dispatch('refreshMessage', {
-        conversationId: message.conversation_id,
-        messageIds: [message.message_id]
-      })
-    }
   }
 
   async processDecryptSuccess(data, plaintext) {

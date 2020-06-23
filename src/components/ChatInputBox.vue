@@ -91,6 +91,7 @@ export default class ChatItem extends Vue {
 
   @Action('sendMessage') actionSendMessage: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
+  @Action('setTempUnseenCount') actionSetTempUnseenCount: any
 
   mentionChoosing: boolean = false
   stickerChoosing: boolean = false
@@ -218,6 +219,7 @@ export default class ChatItem extends Vue {
     msg.msg = message
     this.$root.$emit('resetSearch')
     this.actionSendMessage(msg)
+    this.actionSetTempUnseenCount(0)
     this.$emit('goBottom')
   }
 
@@ -248,6 +250,7 @@ export default class ChatItem extends Vue {
     }
     this.$root.$emit('resetSearch')
     this.actionSendStickerMessage(msg)
+    this.actionSetTempUnseenCount(0)
     this.$emit('goBottom')
   }
 

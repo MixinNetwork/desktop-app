@@ -221,18 +221,21 @@ export function messageType(type: string, content?: any) {
   return msgType
 }
 
-function mediaCheck(type: string, status: string) {
-  let mediaStatusCheck: boolean = true
-  if (status !== MediaStatus.DONE) {
-    if (
-      type === MessageCategories.SIGNAL_IMAGE ||
+export function isMedia(type: string) {
+  return type === MessageCategories.SIGNAL_IMAGE ||
       type === MessageCategories.SIGNAL_VIDEO ||
       type === MessageCategories.SIGNAL_AUDIO ||
+      type === MessageCategories.SIGNAL_DATA ||
       type === MessageCategories.PLAIN_IMAGE ||
       type === MessageCategories.PLAIN_VIDEO ||
       type === MessageCategories.PLAIN_AUDIO ||
       type === MessageCategories.PLAIN_DATA
-    ) {
+}
+
+function mediaCheck(type: string, status: string) {
+  let mediaStatusCheck: boolean = true
+  if (status !== MediaStatus.DONE) {
+    if (isMedia(type)) {
       mediaStatusCheck = false
     }
   }

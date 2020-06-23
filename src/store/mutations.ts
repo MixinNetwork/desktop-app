@@ -4,11 +4,11 @@ import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
-import { updateCancelMap } from '@/utils/attachment_util'
-import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
+import { updateCancelMap, downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
+import { LinkStatus, ConversationCategory, isMuteCheck, isMedia, PerPageMessageCount } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
-import { getAccount } from '@/utils/util'
+import { getAccount, keyToLine } from '@/utils/util'
 
 import { ipcRenderer } from 'electron'
 
@@ -81,45 +81,58 @@ function refreshConversation(state: any, conversationId: string) {
 let keywordCache: any = null
 
 let messageSearchTimer: any = null
+let messageLastSearchTime: any = 0
+let messageSearchCountTemp: any = {}
 function messageSearch(state: any, type: string, keyword: any) {
   const message: any = []
   const messageAll: any = []
   let num: number = 0
   let isEmpty: boolean = true
 
+  const nowTime = new Date().getTime()
+  if (nowTime - messageLastSearchTime > 60000) {
+    messageSearchCountTemp = {}
+  }
+  messageLastSearchTime = nowTime
+
   function action(conversations: any, limit: any, i: number) {
     if (i < conversations.length) {
       const conversation = conversations[i]
-      const count = messageDao.ftsMessageCount(conversation.conversationId, keyword)
-      let waitTime = 0
+      const { conversationId } = conversation
+      const tempkey = conversationId + keyword
+      let count = messageSearchCountTemp[tempkey]
+      if (!count && count !== 0) {
+        count = messageDao.ftsMessageCount(conversationId, keyword)
+        messageSearchCountTemp[tempkey] = count
+      }
       if (count > 0) {
         isEmpty = false
         num++
-        const temp = _.cloneDeepWith(state.conversations[conversation.conversationId])
+        const temp = _.cloneDeepWith(state.conversations[conversationId])
         temp.records = count
-
         messageAll.push(temp)
+        if (num <= limit) {
+          message.push(temp)
+        }
+      }
+      const stopFlag = limit > 0 && num > limit
+      if ((messageAll.length > 0 && messageAll.length % 6 === 0) || stopFlag) {
         requestAnimationFrame(() => {
           state.search.messageAll = messageAll
-          if (num <= limit) {
-            message.push(temp)
-            state.search.message = message
-          }
+          state.search.message = message
         })
-        if (limit > 0 && num > limit) {
-          return
-        }
-        if (num < 10) {
-          waitTime = 0
-        } else if (num < 50) {
-          waitTime = 50
-        } else {
-          waitTime = 100
-        }
+      }
+      if (stopFlag) {
+        return
       }
       messageSearchTimer = setTimeout(() => {
         action(conversations, limit, ++i)
-      }, waitTime)
+      })
+    } else {
+      requestAnimationFrame(() => {
+        state.search.messageAll = messageAll
+        state.search.message = message
+      })
     }
   }
 
@@ -243,6 +256,13 @@ export default {
   setUnseenBadgeNum(state: any) {
     setUnseenBadgeNum(state.conversations)
   },
+  setTempUnseenCount(state: any, increase: number) {
+    if (increase === 1) {
+      state.tempUnseenCount += 1
+    } else {
+      state.tempUnseenCount = 0
+    }
+  },
   saveAccount(state: any, user: any) {
     state.me = user
   },
@@ -256,12 +276,31 @@ export default {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
     messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
-    if (!state.conversationKeys.some((item: any) => {
-      return item === conversationId
-    })) {
+    if (
+      !state.conversationKeys.some((item: any) => {
+        return item === conversationId
+      })
+    ) {
       refreshConversations(state)
     } else {
       refreshConversation(state, conversationId)
+    }
+    const messages = messageDao.getMessages(conversationId, 0)
+    let i = PerPageMessageCount
+    if (messages.length < i) {
+      i = messages.length
+    }
+    while (i-- > 0) {
+      const message: any = {}
+      Object.keys(messages[i]).forEach(key => {
+        message[keyToLine(key)] = messages[i][key]
+      })
+      message.category = message.type
+      if (!message.media_url && isMedia(message.type) && new Date().valueOf() - new Date(message.created_at).valueOf() < 1800000) {
+        downloadQueue.push(downloadAndRefresh, {
+          args: message
+        })
+      }
     }
     state.currentConversationId = conversationId
     state.editing = false

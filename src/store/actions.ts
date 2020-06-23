@@ -331,6 +331,9 @@ export default {
       commit('setUnseenBadgeNum')
     }, 100)
   },
+  setTempUnseenCount({ commit }: any, increase: number) {
+    commit('setTempUnseenCount', increase)
+  },
   conversationClear: ({ commit }: any, conversationId: any) => {
     const messages = messageDao.findConversationMediaMessages(conversationId)
     delMedia(messages)

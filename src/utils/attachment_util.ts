@@ -1,6 +1,6 @@
 import attachmentApi from '@/api/attachment'
 import { remote, nativeImage, ipcRenderer } from 'electron'
-import { MimeType, messageType } from '@/utils/constants'
+import { MimeType, messageType, MediaStatus } from '@/utils/constants'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
 // @ts-ignore
@@ -14,6 +14,8 @@ import conversationAPI from '@/api/conversation'
 import signalProtocol from '@/crypto/signal'
 import stickerApi from '@/api/sticker'
 import stickerDao from '@/dao/sticker_dao'
+import messageDao from '@/dao/message_dao'
+import store from '@/store/store'
 
 import { SequentialTaskQueue } from 'sequential-task-queue'
 import mediaPath from '@/utils/media_path'
@@ -240,6 +242,28 @@ function processAttachment(imagePath: any, mimeType: string, category: any, id: 
 
   fs.copyFileSync(imagePath, destination)
   return { localPath: destination, name: fileName }
+}
+
+export async function downloadAndRefresh(message: any) {
+  store.dispatch('startLoading', message.message_id)
+  try {
+    const ret: any = await downloadAttachment(message)
+    const m = ret[0]
+    const filePath = ret[1]
+    messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
+    store.dispatch('stopLoading', m.message_id)
+    store.dispatch('refreshMessage', {
+      conversationId: m.conversation_id,
+      messageIds: [m.message_id]
+    })
+  } catch (e) {
+    messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
+    store.dispatch('stopLoading', message.message_id)
+    store.dispatch('refreshMessage', {
+      conversationId: message.conversation_id,
+      messageIds: [message.message_id]
+    })
+  }
 }
 
 export async function base64ToImage(img: string, mimeType: any) {

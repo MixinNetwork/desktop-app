@@ -48,6 +48,10 @@ export default {
     return state.currentMessages
   },
 
+  tempUnseenCount: (state: any) => {
+    return state.tempUnseenCount
+  },
+
   conversationUnseenMentionsMap: (state: { conversationUnseenMentionsMap: any }) => {
     return state.conversationUnseenMentionsMap
   },

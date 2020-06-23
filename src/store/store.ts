@@ -10,6 +10,7 @@ Vue.use(Vuex)
 
 const state = {
   me: {},
+  tempUnseenCount: 0,
   currentConversationId: null,
   conversations: {},
   conversationKeys: [],

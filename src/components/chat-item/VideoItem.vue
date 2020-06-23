@@ -28,7 +28,8 @@
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
               ></AttachmentIcon>
-              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus" :style="`width: ${videoSize.width+4}px; height: ${videoSize.height}px`"></video>
+              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus"
+                :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
             </div>
           </div>
           <div class="bottom">

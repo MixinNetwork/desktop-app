@@ -229,11 +229,11 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
+    this.actionSetTempUnseenCount(0)
     clearTimeout(this.scrollStopTimer)
     this.overflowMap = { top: false, bottom: false }
     this.infiniteDownLock = false
     this.infiniteUpLock = false
-    this.showTopTips = false
     this.file = null
     this.showMessages = false
     this.boxMessage = null
@@ -270,6 +270,8 @@ export default class ChatContainer extends Vue {
       const msgLen = this.messages.length
       if (msgLen > 0 && msgLen < PerPageMessageCount) {
         this.showTopTips = true
+      } else {
+        this.showTopTips = false
       }
     }
   }
@@ -336,6 +338,7 @@ export default class ChatContainer extends Vue {
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
+  @Action('setTempUnseenCount') actionSetTempUnseenCount: any
 
   $t: any
   $toast: any
@@ -472,9 +475,6 @@ export default class ChatContainer extends Vue {
           })
         }
         self.infiniteUpLock = infiniteUpLock
-        if (!infiniteUpLock) {
-          self.showTopTips = false
-        }
         self.infiniteDownLock = infiniteDownLock
       },
       function(payload: any) {
@@ -822,7 +822,6 @@ export default class ChatContainer extends Vue {
       if (!list) return
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       this.infiniteUpLock = false
-      this.showTopTips = false
       this.showMessages = true
       requestAnimationFrame(() => {
         list.scrollTop = list.scrollHeight
@@ -872,6 +871,7 @@ export default class ChatContainer extends Vue {
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
+      this.actionSetTempUnseenCount(0)
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)
     }, 100)

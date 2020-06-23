@@ -9,11 +9,6 @@
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
-      <!-- <span class="item" @click="backupRestore">{{$t('backup_restore')}}</span> -->
-      <span class="item storage" @click="manageStorage">
-        {{$t('storage_usage')}}
-        <small v-if="storageUsage">{{(storageUsage-tempClearSize).toFixed(2)}} MB</small>
-      </span>
       <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
       <span
         class="item"
@@ -22,14 +17,6 @@
       <span class="item" @click="open('https://mixin.one/pages/terms')">{{$t('terms_service')}}</span>
       <span class="item" @click="open('https://mixin.one/pages/privacy')">{{$t('privacy_policy')}}</span>
     </div>
-    <transition name="slide-right">
-      <StorageContainer
-        class="overlay"
-        :storages="storages"
-        v-show="storageView"
-        @back="storageBack"
-      ></StorageContainer>
-    </transition>
   </div>
 </template>
 <script lang="ts">
@@ -58,25 +45,6 @@ export default class SettingContainer extends Vue {
   storageView: boolean = false
   storages: any = {}
   tempClearSize: number = 0
-
-  created() {
-    const identityNumber = getIdentityNumber(true)
-    const newDir = path.join(remote.app.getPath('userData'), identityNumber)
-    const dirsMap: any = dirSize(newDir)
-    this.storageUsage = dirsMap[newDir]
-    Object.keys(dirsMap).forEach(dir => {
-      const subDir = dir.split(`${newDir}/Media`)[1]
-      if (subDir) {
-        const type = this.getMediaType(subDir)
-        if (!type) return
-        const pieces = subDir.split('/')
-        const conversationId = pieces[pieces.length - 1]
-
-        this.storages[conversationId] = this.storages[conversationId] || {}
-        this.storages[conversationId][type] = dirsMap[dir]
-      }
-    })
-  }
 
   getMediaType(dir: string) {
     if (dir.includes('/Images/')) {

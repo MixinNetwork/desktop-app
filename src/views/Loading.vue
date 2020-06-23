@@ -1,6 +1,6 @@
 <template>
-  <div class="loading" v-if="isLoading">
-    <spinner />
+  <div class="loading">
+    <spinner v-if="isLoading" />
     <h4>{{$t('loading.initializing')}}</h4>
   </div>
 </template>
@@ -13,16 +13,9 @@ import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
-import { clearDb, dbMigration } from '@/persistence/db_util'
-import { getIdentityNumber } from '@/utils/util'
+import { clearDb } from '@/persistence/db_util'
 
 import { Vue, Component } from 'vue-property-decorator'
-
-import { remote } from 'electron'
-import fs from 'fs'
-import path from 'path'
-
-import { mediaMigration } from '@/utils/attachment_util'
 
 @Component({
   components: {
@@ -35,10 +28,7 @@ export default class Loading extends Vue {
   $blaze: any
 
   async created() {
-    if (sessionStorage.tempHideLoading) {
-      this.isLoading = false
-    }
-    if (localStorage.account) {
+    if (localStorage.account && localStorage.sessionToken) {
       const account = await accountAPI.getMe().catch((err: any) => {
         console.log(err)
       })
@@ -48,6 +38,7 @@ export default class Loading extends Vue {
         return
       }
       if (!account) {
+        console.log('----- account')
         return
       }
       if (account && account.data.error) {
@@ -57,54 +48,24 @@ export default class Loading extends Vue {
         } else {
           // ?
         }
+        console.log('----- account')
         return
       }
       userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
-      await this.pushSignalKeys()
-      const user = account.data.data
-      if (user) {
-        localStorage.account = JSON.stringify(user)
-        this.$store.dispatch('insertUser', user)
-        this.$blaze.connect()
-        if (!localStorage.circleSynced) {
-          this.syncCircles()
-        }
-        const skip = await this.migrationAction()
-        if (skip) {
+      this.pushSignalKeys().then(() => {
+        const user = account.data.data
+        console.log('----- account', !!user)
+        if (user) {
+          localStorage.account = JSON.stringify(user)
+          this.$store.dispatch('insertUser', user)
+          this.$blaze.connect()
+          if (!localStorage.circleSynced) {
+            this.syncCircles()
+          }
           this.$router.push('/home')
         }
-      }
+      })
     }
-  }
-
-  async migrationAction() {
-    const identityNumber = getIdentityNumber(true)
-    if (identityNumber && !sessionStorage.tempHideLoading) {
-      const newDir = path.join(remote.app.getPath('userData'), identityNumber)
-      const oldMediaDir = path.join(remote.app.getPath('userData'), 'media')
-
-      if (!fs.existsSync(newDir)) {
-        fs.mkdirSync(newDir)
-      }
-      localStorage.newUserDirExist = true
-
-      if (localStorage.dbMigrationDone && localStorage.mediaMigrationDone) {
-        return true
-      }
-
-      if (!localStorage.dbMigrationDone) {
-        await dbMigration(identityNumber)
-      }
-      localStorage.dbMigrationDone = true
-
-      await mediaMigration(identityNumber)
-      localStorage.mediaMigrationDone = true
-
-      sessionStorage.tempHideLoading = true
-      location.reload()
-      return false
-    }
-    return true
   }
 
   getCircleConversations(circleId: any, list: any, offset: string) {

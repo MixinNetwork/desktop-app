@@ -515,7 +515,7 @@ export default class MessageItem extends Vue {
     }
     messageMenu.push(menu.delete)
     if (canRecall(this.message, this.me.user_id)) {
-      messageMenu.push(menu.recal)
+      messageMenu.push(menu.recall)
     }
     const dwidth = document.body.clientWidth
     const dheihgt = document.body.clientHeight
@@ -538,7 +538,7 @@ export default class MessageItem extends Vue {
         case 'delete':
           this.handleRemove()
           break
-        case 'recal':
+        case 'recall':
           this.handleRecall()
           break
         default:

@@ -256,12 +256,8 @@ export default {
   setUnseenBadgeNum(state: any) {
     setUnseenBadgeNum(state.conversations)
   },
-  setTempUnseenCount(state: any, increase: number) {
-    if (increase === 1) {
-      state.tempUnseenCount += 1
-    } else {
-      state.tempUnseenCount = 0
-    }
+  setTempUnreadMessageId(state: any, messageId: string) {
+    state.tempUnreadMessageId = messageId
   },
   saveAccount(state: any, user: any) {
     state.me = user

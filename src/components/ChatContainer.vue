@@ -821,7 +821,6 @@ export default class ChatContainer extends Vue {
       firstIndex = 0
       lastIndex = this.threshold
     }
-    this.showScroll = false
     this.beforeViewport = {}
     this.goMessagePosLock = true
     clearTimeout(this.goMessagePosTimer)

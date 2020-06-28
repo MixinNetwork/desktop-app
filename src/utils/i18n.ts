@@ -52,7 +52,7 @@ let transactions = {
         forward: 'Forward',
         store: 'Save As',
         delete: 'Delete',
-        recal: 'Recall'
+        recall: 'Recall'
       }
     },
     home: {
@@ -240,7 +240,7 @@ let transactions = {
         forward: '转发',
         store: '存储',
         delete: '删除',
-        recal: '撤回'
+        recall: '撤回'
       }
     },
     home: {

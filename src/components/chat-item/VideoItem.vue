@@ -4,7 +4,7 @@
       <span
         class="username"
         v-if="showName"
-        :style="{color: getColor(message.userId)}"
+        :style="{color: getColor(message.userId), maxWidth: `${videoSize.width}px`}"
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">

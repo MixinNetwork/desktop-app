@@ -231,7 +231,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
-    this.actionSetTempUnseenCount(0)
+    this.actionSetTempUnreadMessageId('')
     clearTimeout(this.scrollStopTimer)
     this.overflowMap = { top: false, bottom: false }
     this.infiniteDownLock = false
@@ -296,11 +296,10 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Watch('tempUnseenCount')
-  onTempUnseenCount(val: any) {
-    if (val > 0) {
-      const index = this.messageIds.length - val
-      this.unreadMessageId = this.messageIds[index]
+  @Watch('tempUnreadMessageId')
+  onTempUnreadMessageId(val: any) {
+    if (val) {
+      this.unreadMessageId = val
     }
   }
 
@@ -340,7 +339,7 @@ export default class ChatContainer extends Vue {
   @Getter('currentUser') user: any
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('tempUnseenCount') tempUnseenCount: any
+  @Getter('tempUnreadMessageId') tempUnreadMessageId: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
@@ -349,7 +348,7 @@ export default class ChatContainer extends Vue {
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
-  @Action('setTempUnseenCount') actionSetTempUnseenCount: any
+  @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
 
   $t: any
   $toast: any
@@ -425,6 +424,18 @@ export default class ChatContainer extends Vue {
       }
     })
 
+    let windowsFocused = false
+    setInterval(() => {
+      if (!windowsFocused && this.conversation && BrowserWindow.getFocusedWindow()) {
+        windowsFocused = true
+        this.actionSetTempUnreadMessageId('')
+        this.actionMarkRead(this.conversation.conversationId)
+      }
+      if (windowsFocused && !BrowserWindow.getFocusedWindow()) {
+        windowsFocused = false
+      }
+    }, 1500)
+
     this.$root.$on('escKeydown', () => {
       this.hideDetails()
       this.hideSearch()
@@ -496,7 +507,9 @@ export default class ChatContainer extends Vue {
           }
           self.goMessagePos(message)
         } else if (isMyMsg || goBottom || self.isBottom) {
-          self.unreadMessageId = ''
+          if (BrowserWindow.getFocusedWindow()) {
+            self.unreadMessageId = ''
+          }
           self.goBottom(goBottom)
         }
       }
@@ -882,7 +895,6 @@ export default class ChatContainer extends Vue {
   goBottomClick() {
     messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
-      this.actionSetTempUnseenCount(0)
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)
     }, 100)

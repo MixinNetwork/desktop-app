@@ -79,12 +79,11 @@ interval(
           messageIdsMap[conversationId] = messageIdsMap[conversationId] || []
           messageIdsMap[conversationId].push(messageId)
           if (store.state.currentConversationId === conversationId) {
-            if (!BrowserWindow.getFocusedWindow()) {
-              store.dispatch('setTempUnseenCount', 1)
-            } else {
-              setTimeout(() => {
-                store.dispatch('setTempUnseenCount', 0)
-              }, 200)
+            if (!BrowserWindow.getFocusedWindow() && !store.state.tempUnreadMessageId) {
+              store.dispatch('setTempUnreadMessageId', messageId)
+            }
+            if (BrowserWindow.getFocusedWindow() && store.state.tempUnreadMessageId) {
+              store.dispatch('setTempUnreadMessageId', '')
             }
           }
         }
@@ -571,7 +570,7 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = data.status
-    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
+    if (BrowserWindow.getFocusedWindow() && store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
     let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)

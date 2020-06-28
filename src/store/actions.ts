@@ -318,8 +318,8 @@ export default {
       commit('setUnseenBadgeNum')
     }, 100)
   },
-  setTempUnseenCount({ commit }: any, increase: number) {
-    commit('setTempUnseenCount', increase)
+  setTempUnreadMessageId({ commit }: any, messageId: string) {
+    commit('setTempUnreadMessageId', messageId)
   },
   conversationClear: ({ commit }: any, conversationId: any) => {
     messageDao.ftsMessagesDelete(conversationId)

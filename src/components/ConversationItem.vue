@@ -93,7 +93,6 @@ export default class ConversationItem extends Vue {
   @Prop(Object) readonly conversation: any
 
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('tempUnseenCount') tempUnseenCount: any
   @Getter('currentConversationId') currentConversationId: any
 
   show: boolean = false

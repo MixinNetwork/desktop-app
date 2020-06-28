@@ -123,7 +123,9 @@ export function sendNotification(title, body, conversation) {
     body: body
   })
   newNotification.onclick = () => {
-    store.dispatch('setCurrentConversation', conversation)
+    if (store.state.currentConversationId !== conversation.conversationId) {
+      store.dispatch('setCurrentConversation', conversation)
+    }
     ipcRenderer.send('showWin')
   }
 }

@@ -603,6 +603,25 @@ export default {
   setLinkStatus: ({ commit }: any, status: any) => {
     commit('setLinkStatus', status)
   },
+  unblock: ({ commit }: any, userId: any) => {
+    userApi.updateRelationship({ user_id: userId, action: 'UNBLOCK' }).then((res: any) => {
+      if (res.data && res.data.data) {
+        commit('setCurrentUser', res.data.data)
+      }
+    })
+  },
+  report: ({ commit }: any, userId: any) => {
+    userApi
+      .report({
+        user_id: userId,
+        action: 'BLOCK'
+      })
+      .then(res => {
+        if (res.data && res.data.data) {
+          commit('setCurrentUser', res.data.data)
+        }
+      })
+  },
   exitGroup: ({ commit }: any, conversationId: any) => {
     conversationApi.exit(conversationId)
   },

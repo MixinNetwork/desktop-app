@@ -27,7 +27,10 @@
           </span>
 
           <span class="id" v-if="isContact">Mixin ID: {{userId || conversation.ownerIdentityNumber}}</span>
-          <span class="add" v-if="showAddContact" @click="addContact">
+          <span class="unblock" v-if="showUnblock" @click="actionUnblock(user.user_id)">
+            <small>{{$t('menu.chat.unblock')}}</small>
+          </span>
+          <span class="add" v-else-if="showAddContact" @click="addContact">
             <span>+</span>
             <small>{{$t('menu.chat.add_contact')}}</small>
           </span>
@@ -100,6 +103,7 @@ export default class Details extends Vue {
   @Action('refreshUser') actionRefreshUser: any
   @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('syncConversation') actionSyncConversation: any
+  @Action('unblock') actionUnblock: any
 
   @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
   @Action('participantDismissAdmin') actionParticipantDismissAdmin: any
@@ -269,6 +273,10 @@ export default class Details extends Vue {
     return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
   }
 
+  get showUnblock() {
+    return this.isContact && this.user.relationship === 'BLOCKING' && this.user.user_id !== this.me.user_id
+  }
+
   get showAddContact() {
     return this.isContact && this.user.relationship !== 'FRIEND' && this.user.user_id !== this.me.user_id
   }
@@ -381,12 +389,12 @@ export default class Details extends Vue {
         width: 100%;
         user-select: text;
       }
-      .add {
+      .unblock, .add {
         cursor: pointer;
         color: #3a7ee4;
         font-weight: 400;
         margin-top: 0.8rem;
-        padding: 0.15rem 0.45rem;
+        padding: 0.15rem 0.65rem;
         background: #f2f2f2;
         border-radius: 0.8rem;
       }

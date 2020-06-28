@@ -49,6 +49,9 @@ class ParticipantDao {
   getRandomJoinConversationId(userId: any) {
     return db.prepare('SELECT p.conversation_id FROM participants p, conversations c WHERE p.user_id = ? AND p.conversation_id = c.conversation_id AND c.status = 2 LIMIT 1').get(userId).conversation_id
   }
+  findParticipantById(conversationId: any, userId: any) {
+    return db.prepare('SELECT * FROM participants WHERE conversation_id = ? AND user_id = ?').get(conversationId, userId)
+  }
 }
 
 export default new ParticipantDao()

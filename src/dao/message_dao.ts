@@ -366,6 +366,10 @@ class MessageDao {
     return db.prepare('SELECT * FROM messages WHERE message_id = ?').get(messageId)
   }
 
+  findMessageById(messageId: any, userId: any) {
+    return db.prepare('SELECT * FROM messages WHERE message_id = ? AND user_id = ?').get(messageId, userId)
+  }
+
   recallMessage(messageId: any) {
     db.prepare(
       `UPDATE messages SET category = 'MESSAGE_RECALL', content = NULL, media_url = NULL, media_mime_type = NULL, media_size = NULL,

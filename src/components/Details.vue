@@ -16,7 +16,7 @@
           <span class="name">
             <span v-if="!nameEditing">{{nameEditingVal || name}}</span>
             <div v-else class="inputbox center"><input type="text" v-model="nameEditingVal" required /></div>
-            <span @click="editToggle('name')" v-if="profileEdit && !editLock">
+            <span @click="editToggle('name')" v-if="profileCanEdit && !editLock">
               <svg-icon v-if="!nameEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0.2rem" />
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.25rem" />
             </span>
@@ -33,14 +33,14 @@
           </span>
           <div v-if="!isContact && conversation.category === 'GROUP'" class="announcement">
             <span v-if="!announEditing">
-              <span class="gray-text" v-if="!announEditingVal && !conversation.announcement">{{$t('group.group_info_edit')}}</span>
+              <span class="gray-text" v-if="!announEditingVal && !conversation.announcement && profileCanEdit">{{$t('group.group_info_edit')}}</span>
               <span v-html="$w(contentUtil.renderUrl(announEditingVal || conversation.announcement))"></span>
             </span>
             <div v-else class="inputbox">
               <pre><span>{{announEditingVal}}</span><br></pre>
               <textarea type="text" v-model="announEditingVal" required />
             </div>
-            <span @click="editToggle('announcement')" v-if="profileEdit && !editLock">
+            <span @click="editToggle('announcement')" v-if="profileCanEdit && !editLock">
               <svg-icon v-if="!announEditing" class="edit" icon-class="ic_edit_pen" style="margin-top: 0.1rem" />
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.2rem" />
             </span>
@@ -264,7 +264,7 @@ export default class Details extends Vue {
     })[0]
   }
 
-  get profileEdit() {
+  get profileCanEdit() {
     if (!this.me || !this.user) return false
     return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
   }

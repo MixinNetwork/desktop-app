@@ -39,7 +39,9 @@ let transactions = {
         clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute',
-        create_post: 'Create post'
+        create_post: 'Create post',
+        report: 'Report',
+        unblock: 'Unblock User'
       },
       participant: {
         profile: 'Profile',
@@ -54,7 +56,7 @@ let transactions = {
         forward: 'Forward',
         store: 'Save As',
         delete: 'Delete',
-        recal: 'Recall'
+        recall: 'Recall'
       }
     },
     home: {
@@ -234,7 +236,9 @@ let transactions = {
         clear: '清空聊天记录',
         mute: '静音',
         cancel_mute: '取消静音',
-        create_post: '创建文章'
+        create_post: '创建文章',
+        report: '举报',
+        unblock: '解除屏蔽'
       },
       participant: {
         profile: '信息',
@@ -249,7 +253,7 @@ let transactions = {
         forward: '转发',
         store: '存储',
         delete: '删除',
-        recal: '撤回'
+        recall: '撤回'
       }
     },
     home: {

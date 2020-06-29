@@ -80,12 +80,11 @@ interval(
           messageIdsMap[conversationId] = messageIdsMap[conversationId] || []
           messageIdsMap[conversationId].push(messageId)
           if (store.state.currentConversationId === conversationId) {
-            if (!BrowserWindow.getFocusedWindow()) {
-              store.dispatch('setTempUnseenCount', 1)
-            } else {
-              setTimeout(() => {
-                store.dispatch('setTempUnseenCount', 0)
-              }, 200)
+            if (!BrowserWindow.getFocusedWindow() && !store.state.tempUnreadMessageId) {
+              store.dispatch('setTempUnreadMessageId', messageId)
+            }
+            if (BrowserWindow.getFocusedWindow() && store.state.tempUnreadMessageId) {
+              store.dispatch('setTempUnreadMessageId', '')
             }
           }
         }
@@ -490,19 +489,26 @@ class ReceiveWorker extends BaseWorker {
       ) {
         this.makeMessageStatus(plainData.ack_messages)
       } else if (plainData.action === 'RESEND_MESSAGES') {
-        plainData.messages.forEach(messageId => {
+        const p = participantDao.findParticipantById(data.conversation_id, data.user_id)
+        if (!p) {
+          return
+        }
+        for (let messageId of plainData.messages) {
           const resendMessage = resendMessageDao.findResendMessage(data.user_id, messageId)
           if (resendMessage) {
-            return
+            continue
           }
-          const needResendMessage = messageDao.getMessageById(messageId)
+          const needResendMessage = messageDao.findMessageById(messageId, this.getAccountId())
           if (needResendMessage && needResendMessage.category !== 'MESSAGE_RECALL') {
+            if (moment(p.createdAt).isAfter(needResendMessage.createdAt)) {
+              continue
+            }
             resendMessageDao.insertMessage(messageId, data.user_id, data.session_id, 1)
           } else {
             resendMessageDao.insertMessage(messageId, data.user_id, data.session_id, 0)
           }
           jobDao.insertSendingJob(messageId, data.conversation_id)
-        })
+        }
       } else if (plainData.action === 'RESEND_KEY') {
         if (signalProtocol.containsUserSession(data.user_id)) {
           await this.sendSenderKey(data.conversation_id, data.user_id, data.session_id)
@@ -573,7 +579,7 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = data.status
-    if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
+    if (BrowserWindow.getFocusedWindow() && store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
     let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)

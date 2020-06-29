@@ -23,6 +23,7 @@ export default class ChatContainerMenu extends Vue {
   @Getter('me') me: any
 
   @Action('toggleEditor') actionToggleEditor: any
+  @Action('report') actionReport: any
   @Action('exitGroup') actionExitGroup: any
   @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('conversationClear') actionConversationClear: any
@@ -61,10 +62,12 @@ export default class ChatContainerMenu extends Vue {
     let menu = []
     if (newC.category === ConversationCategory.CONTACT) {
       menu.push(chatMenu.contact_info)
-      if (this.user.relationship !== 'FRIEND') {
-        menu.push(chatMenu.add_contact)
-      } else {
-        menu.push(chatMenu.remove_contact)
+      if (this.user.relationship !== 'BLOCKING') {
+        if (this.user.relationship !== 'FRIEND') {
+          menu.push(chatMenu.add_contact)
+        } else {
+          menu.push(chatMenu.remove_contact)
+        }
       }
       menu.push(chatMenu.clear)
       this.$emit('menuCallback', {
@@ -90,6 +93,9 @@ export default class ChatContainerMenu extends Vue {
       } else {
         menu.push(chatMenu.mute)
       }
+    }
+    if (newC.category === ConversationCategory.CONTACT) {
+      menu.push(chatMenu.report)
     }
     if (process.env.NODE_ENV !== 'production') {
       menu.push(chatMenu.create_post)
@@ -226,6 +232,8 @@ export default class ChatContainerMenu extends Vue {
       )
     } else if (key === 'create_post') {
       this.actionToggleEditor()
+    } else if (key === 'report') {
+      this.actionReport(this.user.user_id)
     }
   }
 }

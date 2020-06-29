@@ -56,11 +56,6 @@
           :class="{gray: this.isMute()}"
           v-if="conversation.unseenMessageCount && conversation.unseenMessageCount!=0"
         >{{conversation.unseenMessageCount}}</span>
-        <span
-          class="badge"
-          :class="{gray: this.isMute()}"
-          v-else-if="tempUnseenCount && conversation.conversationId === currentConversationId"
-        >{{tempUnseenCount}}</span>
         <svg-icon icon-class="ic_mute" v-if="this.isMute()" class="mute_icon" />
         <svg-icon icon-class="ic_pin_top" v-if="showPinTime" class="pin_icon" />
         <transition name="slide-right">
@@ -98,7 +93,6 @@ export default class ConversationItem extends Vue {
   @Prop(Object) readonly conversation: any
 
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('tempUnseenCount') tempUnseenCount: any
   @Getter('currentConversationId') currentConversationId: any
 
   show: boolean = false

@@ -34,7 +34,10 @@ process.on('uncaughtException', err => {
 })
 
 window.onerror = (message, source, lineno, colno, err: any) => {
-  log.error(err.stack || err)
+  log.error(message)
+  if (err) {
+    log.error(err.stack || err)
+  }
 }
 
 // @ts-ignore

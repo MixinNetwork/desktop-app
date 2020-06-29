@@ -440,7 +440,7 @@ export default class ChatItem extends Vue {
 <style lang="scss" scoped>
 .notification-toast {
   position: fixed;
-  z-index: 1000;
+  z-index: 10;
   font-size: 1rem;
   background: #fff;
   border-radius: 0.2rem;

@@ -17,17 +17,18 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
-              <div v-if="loading" class="loading" @click.stop="stopLoading">
-                <svg-icon class="icon" icon-class="loading-stop-black" />
-                <spinner class="circle" color="#fff"></spinner>
-              </div>
+              <LoadingIcon
+                v-if="loading"
+                class="loading"
+                @userClick="stopLoading"
+              />
               <AttachmentIcon
                 v-else-if="waitStatus"
                 class="loading"
                 :me="me"
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
-              ></AttachmentIcon>
+              />
               <!-- <div
                 v-else
                 class="play"
@@ -60,8 +61,8 @@
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
@@ -71,8 +72,8 @@ import { Getter } from 'vuex-class'
 @Component({
   components: {
     AttachmentIcon,
+    LoadingIcon,
     ReplyMessageItem,
-    spinner,
     BadgeItem,
     TimeAndStatus
   }
@@ -187,22 +188,6 @@ export default class VideoItem extends Vue {
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: 3;
-        .icon {
-          width: 100%;
-          height: 100%;
-          left: 0;
-          z-index: 0;
-          position: absolute;
-          line-height: 100%;
-          cursor: pointer;
-        }
-        .circle {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-        }
       }
       .accachment {
         background: #000000B6;

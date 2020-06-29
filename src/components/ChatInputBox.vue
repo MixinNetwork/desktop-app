@@ -32,10 +32,10 @@
       ></MentionPanel>
     </transition>
 
-    <div class="notification-toast" v-if="showNotification">
+    <div class="notification-toast" v-if="!this.hideScamNotificationMap[this.user.user_id] && user.is_scam">
       <svg-icon class="warning" icon-class="warning" />
       <span class="text">{{$t('scam_warning')}}</span>
-      <svg-icon class="close" @click="showNotification = false" icon-class="ic_close" />
+      <svg-icon class="close" @click="closeScamNotification" icon-class="ic_close" />
     </div>
 
     <div v-if="conversation" class="box" @click.stop>
@@ -108,7 +108,7 @@ export default class ChatItem extends Vue {
   stickerChoosing: boolean = false
   inputFlag: any = false
   boxFocus: boolean = false
-  showNotification: boolean = true
+  hideScamNotificationMap: any = {}
 
   @Watch('stickerChoosing')
   onStickerChoosingChanged(val: string, oldVal: string) {
@@ -142,6 +142,12 @@ export default class ChatItem extends Vue {
 
   get showUnblock() {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
+  }
+
+  closeScamNotification() {
+    const hideScamNotificationMap = JSON.parse(JSON.stringify(this.hideScamNotificationMap))
+    hideScamNotificationMap[this.user.user_id] = true
+    this.hideScamNotificationMap = hideScamNotificationMap
   }
 
   onFocus() {

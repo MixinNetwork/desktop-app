@@ -9,9 +9,10 @@ class UserDao {
       user.app_id = null
     }
     user.is_verified = user.is_verified ? 1 : 0
+    user.is_scam = user.is_scam ? 1 : 0
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, biography, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
-        '(@user_id, @full_name, @identity_number, @avatar_url, @biography, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
+      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, biography, relationship, app_id, mute_until, is_verified, is_scam, created_at) VALUES ' +
+        '(@user_id, @full_name, @identity_number, @avatar_url, @biography, @relationship, @app_id, @mute_until, @is_verified, @is_scam, @created_at)'
     )
     const info = stmt.run(user)
     if (info.changes >= 1) {
@@ -21,8 +22,8 @@ class UserDao {
   }
   insertUsers(users: any) {
     const stmt = db.prepare(
-      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, biography, relationship, app_id, mute_until, is_verified, created_at) VALUES ' +
-        '(@user_id, @full_name, @identity_number, @avatar_url, @biography, @relationship, @app_id, @mute_until, @is_verified, @created_at)'
+      'INSERT OR REPLACE INTO users (user_id, full_name, identity_number, avatar_url, biography, relationship, app_id, mute_until, is_verified, is_scam, created_at) VALUES ' +
+        '(@user_id, @full_name, @identity_number, @avatar_url, @biography, @relationship, @app_id, @mute_until, @is_verified, @is_scam, @created_at)'
     )
     const insertMany = db.transaction((users: any) => {
       for (let user of users) {
@@ -33,6 +34,7 @@ class UserDao {
           user.app_id = null
         }
         user.is_verified = user.is_verified ? 1 : 0
+        user.is_scam = user.is_scam ? 1 : 0
         stmt.run(user)
       }
     })
@@ -73,7 +75,7 @@ class UserDao {
   }
   update(u: any) {
     db.prepare(
-      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${u.is_verified}, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
+      `UPDATE users SET relationship = '${u.relationship}', mute_until = '${u.mute_until}', is_verified = ${u.is_verified}, is_scam = ${u.is_scam}, full_name = '${u.full_name}' WHERE user_id = '${u.user_id}'`
     ).run()
   }
   findUserIdByAppNumber(conversationId: string, botNumber: string) {

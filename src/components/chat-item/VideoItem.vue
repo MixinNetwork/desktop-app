@@ -18,7 +18,7 @@
             ></ReplyMessageItem>
             <div class="video-box">
               <div v-if="loading" class="loading" @click.stop="stopLoading">
-                <svg-icon class="stop" icon-class="loading-stop-black" />
+                <svg-icon class="icon" icon-class="loading-stop-black" />
                 <spinner class="circle" color="#fff"></spinner>
               </div>
               <AttachmentIcon
@@ -28,8 +28,24 @@
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
               ></AttachmentIcon>
-              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus"
-                :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
+              <!-- <div
+                v-else
+                class="play"
+                @mediaClick="$emit('mediaClick')"
+              >
+                <svg-icon class="icon" icon-class="ic_play" />
+              </div> -->
+              <div class="media">
+                <img
+                  v-if="waitStatus"
+                  class="image"
+                  :style="`background: #333; width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"
+                  :src="'data:image/jpeg;base64,' + message.thumbImage"
+                  :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                />
+                <video v-show="!waitStatus" class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus"
+                  :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
+              </div>
             </div>
           </div>
           <div class="bottom">
@@ -46,7 +62,7 @@ import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import { MessageStatus, MediaStatus } from '@/utils/constants'
+import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
@@ -93,6 +109,10 @@ export default class VideoItem extends Vue {
     this.$refs.videoPlayer.oncanplaythrough = () => {
       this.showLoading = true
     }
+  }
+
+  get defaultImg() {
+    return DefaultImg
   }
 
   get waitStatus() {
@@ -159,15 +179,15 @@ export default class VideoItem extends Vue {
     }
     .video-box {
       position: relative;
-      .loading {
+      .play, .loading {
         width: 1.6rem;
         height: 1.6rem;
         left: 50%;
-        top: calc(50% - 0.4rem);
+        top: 50%;
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: 3;
-        .stop {
+        .icon {
           width: 100%;
           height: 100%;
           left: 0;
@@ -184,8 +204,12 @@ export default class VideoItem extends Vue {
           pointer-events: none;
         }
       }
+      .accachment {
+        background: #000000B6;
+        color: #fff;
+      }
       .media {
-        font-size: 0.8rem;
+        font-size: 0;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;

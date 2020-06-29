@@ -52,6 +52,10 @@ export default {
     return state.tempUnreadMessageId
   },
 
+  fetchPercentMap: (state: any) => {
+    return state.fetchPercentMap
+  },
+
   conversationUnseenMentionsMap: (state: { conversationUnseenMentionsMap: any }) => {
     return state.conversationUnseenMentionsMap
   },

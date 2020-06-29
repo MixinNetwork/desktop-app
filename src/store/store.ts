@@ -10,6 +10,7 @@ Vue.use(Vuex)
 
 const state = {
   me: {},
+  fetchPercentMap: {},
   tempUnreadMessageId: '',
   currentConversationId: null,
   conversations: {},

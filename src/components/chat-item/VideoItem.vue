@@ -18,13 +18,13 @@
             ></ReplyMessageItem>
             <div class="video-box">
               <LoadingIcon
-                v-if="loading"
+                v-if="loading && fetchPercentMap[message.messageId] !== 100"
                 class="loading"
-                :percent="20"
+                :percent="fetchPercentMap[message.messageId]"
                 @userClick="stopLoading"
               />
               <AttachmentIcon
-                v-else-if="waitStatus"
+                v-else-if="waitStatus && fetchPercentMap[message.messageId] !== 100"
                 class="loading"
                 :me="me"
                 :message="message"
@@ -86,6 +86,7 @@ export default class VideoItem extends Vue {
   @Prop(Boolean) readonly showName: any
 
   @Getter('attachment') attachment: any
+  @Getter('fetchPercentMap') fetchPercentMap: any
 
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus

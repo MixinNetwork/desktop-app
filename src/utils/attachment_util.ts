@@ -29,7 +29,7 @@ const cancelPromise = (id: string) => {
     const action = () => {
       if (cancelMap[id]) {
         cancelMap[id] = false
-        resolve(new Response('timeout', { status: 504, statusText: 'timeout ' }))
+        resolve(new Response('timeout', { status: 504, statusText: 'cancel ' }))
         controllerMap[id].abort()
       } else {
         setTimeout(() => {
@@ -40,14 +40,45 @@ const cancelPromise = (id: string) => {
     action()
   })
 }
-const requestPromise = (url: string, id: string, opt: any) => {
+const requestPromise = async(url: string, id: string, opt: any) => {
   const controller = new AbortController()
   const signal = controller.signal
   controllerMap[id] = controller
   Object.assign(opt, {
     signal
   })
-  return fetch(url, opt)
+  const response: any = await fetch(url, opt)
+  const responseClone = response.clone()
+
+  const reader = responseClone.body.getReader()
+  const contentLength = +responseClone.headers.get('Content-Length')
+  const chunks = []
+  let receivedLength = 0
+  let readLock = false
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) {
+      store.dispatch('updateFetchPercent', {
+        id,
+        url,
+        percent: (100 * receivedLength) / contentLength
+      })
+      return response
+    }
+    chunks.push(value)
+    receivedLength += value.length
+    if (!readLock) {
+      readLock = true
+      store.dispatch('updateFetchPercent', {
+        id,
+        url,
+        percent: (100 * receivedLength) / contentLength
+      })
+      setTimeout(() => {
+        readLock = false
+      }, 100)
+    }
+  }
 }
 
 export async function updateCancelMap(id: string) {
@@ -95,7 +126,7 @@ export async function downloadAttachment(message: any) {
       }
       if (message.category.startsWith('SIGNAL_')) {
         const m = message
-        const data = await getAttachment(response.data.data.view_url, m.message_id)
+        const data: any = await getAttachment(response.data.data.view_url, m.message_id)
         const mediaKey = base64ToUint8Array(m.media_key).buffer
         const mediaDigest = base64ToUint8Array(m.media_digest).buffer
         const resp = await cryptoAttachment.decryptAttachment(data, mediaKey, mediaDigest)

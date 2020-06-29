@@ -9,7 +9,7 @@
     <g fill="none" fill-rule="evenodd">
       <g transform="translate(1 1)" stroke-width="2">
         <circle :stroke="stroke" cx="18" cy="18" r="18" />
-        <g transform="translate(18 18)">
+        <g transform="translate(18 18)" v-show="loaded">
           <path :d="d">
             <animateTransform
               attributeName="transform"
@@ -51,11 +51,21 @@ export default {
       default: 10
     }
   },
+  data() {
+    return {
+      loaded: false
+    }
+  },
+  mounted() {
+    setTimeout(() => {
+      this.loaded = true
+    }, 50)
+  },
   computed: {
     d() {
       const r = 18
       const percent = this.percent > 10 ? this.percent : 10
-      const degrees = percent / 100 * 360
+      const degrees = (percent / 100) * 360
       const rad = degrees * (Math.PI / 180)
       const x = (Math.sin(rad) * r).toFixed(2)
       const y = -(Math.cos(rad) * r).toFixed(2)

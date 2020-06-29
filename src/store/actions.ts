@@ -643,6 +643,9 @@ export default {
   stopLoading: ({ commit }: any, messageId: any) => {
     commit('stopLoading', messageId)
   },
+  updateFetchPercent: ({ commit }: any, payload: any) => {
+    commit('updateFetchPercent', payload)
+  },
   download: ({ commit }: any, messageId: any) => {
     commit('startLoading', messageId)
     let message = messageDao.getMessageById(messageId)

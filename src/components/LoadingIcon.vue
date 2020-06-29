@@ -1,12 +1,12 @@
 <template>
   <div class="loading-icon" @click="$emit('userClick')">
     <svg-icon class="icon" icon-class="loading-stop-black" />
-    <Spinner class="circle" color="#fff" />
+    <Spinner class="circle" :percent="percent" color="#fff" />
   </div>
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Prop, Component } from 'vue-property-decorator'
 import Spinner from '@/components/Spinner.vue'
 
 @Component({
@@ -14,7 +14,9 @@ import Spinner from '@/components/Spinner.vue'
     Spinner
   }
 })
-export default class LoadingIcon extends Vue {}
+export default class LoadingIcon extends Vue {
+    @Prop(Number) readonly percent: any
+}
 </script>
 
 <style lang="scss" scoped>

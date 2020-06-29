@@ -20,6 +20,7 @@
               <LoadingIcon
                 v-if="loading"
                 class="loading"
+                :percent="20"
                 @userClick="stopLoading"
               />
               <AttachmentIcon

@@ -18,5 +18,11 @@ export default {
   },
   updateRelationship(body: any) {
     return api.post('/relationships', body)
+  },
+  report(body: any) {
+    return api.post('/reports', body)
+  },
+  blockingUsers() {
+    return api.get('/blocking_users')
   }
 }

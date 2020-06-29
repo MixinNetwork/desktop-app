@@ -33,8 +33,9 @@
     </transition>
 
     <div v-if="conversation" class="box" @click.stop>
-      <div v-show="!participant" class="removed">{{$t('home.removed')}}</div>
-      <div v-show="participant" class="input">
+      <div v-if="showUnblock" class="unblock" @click="actionUnblock(user.user_id)">{{$t('menu.chat.unblock')}}</div>
+      <div v-else-if="!participant" class="removed">{{$t('home.removed')}}</div>
+      <div v-show="participant && !showUnblock" class="input">
         <div class="sticker" @click.stop="chooseSticker">
           <svg-icon :icon-class="stickerChoosing ? 'ic_emoticon_on' : 'ic_emoticon'" />
         </div>
@@ -67,7 +68,7 @@ import { Vue, Prop, Component, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 
 import contentUtil from '@/utils/content_util'
-import { MessageCategories, MessageStatus } from '@/utils/constants'
+import { MessageCategories, MessageStatus, ConversationCategory } from '@/utils/constants'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 
@@ -91,6 +92,7 @@ export default class ChatItem extends Vue {
 
   @Action('sendMessage') actionSendMessage: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
+  @Action('unblock') actionUnblock: any
 
   mentionChoosing: boolean = false
   stickerChoosing: boolean = false
@@ -125,6 +127,10 @@ export default class ChatItem extends Vue {
   @Watch('panelHeight')
   onPanelHeightChanged(newC: any, oldC: any) {
     this.$emit('panelHeightUpdate', this.panelHeight)
+  }
+
+  get showUnblock() {
+    return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
   }
 
   onFocus() {
@@ -422,8 +428,15 @@ export default class ChatItem extends Vue {
   position: relative;
   .removed {
     padding: 0.7rem 0.7rem;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-align: center;
+  }
+  .unblock {
+    padding: 0.7rem 0.7rem;
+    font-size: 0.7rem;
+    text-align: center;
+    color: #3a7ee4;
+    cursor: pointer;
   }
   .input {
     box-sizing: border-box;

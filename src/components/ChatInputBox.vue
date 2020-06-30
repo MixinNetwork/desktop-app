@@ -32,8 +32,18 @@
       ></MentionPanel>
     </transition>
 
+    <div class="notification-toast" v-if="showScamNotification">
+      <svg-icon class="warning" icon-class="warning" />
+      <span class="text">{{$t('scam_warning')}}</span>
+      <svg-icon class="close" @click="closeScamNotification" icon-class="ic_close" />
+    </div>
+
     <div v-if="conversation" class="box" @click.stop>
-      <div v-if="showUnblock" class="unblock" @click="actionUnblock(user.user_id)">{{$t('menu.chat.unblock')}}</div>
+      <div
+        v-if="showUnblock"
+        class="unblock"
+        @click="actionUnblock(user.user_id)"
+      >{{$t('menu.chat.unblock')}}</div>
       <div v-else-if="!participant" class="removed">{{$t('home.removed')}}</div>
       <div v-show="participant && !showUnblock" class="input">
         <div class="sticker" @click.stop="chooseSticker">
@@ -98,6 +108,7 @@ export default class ChatItem extends Vue {
   stickerChoosing: boolean = false
   inputFlag: any = false
   boxFocus: boolean = false
+  hideScamNotificationMap: any = {}
 
   @Watch('stickerChoosing')
   onStickerChoosingChanged(val: string, oldVal: string) {
@@ -132,6 +143,24 @@ export default class ChatItem extends Vue {
 
   get showUnblock() {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
+  }
+
+  get showScamNotification() {
+    const hideScamTime = this.hideScamNotificationMap[this.user.user_id] || 0
+    return new Date().getTime() - hideScamTime > 24 * 3600000 && this.user.is_scam
+  }
+
+  mounted() {
+    try {
+      this.hideScamNotificationMap = JSON.parse(localStorage.getItem('hideScamNotificationMap') || '{}')
+    } catch (error) {}
+  }
+
+  closeScamNotification() {
+    this.hideScamNotificationMap[this.user.user_id] = new Date().getTime()
+    const mapStr = JSON.stringify(this.hideScamNotificationMap)
+    localStorage.setItem('hideScamNotificationMap', mapStr)
+    this.hideScamNotificationMap = JSON.parse(mapStr)
   }
 
   onFocus() {
@@ -293,8 +322,8 @@ export default class ChatItem extends Vue {
               const idInPiece = innerPieces[j].split('<')[0]
               if (
                 messageIds.indexOf(id) < 0 &&
-              idsTemp.indexOf(id) < 0 &&
-              (id.startsWith(idInPiece) || name.startsWith(idInPiece.toLowerCase()))
+                idsTemp.indexOf(id) < 0 &&
+                (id.startsWith(idInPiece) || name.startsWith(idInPiece.toLowerCase()))
               ) {
                 const hl = contentUtil.highlight(id, id, '')
                 innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
@@ -422,6 +451,33 @@ export default class ChatItem extends Vue {
 }
 </script>
 <style lang="scss" scoped>
+.notification-toast {
+  position: fixed;
+  z-index: 10;
+  font-size: 1rem;
+  background: #fff;
+  border-radius: 0.2rem;
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  margin: 0 0.8rem;
+  bottom: 3rem;
+  box-shadow: 0 0 0.1rem #99999944;
+  right: 0;
+  left: 14.3rem;
+  .text {
+    padding: 0 0.8rem;
+    font-size: 0.75rem;
+  }
+  .warning {
+    min-width: 1rem;
+  }
+  .close {
+    margin-left: auto;
+    min-width: 1rem;
+    cursor: pointer;
+  }
+}
 .box {
   font-size: 0.95rem;
   background: white;

@@ -104,8 +104,13 @@ class MessageBox {
         if (findMessage) {
           findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
           if (isQuote) {
-            const quoteContent = JSON.parse(item.quoteContent)
-            quoteContent.type = 'MESSAGE_RECALL'
+            let quoteContent = JSON.parse(item.quoteContent)
+            const findQuoteMessage = messageDao.getConversationMessageById(conversationId, quoteContent.messageId)
+            if (!findQuoteMessage) {
+              quoteContent.type = 'MESSAGE_RECALL'
+            } else {
+              quoteContent = findQuoteMessage
+            }
             this.messages[i].quoteContent = JSON.stringify(quoteContent)
           } else {
             matchIds.push(item.messageId)

@@ -58,11 +58,13 @@ const requestPromise = async(url: string, id: string, opt: any) => {
   while (true) {
     const { done, value } = await reader.read()
     if (done) {
-      store.dispatch('updateFetchPercent', {
-        id,
-        url,
-        percent: (100 * receivedLength) / contentLength
-      })
+      setTimeout(() => {
+        store.dispatch('updateFetchPercent', {
+          id,
+          url,
+          percent: 100
+        })
+      }, 50)
       return response
     }
     chunks.push(value)
@@ -76,7 +78,7 @@ const requestPromise = async(url: string, id: string, opt: any) => {
       })
       setTimeout(() => {
         readLock = false
-      }, 100)
+      }, 50)
     }
   }
 }

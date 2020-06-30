@@ -1,7 +1,7 @@
 <template>
   <div class="loading-icon" @click="$emit('userClick')">
-    <svg-icon class="icon" icon-class="loading-stop-black" />
-    <Spinner class="circle" :percent="percent" color="#fff" />
+    <svg-icon class="icon" :icon-class="color ? 'loading-stop' : 'loading-stop-black'" />
+    <Spinner class="circle" :percent="percent" :color="color || '#fff'" />
   </div>
 </template>
 
@@ -16,6 +16,7 @@ import Spinner from '@/components/Spinner.vue'
 })
 export default class LoadingIcon extends Vue {
     @Prop(Number) readonly percent: any
+    @Prop(String) readonly color: any
 }
 </script>
 

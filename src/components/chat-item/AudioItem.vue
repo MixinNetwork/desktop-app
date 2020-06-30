@@ -15,12 +15,19 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <div class="mixin-audio" :class="{ played: audioPlayedMap[message.messageId] || messageOwnership().send }" onselectstart="return false">
+          <div
+            class="mixin-audio"
+            :class="{ played: audioPlayedMap[message.messageId] || messageOwnership().send }"
+            onselectstart="return false"
+          >
             <span class="audio-status">
-              <div v-if="loading" class="loading" @click.stop="stopLoading">
-                <svg-icon class="stop" icon-class="loading-stop" />
-                <spinner class="circle" color="rgb(75, 126, 210)"></spinner>
-              </div>
+              <LoadingIcon
+                v-if="loading && fetchPercentMap[message.messageId] !== 100"
+                class="loading"
+                color="rgb(75, 126, 210)"
+                :percent="fetchPercentMap[message.messageId]"
+                @userClick="stopLoading"
+              />
               <svg-icon
                 class="arrow"
                 icon-class="arrow-down"
@@ -73,7 +80,7 @@
 </template>
 <script lang="ts">
 import ReplyMessageItem from './ReplyMessageItem.vue'
-import spinner from '@/components/Spinner.vue'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
@@ -85,7 +92,7 @@ import { Getter } from 'vuex-class'
 @Component({
   components: {
     ReplyMessageItem,
-    spinner,
+    LoadingIcon,
     BadgeItem,
     TimeAndStatus
   }
@@ -109,6 +116,7 @@ export default class AudioItem extends Vue {
   @Getter('attachment') attachment: any
   @Getter('currentAudio') currentAudio: any
   @Getter('currentMessages') currentMessages: any
+  @Getter('fetchPercentMap') fetchPercentMap: any
 
   @Watch('currentAudio')
   onCurrentAudioChange(data: any) {
@@ -244,7 +252,10 @@ export default class AudioItem extends Vue {
 
   get waitStatus() {
     const { message } = this
-    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
+    return (
+      this.fetchPercentMap[message.messageId] !== 100 &&
+      (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+    )
   }
   get loading() {
     return this.attachment.includes(this.message.messageId)
@@ -314,6 +325,7 @@ export default class AudioItem extends Vue {
       .audio-status {
         .arrow {
           font-size: 1.2rem;
+          color: rgb(75, 126, 210);
         }
         cursor: pointer;
         width: 1.5rem;

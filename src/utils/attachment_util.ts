@@ -86,7 +86,8 @@ export function mediaMigration(identityNumber: string, callback: any) {
   const oldMediaDir = path.join(userDataPath, 'media')
   const sizeMap: any = dirSize(oldMediaDir)
   if (!fs.existsSync(dbPath) || !sizeMap[oldMediaDir]) {
-    return -1
+    callback()
+    return
   }
 
   const mixinDb = new Database(dbPath, { readonly: false })

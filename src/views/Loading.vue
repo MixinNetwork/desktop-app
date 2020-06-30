@@ -78,7 +78,7 @@ export default class Loading extends Vue {
     }
   }
 
-  async migrationAction(callback: (skip: boolean) => void) {
+  async migrationAction(callback: any) {
     const identityNumber = getIdentityNumber(true)
     if (identityNumber && !sessionStorage.tempHideLoading) {
       const newDir = path.join(remote.app.getPath('userData'), identityNumber)
@@ -90,7 +90,9 @@ export default class Loading extends Vue {
       localStorage.newUserDirExist = true
 
       if (localStorage.dbMigrationDone && localStorage.mediaMigrationDone) {
-        return true
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(true)
+        return
       }
 
       if (!localStorage.dbMigrationDone) {

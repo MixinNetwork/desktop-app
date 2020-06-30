@@ -540,6 +540,9 @@ export default class ChatContainer extends Vue {
 
   panelChooseAction(data: any) {
     this.goBottom()
+    if (data === 'stickerOpen') {
+      this.panelHeightUpdate(12)
+    }
     requestAnimationFrame(() => {
       this.panelChoosing = data
     })

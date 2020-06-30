@@ -739,6 +739,7 @@ export default class ChatContainer extends Vue {
         this.conversation.conversationId,
         item.message_id || item.messageId
       )
+      if (messageIndex < 0) return
       messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
       this.searchKeyword = keyword
       this.goSearchPos = false
@@ -817,6 +818,7 @@ export default class ChatContainer extends Vue {
       const { conversationId } = this.conversation
       const count = messageDao.ftsMessageCount(conversationId)
       const messageIndex = messageDao.ftsMessageIndex(conversationId, posMessage.messageId)
+      if (messageIndex < 0) return
       messageBox.setConversationId(conversationId, count - messageIndex - 1, false)
       firstIndex = 0
       lastIndex = this.threshold

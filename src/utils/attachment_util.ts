@@ -76,7 +76,7 @@ function delDir(_path: string) {
   }
 }
 
-export function mediaMigration(identityNumber: string) {
+export function mediaMigration(identityNumber: string, callback: any) {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   let dbPath = path.join(userDataPath, `${identityNumber}/mixin.db3`)
   if (isDevelopment) {
@@ -97,6 +97,7 @@ export function mediaMigration(identityNumber: string) {
     .all()
 
   setUserDataPath(userDataPath)
+  const checkedMessageIds: any = []
   mediaMessages.forEach((message: any) => {
     let newDir = ''
     const { category, conversationId, messageId, mediaUrl } = message
@@ -113,17 +114,31 @@ export function mediaMigration(identityNumber: string) {
     if (src) {
       const dist = path.join(newDir, messageId)
       if (dist !== src && fs.existsSync(src)) {
-        fs.writeFileSync(dist, fs.readFileSync(src))
-        mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run(`file://${dist}`, messageId)
-        fs.unlinkSync(src)
+        fs.rename(src, dist, (err) => {
+          if (err) {
+            throw err
+          }
+          mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run(`file://${dist}`, messageId)
+          checkedMessageIds.push(messageId)
+        })
+      } else {
+        checkedMessageIds.push(messageId)
       }
+    } else {
+      checkedMessageIds.push(messageId)
     }
   })
-  mixinDb.prepare('DELETE FROM stickers').run()
-  mixinDb.prepare('DELETE FROM sticker_relationships').run()
-  mixinDb.prepare('DELETE FROM sticker_albums').run()
-  // delDir(oldMediaDir)
-  mixinDb.close()
+  let _interval = setInterval(() => {
+    if (checkedMessageIds.length >= mediaMessages.length) {
+      clearInterval(_interval)
+      mixinDb.prepare('DELETE FROM stickers').run()
+      mixinDb.prepare('DELETE FROM sticker_relationships').run()
+      mixinDb.prepare('DELETE FROM sticker_albums').run()
+      // delDir(oldMediaDir)
+      mixinDb.close()
+      callback()
+    }
+  }, 1000)
 }
 
 function getMediaNewDir(category: string, identityNumber: string, conversationId: string) {

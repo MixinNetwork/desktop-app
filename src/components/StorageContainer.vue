@@ -27,7 +27,8 @@
       <div class="select" v-else-if="current">
         <div class="select-title">
           <span class="name">{{current.name}}</span>
-          <a class="clear" @click="clear()">{{$t('setting.clear')}}</a>
+          <spinner v-if="cleaning" class="loading" stroke="#aaa" />
+          <a v-else class="clear" @click="clear()">{{$t('setting.clear')}}</a>
         </div>
         <div class="select-item" v-for="key in ['image', 'video', 'audio', 'file']" :key="key">
           <div class="type" @click="onSelected(key)">
@@ -64,6 +65,7 @@
 <script lang="ts">
 import Search from '@/components/Search.vue'
 import Avatar from '@/components/Avatar.vue'
+import spinner from '@/components/Spinner.vue'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import messageDao from '@/dao/message_dao'
@@ -77,7 +79,8 @@ const { getImagePath, getVideoPath, getAudioPath, getDocumentPath } = mediaPath
 @Component({
   components: {
     Search,
-    Avatar
+    Avatar,
+    spinner
   }
 })
 export default class StorageContainer extends Vue {
@@ -95,6 +98,7 @@ export default class StorageContainer extends Vue {
     file: false
   }
   storagePage: boolean = false
+  cleaning: boolean = false
 
   @Watch('autoDownloadMap')
   onAutoDownloadMapChanged(val: any) {
@@ -167,14 +171,16 @@ export default class StorageContainer extends Vue {
       this.$t('setting.remove_messages', { 0: messages.length, 1: `(${size.toFixed(2)} MB)` }),
       this.$t('setting.clear'),
       () => {
-        setTimeout(() => {
-          delMedia(messages)
-          messageDao.deleteMessageByIds(messageIds)
-        })
+        this.cleaning = true
+        messageDao.deleteMessageByIds(messageIds)
+        delMedia(messages)
         mediaTypes.forEach((key: string) => {
           this.storages[this.curCid][key] = 0
         })
-        this.back()
+        setTimeout(() => {
+          this.cleaning = false
+          this.back()
+        })
       },
       this.$t('cancel'),
       () => {}
@@ -328,6 +334,10 @@ main {
         }
         .clear {
           cursor: pointer;
+        }
+        .loading {
+          width: 1.1rem;
+          height: 1.1rem;
         }
       }
       .select-item {

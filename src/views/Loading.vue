@@ -69,15 +69,16 @@ export default class Loading extends Vue {
         if (!localStorage.circleSynced) {
           this.syncCircles()
         }
-        const skip = await this.migrationAction()
-        if (skip) {
-          this.$router.push('/home')
-        }
+        this.migrationAction((skip: boolean) => {
+          if (skip) {
+            this.$router.push('/home')
+          }
+        })
       }
     }
   }
 
-  async migrationAction() {
+  async migrationAction(callback: (skip: boolean) => void) {
     const identityNumber = getIdentityNumber(true)
     if (identityNumber && !sessionStorage.tempHideLoading) {
       const newDir = path.join(remote.app.getPath('userData'), identityNumber)
@@ -97,14 +98,17 @@ export default class Loading extends Vue {
       }
       localStorage.dbMigrationDone = true
 
-      await mediaMigration(identityNumber)
-      localStorage.mediaMigrationDone = true
-
-      sessionStorage.tempHideLoading = true
-      location.reload()
-      return false
+      mediaMigration(identityNumber, () => {
+        localStorage.mediaMigrationDone = true
+        sessionStorage.tempHideLoading = true
+        location.reload()
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(false)
+      })
+    } else {
+      // eslint-disable-next-line standard/no-callback-literal
+      callback(true)
     }
-    return true
   }
 
   getCircleConversations(circleId: any, list: any, offset: string) {

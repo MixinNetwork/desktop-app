@@ -9,10 +9,8 @@
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
-      <!-- <span class="item" @click="backupRestore">{{$t('backup_restore')}}</span> -->
       <span class="item storage" @click="manageStorage">
-        {{$t('storage_usage')}}
-        <small v-if="storageUsage">{{(storageUsage-tempClearSize).toFixed(2)}} MB</small>
+        {{$t('data_storage')}}
       </span>
       <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
       <span
@@ -57,7 +55,6 @@ export default class SettingContainer extends Vue {
   storageUsage: number = 0
   storageView: boolean = false
   storages: any = {}
-  tempClearSize: number = 0
 
   created() {
     const identityNumber = getIdentityNumber(true)
@@ -109,9 +106,8 @@ export default class SettingContainer extends Vue {
     this.storageView = true
   }
 
-  storageBack(size: number) {
+  storageBack() {
     this.storageView = false
-    this.tempClearSize = size
   }
 
   open(url: string) {

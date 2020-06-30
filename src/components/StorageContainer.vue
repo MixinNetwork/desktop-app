@@ -3,15 +3,33 @@
     <div class="storage">
       <div class="bar">
         <font-awesome-icon class="back" icon="arrow-left" @click="back" />
-        <h3>{{$t('storage_usage')}}</h3>
+        <h3 v-if="storagePage">{{$t('storage_usage')}}</h3>
+        <h3 v-else>{{$t('data_storage')}}</h3>
       </div>
-      <!-- <Search id="storageContainerSearch" class="nav" @input="onInput" /> -->
-      <div class="select" v-if="current">
+      <div class="setting select" v-if="!storagePage">
+        <div class="title">{{$t('automatic_download')}}</div>
+        <div
+          class="item select-item"
+          @click="autoDownloadSelected(key)"
+          v-for="key in ['image', 'video', 'file']"
+          :key="key"
+        >
+          {{$t('chat.chat_'+key)}}
+          <svg-icon
+            :icon-class="autoDownloadMap[key] ? 'ic_choice_selected' : 'ic_choice'"
+            :class="{unselected: !autoDownloadMap[key]}"
+            class="choice-icon"
+          />
+        </div>
+        <div class="info">{{$t('storage_info')}}</div>
+        <div class="item" @click="storagePage = true">{{$t('storage_usage')}}</div>
+      </div>
+      <div class="select" v-else-if="current">
         <div class="select-title">
           <span class="name">{{current.name}}</span>
           <a class="clear" @click="clear()">{{$t('setting.clear')}}</a>
         </div>
-        <div class="select-item" v-for="key in Object.keys(currentMedia)" :key="key">
+        <div class="select-item" v-for="key in ['image', 'video', 'audio', 'file']" :key="key">
           <div class="type" @click="onSelected(key)">
             <svg-icon
               :icon-class="!unselected[key] ? 'ic_choice_selected' : 'ic_choice'"
@@ -52,7 +70,7 @@ import messageDao from '@/dao/message_dao'
 
 import { delMedia, listFilePath, getIdentityNumber } from '@/utils/util'
 import mediaPath from '@/utils/media_path'
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
 const { getImagePath, getVideoPath, getAudioPath, getDocumentPath } = mediaPath
 
@@ -71,8 +89,17 @@ export default class StorageContainer extends Vue {
   conversations: any = []
   current: any = null
   unselected: any = {}
+  autoDownloadMap: any = {
+    image: false,
+    video: false,
+    file: false
+  }
+  storagePage: boolean = false
 
-  tempClearSize: number = 0
+  @Watch('autoDownloadMap')
+  onAutoDownloadMapChanged(val: any) {
+    localStorage.setItem('autoDownloadSetting', JSON.stringify(val))
+  }
 
   beforeMount() {
     const conversations: any = []
@@ -85,13 +112,20 @@ export default class StorageContainer extends Vue {
       }
     })
     this.conversations = conversations
+    const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+    if (autoDownloadSetting) {
+      this.autoDownloadMap = JSON.parse(autoDownloadSetting)
+    }
   }
 
   back() {
     if (this.current) {
+      this.storagePage = true
       this.current = null
+    } else if (this.storagePage) {
+      this.storagePage = false
     } else {
-      this.$emit('back', this.tempClearSize)
+      this.$emit('back')
     }
   }
 
@@ -99,6 +133,12 @@ export default class StorageContainer extends Vue {
     const unselected = JSON.parse(JSON.stringify(this.unselected))
     unselected[key] = !unselected[key]
     this.unselected = unselected
+  }
+
+  autoDownloadSelected(key: string) {
+    const autoDownloadMap = JSON.parse(JSON.stringify(this.autoDownloadMap))
+    autoDownloadMap[key] = !autoDownloadMap[key]
+    this.autoDownloadMap = autoDownloadMap
   }
 
   clear() {
@@ -132,7 +172,6 @@ export default class StorageContainer extends Vue {
           messageDao.deleteMessageByIds(messageIds)
         })
         mediaTypes.forEach((key: string) => {
-          this.tempClearSize += this.storages[this.curCid][key]
           this.storages[this.curCid][key] = 0
         })
         this.back()
@@ -230,6 +269,24 @@ main {
       display: flex;
       align-items: center;
     }
+    .setting {
+      background: #ffffff;
+      padding-bottom: 0.6rem;
+      .title {
+        padding: 0.6rem 1rem;
+        font-weight: 500;
+      }
+      .item.select-item {
+        padding: 0.5rem 0.8rem 0.1rem 1rem;
+      }
+      .info {
+        padding: 0.6rem;
+        font-size: 0.6rem;
+        text-align: center;
+        color: #999;
+      }
+    }
+    .setting .item,
     .conversation {
       cursor: pointer;
       background: #ffffff;
@@ -274,7 +331,7 @@ main {
         }
       }
       .select-item {
-        padding: 0.1rem 1rem 0.3rem 0.6rem;
+        padding: 0.2rem 1rem 0.2rem 0.6rem;
         display: flex;
         justify-content: space-between;
         .choice-icon {
@@ -290,6 +347,7 @@ main {
           line-height: 1.1rem;
         }
         .size {
+          padding-top: 0.1rem;
           font-size: 0.7rem;
           color: $light-font-color;
         }

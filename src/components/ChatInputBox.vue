@@ -32,7 +32,7 @@
       ></MentionPanel>
     </transition>
 
-    <div class="notification-toast" v-if="!this.hideScamNotificationMap[this.user.user_id] && user.is_scam">
+    <div class="notification-toast" v-if="showScamNotification">
       <svg-icon class="warning" icon-class="warning" />
       <span class="text">{{$t('scam_warning')}}</span>
       <svg-icon class="close" @click="closeScamNotification" icon-class="ic_close" />
@@ -144,10 +144,22 @@ export default class ChatItem extends Vue {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
   }
 
+  get showScamNotification() {
+    const hideScamTime = this.hideScamNotificationMap[this.user.user_id] || 0
+    return new Date().getTime() - hideScamTime > 24 * 3600000 && this.user.is_scam
+  }
+
+  mounted() {
+    try {
+      this.hideScamNotificationMap = JSON.parse(localStorage.getItem('hideScamNotificationMap') || '{}')
+    } catch (error) {}
+  }
+
   closeScamNotification() {
-    const hideScamNotificationMap = JSON.parse(JSON.stringify(this.hideScamNotificationMap))
-    hideScamNotificationMap[this.user.user_id] = true
-    this.hideScamNotificationMap = hideScamNotificationMap
+    this.hideScamNotificationMap[this.user.user_id] = new Date().getTime()
+    const mapStr = JSON.stringify(this.hideScamNotificationMap)
+    localStorage.setItem('hideScamNotificationMap', mapStr)
+    this.hideScamNotificationMap = JSON.parse(mapStr)
   }
 
   onFocus() {

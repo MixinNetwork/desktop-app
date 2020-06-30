@@ -20,6 +20,7 @@ let transactions = {
     help_center: 'Help Center',
     editor_title: 'Editor',
     editor_hold: 'Markdown edit',
+    scam_warning: 'Warning: Many users reported this account. Please be careful, especially if it asks you for money.',
     menu: {
       conversation: {
         exit_group: 'Exit Group',
@@ -210,6 +211,7 @@ let transactions = {
     help_center: '帮助中心',
     editor_title: '编辑文章',
     editor_hold: '使用 Markdown 编辑文章',
+    scam_warning: '警告：此账号被大量用户举报，请谨防忘了诈骗，注意个人财产安全',
     menu: {
       conversation: {
         exit_group: '退出群组',

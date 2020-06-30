@@ -412,6 +412,7 @@ class ReceiveWorker extends BaseWorker {
         biography: '',
         mute_until: null,
         is_verified: 0,
+        is_scam: 0,
         created_at: null
       })
     }

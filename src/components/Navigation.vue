@@ -836,10 +836,11 @@ export default class Navigation extends Vue {
       padding: 0.35rem 0.6rem;
       font-weight: 500;
       background: $bg-color;
+      line-height: 1.1rem;
       cursor: pointer;
       svg {
-        margin: 0.2rem 0.35rem 0 0.7rem;
-        vertical-align: top;
+        margin: 0 0.35rem 0.1rem 0.7rem;
+        vertical-align: middle;
       }
     }
     .search-id-or-phone {

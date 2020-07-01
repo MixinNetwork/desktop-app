@@ -479,17 +479,18 @@ export default class ChatContainer extends Vue {
     }
     messageBox.bindData(
       function(payload: any) {
-        const { messages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+        const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+        if (updateMessages) {
+          const { firstIndex, lastIndex } = self.viewport
+          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
+          self.udpateMessagesVisible()
+          return
+        }
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
-        }
-        if (messages) {
-          const { firstIndex, lastIndex } = self.viewport
-          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
-          self.udpateMessagesVisible()
         }
         if (getLastMessage) {
           setTimeout(() => {

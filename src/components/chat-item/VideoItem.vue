@@ -17,6 +17,10 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
+              <div class="left-label">
+                <span v-if="waitStatus">{{ (message.mediaSize/1000000 || 0).toFixed(1) + 'MB' }}</span>
+                <span v-else>{{ $moment((Math.round((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
+              </div>
               <LoadingIcon
                 v-if="loading && fetchPercentMap[message.messageId] !== 100"
                 class="loading"
@@ -91,6 +95,7 @@ export default class VideoItem extends Vue {
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
   showLoading: boolean = false
+  $moment: any
 
   messageOwnership() {
     let { message, me } = this
@@ -182,6 +187,16 @@ export default class VideoItem extends Vue {
     }
     .video-box {
       position: relative;
+      .left-label {
+        position: absolute;
+        font-size: 0.55rem;
+        color: #fff;
+        background: #33333355;
+        border-radius: 0.3rem;
+        left: 0.3rem;
+        top: 0.3rem;
+        padding: 0.1rem 0.2rem;
+      }
       .play, .loading {
         width: 1.6rem;
         height: 1.6rem;

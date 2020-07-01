@@ -79,7 +79,7 @@ class ContentUtil {
 
     urlList.forEach((url: string) => {
       let l = url
-      if (!url.startsWith('http')) {
+      if (!url.startsWith('http') && url.indexOf('://') === -1) {
         l = 'https://' + url
       }
       const urlRegx = new RegExp(this.htmlEscape(url), 'g')

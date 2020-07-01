@@ -484,7 +484,6 @@ export default class ChatContainer extends Vue {
           const { firstIndex, lastIndex } = self.viewport
           self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
           self.udpateMessagesVisible()
-          return
         }
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum

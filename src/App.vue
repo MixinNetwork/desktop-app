@@ -16,6 +16,9 @@ import { Component, Vue } from 'vue-property-decorator'
 import spinner from '@/components/Spinner.vue'
 import accountApi from '@/api/account'
 
+import browser from '@/utils/browser'
+import { MixinProtocol, MixinProtocolMap } from '@/utils/constants'
+
 import log from 'electron-log'
 
 import { Getter, Action } from 'vuex-class'
@@ -31,6 +34,20 @@ ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name
 
 ipcRenderer.on('mixin-protocol', (event: Electron.IpcRendererEvent, url: string) => {
   console.log('mixin protocol', url)
+  Object.keys(MixinProtocol).forEach((key: string) => {
+    // @ts-ignore
+    const source = MixinProtocol[key]
+    // @ts-ignore
+    const httpStr = MixinProtocolMap[key]
+    if (url.startsWith(`${source}/`)) {
+      if (key === 'USERS') {
+        const userId = url.split(`${source}/`)[1]
+        console.log(userId)
+      } else if (httpStr) {
+        browser.loadURL(`${httpStr}${url.split(source)[1]}`, '')
+      }
+    }
+  })
 })
 
 process.on('uncaughtException', err => {

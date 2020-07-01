@@ -14,6 +14,30 @@ export const ConversationStatus = {
   QUIT: 3
 }
 
+export const MixinProtocol = {
+  CODES: 'mixin://codes',
+  PAY: 'mixin://pay',
+  USERS: 'mixin://users',
+  TRANSFER: 'mixin://transfer',
+  DEVICE: 'mixin://device/auth',
+  SEND: 'mixin://send',
+  ADDRESS: 'mixin://address',
+  WITHDRAWAL: 'mixin://withdrawal',
+  APPS: 'mixin://apps',
+  SNAPSHOTS: 'mixin://snapshots'
+}
+
+export const MixinProtocolMap = {
+  CODES: 'https://mixin.one/codes',
+  // PAY: 'https://mixin.one/pay',
+  // USERS: 'https://mixin.one/users',
+  TRANSFER: 'https://mixin.one/transfer',
+  ADDRESS: 'https://mixin.one/address',
+  WITHDRAWAL: 'https://mixin.one/withdrawal',
+  APPS: 'https://mixin.one/apps',
+  SNAPSHOTS: 'https://mixin.one/snapshots'
+}
+
 export const CircleConfig = {
   CIRCLE_CONVERSATION_LIMIT: 5,
   CIRCLE_COLORS: [

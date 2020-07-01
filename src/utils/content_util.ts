@@ -41,11 +41,25 @@ class ContentUtil {
     return len
   }
   htmlEscape(str: string) {
-    str = str.replace(/&/g, '&amp;')
+    str = str
+      .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
+      .replace(/\*/g, '&#42;')
+      .replace(/\+/g, '&#43;')
+      .replace(/\./g, '&#46;')
       .replace(/\?/g, '&#63;')
+      .replace(/\{/g, '&#123;')
+      .replace(/\|/g, '&#124;')
+      .replace(/\}/g, '&#125;')
+      .replace(/\[/g, '&#91;')
+      .replace(/\]/g, '&#93;')
+      .replace(/\(/g, '&#40;')
+      .replace(/\)/g, '&#41;')
+      .replace(/\$/g, '&#36;')
+      .replace(/\\/g, '&#92;')
+      .replace(/\^/g, '&#94;')
     return str
   }
   renderUrl(content: string) {

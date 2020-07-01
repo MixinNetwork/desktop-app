@@ -732,6 +732,9 @@ class ReceiveWorker extends BaseWorker {
     } else if (curMessageType === 'file') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
+      if (!mediaData || !mediaData.size) {
+        return
+      }
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
@@ -755,6 +758,9 @@ class ReceiveWorker extends BaseWorker {
     } else if (curMessageType === 'audio') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
+      if (!mediaData || !mediaData.size) {
+        return
+      }
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,

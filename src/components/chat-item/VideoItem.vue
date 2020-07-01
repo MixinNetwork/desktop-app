@@ -18,7 +18,7 @@
             ></ReplyMessageItem>
             <div class="video-box">
               <div class="left-label">
-                <span v-if="waitStatus">{{ (message.mediaSize/1000000 || 0).toFixed(1) + 'MB' }}</span>
+                <span v-if="loading || waitStatus">{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
                 <span v-else>{{ $moment((Math.round((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
               </div>
               <LoadingIcon

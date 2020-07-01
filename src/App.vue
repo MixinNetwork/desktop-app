@@ -29,6 +29,10 @@ ipcRenderer.on('menu-event', (event: Electron.IpcRendererEvent, { name }: { name
   }
 })
 
+ipcRenderer.on('mixin-protocol', (event: Electron.IpcRendererEvent, url: string) => {
+  console.log('mixin protocol', url)
+})
+
 process.on('uncaughtException', err => {
   log.error(err.stack)
 })

@@ -59,21 +59,21 @@
     </div>
     <img
       class="image"
-      v-if="messageType() === 'image' && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'image'"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :onerror="`this.src='${defaultImg}';this.onerror=null`"
       :src="mediaUrl"
     />
     <img
       class="image"
-      v-if="messageType() === 'video' && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'video'"
       :src="'data:image/jpeg;base64,' + message.thumbImage"
       :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />
 
     <img
       class="image"
-      v-if="messageType() === 'sticker' && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'sticker'"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
       :onerror="`this.src='${defaultImg}';this.onerror=null`"

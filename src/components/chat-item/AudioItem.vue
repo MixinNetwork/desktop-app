@@ -131,22 +131,19 @@ export default class AudioItem extends Vue {
     }
   }
 
-  created() {
+  mounted() {
     this.audioPlayedMap = this.getAudioPlayedMap()
     if (this.message.mediaStatus === MediaStatus.DONE) {
       this.audioStatus = 'play'
     }
     this.duration = this.transTime(this.message.mediaDuration / 1000)
+    this.timeUpdate()
 
     this.$root.$on('audioTimeupdate', () => {
-      if (this.message.messageId === this.currentAudio.messageId) {
-        this.timeUpdate()
-      }
+      this.timeUpdate()
     })
     this.$root.$on('audioEnded', () => {
-      if (this.message.messageId === this.currentAudio.messageId) {
-        this.onEnded()
-      }
+      this.onEnded()
     })
   }
 
@@ -165,8 +162,6 @@ export default class AudioItem extends Vue {
     if (curMessageId !== this.message.messageId) {
       this.timeReset()
     } else {
-      const mixinAudio: any = document.getElementById('mixinAudio')
-      if (!mixinAudio) return
       if (mixinAudio.paused) {
         this.audioStatus = 'pause'
         mixinAudio.volume = 1
@@ -211,7 +206,7 @@ export default class AudioItem extends Vue {
   }
   timeUpdate() {
     const audio: any = document.getElementById('mixinAudio')
-    if (!audio) return
+    if (!audio || (this.currentAudio && this.message.messageId !== this.currentAudio.messageId)) return
     let timeStr = parseInt(audio.currentTime)
     this.time = this.transTime(timeStr)
     let scales = audio.currentTime / audio.duration
@@ -222,6 +217,7 @@ export default class AudioItem extends Vue {
     }
   }
   onEnded() {
+    if (this.message.messageId !== this.currentAudio.messageId) return
     const messages = this.currentMessages
     let nextAudioMessage = null
     let currentAudioId = ''

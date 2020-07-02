@@ -251,6 +251,10 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    const mixinAudio: any = document.getElementById('mixinAudio')
+    if (mixinAudio) {
+      mixinAudio.pause()
+    }
     if (!this.conversation) {
       this.startup = true
       return

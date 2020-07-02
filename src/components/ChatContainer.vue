@@ -106,6 +106,14 @@
       </div>
     </transition>
 
+    <audio
+      id="mixinAudio"
+      style="opacity: 0"
+      @timeupdate="audioTimeupdate"
+      @ended="audioEnded"
+      :src="currentAudio && currentAudio.mediaUrl"
+    ></audio>
+
     <ChatInputBox
       ref="inputBox"
       v-if="conversation"
@@ -340,6 +348,7 @@ export default class ChatContainer extends Vue {
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
+  @Getter('currentAudio') currentAudio: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
@@ -531,6 +540,14 @@ export default class ChatContainer extends Vue {
     if (this.$refs.inputBox) {
       this.$refs.inputBox.hideChoosePanel()
     }
+  }
+
+  audioTimeupdate() {
+    this.$root.$emit('audioTimeupdate')
+  }
+
+  audioEnded() {
+    this.$root.$emit('audioEnded')
   }
 
   panelHeight: number = 12

@@ -287,23 +287,26 @@ export default {
       i = messages.length
     }
     while (i-- > 0) {
-      const message: any = {}
-      Object.keys(messages[i]).forEach(key => {
-        message[keyToLine(key)] = messages[i][key]
-      })
-      message.category = message.type
-      const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-      if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
-        const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-        let autoDownloadMap: any = {}
-        if (autoDownloadSetting) {
-          autoDownloadMap = JSON.parse(autoDownloadSetting)
-        }
-        const curMessageType = messageType(message.category)
-        if (autoDownloadMap[curMessageType] || curMessageType === 'audio') {
-          downloadQueue.push(downloadAndRefresh, {
-            args: message
-          })
+      const curMessage: any = messages[i]
+      if (curMessage && curMessage.type) {
+        const message: any = {}
+        Object.keys(curMessage).forEach(key => {
+          message[keyToLine(key)] = curMessage[key]
+        })
+        message.category = message.type
+        const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+        if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
+          const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+          let autoDownloadMap: any = {}
+          if (autoDownloadSetting) {
+            autoDownloadMap = JSON.parse(autoDownloadSetting)
+          }
+          const curMessageType = messageType(message.category)
+          if (autoDownloadMap[curMessageType] || curMessageType === 'audio') {
+            downloadQueue.push(downloadAndRefresh, {
+              args: message
+            })
+          }
         }
       }
     }

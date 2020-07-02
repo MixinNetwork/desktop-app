@@ -64,7 +64,7 @@
     </div>
     <img
       class="image"
-      v-if="messageType() === 'image'"
+      v-if="messageType() === 'image' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
       :onerror="`this.src='${defaultImg}';this.onerror=null`"
@@ -84,7 +84,7 @@
     />
     <img
       class="image"
-      v-if="messageType() === 'sticker'"
+      v-if="messageType() === 'sticker' && (message.mediaUrl || message.assetUrl)"
       :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
       :src="mediaUrl"
       :onerror="`this.src='${defaultImg}';this.onerror=null`"

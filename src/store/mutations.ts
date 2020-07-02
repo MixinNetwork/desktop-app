@@ -287,15 +287,18 @@ export default {
       i = messages.length
     }
     while (i-- > 0) {
-      const message: any = {}
-      Object.keys(messages[i]).forEach(key => {
-        message[keyToLine(key)] = messages[i][key]
-      })
-      message.category = message.type
-      if (!message.media_url && isMedia(message.type) && new Date().valueOf() - new Date(message.created_at).valueOf() < 1800000) {
-        downloadQueue.push(downloadAndRefresh, {
-          args: message
+      const curMessage: any = messages[i]
+      if (curMessage && curMessage.type) {
+        const message: any = {}
+        Object.keys(curMessage).forEach(key => {
+          message[keyToLine(key)] = curMessage[key]
         })
+        message.category = message.type
+        if (!message.media_url && isMedia(message.type) && new Date().valueOf() - new Date(message.created_at).valueOf() < 1800000) {
+          downloadQueue.push(downloadAndRefresh, {
+            args: message
+          })
+        }
       }
     }
     state.currentConversationId = conversationId

@@ -211,7 +211,7 @@ let transactions = {
     help_center: '帮助中心',
     editor_title: '编辑文章',
     editor_hold: '使用 Markdown 编辑文章',
-    scam_warning: '警告：此账号被大量用户举报，请谨防忘了诈骗，注意个人财产安全',
+    scam_warning: '警告：此账号被大量用户举报，请谨防网络诈骗，注意个人财产安全',
     menu: {
       conversation: {
         exit_group: '退出群组',

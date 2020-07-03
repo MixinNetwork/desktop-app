@@ -74,6 +74,9 @@ import { delMedia, listFilePath, getIdentityNumber } from '@/utils/util'
 import mediaPath from '@/utils/media_path'
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
+// @ts-ignore
+import _ from 'lodash'
+
 const { getImagePath, getVideoPath, getAudioPath, getDocumentPath } = mediaPath
 
 @Component({
@@ -112,10 +115,13 @@ export default class StorageContainer extends Vue {
       if (conversation) {
         const participants = participantDao.getParticipantsByConversationId(id)
         conversation.participants = participants
+        const { image = 0, video = 0, audio = 0, file = 0 } = this.storages[id]
+        const size = image + video + audio + file
+        conversation.size = size
         conversations.push(conversation)
       }
     })
-    this.conversations = conversations
+    this.conversations = _.orderBy(conversations, ['size'], ['desc'])
     const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
     if (autoDownloadSetting) {
       this.autoDownloadMap = JSON.parse(autoDownloadSetting)

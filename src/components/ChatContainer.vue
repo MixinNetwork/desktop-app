@@ -491,17 +491,17 @@ export default class ChatContainer extends Vue {
     }
     messageBox.bindData(
       function(payload: any) {
-        const { messages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+        const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+        if (updateMessages) {
+          const { firstIndex, lastIndex } = self.viewport
+          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
+          self.udpateMessagesVisible()
+        }
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
-        }
-        if (messages) {
-          const { firstIndex, lastIndex } = self.viewport
-          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
-          self.udpateMessagesVisible()
         }
         if (getLastMessage) {
           setTimeout(() => {
@@ -561,6 +561,9 @@ export default class ChatContainer extends Vue {
 
   panelChooseAction(data: any) {
     this.goBottom()
+    if (data === 'stickerOpen') {
+      this.panelHeightUpdate(12)
+    }
     requestAnimationFrame(() => {
       this.panelChoosing = data
     })
@@ -760,6 +763,7 @@ export default class ChatContainer extends Vue {
         this.conversation.conversationId,
         item.message_id || item.messageId
       )
+      if (messageIndex < 0) return
       messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
       this.searchKeyword = keyword
       this.goSearchPos = false
@@ -838,6 +842,7 @@ export default class ChatContainer extends Vue {
       const { conversationId } = this.conversation
       const count = messageDao.ftsMessageCount(conversationId)
       const messageIndex = messageDao.ftsMessageIndex(conversationId, posMessage.messageId)
+      if (messageIndex < 0) return
       messageBox.setConversationId(conversationId, count - messageIndex - 1, false)
       firstIndex = 0
       lastIndex = this.threshold

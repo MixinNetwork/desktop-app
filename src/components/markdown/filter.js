@@ -70,6 +70,11 @@ export default function(html) {
       input: ['class', 'type', 'src', 'disabled', 'checked'],
       math: ['class'],
       annotation: ['class', 'encoding']
+    },
+    onTagAttr: function(tag, name, value, isWhiteAttr) {
+      if (tag === 'a' && name === 'href') {
+        return `href='${xss.friendlyAttrValue(value)}'`
+      }
     }
   })
 }

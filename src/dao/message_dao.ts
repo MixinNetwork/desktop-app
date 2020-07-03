@@ -167,7 +167,7 @@ class MessageDao {
     const messageIdList = db
       .prepare('SELECT message_id FROM messages WHERE conversation_id = ? ORDER BY created_at ASC')
       .all(conversationId)
-    let index = messageIdList.length - 1
+    let index = -1
     for (let i = 0; i < messageIdList.length; i++) {
       if (messageIdList[i].message_id === messageId) {
         index = i

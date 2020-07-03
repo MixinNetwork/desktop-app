@@ -156,7 +156,7 @@ class MessageBox {
       })
     } else {
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ messages: this.messages })
+      this.callback({ updateMessages: true })
     }
   }
   deleteMessages(messageIds: any[]) {
@@ -209,7 +209,7 @@ class MessageBox {
       }
       this.messages.push(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ messages: this.messages })
+      this.callback({ updateMessages: true })
     } else {
       if (!messages.length) {
         setTimeout(() => {
@@ -228,7 +228,7 @@ class MessageBox {
       }
       this.messages.unshift(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ messages: this.messages })
+      this.callback({ updateMessages: true })
     }
   }
   infiniteUp() {

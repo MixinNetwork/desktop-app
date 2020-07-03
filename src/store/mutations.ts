@@ -5,7 +5,7 @@ import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap, downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
-import { LinkStatus, ConversationCategory, isMuteCheck, isMedia, PerPageMessageCount } from '@/utils/constants'
+import { LinkStatus, ConversationCategory, isMuteCheck, isMedia, PerPageMessageCount, messageType } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
 import { getAccount, keyToLine } from '@/utils/util'
@@ -292,14 +292,19 @@ export default {
         message[keyToLine(key)] = messages[i][key]
       })
       message.category = message.type
-      if (
-        !message.media_url &&
-        isMedia(message.type) &&
-        new Date().valueOf() - new Date(message.created_at).valueOf() < 1800000
-      ) {
-        downloadQueue.push(downloadAndRefresh, {
-          args: message
-        })
+      const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+      if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
+        const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+        let autoDownloadMap: any = {}
+        if (autoDownloadSetting) {
+          autoDownloadMap = JSON.parse(autoDownloadSetting)
+        }
+        const curMessageType = messageType(message.category)
+        if (autoDownloadMap[curMessageType] || curMessageType === 'audio') {
+          downloadQueue.push(downloadAndRefresh, {
+            args: message
+          })
+        }
       }
     }
     state.currentConversationId = conversationId

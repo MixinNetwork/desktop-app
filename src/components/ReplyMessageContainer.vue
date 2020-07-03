@@ -66,7 +66,7 @@
     />
     <img
       class="image"
-      v-if="messageType() === 'video' && (message.mediaUrl || message.assetUrl)"
+      v-if="messageType() === 'video'"
       :src="'data:image/jpeg;base64,' + message.thumbImage"
       :onerror="`this.src='${defaultImg}';this.onerror=null`"
     />

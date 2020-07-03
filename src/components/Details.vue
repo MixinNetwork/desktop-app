@@ -55,16 +55,34 @@
         <div class="share option" v-if="isContact">
           <a @click="shareContact">{{$t('chat.share_contact')}}</a>
         </div>
-        <div class="participants" v-if="!isContact">
-          <span class="title">{{participantTitle}}</span>
-          <UserItem
+        <div class="participants" v-if="!isContact && details">
+          <span class="title">
+            {{participantTitle}}
+            <span
+              class="add"
+              v-if="me.role === 'OWNER' && me.role !== 'ADMIN'"
+              @click="addParticipant"
+            >{{$t('chat.add_participant')}}</span>
+          </span>
+          <div
             class="participant"
+            :class="{'has-menu': getMenu(user)}"
             v-for="user in conversation.participants"
             :key="user.user_id"
-            :user="user"
-            :showRole="true"
-            @user-click="participantClick"
-          ></UserItem>
+          >
+            <UserItem
+              class="item"
+              :user="user"
+              :showRole="true"
+              @user-click="userClick"
+              @show-contextmenu="participantClick"
+            ></UserItem>
+            <font-awesome-icon
+              @click="participantOptionClick(user)"
+              icon="chevron-down"
+              class="menu"
+            />
+          </div>
         </div>
       </div>
     </mixin-scrollbar>
@@ -178,16 +196,14 @@ export default class Details extends Vue {
     })
   }
 
-  participantClick(user: any) {
+  getMenu(user: any) {
     const participantMenu = this.$t('menu.participant')
     const menu: string[] = []
 
-    const { conversationId } = this.conversation
     const me = this.me
     if (user.user_id === me.user_id) {
       return
     }
-    menu.push(participantMenu.send_message)
     if (user.role !== 'OWNER') {
       if (me.role === 'OWNER') {
         if (user.role === 'ADMIN') {
@@ -200,21 +216,52 @@ export default class Details extends Vue {
         menu.push(participantMenu.remove)
       }
     }
+    if (!menu.length) {
+      return
+    }
+    return menu
+  }
+
+  userClick(user: any) {
+    this.actionCreateUserConversation({
+      user
+    })
+  }
+
+  participantClick(user: any) {
+    // this.participantClickAction(user)
+  }
+
+  participantOptionClick(user: any) {
+    this.participantClickAction(user, 'right')
+  }
+
+  participantClickAction(user: any, type?: any) {
+    const menu: any = this.getMenu(user)
+    if (!menu) return
+    const participantMenu = this.$t('menu.participant')
+    const { conversationId } = this.conversation
+
+    const rect = this.$el.getBoundingClientRect()
+    const e: any = event
+    let x = e.clientX
+    let y = e.clientY
+    if (type === 'right') {
+      x = x - 160
+    }
 
     // @ts-ignore
-    this.$Menu.alert(event.clientX, event.clientY, menu, index => {
+    this.$Menu.alert(x, y, menu, index => {
       const option = menu[index]
       const position = Object.keys(participantMenu).find(key => participantMenu[key] === option)
 
-      if (position === 'send_message') {
-        this.actionCreateUserConversation({
-          user
-        })
-      } else if (position === 'profile') {
+      if (position === 'profile') {
       } else if (position === 'set_as_admin') {
         this.actionParticipantSetAsAdmin({
           conversationId,
           userId: user.user_id
+        }).then(() => {
+          user.role = 'ADMIN'
         })
       } else if (position === 'dismiss_admin') {
         this.actionParticipantDismissAdmin({
@@ -317,6 +364,11 @@ export default class Details extends Vue {
     }
     this.actionSyncConversation(this.conversation.conversationId)
   }
+
+  addParticipant() {
+    this.$emit('add-participant', true)
+  }
+
   mounted() {
     this.updateView()
   }
@@ -433,12 +485,40 @@ export default class Details extends Vue {
         padding: 0.8rem 1rem;
         color: #3a7ee4;
         font-weight: 500;
+        display: flex;
+        justify-content: space-between;
+        .add {
+          cursor: pointer;
+          font-size: 0.7rem;
+          line-height: 1.1rem;
+        }
       }
       .participant {
-        padding-left: 1rem;
-        padding-right: 1rem;
-        min-height: 2rem;
-        height: 2rem;
+        position: relative;
+        .item {
+          padding-left: 1rem;
+          padding-right: 1rem;
+          min-height: 2rem;
+          height: 2rem;
+        }
+        .menu {
+          position: absolute;
+          color: #bbbec3;
+          width: 0.7rem;
+          height: 0.7rem;
+          right: 1rem;
+          top: 1.1rem;
+          display: none;
+          cursor: pointer;
+        }
+        &.has-menu:hover {
+          .menu {
+            display: block;
+          }
+          /deep/ .role {
+            display: none;
+          }
+        }
       }
     }
   }

@@ -5,9 +5,9 @@
         <font-awesome-icon class="back" icon="arrow-left" @click="$emit('back')" />
         <h3>{{$t('group.group_add')}}</h3>
       </div>
-      <div class="select_layout" v-if="slected && slected.length>0">
+      <div class="select_layout" v-if="selected && selected.length>0">
         <UserSelectItem
-          v-for="(user,index) in slected"
+          v-for="(user,index) in selected"
           :key="user.id"
           :index="index"
           :user="user"
@@ -18,7 +18,7 @@
       <mixin-scrollbar>
         <ul class="list">
           <UserItem
-            v-for="(user,key) in unSlected"
+            v-for="(user,key) in unSelected"
             :key="key"
             :keyword="keyword"
             :user="user"
@@ -29,7 +29,7 @@
       <font-awesome-icon
         class="create"
         icon="arrow-right"
-        v-if="slected && slected.length>0"
+        v-if="selected && selected.length>0"
         @click="showGroup"
       />
     </div>
@@ -71,15 +71,15 @@ import { Getter } from 'vuex-class'
 export default class GroupContainer extends Vue {
   @Getter('findFriends') readonly friends: any
 
-  slected: any = []
+  selected: any = []
   groupShow: any = false
   title: any = ''
   keyword: any = ''
   $toast: any
 
-  get unSlected() {
-    const { friends, slected, keyword } = this
-    const result = friends.concat(slected).filter((v: any) => !friends.includes(v) || !slected.includes(v))
+  get unSelected() {
+    const { friends, selected, keyword } = this
+    const result = friends.concat(selected).filter((v: any) => !friends.includes(v) || !selected.includes(v))
     return result.filter((item: any) => {
       if (keyword !== '') {
         return (
@@ -92,21 +92,21 @@ export default class GroupContainer extends Vue {
   }
 
   activated() {
-    this.slected = []
+    this.selected = []
   }
 
   onInput(text: string) {
     this.keyword = text
   }
   cancel(user: any) {
-    const { slected } = this
-    const index = slected.indexOf(user)
+    const { selected } = this
+    const index = selected.indexOf(user)
     if (index > -1) {
-      slected.splice(index, 1)
+      selected.splice(index, 1)
     }
   }
   onClickUser(user: any) {
-    this.slected.push(user)
+    this.selected.push(user)
   }
   showGroup() {
     this.groupShow = true
@@ -115,11 +115,11 @@ export default class GroupContainer extends Vue {
     this.groupShow = false
   }
   createGroup() {
-    const { slected, title } = this
+    const { selected, title } = this
     this.$toast(this.$t('chat.chat_create_group'), 3000)
     this.$store.dispatch('createGroupConversation', {
       groupName: title,
-      users: slected
+      users: selected
     })
     this.$emit('success')
   }

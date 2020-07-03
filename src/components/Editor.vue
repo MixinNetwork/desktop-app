@@ -33,8 +33,10 @@ export default class Editor extends Vue {
 
   mounted() {
     setTimeout(() => {
-      // @ts-ignore
-      this.$refs.box.focus()
+      if (this.$refs.box) {
+        // @ts-ignore
+        this.$refs.box.focus()
+      }
     }, 100)
   }
 

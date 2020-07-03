@@ -127,6 +127,7 @@ export default class ChatItem extends Vue {
   onConversationChanged(newC: any, oldC: any) {
     this.mentions = []
     const $target: any = this.$refs.box
+    if (!$target) return
     requestAnimationFrame(() => {
       const numbers = contentUtil.parseMentionIdentityNumber($target.innerText)
       if (numbers.length > 0) {

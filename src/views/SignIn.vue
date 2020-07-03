@@ -1,7 +1,7 @@
 <template>
   <div class="sign_in">
-    <h1>{{$t('sign_in.title')}}</h1>
-    <div>{{$t('sign_in.desc')}}</div>
+    <h1 v-show="!tempHide">{{$t('sign_in.title')}}</h1>
+    <div v-show="!tempHide">{{$t('sign_in.desc')}}</div>
     <div class="qr_layout">
       <canvas id="qr" ref="qr"></canvas>
       <img class="logo" v-if="!isLoading" src="../assets/logo.png" />
@@ -58,6 +58,7 @@ export default class SignIn extends Vue {
   keyPair: any = Object
   isLoading: any = true
   showRetry: any = true
+  tempHide: any = false
   $electron: any
 
   mounted() {
@@ -66,6 +67,12 @@ export default class SignIn extends Vue {
 
   refresh() {
     this.showRetry = false
+    if (sessionStorage.readyToSignin) {
+      this.signinAction()
+      this.tempHide = true
+      sessionStorage.readyToSignin = ''
+      return
+    }
     // @ts-ignore
     wasmObject.then(() => {
       this.keyPair = signalProtocol.generateKeyPair()
@@ -153,23 +160,36 @@ export default class SignIn extends Vue {
       .then((resp: any) => {
         const account = resp.data.data
         localStorage.account = JSON.stringify(account)
-        if (!userDao.isMe(account.user_id)) {
-          clearMixin()
-        }
-        localStorage.sessionToken = sessionKeyPair.private
-        localStorage.primaryPlatform = message.platform
-        signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
-        this.pushSignalKeys().then((resp: any) => {
-          const deviceId = signalProtocol.convertToDeviceId(account.session_id)
-          localStorage.deviceId = deviceId
-          localStorage.primarySessionId = primarySessionId
-          localStorage.sessionId = account.session_id
-          localStorage.newVersion = true
-          this.$store.dispatch('saveAccount', account)
-          this.updateParticipantSession(account.user_id, account.session_id)
-          this.$router.push('/')
+        sessionStorage.signinData = JSON.stringify({
+          sessionKeyPair, message, registrationId, primarySessionId, keyPair, account
         })
+        sessionStorage.readyToSignin = true
+        return location.reload()
+        // if (!userDao.isMe(account.user_id)) {
+        //   clearMixin()
+        // }
       })
+  }
+  signinAction() {
+    if (!sessionStorage.signinData) return
+    const payload = JSON.parse(sessionStorage.signinData)
+    sessionStorage.signinData = ''
+    const {
+      sessionKeyPair, message, registrationId, primarySessionId, keyPair, account
+    } = payload
+    localStorage.sessionToken = sessionKeyPair.private
+    localStorage.primaryPlatform = message.platform
+    signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
+    this.pushSignalKeys().then((resp: any) => {
+      const deviceId = signalProtocol.convertToDeviceId(account.session_id)
+      localStorage.deviceId = deviceId
+      localStorage.primarySessionId = primarySessionId
+      localStorage.sessionId = account.session_id
+      localStorage.newVersion = true
+      this.$store.dispatch('saveAccount', account)
+      this.updateParticipantSession(account.user_id, account.session_id)
+      this.$router.push('/')
+    })
   }
   pushSignalKeys() {
     // @ts-ignore

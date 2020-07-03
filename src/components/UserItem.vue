@@ -1,22 +1,29 @@
 <template>
-  <li class="user-item" @click="$emit('user-click',user)">
+  <li
+    class="user-item"
+    @click="$emit('user-click',user)"
+    @mousedown="mousedown"
+    @contextmenu.prevent
+  >
     <Avatar class="user-item-avatar" :user="user" />
     <div class="content">
-      <div class="title">
-        <div class="name">
-          <span v-html="$w(highlight(user.full_name, 'name', /^@/.test(keyword)))"></span>
-          <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
+      <div>
+        <div class="title">
+          <div class="name">
+            <span v-html="$w(highlight(user.full_name, 'name', /^@/.test(keyword)))"></span>
+            <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
+          </div>
         </div>
-        <span class="role" v-if="user.role">
-          {{ $t({
-          OWNER: 'chat.owner',
-          ADMIN: 'chat.admin'}[user.role])
-          }}
-        </span>
+        <div class="id">
+          <span v-html="$w(highlight(user.identity_number, 'id', /^@/.test(keyword)))"></span>
+        </div>
       </div>
-      <div class="id">
-        <span v-html="$w(highlight(user.identity_number, 'id', /^@/.test(keyword)))"></span>
-      </div>
+      <span class="role" v-if="user.role">
+        {{ $t({
+        OWNER: 'chat.owner',
+        ADMIN: 'chat.admin'}[user.role])
+        }}
+      </span>
     </div>
   </li>
 </template>
@@ -49,6 +56,12 @@ export default class UserItem extends Vue {
     }
     return contentUtil.highlight(content, keyword, '')
   }
+
+  mousedown(e: any) {
+    if (e.button === 2) {
+      this.$emit('show-contextmenu', this.user)
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>
@@ -76,8 +89,9 @@ export default class UserItem extends Vue {
   .content {
     display: flex;
     flex: 1;
-    flex-direction: column;
     overflow: hidden;
+    justify-content: space-between;
+    align-items: center;
     .name {
       overflow: hidden;
       display: flex;
@@ -87,11 +101,12 @@ export default class UserItem extends Vue {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        line-height: 1.2rem;
       }
       svg {
         flex-shrink: 0;
         vertical-align: top;
-        margin: 0.15rem 0 0 0.3rem;
+        margin: 0.2rem 0 0 0.3rem;
       }
     }
     .title {
@@ -109,9 +124,7 @@ export default class UserItem extends Vue {
       }
     }
     .role {
-      float: right;
       color: #bbbec3;
-      margin-top: 0.15rem;
       font-size: 0.6rem;
     }
   }

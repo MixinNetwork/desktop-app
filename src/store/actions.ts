@@ -9,9 +9,8 @@ import conversationApi from '@/api/conversation'
 import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import userApi from '@/api/user'
-import { generateConversationId, getAccount } from '@/utils/util'
-
-import { messageType, ConversationStatus, ConversationCategory, MessageStatus, MediaStatus } from '@/utils/constants'
+import { delMedia, generateConversationId, getAccount } from '@/utils/util'
+import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus, messageType } from '@/utils/constants'
 
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
@@ -271,6 +270,20 @@ export default {
       commit('setCurrentConversation', conversation)
     }
   },
+  addParticipants: async({ commit }: any, payload: { participants: any; conversationId: string }) => {
+    const { participants, conversationId } = payload
+    participantDao.insertAll(
+      participants.map((item: any) => {
+        conversationApi.participant(conversationId, 'ADD', item.user_id, '')
+        return {
+          conversation_id: conversationId,
+          user_id: item.user_id,
+          role: '',
+          created_at: item.created_at
+        }
+      })
+    )
+  },
   saveAccount: ({ commit }: any, user: any) => {
     userDao.insertUser(user)
     commit('saveAccount', user)
@@ -322,6 +335,8 @@ export default {
     commit('setTempUnreadMessageId', messageId)
   },
   conversationClear: ({ commit }: any, conversationId: any) => {
+    const messages = messageDao.findConversationMediaMessages(conversationId)
+    delMedia(messages)
     messageDao.ftsMessagesDelete(conversationId)
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)
@@ -448,6 +463,7 @@ export default {
   sendAttachmentMessage: ({ commit }: any, { conversationId, payload, quoteId }: any) => {
     const messageId = uuidv4().toLowerCase()
     payload.id = messageId
+    payload.conversationId = conversationId
     const account: any = getAccount()
     putAttachment(
       payload,
@@ -676,6 +692,8 @@ export default {
     })
   },
   recallMessage: ({ commit }: any, { messageId, conversationId }: any) => {
+    const message = messageDao.getMessageById(messageId)
+    delMedia([message])
     messageDao.recallMessageAndSend(messageId)
     jobDao.insert({
       job_id: uuidv4(),

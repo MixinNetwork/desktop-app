@@ -108,7 +108,7 @@
 
     <ChatInputBox
       ref="inputBox"
-      v-if="conversation"
+      v-show="conversation"
       :participant="participant"
       :conversation="conversation"
       :boxMessage="boxMessage"
@@ -122,6 +122,13 @@
       v-if="forwardMessage"
       :message="forwardMessage"
       @close="handleHideMessageForward"
+    />
+
+    <AddParticipant
+      v-if="participantAdd"
+      :participants="conversation.participants"
+      @close="participantAdd=false"
+      @done="participantAddDone"
     />
 
     <div class="empty" v-if="!conversation && startup">
@@ -155,6 +162,7 @@
         :details="details"
         @close="hideDetails"
         @share="handleContactForward"
+        @add-participant="participantAdd=true"
       ></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
@@ -199,6 +207,7 @@ import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import MessageForward from '@/components/MessageForward.vue'
+import AddParticipant from '@/components/AddParticipant.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
@@ -218,6 +227,7 @@ let { BrowserWindow } = remote
     MessageItem,
     FileContainer,
     MessageForward,
+    AddParticipant,
     Editor
   }
 })
@@ -243,6 +253,7 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    this.hideChoosePanel()
     if (!this.conversation) {
       this.startup = true
       return
@@ -254,7 +265,6 @@ export default class ChatContainer extends Vue {
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
       }
-      this.hideChoosePanel()
 
       this.changeConversation = true
       this.$nextTick(() => {
@@ -390,6 +400,8 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 60
   showTopTips: boolean = false
+
+  participantAdd: boolean = false
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -531,6 +543,15 @@ export default class ChatContainer extends Vue {
     if (this.$refs.inputBox) {
       this.$refs.inputBox.hideChoosePanel()
     }
+  }
+
+  participantAddDone(participants: any) {
+    this.participantAdd = false
+    const { conversationId } = this.conversation
+    this.$store.dispatch('addParticipants', {
+      participants,
+      conversationId
+    })
   }
 
   panelHeight: number = 12

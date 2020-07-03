@@ -2,11 +2,7 @@ import crypto from 'crypto'
 import fs from 'fs'
 import Bot from 'bot-api-js-client'
 import store from '@/store/store'
-import {
-  AvatarColors,
-  NameColors,
-  CircleConfig
-} from '@/utils/constants'
+import { AvatarColors, NameColors, CircleConfig } from '@/utils/constants'
 import md5 from 'md5'
 import { ipcRenderer } from 'electron'
 
@@ -78,7 +74,7 @@ export function generateConversationId(userId, recipientId) {
 
   let [minId, maxId] = [userId, recipientId]
   if (minId > maxId) {
-    [minId, maxId] = [recipientId, userId]
+    ;[minId, maxId] = [recipientId, userId]
   }
 
   const hash = crypto.createHash('md5')
@@ -182,14 +178,20 @@ export function keyToLine(name) {
 }
 
 export function sendNotification(title, body, conversation) {
-  let newNotification = new Notification(title, {
-    body: body
-  })
-  newNotification.onclick = () => {
-    if (store.state.currentConversationId !== conversation.conversationId) {
-      store.dispatch('setCurrentConversation', conversation)
+  let notificationSetting = {}
+  try {
+    notificationSetting = JSON.parse(localStorage.getItem('notificationSetting'))
+  } catch (error) {}
+  if (!notificationSetting.hideNotification) {
+    let newNotification = new Notification(title, {
+      body: body
+    })
+    newNotification.onclick = () => {
+      if (store.state.currentConversationId !== conversation.conversationId) {
+        store.dispatch('setCurrentConversation', conversation)
+      }
+      ipcRenderer.send('showWin')
     }
-    ipcRenderer.send('showWin')
   }
 }
 
@@ -212,7 +214,7 @@ function uuidHashCode(sessionId) {
   leastSigBits |= c4
   let hilo = mostSigBits ^ leastSigBits
   hilo = BigInt.asIntN(64, hilo)
-  let m = BigInt.asIntN(32, (hilo >> 32n))
+  let m = BigInt.asIntN(32, hilo >> 32n)
   let n = BigInt.asIntN(32, hilo)
   let result = Number(m ^ n)
   return Math.abs(result)
@@ -236,9 +238,11 @@ export function convertRemToPixels(rem) {
 }
 
 export function generateConversationChecksum(sessions) {
-  const sorted = sessions.map(session => {
-    return session.session_id
-  }).sort()
+  const sorted = sessions
+    .map(session => {
+      return session.session_id
+    })
+    .sort()
   const d = sorted.join('')
   return md5(d)
 }

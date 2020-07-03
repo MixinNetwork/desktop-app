@@ -8,15 +8,15 @@
 
       <div class="select">
         <div
+          v-for="item in [{key: 'hideNotification', name: 'show_notification'}]"
+          :key="item.key"
           class="select-item"
-          @click="onSelected(key)"
-          v-for="key in ['show_notification']"
-          :key="key"
+          @click="onSelected(item.key)"
         >
-          <span>{{$t(`${key}`)}}</span>
+          <span>{{$t(`${item.name}`)}}</span>
           <svg-icon
-            :icon-class="!unselected[key] ? 'ic_choice_selected' : 'ic_choice'"
-            :class="{unselected: unselected[key]}"
+            :icon-class="!unselected[item.key] ? 'ic_choice_selected' : 'ic_choice'"
+            :class="{unselected: unselected[item.key]}"
             class="choice-icon"
           />
         </div>

@@ -571,7 +571,7 @@ class ReceiveWorker extends BaseWorker {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
       if (offset <= 7200000 && store.state.currentConversationId === message.conversation_id) {
         const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-        let autoDownloadMap = {}
+        let autoDownloadMap = { image: true, video: true, file: true }
         if (autoDownloadSetting) {
           autoDownloadMap = JSON.parse(autoDownloadSetting)
         }
@@ -588,7 +588,11 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = data.status
-    if (BrowserWindow.getFocusedWindow() && store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
+    if (
+      BrowserWindow.getFocusedWindow() &&
+      store.state.currentConversationId === data.conversation_id &&
+      data.user_id !== this.getAccountId()
+    ) {
       status = MessageStatus.READ
     }
     let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)

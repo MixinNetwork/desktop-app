@@ -96,9 +96,9 @@ export default class StorageContainer extends Vue {
   current: any = null
   unselected: any = {}
   autoDownloadMap: any = {
-    image: false,
-    video: false,
-    file: false
+    image: true,
+    video: true,
+    file: true
   }
   storagePage: boolean = false
   cleaning: boolean = false

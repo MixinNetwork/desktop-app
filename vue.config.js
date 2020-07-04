@@ -37,6 +37,10 @@ module.exports = {
       externals: ['better-sqlite3', 'bytebuffer'],
       nodeModulesPath: ['../../node_modules', './node_modules'],
       builderOptions: {
+        nsis: {
+          oneClick: false,
+          allowToChangeInstallationDirectory: true
+        },
         productName: 'Mixin',
         appId: 'one.mixin.messenger',
         copyright: 'Copyright © 2020 Mixin Team',

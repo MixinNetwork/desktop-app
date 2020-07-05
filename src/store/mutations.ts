@@ -39,6 +39,7 @@ function refreshConversations(state: any) {
     state.conversations = conversations
     state.conversationKeys = conversationKeys
     refreshConversationsTimer = null
+    setUnseenBadgeNum(conversations)
   }, 100)
 }
 

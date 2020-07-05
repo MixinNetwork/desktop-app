@@ -201,7 +201,7 @@ app.on('activate', () => {
   }
 })
 
-if (process.platform === 'win32' && !isDevelopment) {
+if (!isDevelopment) {
   const lock = app.requestSingleInstanceLock()
   if (!lock) {
     app.quit()
@@ -211,7 +211,7 @@ if (process.platform === 'win32' && !isDevelopment) {
         win.show()
         if (win.isMinimized()) win.restore()
         win.focus()
-        if (appTray) {
+        if (process.platform === 'win32' && appTray) {
           appTray.destroy()
         }
       }

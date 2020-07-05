@@ -340,6 +340,7 @@ export default {
     messageDao.ftsMessagesDelete(conversationId)
     conversationDao.deleteConversation(conversationId)
     commit('conversationClear', conversationId)
+    commit('setUnseenBadgeNum')
   },
   pinTop: ({ commit, state }: any, payload: { conversationId: any; circlePinTime: any; pinTime: any }) => {
     const { conversationId, circlePinTime, pinTime } = payload

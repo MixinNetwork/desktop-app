@@ -5,7 +5,14 @@ import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
 import { updateCancelMap, downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
-import { LinkStatus, ConversationCategory, isMuteCheck, isMedia, PerPageMessageCount, messageType } from '@/utils/constants'
+import {
+  LinkStatus,
+  ConversationCategory,
+  isMuteCheck,
+  isMedia,
+  PerPageMessageCount,
+  messageType
+} from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
 import { getAccount, keyToLine } from '@/utils/util'
@@ -39,6 +46,7 @@ function refreshConversations(state: any) {
     state.conversations = conversations
     state.conversationKeys = conversationKeys
     refreshConversationsTimer = null
+    setUnseenBadgeNum(conversations)
   }, 100)
 }
 
@@ -294,19 +302,23 @@ export default {
           message[keyToLine(key)] = curMessage[key]
         })
         message.category = message.type
+        const curMessageType = messageType(message.category)
+        let autoDownload = !message.media_url && curMessageType === 'audio'
         const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
         if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
           const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-          let autoDownloadMap: any = {}
+          let autoDownloadMap: any = { image: true, video: true, file: true }
           if (autoDownloadSetting) {
             autoDownloadMap = JSON.parse(autoDownloadSetting)
           }
-          const curMessageType = messageType(message.category)
-          if (autoDownloadMap[curMessageType] || curMessageType === 'audio') {
-            downloadQueue.push(downloadAndRefresh, {
-              args: message
-            })
+          if (autoDownloadMap[curMessageType]) {
+            autoDownload = true
           }
+        }
+        if (autoDownload) {
+          downloadQueue.push(downloadAndRefresh, {
+            args: message
+          })
         }
       }
     }

@@ -569,18 +569,22 @@ class ReceiveWorker extends BaseWorker {
     messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+      const curMessageType = messageType(message.category)
+      let autoDownload = curMessageType === 'audio'
       if (offset <= 7200000 && store.state.currentConversationId === message.conversation_id) {
         const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-        let autoDownloadMap = {}
+        let autoDownloadMap = { image: true, video: true, file: true }
         if (autoDownloadSetting) {
           autoDownloadMap = JSON.parse(autoDownloadSetting)
         }
-        const curMessageType = messageType(message.category)
-        if (autoDownloadMap[curMessageType] || curMessageType === 'audio') {
-          downloadQueue.push(downloadAndRefresh, {
-            args: message
-          })
+        if (autoDownloadMap[curMessageType]) {
+          autoDownload = true
         }
+      }
+      if (autoDownload) {
+        downloadQueue.push(downloadAndRefresh, {
+          args: message
+        })
       }
     })
   }
@@ -588,7 +592,11 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = data.status
-    if (BrowserWindow.getFocusedWindow() && store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
+    if (
+      BrowserWindow.getFocusedWindow() &&
+      store.state.currentConversationId === data.conversation_id &&
+      data.user_id !== this.getAccountId()
+    ) {
       status = MessageStatus.READ
     }
     let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)

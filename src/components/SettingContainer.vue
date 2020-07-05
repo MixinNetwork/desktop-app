@@ -9,6 +9,7 @@
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
+      <span class="item" @click="notificationView = true">{{$t('notification_confirmation')}}</span>
       <span class="item storage" @click="manageStorage">
         {{$t('data_storage')}}
       </span>
@@ -28,11 +29,19 @@
         @back="storageBack"
       ></StorageContainer>
     </transition>
+    <transition name="slide-right">
+      <SettingNotification
+        class="overlay"
+        v-show="notificationView"
+        @back="notificationView = false"
+      />
+    </transition>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import StorageContainer from '@/components/StorageContainer.vue'
+import SettingNotification from '@/components/SettingNotification.vue'
 
 import browser from '@/utils/browser'
 import { ipcRenderer, remote } from 'electron'
@@ -44,11 +53,13 @@ import path from 'path'
 
 @Component({
   components: {
-    StorageContainer
+    StorageContainer,
+    SettingNotification
   }
 })
 export default class SettingContainer extends Vue {
   group: boolean = false
+  notificationView: boolean = false
   title: string = ''
   $electron: any
 

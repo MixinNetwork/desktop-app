@@ -569,18 +569,22 @@ class ReceiveWorker extends BaseWorker {
     messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+      const curMessageType = messageType(message.category)
+      let autoDownload = curMessageType === 'audio'
       if (offset <= 7200000 && store.state.currentConversationId === message.conversation_id) {
         const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
         let autoDownloadMap = { image: true, video: true, file: true }
         if (autoDownloadSetting) {
           autoDownloadMap = JSON.parse(autoDownloadSetting)
         }
-        const curMessageType = messageType(message.category)
-        if (autoDownloadMap[curMessageType] || curMessageType === 'audio') {
-          downloadQueue.push(downloadAndRefresh, {
-            args: message
-          })
+        if (autoDownloadMap[curMessageType]) {
+          autoDownload = true
         }
+      }
+      if (autoDownload) {
+        downloadQueue.push(downloadAndRefresh, {
+          args: message
+        })
       }
     })
   }

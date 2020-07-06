@@ -155,6 +155,7 @@
       :message="message"
       :me="me"
       :showName="showUserName()"
+      @user-click="$emit('user-click',message.userId)"
       @action-click="actionClick"
       @handleMenuClick="handleMenuClick"
     ></AppCardItem>

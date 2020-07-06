@@ -5,11 +5,11 @@
         <Avatar
           style="font-size: 0.8rem"
           :conversation="conversation"
-          @onAvatarClick="showDetails('')"
+          @onAvatarClick="showDetails()"
         />
       </div>
       <div class="title">
-        <div @click="showDetails('')">
+        <div @click="showDetails()">
           <div class="username">{{name}}</div>
           <div class="identity number">{{identity}}</div>
         </div>
@@ -32,7 +32,7 @@
       </div>
       <ChatContainerMenu
         :conversation="conversation"
-        @showDetails="showDetails('')"
+        @showDetails="showDetails()"
         @menuCallback="menuCallback"
       />
     </header>
@@ -155,7 +155,6 @@
     <transition :name="changeConversation ? '' : 'slide-right'">
       <Details
         class="overlay"
-        :userId="detailUserId"
         v-if="conversation"
         v-show="details"
         :changed="changeConversation"
@@ -261,7 +260,7 @@ export default class ChatContainer extends Vue {
     const { conversationId, unseenMessageCount } = this.conversation
     if (newVal) {
       this.startup = false
-      this.details = false
+      this.details = null
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
       }
@@ -352,6 +351,7 @@ export default class ChatContainer extends Vue {
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
+  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
   @Action('markRead') actionMarkRead: any
@@ -366,7 +366,7 @@ export default class ChatContainer extends Vue {
   $selectNes: any
   identity: any = ''
   participant: boolean = true
-  details: any = false
+  details: any = null
   unreadMessageId: any = ''
   MessageStatus: any = MessageStatus
   dragging: boolean = false
@@ -435,6 +435,11 @@ export default class ChatContainer extends Vue {
         }
       }
     })
+
+    Vue.prototype.$showUserDetail = (userId: string) => {
+      let user = userDao.findUserById(userId)
+      this.showDetails(user)
+    }
 
     let windowsFocused = false
     setInterval(() => {
@@ -790,7 +795,6 @@ export default class ChatContainer extends Vue {
       }
       if (!this.goMessagePosTimer) {
         this.goMessagePosTimer = setTimeout(() => {
-          console.log('------goMessagePosition Done')
           goDone = true
         }, 300)
       }
@@ -995,16 +999,17 @@ export default class ChatContainer extends Vue {
     this.dragging = false
     this.file = null
   }
-  detailUserId: string = ''
-  showDetails(id: string) {
-    this.detailUserId = id
+  showDetails(user: any) {
+    if (!user) {
+      user = this.user
+      user.isCurrent = true
+    }
     requestAnimationFrame(() => {
-      this.details = true
+      this.details = user
     })
   }
   hideDetails() {
-    this.detailUserId = ''
-    this.details = false
+    this.details = null
     if (this.conversation) {
       this.$root.$emit('updateMenu', this.conversation)
     }
@@ -1015,9 +1020,7 @@ export default class ChatContainer extends Vue {
   }
   onUserClick(userId: any) {
     let user = userDao.findUserById(userId)
-    this.actionCreateUserConversation({
-      user
-    })
+    this.showDetails(user)
   }
   handleAction(action: any) {
     if (action.startsWith('input:')) {
@@ -1031,8 +1034,9 @@ export default class ChatContainer extends Vue {
       this.actionSendMessage({ msg })
       this.goBottom()
     } else if (action.startsWith('mention:')) {
-      const id = action.split('mention:')[1]
-      this.showDetails(id)
+      const userId = action.split('mention:')[1]
+      const user = userDao.findUserById(userId)
+      this.showDetails(user)
     } else {
       browser.loadURL(action, this.conversation.conversationId)
     }

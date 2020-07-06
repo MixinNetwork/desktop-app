@@ -154,6 +154,15 @@ function createWindow() {
   initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
 
+  app.setAsDefaultProtocolClient('mixin')
+  app.on('open-url', function(event, url) {
+    event.preventDefault()
+    if (win) {
+      win.show()
+      win.webContents.send('mixin-protocol', url)
+    }
+  })
+
   globalShortcut.register('ctrl+shift+i', function() {
     if (win) {
       win.webContents.openDevTools()

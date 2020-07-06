@@ -100,7 +100,7 @@ export default class Avatar extends Vue {
         emoji(u)
         if (u.avatar_url && u.avatar_url.startsWith('http')) {
           u.has_avatar = true
-        } else {
+        } else if (u.user_id) {
           u.color = { background: getAvatarColorById(u.user_id) }
         }
         return u

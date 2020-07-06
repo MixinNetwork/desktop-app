@@ -26,7 +26,7 @@
             </span>
           </span>
 
-          <span class="id" v-if="isContact">Mixin ID: {{userId || conversation.ownerIdentityNumber}}</span>
+          <span class="id" v-if="isContact">Mixin ID: {{user.identity_number || conversation.ownerIdentityNumber}}</span>
           <span class="unblock" v-if="showUnblock" @click="actionUnblock(user.user_id)">
             <small>{{$t('menu.chat.unblock')}}</small>
           </span>
@@ -49,9 +49,12 @@
             </span>
           </div>
           <div v-else class="biography">
-            <span v-html="isContact ? $w(user.biography) : $w(conversation.biography)"></span>
+            <span v-html="$w(contentUtil.renderUrl(isContact ? user.biography : conversation.biography))"></span>
           </div>
         </header>
+        <div class="option" v-if="isContact">
+          <a @click="sendMessage">{{$t('chat.send_message')}}</a>
+        </div>
         <div class="share option" v-if="isContact">
           <a @click="shareContact">{{$t('chat.share_contact')}}</a>
         </div>
@@ -110,16 +113,13 @@ import conversationDao from '@/dao/conversation_dao'
   }
 })
 export default class Details extends Vue {
-  @Prop(String) readonly userId: any
-  @Prop(Boolean) readonly details: any
+  @Prop(Object) readonly details: any
   @Prop(Boolean) readonly changed: any
 
   @Getter('currentConversation') conversation: any
-  @Getter('currentUser') user: any
 
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('refreshUser') actionRefreshUser: any
-  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('syncConversation') actionSyncConversation: any
   @Action('unblock') actionUnblock: any
 
@@ -128,8 +128,9 @@ export default class Details extends Vue {
   @Action('participantRemove') actionParticipantRemove: any
 
   @Watch('details')
-  onDetailChanged(val: boolean) {
+  onDetailChanged(val: any) {
     if (val) {
+      this.user = this.details
       this.updateView()
     }
   }
@@ -163,6 +164,7 @@ export default class Details extends Vue {
   announEditing: boolean = false
   announEditingVal: string = ''
   editLock: boolean = false
+  user: any = {}
 
   updateConversation(nameVal: string, announ: string) {
     if (!nameVal && !announ) return
@@ -293,6 +295,13 @@ export default class Details extends Vue {
     }
   }
 
+  sendMessage() {
+    this.$emit('close')
+    this.$store.dispatch('createUserConversation', {
+      user: this.user
+    })
+  }
+
   shareContact() {
     this.$emit('share', this.user)
   }
@@ -301,9 +310,6 @@ export default class Details extends Vue {
     const userId = this.user.user_id
     const { conversationId } = this.conversation
     userApi.updateRelationship({ user_id: userId, full_name: this.user.full_name, action: 'ADD' }).then((res: any) => {
-      if (res.data) {
-        this.actionSetCurrentUser(res.data.data)
-      }
     })
   }
 
@@ -333,6 +339,13 @@ export default class Details extends Vue {
     return this.$t('chat.title_participants', { '0': conversation.participants.length })
   }
 
+  get userId() {
+    if (!this.user.isCurrent) {
+      return this.user.user_id
+    }
+    return ''
+  }
+
   get name() {
     if (this.userId) {
       return this.user.full_name
@@ -357,10 +370,6 @@ export default class Details extends Vue {
         userId: this.userId || this.conversation.ownerId,
         conversationId: this.conversation.conversationId
       })
-      if (this.userId) {
-        const user = userDao.findUserByIdentityNumber(this.userId)
-        this.actionSetCurrentUser(user)
-      }
     }
     this.actionSyncConversation(this.conversation.conversationId)
   }
@@ -460,19 +469,18 @@ export default class Details extends Vue {
       user-select: text;
     }
     .option {
-      a {
-        font-size: 0.7rem;
-      }
-    }
-    .share {
       background: white;
-      margin-top: 0.4rem;
       padding: 0.8rem 1rem;
       a {
+        font-size: 0.7rem;
         cursor: pointer;
         display: block;
         font-weight: 500;
       }
+      margin-top: 0.4rem;
+    }
+    .share {
+      margin-top: 0.05rem;
     }
     .participants {
       margin-top: 0.4rem;

@@ -108,7 +108,7 @@
 
     <ChatInputBox
       ref="inputBox"
-      v-if="conversation"
+      v-show="conversation"
       :participant="participant"
       :conversation="conversation"
       :boxMessage="boxMessage"
@@ -122,6 +122,13 @@
       v-if="forwardMessage"
       :message="forwardMessage"
       @close="handleHideMessageForward"
+    />
+
+    <AddParticipant
+      v-if="participantAdd"
+      :participants="conversation.participants"
+      @close="participantAdd=false"
+      @done="participantAddDone"
     />
 
     <div class="empty" v-if="!conversation && startup">
@@ -155,6 +162,7 @@
         :details="details"
         @close="hideDetails"
         @share="handleContactForward"
+        @add-participant="participantAdd=true"
       ></Details>
     </transition>
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
@@ -199,6 +207,7 @@ import Editor from '@/components/Editor.vue'
 import FileContainer from '@/components/FileContainer.vue'
 import MessageItem from '@/components/MessageItem.vue'
 import MessageForward from '@/components/MessageForward.vue'
+import AddParticipant from '@/components/AddParticipant.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import messageBox from '@/store/message_box'
@@ -218,6 +227,7 @@ let { BrowserWindow } = remote
     MessageItem,
     FileContainer,
     MessageForward,
+    AddParticipant,
     Editor
   }
 })
@@ -243,6 +253,7 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    this.hideChoosePanel()
     if (!this.conversation) {
       this.startup = true
       return
@@ -254,7 +265,6 @@ export default class ChatContainer extends Vue {
       if (!this.searching.replace(/^key:/, '')) {
         this.actionSetSearching('')
       }
-      this.hideChoosePanel()
 
       this.changeConversation = true
       this.$nextTick(() => {
@@ -391,6 +401,8 @@ export default class ChatContainer extends Vue {
   threshold: number = 60
   showTopTips: boolean = false
 
+  participantAdd: boolean = false
+
   get currentMentionNum() {
     if (!this.conversation) return
     const mentions = this.conversationUnseenMentionsMap[this.conversation.conversationId]
@@ -479,17 +491,17 @@ export default class ChatContainer extends Vue {
     }
     messageBox.bindData(
       function(payload: any) {
-        const { messages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+        const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+        if (updateMessages) {
+          const { firstIndex, lastIndex } = self.viewport
+          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
+          self.udpateMessagesVisible()
+        }
         if (unreadNum > 0 || unreadNum === 0) {
           self.currentUnreadNum = unreadNum
           setTimeout(() => {
             self.infiniteDownLock = false
           })
-        }
-        if (messages) {
-          const { firstIndex, lastIndex } = self.viewport
-          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
-          self.udpateMessagesVisible()
         }
         if (getLastMessage) {
           setTimeout(() => {
@@ -533,6 +545,15 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  participantAddDone(participants: any) {
+    this.participantAdd = false
+    const { conversationId } = this.conversation
+    this.$store.dispatch('addParticipants', {
+      participants,
+      conversationId
+    })
+  }
+
   panelHeight: number = 12
   panelHeightUpdate(data: any) {
     this.panelHeight = data
@@ -540,6 +561,9 @@ export default class ChatContainer extends Vue {
 
   panelChooseAction(data: any) {
     this.goBottom()
+    if (data === 'stickerOpen') {
+      this.panelHeightUpdate(12)
+    }
     requestAnimationFrame(() => {
       this.panelChoosing = data
     })
@@ -739,6 +763,7 @@ export default class ChatContainer extends Vue {
         this.conversation.conversationId,
         item.message_id || item.messageId
       )
+      if (messageIndex < 0) return
       messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
       this.searchKeyword = keyword
       this.goSearchPos = false
@@ -817,6 +842,7 @@ export default class ChatContainer extends Vue {
       const { conversationId } = this.conversation
       const count = messageDao.ftsMessageCount(conversationId)
       const messageIndex = messageDao.ftsMessageIndex(conversationId, posMessage.messageId)
+      if (messageIndex < 0) return
       messageBox.setConversationId(conversationId, count - messageIndex - 1, false)
       firstIndex = 0
       lastIndex = this.threshold

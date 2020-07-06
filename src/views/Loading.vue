@@ -1,6 +1,6 @@
 <template>
-  <div class="loading">
-    <spinner v-if="isLoading" />
+  <div class="loading" v-if="isLoading">
+    <spinner />
     <h4>{{$t('loading.initializing')}}</h4>
   </div>
 </template>
@@ -13,9 +13,16 @@ import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
-import { clearDb } from '@/persistence/db_util'
+import { clearDb, dbMigration } from '@/persistence/db_util'
+import { getIdentityNumber } from '@/utils/util'
 
 import { Vue, Component } from 'vue-property-decorator'
+
+import { remote } from 'electron'
+import fs from 'fs'
+import path from 'path'
+
+import { mediaMigration } from '@/utils/attachment_util'
 
 @Component({
   components: {
@@ -28,7 +35,10 @@ export default class Loading extends Vue {
   $blaze: any
 
   async created() {
-    if (localStorage.account && localStorage.sessionToken) {
+    if (sessionStorage.tempHideLoading) {
+      this.isLoading = false
+    }
+    if (localStorage.account) {
       const account = await accountAPI.getMe().catch((err: any) => {
         console.log(err)
       })
@@ -38,7 +48,6 @@ export default class Loading extends Vue {
         return
       }
       if (!account) {
-        console.log('----- account')
         return
       }
       if (account && account.data.error) {
@@ -48,23 +57,59 @@ export default class Loading extends Vue {
         } else {
           // ?
         }
-        console.log('----- account')
         return
       }
       userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
-      this.pushSignalKeys().then(() => {
-        const user = account.data.data
-        console.log('----- account', !!user)
-        if (user) {
-          localStorage.account = JSON.stringify(user)
-          this.$store.dispatch('insertUser', user)
-          this.$blaze.connect()
-          if (!localStorage.circleSynced) {
-            this.syncCircles()
-          }
-          this.$router.push('/home')
+      await this.pushSignalKeys()
+      const user = account.data.data
+      if (user) {
+        localStorage.account = JSON.stringify(user)
+        this.$store.dispatch('insertUser', user)
+        this.$blaze.connect()
+        if (!localStorage.circleSynced) {
+          this.syncCircles()
         }
+        this.migrationAction((skip: boolean) => {
+          if (skip) {
+            this.$router.push('/home')
+          }
+        })
+      }
+    }
+  }
+
+  async migrationAction(callback: any) {
+    const identityNumber = getIdentityNumber(true)
+    if (identityNumber && !sessionStorage.tempHideLoading) {
+      const newDir = path.join(remote.app.getPath('userData'), identityNumber)
+      const oldMediaDir = path.join(remote.app.getPath('userData'), 'media')
+
+      if (!fs.existsSync(newDir)) {
+        fs.mkdirSync(newDir)
+      }
+      localStorage.newUserDirExist = true
+
+      if (localStorage.dbMigrationDone && localStorage.mediaMigrationDone) {
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(true)
+        return
+      }
+
+      if (!localStorage.dbMigrationDone) {
+        await dbMigration(identityNumber)
+      }
+      localStorage.dbMigrationDone = true
+
+      mediaMigration(identityNumber, () => {
+        localStorage.mediaMigrationDone = true
+        sessionStorage.tempHideLoading = true
+        location.reload()
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(false)
       })
+    } else {
+      // eslint-disable-next-line standard/no-callback-literal
+      callback(true)
     }
   }
 

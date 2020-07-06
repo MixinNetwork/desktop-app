@@ -1,8 +1,8 @@
 import moment from 'moment'
 import messageDao from '@/dao/message_dao'
+import { delMedia, getAccount } from '@/utils/util'
 import { PerPageMessageCount, MessageStatus, messageType } from '@/utils/constants'
 import store from '@/store/store'
-import { getAccount } from '@/utils/util'
 
 class MessageBox {
   conversationId: any
@@ -156,11 +156,13 @@ class MessageBox {
       })
     } else {
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ messages: this.messages })
+      this.callback({ updateMessages: true })
     }
   }
   deleteMessages(messageIds: any[]) {
-    messageDao.deleteMessagesById(messageIds)
+    const messages = messageDao.getMessagesByIds(messageIds)
+    delMedia(messages)
+    messageDao.deleteMessageByIds(messageIds)
     for (let i = this.messages.length - 1; i >= 0; i--) {
       if (messageIds[0] === this.messages[i].messageId) {
         this.messages.splice(i, 1)
@@ -207,7 +209,7 @@ class MessageBox {
       }
       this.messages.push(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ messages: this.messages })
+      this.callback({ updateMessages: true })
     } else {
       if (!messages.length) {
         setTimeout(() => {
@@ -226,7 +228,7 @@ class MessageBox {
       }
       this.messages.unshift(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ messages: this.messages })
+      this.callback({ updateMessages: true })
     }
   }
   infiniteUp() {

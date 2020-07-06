@@ -9,6 +9,10 @@
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
+      <span class="item" @click="notificationView = true">{{$t('notification_confirmation')}}</span>
+      <span class="item storage" @click="manageStorage">
+        {{$t('data_storage')}}
+      </span>
       <span class="item" @click="checkUpdate">{{$t('check_update')}}</span>
       <span
         class="item"
@@ -17,19 +21,86 @@
       <span class="item" @click="open('https://mixin.one/pages/terms')">{{$t('terms_service')}}</span>
       <span class="item" @click="open('https://mixin.one/pages/privacy')">{{$t('privacy_policy')}}</span>
     </div>
+    <transition name="slide-right">
+      <StorageContainer
+        class="overlay"
+        :storages="storages"
+        v-show="storageView"
+        @back="storageBack"
+      ></StorageContainer>
+    </transition>
+    <transition name="slide-right">
+      <SettingNotification
+        class="overlay"
+        v-show="notificationView"
+        @back="notificationView = false"
+      />
+    </transition>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import StorageContainer from '@/components/StorageContainer.vue'
+import SettingNotification from '@/components/SettingNotification.vue'
 
 import browser from '@/utils/browser'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 
-@Component
+import { getIdentityNumber, dirSize } from '@/utils/util'
+
+import fs from 'fs'
+import path from 'path'
+
+@Component({
+  components: {
+    StorageContainer,
+    SettingNotification
+  }
+})
 export default class SettingContainer extends Vue {
   group: boolean = false
+  notificationView: boolean = false
   title: string = ''
   $electron: any
+
+  storageUsage: number = 0
+  storageView: boolean = false
+  storages: any = {}
+
+  created() {
+    const identityNumber = getIdentityNumber(true)
+    const newDir = path.join(remote.app.getPath('userData'), identityNumber)
+    const dirsMap: any = dirSize(newDir)
+    this.storageUsage = dirsMap[newDir]
+    Object.keys(dirsMap).forEach(dir => {
+      const subDir = dir.split(`${newDir}/Media`)[1]
+      if (subDir) {
+        const type = this.getMediaType(subDir)
+        if (!type) return
+        const pieces = subDir.split('/')
+        const conversationId = pieces[pieces.length - 1]
+
+        this.storages[conversationId] = this.storages[conversationId] || {}
+        this.storages[conversationId][type] = dirsMap[dir]
+      }
+    })
+  }
+
+  getMediaType(dir: string) {
+    if (dir.includes('/Images/')) {
+      return 'image'
+    }
+    if (dir.includes('/Videos/')) {
+      return 'video'
+    }
+    if (dir.includes('/Audios/')) {
+      return 'audio'
+    }
+    if (dir.includes('/Files/')) {
+      return 'file'
+    }
+    return ''
+  }
 
   get version() {
     let version = this.$t('version')
@@ -39,6 +110,17 @@ export default class SettingContainer extends Vue {
   checkUpdate() {
     ipcRenderer.send('checkUp')
   }
+
+  backupRestore() {}
+
+  manageStorage() {
+    this.storageView = true
+  }
+
+  storageBack() {
+    this.storageView = false
+  }
+
   open(url: string) {
     browser.loadURL(url, '')
   }
@@ -93,6 +175,12 @@ export default class SettingContainer extends Vue {
       &.current {
         background: $hover-bg-color;
       }
+      line-height: 1;
+      small {
+        font-weight: normal;
+        line-height: 1;
+        color: $light-font-color;
+      }
     }
   }
   .version {
@@ -100,5 +188,23 @@ export default class SettingContainer extends Vue {
     font-size: 0.7rem;
     font-weight: 500;
   }
+}
+.overlay {
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+}
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-right-enter,
+.slide-right-leave-to {
+  transform: translateX(200%);
 }
 </style>

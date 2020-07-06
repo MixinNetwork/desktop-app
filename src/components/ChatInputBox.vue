@@ -127,6 +127,7 @@ export default class ChatItem extends Vue {
   onConversationChanged(newC: any, oldC: any) {
     this.mentions = []
     const $target: any = this.$refs.box
+    if (!$target) return
     requestAnimationFrame(() => {
       const numbers = contentUtil.parseMentionIdentityNumber($target.innerText)
       if (numbers.length > 0) {
@@ -196,12 +197,16 @@ export default class ChatItem extends Vue {
     const conversationId = this.conversation.conversationId
     const $target: any = this.$refs.box
     const $wrap: any = this.$refs.boxWrap
+    this.inputBoxHeight = 36
     if ($target) {
       this.inputBoxHeight = $wrap.getBoundingClientRect().height
       const html = $target.innerHTML
       this.handleMention($target)
       this.conversation.draft = html
       this.conversation.draftText = $target.innerText
+      if (this.conversation.draftText.length < 10) {
+        this.inputBoxHeight = 36
+      }
       conversationDao.updateConversationDraftById(conversationId, html)
     }
   }

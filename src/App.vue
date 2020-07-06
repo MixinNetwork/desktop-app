@@ -111,17 +111,17 @@ export default class App extends Vue {
         if (keyCode === 65) {
           this.$root.$emit('selectAllKeyDown', e)
         }
-
-        clearTimeout(directionKeyDownTimeout)
       }
-      if (keyCode === 38) {
+      if (keyCode === 38 && !directionKeyDownTimeout) {
         directionKeyDownTimeout = setTimeout(() => {
           this.$root.$emit('directionKeyDown' + (ctrlKey ? 'WithCtrl' : ''), 'up')
+          directionKeyDownTimeout = null
         }, 10)
       }
-      if (keyCode === 40) {
+      if (keyCode === 40 && !directionKeyDownTimeout) {
         directionKeyDownTimeout = setTimeout(() => {
           this.$root.$emit('directionKeyDown' + (ctrlKey ? 'WithCtrl' : ''), 'down')
+          directionKeyDownTimeout = null
         }, 10)
       }
     }

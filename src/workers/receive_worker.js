@@ -17,7 +17,8 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
-import { sendNotification, generateConversationId } from '@/utils/util'
+import { sendNotification, generateConversationId, delMedia } from '@/utils/util'
+
 import contentUtil from '@/utils/content_util'
 import { checkSignalKey } from '@/utils/signal_key_util'
 import { remote } from 'electron'
@@ -245,6 +246,7 @@ class ReceiveWorker extends BaseWorker {
   async processRecallMessage(data) {
     const recallMassage = JSON.parse(decodeURIComponent(escape(window.atob(data.data))))
     let message = messageDao.getMessageById(recallMassage.message_id)
+    delMedia([message])
     if (message) {
       messageDao.recallMessage(recallMassage.message_id)
       let quoteItem = messageDao.findMessageItemById(data.conversation_id, recallMassage.message_id)
@@ -567,7 +569,19 @@ class ReceiveWorker extends BaseWorker {
     messageDao.insertMessage(message)
     insertMessageQueuePush(message, async() => {
       const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-      if (offset <= 1800000 && store.state.currentConversationId === message.conversation_id) {
+      const curMessageType = messageType(message.category)
+      let autoDownload = curMessageType === 'audio'
+      if (offset <= 7200000 && store.state.currentConversationId === message.conversation_id) {
+        const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+        let autoDownloadMap = { image: true, video: true, file: true }
+        if (autoDownloadSetting) {
+          autoDownloadMap = JSON.parse(autoDownloadSetting)
+        }
+        if (autoDownloadMap[curMessageType]) {
+          autoDownload = true
+        }
+      }
+      if (autoDownload) {
         downloadQueue.push(downloadAndRefresh, {
           args: message
         })
@@ -578,7 +592,11 @@ class ReceiveWorker extends BaseWorker {
   async processDecryptSuccess(data, plaintext) {
     const user = await this.syncUser(data.user_id)
     let status = data.status
-    if (BrowserWindow.getFocusedWindow() && store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
+    if (
+      BrowserWindow.getFocusedWindow() &&
+      store.state.currentConversationId === data.conversation_id &&
+      data.user_id !== this.getAccountId()
+    ) {
       status = MessageStatus.READ
     }
     let quoteMessage = messageDao.findMessageItemById(data.conversation_id, data.quote_message_id)
@@ -732,6 +750,9 @@ class ReceiveWorker extends BaseWorker {
     } else if (curMessageType === 'file') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
+      if (!mediaData || !mediaData.size) {
+        return
+      }
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,
@@ -755,6 +776,9 @@ class ReceiveWorker extends BaseWorker {
     } else if (curMessageType === 'audio') {
       const decoded = decodeURIComponent(escape(window.atob(plaintext)))
       const mediaData = JSON.parse(decoded)
+      if (!mediaData || !mediaData.size) {
+        return
+      }
       const message = {
         message_id: data.message_id,
         conversation_id: data.conversation_id,

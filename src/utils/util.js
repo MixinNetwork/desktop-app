@@ -180,7 +180,7 @@ export function keyToLine(name) {
 export function sendNotification(title, body, conversation) {
   let notificationSetting = {}
   try {
-    notificationSetting = JSON.parse(localStorage.getItem('notificationSetting'))
+    notificationSetting = JSON.parse(localStorage.getItem('notificationSetting') || '{}')
   } catch (error) {}
   if (!notificationSetting.hideNotification) {
     let newNotification = new Notification(title, {

@@ -42,7 +42,7 @@ ipcRenderer.on('mixin-protocol', (event: Electron.IpcRendererEvent, url: string)
     if (url.startsWith(`${source}/`)) {
       if (key === 'USERS') {
         const userId = url.split(`${source}/`)[1]
-        console.log(userId)
+        Vue.prototype.$showUserDetail(userId)
       } else if (httpStr) {
         browser.loadURL(`${httpStr}${url.split(source)[1]}`, '')
       }

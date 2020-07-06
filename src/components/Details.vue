@@ -122,6 +122,7 @@ export default class Details extends Vue {
   @Action('refreshUser') actionRefreshUser: any
   @Action('syncConversation') actionSyncConversation: any
   @Action('unblock') actionUnblock: any
+  @Action('setCurrentUser') actionSetCurrentUser: any
 
   @Action('participantSetAsAdmin') actionParticipantSetAsAdmin: any
   @Action('participantDismissAdmin') actionParticipantDismissAdmin: any
@@ -310,6 +311,11 @@ export default class Details extends Vue {
     const userId = this.user.user_id
     const { conversationId } = this.conversation
     userApi.updateRelationship({ user_id: userId, full_name: this.user.full_name, action: 'ADD' }).then((res: any) => {
+      if (res.data) {
+        const user = res.data.data
+        this.actionSetCurrentUser(user)
+        this.user = user
+      }
     })
   }
 
@@ -322,7 +328,7 @@ export default class Details extends Vue {
   }
 
   get profileCanEdit() {
-    if (!this.me || !this.user) return false
+    if (!this.me || !this.user || this.detailUserId) return false
     return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
   }
 
@@ -339,7 +345,7 @@ export default class Details extends Vue {
     return this.$t('chat.title_participants', { '0': conversation.participants.length })
   }
 
-  get userId() {
+  get detailUserId() {
     if (!this.user.isCurrent) {
       return this.user.user_id
     }
@@ -347,7 +353,7 @@ export default class Details extends Vue {
   }
 
   get name() {
-    if (this.userId) {
+    if (this.detailUserId) {
       return this.user.full_name
     }
     const { conversation } = this
@@ -361,13 +367,13 @@ export default class Details extends Vue {
   }
 
   get isContact() {
-    return this.conversation.category === ConversationCategory.CONTACT || this.userId
+    return this.conversation.category === ConversationCategory.CONTACT || this.detailUserId
   }
 
   updateView() {
     if (this.isContact) {
       this.actionRefreshUser({
-        userId: this.userId || this.conversation.ownerId,
+        userId: this.detailUserId || this.conversation.ownerId,
         conversationId: this.conversation.conversationId
       })
     }

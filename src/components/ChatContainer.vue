@@ -436,6 +436,11 @@ export default class ChatContainer extends Vue {
       }
     })
 
+    Vue.prototype.$showUserDetail = (userId: string) => {
+      let user = userDao.findUserById(userId)
+      this.showDetails(user)
+    }
+
     let windowsFocused = false
     setInterval(() => {
       if (!windowsFocused && this.conversation && BrowserWindow.getFocusedWindow()) {

@@ -160,6 +160,7 @@
         :changed="changeConversation"
         :details="details"
         @close="hideDetails"
+        @send-message="detailSendMessage"
         @share="handleContactForward"
         @add-participant="participantAdd=true"
       ></Details>
@@ -774,6 +775,10 @@ export default class ChatContainer extends Vue {
       this.goSearchPos = false
       this.$refs.inputBox.boxFocusAction()
     })
+  }
+
+  detailSendMessage() {
+    this.$refs.inputBox.boxFocusAction()
   }
 
   goMessagePosLock: boolean = false

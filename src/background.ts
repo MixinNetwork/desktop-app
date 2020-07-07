@@ -8,6 +8,10 @@ import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater
 import { initPlayer } from './player'
 import path from 'path'
 
+app.disableHardwareAcceleration()
+
+app.allowRendererProcessReuse = true
+
 ipcMain.on('updateBadgeCount', (event, count) => {
   if (process.platform === 'darwin') {
     app.badgeCount = count

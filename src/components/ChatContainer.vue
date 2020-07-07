@@ -891,7 +891,9 @@ export default class ChatContainer extends Vue {
         if (list.scrollTop !== list.scrollHeight) {
           list.scrollTop = list.scrollHeight
         }
-        this.showScroll = true
+        setTimeout(() => {
+          this.showScroll = true
+        }, 300)
       }, 100)
     })
     messageBox.clearUnreadNum()

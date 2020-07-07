@@ -38,7 +38,7 @@ class MessageBox {
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
         posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
-        if (messagePositionIndex % PerPageMessageCount < 10) {
+        if (messagePositionIndex % PerPageMessageCount < PerPageMessageCount / 2) {
           this.infiniteDown()
         } else {
           this.infiniteUp()
@@ -191,6 +191,10 @@ class MessageBox {
 
   infiniteScroll(direction: any) {
     const messages = this.nextPage(direction)
+    const messageIds: any = []
+    this.messages.forEach((item: any) => {
+      messageIds.push(item.messageId)
+    })
     if (direction === 'down') {
       if (!messages.length) {
         setTimeout(() => {
@@ -205,7 +209,9 @@ class MessageBox {
         if (temp.messageId === lastMessageId) {
           break
         }
-        newMessages.unshift(temp)
+        if (messageIds.indexOf(temp.messageId) < 0) {
+          newMessages.unshift(temp)
+        }
       }
       this.messages.push(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
@@ -224,7 +230,9 @@ class MessageBox {
         if (temp.messageId === firstMessageId) {
           break
         }
-        newMessages.push(temp)
+        if (messageIds.indexOf(temp.messageId) < 0) {
+          newMessages.push(temp)
+        }
       }
       this.messages.unshift(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)

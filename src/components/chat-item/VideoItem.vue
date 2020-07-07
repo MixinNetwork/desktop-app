@@ -8,7 +8,11 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content" :class="{reply: message.quoteContent}" :style="message.quoteContent ? `width: ${videoSize.width+8}px` : ''">
+        <div
+          class="content"
+          :class="{reply: message.quoteContent}"
+          :style="message.quoteContent ? `width: ${videoSize.width+8}px` : ''"
+        >
           <div class="content-in">
             <ReplyMessageItem
               v-if="message.quoteContent"
@@ -18,8 +22,12 @@
             ></ReplyMessageItem>
             <div class="video-box">
               <div class="left-label">
-                <span v-if="loading || waitStatus">{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
-                <span v-else>{{ $moment((Math.round((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
+                <span
+                  v-if="loading || waitStatus"
+                >{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
+                <span
+                  v-else
+                >{{ $moment((Math.round((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
               </div>
               <LoadingIcon
                 v-if="loading && fetchPercentMap[message.messageId] !== 100"
@@ -34,13 +42,6 @@
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
               />
-              <!-- <div
-                v-else
-                class="play"
-                @mediaClick="$emit('mediaClick')"
-              >
-                <svg-icon class="icon" icon-class="ic_play" />
-              </div> -->
               <div class="media">
                 <img
                   v-if="waitStatus"
@@ -49,8 +50,11 @@
                   :src="'data:image/jpeg;base64,' + message.thumbImage"
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
                 />
-                <video v-show="!waitStatus" class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus"
-                  :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
+                <video-player
+                  v-else
+                  ref="videoPlayer"
+                  :options="playerOptions"
+                ></video-player>
               </div>
             </div>
           </div>
@@ -94,7 +98,6 @@ export default class VideoItem extends Vue {
 
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
-  showLoading: boolean = false
   $moment: any
 
   messageOwnership() {
@@ -112,10 +115,24 @@ export default class VideoItem extends Vue {
     this.$store.dispatch('stopLoading', this.message.messageId)
   }
 
-  mounted() {
-    // @ts-ignore
-    this.$refs.videoPlayer.oncanplaythrough = () => {
-      this.showLoading = true
+  get videoPlayer() {
+    return this.$refs.videoPlayer
+  }
+
+  get playerOptions() {
+    return {
+      muted: true,
+      language: 'en',
+      playbackRates: [0.5, 1.0, 1.5, 2.0],
+      width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
+      height: this.videoSize.height,
+      sources: [
+        {
+          type: 'video/mp4',
+          src: this.message.mediaUrl
+        }
+      ],
+      poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
     }
   }
 
@@ -189,6 +206,7 @@ export default class VideoItem extends Vue {
       position: relative;
       .left-label {
         position: absolute;
+        z-index: 100;
         font-size: 0.55rem;
         color: #fff;
         background: #33333355;
@@ -197,7 +215,8 @@ export default class VideoItem extends Vue {
         top: 0.3rem;
         padding: 0.1rem 0.2rem;
       }
-      .play, .loading {
+      .play,
+      .loading {
         width: 1.6rem;
         height: 1.6rem;
         left: 50%;
@@ -207,7 +226,7 @@ export default class VideoItem extends Vue {
         z-index: 3;
       }
       .accachment {
-        background: #000000B6;
+        background: #000000b6;
         color: #fff;
       }
       .media {

@@ -18,12 +18,16 @@ import i18n from '@/utils/i18n'
 import moment from 'moment'
 import { faArrowLeft, faArrowRight, faChevronDown, faSearch } from '@fortawesome/free-solid-svg-icons'
 import { faPaperPlane } from '@fortawesome/free-regular-svg-icons'
-import './assets'
-import 'highlight.js/styles/default.css'
 import Markdown from '@/components/markdown'
 import Wrapper from '@/components/markdown/wrapper'
 import VueIntersect from '@/components/intersect'
 import VueTitlebar from '@/components/titlebar/index'
+import VideoPlayer from '@/components/video-player'
+
+import 'highlight.js/styles/default.css'
+import './assets/index'
+// import 'video.js/dist/video-js.css'
+import '@/components/video-player/video.scss'
 
 const fontawesome = require('@fortawesome/vue-fontawesome')
 library.add(faArrowLeft, faArrowRight, faChevronDown, faSearch, faPaperPlane)
@@ -40,6 +44,7 @@ Vue.use(Markdown)
 Vue.use(Wrapper)
 Vue.use(VueIntersect)
 Vue.use(VueTitlebar)
+Vue.use(VideoPlayer)
 
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

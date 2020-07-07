@@ -47,6 +47,11 @@ export default class MixinScrollbar extends Vue {
     this.thumbShow = false
   }
 
+  @Watch('thumbHeight')
+  onThumbHeightChange(val: any) {
+    this.dragging = false
+  }
+
   scrollInit() {
     const scrollBox = this.scrollBox
 
@@ -85,7 +90,7 @@ export default class MixinScrollbar extends Vue {
       }
       const maxScrollTop = scrollHeight - clientHeight
       requestAnimationFrame(() => {
-        this.thumbHeight = (clientHeight / scrollHeight) * clientHeight
+        this.thumbHeight = Math.floor((clientHeight / scrollHeight) * clientHeight)
         let thumbTop: number = (scrollTop * (clientHeight - this.thumbHeight)) / maxScrollTop
         if (thumbTop > clientHeight - this.thumbHeight - 25) {
           thumbTop = Math.floor(thumbTop)

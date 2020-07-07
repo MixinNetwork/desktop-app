@@ -175,6 +175,7 @@ export default class ChatItem extends Vue {
     if (this.$refs.box) {
       requestAnimationFrame(() => {
         const $target: any = this.$refs.box
+        if (!$target) return
         if (!keep) {
           $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
           const $wrap: any = this.$refs.boxWrap

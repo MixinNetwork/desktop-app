@@ -352,7 +352,6 @@ export default class ChatContainer extends Vue {
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
-  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
   @Action('markRead') actionMarkRead: any

@@ -301,6 +301,7 @@ export default class Details extends Vue {
     this.$store.dispatch('createUserConversation', {
       user: this.user
     })
+    this.$emit('send-message')
   }
 
   shareContact() {

@@ -4,11 +4,11 @@
     <div class="scrollbar-track" @mouseover="trackHover(true)" @mouseout="trackHover(false)"></div>
     <div
       class="scrollbar-thumb"
-      :class="{dragging}"
+      :class="{ dragging }"
       @mouseover="thumbMouseOver"
       @mouseout="thumbMouseOut"
       @mousedown="thumbMouseDown"
-      v-show="thumbShowForce"
+      v-show="!hideScroll"
       :style="{
         opacity: thumbShow ? 1 : 0,
         transform: `translate3d(0, ${thumbTop}px, 0)`,
@@ -24,19 +24,17 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
 @Component
 export default class MixinScrollbar extends Vue {
-  @Prop(Boolean) readonly goBottom: any
+  @Prop(Boolean) readonly hideScroll: any
   @Prop(Boolean) readonly isBottom: any
   @Prop(Object) readonly globalOptions: any
   @Prop(Object) readonly options: any
 
   scrollBox: any = null
   scrollThumb: any = null
-  goBottomTimeout: any = null
   thumbShowTimeout: any = null
   thumbTop: any = 0
   thumbHeight: any = 25
   thumbShow: boolean = false
-  thumbShowForce: boolean = false
   thumbShowLock: boolean = false
   tempThumb: any = {
     top: 0,
@@ -44,22 +42,17 @@ export default class MixinScrollbar extends Vue {
   }
   dragging: boolean = false
 
-  @Watch('goBottom')
-  onGoBottomChange() {
-    this.thumbShowForce = false
+  @Watch('hideScroll')
+  onHideScrollChange() {
     this.thumbShow = false
-    this.thumbShowLock = true
-    clearTimeout(this.goBottomTimeout)
-    this.goBottomTimeout = setTimeout(() => {
-      this.thumbShowForce = true
-      this.thumbShowLock = false
-    }, 100)
+  }
+
+  @Watch('thumbHeight')
+  onThumbHeightChange(val: any) {
+    this.dragging = false
   }
 
   scrollInit() {
-    setTimeout(() => {
-      this.thumbShowForce = true
-    }, 300)
     const scrollBox = this.scrollBox
 
     scrollBox.scrollTop = 0
@@ -83,7 +76,9 @@ export default class MixinScrollbar extends Vue {
       beforeScrollTop = scrollTop
 
       if (!this.thumbShowLock && !this.thumbShow) {
-        this.thumbShow = true
+        if (!this.hideScroll) {
+          this.thumbShow = true
+        }
       }
       if (this.thumbShow) {
         clearTimeout(this.thumbShowTimeout)
@@ -95,7 +90,7 @@ export default class MixinScrollbar extends Vue {
       }
       const maxScrollTop = scrollHeight - clientHeight
       requestAnimationFrame(() => {
-        this.thumbHeight = (clientHeight / scrollHeight) * clientHeight
+        this.thumbHeight = Math.floor((clientHeight / scrollHeight) * clientHeight)
         let thumbTop: number = (scrollTop * (clientHeight - this.thumbHeight)) / maxScrollTop
         if (thumbTop > clientHeight - this.thumbHeight - 25) {
           thumbTop = Math.floor(thumbTop)

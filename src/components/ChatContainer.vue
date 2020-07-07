@@ -40,7 +40,7 @@
     <mixin-scrollbar
       :style="(panelChoosing === 'stickerOpen' ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing === 'stickerOpen' ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
-      :goBottom="!showScroll"
+      :hideScroll="!showScroll"
       @scroll="onScroll"
     >
       <TimeDivide
@@ -160,6 +160,7 @@
         :changed="changeConversation"
         :details="details"
         @close="hideDetails"
+        @send-message="detailSendMessage"
         @share="handleContactForward"
         @add-participant="participantAdd=true"
       ></Details>
@@ -247,6 +248,7 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
     this.file = null
     this.showMessages = false
+    this.showScroll = false
     this.boxMessage = null
     this.scrollTimerThrottle = null
     this.getLastMessage = false
@@ -351,7 +353,6 @@ export default class ChatContainer extends Vue {
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
-  @Action('setCurrentUser') actionSetCurrentUser: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
   @Action('markRead') actionMarkRead: any
@@ -776,9 +777,16 @@ export default class ChatContainer extends Vue {
     })
   }
 
+  detailSendMessage() {
+    this.$refs.inputBox.boxFocusAction()
+  }
+
   goMessagePosLock: boolean = false
   goMessagePosTimer: any = null
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
+    if (this.getLastMessage) {
+      this.getLastMessage = false
+    }
     setTimeout(() => {
       this.infiniteDownLock = false
       let targetDom: any = document.querySelector('.unread-divide')
@@ -806,9 +814,6 @@ export default class ChatContainer extends Vue {
       } else {
         goDone = true
         clearTimeout(this.goMessagePosTimer)
-        if (!this.isBottom) {
-          this.getLastMessage = false
-        }
         if (messageDom) {
           if (
             this.goMessagePosType === 'search' ||
@@ -856,10 +861,10 @@ export default class ChatContainer extends Vue {
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
+    this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
     setTimeout(() => {
-      this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       this.showScroll = true
-    }, 100)
+    }, 300)
   }
 
   goBottom(currentMessageLen: number = 0) {
@@ -886,7 +891,9 @@ export default class ChatContainer extends Vue {
         if (list.scrollTop !== list.scrollHeight) {
           list.scrollTop = list.scrollHeight
         }
-        this.showScroll = true
+        setTimeout(() => {
+          this.showScroll = true
+        }, 300)
       }, 100)
     })
     messageBox.clearUnreadNum()

@@ -40,7 +40,7 @@
     <mixin-scrollbar
       :style="(panelChoosing === 'stickerOpen' ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing === 'stickerOpen' ? `margin-bottom: ${panelHeight}rem;` : '')"
       v-if="conversation"
-      :goBottom="!showScroll"
+      :hideScroll="!showScroll"
       @scroll="onScroll"
     >
       <TimeDivide
@@ -248,6 +248,7 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
     this.file = null
     this.showMessages = false
+    this.showScroll = false
     this.boxMessage = null
     this.scrollTimerThrottle = null
     this.getLastMessage = false
@@ -860,10 +861,10 @@ export default class ChatContainer extends Vue {
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
+    this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
     setTimeout(() => {
-      this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       this.showScroll = true
-    }, 100)
+    }, 300)
   }
 
   goBottom(currentMessageLen: number = 0) {

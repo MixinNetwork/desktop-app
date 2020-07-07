@@ -784,6 +784,9 @@ export default class ChatContainer extends Vue {
   goMessagePosLock: boolean = false
   goMessagePosTimer: any = null
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
+    if (this.getLastMessage) {
+      this.getLastMessage = false
+    }
     setTimeout(() => {
       this.infiniteDownLock = false
       let targetDom: any = document.querySelector('.unread-divide')
@@ -811,9 +814,6 @@ export default class ChatContainer extends Vue {
       } else {
         goDone = true
         clearTimeout(this.goMessagePosTimer)
-        if (!this.isBottom) {
-          this.getLastMessage = false
-        }
         if (messageDom) {
           if (
             this.goMessagePosType === 'search' ||

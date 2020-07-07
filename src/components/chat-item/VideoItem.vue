@@ -27,7 +27,7 @@
                 >{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
                 <span
                   v-else
-                >{{ $moment((Math.round((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
+                >{{ $moment((Math.floor((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
               </div>
               <LoadingIcon
                 v-if="loading && fetchPercentMap[message.messageId] !== 100"
@@ -123,7 +123,7 @@ export default class VideoItem extends Vue {
     return {
       muted: true,
       language: 'en',
-      playbackRates: [0.5, 1.0, 1.5, 2.0],
+      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
       width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
       height: this.videoSize.height,
       sources: [
@@ -210,9 +210,9 @@ export default class VideoItem extends Vue {
         font-size: 0.55rem;
         color: #fff;
         background: #33333355;
-        border-radius: 0.3rem;
-        left: 0.3rem;
-        top: 0.3rem;
+        border-radius: 0.15rem;
+        left: 0.25rem;
+        top: 0.25rem;
         padding: 0.1rem 0.2rem;
       }
       .play,

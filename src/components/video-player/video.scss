@@ -1538,6 +1538,26 @@ video::-webkit-media-text-track-display {
   line-height: inherit;
 }
 
+.vjs-fullscreen {
+  .vjs-current-time,
+  .vjs-duration,
+  .vjs-time-divider {
+    display: block;
+    font-size: 0.55rem;
+  }
+  .vjs-current-time {
+    padding-right: 0;
+  }
+  .vjs-duration {
+    padding-left: 0;
+  }
+  .vjs-time-divider {
+    padding: 0;
+    min-width: 0.5rem;
+    text-align: center;
+  }
+}
+
 .video-js:not(.vjs-fullscreen).vjs-layout-small .vjs-current-time,
 .video-js:not(.vjs-fullscreen).vjs-layout-small .vjs-time-divider,
 .video-js:not(.vjs-fullscreen).vjs-layout-small .vjs-duration,

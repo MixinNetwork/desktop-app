@@ -44,6 +44,10 @@ export default {
     return state.currentAudio
   },
 
+  currentVideo: (state: { currentVideo: any }) => {
+    return state.currentVideo
+  },
+
   currentMessages: (state: { currentMessages: any }) => {
     return state.currentMessages
   },

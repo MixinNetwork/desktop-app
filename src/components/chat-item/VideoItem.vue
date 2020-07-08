@@ -54,6 +54,7 @@
                   v-else
                   ref="videoPlayer"
                   :options="playerOptions"
+                  @play="onPlayerPlay()"
                 ></video-player>
               </div>
             </div>
@@ -75,7 +76,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
-import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
@@ -95,10 +96,18 @@ export default class VideoItem extends Vue {
 
   @Getter('attachment') attachment: any
   @Getter('fetchPercentMap') fetchPercentMap: any
+  @Getter('currentVideo') currentVideo: any
 
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
   $moment: any
+
+  @Watch('currentVideo.messageId')
+  onCurrentVideoChange(messageId: any) {
+    if (this.videoPlayer && messageId !== this.message.messageId) {
+
+    }
+  }
 
   messageOwnership() {
     let { message, me } = this
@@ -115,7 +124,11 @@ export default class VideoItem extends Vue {
     this.$store.dispatch('stopLoading', this.message.messageId)
   }
 
-  get videoPlayer() {
+  onPlayerPlay() {
+    this.$store.dispatch('setCurrentVideo', this.message)
+  }
+
+  get videoPlayer(): any {
     return this.$refs.videoPlayer
   }
 

@@ -374,6 +374,9 @@ export default {
       }
     }
   },
+  setCurrentVideo: ({ commit }: any, videoMessage: any) => {
+    commit('setCurrentVideo', videoMessage)
+  },
   setCurrentAudio: ({ commit }: any, audioMessage: any) => {
     commit('setCurrentAudio', audioMessage)
   },

@@ -31,6 +31,7 @@ const state = {
     messageAll: null
   },
   currentAudio: null,
+  currentVideo: null,
   showTime: false,
   editing: false,
   linkStatus: LinkStatus.CONNECTED

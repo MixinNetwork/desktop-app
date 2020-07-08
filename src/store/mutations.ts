@@ -326,6 +326,9 @@ export default {
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)
   },
+  setCurrentVideo(state: { currentVideo: any }, videoMessage: any) {
+    state.currentVideo = videoMessage
+  },
   setCurrentAudio(state: { currentAudio: any }, audioMessage: any) {
     state.currentAudio = audioMessage
   },

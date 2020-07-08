@@ -1057,7 +1057,7 @@ body.vjs-full-window {
 .video-js .vjs-volume-panel .vjs-volume-control:active.vjs-volume-horizontal,
 .video-js .vjs-volume-panel.vjs-hover .vjs-mute-control ~ .vjs-volume-control.vjs-volume-horizontal,
 .video-js .vjs-volume-panel .vjs-volume-control.vjs-slider-active.vjs-volume-horizontal {
-  width: 5em;
+  width: 4.5em;
   height: 3em;
   margin-right: 0;
 }
@@ -1073,7 +1073,7 @@ body.vjs-full-window {
 .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-hover,
 .video-js .vjs-volume-panel.vjs-volume-panel-horizontal:active,
 .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-slider-active {
-  width: 8.5em;
+  width: 8em;
   transition: width 0.1s;
 }
 .video-js .vjs-volume-panel.vjs-volume-panel-horizontal.vjs-mute-toggle-only {

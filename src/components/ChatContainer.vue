@@ -114,6 +114,10 @@
       :src="currentAudio && currentAudio.mediaUrl"
     ></audio>
 
+    <div style="display: none" v-if="shadowCurrentVideo">
+      <video-player ref="shadowVideoPlayer" :options="shadowCurrentVideo.playerOptions"></video-player>
+    </div>
+
     <ChatInputBox
       ref="inputBox"
       v-show="conversation"
@@ -326,6 +330,32 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  @Watch('shadowCurrentVideo')
+  onShadowCurrentVideoChanged(val: any) {
+    if (val) {
+      clearInterval(this.pictureInPictureInterval)
+      this.pictureInPictureInterval = setInterval(() => {
+        const player = this.$refs.shadowVideoPlayer.player
+        if (player) {
+          const { muted, volume, currentTime, playbackRate } = val.playerOptions
+          player
+            .requestPictureInPicture()
+            .then((data: any) => {
+              if (data) {
+                this.currentVideoPlayer = null
+                clearInterval(this.pictureInPictureInterval)
+                player.muted(muted)
+                player.volume(volume)
+                player.currentTime(currentTime)
+                player.playbackRate(playbackRate)
+              }
+            })
+            .catch(() => {})
+        }
+      }, 30)
+    }
+  }
+
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
     let { firstIndex, lastIndex } = val
@@ -350,6 +380,38 @@ export default class ChatContainer extends Vue {
     }
 
     this.messagesVisible = this.getMessagesVisible()
+    if (this.shadowCurrentVideo) {
+      let currentVideoFlag = false
+      this.messagesVisible.forEach((item: any) => {
+        if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
+          currentVideoFlag = true
+        }
+      })
+      if (currentVideoFlag) {
+        const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
+        const shadowPlayer = this.$refs.shadowVideoPlayer.player
+        const muted = shadowPlayer.muted()
+        const volume = shadowPlayer.volume()
+        const currentTime = shadowPlayer.currentTime()
+        const playbackRate = shadowPlayer.playbackRate()
+        this.actionSetCurrentVideo(currentVideo)
+        clearInterval(this.pictureInPictureInterval)
+        this.pictureInPictureInterval = setInterval(() => {
+          if (this.currentVideoPlayer) {
+            this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
+              if (data) {
+                clearInterval(this.pictureInPictureInterval)
+                this.currentVideoPlayer.muted(muted)
+                this.currentVideoPlayer.volume(volume)
+                this.currentVideoPlayer.currentTime(currentTime)
+                this.currentVideoPlayer.playbackRate(playbackRate)
+              }
+            }).catch(() => {})
+          }
+        }, 30)
+        this.actionSetShadowCurrentVideo(null)
+      }
+    }
     this.virtualDom = {
       top,
       bottom
@@ -419,6 +481,8 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
 
   participantAdd: boolean = false
+  currentVideoPlayer: any = null
+  pictureInPictureInterval: any = null
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -548,10 +612,16 @@ export default class ChatContainer extends Vue {
       this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
+    this.$root.$on('setCurrentVideoPlayer', (item: any) => {
+      if (!this.shadowCurrentVideo) {
+        this.currentVideoPlayer = item
+      }
+    })
   }
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
+    this.$root.$off('setCurrentVideoPlayer')
     this.$root.$off('selectAllKeyDown')
     this.$root.$off('escKeydown')
   }

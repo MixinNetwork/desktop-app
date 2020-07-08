@@ -60,7 +60,13 @@
                     />
                     <svg-icon class="play" icon-class="ic_play" />
                   </div>
-                  <video-player v-else ref="videoPlayer" @destroy="videoDestroy" :options="playerOptions"></video-player>
+                  <video-player
+                    v-else
+                    ref="videoPlayer"
+                    @play="onPlay"
+                    @destroy="videoDestroy"
+                    :options="playerOptions"
+                  ></video-player>
                 </div>
               </div>
             </div>
@@ -127,7 +133,22 @@ export default class VideoItem extends Vue {
     this.$store.dispatch('setCurrentVideo', { message: this.message, playerOptions: this.playerOptions })
   }
 
+  onPlay() {
+    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player)
+  }
+
   videoDestroy() {
+    if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
+      const playerOptions: any = this.playerOptions
+      if (this.videoPlayer.player.isInPictureInPicture_) {
+        const player = this.videoPlayer.player
+        playerOptions.muted = player.muted()
+        playerOptions.volume = player.volume()
+        playerOptions.currentTime = player.currentTime()
+        playerOptions.playbackRate = player.playbackRate()
+        this.$store.dispatch('setShadowCurrentVideo', { message: this.message, playerOptions })
+      }
+    }
   }
 
   get videoPlayer(): any {

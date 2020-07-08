@@ -118,6 +118,9 @@ export default {
   },
   beforeDestroy() {
     if (this.player) {
+      if (this.player.isInPictureInPicture_) {
+        this.player.exitPictureInPicture()
+      }
       this.dispose()
     }
   },

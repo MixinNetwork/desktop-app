@@ -115,7 +115,7 @@
     ></audio>
 
     <div style="display: none" v-if="shadowCurrentVideo">
-      <video-player ref="shadowVideoPlayer" @pause="shadowVideoPause" :options="shadowCurrentVideo.playerOptions"></video-player>
+      <video-player ref="shadowVideoPlayer" :options="shadowCurrentVideo.playerOptions"></video-player>
     </div>
 
     <ChatInputBox
@@ -205,6 +205,7 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
+import { getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
 // @ts-ignore
 import _ from 'lodash'
 import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
@@ -337,18 +338,14 @@ export default class ChatContainer extends Vue {
       this.pictureInPictureInterval = setInterval(() => {
         const player = this.$refs.shadowVideoPlayer.player
         if (player) {
-          const { muted, volume, currentTime, playbackRate } = val.playerOptions
-          this.shadowPlayerPause = false
+          const { muted, paused, volume, currentTime, playbackRate } = val.playerOptions
           player
             .requestPictureInPicture()
             .then((data: any) => {
               if (data) {
                 this.currentVideoPlayer = null
                 clearInterval(this.pictureInPictureInterval)
-                player.muted(muted)
-                player.volume(volume)
-                player.currentTime(currentTime)
-                player.playbackRate(playbackRate)
+                setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
               }
             })
             .catch(() => {})
@@ -391,30 +388,29 @@ export default class ChatContainer extends Vue {
       if (currentVideoFlag) {
         const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
         const shadowPlayer = this.$refs.shadowVideoPlayer.player
-        const muted = shadowPlayer.muted()
-        const volume = shadowPlayer.volume()
-        const currentTime = shadowPlayer.currentTime()
-        const playbackRate = shadowPlayer.playbackRate()
+        const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
+        const playerStatus = getVideoPlayerStatus(shadowPlayer)
         this.actionSetCurrentVideo(currentVideo)
-        if (!this.shadowPlayerPause) {
-          clearInterval(this.pictureInPictureInterval)
-          this.pictureInPictureInterval = setInterval(() => {
-            if (this.currentVideoPlayer) {
-              this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
-                if (data) {
-                  clearInterval(this.pictureInPictureInterval)
-                  this.currentVideoPlayer.muted(muted)
-                  this.currentVideoPlayer.volume(volume)
-                  this.currentVideoPlayer.currentTime(currentTime)
-                  this.currentVideoPlayer.playbackRate(playbackRate)
-                }
-              }).catch(() => {})
+        clearInterval(this.pictureInPictureInterval)
+        this.pictureInPictureInterval = setInterval(() => {
+          if (this.currentVideoPlayer) {
+            if (isInPictureInPicture) {
+              this.currentVideoPlayer
+                .requestPictureInPicture()
+                .then((data: any) => {
+                  if (data) {
+                    clearInterval(this.pictureInPictureInterval)
+                    setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+                  }
+                })
+                .catch(() => {})
+            } else {
+              clearInterval(this.pictureInPictureInterval)
+              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
             }
-          }, 30)
-          this.actionSetShadowCurrentVideo(null)
-        } else {
-          this.actionSetCurrentVideo(null)
-        }
+          }
+        }, 30)
+        this.actionSetShadowCurrentVideo(null)
       } else {
         this.currentVideoPlayer = null
       }
@@ -488,7 +484,6 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
 
   participantAdd: boolean = false
-  shadowPlayerPause: boolean = false
   currentVideoPlayer: any = null
   pictureInPictureInterval: any = null
 
@@ -512,10 +507,6 @@ export default class ChatContainer extends Vue {
       return groupName
     }
     return name
-  }
-
-  shadowVideoPause() {
-    this.shadowPlayerPause = true
   }
 
   mounted() {

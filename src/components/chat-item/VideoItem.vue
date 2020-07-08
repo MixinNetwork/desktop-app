@@ -86,7 +86,7 @@ import TimeAndStatus from './TimeAndStatus.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
-import { getNameColorById } from '@/utils/util'
+import { getNameColorById, getVideoPlayerStatus } from '@/utils/util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -142,10 +142,8 @@ export default class VideoItem extends Vue {
       const playerOptions: any = this.playerOptions
       if (this.videoPlayer.player.isInPictureInPicture_) {
         const player = this.videoPlayer.player
-        playerOptions.muted = player.muted()
-        playerOptions.volume = player.volume()
-        playerOptions.currentTime = player.currentTime()
-        playerOptions.playbackRate = player.playbackRate()
+        const playerStatus = getVideoPlayerStatus(player)
+        Object.assign(playerOptions, playerStatus)
         this.$store.dispatch('setShadowCurrentVideo', { message: this.message, playerOptions })
       }
     }

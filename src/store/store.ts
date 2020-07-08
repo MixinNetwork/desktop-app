@@ -32,6 +32,7 @@ const state = {
   },
   currentAudio: null,
   currentVideo: null,
+  shadowCurrentVideo: null,
   showTime: false,
   editing: false,
   linkStatus: LinkStatus.CONNECTED

@@ -326,6 +326,9 @@ export default {
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)
   },
+  setShadowCurrentVideo(state: { shadowCurrentVideo: any }, videoMessage: any) {
+    state.shadowCurrentVideo = videoMessage
+  },
   setCurrentVideo(state: { currentVideo: any }, videoMessage: any) {
     state.currentVideo = videoMessage
   },

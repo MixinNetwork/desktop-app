@@ -48,6 +48,10 @@ export default {
     return state.currentVideo
   },
 
+  shadowCurrentVideo: (state: { shadowCurrentVideo: any }) => {
+    return state.shadowCurrentVideo
+  },
+
   currentMessages: (state: { currentMessages: any }) => {
     return state.currentMessages
   },

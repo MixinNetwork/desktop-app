@@ -364,11 +364,13 @@ export default class ChatContainer extends Vue {
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
   @Getter('currentAudio') currentAudio: any
+  @Getter('shadowCurrentVideo') shadowCurrentVideo: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
+  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any

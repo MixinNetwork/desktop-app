@@ -60,7 +60,7 @@
                     />
                     <svg-icon class="play" icon-class="ic_play" />
                   </div>
-                  <video-player v-else ref="videoPlayer" :options="playerOptions"></video-player>
+                  <video-player v-else ref="videoPlayer" @destroy="videoDestroy" :options="playerOptions"></video-player>
                 </div>
               </div>
             </div>
@@ -108,13 +108,6 @@ export default class VideoItem extends Vue {
   MessageStatus: any = MessageStatus
   $moment: any
 
-  // @Watch('currentVideo.messageId')
-  // onCurrentVideoChange(messageId: any) {
-  //   if (this.videoPlayer && messageId !== this.message.messageId) {
-  //     this.videoPlayer.player.dispose()
-  //   }
-  // }
-
   messageOwnership() {
     let { message, me } = this
     return {
@@ -131,7 +124,10 @@ export default class VideoItem extends Vue {
   }
 
   onPlayerPlay() {
-    this.$store.dispatch('setCurrentVideo', this.message)
+    this.$store.dispatch('setCurrentVideo', { message: this.message, playerOptions: this.playerOptions })
+  }
+
+  videoDestroy() {
   }
 
   get videoPlayer(): any {
@@ -139,7 +135,8 @@ export default class VideoItem extends Vue {
   }
 
   get showPlayIcon() {
-    return !this.currentVideo || this.currentVideo.messageId !== this.message.messageId
+    if (!this.currentVideo) return true
+    return this.currentVideo.message.messageId !== this.message.messageId
   }
 
   get defaultStyle() {
@@ -150,9 +147,8 @@ export default class VideoItem extends Vue {
 
   get playerOptions() {
     return {
-      autoplay: true,
       muted: true,
-      language: 'en',
+      language: navigator.language.split('-')[0],
       playbackRates: ['0.5', '1.0', '1.5', '2.0'],
       width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
       height: this.videoSize.height,

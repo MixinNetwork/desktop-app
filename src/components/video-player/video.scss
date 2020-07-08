@@ -524,18 +524,19 @@ body.vjs-full-window {
 }
 
 .video-js .vjs-big-play-button {
-  font-size: 1.1rem;
-  line-height: 1.6rem;
-  height: 1.6rem;
-  width: 1.6rem;
-  left: 50%;
-  top: 50%;
-  position: absolute;
-  transform: translate(-50%, -50%);
-  cursor: pointer;
-  background: #000000b6;
-  border-radius: 1rem;
-  transition: all 0.4s;
+  display: none;
+  // font-size: 1.1rem;
+  // line-height: 1.6rem;
+  // height: 1.6rem;
+  // width: 1.6rem;
+  // left: 50%;
+  // top: 50%;
+  // position: absolute;
+  // transform: translate(-50%, -50%);
+  // cursor: pointer;
+  // background: #000000b6;
+  // border-radius: 1rem;
+  // transition: all 0.4s;
 }
 .vjs-big-play-centered .vjs-big-play-button {
   top: 50%;

@@ -261,6 +261,7 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    this.actionSetCurrentVideo(null)
     const mixinAudio: any = document.getElementById('mixinAudio')
     if (mixinAudio) {
       mixinAudio.pause()
@@ -367,6 +368,7 @@ export default class ChatContainer extends Vue {
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
+  @Action('setCurrentVideo') actionSetCurrentVideo: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any

@@ -46,16 +46,22 @@
                 <img
                   v-if="waitStatus"
                   class="image"
-                  :style="`background: #333; width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"
+                  :style="defaultStyle"
                   :src="'data:image/jpeg;base64,' + message.thumbImage"
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
                 />
-                <video-player
-                  v-else
-                  ref="videoPlayer"
-                  :options="playerOptions"
-                  @play="onPlayerPlay()"
-                ></video-player>
+                <div v-else>
+                  <div :style="defaultStyle" v-if="showPlayIcon" @click="onPlayerPlay()">
+                    <img
+                      class="image"
+                      :style="defaultStyle"
+                      :src="'data:image/jpeg;base64,' + message.thumbImage"
+                      :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                    />
+                    <svg-icon class="play" icon-class="ic_play" />
+                  </div>
+                  <video-player v-else ref="videoPlayer" :options="playerOptions"></video-player>
+                </div>
               </div>
             </div>
           </div>
@@ -102,12 +108,12 @@ export default class VideoItem extends Vue {
   MessageStatus: any = MessageStatus
   $moment: any
 
-  @Watch('currentVideo.messageId')
-  onCurrentVideoChange(messageId: any) {
-    if (this.videoPlayer && messageId !== this.message.messageId) {
-
-    }
-  }
+  // @Watch('currentVideo.messageId')
+  // onCurrentVideoChange(messageId: any) {
+  //   if (this.videoPlayer && messageId !== this.message.messageId) {
+  //     this.videoPlayer.player.dispose()
+  //   }
+  // }
 
   messageOwnership() {
     let { message, me } = this
@@ -132,8 +138,19 @@ export default class VideoItem extends Vue {
     return this.$refs.videoPlayer
   }
 
+  get showPlayIcon() {
+    return !this.currentVideo || this.currentVideo.messageId !== this.message.messageId
+  }
+
+  get defaultStyle() {
+    return `background: #333; width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${
+      this.videoSize.height
+    }px`
+  }
+
   get playerOptions() {
     return {
+      autoplay: true,
       muted: true,
       language: 'en',
       playbackRates: ['0.5', '1.0', '1.5', '2.0'],
@@ -144,8 +161,8 @@ export default class VideoItem extends Vue {
           type: 'video/mp4',
           src: this.message.mediaUrl
         }
-      ],
-      poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
+      ]
+      // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
     }
   }
 
@@ -230,6 +247,7 @@ export default class VideoItem extends Vue {
       }
       .play,
       .loading {
+        cursor: pointer;
         width: 1.6rem;
         height: 1.6rem;
         left: 50%;

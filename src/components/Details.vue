@@ -21,8 +21,8 @@
               <svg-icon class="edit" v-else icon-class="ic_edit_check" style="margin-top: 0.25rem" />
             </span>
             <span class="bot-icon">
-              <svg-icon icon-class="ic_verify" v-if="conversation.ownerVerified" />
-              <svg-icon icon-class="ic_robot" v-else-if="conversation.appId" />
+              <svg-icon icon-class="ic_verify" v-if="user.is_verified" />
+              <svg-icon icon-class="ic_robot" v-else-if="user.app_id" />
             </span>
           </span>
 

@@ -672,7 +672,10 @@ export default class ChatContainer extends Vue {
       (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
       (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
     ) {
-      this.viewport = this.viewportLimit(index - offset, index + offset)
+      const viewport = this.viewportLimit(index - offset, index + offset)
+      if (viewport.firstIndex !== firstIndex || viewport.lastIndex !== lastIndex) {
+        this.viewport = viewport
+      }
     }
     const curMessage = this.messages[index]
     if (curMessage && isIntersecting && (curMessage.quoteId || curMessage.mentions)) {

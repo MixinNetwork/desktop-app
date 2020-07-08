@@ -115,7 +115,7 @@
     ></audio>
 
     <div style="display: none" v-if="shadowCurrentVideo">
-      <video-player ref="shadowVideoPlayer" :options="shadowCurrentVideo.playerOptions"></video-player>
+      <video-player ref="shadowVideoPlayer" @pause="shadowVideoPause" :options="shadowCurrentVideo.playerOptions"></video-player>
     </div>
 
     <ChatInputBox
@@ -338,6 +338,7 @@ export default class ChatContainer extends Vue {
         const player = this.$refs.shadowVideoPlayer.player
         if (player) {
           const { muted, volume, currentTime, playbackRate } = val.playerOptions
+          this.shadowPlayerPause = false
           player
             .requestPictureInPicture()
             .then((data: any) => {
@@ -395,21 +396,27 @@ export default class ChatContainer extends Vue {
         const currentTime = shadowPlayer.currentTime()
         const playbackRate = shadowPlayer.playbackRate()
         this.actionSetCurrentVideo(currentVideo)
-        clearInterval(this.pictureInPictureInterval)
-        this.pictureInPictureInterval = setInterval(() => {
-          if (this.currentVideoPlayer) {
-            this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
-              if (data) {
-                clearInterval(this.pictureInPictureInterval)
-                this.currentVideoPlayer.muted(muted)
-                this.currentVideoPlayer.volume(volume)
-                this.currentVideoPlayer.currentTime(currentTime)
-                this.currentVideoPlayer.playbackRate(playbackRate)
-              }
-            }).catch(() => {})
-          }
-        }, 30)
-        this.actionSetShadowCurrentVideo(null)
+        if (!this.shadowPlayerPause) {
+          clearInterval(this.pictureInPictureInterval)
+          this.pictureInPictureInterval = setInterval(() => {
+            if (this.currentVideoPlayer) {
+              this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
+                if (data) {
+                  clearInterval(this.pictureInPictureInterval)
+                  this.currentVideoPlayer.muted(muted)
+                  this.currentVideoPlayer.volume(volume)
+                  this.currentVideoPlayer.currentTime(currentTime)
+                  this.currentVideoPlayer.playbackRate(playbackRate)
+                }
+              }).catch(() => {})
+            }
+          }, 30)
+          this.actionSetShadowCurrentVideo(null)
+        } else {
+          this.actionSetCurrentVideo(null)
+        }
+      } else {
+        this.currentVideoPlayer = null
       }
     }
     this.virtualDom = {
@@ -481,6 +488,7 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
 
   participantAdd: boolean = false
+  shadowPlayerPause: boolean = false
   currentVideoPlayer: any = null
   pictureInPictureInterval: any = null
 
@@ -504,6 +512,10 @@ export default class ChatContainer extends Vue {
       return groupName
     }
     return name
+  }
+
+  shadowVideoPause() {
+    this.shadowPlayerPause = true
   }
 
   mounted() {

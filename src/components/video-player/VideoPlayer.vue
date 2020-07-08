@@ -81,7 +81,7 @@ export default {
         controls: true,
         // preload: 'auto',
         // fluid: false,
-        // muted: false,
+        muted: false,
         controlBar: {
           remainingTimeDisplay: false,
           playToggle: {},

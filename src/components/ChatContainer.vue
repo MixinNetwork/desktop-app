@@ -627,6 +627,11 @@ export default class ChatContainer extends Vue {
     this.$root.$on('setCurrentVideoPlayer', (item: any) => {
       if (!this.shadowCurrentVideo) {
         this.currentVideoPlayer = item
+      } else {
+        const player = this.$refs.shadowVideoPlayer.player
+        if (player) {
+          this.actionSetShadowCurrentVideo(null)
+        }
       }
     })
   }

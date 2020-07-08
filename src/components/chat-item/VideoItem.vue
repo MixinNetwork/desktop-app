@@ -168,7 +168,6 @@ export default class VideoItem extends Vue {
 
   get playerOptions() {
     return {
-      muted: true,
       language: navigator.language.split('-')[0],
       playbackRates: ['0.5', '1.0', '1.5', '2.0'],
       width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),

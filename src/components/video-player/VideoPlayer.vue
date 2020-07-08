@@ -119,9 +119,6 @@ export default {
   beforeDestroy() {
     if (this.player) {
       this.$emit('destroy')
-      if (this.player && this.player.isInPictureInPicture_) {
-        this.player.exitPictureInPicture()
-      }
       this.dispose()
     }
   },

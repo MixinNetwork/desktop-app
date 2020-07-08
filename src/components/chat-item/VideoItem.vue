@@ -138,13 +138,15 @@ export default class VideoItem extends Vue {
   }
 
   videoDestroy() {
-    if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
-      const playerOptions: any = this.playerOptions
-      if (this.videoPlayer.player.isInPictureInPicture_) {
+    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
+      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
+        const playerOptions: any = this.playerOptions
         const player = this.videoPlayer.player
         const playerStatus = getVideoPlayerStatus(player)
         Object.assign(playerOptions, playerStatus)
         this.$store.dispatch('setShadowCurrentVideo', { message: this.message, playerOptions })
+      } else {
+        this.videoPlayer.player.exitPictureInPicture()
       }
     }
   }

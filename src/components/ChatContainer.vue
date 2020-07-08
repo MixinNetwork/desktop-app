@@ -333,7 +333,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('shadowCurrentVideo')
   onShadowCurrentVideoChanged(val: any) {
-    if (val) {
+    if (val && !this.pictureInPictureInterval) {
       clearInterval(this.pictureInPictureInterval)
       this.pictureInPictureInterval = setInterval(() => {
         const player = this.$refs.shadowVideoPlayer.player
@@ -345,6 +345,7 @@ export default class ChatContainer extends Vue {
               if (data) {
                 this.currentVideoPlayer = null
                 clearInterval(this.pictureInPictureInterval)
+                this.pictureInPictureInterval = null
                 setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
               }
             })
@@ -391,25 +392,35 @@ export default class ChatContainer extends Vue {
         const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
         const playerStatus = getVideoPlayerStatus(shadowPlayer)
         this.actionSetCurrentVideo(currentVideo)
-        clearInterval(this.pictureInPictureInterval)
-        this.pictureInPictureInterval = setInterval(() => {
-          if (this.currentVideoPlayer) {
-            if (isInPictureInPicture) {
-              this.currentVideoPlayer
-                .requestPictureInPicture()
-                .then((data: any) => {
-                  if (data) {
-                    clearInterval(this.pictureInPictureInterval)
-                    setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
-                  }
-                })
-                .catch(() => {})
-            } else {
-              clearInterval(this.pictureInPictureInterval)
-              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+        if (!this.pictureInPictureInterval) {
+          clearInterval(this.pictureInPictureInterval)
+          this.pictureInPictureInterval = setInterval(() => {
+            if (this.currentVideoPlayer) {
+              if (isInPictureInPicture) {
+                this.currentVideoPlayer
+                  .requestPictureInPicture()
+                  .then((data: any) => {
+                    if (data) {
+                      clearInterval(this.pictureInPictureInterval)
+                      this.pictureInPictureInterval = null
+                      setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+                    }
+                  })
+                  .catch(() => {})
+              } else {
+                clearInterval(this.pictureInPictureInterval)
+                this.pictureInPictureInterval = null
+                setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+              }
             }
+          }, 30)
+        }
+        if (this.$refs.shadowVideoPlayer) {
+          const player = this.$refs.shadowVideoPlayer.player
+          if (player && player.isInPictureInPicture_) {
+            player.exitPictureInPicture()
           }
-        }, 30)
+        }
         this.actionSetShadowCurrentVideo(null)
       } else {
         this.currentVideoPlayer = null

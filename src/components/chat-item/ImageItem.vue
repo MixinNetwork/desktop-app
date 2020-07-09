@@ -39,17 +39,19 @@
                 />
               </div>
             </div>
-            <div v-if="loading" class="loading" @click.stop="stopLoading">
-              <svg-icon class="stop" icon-class="loading-stop-black" />
-              <spinner class="circle" color="#fff"></spinner>
-            </div>
+            <LoadingIcon
+              v-if="loading && fetchPercentMap[message.messageId] !== 100"
+              class="loading"
+              :percent="fetchPercentMap[message.messageId]"
+              @userClick="stopLoading"
+            />
             <AttachmentIcon
-              v-else-if="waitStatus"
+              v-else-if="waitStatus && fetchPercentMap[message.messageId] !== 100"
               class="loading"
               :me="me"
               :message="message"
               @mediaClick="$emit('mediaClick')"
-            ></AttachmentIcon>
+            />
           </div>
           <div class="bottom">
             <TimeAndStatus :relative="true" :message="message" />
@@ -63,8 +65,8 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
-import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import Blurhash from '@/components/blurhash/Blurhash.vue'
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
@@ -79,8 +81,8 @@ import messageDao from '@/dao/message_dao'
   components: {
     ReplyMessageItem,
     BadgeItem,
-    spinner,
     AttachmentIcon,
+    LoadingIcon,
     Blurhash,
     TimeAndStatus
   }
@@ -93,6 +95,7 @@ export default class ImageItem extends Vue {
 
   @Getter('attachment') attachment: any
   @Getter('currentMessages') currentMessages: any
+  @Getter('fetchPercentMap') fetchPercentMap: any
 
   $imageViewer: any
   MessageStatus: any = MessageStatus
@@ -249,22 +252,10 @@ export default class ImageItem extends Vue {
       position: absolute;
       transform: translate(-50%, -50%);
       z-index: 3;
-      .stop {
-        width: 100%;
-        height: 100%;
-        left: 0;
-        z-index: 0;
-        position: absolute;
-        line-height: 100%;
-        cursor: pointer;
-      }
-      .circle {
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-      }
+    }
+    .accachment {
+      background: #000000B6;
+      color: #fff;
     }
     .set {
       max-width: 8rem;

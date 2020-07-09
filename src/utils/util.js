@@ -56,6 +56,26 @@ export function delMedia(messages) {
   })
 }
 
+export function getVideoPlayerStatus(player) {
+  const paused = player.paused()
+  const muted = player.muted()
+  const volume = player.volume()
+  const currentTime = player.currentTime()
+  const playbackRate = player.playbackRate()
+  return { paused, muted, volume, currentTime, playbackRate }
+}
+
+export function setVideoPlayerStatus(player, status) {
+  const { paused, muted, volume, currentTime, playbackRate } = status
+  if (paused) {
+    player.pause()
+  }
+  player.muted(muted)
+  player.volume(volume)
+  player.currentTime(currentTime)
+  player.playbackRate(playbackRate)
+}
+
 export function listFilePath(path) {
   const list = []
   if (fs.existsSync(path)) {

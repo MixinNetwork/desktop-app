@@ -44,12 +44,24 @@ export default {
     return state.currentAudio
   },
 
+  currentVideo: (state: { currentVideo: any }) => {
+    return state.currentVideo
+  },
+
+  shadowCurrentVideo: (state: { shadowCurrentVideo: any }) => {
+    return state.shadowCurrentVideo
+  },
+
   currentMessages: (state: { currentMessages: any }) => {
     return state.currentMessages
   },
 
   tempUnreadMessageId: (state: any) => {
     return state.tempUnreadMessageId
+  },
+
+  fetchPercentMap: (state: any) => {
+    return state.fetchPercentMap
   },
 
   conversationUnseenMentionsMap: (state: { conversationUnseenMentionsMap: any }) => {

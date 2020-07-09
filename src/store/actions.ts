@@ -374,6 +374,12 @@ export default {
       }
     }
   },
+  setShadowCurrentVideo: ({ commit }: any, videoMessage: any) => {
+    commit('setShadowCurrentVideo', videoMessage)
+  },
+  setCurrentVideo: ({ commit }: any, videoMessage: any) => {
+    commit('setCurrentVideo', videoMessage)
+  },
   setCurrentAudio: ({ commit }: any, audioMessage: any) => {
     commit('setCurrentAudio', audioMessage)
   },
@@ -659,6 +665,9 @@ export default {
   },
   stopLoading: ({ commit }: any, messageId: any) => {
     commit('stopLoading', messageId)
+  },
+  updateFetchPercent: ({ commit }: any, payload: any) => {
+    commit('updateFetchPercent', payload)
   },
   download: ({ commit }: any, messageId: any) => {
     commit('startLoading', messageId)

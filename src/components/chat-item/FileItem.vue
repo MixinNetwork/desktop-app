@@ -15,10 +15,13 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <div v-if="loading" class="loading" @click.stop="stopLoading">
-            <svg-icon class="stop" icon-class="loading-stop" />
-            <spinner class="circle" color="rgb(75, 126, 210)"></spinner>
-          </div>
+          <LoadingIcon
+            v-if="loading && fetchPercentMap[message.messageId] !== 100"
+            class="loading"
+            color="rgb(75, 126, 210)"
+            :percent="fetchPercentMap[message.messageId]"
+            @userClick="stopLoading"
+          />
           <AttachmentIcon
             v-else-if="MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus || MediaStatus.PENDING === message.mediaStatus"
             @mediaClick="$emit('mediaClick')"
@@ -43,8 +46,8 @@
 <script lang="ts">
 import fs from 'fs'
 import ReplyMessageItem from './ReplyMessageItem.vue'
-import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import contentUtil from '@/utils/content_util'
@@ -57,7 +60,7 @@ import { Getter } from 'vuex-class'
 @Component({
   components: {
     ReplyMessageItem,
-    spinner,
+    LoadingIcon,
     AttachmentIcon,
     BadgeItem,
     TimeAndStatus
@@ -71,6 +74,7 @@ export default class FileItem extends Vue {
   @Prop(String) readonly searchKeyword: any
 
   @Getter('attachment') attachment: any
+  @Getter('fetchPercentMap') fetchPercentMap: any
 
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus

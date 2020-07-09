@@ -8,7 +8,11 @@
         @click="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
-        <div class="content" :class="{reply: message.quoteContent}" :style="message.quoteContent ? `width: ${videoSize.width+8}px` : ''">
+        <div
+          class="content"
+          :class="{reply: message.quoteContent}"
+          :style="message.quoteContent ? `width: ${videoSize.width+8}px` : ''"
+        >
           <div class="content-in">
             <ReplyMessageItem
               v-if="message.quoteContent"
@@ -17,19 +21,54 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
-              <div v-if="loading" class="loading" @click.stop="stopLoading">
-                <svg-icon class="stop" icon-class="loading-stop-black" />
-                <spinner class="circle" color="#fff"></spinner>
+              <div class="left-label">
+                <span
+                  v-if="loading || waitStatus"
+                >{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
+                <span
+                  v-else
+                >{{ $moment((Math.floor((message.mediaDuration - 0) / 1000) || 1) * 1000).format('mm:ss') }}</span>
               </div>
+              <LoadingIcon
+                v-if="loading && fetchPercentMap[message.messageId] !== 100"
+                class="loading"
+                :percent="fetchPercentMap[message.messageId]"
+                @userClick="stopLoading"
+              />
               <AttachmentIcon
-                v-else-if="waitStatus"
+                v-else-if="waitStatus && fetchPercentMap[message.messageId] !== 100"
                 class="loading"
                 :me="me"
                 :message="message"
                 @mediaClick="$emit('mediaClick')"
-              ></AttachmentIcon>
-              <video class="media" ref="videoPlayer" :src="message.mediaUrl" :controls="showLoading || waitStatus"
-                :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
+              />
+              <div class="media">
+                <img
+                  v-if="waitStatus"
+                  class="image"
+                  :style="defaultStyle"
+                  :src="'data:image/jpeg;base64,' + message.thumbImage"
+                  :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                />
+                <div v-else>
+                  <div :style="defaultStyle" v-if="showPlayIcon" @click="onPlayerPlay()">
+                    <img
+                      class="image"
+                      :style="defaultStyle"
+                      :src="'data:image/jpeg;base64,' + message.thumbImage"
+                      :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                    />
+                    <svg-icon class="play" icon-class="ic_play" />
+                  </div>
+                  <video-player
+                    v-else
+                    ref="videoPlayer"
+                    @play="onPlay"
+                    @destroy="videoDestroy"
+                    :options="playerOptions"
+                  ></video-player>
+                </div>
+              </div>
             </div>
           </div>
           <div class="bottom">
@@ -44,19 +83,19 @@
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import spinner from '@/components/Spinner.vue'
 import AttachmentIcon from '@/components/AttachmentIcon.vue'
-import { MessageStatus, MediaStatus } from '@/utils/constants'
-import { getNameColorById } from '@/utils/util'
+import LoadingIcon from '@/components/LoadingIcon.vue'
+import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
+import { getNameColorById, getVideoPlayerStatus } from '@/utils/util'
 
-import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
 @Component({
   components: {
     AttachmentIcon,
+    LoadingIcon,
     ReplyMessageItem,
-    spinner,
     BadgeItem,
     TimeAndStatus
   }
@@ -68,10 +107,12 @@ export default class VideoItem extends Vue {
   @Prop(Boolean) readonly showName: any
 
   @Getter('attachment') attachment: any
+  @Getter('fetchPercentMap') fetchPercentMap: any
+  @Getter('currentVideo') currentVideo: any
 
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
-  showLoading: boolean = false
+  $moment: any
 
   messageOwnership() {
     let { message, me } = this
@@ -88,11 +129,63 @@ export default class VideoItem extends Vue {
     this.$store.dispatch('stopLoading', this.message.messageId)
   }
 
-  mounted() {
-    // @ts-ignore
-    this.$refs.videoPlayer.oncanplaythrough = () => {
-      this.showLoading = true
+  onPlayerPlay() {
+    this.$store.dispatch('setCurrentVideo', { message: this.message, playerOptions: this.playerOptions })
+  }
+
+  onPlay() {
+    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
+  }
+
+  videoDestroy() {
+    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
+      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
+        const playerOptions: any = this.playerOptions
+        const player = this.videoPlayer.player
+        const playerStatus = getVideoPlayerStatus(player)
+        Object.assign(playerOptions, playerStatus)
+        this.$store.dispatch('setShadowCurrentVideo', { message: this.message, playerOptions })
+      } else {
+        this.videoPlayer.player.exitPictureInPicture()
+      }
+    } else {
+      this.$store.dispatch('setCurrentVideo', null)
     }
+  }
+
+  get videoPlayer(): any {
+    return this.$refs.videoPlayer
+  }
+
+  get showPlayIcon() {
+    if (!this.currentVideo) return true
+    return this.currentVideo.message.messageId !== this.message.messageId
+  }
+
+  get defaultStyle() {
+    return `background: #333; width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${
+      this.videoSize.height
+    }px`
+  }
+
+  get playerOptions() {
+    return {
+      language: navigator.language.split('-')[0],
+      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
+      width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
+      height: this.videoSize.height,
+      sources: [
+        {
+          type: 'video/mp4',
+          src: this.message.mediaUrl
+        }
+      ]
+      // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
+    }
+  }
+
+  get defaultImg() {
+    return DefaultImg
   }
 
   get waitStatus() {
@@ -159,33 +252,34 @@ export default class VideoItem extends Vue {
     }
     .video-box {
       position: relative;
+      .left-label {
+        position: absolute;
+        z-index: 100;
+        font-size: 0.55rem;
+        color: #fff;
+        background: #33333355;
+        border-radius: 0.15rem;
+        left: 0.25rem;
+        top: 0.25rem;
+        padding: 0.1rem 0.2rem;
+      }
+      .play,
       .loading {
+        cursor: pointer;
         width: 1.6rem;
         height: 1.6rem;
         left: 50%;
-        top: calc(50% - 0.4rem);
+        top: 50%;
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: 3;
-        .stop {
-          width: 100%;
-          height: 100%;
-          left: 0;
-          z-index: 0;
-          position: absolute;
-          line-height: 100%;
-          cursor: pointer;
-        }
-        .circle {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-        }
+      }
+      .accachment {
+        background: #000000b6;
+        color: #fff;
       }
       .media {
-        font-size: 0.8rem;
+        font-size: 0;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;

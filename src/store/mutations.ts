@@ -326,6 +326,12 @@ export default {
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)
   },
+  setShadowCurrentVideo(state: { shadowCurrentVideo: any }, videoMessage: any) {
+    state.shadowCurrentVideo = videoMessage
+  },
+  setCurrentVideo(state: { currentVideo: any }, videoMessage: any) {
+    state.currentVideo = videoMessage
+  },
   setCurrentAudio(state: { currentAudio: any }, audioMessage: any) {
     state.currentAudio = audioMessage
   },
@@ -434,6 +440,12 @@ export default {
         return item !== messageId
       })
     }, 1000)
+  },
+  updateFetchPercent(state: { fetchPercentMap: any }, payload: any) {
+    const { id, percent } = payload
+    const fetchPercentMap = JSON.parse(JSON.stringify(state.fetchPercentMap))
+    fetchPercentMap[id] = percent
+    state.fetchPercentMap = fetchPercentMap
   },
   toggleEditor(state: { editing: boolean }) {
     requestAnimationFrame(() => {

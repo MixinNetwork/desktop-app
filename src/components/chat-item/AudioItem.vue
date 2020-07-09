@@ -5,7 +5,7 @@
         class="username"
         v-if="showName"
         :style="{color: getColor(message.userId)}"
-        @click="$emit('user-click')"
+        @click.stop="$emit('user-click')"
       >{{message.userFullName}}</span>
       <BadgeItem @handleMenuClick="$emit('handleMenuClick')" :type="message.type">
         <div class="content">
@@ -15,33 +15,40 @@
             :me="me"
             class="reply"
           ></ReplyMessageItem>
-          <div class="mixin-audio" :class="{ played: audioPlayedMap[message.messageId] || messageOwnership().send }" onselectstart="return false">
+          <div
+            class="mixin-audio"
+            :class="{ played: audioPlayedMap[message.messageId] || messageOwnership().send }"
+            onselectstart="return false"
+          >
             <span class="audio-status">
-              <div v-if="loading" class="loading" @click.stop="stopLoading">
-                <svg-icon class="stop" icon-class="loading-stop" />
-                <spinner class="circle" color="rgb(75, 126, 210)"></spinner>
-              </div>
+              <LoadingIcon
+                v-if="loading && fetchPercentMap[message.messageId] !== 100"
+                class="loading"
+                color="rgb(75, 126, 210)"
+                :percent="fetchPercentMap[message.messageId]"
+                @userClick="stopLoading"
+              />
               <svg-icon
                 class="arrow"
                 icon-class="arrow-down"
                 v-else-if="waitStatus && (message.userId !== me.user_id || !message.mediaUrl)"
-                @click="downloadOrUploadAudio"
+                @click.stop="downloadOrUploadAudio"
               />
               <svg-icon
                 class="arrow"
                 icon-class="arrow-up"
                 v-else-if="waitStatus && message.userId === me.user_id"
-                @click="downloadOrUploadAudio"
+                @click.stop="downloadOrUploadAudio"
               />
               <svg-icon
                 icon-class="ic_audio_play"
                 v-else-if="audioStatus === 'play'"
-                @click="playAudio"
+                @click.stop="playAudio"
               />
               <svg-icon
                 icon-class="ic_audio_pause"
                 v-else-if="audioStatus === 'pause'"
-                @click="playAudio"
+                @click.stop="playAudio"
               />
             </span>
             <!-- <span class="audio-time">{{time}}</span> -->
@@ -57,13 +64,6 @@
               <span class="audio-duration">{{duration}}</span>
             </div>
 
-            <audio
-              ref="mixinAudio"
-              @canplay="canPlay"
-              @timeupdate="timeUpdate"
-              @ended="onEnded"
-              :src="message.mediaUrl"
-            ></audio>
           </div>
           <TimeAndStatus :message="message" />
         </div>
@@ -73,7 +73,7 @@
 </template>
 <script lang="ts">
 import ReplyMessageItem from './ReplyMessageItem.vue'
-import spinner from '@/components/Spinner.vue'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
@@ -85,7 +85,7 @@ import { Getter } from 'vuex-class'
 @Component({
   components: {
     ReplyMessageItem,
-    spinner,
+    LoadingIcon,
     BadgeItem,
     TimeAndStatus
   }
@@ -109,24 +109,11 @@ export default class AudioItem extends Vue {
   @Getter('attachment') attachment: any
   @Getter('currentAudio') currentAudio: any
   @Getter('currentMessages') currentMessages: any
+  @Getter('fetchPercentMap') fetchPercentMap: any
 
-  @Watch('currentAudio')
-  onCurrentAudioChange(data: any) {
-    const mixinAudio: any = this.$refs.mixinAudio
-    if (!mixinAudio) return
-    if (data.messageId !== this.message.messageId) {
-      if (!mixinAudio.paused) {
-        mixinAudio.pause()
-        mixinAudio.currentTime = 0
-        this.audioStatus = 'play'
-      }
-    } else {
-      if (mixinAudio.paused) {
-        this.audioStatus = 'pause'
-        mixinAudio.volume = 1
-        mixinAudio.play()
-      }
-    }
+  @Watch('currentAudio.messageId')
+  onCurrentAudioChange(messageId: any) {
+    this.updateCurrentAudio(messageId)
   }
 
   @Watch('audioStatus')
@@ -144,15 +131,46 @@ export default class AudioItem extends Vue {
     }
   }
 
-  created() {
+  mounted() {
     this.audioPlayedMap = this.getAudioPlayedMap()
     if (this.message.mediaStatus === MediaStatus.DONE) {
       this.audioStatus = 'play'
     }
+    this.duration = this.transTime(this.message.mediaDuration / 1000)
+    this.timeUpdate()
+
+    this.$root.$on('audioTimeupdate', () => {
+      this.timeUpdate()
+    })
+    this.$root.$on('audioEnded', () => {
+      this.onEnded()
+    })
+  }
+
+  beforeDestroy() {
+    this.$root.$off('audioTimeupdate')
+    this.$root.$off('audioEnded')
   }
 
   stopLoading() {
     this.$store.dispatch('stopLoading', this.message.messageId)
+  }
+
+  updateCurrentAudio(curMessageId: string) {
+    const mixinAudio: any = document.getElementById('mixinAudio')
+    if (!mixinAudio) return
+    if (curMessageId !== this.message.messageId) {
+      this.timeReset()
+    } else {
+      if (mixinAudio.paused) {
+        this.audioStatus = 'pause'
+        mixinAudio.volume = 1
+        mixinAudio.play()
+      } else {
+        this.audioStatus = 'play'
+        mixinAudio.pause()
+      }
+    }
   }
 
   getAudioPlayedMap() {
@@ -174,60 +192,52 @@ export default class AudioItem extends Vue {
     this.$emit('mediaClick')
   }
   playAudio() {
-    const mixinAudio: any = this.$refs.mixinAudio
-    if (!mixinAudio) return
-    if (mixinAudio.paused) {
-      this.audioStatus = 'pause'
-      this.$store.dispatch('setCurrentAudio', this.message)
-      mixinAudio.volume = 1
-      mixinAudio.play()
+    if (this.currentAudio && this.message.messageId === this.currentAudio.messageId) {
+      this.updateCurrentAudio(this.message.messageId)
     } else {
-      this.audioStatus = 'play'
-      mixinAudio.pause()
+      this.$store.dispatch('setCurrentAudio', this.message)
     }
   }
-  timeUpdate() {
-    const audio: any = this.$refs.mixinAudio
-    if (!audio) return
-    this.duration = this.transTime(audio.duration)
-    let timeStr = parseInt(audio.currentTime)
-    this.time = this.transTime(timeStr)
-    let scales = audio.currentTime / audio.duration
-    this.progressStyle.width = scales * 100 + '%'
-    this.dotStyle.left = scales * 100 + '%'
-    if (scales === 1) {
-      const messages = this.currentMessages
-      let nextAudioMessage = null
-      let currentAudioId = ''
-      for (let i = 0; i < messages.length; i++) {
-        if (messageType(messages[i].type) === 'audio' && this.message.mediaUrl) {
-          if (currentAudioId) {
-            nextAudioMessage = messages[i]
-            break
-          }
-          if (this.currentAudio.messageId === messages[i].messageId) {
-            currentAudioId = messages[i].messageId
-          }
-        }
-      }
-      if (nextAudioMessage) {
-        this.$store.dispatch('setCurrentAudio', nextAudioMessage)
-      }
-    }
-  }
-  onEnded() {
+  timeReset() {
     this.audioStatus = 'play'
     this.time = '00:00'
     this.progressStyle.width = 0
     this.dotStyle.left = 0
   }
-  canPlay() {
-    const audio: any = this.$refs.mixinAudio
-    if (!audio) return
-    this.duration = this.transTime(audio.duration)
+  timeUpdate() {
+    const audio: any = document.getElementById('mixinAudio')
+    if (!audio || (this.currentAudio && this.message.messageId !== this.currentAudio.messageId)) return
+    let timeStr = parseInt(audio.currentTime)
+    this.time = this.transTime(timeStr)
+    let scales = audio.currentTime / audio.duration
+    this.progressStyle.width = scales * 100 + '%'
+    this.dotStyle.left = scales * 100 + '%'
+    if (scales >= 1) {
+      this.timeReset()
+    }
+  }
+  onEnded() {
+    if (this.message.messageId !== this.currentAudio.messageId) return
+    const messages = this.currentMessages
+    let nextAudioMessage = null
+    let currentAudioId = ''
+    for (let i = 0; i < messages.length; i++) {
+      if (messageType(messages[i].type) === 'audio' && this.message.mediaUrl) {
+        if (currentAudioId) {
+          nextAudioMessage = messages[i]
+          break
+        }
+        if (this.currentAudio.messageId === messages[i].messageId) {
+          currentAudioId = messages[i].messageId
+        }
+      }
+    }
+    if (nextAudioMessage) {
+      this.$store.dispatch('setCurrentAudio', nextAudioMessage)
+    }
   }
   controlAudioProgress(event: any) {
-    const audio: any = this.$refs.mixinAudio
+    const audio: any = document.getElementById('mixinAudio')
     if (!audio) return
     if (!audio.paused || audio.currentTime !== 0) {
       const audioProgress = this.$refs.audioProgress
@@ -244,7 +254,10 @@ export default class AudioItem extends Vue {
 
   get waitStatus() {
     const { message } = this
-    return MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus
+    return (
+      this.fetchPercentMap[message.messageId] !== 100 &&
+      (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+    )
   }
   get loading() {
     return this.attachment.includes(this.message.messageId)
@@ -314,6 +327,7 @@ export default class AudioItem extends Vue {
       .audio-status {
         .arrow {
           font-size: 1.2rem;
+          color: rgb(75, 126, 210);
         }
         cursor: pointer;
         width: 1.5rem;

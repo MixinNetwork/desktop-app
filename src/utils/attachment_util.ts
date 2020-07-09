@@ -36,7 +36,7 @@ const cancelPromise = (id: string) => {
     const action = () => {
       if (cancelMap[id]) {
         cancelMap[id] = false
-        resolve(new Response('timeout', { status: 504, statusText: 'timeout ' }))
+        resolve(new Response('timeout', { status: 504, statusText: 'cancel ' }))
         controllerMap[id].abort()
       } else {
         setTimeout(() => {
@@ -47,14 +47,47 @@ const cancelPromise = (id: string) => {
     action()
   })
 }
-const requestPromise = (url: string, id: string, opt: any) => {
+const requestPromise = async(url: string, id: string, opt: any) => {
   const controller = new AbortController()
   const signal = controller.signal
   controllerMap[id] = controller
   Object.assign(opt, {
     signal
   })
-  return fetch(url, opt)
+  const response: any = await fetch(url, opt)
+  const responseClone = response.clone()
+
+  const reader = responseClone.body.getReader()
+  const contentLength = +responseClone.headers.get('Content-Length')
+  const chunks = []
+  let receivedLength = 0
+  let readLock = false
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) {
+      setTimeout(() => {
+        store.dispatch('updateFetchPercent', {
+          id,
+          url,
+          percent: 100
+        })
+      }, 50)
+      return response
+    }
+    chunks.push(value)
+    receivedLength += value.length
+    if (!readLock) {
+      readLock = true
+      store.dispatch('updateFetchPercent', {
+        id,
+        url,
+        percent: (100 * receivedLength) / contentLength
+      })
+      setTimeout(() => {
+        readLock = false
+      }, 50)
+    }
+  }
 }
 
 export async function updateCancelMap(id: string) {

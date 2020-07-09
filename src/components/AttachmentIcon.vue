@@ -32,5 +32,6 @@ export default class AttachmentIcon extends Vue {
   justify-content: center;
   align-items: center;
   z-index: 3;
+  color: #4E80CF;
 }
 </style>

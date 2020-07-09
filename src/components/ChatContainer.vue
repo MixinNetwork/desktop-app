@@ -106,6 +106,18 @@
       </div>
     </transition>
 
+    <audio
+      id="mixinAudio"
+      style="opacity: 0"
+      @timeupdate="audioTimeupdate"
+      @ended="audioEnded"
+      :src="currentAudio && currentAudio.mediaUrl"
+    ></audio>
+
+    <div style="display: none" v-if="shadowCurrentVideo">
+      <video-player ref="shadowVideoPlayer" :options="shadowCurrentVideo.playerOptions"></video-player>
+    </div>
+
     <ChatInputBox
       ref="inputBox"
       v-show="conversation"
@@ -193,6 +205,7 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
+import { getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
 // @ts-ignore
 import _ from 'lodash'
 import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
@@ -254,6 +267,11 @@ export default class ChatContainer extends Vue {
     this.getLastMessage = false
     this.timeDivideShowForce = false
     this.messageHeightMap = {}
+    this.actionSetCurrentVideo(null)
+    const mixinAudio: any = document.getElementById('mixinAudio')
+    if (mixinAudio) {
+      mixinAudio.pause()
+    }
     this.hideChoosePanel()
     if (!this.conversation) {
       this.startup = true
@@ -314,6 +332,30 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  @Watch('shadowCurrentVideo')
+  onShadowCurrentVideoChanged(val: any) {
+    if (val && !this.pictureInPictureInterval) {
+      clearInterval(this.pictureInPictureInterval)
+      this.pictureInPictureInterval = setInterval(() => {
+        const player = this.$refs.shadowVideoPlayer.player
+        if (player) {
+          const { muted, paused, volume, currentTime, playbackRate } = val.playerOptions
+          player
+            .requestPictureInPicture()
+            .then((data: any) => {
+              if (data) {
+                this.currentVideoPlayer = null
+                clearInterval(this.pictureInPictureInterval)
+                this.pictureInPictureInterval = null
+                setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
+              }
+            })
+            .catch(() => {})
+        }
+      }, 30)
+    }
+  }
+
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
     let { firstIndex, lastIndex } = val
@@ -338,6 +380,18 @@ export default class ChatContainer extends Vue {
     }
 
     this.messagesVisible = this.getMessagesVisible()
+    if (this.shadowCurrentVideo) {
+      let currentVideoFlag = false
+      this.messagesVisible.forEach((item: any) => {
+        if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
+          currentVideoFlag = true
+        }
+      })
+      if (currentVideoFlag) {
+        const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
+        this.actionSetCurrentVideo(currentVideo)
+      }
+    }
     this.virtualDom = {
       top,
       bottom
@@ -351,10 +405,15 @@ export default class ChatContainer extends Vue {
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
+  @Getter('currentAudio') currentAudio: any
+  @Getter('currentVideo') currentVideo: any
+  @Getter('shadowCurrentVideo') shadowCurrentVideo: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
   @Action('setSearching') actionSetSearching: any
+  @Action('setCurrentVideo') actionSetCurrentVideo: any
+  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
@@ -403,6 +462,8 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
 
   participantAdd: boolean = false
+  currentVideoPlayer: any = null
+  pictureInPictureInterval: any = null
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -537,10 +598,33 @@ export default class ChatContainer extends Vue {
       this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
+    this.$root.$on('setCurrentVideoPlayer', (item: any, id: string) => {
+      this.currentVideoPlayer = item
+      if (id === this.currentVideo.message.messageId) {
+        if (this.$refs.shadowVideoPlayer) {
+          const shadowPlayer = this.$refs.shadowVideoPlayer.player
+          const playerStatus = getVideoPlayerStatus(shadowPlayer)
+          const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
+          if (isInPictureInPicture) {
+            shadowPlayer.exitPictureInPicture().then((res: any) => {
+              this.actionSetShadowCurrentVideo(null)
+            })
+          }
+          this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
+            if (data) {
+              clearInterval(this.pictureInPictureInterval)
+              this.pictureInPictureInterval = null
+              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+            }
+          })
+        }
+      }
+    })
   }
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
+    this.$root.$off('setCurrentVideoPlayer')
     this.$root.$off('selectAllKeyDown')
     this.$root.$off('escKeydown')
   }
@@ -549,6 +633,14 @@ export default class ChatContainer extends Vue {
     if (this.$refs.inputBox) {
       this.$refs.inputBox.hideChoosePanel()
     }
+  }
+
+  audioTimeupdate() {
+    this.$root.$emit('audioTimeupdate')
+  }
+
+  audioEnded() {
+    this.$root.$emit('audioEnded')
   }
 
   participantAddDone(participants: any) {
@@ -655,7 +747,10 @@ export default class ChatContainer extends Vue {
       (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
       (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
     ) {
-      this.viewport = this.viewportLimit(index - offset, index + offset)
+      const viewport = this.viewportLimit(index - offset, index + offset)
+      if (viewport.firstIndex !== firstIndex || viewport.lastIndex !== lastIndex) {
+        this.viewport = viewport
+      }
     }
     const curMessage = this.messages[index]
     if (curMessage && isIntersecting && (curMessage.quoteId || curMessage.mentions)) {

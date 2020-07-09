@@ -10,6 +10,7 @@ Vue.use(Vuex)
 
 const state = {
   me: {},
+  fetchPercentMap: {},
   tempUnreadMessageId: '',
   currentConversationId: null,
   conversations: {},
@@ -30,6 +31,8 @@ const state = {
     messageAll: null
   },
   currentAudio: null,
+  currentVideo: null,
+  shadowCurrentVideo: null,
   showTime: false,
   editing: false,
   linkStatus: LinkStatus.CONNECTED

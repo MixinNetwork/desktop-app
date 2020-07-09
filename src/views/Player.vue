@@ -57,6 +57,12 @@ export default class Player extends Vue {
   }
   mounted() {
     this.pin = localStorage.pinTop === 'true'
+    setTimeout(() => {
+      const videoPlayer: any = this.$refs.videoPlayer
+      const width = Math.ceil(videoPlayer.player.currentWidth())
+      const height = Math.ceil(videoPlayer.player.currentHeight())
+      ipcRenderer.send('resize', { width, height })
+    })
   }
 }
 </script>

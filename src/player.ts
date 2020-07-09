@@ -74,8 +74,9 @@ export function initPlayer(id: number) {
   }
 
   let currentURL: any = null
+  let playerWindow: any = null
   ipcMain.on('play', (event, args) => {
-    let playerWindow: any = getPlayerWindow()
+    playerWindow = getPlayerWindow()
     if (args.url !== currentURL) {
       if (playerWindow != null) {
         playerWindow.close()
@@ -101,5 +102,13 @@ export function initPlayer(id: number) {
     playerWindow.on('ready-to-show', () => {
       playerWindow.show()
     })
+  })
+
+  ipcMain.on('resize', (event, args) => {
+    const { width, height } = args
+    if (playerWindow) {
+      playerWindow.setAspectRatio(width / height)
+      playerWindow.setSize(width, height)
+    }
   })
 }

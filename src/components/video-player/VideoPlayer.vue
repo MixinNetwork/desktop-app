@@ -1,6 +1,6 @@
 <template>
   <div class="video-player" v-if="reseted">
-    <video class="video-js" ref="video"></video>
+    <video class="video-js" :class="{ single, 'vjs-16-9': single }" ref="video"></video>
   </div>
 </template>
 
@@ -69,6 +69,10 @@ export default {
     options: {
       type: Object,
       required: true
+    },
+    single: {
+      type: Boolean,
+      default: false
     },
     events: {
       type: Array,

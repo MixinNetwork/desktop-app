@@ -134,7 +134,7 @@ export default class VideoItem extends Vue {
   }
 
   onPlay() {
-    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player)
+    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
   }
 
   videoDestroy() {
@@ -148,6 +148,8 @@ export default class VideoItem extends Vue {
       } else {
         this.videoPlayer.player.exitPictureInPicture()
       }
+    } else {
+      this.$store.dispatch('setCurrentVideo', null)
     }
   }
 

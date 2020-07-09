@@ -388,42 +388,7 @@ export default class ChatContainer extends Vue {
       })
       if (currentVideoFlag) {
         const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
-        const shadowPlayer = this.$refs.shadowVideoPlayer.player
-        const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
-        const playerStatus = getVideoPlayerStatus(shadowPlayer)
         this.actionSetCurrentVideo(currentVideo)
-        if (!this.pictureInPictureInterval) {
-          clearInterval(this.pictureInPictureInterval)
-          this.pictureInPictureInterval = setInterval(() => {
-            if (this.currentVideoPlayer) {
-              if (isInPictureInPicture) {
-                this.currentVideoPlayer
-                  .requestPictureInPicture()
-                  .then((data: any) => {
-                    if (data) {
-                      clearInterval(this.pictureInPictureInterval)
-                      this.pictureInPictureInterval = null
-                      setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
-                    }
-                  })
-                  .catch(() => {})
-              } else {
-                clearInterval(this.pictureInPictureInterval)
-                this.pictureInPictureInterval = null
-                setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
-              }
-            }
-          }, 30)
-        }
-        if (this.$refs.shadowVideoPlayer) {
-          const player = this.$refs.shadowVideoPlayer.player
-          if (player && player.isInPictureInPicture_) {
-            player.exitPictureInPicture()
-          }
-        }
-        this.actionSetShadowCurrentVideo(null)
-      } else {
-        this.currentVideoPlayer = null
       }
     }
     this.virtualDom = {
@@ -440,6 +405,7 @@ export default class ChatContainer extends Vue {
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
   @Getter('currentAudio') currentAudio: any
+  @Getter('currentVideo') currentVideo: any
   @Getter('shadowCurrentVideo') shadowCurrentVideo: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
@@ -626,13 +592,25 @@ export default class ChatContainer extends Vue {
       this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
-    this.$root.$on('setCurrentVideoPlayer', (item: any) => {
-      if (!this.shadowCurrentVideo) {
-        this.currentVideoPlayer = item
-      } else {
-        const player = this.$refs.shadowVideoPlayer.player
-        if (player) {
-          this.actionSetShadowCurrentVideo(null)
+    this.$root.$on('setCurrentVideoPlayer', (item: any, id: string) => {
+      this.currentVideoPlayer = item
+      if (id === this.currentVideo.message.messageId) {
+        if (this.$refs.shadowVideoPlayer) {
+          const shadowPlayer = this.$refs.shadowVideoPlayer.player
+          const playerStatus = getVideoPlayerStatus(shadowPlayer)
+          const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
+          if (isInPictureInPicture) {
+            shadowPlayer.exitPictureInPicture().then((res: any) => {
+              this.actionSetShadowCurrentVideo(null)
+            })
+          }
+          this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
+            if (data) {
+              clearInterval(this.pictureInPictureInterval)
+              this.pictureInPictureInterval = null
+              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+            }
+          })
         }
       }
     })

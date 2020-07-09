@@ -2,7 +2,8 @@
 
 import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater'
 import { initPlayer } from './player'
 import path from 'path'
@@ -239,7 +240,7 @@ if (!isDevelopment) {
     if (isDevelopment && !process.env.IS_TEST) {
       // Install Vue Devtools
       try {
-        await installVueDevtools()
+        await installExtension(VUEJS_DEVTOOLS)
       } catch (e) {
         console.error('Vue Devtools failed to install:', e.toString())
       }

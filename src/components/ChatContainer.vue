@@ -114,8 +114,12 @@
       :src="currentAudio && currentAudio.mediaUrl"
     ></audio>
 
-    <div v-if="shadowCurrentVideo">
-      <video-player ref="shadowVideoPlayer" @leavepictureinpicture="leavepictureinpicture" :options="shadowCurrentVideo.playerOptions"></video-player>
+    <div style="display: none" v-if="shadowCurrentVideo">
+      <video-player
+        ref="shadowVideoPlayer"
+        @leavepictureinpicture="leavepictureinpicture"
+        :options="shadowCurrentVideo.playerOptions"
+      ></video-player>
     </div>
 
     <ChatInputBox

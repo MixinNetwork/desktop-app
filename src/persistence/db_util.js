@@ -24,10 +24,14 @@ export function getDbPath() {
 }
 
 async function copyFile(filename, dbPath, distPath) {
-  const src = path.join(dbPath, filename)
-  if (fs.existsSync(src)) {
-    const dist = path.join(distPath, filename)
-    fs.writeFileSync(dist, fs.readFileSync(src))
+  try {
+    const src = path.join(dbPath, filename)
+    if (fs.existsSync(src)) {
+      const dist = path.join(distPath, filename)
+      fs.writeFileSync(dist, fs.readFileSync(src))
+    }
+  } catch (error) {
+    console.log(error)
   }
 }
 
@@ -39,14 +43,10 @@ export async function dbMigration(identityNumber) {
   if (!fs.existsSync(distPath)) {
     fs.mkdirSync(distPath)
   }
-  try {
-    await copyFile('mixin.db3', dbPath, distPath)
-    await copyFile('mixin.db3-shm', dbPath, distPath)
-    await copyFile('mixin.db3-wal', dbPath, distPath)
-    await copyFile('signal.db3', dbPath, distPath)
-  } catch (error) {
-    console.log(error)
-  }
+  await copyFile('mixin.db3', dbPath, distPath)
+  await copyFile('mixin.db3-shm', dbPath, distPath)
+  await copyFile('mixin.db3-wal', dbPath, distPath)
+  await copyFile('signal.db3', dbPath, distPath)
 }
 
 let clearing = false

@@ -47,7 +47,7 @@ export default class Player extends Vue {
   }
   close() {
     ipcRenderer.send('closePlayer', this.pin)
-    clearInterval()
+    clearInterval(this.resizeInterval)
   }
   minimize() {
     ipcRenderer.send('minimizePlayer', this.pin)
@@ -60,6 +60,7 @@ export default class Player extends Vue {
   }
   mounted() {
     this.pin = localStorage.pinTop === 'true'
+    clearInterval(this.resizeInterval)
     this.resizeInterval = setInterval(() => {
       const videoPlayer: any = this.$refs.videoPlayer
       const width = Math.ceil(videoPlayer.player.currentWidth())

@@ -105,6 +105,9 @@ export default class App extends Vue {
         e.preventDefault()
       }
       if (ctrlKey) {
+        if (keyCode === 73) {
+          ipcRenderer.send('openDevTools')
+        }
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }

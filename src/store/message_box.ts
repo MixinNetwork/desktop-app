@@ -169,6 +169,7 @@ class MessageBox {
         break
       }
     }
+    store.dispatch('setCurrentMessages', this.messages)
   }
   nextPage(direction: string): any {
     let data: unknown = []
@@ -261,6 +262,7 @@ class MessageBox {
     if (conversationId === this.conversationId && this.conversationId) {
       this.page = 0
       this.messages = []
+      store.dispatch('setCurrentMessages', [])
       this.newMessageMap = {}
     }
   }

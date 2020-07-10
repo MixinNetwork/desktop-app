@@ -51,14 +51,14 @@
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
                 />
                 <div v-else>
-                  <div :style="defaultStyle" v-if="showPlayIcon" @click="onPlayerPlay()">
+                  <div :style="defaultStyle" v-if="showPlayIcon">
                     <img
                       class="image"
                       :style="defaultStyle"
                       :src="'data:image/jpeg;base64,' + message.thumbImage"
                       :onerror="`this.src='${defaultImg}';this.onerror=null`"
                     />
-                    <svg-icon class="play" icon-class="ic_play" />
+                    <svg-icon class="play" icon-class="ic_play" v-if="!loading"  @click="onPlayerPlay()" />
                   </div>
                   <video-player
                     v-else

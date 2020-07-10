@@ -39,10 +39,14 @@ export async function dbMigration(identityNumber) {
   if (!fs.existsSync(distPath)) {
     fs.mkdirSync(distPath)
   }
-  await copyFile('mixin.db3', dbPath, distPath)
-  await copyFile('mixin.db3-shm', dbPath, distPath)
-  await copyFile('mixin.db3-wal', dbPath, distPath)
-  await copyFile('signal.db3', dbPath, distPath)
+  try {
+    await copyFile('mixin.db3', dbPath, distPath)
+    await copyFile('mixin.db3-shm', dbPath, distPath)
+    await copyFile('mixin.db3-wal', dbPath, distPath)
+    await copyFile('signal.db3', dbPath, distPath)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 let clearing = false

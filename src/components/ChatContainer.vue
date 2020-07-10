@@ -114,8 +114,8 @@
       :src="currentAudio && currentAudio.mediaUrl"
     ></audio>
 
-    <div style="display: none" v-if="shadowCurrentVideo">
-      <video-player ref="shadowVideoPlayer" :options="shadowCurrentVideo.playerOptions"></video-player>
+    <div v-if="shadowCurrentVideo">
+      <video-player ref="shadowVideoPlayer" @leavepictureinpicture="leavepictureinpicture" :options="shadowCurrentVideo.playerOptions"></video-player>
     </div>
 
     <ChatInputBox
@@ -641,6 +641,10 @@ export default class ChatContainer extends Vue {
 
   audioEnded() {
     this.$root.$emit('audioEnded')
+  }
+
+  leavepictureinpicture() {
+    this.actionSetShadowCurrentVideo(null)
   }
 
   participantAddDone(participants: any) {

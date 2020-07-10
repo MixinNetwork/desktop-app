@@ -1,6 +1,6 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
-    <div class="bar" v-show="show">
+    <div class="bar" v-show="show" @mouseenter="enter">
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
       <svg-icon icon-class="ic_minimize" class="icon" @click="minimize" />
       <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
@@ -72,12 +72,12 @@ export default class Player extends Vue {
   width: 100%;
   height: 100%;
   background: black;
-  border-radius: 0.25rem;
   color: #fff;
   .bar {
     font-size: 0.7rem;
     width: 100%;
     position: absolute;
+    top: 0;
     right: 0;
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;

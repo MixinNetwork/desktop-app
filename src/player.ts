@@ -14,8 +14,8 @@ function createPlayerWindow(w: any, h: any, pin: any) {
   let playerWindow = new BrowserWindow({
     width: ww,
     height: wh,
-    minWidth: 280,
-    minHeight: 200,
+    minWidth: 160,
+    minHeight: 120,
     // @ts-ignore
     icon: path.join(__static, 'icon.png'),
     frame: false,
@@ -107,8 +107,8 @@ export function initPlayer(id: number) {
   ipcMain.on('resize', (event, args) => {
     const { width, height } = args
     if (playerWindow) {
-      playerWindow.setAspectRatio(width / height)
       playerWindow.setSize(width, height)
+      playerWindow.setAspectRatio(width / height)
     }
   })
 }

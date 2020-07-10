@@ -2,6 +2,7 @@
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
     <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
     <div class="bar" v-show="show">
+      <div class="drag-area"></div>
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
       <svg-icon icon-class="ic_minimize" class="icon" @click="minimize" />
       <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
@@ -85,7 +86,6 @@ export default class Player extends Vue {
   background: black;
   color: #fff;
   .bar {
-    -webkit-app-region: drag;
     font-size: 0.7rem;
     width: 100%;
     position: absolute;
@@ -97,6 +97,15 @@ export default class Player extends Vue {
     display: flex;
     flex-direction: row-reverse;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.8) 100%);
+    .drag-area {
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: calc(100% - 4.5rem);
+      height: 100%;
+      -webkit-app-region: drag;
+    }
     .icon {
       cursor: pointer;
       margin-right: 0.6rem;

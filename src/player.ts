@@ -37,6 +37,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     playerWindow.autoHideMenuBar = true
     playerWindow.setMenu(null)
   }
+  playerWindow.setBackgroundColor('#000000')
   return playerWindow
 }
 
@@ -76,6 +77,7 @@ export function initPlayer(id: number) {
 
   let currentURL: any = null
   let playerWindow: any = null
+  let resizeObj: any = {}
   ipcMain.on('play', (event, args) => {
     playerWindow = getPlayerWindow()
     if (args.url !== currentURL) {
@@ -103,11 +105,21 @@ export function initPlayer(id: number) {
     playerWindow.on('ready-to-show', () => {
       playerWindow.show()
     })
+    if (process.platform !== 'darwin') {
+      playerWindow.on('resize', () => {
+        const { width, height } = resizeObj
+        const winSize = playerWindow.getSize()
+        if (winSize.width !== width || winSize.height !== height) {
+          playerWindow.setSize(width, height)
+        }
+      })
+    }
   })
 
   ipcMain.on('resize', (event, args) => {
     const { width, height } = args
     if (playerWindow) {
+      resizeObj = args
       playerWindow.setSize(width, height)
       // for macOS
       playerWindow.setAspectRatio(width / height)

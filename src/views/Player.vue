@@ -1,12 +1,12 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
+    <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
     <div class="bar" v-show="show">
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
       <svg-icon icon-class="ic_minimize" class="icon" @click="minimize" />
       <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
       <svg-icon icon-class="ic_pin" class="icon" v-show="!pin" @click="toggle" />
     </div>
-    <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
   </div>
 </template>
 <script lang="ts">
@@ -85,6 +85,7 @@ export default class Player extends Vue {
   background: black;
   color: #fff;
   .bar {
+    -webkit-app-region: drag;
     font-size: 0.7rem;
     width: 100%;
     position: absolute;

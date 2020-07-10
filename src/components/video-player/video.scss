@@ -1344,6 +1344,17 @@ video::-webkit-media-text-track-display {
   transform: translateY(-1.5em);
 }
 
+.video-js.single {
+  .vjs-picture-in-picture-control {
+    display: none;
+  }
+  .vjs-current-time,
+  .vjs-duration,
+  .vjs-time-divider {
+    display: block;
+  }
+}
+
 .video-js .vjs-picture-in-picture-control {
   cursor: pointer;
   flex: none;
@@ -1544,6 +1555,12 @@ video::-webkit-media-text-track-display {
   .vjs-duration,
   .vjs-time-divider {
     display: block;
+  }
+}
+.video-js  {
+  .vjs-current-time,
+  .vjs-duration,
+  .vjs-time-divider {
     font-size: 0.55rem;
   }
   .vjs-current-time {

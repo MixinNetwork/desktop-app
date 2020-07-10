@@ -1,5 +1,6 @@
 import { ipcMain, screen, BrowserWindow } from 'electron'
 import path from 'path'
+
 function createPlayerWindow(w: any, h: any, pin: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
@@ -13,8 +14,8 @@ function createPlayerWindow(w: any, h: any, pin: any) {
   let playerWindow = new BrowserWindow({
     width: ww,
     height: wh,
-    minWidth: Math.floor(ww / 2),
-    minHeight: Math.floor(wh / 2),
+    minWidth: 280,
+    minHeight: 200,
     // @ts-ignore
     icon: path.join(__static, 'icon.png'),
     frame: process.platform !== 'darwin',
@@ -24,7 +25,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     show: false
   })
   // @ts-ignore
-  playerWindow.setAspectRatio(w / h)
+  // playerWindow.setAspectRatio(w / h)
   if (pin === 'true') {
     playerWindow.setAlwaysOnTop(true, 'floating', 1)
   } else {
@@ -73,8 +74,9 @@ export function initPlayer(id: number) {
   }
 
   let currentURL: any = null
+  let playerWindow: any = null
   ipcMain.on('play', (event, args) => {
-    let playerWindow: any = getPlayerWindow()
+    playerWindow = getPlayerWindow()
     if (args.url !== currentURL) {
       if (playerWindow != null) {
         playerWindow.close()
@@ -100,5 +102,13 @@ export function initPlayer(id: number) {
     playerWindow.on('ready-to-show', () => {
       playerWindow.show()
     })
+  })
+
+  ipcMain.on('resize', (event, args) => {
+    const { width, height } = args
+    if (playerWindow) {
+      playerWindow.setAspectRatio(width / height)
+      playerWindow.setSize(width, height)
+    }
   })
 }

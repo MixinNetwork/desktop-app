@@ -6,14 +6,12 @@
       <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
       <svg-icon icon-class="ic_pin" class="icon" v-show="!pin" @click="toggle" />
     </div>
+    <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
   </div>
 </template>
 <script lang="ts">
-// @ts-ignore
-import Chimee from 'chimee'
-// @ts-ignore
-import ChimeeKernelHls from 'chimee-kernel-hls'
-import { ipcRenderer } from 'electron'
+import log from 'electron-log'
+import { ipcRenderer, screen } from 'electron'
 
 import { Vue, Watch, Component } from 'vue-property-decorator'
 
@@ -21,12 +19,26 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 export default class Player extends Vue {
   show: boolean = false
   pin: boolean = false
-  chimee: any
 
   @Watch('pin')
   onPinChange(newPin: any) {
     localStorage.pinTop = newPin
   }
+
+  get playerOptions() {
+    return {
+      autoplay: true,
+      language: navigator.language.split('-')[0],
+      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
+      disablePictureInPicture: true,
+      sources: [
+        {
+          src: this.$route.query.url
+        }
+      ]
+    }
+  }
+
   toggle() {
     this.pin = !this.pin
     ipcRenderer.send('pinToggle', this.pin)
@@ -45,36 +57,25 @@ export default class Player extends Vue {
   }
   mounted() {
     this.pin = localStorage.pinTop === 'true'
-    let args = this.$route.query
-    let player = this.$refs.player
-    this.chimee = new Chimee({
-      wrapper: player,
-      isLive: true,
-      kernels: {
-        hls: ChimeeKernelHls
-      },
-      crossOrigin: true,
-      autoplay: true,
-      autoload: false,
-      poster: args.thumb,
-      controls: true
+    setTimeout(() => {
+      const videoPlayer: any = this.$refs.videoPlayer
+      const width = Math.ceil(videoPlayer.player.currentWidth())
+      const height = Math.ceil(videoPlayer.player.currentHeight())
+      ipcRenderer.send('resize', { width, height })
     })
-    this.chimee.load(args.url)
-    this.chimee.play()
-  }
-  beforeDestroy() {
-    this.chimee = null
   }
 }
 </script>
 <style lang="scss" scoped>
 .player {
+  position: absolute;
   width: 100%;
   height: 100%;
   background: black;
   border-radius: 0.25rem;
   color: #fff;
   .bar {
+    font-size: 0.7rem;
     width: 100%;
     position: absolute;
     right: 0;

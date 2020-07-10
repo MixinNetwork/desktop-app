@@ -39,6 +39,8 @@ const DEFAULT_EVENTS = [
   'canplay',
   'canplaythrough',
   'play',
+  'enterpictureinpicture',
+  'leavepictureinpicture',
   'pause',
   'waiting',
   'playing',

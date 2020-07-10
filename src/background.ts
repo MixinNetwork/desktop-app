@@ -49,6 +49,12 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { standard: true, supportFetchAPI: true, secure: true } }
 ])
 function createWindow() {
+  globalShortcut.register('ctrl+shift+i', function() {
+    if (win) {
+      win.webContents.openDevTools()
+    }
+  })
+
   let mainWindowState = windowStateKeeper({
     defaultWidth: 900,
     defaultHeight: 700
@@ -161,12 +167,6 @@ function createWindow() {
     if (win) {
       win.show()
       win.webContents.send('mixin-protocol', url)
-    }
-  })
-
-  globalShortcut.register('ctrl+shift+i', function() {
-    if (win) {
-      win.webContents.openDevTools()
     }
   })
 

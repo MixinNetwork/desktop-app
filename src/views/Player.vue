@@ -1,12 +1,13 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
+    <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
     <div class="bar" v-show="show">
+      <div class="drag-area"></div>
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
       <svg-icon icon-class="ic_minimize" class="icon" @click="minimize" />
       <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
       <svg-icon icon-class="ic_pin" class="icon" v-show="!pin" @click="toggle" />
     </div>
-    <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
   </div>
 </template>
 <script lang="ts">
@@ -19,6 +20,7 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 export default class Player extends Vue {
   show: boolean = false
   pin: boolean = false
+  resizeInterval: any = null
 
   @Watch('pin')
   onPinChange(newPin: any) {
@@ -45,6 +47,7 @@ export default class Player extends Vue {
   }
   close() {
     ipcRenderer.send('closePlayer', this.pin)
+    clearInterval(this.resizeInterval)
   }
   minimize() {
     ipcRenderer.send('minimizePlayer', this.pin)
@@ -57,12 +60,17 @@ export default class Player extends Vue {
   }
   mounted() {
     this.pin = localStorage.pinTop === 'true'
-    setTimeout(() => {
+    clearInterval(this.resizeInterval)
+    this.resizeInterval = setInterval(() => {
       const videoPlayer: any = this.$refs.videoPlayer
       const width = Math.ceil(videoPlayer.player.currentWidth())
       const height = Math.ceil(videoPlayer.player.currentHeight())
       ipcRenderer.send('resize', { width, height })
-    })
+      // for macOS
+      if (process.platform === 'darwin') {
+        clearInterval(this.resizeInterval)
+      }
+    }, 10)
   }
 }
 </script>
@@ -72,12 +80,12 @@ export default class Player extends Vue {
   width: 100%;
   height: 100%;
   background: black;
-  border-radius: 0.25rem;
   color: #fff;
   .bar {
     font-size: 0.7rem;
     width: 100%;
     position: absolute;
+    top: 0;
     right: 0;
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
@@ -85,7 +93,17 @@ export default class Player extends Vue {
     display: flex;
     flex-direction: row-reverse;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.8) 100%);
+    .drag-area {
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: calc(100% - 4.5rem);
+      height: 100%;
+      -webkit-app-region: drag;
+    }
     .icon {
+      cursor: pointer;
       margin-right: 0.6rem;
     }
   }

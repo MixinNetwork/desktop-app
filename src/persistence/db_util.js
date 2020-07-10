@@ -23,11 +23,13 @@ export function getDbPath() {
   return path.join(isDevelopment ? path.join(__static, '../') : dir)
 }
 
-async function copyFile(filename, dbPath, identityNumber) {
+async function copyFile(filename, dbPath, distPath) {
   const src = path.join(dbPath, filename)
   if (fs.existsSync(src)) {
-    const dist = path.join(remote.app.getPath('userData'), `${identityNumber}/${filename}`)
-    fs.writeFileSync(dist, fs.readFileSync(src))
+    const dist = path.join(distPath, filename)
+    if (!fs.existsSync(dist)) {
+      fs.writeFileSync(dist, fs.readFileSync(src))
+    }
   }
 }
 
@@ -35,10 +37,14 @@ export async function dbMigration(identityNumber) {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   if (isDevelopment) return
   const dbPath = getDbPath()
-  await copyFile('mixin.db3', dbPath, identityNumber)
-  await copyFile('mixin.db3-shm', dbPath, identityNumber)
-  await copyFile('mixin.db3-wal', dbPath, identityNumber)
-  await copyFile('signal.db3', dbPath, identityNumber)
+  const distPath = path.join(remote.app.getPath('userData'), identityNumber)
+  if (!fs.existsSync(distPath)) {
+    fs.mkdirSync(distPath)
+  }
+  await copyFile('mixin.db3', dbPath, distPath)
+  await copyFile('mixin.db3-shm', dbPath, distPath)
+  await copyFile('mixin.db3-wal', dbPath, distPath)
+  await copyFile('signal.db3', dbPath, distPath)
 }
 
 let clearing = false

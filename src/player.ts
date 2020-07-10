@@ -14,11 +14,11 @@ function createPlayerWindow(w: any, h: any, pin: any) {
   let playerWindow = new BrowserWindow({
     width: ww,
     height: wh,
-    minWidth: 280,
-    minHeight: 200,
+    minWidth: 160,
+    minHeight: 120,
     // @ts-ignore
     icon: path.join(__static, 'icon.png'),
-    frame: process.platform !== 'darwin',
+    frame: false,
     webPreferences: {
       nodeIntegration: true
     },
@@ -36,6 +36,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     playerWindow.autoHideMenuBar = true
     playerWindow.setMenu(null)
   }
+  playerWindow.setBackgroundColor('#000000')
   return playerWindow
 }
 
@@ -75,6 +76,7 @@ export function initPlayer(id: number) {
 
   let currentURL: any = null
   let playerWindow: any = null
+  let resizeObj: any = {}
   ipcMain.on('play', (event, args) => {
     playerWindow = getPlayerWindow()
     if (args.url !== currentURL) {
@@ -107,8 +109,13 @@ export function initPlayer(id: number) {
   ipcMain.on('resize', (event, args) => {
     const { width, height } = args
     if (playerWindow) {
-      playerWindow.setAspectRatio(width / height)
-      playerWindow.setSize(width, height)
+      resizeObj = args
+      const winSize = playerWindow.getSize()
+      if (winSize.width !== width || winSize.height !== height) {
+        playerWindow.setSize(width, height)
+        // for macOS
+        playerWindow.setAspectRatio(width / height)
+      }
     }
   })
 }

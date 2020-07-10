@@ -228,7 +228,7 @@ class MessageBox {
         return
       }
       const newMessages = []
-      const firstMessageId = curMessages[0].messageId
+      const firstMessageId = curMessages[0] && curMessages[0].messageId
       for (let i = 0; i < messages.length; i++) {
         const temp = messages[i]
         if (temp.messageId === firstMessageId) {

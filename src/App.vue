@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="drag-bar" />
+    <div class="drag-bar" v-if="$route.name !== 'player'" />
     <router-view />
     <div class="app_time" v-show="showTime">
       <img src="./assets/ic_logo.webp" class="app_time_logo" />
@@ -105,6 +105,9 @@ export default class App extends Vue {
         e.preventDefault()
       }
       if (ctrlKey) {
+        if (keyCode === 73) {
+          ipcRenderer.send('openDevTools')
+        }
         if (keyCode === 70) {
           this.actionSetSearching('key:')
         }

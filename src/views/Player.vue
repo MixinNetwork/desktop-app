@@ -1,6 +1,6 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
-    <div class="bar" v-show="show" @mouseenter="enter">
+    <div class="bar" v-show="show">
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
       <svg-icon icon-class="ic_minimize" class="icon" @click="minimize" />
       <svg-icon icon-class="ic_unpin" class="icon" v-show="pin" @click="toggle" />
@@ -19,6 +19,8 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 export default class Player extends Vue {
   show: boolean = false
   pin: boolean = false
+  beforePlayerSize: any = {}
+  resizeInterval: any = null
 
   @Watch('pin')
   onPinChange(newPin: any) {
@@ -45,6 +47,7 @@ export default class Player extends Vue {
   }
   close() {
     ipcRenderer.send('closePlayer', this.pin)
+    clearInterval()
   }
   minimize() {
     ipcRenderer.send('minimizePlayer', this.pin)
@@ -57,12 +60,19 @@ export default class Player extends Vue {
   }
   mounted() {
     this.pin = localStorage.pinTop === 'true'
-    setTimeout(() => {
+    this.resizeInterval = setInterval(() => {
       const videoPlayer: any = this.$refs.videoPlayer
       const width = Math.ceil(videoPlayer.player.currentWidth())
       const height = Math.ceil(videoPlayer.player.currentHeight())
-      ipcRenderer.send('resize', { width, height })
-    })
+      if (this.beforePlayerSize.width !== width || this.beforePlayerSize.height !== height) {
+        ipcRenderer.send('resize', { width, height })
+        this.beforePlayerSize = { width, height }
+        // for macOS
+        if (process.platform === 'darwin') {
+          clearInterval(this.resizeInterval)
+        }
+      }
+    }, 10)
   }
 }
 </script>
@@ -86,6 +96,7 @@ export default class Player extends Vue {
     flex-direction: row-reverse;
     background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.8) 100%);
     .icon {
+      cursor: pointer;
       margin-right: 0.6rem;
     }
   }

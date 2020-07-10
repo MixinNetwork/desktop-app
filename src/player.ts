@@ -18,6 +18,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     minHeight: 120,
     // @ts-ignore
     icon: path.join(__static, 'icon.png'),
+    titleBarStyle: 'customButtonsOnHover',
     frame: false,
     webPreferences: {
       nodeIntegration: true
@@ -108,6 +109,7 @@ export function initPlayer(id: number) {
     const { width, height } = args
     if (playerWindow) {
       playerWindow.setSize(width, height)
+      // for macOS
       playerWindow.setAspectRatio(width / height)
     }
   })

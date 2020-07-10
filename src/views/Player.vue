@@ -20,7 +20,6 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 export default class Player extends Vue {
   show: boolean = false
   pin: boolean = false
-  beforePlayerSize: any = {}
   resizeInterval: any = null
 
   @Watch('pin')
@@ -66,13 +65,10 @@ export default class Player extends Vue {
       const videoPlayer: any = this.$refs.videoPlayer
       const width = Math.ceil(videoPlayer.player.currentWidth())
       const height = Math.ceil(videoPlayer.player.currentHeight())
-      if (this.beforePlayerSize.width !== width || this.beforePlayerSize.height !== height) {
-        ipcRenderer.send('resize', { width, height })
-        this.beforePlayerSize = { width, height }
-        // for macOS
-        if (process.platform === 'darwin') {
-          clearInterval(this.resizeInterval)
-        }
+      ipcRenderer.send('resize', { width, height })
+      // for macOS
+      if (process.platform === 'darwin') {
+        clearInterval(this.resizeInterval)
       }
     }, 10)
   }

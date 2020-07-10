@@ -54,6 +54,11 @@ function createWindow() {
       win.webContents.openDevTools()
     }
   })
+  globalShortcut.register('shift+o+p', function() {
+    if (win) {
+      win.webContents.openDevTools()
+    }
+  })
 
   let mainWindowState = windowStateKeeper({
     defaultWidth: 900,

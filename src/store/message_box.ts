@@ -8,7 +8,6 @@ class MessageBox {
   conversationId: any
   messagePositionIndex: any
   scrollAction: any
-  messages: any
   pageDown: any
   tempCount: any
   offsetPageDown: number = 0
@@ -26,7 +25,7 @@ class MessageBox {
       if (messagePositionIndex >= PerPageMessageCount) {
         page = Math.floor(messagePositionIndex / PerPageMessageCount)
       }
-      this.messages = messageDao.getMessages(conversationId, page)
+      const messages = messageDao.getMessages(conversationId, page)
       this.page = page
       this.pageDown = page
       this.tempCount = 0
@@ -37,7 +36,7 @@ class MessageBox {
 
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
-        posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
+        posMessage = messages[messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
         if (messagePositionIndex % PerPageMessageCount < PerPageMessageCount / 2) {
           this.infiniteDown()
         } else {
@@ -46,10 +45,10 @@ class MessageBox {
       }
 
       let markdownCount = 5
-      for (let i = this.messages.length - 1; i >= 0; i--) {
-        const type = this.messages[i].type
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const type = messages[i].type
         if (['post', 'image', 'sticker'].indexOf(messageType(type)) > -1) {
-          this.messages[i].fastLoad = true
+          messages[i].fastLoad = true
           markdownCount--
         }
         if (markdownCount < 0) {
@@ -57,8 +56,8 @@ class MessageBox {
         }
       }
 
-      store.dispatch('setCurrentMessages', this.messages)
-      this.scrollAction({ goBottom: this.messages.length, message: posMessage, isInit })
+      store.dispatch('setCurrentMessages', messages)
+      this.scrollAction({ goBottom: messages.length, message: posMessage, isInit })
       let getLastMessage = false
       if (this.pageDown === 0) {
         getLastMessage = true
@@ -81,8 +80,8 @@ class MessageBox {
     this.page = 0
     this.pageDown = 0
     this.tempCount = 0
-    this.messages = messageDao.getMessages(conversationId, 0)
-    store.dispatch('setCurrentMessages', this.messages)
+    const messages = messageDao.getMessages(conversationId, 0)
+    store.dispatch('setCurrentMessages', messages)
   }
 
   refreshMessage(payload: any) {
@@ -96,8 +95,10 @@ class MessageBox {
 
     const matchIds: any = []
 
-    for (let i = this.messages.length - 1; i >= 0; i--) {
-      const item = this.messages[i]
+    const messages: any = store.state.currentMessages
+
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const item = messages[i]
       const isQuote = messageIds.indexOf(item.quoteId) > -1
       if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
         const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
@@ -111,10 +112,10 @@ class MessageBox {
             } else {
               quoteContent = findQuoteMessage
             }
-            this.messages[i].quoteContent = JSON.stringify(quoteContent)
+            messages[i].quoteContent = JSON.stringify(quoteContent)
           } else {
             matchIds.push(item.messageId)
-            this.messages[i] = findMessage
+            messages[i] = findMessage
           }
         }
       }
@@ -124,17 +125,17 @@ class MessageBox {
       messageIds.forEach((id: string) => {
         if (matchIds.indexOf(id) > -1) return
         const findMessage = messageDao.getConversationMessageById(conversationId, id)
-        if (!findMessage || (this.messages[0] && findMessage.createdAt < this.messages[0].createdAt)) return
+        if (!findMessage || (messages[0] && findMessage.createdAt < messages[0].createdAt)) return
         findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
         const isMyMsg = this.isMine(findMessage)
         if (this.pageDown === 0) {
-          this.messages.push(findMessage)
+          messages.push(findMessage)
           if (!isMyMsg) {
             this.newMessageMap[id] = true
           }
           let newCount = Object.keys(this.newMessageMap).length
-          store.dispatch('setCurrentMessages', this.messages)
-          this.page = Math.floor(this.messages.length / PerPageMessageCount) - 1
+          store.dispatch('setCurrentMessages', messages)
+          this.page = Math.floor(messages.length / PerPageMessageCount) - 1
           this.callback({ unreadNum: newCount, getLastMessage: true })
           this.scrollAction({ isMyMsg })
         } else {
@@ -155,7 +156,7 @@ class MessageBox {
         }
       })
     } else {
-      store.dispatch('setCurrentMessages', this.messages)
+      store.dispatch('setCurrentMessages', messages)
       this.callback({ updateMessages: true })
     }
   }
@@ -163,12 +164,14 @@ class MessageBox {
     const messages = messageDao.getMessagesByIds(messageIds)
     delMedia(messages)
     messageDao.deleteMessageByIds(messageIds)
-    for (let i = this.messages.length - 1; i >= 0; i--) {
-      if (messageIds[0] === this.messages[i].messageId) {
-        this.messages.splice(i, 1)
+    const curMessages: any = store.state.currentMessages
+    for (let i = curMessages.length - 1; i >= 0; i--) {
+      if (messageIds[0] === curMessages[i].messageId) {
+        curMessages.splice(i, 1)
         break
       }
     }
+    store.dispatch('setCurrentMessages', curMessages)
   }
   nextPage(direction: string): any {
     let data: unknown = []
@@ -192,7 +195,8 @@ class MessageBox {
   infiniteScroll(direction: any) {
     const messages = this.nextPage(direction)
     const messageIds: any = []
-    this.messages.forEach((item: any) => {
+    const curMessages: any = store.state.currentMessages
+    curMessages.forEach((item: any) => {
       messageIds.push(item.messageId)
     })
     if (direction === 'down') {
@@ -203,7 +207,7 @@ class MessageBox {
         return
       }
       const newMessages = []
-      const lastMessageId = this.messages[this.messages.length - 1].messageId
+      const lastMessageId = curMessages[curMessages.length - 1].messageId
       for (let i = messages.length - 1; i >= 0; i--) {
         const temp = messages[i]
         if (temp.messageId === lastMessageId) {
@@ -213,8 +217,8 @@ class MessageBox {
           newMessages.unshift(temp)
         }
       }
-      this.messages.push(...newMessages)
-      store.dispatch('setCurrentMessages', this.messages)
+      curMessages.push(...newMessages)
+      store.dispatch('setCurrentMessages', curMessages)
       this.callback({ updateMessages: true })
     } else {
       if (!messages.length) {
@@ -224,7 +228,7 @@ class MessageBox {
         return
       }
       const newMessages = []
-      const firstMessageId = this.messages[0].messageId
+      const firstMessageId = curMessages[0].messageId
       for (let i = 0; i < messages.length; i++) {
         const temp = messages[i]
         if (temp.messageId === firstMessageId) {
@@ -234,8 +238,8 @@ class MessageBox {
           newMessages.push(temp)
         }
       }
-      this.messages.unshift(...newMessages)
-      store.dispatch('setCurrentMessages', this.messages)
+      curMessages.unshift(...newMessages)
+      store.dispatch('setCurrentMessages', curMessages)
       this.callback({ updateMessages: true })
     }
   }
@@ -260,7 +264,7 @@ class MessageBox {
   clearData(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
       this.page = 0
-      this.messages = []
+      store.dispatch('setCurrentMessages', [])
       this.newMessageMap = {}
     }
   }

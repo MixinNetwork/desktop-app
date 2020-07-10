@@ -18,7 +18,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     minHeight: 200,
     // @ts-ignore
     icon: path.join(__static, 'icon.png'),
-    frame: process.platform !== 'darwin',
+    frame: false,
     webPreferences: {
       nodeIntegration: true
     },

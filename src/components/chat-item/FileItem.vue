@@ -46,7 +46,7 @@
 <script lang="ts">
 import fs from 'fs'
 import ReplyMessageItem from './ReplyMessageItem.vue'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import AttachmentIcon from '@/components/chat-item/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'

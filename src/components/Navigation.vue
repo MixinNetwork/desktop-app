@@ -196,13 +196,13 @@
 
 <script lang="ts">
 import { ipcRenderer } from 'electron'
-import ConversationItem from '@/components/ConversationItem.vue'
 import Search from '@/components/Search.vue'
 import spinner from '@/components/Spinner.vue'
-import GroupContainer from '@/components/GroupContainer.vue'
-import ProfileContainer from '@/components/ProfileContainer.vue'
-import SettingContainer from '@/components/SettingContainer.vue'
-import NewConversation from '@/components/NewConversation.vue'
+import ConversationItem from '@/components/navigation/ConversationItem.vue'
+import GroupContainer from '@/components/navigation/GroupContainer.vue'
+import ProfileContainer from '@/components/navigation/ProfileContainer.vue'
+import SettingContainer from '@/components/navigation/SettingContainer.vue'
+import NewConversation from '@/components/navigation/NewConversation.vue'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import UserItem from '@/components/UserItem.vue'

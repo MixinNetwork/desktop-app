@@ -28,7 +28,7 @@
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import BadgeItem from './BadgeItem.vue'
-import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import MessageItemIcon from './MessageItemIcon.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { getNameColorById } from '@/utils/util'
 

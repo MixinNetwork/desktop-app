@@ -41,7 +41,7 @@
 </template>
 <script lang="ts">
 import Search from '@/components/Search.vue'
-import SearchItem from '@/components/SearchItem.vue'
+import SearchItem from '@/components/chat-container/SearchItem.vue'
 import messageDao from '@/dao/message_dao'
 import contentUtil from '@/utils/content_util'
 import { mapGetters } from 'vuex'

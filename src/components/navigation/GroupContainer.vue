@@ -56,7 +56,7 @@
 <script lang="ts">
 import Search from '@/components/Search.vue'
 import UserItem from '@/components/UserItem.vue'
-import UserSelectItem from '@/components/UserSelectItem.vue'
+import UserSelectItem from '@/components/navigation/UserSelectItem.vue'
 
 import { Vue, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'

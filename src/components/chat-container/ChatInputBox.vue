@@ -82,9 +82,9 @@ import { MessageCategories, MessageStatus, ConversationCategory } from '@/utils/
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 
-import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
-import MentionPanel from '@/components/MentionPanel.vue'
-import ChatSticker from '@/components/ChatSticker.vue'
+import ReplyMessageContainer from '@/components/chat-container/ReplyMessageContainer.vue'
+import MentionPanel from '@/components/chat-container/MentionPanel.vue'
+import ChatSticker from '@/components/chat-container/ChatSticker.vue'
 
 @Component({
   components: {

@@ -65,7 +65,7 @@
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import AttachmentIcon from '@/components/chat-item/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import Blurhash from '@/components/blurhash/Blurhash.vue'
 import ReplyMessageItem from './ReplyMessageItem.vue'

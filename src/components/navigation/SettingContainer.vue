@@ -5,7 +5,7 @@
       <h3>{{$t('setting.title')}}</h3>
     </div>
     <div class="layout">
-      <img src="../assets/ic_logo.webp" id="avatar" />
+      <img src="@/assets/ic_logo.webp" id="avatar" />
     </div>
     <span class="version">{{version}}</span>
     <div class="linear">
@@ -40,8 +40,8 @@
 </template>
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import StorageContainer from '@/components/StorageContainer.vue'
-import SettingNotification from '@/components/SettingNotification.vue'
+import StorageContainer from '@/components/setting/StorageContainer.vue'
+import SettingNotification from '@/components/setting/SettingNotification.vue'
 
 import browser from '@/utils/browser'
 import { ipcRenderer, remote } from 'electron'

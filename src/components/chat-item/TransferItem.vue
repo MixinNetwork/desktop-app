@@ -17,7 +17,7 @@
   </div>
 </template>
 <script lang="ts">
-import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import MessageItemIcon from './MessageItemIcon.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 

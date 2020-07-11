@@ -83,7 +83,7 @@
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import AttachmentIcon from '@/components/chat-item/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
 import { getNameColorById, getVideoPlayerStatus } from '@/utils/util'

@@ -6,7 +6,7 @@
     </div>
     <Search id="newConversationSearch" class="nav" @input="onInput" />
     <div class="create" @click="$emit('newGroup')">
-      <img src="../assets/logo.png" class="avatar" />
+      <img src="@/assets/logo.png" class="avatar" />
       <h3>{{$t('group.group_new_title')}}</h3>
     </div>
     <mixin-scrollbar>

@@ -1133,10 +1133,11 @@ export default class ChatContainer extends Vue {
     this.showDetails(user)
   }
   handleAction(action: any) {
+    const { conversationId } = this.conversation
     if (action.startsWith('input:')) {
       const content = action.split('input:')[1]
       const msg = {
-        conversationId: this.conversation.conversationId,
+        conversationId,
         content,
         category: 'PLAIN_TEXT',
         status: MessageStatus.SENDING
@@ -1144,8 +1145,8 @@ export default class ChatContainer extends Vue {
       this.actionSendMessage({ msg })
       this.goBottom()
     } else if (action.startsWith('mention:')) {
-      const userId = action.split('mention:')[1]
-      const user = userDao.findUserById(userId)
+      const identityNumber = action.split('mention:')[1]
+      const user = userDao.findUserByIdentityNumber(identityNumber)
       this.showDetails(user)
     } else {
       browser.loadURL(action, this.conversation.conversationId)

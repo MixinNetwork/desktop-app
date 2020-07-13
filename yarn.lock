@@ -833,24 +833,10 @@
     "@babel/types" "^7.4.4"
     esutils "^2.0.2"
 
-"@babel/runtime@^7.5.5", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.5.5", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2", "@babel/runtime@^7.9.6":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.10.4.tgz#a6724f1a6b8d2f6ea5236dbfe58c7d7ea9c5eb99"
   integrity sha512-UpTN5yUJr9b4EX2CnGNWIvER7Ab83ibv0pcvvHc4UOdrBI5jb8bj+32cCwPX6xu0mt2daFNjYhoi+X7beH0RSw==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
-  version "7.8.7"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.7.tgz#8fefce9802db54881ba59f90bb28719b4996324d"
-  integrity sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.9.6":
-  version "7.10.0"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.10.0.tgz#2cdcd6d7a391c24f7154235134c830cfb58ac0b1"
-  integrity sha512-tgYb3zVApHbLHYOPWtVwg25sBqHhfBXRKeKoTIyoheIxln1nA7oBl7SfHfiTG2GhDPI8EUBkOD/0wJCP/3HN4Q==
   dependencies:
     regenerator-runtime "^0.13.4"
 
@@ -4331,10 +4317,10 @@ electron-window-state@^5.0.3:
     jsonfile "^4.0.0"
     mkdirp "^0.5.1"
 
-electron@^v8.3.4:
-  version "8.3.4"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-8.3.4.tgz#d9c5441f34462a022480f3ebe2cf39ea5dd37b96"
-  integrity sha512-aSYXBV0PxYHmXhjGFpR0x38zbO7UTDex2JrT5tcqJpUZTY+sKdfo9PA1TpiyrHNjA5+Q8UseRUsydRedOTeZQA==
+electron@^v8.4.0:
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-8.4.0.tgz#30692166dc8b2a511b3c01c70960d467efe2b8e6"
+  integrity sha512-SpgyccM5rjDJSGcpQjiviUBT44fZlSyhcjy8RpKSnAad+co4xY1vYj6T25U1CfSk0PH/dhvcp63P2sdXHCwq/Q==
   dependencies:
     "@electron/get" "^1.0.1"
     "@types/node" "^12.0.12"
@@ -11405,10 +11391,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-"video.js@^6.8.0 || ^7.0.0", video.js@^7.8.3:
-  version "7.8.3"
-  resolved "https://registry.yarnpkg.com/video.js/-/video.js-7.8.3.tgz#a32df2b8e5f8d2f6b06d6ccd3bf91c6342a2a365"
-  integrity sha512-u8/1qEZdBeOm7TgBhJg8ab28vd3x62UMaaSnZ79yOMaxCqACP9CzWJT9c3Isfv2jY9BNLBIIft+BqNLTWudtLw==
+"video.js@^6.8.0 || ^7.0.0", video.js@^7.8.4:
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/video.js/-/video.js-7.8.4.tgz#645bf40400b413047d2b873c0c65fc8b42128f2a"
+  integrity sha512-XTWWrhfdrk7nTBkqhWKslfXMpUhsDRsZ2L3ISxjuAgadpiomxFV/OARchtwxO+FdnxTm4njJstPmXbVe3F765g==
   dependencies:
     "@babel/runtime" "^7.9.2"
     "@videojs/http-streaming" "1.13.2"

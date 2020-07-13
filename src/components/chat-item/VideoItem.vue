@@ -52,12 +52,7 @@
                 />
                 <div v-else>
                   <div :style="defaultStyle" v-if="showPlayIcon">
-                    <img
-                      class="image"
-                      :style="defaultStyle"
-                      :src="'data:image/jpeg;base64,' + message.thumbImage"
-                      :onerror="`this.src='${defaultImg}';this.onerror=null`"
-                    />
+                    <video :src="message.mediaUrl" :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
                     <svg-icon class="play" icon-class="ic_play" v-if="!loading"  @click="onPlayerPlay()" />
                   </div>
                   <video-player

@@ -39,7 +39,7 @@
             />
             {{$t(`chat.chat_${key}`)}}
           </div>
-          <span class="size">{{currentMedia[key].toFixed(2)}} MB</span>
+          <span class="size">{{getSizeStr(currentMedia[key])}}</span>
         </div>
       </div>
       <mixin-scrollbar v-else>
@@ -53,7 +53,7 @@
               <Avatar :conversation="item" />
               <div class="content">
                 <span class="name">{{item.groupName?item.groupName:item.name}}</span>
-                <span class="size">{{getSize(item.conversationId).toFixed(2)}} MB</span>
+                <span class="size">{{getSizeStr(getSize(item.conversationId))}}</span>
               </div>
             </div>
           </div>
@@ -174,7 +174,7 @@ export default class StorageContainer extends Vue {
     })
 
     this.$Dialog.alert(
-      this.$t('setting.remove_messages', { 0: messages.length, 1: `(${size.toFixed(2)} MB)` }),
+      this.$t('setting.remove_messages', { 0: messages.length, 1: `(${this.getSizeStr(size)})` }),
       this.$t('setting.clear'),
       () => {
         this.cleaning = true
@@ -236,10 +236,19 @@ export default class StorageContainer extends Vue {
     Object.keys(sizes).forEach(key => {
       size += sizes[key]
     })
-    if (size < 0.0001) {
+    if (size < 0.005) {
       return 0
     }
     return size
+  }
+
+  getSizeStr(size: any) {
+    let unitStr = 'MB'
+    if (size > 1024) {
+      size = size / 1024
+      unitStr = 'GB'
+    }
+    return `${size.toFixed(2)} ${unitStr}`
   }
 
   chooseConversation(item: any) {

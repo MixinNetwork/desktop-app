@@ -143,7 +143,7 @@ export default class VideoItem extends Vue {
       } else {
         this.videoPlayer.player.exitPictureInPicture()
       }
-    } else {
+    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
       this.$store.dispatch('setCurrentVideo', null)
     }
   }

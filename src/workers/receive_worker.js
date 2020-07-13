@@ -140,6 +140,7 @@ let lastCheckSignalTime = 0
 
 class ReceiveWorker extends BaseWorker {
   async doWork() {
+    if (sessionStorage.duringMigration) return
     await wasmObject.then(result => {})
     const fms = floodMessageDao.findFloodMessage()
     if (!fms || !fms.length) {

@@ -69,7 +69,9 @@ export default class Loading extends Vue {
         if (!localStorage.circleSynced) {
           this.syncCircles()
         }
+        sessionStorage.duringMigration = true
         this.migrationAction((skip: boolean) => {
+          delete sessionStorage.duringMigration
           if (skip) {
             this.$router.push('/home')
           }

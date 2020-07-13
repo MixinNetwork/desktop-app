@@ -155,6 +155,11 @@ class MessageDao {
     this.deleteMessageFts(mIds)
   }
 
+  deleteMessageById(mid: any) {
+    db.prepare('DELETE FROM messages WHERE message_id = ?').run(mid)
+    db.prepare('DELETE FROM messages_fts WHERE message_id = ?').run(mid)
+  }
+
   ftsMessagesDelete(conversationId: any) {
     return db
       .prepare(

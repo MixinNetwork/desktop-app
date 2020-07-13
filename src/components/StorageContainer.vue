@@ -26,8 +26,8 @@
       </div>
       <div class="select" v-else-if="current">
         <div class="select-title">
-          <span class="name">{{current.name}}</span>
-          <spinner v-if="cleaning" class="loading" stroke="#aaa" />
+          <span class="name">{{current.groupName || current.name}}</span>
+          <span v-if="cleaning" class="cleaning">{{$t('setting.cleaning')}}</span>
           <a v-else class="clear" @click="clear()">{{$t('setting.clear')}}</a>
         </div>
         <div class="select-item" v-for="key in ['image', 'video', 'audio', 'file']" :key="key">
@@ -164,11 +164,11 @@ export default class StorageContainer extends Vue {
         const curPath = this.getMediaPath(key, this.curCid)
         const list = listFilePath(curPath)
         list.forEach(path => {
-          messages.push({ path })
           const mid = path.split(`${curPath}/`)[1]
           if (mid) {
             messageIds.push(mid)
           }
+          messages.push({ path, mid })
         })
       }
     })
@@ -178,14 +178,17 @@ export default class StorageContainer extends Vue {
       this.$t('setting.clear'),
       () => {
         this.cleaning = true
-        messageDao.deleteMessageByIds(messageIds)
-        delMedia(messages)
-        mediaTypes.forEach((key: string) => {
-          this.storages[this.curCid][key] = 0
-        })
-        setTimeout(() => {
-          this.cleaning = false
-          this.back()
+        let delNum = 0
+        delMedia(messages, (message: any) => {
+          messageDao.deleteMessageById(message.mid)
+          delNum++
+          if (delNum >= messages.length) {
+            mediaTypes.forEach((key: string) => {
+              this.storages[this.curCid][key] = 0
+            })
+            this.cleaning = false
+            this.back()
+          }
         })
       },
       this.$t('cancel'),
@@ -240,6 +243,7 @@ export default class StorageContainer extends Vue {
   }
 
   chooseConversation(item: any) {
+    this.cleaning = false
     this.unselected = {}
     this.current = item
   }
@@ -341,9 +345,9 @@ main {
         .clear {
           cursor: pointer;
         }
-        .loading {
-          width: 1.1rem;
-          height: 1.1rem;
+        .cleaning {
+          font-size: 0.7rem;
+          color: $gray-color;
         }
       }
       .select-item {

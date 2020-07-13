@@ -356,9 +356,9 @@ export default {
   },
   refreshUser: async({ commit }: any, { userId, conversationId }: any) => {
     const response = await userApi.getUserById(userId)
-    if (response.data.data) {
+    let u = response.data && response.data.data
+    if (u) {
       let user = userDao.findUserById(userId)
-      let u = response.data.data
       if (u) {
         userDao.insertUser(u)
       }

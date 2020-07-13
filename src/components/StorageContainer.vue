@@ -244,7 +244,7 @@ export default class StorageContainer extends Vue {
 
   getSizeStr(size: any) {
     let unitStr = 'MB'
-    if (size > 1024) {
+    if (size >= 1024) {
       size = size / 1024
       unitStr = 'GB'
     }

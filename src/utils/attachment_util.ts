@@ -191,10 +191,11 @@ function getMediaNewDir(category: string, identityNumber: string, conversationId
   return dir
 }
 
-export async function downloadSticker(stickerId: string) {
+export async function downloadSticker(stickerId: string, createdAt: string) {
   const response = await stickerApi.getStickerById(stickerId)
   if (response.data.data) {
     const resData = response.data.data
+    resData.created_at = createdAt
     stickerDao.insertUpdate(resData)
     const data: any = await getAttachment(resData.asset_url, stickerId)
     const identityNumber = getIdentityNumber()

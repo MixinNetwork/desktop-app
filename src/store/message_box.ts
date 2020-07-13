@@ -98,23 +98,25 @@ class MessageBox {
 
     for (let i = this.messages.length - 1; i >= 0; i--) {
       const item = this.messages[i]
-      const isQuote = messageIds.indexOf(item.quoteId) > -1
-      if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
-        const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
-        if (findMessage) {
-          findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
-          if (isQuote) {
-            let quoteContent = JSON.parse(item.quoteContent)
-            const findQuoteMessage = messageDao.getConversationMessageById(conversationId, quoteContent.messageId)
-            if (!findQuoteMessage) {
-              quoteContent.type = 'MESSAGE_RECALL'
+      if (item) {
+        const isQuote = messageIds.indexOf(item.quoteId) > -1
+        if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
+          const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
+          if (findMessage) {
+            findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+            if (isQuote) {
+              let quoteContent = JSON.parse(item.quoteContent)
+              const findQuoteMessage = messageDao.getConversationMessageById(conversationId, quoteContent.messageId)
+              if (!findQuoteMessage) {
+                quoteContent.type = 'MESSAGE_RECALL'
+              } else {
+                quoteContent = findQuoteMessage
+              }
+              this.messages[i].quoteContent = JSON.stringify(quoteContent)
             } else {
-              quoteContent = findQuoteMessage
+              matchIds.push(item.messageId)
+              this.messages[i] = findMessage
             }
-            this.messages[i].quoteContent = JSON.stringify(quoteContent)
-          } else {
-            matchIds.push(item.messageId)
-            this.messages[i] = findMessage
           }
         }
       }

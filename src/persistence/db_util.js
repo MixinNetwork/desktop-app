@@ -27,9 +27,9 @@ async function copyFile(filename, dbPath, distPath) {
   const src = path.join(dbPath, filename)
   if (fs.existsSync(src)) {
     const dist = path.join(distPath, filename)
-    let dbMigrationMap = {}
+    let duringMigrationMap = {}
     try {
-      dbMigrationMap = JSON.parse(localStorage.duringMigrationMap || '{}')
+      duringMigrationMap = JSON.parse(localStorage.duringMigrationMap || '{}')
     } catch (e) {}
     if (fs.existsSync(dist) && duringMigrationMap[dist]) {
       fs.unlinkSync(dist)
@@ -38,7 +38,7 @@ async function copyFile(filename, dbPath, distPath) {
     localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
     fs.writeFileSync(dist, fs.readFileSync(src))
     duringMigrationMap[dist] = false
-    localStorage.duringMigrationMap = JSON.stringify(dbMigrationMap)
+    localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
   }
 }
 

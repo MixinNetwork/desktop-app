@@ -27,9 +27,10 @@ async function copyFile(filename, dbPath, distPath) {
   const src = path.join(dbPath, filename)
   if (fs.existsSync(src)) {
     const dist = path.join(distPath, filename)
-    if (!fs.existsSync(dist)) {
-      fs.writeFileSync(dist, fs.readFileSync(src))
+    if (fs.existsSync(dist)) {
+      fs.unlinkSync(dist)
     }
+    fs.writeFileSync(dist, fs.readFileSync(src))
   }
 }
 

@@ -59,6 +59,8 @@ export async function dbMigration(identityNumber) {
   await copyFile('mixin.db3-shm', dbPath, distPath)
   await copyFile('mixin.db3-wal', dbPath, distPath)
   await copyFile('signal.db3', dbPath, distPath)
+  await copyFile('signal.db3-shm', dbPath, distPath)
+  await copyFile('signal.db3-wal', dbPath, distPath)
 }
 
 let clearing = false

@@ -27,10 +27,23 @@ async function copyFile(filename, dbPath, distPath) {
   const src = path.join(dbPath, filename)
   if (fs.existsSync(src)) {
     const dist = path.join(distPath, filename)
+    let duringMigrationMap = {}
+    try {
+      duringMigrationMap = JSON.parse(localStorage.duringMigrationMap || '{}')
+    } catch (e) {}
     if (fs.existsSync(dist)) {
-      fs.unlinkSync(dist)
+      if (duringMigrationMap[dist]) {
+        fs.unlinkSync(dist)
+      }
+    } else {
+      duringMigrationMap[dist] = true
+      localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
     }
-    fs.writeFileSync(dist, fs.readFileSync(src))
+    if (duringMigrationMap[dist]) {
+      fs.writeFileSync(dist, fs.readFileSync(src))
+      duringMigrationMap[dist] = false
+      localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
+    }
   }
 }
 
@@ -46,6 +59,8 @@ export async function dbMigration(identityNumber) {
   await copyFile('mixin.db3-shm', dbPath, distPath)
   await copyFile('mixin.db3-wal', dbPath, distPath)
   await copyFile('signal.db3', dbPath, distPath)
+  await copyFile('signal.db3-shm', dbPath, distPath)
+  await copyFile('signal.db3-wal', dbPath, distPath)
 }
 
 let clearing = false

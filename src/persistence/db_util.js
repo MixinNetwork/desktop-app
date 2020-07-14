@@ -31,14 +31,19 @@ async function copyFile(filename, dbPath, distPath) {
     try {
       duringMigrationMap = JSON.parse(localStorage.duringMigrationMap || '{}')
     } catch (e) {}
-    if (fs.existsSync(dist) && duringMigrationMap[dist]) {
-      fs.unlinkSync(dist)
+    if (fs.existsSync(dist)) {
+      if (duringMigrationMap[dist]) {
+        fs.unlinkSync(dist)
+      }
+    } else {
+      duringMigrationMap[dist] = true
+      localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
     }
-    duringMigrationMap[dist] = true
-    localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
-    fs.writeFileSync(dist, fs.readFileSync(src))
-    duringMigrationMap[dist] = false
-    localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
+    if (duringMigrationMap[dist]) {
+      fs.writeFileSync(dist, fs.readFileSync(src))
+      duringMigrationMap[dist] = false
+      localStorage.duringMigrationMap = JSON.stringify(duringMigrationMap)
+    }
   }
 }
 

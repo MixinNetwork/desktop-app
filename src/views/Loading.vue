@@ -59,22 +59,26 @@ export default class Loading extends Vue {
         }
         return
       }
-      userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
-      await this.pushSignalKeys()
       const user = account.data.data
-      if (user) {
-        localStorage.account = JSON.stringify(user)
-        this.$store.dispatch('insertUser', user)
-        this.$blaze.connect()
-        if (!localStorage.circleSynced) {
-          this.syncCircles()
-        }
+      if (!user) {
+        userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
+        await this.pushSignalKeys()
+      } else {
         sessionStorage.duringMigration = true
         this.migrationAction((skip: boolean) => {
           delete sessionStorage.duringMigration
-          if (skip) {
-            this.$router.push('/home')
-          }
+          userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
+          this.pushSignalKeys().then(() => {
+            localStorage.account = JSON.stringify(user)
+            this.$store.dispatch('insertUser', user)
+            this.$blaze.connect()
+            if (!localStorage.circleSynced) {
+              this.syncCircles()
+            }
+            if (skip) {
+              this.$router.push('/home')
+            }
+          })
         })
       }
     }

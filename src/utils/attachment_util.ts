@@ -172,7 +172,7 @@ export function mediaMigration(identityNumber: string, callback: any) {
       mixinDb.close()
       callback()
     }
-  }, 1000)
+  }, 100)
 }
 
 function getMediaNewDir(category: string, identityNumber: string, conversationId: string) {

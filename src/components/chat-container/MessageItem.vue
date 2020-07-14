@@ -511,7 +511,7 @@ export default class MessageItem extends Vue {
     if (canReply(this.message)) {
       messageMenu.push(menu.reply)
     }
-    if (this.message.type.endsWith('_VIDEO')) {
+    if (['video'].indexOf(this.messageType()) > -1 && canForward(this.message)) {
       messageMenu.push(menu.store)
     }
     messageMenu.push(menu.delete)

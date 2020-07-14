@@ -128,7 +128,12 @@ export default class SignIn extends Vue {
     )
   }
   decryptProvision(envelopeDecoded: any) {
-    const messageStr = signalProtocol.decryptProvision(this.keyPair.priv, envelopeDecoded)
+    let messageStr = ''
+    try {
+      messageStr = signalProtocol.decryptProvision(this.keyPair.priv, envelopeDecoded)
+    } catch (e) {
+      console.log('decryptProvision', e)
+    }
     if (!messageStr) {
       this.showRetry = true
       return
@@ -161,7 +166,12 @@ export default class SignIn extends Vue {
         const account = resp.data.data
         localStorage.account = JSON.stringify(account)
         sessionStorage.signinData = JSON.stringify({
-          sessionKeyPair, message, registrationId, primarySessionId, keyPair, account
+          sessionKeyPair,
+          message,
+          registrationId,
+          primarySessionId,
+          keyPair,
+          account
         })
         sessionStorage.readyToSignin = true
         return location.reload()
@@ -174,9 +184,7 @@ export default class SignIn extends Vue {
     if (!sessionStorage.signinData) return
     const payload = JSON.parse(sessionStorage.signinData)
     sessionStorage.signinData = ''
-    const {
-      sessionKeyPair, message, registrationId, primarySessionId, keyPair, account
-    } = payload
+    const { sessionKeyPair, message, registrationId, primarySessionId, keyPair, account } = payload
     localStorage.sessionToken = sessionKeyPair.private
     localStorage.primaryPlatform = message.platform
     signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)

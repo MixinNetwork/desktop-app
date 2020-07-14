@@ -45,12 +45,16 @@ export function dirSize(path) {
   return dirsMap
 }
 
-export function delMedia(messages) {
+export function delMedia(messages, callback) {
   messages.forEach(message => {
     if (message && (message.path || message.media_url)) {
       const path = message.path || message.media_url.split('file://')[1]
       if (path && fs.existsSync(path)) {
-        fs.unlinkSync(path)
+        fs.unlink(path, () => {
+          if (callback) {
+            callback(message)
+          }
+        })
       }
     }
   })

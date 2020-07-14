@@ -180,6 +180,7 @@ let transactions = {
     setting: {
       title: 'Settings',
       clear: 'Clear',
+      cleaning: 'Cleaning',
       remove_messages: 'Clear {0} messages {1}?'
     },
     profile: {
@@ -383,6 +384,7 @@ let transactions = {
     setting: {
       title: '设置',
       clear: '清理',
+      cleaning: '清理中',
       remove_messages: '清除 {0} 条消息 {1} 吗?'
     },
     profile: {

@@ -30,7 +30,11 @@
           v-for="item in stickers"
           :key="item.sticker_id"
         >
-          <Lottie v-if="item.asset_type === 'json'" :path="item.asset_url" @click="sendSticker(item.sticker_id)" />
+          <Lottie
+            v-if="item.asset_type === 'json'"
+            :path="item.asset_url"
+            @click="sendSticker(item.sticker_id)"
+          />
           <img v-else :src="item.asset_url" @click="sendSticker(item.sticker_id)" />
         </span>
         <i
@@ -128,27 +132,33 @@ export default class ChatSticker extends Vue {
       })
     }
   }
-  getStickersMap: any = {}
-  async getStickers(id: string) {
+  forceGetStickersMap: any = {}
+  async getStickers(id: string, force?: boolean) {
     let stickersData: any = []
-    if (!this.getStickersMap[id]) {
+    let getStickersMap: any = {}
+    try {
+      getStickersMap = JSON.parse(localStorage.getItem('getStickersMap') || '{}')
+    } catch (error) {}
+    if (this.forceGetStickersMap[id] > new Date().getTime() - 3600000) {
+      force = false
+    }
+    if (!getStickersMap[id] || force) {
+      this.forceGetStickersMap[id] = new Date().getTime()
       const stickersRet = await stickerApi.getStickersByAlbumId(id)
       if (stickersRet.data.data) {
         stickersData = stickersRet.data.data
       }
-      this.getStickersMap[id] = true
+      getStickersMap[id] = true
+      localStorage.setItem('getStickersMap', JSON.stringify(getStickersMap))
     }
     stickersData.forEach((item: any) => {
-      const before = stickerDao.getStickerByUnique(item.sticker_id)
-      if (!before) {
-        stickerDao.insertUpdate(item)
-      }
+      stickerDao.insertUpdate(item)
     })
     let stickers = stickerDao.getStickersByAlbumId(id)
     stickers.forEach((sticker: any) => {
       if (!sticker.asset_url.startsWith('file://')) {
         const stickerId = sticker.sticker_id
-        downloadSticker(stickerId).then(filePath => {
+        downloadSticker(stickerId, sticker.created_at).then(filePath => {
           sticker.asset_url = 'file://' + filePath
         })
       }
@@ -172,7 +182,7 @@ export default class ChatSticker extends Vue {
       } else if (id === 'like') {
         const albums = stickerDao.getStickerAlbums('PERSONAL')
         if (albums[0]) {
-          this.getStickers(albums[0].album_id)
+          this.getStickers(albums[0].album_id, true)
         } else {
           stickerApi.getStickerAlbums().then((res: any) => {
             if (res.data.data) {
@@ -180,7 +190,7 @@ export default class ChatSticker extends Vue {
               albums.forEach((item: any) => {
                 stickerDao.insertAlbum(item)
               })
-              this.getStickers(albums[0].album_id)
+              this.getStickers(albums[0].album_id, true)
             }
           })
         }

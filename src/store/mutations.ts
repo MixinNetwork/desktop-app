@@ -276,9 +276,7 @@ export default {
     state.currentUser = user
   },
   setCurrentConversation(state: any, conversation: any) {
-    const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
-    // messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
     if (
       !state.conversationKeys.some((item: any) => {
         return item === conversationId

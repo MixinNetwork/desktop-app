@@ -243,7 +243,8 @@ export default class ChatContainer extends Vue {
       return
     }
     const { conversationId, unseenMessageCount } = this.conversation
-    if (newVal) {
+    this.$refs.chatMessages.setConversationId(conversationId, unseenMessageCount - 1, true)
+    if (conversationId) {
       this.startup = false
       this.details = null
       if (!this.searching.replace(/^key:/, '')) {
@@ -532,36 +533,13 @@ export default class ChatContainer extends Vue {
     this.$refs.inputBox.boxFocusAction()
   }
 
-  goBottom(currentMessageLen: number = 0) {
+  goBottom() {
     this.showScroll = false
-    // this.isBottom = true
-    // this.intersectLock = true
-    // this.beforeViewport = {}
     this.currentUnreadNum = 0
-    // this.searchKeyword = ''
-    const msgLen = this.messages.length
-    this.$nextTick(() => {
-      let list = this.$refs.messagesUl
-      if (!list) return
-      // this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
-      // this.infiniteUpLock = false
-      this.showMessages = true
-      requestAnimationFrame(() => {
-        list.scrollTop = list.scrollHeight
-        // this.messagesVisible.forEach((item: any) => {
-        // this.mentionVisibleUpdate(item.messageId)
-        // })
-      })
-      setTimeout(() => {
-        if (list.scrollTop !== list.scrollHeight) {
-          list.scrollTop = list.scrollHeight
-        }
-        setTimeout(() => {
-          this.showScroll = true
-        }, 300)
-      }, 100)
-    })
-    // messageBox.clearUnreadNum()
+    this.$refs.chatMessages.goBottom()
+    setTimeout(() => {
+      this.showScroll = true
+    }, 300)
   }
 
   goBottomClick() {

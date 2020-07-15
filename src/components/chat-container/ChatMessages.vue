@@ -75,7 +75,7 @@ export default class ChatContainer extends Vue {
   @Prop(Boolean) readonly changeConversation: any
 
   @Getter('currentConversation') conversation: any
-  @Getter('currentMessages') messages: any
+  // @Getter('currentMessages') messages: any
   @Getter('currentUser') user: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
@@ -165,19 +165,18 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 60
   timeDivideShowForce: boolean = false
+  messages: any = []
 
   unreadMessageId: any = ''
   contentUtil: any = contentUtil
 
   conversationId: any
   messagePositionIndex: any
-  scrollAction: any
   pageDown: any
   tempCount: any
   offsetPageDown: number = 0
   newMessageMap: any = {}
   page: any
-  callback: any
   infiniteUpLock: boolean = false
   infiniteDownLock: boolean = false
 
@@ -219,7 +218,6 @@ export default class ChatContainer extends Vue {
           break
         }
       }
-
       store.dispatch('setCurrentMessages', this.messages)
       this.scrollAction({ goBottom: this.messages.length, message: posMessage, isInit })
       let getLastMessage = false
@@ -419,10 +417,6 @@ export default class ChatContainer extends Vue {
       this.infiniteDownLock = false
     }
   }
-  bindData(callback: any, scrollAction: any) {
-    this.callback = callback
-    this.scrollAction = scrollAction
-  }
   clearData(conversationId: string) {
     if (conversationId === this.conversationId && this.conversationId) {
       this.page = 0
@@ -438,44 +432,71 @@ export default class ChatContainer extends Vue {
     //   this.goMessagePosType = goMessagePosType
     //   this.goSearchMessagePos(message, keyword)
     // })
-    const self = this
-    this.bindData(
-      function(payload: any) {
-        const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
-        if (updateMessages) {
-          const { firstIndex, lastIndex } = self.viewport
-          self.viewport = self.viewportLimit(firstIndex - self.threshold, lastIndex + self.threshold)
-          self.udpateMessagesVisible()
-        }
-        if (unreadNum > 0 || unreadNum === 0) {
-          // self.currentUnreadNum = unreadNum
-          setTimeout(() => {
-            self.infiniteDownLock = false
-          })
-        }
-        if (getLastMessage) {
-          // setTimeout(() => {
-          //   self.getLastMessage = true
-          // })
-        }
-        self.infiniteUpLock = infiniteUpLock
-        self.infiniteDownLock = infiniteDownLock
-      },
-      function(payload: any) {
-        const { message, isMyMsg, isInit, goBottom }: any = payload
-        if (message) {
-          if (isInit) {
-            self.unreadMessageId = message.messageId
-          }
-          self.goMessagePos(message)
-        } else if (isMyMsg || goBottom || self.isBottom) {
-          if (BrowserWindow.getFocusedWindow()) {
-            self.unreadMessageId = ''
-          }
-          // self.goBottom(goBottom)
-        }
+  }
+
+  callback(payload: any) {
+    const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
+    if (updateMessages) {
+      const { firstIndex, lastIndex } = this.viewport
+      this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)
+      this.udpateMessagesVisible()
+    }
+    if (unreadNum > 0 || unreadNum === 0) {
+      // this.currentUnreadNum = unreadNum
+      setTimeout(() => {
+        this.infiniteDownLock = false
+      })
+    }
+    if (getLastMessage) {
+      // setTimeout(() => {
+      //   this.getLastMessage = true
+      // })
+    }
+    this.infiniteUpLock = infiniteUpLock
+    this.infiniteDownLock = infiniteDownLock
+  }
+
+  scrollAction(payload: any) {
+    const { message, isMyMsg, isInit, goBottom }: any = payload
+    this.messagesVisible = this.getMessagesVisible()
+    if (message) {
+      if (isInit) {
+        this.unreadMessageId = message.messageId
       }
-    )
+      this.goMessagePos(message)
+    } else if (isMyMsg || goBottom || this.isBottom) {
+      if (BrowserWindow.getFocusedWindow()) {
+        this.unreadMessageId = ''
+      }
+      this.goBottom(goBottom)
+    }
+  }
+
+  goBottom(currentMessageLen: number = 0) {
+    // this.isBottom = true
+    // this.intersectLock = true
+    // this.beforeViewport = {}
+    // this.searchKeyword = ''
+    const msgLen = this.messages.length
+    this.$nextTick(() => {
+      let list: any = this.$refs.messagesUl
+      if (!list) return
+      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
+      // this.infiniteUpLock = false
+      this.showMessages = true
+      requestAnimationFrame(() => {
+        list.scrollTop = list.scrollHeight
+        this.messagesVisible.forEach((item: any) => {
+          this.mentionVisibleUpdate(item.messageId)
+        })
+      })
+      setTimeout(() => {
+        if (list.scrollTop !== list.scrollHeight) {
+          list.scrollTop = list.scrollHeight
+        }
+      }, 100)
+    })
+    // messageBox.clearUnreadNum()
   }
 
   beforeDestroy() {
@@ -485,8 +506,6 @@ export default class ChatContainer extends Vue {
   goMessagePos(posMessage: any) {
     let goDone = false
     let beforeScrollTop = 0
-
-    console.log('-----goMessagePos')
 
     let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)

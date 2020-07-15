@@ -32,7 +32,7 @@ let transactions = {
       conversation: {
         exit_group: 'Exit Group',
         pin_to_top: 'Pin to Top',
-        clear_pin: 'Remove Pin',
+        clear_pin: 'Unpin',
         clear: 'Clear Chat',
         mute: 'Mute',
         cancel_mute: 'Cancel Mute'

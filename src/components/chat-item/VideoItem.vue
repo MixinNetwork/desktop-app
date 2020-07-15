@@ -52,7 +52,13 @@
                 />
                 <div v-else>
                   <div :style="defaultStyle" v-if="showPlayIcon">
-                    <video :src="message.mediaUrl" :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"></video>
+                    <video @loadeddata="loaded=true" v-show="loaded" :src="message.mediaUrl" :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`" preload></video>
+                    <img
+                      v-show="!loaded"
+                      :style="defaultStyle"
+                      :src="'data:image/jpeg;base64,' + message.thumbImage"
+                      :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                    />
                     <svg-icon class="play" icon-class="ic_play" v-if="!loading"  @click="onPlayerPlay()" />
                   </div>
                   <video-player
@@ -108,6 +114,7 @@ export default class VideoItem extends Vue {
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
   $moment: any
+  loaded: boolean = false
 
   messageOwnership() {
     let { message, me } = this

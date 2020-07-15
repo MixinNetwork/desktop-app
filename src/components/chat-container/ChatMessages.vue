@@ -44,17 +44,22 @@ import fs from 'fs'
 import _ from 'lodash'
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
+import { MessageCategories, MessageStatus, PerPageMessageCount, messageType } from '@/utils/constants'
 import TimeDivide from '@/components/chat-container/TimeDivide.vue'
 import MessageItem from '@/components/chat-container/MessageItem.vue'
 
 import messageDao from '@/dao/message_dao'
-import messageBox from '@/store/message_box'
 
 import { remote } from 'electron'
 import browser from '@/utils/browser'
 
 import contentUtil from '@/utils/content_util'
+
+import moment from 'moment'
+
+import { delMedia, getAccount } from '@/utils/util'
+
+import store from '@/store/store'
 let { BrowserWindow } = remote
 
 @Component({
@@ -161,11 +166,271 @@ export default class ChatContainer extends Vue {
   threshold: number = 60
   timeDivideShowForce: boolean = false
 
-  infiniteUpLock: any = false
-  infiniteDownLock: any = false
-
   unreadMessageId: any = ''
   contentUtil: any = contentUtil
+
+  conversationId: any
+  messagePositionIndex: any
+  scrollAction: any
+  pageDown: any
+  tempCount: any
+  offsetPageDown: number = 0
+  newMessageMap: any = {}
+  page: any
+  callback: any
+  infiniteUpLock: boolean = false
+  infiniteDownLock: boolean = false
+
+  setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
+    if (conversationId) {
+      this.conversationId = conversationId
+      this.messagePositionIndex = messagePositionIndex > 0 ? messagePositionIndex : 0
+      let page = 0
+      if (messagePositionIndex >= PerPageMessageCount) {
+        page = Math.floor(messagePositionIndex / PerPageMessageCount)
+      }
+      this.messages = messageDao.getMessages(conversationId, page)
+      this.page = page
+      this.pageDown = page
+      this.tempCount = 0
+      this.offsetPageDown = 0
+      this.newMessageMap = {}
+      this.infiniteDownLock = false
+      this.infiniteUpLock = false
+
+      let posMessage: any = null
+      if (messagePositionIndex >= 0) {
+        posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
+        if (messagePositionIndex % PerPageMessageCount < PerPageMessageCount / 2) {
+          this.infiniteDown()
+        } else {
+          this.infiniteUp()
+        }
+      }
+
+      let markdownCount = 5
+      for (let i = this.messages.length - 1; i >= 0; i--) {
+        const type = this.messages[i].type
+        if (['post', 'image', 'sticker'].indexOf(messageType(type)) > -1) {
+          this.messages[i].fastLoad = true
+          markdownCount--
+        }
+        if (markdownCount < 0) {
+          break
+        }
+      }
+
+      store.dispatch('setCurrentMessages', this.messages)
+      this.scrollAction({ goBottom: this.messages.length, message: posMessage, isInit })
+      let getLastMessage = false
+      if (this.pageDown === 0) {
+        getLastMessage = true
+      }
+      this.callback({ unreadNum: 0, getLastMessage })
+    }
+  }
+
+  clearMessagePositionIndex(index: any) {
+    this.messagePositionIndex = index
+  }
+  clearUnreadNum() {
+    this.newMessageMap = {}
+  }
+  isMine(findMessage: any) {
+    const account: any = getAccount()
+    return findMessage.userId === account.user_id
+  }
+  refreshConversation(conversationId: any) {
+    this.page = 0
+    this.pageDown = 0
+    this.tempCount = 0
+    this.messages = messageDao.getMessages(conversationId, 0)
+    store.dispatch('setCurrentMessages', this.messages)
+  }
+
+  refreshMessage(payload: any) {
+    const { conversationId, messageIds } = payload
+
+    if (!this.conversationId || conversationId !== this.conversationId) return
+
+    if (this.infiniteDownLock || this.infiniteUpLock) return
+
+    if (!messageIds || messageIds.length === 0) return
+
+    const matchIds: any = []
+
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      const item = this.messages[i]
+      if (item) {
+        const isQuote = messageIds.indexOf(item.quoteId) > -1
+        if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
+          const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
+          if (findMessage) {
+            findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+            if (isQuote) {
+              let quoteContent = JSON.parse(item.quoteContent)
+              const findQuoteMessage = messageDao.getConversationMessageById(conversationId, quoteContent.messageId)
+              if (!findQuoteMessage) {
+                quoteContent.type = 'MESSAGE_RECALL'
+              } else {
+                quoteContent = findQuoteMessage
+              }
+              this.messages[i].quoteContent = JSON.stringify(quoteContent)
+            } else {
+              matchIds.push(item.messageId)
+              this.messages[i] = findMessage
+            }
+          }
+        }
+      }
+    }
+
+    if (matchIds.length !== messageIds.length) {
+      messageIds.forEach((id: string) => {
+        if (matchIds.indexOf(id) > -1) return
+        const findMessage = messageDao.getConversationMessageById(conversationId, id)
+        if (!findMessage || (this.messages[0] && findMessage.createdAt < this.messages[0].createdAt)) return
+        findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+        const isMyMsg = this.isMine(findMessage)
+        if (this.pageDown === 0) {
+          this.messages.push(findMessage)
+          if (!isMyMsg) {
+            this.newMessageMap[id] = true
+          }
+          let newCount = Object.keys(this.newMessageMap).length
+          store.dispatch('setCurrentMessages', this.messages)
+          this.page = Math.floor(this.messages.length / PerPageMessageCount) - 1
+          this.callback({ unreadNum: newCount, getLastMessage: true })
+          this.scrollAction({ isMyMsg })
+        } else {
+          if (isMyMsg) {
+            if (findMessage.status === MessageStatus.SENT) {
+              this.setConversationId(conversationId, -1, false)
+            }
+          } else if (!this.newMessageMap[id]) {
+            this.newMessageMap[id] = true
+            const newCount = Object.keys(this.newMessageMap).length
+            this.callback({ unreadNum: newCount })
+            this.tempCount = newCount % PerPageMessageCount
+            const lastCount = this.messagePositionIndex % PerPageMessageCount
+            const offset = Math.ceil((newCount + lastCount) / PerPageMessageCount) - this.offsetPageDown
+            this.pageDown += offset
+            this.offsetPageDown += offset
+          }
+        }
+      })
+    } else {
+      store.dispatch('setCurrentMessages', this.messages)
+      this.callback({ updateMessages: true })
+    }
+  }
+  deleteMessages(messageIds: any[]) {
+    const messages = messageDao.getMessagesByIds(messageIds)
+    delMedia(messages)
+    messageDao.deleteMessageByIds(messageIds)
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      if (messageIds[0] === this.messages[i].messageId) {
+        this.messages.splice(i, 1)
+        break
+      }
+    }
+    store.dispatch('setCurrentMessages', this.messages)
+  }
+  nextPage(direction: string): any {
+    let data: unknown = []
+    if (direction === 'down') {
+      if (this.pageDown > 0) {
+        let tempCount = 0
+        if (this.tempCount > 0) {
+          tempCount = this.tempCount - PerPageMessageCount
+        }
+        data = messageDao.getMessages(this.conversationId, --this.pageDown, tempCount)
+      } else {
+        this.newMessageMap = {}
+        this.callback({ unreadNum: 0, getLastMessage: true })
+      }
+    } else {
+      data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+    }
+    return data
+  }
+
+  infiniteScroll(direction: any) {
+    const messages = this.nextPage(direction)
+    const messageIds: any = []
+    this.messages.forEach((item: any) => {
+      messageIds.push(item.messageId)
+    })
+    if (direction === 'down') {
+      if (!messages.length) {
+        setTimeout(() => {
+          this.callback({ infiniteDownLock: true })
+        }, 100)
+        return
+      }
+      const newMessages = []
+      const lastMessageId = this.messages[this.messages.length - 1].messageId
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const temp = messages[i]
+        if (temp.messageId === lastMessageId) {
+          break
+        }
+        if (messageIds.indexOf(temp.messageId) < 0) {
+          newMessages.unshift(temp)
+        }
+      }
+      this.messages.push(...newMessages)
+      store.dispatch('setCurrentMessages', this.messages)
+      this.callback({ updateMessages: true })
+    } else {
+      if (!messages.length) {
+        setTimeout(() => {
+          this.callback({ infiniteUpLock: true })
+        }, 100)
+        return
+      }
+      const newMessages = []
+      const firstMessageId = this.messages[0].messageId
+      for (let i = 0; i < messages.length; i++) {
+        const temp = messages[i]
+        if (temp.messageId === firstMessageId) {
+          break
+        }
+        if (messageIds.indexOf(temp.messageId) < 0) {
+          newMessages.push(temp)
+        }
+      }
+      this.messages.unshift(...newMessages)
+      store.dispatch('setCurrentMessages', this.messages)
+      this.callback({ updateMessages: true })
+    }
+  }
+  infiniteUp() {
+    if (!this.infiniteUpLock) {
+      this.infiniteUpLock = true
+      this.infiniteScroll('up')
+      this.infiniteUpLock = false
+    }
+  }
+  infiniteDown() {
+    if (!this.infiniteDownLock) {
+      this.infiniteDownLock = true
+      this.infiniteScroll('down')
+      this.infiniteDownLock = false
+    }
+  }
+  bindData(callback: any, scrollAction: any) {
+    this.callback = callback
+    this.scrollAction = scrollAction
+  }
+  clearData(conversationId: string) {
+    if (conversationId === this.conversationId && this.conversationId) {
+      this.page = 0
+      this.messages = []
+      store.dispatch('setCurrentMessages', [])
+      this.newMessageMap = {}
+    }
+  }
 
   mounted() {
     // this.$root.$on('goSearchMessagePos', (item: any) => {
@@ -174,7 +439,7 @@ export default class ChatContainer extends Vue {
     //   this.goSearchMessagePos(message, keyword)
     // })
     const self = this
-    messageBox.bindData(
+    this.bindData(
       function(payload: any) {
         const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
         if (updateMessages) {
@@ -221,6 +486,8 @@ export default class ChatContainer extends Vue {
     let goDone = false
     let beforeScrollTop = 0
 
+    console.log('-----goMessagePos')
+
     let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
@@ -235,7 +502,7 @@ export default class ChatContainer extends Vue {
       const count = messageDao.ftsMessageCount(conversationId)
       const messageIndex = messageDao.ftsMessageIndex(conversationId, posMessage.messageId)
       if (messageIndex < 0) return
-      messageBox.setConversationId(conversationId, count - messageIndex - 1, false)
+      this.setConversationId(conversationId, count - messageIndex - 1, false)
       firstIndex = 0
       lastIndex = this.threshold
     }
@@ -327,7 +594,7 @@ export default class ChatContainer extends Vue {
     if (this.isBottom) {
       if (!this.infiniteDownLock) {
         this.infiniteDownLock = true
-        messageBox.infiniteDown()
+        this.infiniteDown()
       }
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
@@ -335,7 +602,7 @@ export default class ChatContainer extends Vue {
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUpLock = true
-        messageBox.infiniteUp()
+        this.infiniteUp()
       }
       this.showTopTipsTimer = setTimeout(() => {
         if (this.infiniteUpLock) {
@@ -437,7 +704,7 @@ export default class ChatContainer extends Vue {
   //       item.message_id || item.messageId
   //     )
   //     if (messageIndex < 0) return
-  //     // messageBox.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
+  //     // this.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
   //     this.searchKeyword = keyword
   //     this.goSearchPos = false
   //     this.$refs.inputBox.boxFocusAction()

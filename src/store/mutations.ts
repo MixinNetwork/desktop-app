@@ -1,4 +1,3 @@
-import messageBox from '@/store/message_box'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
@@ -279,7 +278,7 @@ export default {
   setCurrentConversation(state: any, conversation: any) {
     const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
-    messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
+    // messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
     if (
       !state.conversationKeys.some((item: any) => {
         return item === conversationId
@@ -362,7 +361,7 @@ export default {
     state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
   },
   refreshMessage(state: any, payload: any) {
-    messageBox.refreshMessage(payload)
+    // messageBox.refreshMessage(payload)
     const { conversationId } = payload
     if (
       !state.conversationKeys.some((item: any) => {
@@ -389,7 +388,7 @@ export default {
       state.conversationKeys.splice(index, 1)
     }
     delete state.conversations[conversationId]
-    messageBox.clearData(conversationId)
+    // messageBox.clearData(conversationId)
     if (keywordCache) {
       search(state, keywordCache)
     }

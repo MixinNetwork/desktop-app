@@ -42,6 +42,7 @@
       :showScroll="showScroll"
       :changeConversation="changeConversation"
       :details="!!details"
+      ref="chatMessages"
       @handle-item-click="$emit('handleItemClick')"
       @dragenter="onDragEnter"
       @drop="onDrop"
@@ -190,7 +191,6 @@ import MessageForward from '@/components/chat-container/MessageForward.vue'
 import AddParticipant from '@/components/chat-container/AddParticipant.vue'
 import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
-import messageBox from '@/store/message_box'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
 import { remote } from 'electron'
@@ -214,7 +214,7 @@ export default class ChatContainer extends Vue {
   @Watch('currentUnreadNum')
   onCurrentUnreadNumChanged(val: number, oldVal: number) {
     if (val === 0) {
-      messageBox.clearMessagePositionIndex(0)
+      // messageBox.clearMessagePositionIndex(0)
     }
   }
 
@@ -263,7 +263,8 @@ export default class ChatContainer extends Vue {
       setTimeout(() => {
         this.changeConversation = false
       }, 30)
-      const msgLen = this.messages.length
+
+      // const msgLen = this.messages.length
       // if (msgLen > 0 && msgLen < PerPageMessageCount) {
       //   this.showTopTips = true
       // } else {
@@ -560,11 +561,11 @@ export default class ChatContainer extends Vue {
         }, 300)
       }, 100)
     })
-    messageBox.clearUnreadNum()
+    // messageBox.clearUnreadNum()
   }
 
   goBottomClick() {
-    messageBox.refreshConversation(this.conversation.conversationId)
+    // messageBox.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)
@@ -710,8 +711,8 @@ export default class ChatContainer extends Vue {
     this.forwardMessage = null
   }
   handleRemove(message: any) {
-    if (!message) return
-    messageBox.deleteMessages([message.messageId])
+    // if (!message) return
+    // messageBox.deleteMessages([message.messageId])
   }
   handleRecall(message: any) {
     if (!message) return

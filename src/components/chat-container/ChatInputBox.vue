@@ -94,6 +94,7 @@ import ChatSticker from '@/components/chat-container/ChatSticker.vue'
   }
 })
 export default class ChatItem extends Vue {
+  @Prop(Number) readonly panelHeight: any
   @Prop(Boolean) readonly participant: any
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly boxMessage: any
@@ -134,11 +135,6 @@ export default class ChatItem extends Vue {
         this.mentions = userDao.findUsersByIdentityNumber(numbers)
       }
     })
-  }
-
-  @Watch('panelHeight')
-  onPanelHeightChanged(newC: any, oldC: any) {
-    this.$emit('panelHeightUpdate', this.panelHeight)
   }
 
   get showUnblock() {
@@ -265,7 +261,7 @@ export default class ChatItem extends Vue {
     this.$emit('clearBoxMessage')
     this.mentionChoosing = false
     this.currentSelectMention = null
-    this.panelHeight = 12
+    this.$emit('panelHeightUpdate', 12)
     requestAnimationFrame(() => {
       this.stickerChoosing = !this.stickerChoosing
     })
@@ -357,15 +353,15 @@ export default class ChatItem extends Vue {
     this.currentSelectMention = mention
   }
 
-  panelHeight: number = 12
   updateMentionUsers(result: any) {
     const len = result.length
     if (len) {
+      let panelHeight = 12
       if (len < 4) {
-        this.panelHeight = 3.3 * len
-      } else {
-        this.panelHeight = 12
+        panelHeight = 3.3 * len
       }
+      this.$emit('panelHeightUpdate', panelHeight)
+
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
         setTimeout(() => {

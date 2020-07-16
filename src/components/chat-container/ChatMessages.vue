@@ -70,6 +70,7 @@ let { BrowserWindow } = remote
 })
 export default class ChatContainer extends Vue {
   @Prop(String) readonly panelChoosing: any
+  @Prop(Number) readonly panelHeight: any
   @Prop(Boolean) readonly showScroll: any
   @Prop(Boolean) readonly details: any
   @Prop(Boolean) readonly changeConversation: any

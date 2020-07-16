@@ -39,6 +39,7 @@
 
     <ChatMessages
       :panelChoosing="panelChoosing"
+      :panelHeight="panelHeight"
       :showScroll="showScroll"
       :changeConversation="changeConversation"
       :details="!!details"
@@ -93,6 +94,7 @@
     <ChatInputBox
       ref="inputBox"
       v-show="conversation"
+      :panelHeight="panelHeight"
       :participant="participant"
       :conversation="conversation"
       :boxMessage="boxMessage"

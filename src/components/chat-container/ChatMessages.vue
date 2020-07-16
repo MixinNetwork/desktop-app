@@ -235,9 +235,6 @@ export default class ChatContainer extends Vue {
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
   }
-  clearUnreadNum() {
-    this.newMessageMap = {}
-  }
   isMine(findMessage: any) {
     const account: any = getAccount()
     return findMessage.userId === account.user_id
@@ -417,7 +414,7 @@ export default class ChatContainer extends Vue {
         }
       }, 100)
     })
-    // messageBox.clearUnreadNum()
+    this.newMessageMap = {}
   }
 
   beforeDestroy() {

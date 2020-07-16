@@ -214,7 +214,7 @@ export default class ChatContainer extends Vue {
   @Watch('currentUnreadNum')
   onCurrentUnreadNumChanged(val: number, oldVal: number) {
     if (val === 0) {
-      // messageBox.clearMessagePositionIndex(0)
+      this.$refs.chatMessages.clearMessagePositionIndex(0)
     }
   }
 
@@ -543,7 +543,7 @@ export default class ChatContainer extends Vue {
   }
 
   goBottomClick() {
-    // messageBox.refreshConversation(this.conversation.conversationId)
+    this.$refs.chatMessages.refreshConversation(this.conversation.conversationId)
     setTimeout(() => {
       this.goBottom()
       this.$refs.inputBox.boxFocusAction(true)

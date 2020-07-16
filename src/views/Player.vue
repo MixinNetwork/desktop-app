@@ -1,6 +1,6 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
-    <video-player ref="videoPlayer" :single="true" :options="playerOptions"></video-player>
+    <video-player ref="videoPlayer" @loadeddata="loaded = true" :single="true" :options="playerOptions"></video-player>
     <div class="bar" v-show="show">
       <div class="drag-area"></div>
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
@@ -21,6 +21,7 @@ export default class Player extends Vue {
   show: boolean = false
   pin: boolean = false
   resizeInterval: any = null
+  loaded: boolean = false
 
   @Watch('pin')
   onPinChange(newPin: any) {
@@ -63,12 +64,14 @@ export default class Player extends Vue {
     clearInterval(this.resizeInterval)
     this.resizeInterval = setInterval(() => {
       const videoPlayer: any = this.$refs.videoPlayer
-      const width = Math.ceil(videoPlayer.player.currentWidth())
-      const height = Math.ceil(videoPlayer.player.currentHeight())
-      ipcRenderer.send('resize', { width, height })
-      // for macOS
-      if (process.platform === 'darwin') {
-        clearInterval(this.resizeInterval)
+      if (this.loaded) {
+        const width = Math.ceil(videoPlayer.player.currentWidth())
+        const height = Math.ceil(videoPlayer.player.currentHeight())
+        ipcRenderer.send('resize', { width, height })
+        // for macOS
+        if (process.platform === 'darwin') {
+          clearInterval(this.resizeInterval)
+        }
       }
     }, 10)
   }

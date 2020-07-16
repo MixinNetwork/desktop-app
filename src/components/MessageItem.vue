@@ -2,7 +2,7 @@
   <li ref="messageItem" :class="{
       'prev-same': this.prev && this.prev.userId === this.message.userId,
       'same': this.next && this.next.userId === this.message.userId
-    }" :id="message.messageId">
+    }" :id="message.messageId" v-if="message">
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>

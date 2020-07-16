@@ -17,6 +17,7 @@ export default class Task extends Vue {
       const { action, messages } = payload
       if (action === 'delMedia') {
         let delNum = 0
+        if (!messages) return
         messages.forEach((message: any) => {
           if (message && (message.path || message.media_url)) {
             const path = message.path || message.media_url.split('file://')[1]

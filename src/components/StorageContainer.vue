@@ -137,9 +137,11 @@ export default class StorageContainer extends Vue {
       const { action, cid } = payload
       if (action === 'delMedia') {
         const mediaTypes = this.cleaningTemp[cid]
-        mediaTypes.forEach((key: string) => {
-          this.storages[cid][key] = 0
-        })
+        if (mediaTypes) {
+          mediaTypes.forEach((key: string) => {
+            this.storages[cid][key] = 0
+          })
+        }
         if (cid === this.curCid) {
           this.cleaning = false
           this.back()
@@ -181,15 +183,17 @@ export default class StorageContainer extends Vue {
       if (!this.unselected[key]) {
         mediaTypes.push(key)
         size += this.currentMedia[key]
-        const curPath = this.getMediaPath(key, this.curCid)
-        const list = listFilePath(curPath)
-        list.forEach(path => {
-          const mid = path.split(`${curPath}/`)[1]
-          if (mid) {
-            messageIds.push(mid)
-          }
-          messages.push({ path, mid })
-        })
+        if (this.curCid) {
+          const curPath = this.getMediaPath(key, this.curCid)
+          const list = listFilePath(curPath)
+          list.forEach(path => {
+            const mid = path.split(`${curPath}/`)[1]
+            if (mid) {
+              messageIds.push(mid)
+            }
+            messages.push({ path, mid })
+          })
+        }
       }
     })
 
@@ -208,11 +212,11 @@ export default class StorageContainer extends Vue {
   }
 
   get curCid() {
-    return this.current.conversationId
+    return this.current && this.current.conversationId
   }
 
   get currentMedia() {
-    const data = this.storages[this.curCid]
+    const data = this.storages[this.curCid] || {}
     data.image = data.image || 0
     data.video = data.video || 0
     data.audio = data.audio || 0

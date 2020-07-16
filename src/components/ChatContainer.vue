@@ -689,8 +689,8 @@ export default class ChatContainer extends Vue {
     this.forwardMessage = null
   }
   handleRemove(message: any) {
-    // if (!message) return
-    // messageBox.deleteMessages([message.messageId])
+    if (!message) return
+    this.$refs.chatMessages.deleteMessages([message.messageId])
   }
   handleRecall(message: any) {
     if (!message) return

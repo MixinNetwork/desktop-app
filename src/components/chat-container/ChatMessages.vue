@@ -75,22 +75,27 @@ export default class ChatContainer extends Vue {
   @Prop(Boolean) readonly changeConversation: any
 
   @Getter('currentConversation') conversation: any
-  // @Getter('currentMessages') messages: any
+  @Getter('currentMessages') messages: any
   @Getter('currentUser') user: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
 
-  @Watch('messages.length')
-  onMessagesLengthChanged(val: number) {
+  @Watch('messages')
+  onMessagesLengthChanged(messages: any) {
+    if (messages.length === 0) {
+      this.page = 0
+      this.newMessageMap = {}
+    }
+
     if (this.changeConversation) return
-    if (val > 0 && val < PerPageMessageCount) {
+    if (messages.length > 0 && messages.length < PerPageMessageCount) {
       this.showTopTips = true
     }
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
-      const lastMessage = this.messages[this.messages.length - 1]
+      const lastMessage = messages[messages.length - 1]
       if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1] && lastMessage.mentions) {
         this.actionMarkMentionRead({
           conversationId: this.conversation.conversationId,
@@ -165,7 +170,6 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 60
   timeDivideShowForce: boolean = false
-  messages: any = []
 
   unreadMessageId: any = ''
   contentUtil: any = contentUtil
@@ -188,7 +192,7 @@ export default class ChatContainer extends Vue {
       if (messagePositionIndex >= PerPageMessageCount) {
         page = Math.floor(messagePositionIndex / PerPageMessageCount)
       }
-      this.messages = messageDao.getMessages(conversationId, page)
+      const messages = messageDao.getMessages(conversationId, page)
       this.page = page
       this.pageDown = page
       this.tempCount = 0
@@ -199,7 +203,7 @@ export default class ChatContainer extends Vue {
 
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
-        posMessage = this.messages[this.messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
+        posMessage = messages[messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
         if (messagePositionIndex % PerPageMessageCount < PerPageMessageCount / 2) {
           this.infiniteDown()
         } else {
@@ -208,18 +212,18 @@ export default class ChatContainer extends Vue {
       }
 
       let markdownCount = 5
-      for (let i = this.messages.length - 1; i >= 0; i--) {
-        const type = this.messages[i].type
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const type = messages[i].type
         if (['post', 'image', 'sticker'].indexOf(messageType(type)) > -1) {
-          this.messages[i].fastLoad = true
+          messages[i].fastLoad = true
           markdownCount--
         }
         if (markdownCount < 0) {
           break
         }
       }
-      store.dispatch('setCurrentMessages', this.messages)
-      this.scrollAction({ goBottom: this.messages.length, message: posMessage, isInit })
+      store.dispatch('setCurrentMessages', messages)
+      this.scrollAction({ goBottom: messages.length, message: posMessage, isInit })
       let getLastMessage = false
       if (this.pageDown === 0) {
         getLastMessage = true
@@ -242,8 +246,8 @@ export default class ChatContainer extends Vue {
     this.page = 0
     this.pageDown = 0
     this.tempCount = 0
-    this.messages = messageDao.getMessages(conversationId, 0)
-    store.dispatch('setCurrentMessages', this.messages)
+    const messages = messageDao.getMessages(conversationId, 0)
+    store.dispatch('setCurrentMessages', messages)
   }
 
   refreshMessage(payload: any) {
@@ -326,13 +330,14 @@ export default class ChatContainer extends Vue {
     const messages = messageDao.getMessagesByIds(messageIds)
     delMedia(messages)
     messageDao.deleteMessageByIds(messageIds)
-    for (let i = this.messages.length - 1; i >= 0; i--) {
-      if (messageIds[0] === this.messages[i].messageId) {
-        this.messages.splice(i, 1)
-        break
+    const finalMessages = []
+    for (let i = 0; i < this.messages.length; i++) {
+      const cur = this.messages[i]
+      if (messageIds.indexOf(cur.messageId) < 0) {
+        finalMessages.push(cur)
       }
     }
-    store.dispatch('setCurrentMessages', this.messages)
+    store.dispatch('setCurrentMessages', finalMessages)
   }
   nextPage(direction: string): any {
     let data: unknown = []
@@ -415,14 +420,6 @@ export default class ChatContainer extends Vue {
       this.infiniteDownLock = true
       this.infiniteScroll('down')
       this.infiniteDownLock = false
-    }
-  }
-  clearData(conversationId: string) {
-    if (conversationId === this.conversationId && this.conversationId) {
-      this.page = 0
-      this.messages = []
-      store.dispatch('setCurrentMessages', [])
-      this.newMessageMap = {}
     }
   }
 

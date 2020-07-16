@@ -386,7 +386,6 @@ export default {
       state.conversationKeys.splice(index, 1)
     }
     delete state.conversations[conversationId]
-    // messageBox.clearData(conversationId)
     if (keywordCache) {
       search(state, keywordCache)
     }

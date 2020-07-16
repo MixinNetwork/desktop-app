@@ -339,6 +339,7 @@ export default {
     delMedia(messages)
     messageDao.ftsMessagesDelete(conversationId)
     conversationDao.deleteConversation(conversationId)
+    commit('setCurrentMessages', [])
     commit('conversationClear', conversationId)
     commit('setUnseenBadgeNum')
   },

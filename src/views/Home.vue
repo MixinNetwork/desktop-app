@@ -24,6 +24,8 @@ import { getAccount } from '@/utils/util'
 import { Vue, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 
+import { ipcRenderer } from 'electron'
+
 @Component({
   components: {
     HomeTitleBar,
@@ -101,6 +103,9 @@ export default class Home extends Vue {
       }
       this.actionSetLinkStatus(LinkStatus.CONNECTED)
     })
+    setTimeout(() => {
+      ipcRenderer.send('initTask')
+    }, 3000)
   }
 }
 </script>

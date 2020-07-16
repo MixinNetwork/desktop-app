@@ -5,6 +5,7 @@ import windowStateKeeper from 'electron-window-state'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater'
+import { initTask } from './task'
 import { initPlayer } from './player'
 import path from 'path'
 
@@ -179,6 +180,13 @@ function createWindow() {
       win.show()
     }
   })
+
+  ipcMain.on('initTask', (event, _) => {
+    if (win) {
+      initTask(win)
+    }
+  })
+
   ipcMain.on('openDevTools', (event, _) => {
     if (win) {
       win.webContents.openDevTools()

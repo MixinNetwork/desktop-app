@@ -27,7 +27,7 @@
       <div class="select" v-else-if="current">
         <div class="select-title">
           <span class="name">{{current.groupName || current.name}}</span>
-          <span v-if="cleaning" class="cleaning">{{$t('setting.cleaning')}}</span>
+          <spinner v-if="cleaning" class="cleaning" stroke="#aaa" />
           <a v-else class="clear" @click="clear()">{{$t('setting.clear')}}</a>
         </div>
         <div class="select-item" v-for="key in ['image', 'video', 'audio', 'file']" :key="key">
@@ -77,6 +77,8 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 // @ts-ignore
 import _ from 'lodash'
 
+import { ipcRenderer } from 'electron'
+
 const { getImagePath, getVideoPath, getAudioPath, getDocumentPath } = mediaPath
 
 @Component({
@@ -95,6 +97,7 @@ export default class StorageContainer extends Vue {
   conversations: any = []
   current: any = null
   unselected: any = {}
+  cleaningTemp: any = {}
   autoDownloadMap: any = {
     image: true,
     video: true,
@@ -126,6 +129,25 @@ export default class StorageContainer extends Vue {
     if (autoDownloadSetting) {
       this.autoDownloadMap = JSON.parse(autoDownloadSetting)
     }
+  }
+
+  mounted() {
+    ipcRenderer.on('taskResponseData', (event, res) => {
+      const payload = JSON.parse(res)
+      const { action, cid } = payload
+      if (action === 'delMedia') {
+        const mediaTypes = this.cleaningTemp[cid]
+        if (mediaTypes) {
+          mediaTypes.forEach((key: string) => {
+            this.storages[cid][key] = 0
+          })
+        }
+        if (cid === this.curCid) {
+          this.cleaning = false
+          this.back()
+        }
+      }
+    })
   }
 
   back() {
@@ -161,15 +183,17 @@ export default class StorageContainer extends Vue {
       if (!this.unselected[key]) {
         mediaTypes.push(key)
         size += this.currentMedia[key]
-        const curPath = this.getMediaPath(key, this.curCid)
-        const list = listFilePath(curPath)
-        list.forEach(path => {
-          const mid = path.split(`${curPath}/`)[1]
-          if (mid) {
-            messageIds.push(mid)
-          }
-          messages.push({ path, mid })
-        })
+        if (this.curCid) {
+          const curPath = this.getMediaPath(key, this.curCid)
+          const list = listFilePath(curPath)
+          list.forEach(path => {
+            const mid = path.split(`${curPath}/`)[1]
+            if (mid) {
+              messageIds.push(mid)
+            }
+            messages.push({ path, mid })
+          })
+        }
       }
     })
 
@@ -178,18 +202,9 @@ export default class StorageContainer extends Vue {
       this.$t('setting.clear'),
       () => {
         this.cleaning = true
-        let delNum = 0
-        delMedia(messages, (message: any) => {
-          messageDao.deleteMessageById(message.mid)
-          delNum++
-          if (delNum >= messages.length) {
-            mediaTypes.forEach((key: string) => {
-              this.storages[this.curCid][key] = 0
-            })
-            this.cleaning = false
-            this.back()
-          }
-        })
+        this.cleaningTemp[this.curCid] = mediaTypes
+        messages[0].cid = this.curCid
+        delMedia(messages)
       },
       this.$t('cancel'),
       () => {}
@@ -197,11 +212,11 @@ export default class StorageContainer extends Vue {
   }
 
   get curCid() {
-    return this.current.conversationId
+    return this.current && this.current.conversationId
   }
 
   get currentMedia() {
-    const data = this.storages[this.curCid]
+    const data = this.storages[this.curCid] || {}
     data.image = data.image || 0
     data.video = data.video || 0
     data.audio = data.audio || 0
@@ -355,6 +370,8 @@ main {
           cursor: pointer;
         }
         .cleaning {
+          width: 1.1rem;
+          height: 1.1rem;
           font-size: 0.7rem;
           color: $gray-color;
         }

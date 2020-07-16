@@ -1,16 +1,6 @@
 import { checkForUpdates } from './updater'
 const { app, Menu } = require('electron')
 
-function emit(name) {
-  return (_, window) => {
-    if (window) {
-      window.webContents.send('menu-event', { name })
-    } else {
-      ipcMain.emit('menu-event', { name })
-    }
-  }
-}
-
 const lang = app.getLocale().split('-')[0]
 
 let template = [
@@ -65,7 +55,6 @@ if (process.platform === 'darwin') {
     submenu: [
       { role: 'about' },
       { label: 'Check for Updates...', click: checkForUpdates },
-      // { label: 'devtool', click: emit('devtool'), accelerator: process.platform === 'darwin' ? 'Cmd+Shift+I' : 'Ctrl+Shift+I' },
       { type: 'separator' },
       { role: 'services' },
       { type: 'separator' },
@@ -154,7 +143,6 @@ if (lang === 'zh') {
       submenu: [
         { role: 'about', label: '关于' },
         { label: '检查更新...', click: checkForUpdates },
-        // { label: '开发者工具', click: emit('devtool'), accelerator: process.platform === 'darwin' ? 'Cmd+Shift+I' : 'Ctrl+Shift+I' },
         { type: 'separator' },
         { role: 'services', label: '服务' },
         { type: 'separator' },

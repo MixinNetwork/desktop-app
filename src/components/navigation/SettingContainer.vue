@@ -133,10 +133,10 @@ export default class SettingContainer extends Vue {
   align-items: center;
   background: $bg-color;
   .bar {
-    padding-top: 3rem;
+    padding-top: 2.6rem;
     width: 100%;
     display: flex;
-    height: 3rem;
+    height: 2.5rem;
     background: #ffffff;
     align-items: center;
     flex-flow: row nowrap;

@@ -10,6 +10,9 @@ import jobDao from '@/dao/job_dao'
 import floodMessageDao from '@/dao/flood_message_dao'
 import accountApi from '@/api/account'
 import router from '@/router'
+
+import { ipcRenderer } from 'electron'
+
 class Blaze {
   constructor() {
     this.transactions = {}
@@ -19,6 +22,13 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.pingInterval = null
     this.messageSending = false
+    ipcRenderer.on('system-sleep', () => {
+      console.log('The system is sleep')
+    })
+    ipcRenderer.on('system-resume', () => {
+      console.log('The system is resume')
+      this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+    })
   }
 
   connect() {

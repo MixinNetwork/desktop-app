@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu } from 'electron'
+import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu, powerMonitor } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
@@ -54,6 +54,14 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { standard: true, supportFetchAPI: true, secure: true } }
 ])
 function createWindow() {
+  powerMonitor.on('suspend', () => {
+    win.webContents.send('system-sleep')
+  })
+
+  powerMonitor.on('resume', () => {
+    win.webContents.send('system-resume')
+  })
+
   globalShortcut.register('ctrl+shift+i', function() {
     if (win) {
       win.webContents.openDevTools()

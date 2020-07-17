@@ -538,6 +538,7 @@ export default class ChatContainer extends Vue {
       const items = (event.clipboardData || event.originalEvent.clipboardData).items
       let blob: any = null
       let mimeType: any = null
+      self.fileUnsupported = false
 
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') === 0) {

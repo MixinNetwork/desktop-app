@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import SignIn from './views/SignIn.vue'
 import Loading from './views/Loading.vue'
 import Player from './views/Player.vue'
+import Task from './views/Task.vue'
 import { getAccount } from '@/utils/util'
 const originalPush = Router.prototype.push
 // @ts-ignore
@@ -35,6 +36,11 @@ const router = new Router({
       path: '/player',
       name: 'player',
       component: Player
+    },
+    {
+      path: '/task',
+      name: 'task',
+      component: Task
     }
   ]
 })

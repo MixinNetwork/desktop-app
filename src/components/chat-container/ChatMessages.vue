@@ -71,7 +71,6 @@ let { BrowserWindow } = remote
 export default class ChatContainer extends Vue {
   @Prop(String) readonly panelChoosing: any
   @Prop(Number) readonly panelHeight: any
-  @Prop(Boolean) readonly showScroll: any
   @Prop(Boolean) readonly details: any
   @Prop(Boolean) readonly changeConversation: any
 
@@ -171,10 +170,8 @@ export default class ChatContainer extends Vue {
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 60
   timeDivideShowForce: boolean = false
-
   unreadMessageId: any = ''
   contentUtil: any = contentUtil
-
   conversationId: any
   messagePositionIndex: any
   pageDown: any
@@ -184,6 +181,8 @@ export default class ChatContainer extends Vue {
   page: any
   infiniteUpLock: boolean = false
   infiniteDownLock: boolean = false
+  showScroll: boolean = true
+  $showUserDetail: any
 
   setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
     if (conversationId) {
@@ -346,11 +345,11 @@ export default class ChatContainer extends Vue {
   }
 
   mounted() {
-    // this.$root.$on('goSearchMessagePos', (item: any) => {
-    //   const { message, keyword, goMessagePosType } = item
-    //   this.goMessagePosType = goMessagePosType
-    //   this.goSearchMessagePos(message, keyword)
-    // })
+    this.$root.$on('goSearchMessagePos', (item: any) => {
+      const { message, keyword, goMessagePosType } = item
+      this.goMessagePosType = goMessagePosType
+      this.goSearchMessagePos(message, keyword)
+    })
   }
 
   callback(payload: any) {
@@ -456,8 +455,7 @@ export default class ChatContainer extends Vue {
   }
 
   onUserClick(userId: any) {
-    // let user = userDao.findUserById(userId)
-    // this.showDetails(user)
+    this.$showUserDetail(userId)
   }
 
   handleAction(action: any) {
@@ -628,26 +626,16 @@ export default class ChatContainer extends Vue {
 
   showMessages: any = true
   goMessagePosType: string = ''
-  // goSearchMessagePos(item: any, keyword: string) {
-  //   this.unreadMessageId = ''
-  //   this.goSearchPos = true
-  //   if (keyword) {
-  //     this.showMessages = false
-  //   }
-  //   setTimeout(() => {
-  //     // this.hideSearch()
-  //     const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-  //     const messageIndex = messageDao.ftsMessageIndex(
-  //       this.conversation.conversationId,
-  //       item.message_id || item.messageId
-  //     )
-  //     if (messageIndex < 0) return
-  //     // this.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
-  //     this.searchKeyword = keyword
-  //     this.goSearchPos = false
-  //     this.$refs.inputBox.boxFocusAction()
-  //   })
-  // }
+  goSearchMessagePos(item: any, keyword: string) {
+    this.unreadMessageId = ''
+    if (keyword) {
+      this.showMessages = false
+    }
+    setTimeout(() => {
+      this.searchKeyword = keyword
+      this.$emit('goSearchMessagePosDone', item)
+    })
+  }
 
   mentionClick() {
     const { conversationId } = this.conversation

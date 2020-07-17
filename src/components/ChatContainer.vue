@@ -40,10 +40,10 @@
     <ChatMessages
       :panelChoosing="panelChoosing"
       :panelHeight="panelHeight"
-      :showScroll="showScroll"
       :changeConversation="changeConversation"
       :details="!!details"
       ref="chatMessages"
+      @goSearchMessagePosDone="goSearchMessagePosDone"
       @handle-item-click="$emit('handleItemClick')"
       @dragenter="onDragEnter"
       @drop="onDrop"
@@ -67,7 +67,7 @@
       <div
         class="floating"
         :class="{ 'box-message': boxMessage }"
-        v-if="conversation && showScroll && !changeConversation && (!isBottom || !getLastMessage)"
+        v-if="conversation && !changeConversation && (!isBottom || !getLastMessage)"
         @click="goBottomClick"
       >
         <span class="badge" v-if="currentUnreadNum>0">{{currentUnreadNum}}</span>
@@ -229,7 +229,6 @@ export default class ChatContainer extends Vue {
     // this.infiniteUpLock = false
     this.file = null
     this.showMessages = false
-    this.showScroll = false
     this.boxMessage = null
     this.getLastMessage = false
     // this.timeDivideShowForce = false
@@ -338,7 +337,6 @@ export default class ChatContainer extends Vue {
   shareContact: any = null
   currentUnreadNum: any = 0
   showMessages: any = true
-  showScroll: any = true
   changeConversation: any = false
   panelChoosing: string = ''
   lastEnter: any = null
@@ -529,7 +527,22 @@ export default class ChatContainer extends Vue {
   }
 
   goSearchMessagePos(item: any, keyword: string) {
-    this.$root.$emit('goSearchMessagePos', { item, keyword, goMessagePosType: 'search' })
+    this.goSearchPos = true
+    this.$root.$emit('goSearchMessagePos', { message: item, keyword, goMessagePosType: 'search' })
+  }
+
+  goSearchMessagePosDone(item: any) {
+    const count = messageDao.ftsMessageCount(this.conversation.conversationId)
+    const messageIndex = messageDao.ftsMessageIndex(
+      this.conversation.conversationId,
+      item.message_id || item.messageId
+    )
+    if (messageIndex >= 0) {
+      this.$refs.chatMessages.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
+    }
+    this.hideSearch()
+    this.goSearchPos = false
+    this.$refs.inputBox.boxFocusAction()
   }
 
   detailSendMessage() {
@@ -537,12 +550,8 @@ export default class ChatContainer extends Vue {
   }
 
   goBottom() {
-    this.showScroll = false
     this.currentUnreadNum = 0
     this.$refs.chatMessages.goBottom()
-    setTimeout(() => {
-      this.showScroll = true
-    }, 300)
   }
 
   goBottomClick() {

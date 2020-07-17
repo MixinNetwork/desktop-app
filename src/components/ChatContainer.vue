@@ -526,6 +526,11 @@ export default class ChatContainer extends Vue {
     }, 10)
   }
 
+  mentionClick() {
+    this.$refs.ChatMessages.mentionClick()
+    this.$refs.inputBox.boxFocusAction(true)
+  }
+
   goSearchMessagePos(item: any, keyword: string) {
     this.goSearchPos = true
     this.$root.$emit('goSearchMessagePos', { message: item, keyword, goMessagePosType: 'search' })

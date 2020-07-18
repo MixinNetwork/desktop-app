@@ -191,7 +191,7 @@ export default class StorageContainer extends Vue {
             if (mid) {
               messageIds.push(mid)
             }
-            messages.push({ path, mid })
+            messages.push({ path, mid, cid: this.curCid })
           })
         }
       }
@@ -203,7 +203,6 @@ export default class StorageContainer extends Vue {
       () => {
         this.cleaning = true
         this.cleaningTemp[this.curCid] = mediaTypes
-        messages[0].cid = this.curCid
         delMedia(messages)
       },
       this.$t('cancel'),

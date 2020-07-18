@@ -7,6 +7,8 @@ export const API_URL = {
 
 export const PerPageMessageCount = 20
 
+export const DBDeleteLimit = 500
+
 export const ConversationStatus = {
   START: 0,
   FAILURE: 1,

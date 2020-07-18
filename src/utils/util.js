@@ -45,7 +45,15 @@ export function dirSize(path) {
   return dirsMap
 }
 
-export function delMedia(messages) {
+export function delMedia(messagesSrc) {
+  const messages = []
+  messagesSrc.forEach(msg => {
+    messages.push({
+      path: msg.path || (msg.media_url && msg.media_url.split('file://')[1]),
+      mid: msg.mid || msg.message_id,
+      cid: msg.cid
+    })
+  })
   ipcRenderer.send('taskRequest', { action: 'delMedia', messages })
 }
 

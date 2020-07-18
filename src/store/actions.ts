@@ -11,6 +11,7 @@ import circleApi from '@/api/circle'
 import userApi from '@/api/user'
 import { delMedia, generateConversationId, getAccount } from '@/utils/util'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus, messageType } from '@/utils/constants'
+import { ipcRenderer } from 'electron'
 
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
@@ -337,8 +338,7 @@ export default {
   conversationClear: ({ commit }: any, conversationId: any) => {
     const messages = messageDao.findConversationMediaMessages(conversationId)
     delMedia(messages)
-    messageDao.ftsMessagesDelete(conversationId)
-    conversationDao.deleteConversation(conversationId)
+    ipcRenderer.send('taskRequest', { action: 'conversationClear', conversationId })
     commit('conversationClear', conversationId)
     commit('setUnseenBadgeNum')
   },

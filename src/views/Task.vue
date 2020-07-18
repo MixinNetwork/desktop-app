@@ -6,6 +6,7 @@ import fs from 'fs'
 import { ipcRenderer } from 'electron'
 import store from '@/store/store'
 import messageDao from '@/dao/message_dao'
+import conversationDao from '@/dao/conversation_dao'
 import { DBDeleteLimit } from '@/utils/constants'
 
 import { Vue, Watch, Component } from 'vue-property-decorator'
@@ -43,15 +44,28 @@ export default class Task extends Vue {
     })
     setTimeout(() => {
       this.deleteMessages(cid)
-    }, 500)
+    })
+  }
+
+  conversationClear(mids: any, conversationId: any) {
+    const curMids = mids.slice(0, DBDeleteLimit)
+    mids = mids.slice(DBDeleteLimit)
+    messageDao.deleteMessageByIds(curMids)
+    if (mids.length > 0) {
+      setTimeout(() => {
+        this.conversationClear(mids, conversationId)
+      })
+    } else {
+      conversationDao.deleteConversation(conversationId)
+    }
   }
 
   mounted() {
     this.deleteMessages('')
     ipcRenderer.on('taskRequestData', (event, payload) => {
       payload = JSON.parse(payload)
-      const { action, messages } = payload
-      if (action === 'delMedia') {
+      const { action, messages, conversationId } = payload
+      if (action === 'delMedia' && messages) {
         let final = []
         try {
           final = JSON.parse(localStorage.deletingMessages)
@@ -66,7 +80,20 @@ export default class Task extends Vue {
           }
         })
         localStorage.deletingMessages = JSON.stringify(final)
-        this.deleteMessages(messages[0].cid)
+        if (messages[0]) {
+          this.deleteMessages(messages[0].cid)
+        }
+      }
+      if (action === 'conversationClear') {
+        messageDao.ftsMessagesDelete(conversationId)
+
+        const findMessages = messageDao.findConversationMessageIds(conversationId)
+        const mids: any = []
+        findMessages.forEach((item: any) => {
+          mids.push(item.message_id)
+        })
+
+        this.conversationClear(mids, conversationId)
       }
     })
   }

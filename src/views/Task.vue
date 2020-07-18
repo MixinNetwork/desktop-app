@@ -44,7 +44,7 @@ export default class Task extends Vue {
     })
     setTimeout(() => {
       this.deleteMessages(cid)
-    })
+    }, 150)
   }
 
   conversationClear(mids: any, conversationId: any) {
@@ -54,7 +54,7 @@ export default class Task extends Vue {
     if (mids.length > 0) {
       setTimeout(() => {
         this.conversationClear(mids, conversationId)
-      })
+      }, 150)
     } else {
       conversationDao.deleteConversation(conversationId)
     }

@@ -43,7 +43,7 @@ export default class Task extends Vue {
     })
     setTimeout(() => {
       this.deleteMessages(cid)
-    }, 1000)
+    }, 500)
   }
 
   mounted() {

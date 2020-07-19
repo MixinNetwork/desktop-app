@@ -9,7 +9,7 @@ import conversationApi from '@/api/conversation'
 import circleDao from '@/dao/circle_dao'
 import circleApi from '@/api/circle'
 import userApi from '@/api/user'
-import { delMedia, generateConversationId, getAccount } from '@/utils/util'
+import { delMedia, delMediaMessages, generateConversationId, getAccount } from '@/utils/util'
 import { ConversationStatus, ConversationCategory, MessageStatus, MediaStatus, messageType } from '@/utils/constants'
 import { ipcRenderer } from 'electron'
 
@@ -337,7 +337,7 @@ export default {
   },
   conversationClear: ({ commit }: any, conversationId: any) => {
     const messages = messageDao.findConversationMediaMessages(conversationId)
-    delMedia(messages)
+    delMediaMessages(messages)
     ipcRenderer.send('taskRequest', { action: 'conversationClear', conversationId })
     commit('conversationClear', conversationId)
     commit('setUnseenBadgeNum')

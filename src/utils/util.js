@@ -45,7 +45,18 @@ export function dirSize(path) {
   return dirsMap
 }
 
-export function delMedia(messagesSrc) {
+export function delMedia(messages) {
+  messages.forEach(msg => {
+    if (msg) {
+      const path = msg.path || (msg.media_url && msg.media_url.split('file://')[1])
+      if (path && fs.existsSync(path)) {
+        fs.unlinkSync(path)
+      }
+    }
+  })
+}
+
+export function delMediaMessages(messagesSrc) {
   const messages = []
   messagesSrc.forEach(msg => {
     messages.push({
@@ -54,7 +65,9 @@ export function delMedia(messagesSrc) {
       cid: msg.cid
     })
   })
-  ipcRenderer.send('taskRequest', { action: 'delMedia', messages })
+  if (messages.length > 0) {
+    ipcRenderer.send('taskRequest', { action: 'delMedia', messages })
+  }
 }
 
 export function getVideoPlayerStatus(player) {

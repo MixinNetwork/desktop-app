@@ -16,7 +16,7 @@
         </div>
         <div class="selected-preview" v-if="!keyword && selectedContactList.length">
           <div class="in">
-            <div class="selected-avatar" v-for="item in selectedContactList" :key="item.user_id">
+            <div class="selected-avatar" v-for="item in selectedContactList" :key="item && item.user_id">
               <Avatar class="avatar" v-if="item.user_id" :user="item" />
               <svg-icon
                 class="close"

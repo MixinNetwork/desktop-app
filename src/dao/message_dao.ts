@@ -152,12 +152,6 @@ class MessageDao {
       }
     })
     insertMany(mIds)
-    this.deleteMessageFts(mIds)
-  }
-
-  deleteMessageById(mid: any) {
-    db.prepare('DELETE FROM messages WHERE message_id = ?').run(mid)
-    db.prepare('DELETE FROM messages_fts WHERE message_id = ?').run(mid)
   }
 
   ftsMessagesDelete(conversationId: any) {
@@ -410,6 +404,10 @@ class MessageDao {
 
   findConversationMediaMessages(conversationId: any) {
     return db.prepare('SELECT * FROM messages WHERE conversation_id = ? AND media_url IS NOT NULL').all(conversationId)
+  }
+
+  findConversationMessageIds(conversationId: any) {
+    return db.prepare('SELECT message_id FROM messages WHERE conversation_id = ?').all(conversationId)
   }
 
   findSimpleMessageById(messageId: any) {

@@ -70,7 +70,7 @@ import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import messageDao from '@/dao/message_dao'
 
-import { delMedia, listFilePath, getIdentityNumber } from '@/utils/util'
+import { delMediaMessages, listFilePath, getIdentityNumber } from '@/utils/util'
 import mediaPath from '@/utils/media_path'
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 
@@ -191,7 +191,7 @@ export default class StorageContainer extends Vue {
             if (mid) {
               messageIds.push(mid)
             }
-            messages.push({ path, mid })
+            messages.push({ path, mid, cid: this.curCid })
           })
         }
       }
@@ -203,8 +203,7 @@ export default class StorageContainer extends Vue {
       () => {
         this.cleaning = true
         this.cleaningTemp[this.curCid] = mediaTypes
-        messages[0].cid = this.curCid
-        delMedia(messages)
+        delMediaMessages(messages)
       },
       this.$t('cancel'),
       () => {}

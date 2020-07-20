@@ -334,10 +334,12 @@ export default class Details extends Vue {
   }
 
   get showUnblock() {
+    if (!this.me || !this.user) return false
     return this.isContact && this.user.relationship === 'BLOCKING' && this.user.user_id !== this.me.user_id
   }
 
   get showAddContact() {
+    if (!this.me || !this.user) return false
     return this.isContact && this.user.relationship !== 'FRIEND' && this.user.user_id !== this.me.user_id
   }
 

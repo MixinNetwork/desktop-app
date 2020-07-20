@@ -17,7 +17,7 @@
           <Dropdown id="menu" :menus="menus" @onItemClick="onItemClick"></Dropdown>
         </div>
       </div>
-      <div class="status-wrapper">
+      <div class="status-wrapper" v-if="loaded">
         <div class="signal" v-if="linkStatus === LinkStatus.NOT_CONNECTED">
           <svg-icon icon-class="ic_signal" class="signal_icon" />
           <div class="content">
@@ -266,6 +266,7 @@ export default class Navigation extends Vue {
   // @ts-ignore
   isMacOS: any = platform.os.family === 'OS X'
   primaryPlatform: any = localStorage.primaryPlatform
+  loaded: boolean = false
   $toast: any
   $Dialog: any
   $Menu: any
@@ -286,6 +287,9 @@ export default class Navigation extends Vue {
       this.goConversationPosAction(direction)
     })
     Vue.prototype.$goConversationPos = this.goConversationPosAction
+    setTimeout(() => {
+      this.loaded = true
+    }, 5000)
   }
 
   goConversationPosAction(direction: string) {

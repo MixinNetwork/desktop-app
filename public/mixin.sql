@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 	`is_verified`	INTEGER,
 	`created_at`	TEXT,
 	`mute_until`	TEXT,
+	`is_scam` INTEGER,
 	`has_pin`	INTEGER,
 	`app_id`	TEXT,
 	PRIMARY KEY(`user_id`)

@@ -72,6 +72,10 @@ export function clearDb() {
   store.dispatch('exit')
   clearKeyTable(localStorage.sessionId)
   clearSignal()
-  window.localStorage.clear()
+  const { notificationSetting = '{}', autoDownloadSetting = '{}', deletingMessages = '[]' } = localStorage
+  localStorage.clear()
+  localStorage.notificationSetting = notificationSetting
+  localStorage.autoDownloadSetting = autoDownloadSetting
+  localStorage.deletingMessages = deletingMessages
   clearing = false
 }

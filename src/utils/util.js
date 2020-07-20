@@ -46,7 +46,28 @@ export function dirSize(path) {
 }
 
 export function delMedia(messages) {
-  ipcRenderer.send('taskRequest', { action: 'delMedia', messages })
+  messages.forEach(msg => {
+    if (msg) {
+      const path = msg.path || (msg.media_url && msg.media_url.split('file://')[1])
+      if (path && fs.existsSync(path)) {
+        fs.unlinkSync(path)
+      }
+    }
+  })
+}
+
+export function delMediaMessages(messagesSrc) {
+  const messages = []
+  messagesSrc.forEach(msg => {
+    messages.push({
+      path: msg.path || (msg.media_url && msg.media_url.split('file://')[1]),
+      mid: msg.mid || msg.message_id,
+      cid: msg.cid
+    })
+  })
+  if (messages.length > 0) {
+    ipcRenderer.send('taskRequest', { action: 'delMedia', messages })
+  }
 }
 
 export function getVideoPlayerStatus(player) {

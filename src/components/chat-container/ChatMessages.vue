@@ -35,6 +35,20 @@
       />
       <div v-intersect="onIntersect" :style="`height: ${virtualDom.bottom}px`" id="virtualBottom"></div>
     </ul>
+    <audio
+      id="mixinAudio"
+      style="display: none"
+      @timeupdate="audioTimeupdate"
+      @ended="audioEnded"
+      :src="currentAudio && currentAudio.mediaUrl"
+    ></audio>
+    <div style="display: none" v-if="shadowCurrentVideo">
+      <video-player
+        ref="shadowVideoPlayer"
+        @leavepictureinpicture="leavepictureinpicture"
+        :options="shadowCurrentVideo.playerOptions"
+      ></video-player>
+    </div>
   </mixin-scrollbar>
 </template>
 
@@ -57,7 +71,7 @@ import contentUtil from '@/utils/content_util'
 
 import moment from 'moment'
 
-import { delMedia, getAccount } from '@/utils/util'
+import { delMedia, getAccount, getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
 
 import store from '@/store/store'
 let { BrowserWindow } = remote
@@ -78,9 +92,14 @@ export default class ChatContainer extends Vue {
   @Getter('currentMessages') messages: any
   @Getter('currentUser') user: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
+  @Getter('shadowCurrentVideo') shadowCurrentVideo: any
+  @Getter('currentVideo') currentVideo: any
+  @Getter('currentAudio') currentAudio: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
+  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
+  @Action('setCurrentVideo') actionSetCurrentVideo: any
 
   @Watch('messages')
   onMessagesLengthChanged(messages: any) {
@@ -102,6 +121,31 @@ export default class ChatContainer extends Vue {
           messageId: lastMessage.messageId
         })
       }
+    }
+  }
+
+  @Watch('shadowCurrentVideo')
+  onShadowCurrentVideoChanged(val: any) {
+    if (val && !this.pictureInPictureInterval) {
+      clearInterval(this.pictureInPictureInterval)
+      this.pictureInPictureInterval = setInterval(() => {
+        // @ts-ignore
+        const player = this.$refs.shadowVideoPlayer.player
+        if (player) {
+          const { muted, paused, volume, currentTime, playbackRate } = val.playerOptions
+          player
+            .requestPictureInPicture()
+            .then((data: any) => {
+              if (data) {
+                this.currentVideoPlayer = null
+                clearInterval(this.pictureInPictureInterval)
+                this.pictureInPictureInterval = null
+                setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
+              }
+            })
+            .catch(() => {})
+        }
+      }, 30)
     }
   }
 
@@ -129,18 +173,18 @@ export default class ChatContainer extends Vue {
     }
 
     this.messagesVisible = this.getMessagesVisible()
-    // if (this.shadowCurrentVideo) {
-    //   let currentVideoFlag = false
-    //   this.messagesVisible.forEach((item: any) => {
-    //     if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
-    //       currentVideoFlag = true
-    //     }
-    //   })
-    //   if (currentVideoFlag) {
-    //     const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
-    //     this.actionSetCurrentVideo(currentVideo)
-    //   }
-    // }
+    if (this.shadowCurrentVideo) {
+      let currentVideoFlag = false
+      this.messagesVisible.forEach((item: any) => {
+        if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
+          currentVideoFlag = true
+        }
+      })
+      if (currentVideoFlag) {
+        const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
+        this.actionSetCurrentVideo(currentVideo)
+      }
+    }
     this.virtualDom = {
       top,
       bottom
@@ -157,6 +201,29 @@ export default class ChatContainer extends Vue {
   @Watch('isBottom')
   onIsBottomChanged(isBottom: any) {
     this.$emit('updateVal', { isBottom })
+  }
+
+  @Watch('conversation.conversationId')
+  onConversationChanged(newVal: any, oldVal: any) {
+    clearTimeout(this.scrollStopTimer)
+    this.actionSetCurrentVideo(null)
+    const mixinAudio: any = document.getElementById('mixinAudio')
+    if (mixinAudio) {
+      mixinAudio.pause()
+    }
+
+    this.overflowMap = { top: false, bottom: false }
+    this.infiniteDownLock = false
+    this.infiniteUpLock = false
+
+    this.timeDivideShowForce = false
+    this.messageHeightMap = {}
+    const msgLen = this.messages.length
+    if (msgLen > 0 && msgLen < PerPageMessageCount) {
+      this.showTopTips = true
+    } else {
+      this.showTopTips = false
+    }
   }
 
   get messageIds() {
@@ -186,8 +253,11 @@ export default class ChatContainer extends Vue {
   page: any
   infiniteUpLock: boolean = false
   infiniteDownLock: boolean = false
-  showScroll: boolean = true
+  showScroll: boolean = false
   $showUserDetail: any
+
+  currentVideoPlayer: any = null
+  pictureInPictureInterval: any = null
 
   setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
     if (conversationId) {
@@ -205,6 +275,8 @@ export default class ChatContainer extends Vue {
       this.newMessageMap = {}
       this.infiniteDownLock = false
       this.infiniteUpLock = false
+
+      console.log(26666)
 
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
@@ -235,6 +307,10 @@ export default class ChatContainer extends Vue {
       }
       this.callback({ unreadNum: 0, getLastMessage })
     }
+  }
+
+  leavepictureinpicture() {
+    this.actionSetShadowCurrentVideo(null)
   }
 
   clearMessagePositionIndex(index: any) {
@@ -355,6 +431,37 @@ export default class ChatContainer extends Vue {
       this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
+    this.$root.$on('setCurrentVideoPlayer', (item: any, id: string) => {
+      this.currentVideoPlayer = item
+      if (id === this.currentVideo.message.messageId) {
+        if (this.$refs.shadowVideoPlayer) {
+          // @ts-ignore
+          const shadowPlayer = this.$refs.shadowVideoPlayer.player
+          const playerStatus = getVideoPlayerStatus(shadowPlayer)
+          const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
+          if (isInPictureInPicture) {
+            shadowPlayer.exitPictureInPicture().then((res: any) => {
+              this.actionSetShadowCurrentVideo(null)
+            })
+          }
+          this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
+            if (data) {
+              clearInterval(this.pictureInPictureInterval)
+              this.pictureInPictureInterval = null
+              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
+            }
+          })
+        }
+      }
+    })
+  }
+
+  audioTimeupdate() {
+    this.$root.$emit('audioTimeupdate')
+  }
+
+  audioEnded() {
+    this.$root.$emit('audioEnded')
   }
 
   callback(payload: any) {
@@ -365,7 +472,7 @@ export default class ChatContainer extends Vue {
       this.udpateMessagesVisible()
     }
     if (unreadNum > 0 || unreadNum === 0) {
-      // this.currentUnreadNum = unreadNum
+      this.$emit('updateVal', { currentUnreadNum: unreadNum })
       setTimeout(() => {
         this.infiniteDownLock = false
       })
@@ -378,6 +485,7 @@ export default class ChatContainer extends Vue {
   scrollAction(payload: any) {
     const { message, isMyMsg, isInit, goBottom }: any = payload
     this.messagesVisible = this.getMessagesVisible()
+    console.log(39888)
     if (message) {
       if (isInit) {
         this.unreadMessageId = message.messageId
@@ -420,6 +528,7 @@ export default class ChatContainer extends Vue {
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
+    this.$root.$off('setCurrentVideoPlayer')
   }
 
   goMessagePos(posMessage: any) {
@@ -450,9 +559,9 @@ export default class ChatContainer extends Vue {
     this.goMessagePosTimer = null
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
     this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
-    // setTimeout(() => {
-    //   this.showScroll = true
-    // }, 300)
+    setTimeout(() => {
+      this.showScroll = true
+    }, 300)
   }
 
   onUserClick(userId: any) {

@@ -77,22 +77,6 @@
       </div>
     </transition>
 
-    <audio
-      id="mixinAudio"
-      style="opacity: 0"
-      @timeupdate="audioTimeupdate"
-      @ended="audioEnded"
-      :src="currentAudio && currentAudio.mediaUrl"
-    ></audio>
-
-    <div style="display: none" v-if="shadowCurrentVideo">
-      <video-player
-        ref="shadowVideoPlayer"
-        @leavepictureinpicture="leavepictureinpicture"
-        :options="shadowCurrentVideo.playerOptions"
-      ></video-player>
-    </div>
-
     <ChatInputBox
       ref="inputBox"
       v-show="conversation"
@@ -180,7 +164,6 @@ import fs from 'fs'
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
-import { getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
 import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
@@ -225,21 +208,11 @@ export default class ChatContainer extends Vue {
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     this.actionSetTempUnreadMessageId('')
-    // clearTimeout(this.scrollStopTimer)
-    // this.overflowMap = { top: false, bottom: false }
-    // this.infiniteDownLock = false
-    // this.infiniteUpLock = false
     this.file = null
     this.showMessages = false
     this.boxMessage = null
     this.getLastMessage = false
-    // this.timeDivideShowForce = false
-    // this.messageHeightMap = {}
-    this.actionSetCurrentVideo(null)
-    const mixinAudio: any = document.getElementById('mixinAudio')
-    if (mixinAudio) {
-      mixinAudio.pause()
-    }
+
     this.hideChoosePanel()
     if (!this.conversation) {
       this.startup = true
@@ -267,37 +240,6 @@ export default class ChatContainer extends Vue {
       setTimeout(() => {
         this.changeConversation = false
       }, 30)
-
-      // const msgLen = this.messages.length
-      // if (msgLen > 0 && msgLen < PerPageMessageCount) {
-      //   this.showTopTips = true
-      // } else {
-      //   this.showTopTips = false
-      // }
-    }
-  }
-
-  @Watch('shadowCurrentVideo')
-  onShadowCurrentVideoChanged(val: any) {
-    if (val && !this.pictureInPictureInterval) {
-      clearInterval(this.pictureInPictureInterval)
-      this.pictureInPictureInterval = setInterval(() => {
-        const player = this.$refs.shadowVideoPlayer.player
-        if (player) {
-          const { muted, paused, volume, currentTime, playbackRate } = val.playerOptions
-          player
-            .requestPictureInPicture()
-            .then((data: any) => {
-              if (data) {
-                this.currentVideoPlayer = null
-                clearInterval(this.pictureInPictureInterval)
-                this.pictureInPictureInterval = null
-                setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
-              }
-            })
-            .catch(() => {})
-        }
-      }, 30)
     }
   }
 
@@ -308,14 +250,9 @@ export default class ChatContainer extends Vue {
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
   @Getter('tempUnreadMessageId') tempUnreadMessageId: any
-  @Getter('currentAudio') currentAudio: any
-  @Getter('currentVideo') currentVideo: any
-  @Getter('shadowCurrentVideo') shadowCurrentVideo: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('setSearching') actionSetSearching: any
-  @Action('setCurrentVideo') actionSetCurrentVideo: any
-  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('createUserConversation') actionCreateUserConversation: any
@@ -348,8 +285,6 @@ export default class ChatContainer extends Vue {
   hasFileInput: boolean = true
 
   participantAdd: boolean = false
-  currentVideoPlayer: any = null
-  pictureInPictureInterval: any = null
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -443,33 +378,9 @@ export default class ChatContainer extends Vue {
         document.execCommand('insertText', false, text)
       }
     }
-
-    this.$root.$on('setCurrentVideoPlayer', (item: any, id: string) => {
-      this.currentVideoPlayer = item
-      if (id === this.currentVideo.message.messageId) {
-        if (this.$refs.shadowVideoPlayer) {
-          const shadowPlayer = this.$refs.shadowVideoPlayer.player
-          const playerStatus = getVideoPlayerStatus(shadowPlayer)
-          const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
-          if (isInPictureInPicture) {
-            shadowPlayer.exitPictureInPicture().then((res: any) => {
-              this.actionSetShadowCurrentVideo(null)
-            })
-          }
-          this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
-            if (data) {
-              clearInterval(this.pictureInPictureInterval)
-              this.pictureInPictureInterval = null
-              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
-            }
-          })
-        }
-      }
-    })
   }
 
   beforeDestroy() {
-    this.$root.$off('setCurrentVideoPlayer')
     this.$root.$off('selectAllKeyDown')
     this.$root.$off('escKeydown')
   }
@@ -481,25 +392,16 @@ export default class ChatContainer extends Vue {
   }
 
   updateVal(val: any) {
-    const { isBottom, getLastMessage } = val
+    const { isBottom, getLastMessage, currentUnreadNum } = val
     if (isBottom !== undefined) {
       this.isBottom = isBottom
     }
     if (getLastMessage !== undefined) {
       this.getLastMessage = getLastMessage
     }
-  }
-
-  audioTimeupdate() {
-    this.$root.$emit('audioTimeupdate')
-  }
-
-  audioEnded() {
-    this.$root.$emit('audioEnded')
-  }
-
-  leavepictureinpicture() {
-    this.actionSetShadowCurrentVideo(null)
+    if (currentUnreadNum !== undefined) {
+      this.currentUnreadNum = currentUnreadNum
+    }
   }
 
   participantAddDone(participants: any) {

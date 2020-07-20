@@ -154,6 +154,11 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  @Watch('isBottom')
+  onIsBottomChanged(isBottom: any) {
+    this.$emit('updateVal', { isBottom })
+  }
+
   get messageIds() {
     const messageIds: any = []
     this.messages.forEach((msg: any) => {
@@ -365,11 +370,7 @@ export default class ChatContainer extends Vue {
         this.infiniteDownLock = false
       })
     }
-    if (getLastMessage) {
-      // setTimeout(() => {
-      //   this.getLastMessage = true
-      // })
-    }
+    this.$emit('updateVal', { getLastMessage })
     this.infiniteUpLock = infiniteUpLock
     this.infiniteDownLock = infiniteDownLock
   }
@@ -391,16 +392,16 @@ export default class ChatContainer extends Vue {
   }
 
   goBottom(currentMessageLen: number = 0) {
-    // this.isBottom = true
-    // this.intersectLock = true
-    // this.beforeViewport = {}
-    // this.searchKeyword = ''
+    this.isBottom = true
+    this.intersectLock = true
+    this.beforeViewport = {}
+    this.searchKeyword = ''
     const msgLen = this.messages.length
     this.$nextTick(() => {
       let list: any = this.$refs.messagesUl
       if (!list) return
       this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
-      // this.infiniteUpLock = false
+      this.infiniteUpLock = false
       this.showMessages = true
       requestAnimationFrame(() => {
         list.scrollTop = list.scrollHeight
@@ -469,7 +470,7 @@ export default class ChatContainer extends Vue {
         status: MessageStatus.SENDING
       }
       this.actionSendMessage({ msg })
-      // this.goBottom()
+      this.goBottom()
     } else if (action.startsWith('mention:')) {
       const identityNumber = action.split('mention:')[1]
       // const user = userDao.findUserByIdentityNumber(identityNumber)
@@ -505,7 +506,7 @@ export default class ChatContainer extends Vue {
         this.viewport = this.viewportLimit(0, 2 * this.threshold)
       }
       if (!this.infiniteDownLock && this.overflowMap.bottom) {
-        // this.goBottom()
+        this.goBottom()
       }
     }, 200)
   }
@@ -655,9 +656,6 @@ export default class ChatContainer extends Vue {
   goMessagePosLock: boolean = false
   goMessagePosTimer: any = null
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
-    // if (this.getLastMessage) {
-    //   this.getLastMessage = false
-    // }
     setTimeout(() => {
       this.infiniteDownLock = false
       let targetDom: any = document.querySelector('.unread-divide')
@@ -669,7 +667,7 @@ export default class ChatContainer extends Vue {
         }
       }
       if (!targetDom && !messageDom) {
-        // this.showMessages = true
+        this.showMessages = true
         return
       }
       if (!this.goMessagePosTimer) {
@@ -699,7 +697,7 @@ export default class ChatContainer extends Vue {
         } else {
           list.scrollTop = targetDom.offsetTop - 1
         }
-        // this.showMessages = true
+        this.showMessages = true
         this.goMessagePosLock = false
       }
     })

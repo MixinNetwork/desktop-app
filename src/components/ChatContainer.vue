@@ -43,6 +43,7 @@
       :changeConversation="changeConversation"
       :details="!!details"
       ref="chatMessages"
+      @updateVal="updateVal"
       @goSearchMessagePosDone="goSearchMessagePosDone"
       @handle-item-click="$emit('handleItemClick')"
       @dragenter="onDragEnter"
@@ -478,6 +479,16 @@ export default class ChatContainer extends Vue {
     }
   }
 
+  updateVal(val: any) {
+    const { isBottom, getLastMessage } = val
+    if (isBottom !== undefined) {
+      this.isBottom = isBottom
+    }
+    if (getLastMessage !== undefined) {
+      this.getLastMessage = getLastMessage
+    }
+  }
+
   audioTimeupdate() {
     this.$root.$emit('audioTimeupdate')
   }
@@ -538,10 +549,7 @@ export default class ChatContainer extends Vue {
 
   goSearchMessagePosDone(item: any) {
     const count = messageDao.ftsMessageCount(this.conversation.conversationId)
-    const messageIndex = messageDao.ftsMessageIndex(
-      this.conversation.conversationId,
-      item.message_id || item.messageId
-    )
+    const messageIndex = messageDao.ftsMessageIndex(this.conversation.conversationId, item.message_id || item.messageId)
     if (messageIndex >= 0) {
       this.$refs.chatMessages.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
     }

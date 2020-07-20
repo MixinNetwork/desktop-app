@@ -473,8 +473,7 @@ export default class ChatContainer extends Vue {
       this.goBottom()
     } else if (action.startsWith('mention:')) {
       const identityNumber = action.split('mention:')[1]
-      // const user = userDao.findUserByIdentityNumber(identityNumber)
-      // this.showDetails(user)
+      this.$emit('showDetails', identityNumber)
     } else {
       browser.loadURL(action, this.conversation.conversationId)
     }

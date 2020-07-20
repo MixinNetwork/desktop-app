@@ -44,6 +44,7 @@
       :details="!!details"
       ref="chatMessages"
       @updateVal="updateVal"
+      @showDetails="showDetailsByIdNumber()"
       @goSearchMessagePosDone="goSearchMessagePosDone"
       @handle-item-click="$emit('handleItemClick')"
       @dragenter="onDragEnter"
@@ -653,6 +654,10 @@ export default class ChatContainer extends Vue {
     requestAnimationFrame(() => {
       this.details = user
     })
+  }
+  showDetailsByIdNumber(identityNumber: any) {
+    const user = userDao.findUserByIdentityNumber(identityNumber)
+    this.showDetails(user)
   }
   hideDetails() {
     this.details = null

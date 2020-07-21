@@ -754,8 +754,10 @@ export default class ChatContainer extends Vue {
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
     setTimeout(() => {
       this.infiniteDownLock = false
-      // @ts-ignore
-      let targetDom: any = document.querySelector('.unread-divide').offsetParent
+      let targetDom: any = document.querySelector('.unread-divide')
+      if (targetDom) {
+        targetDom = targetDom.offsetParent
+      }
       let messageDom: any
       if (posMessage && posMessage.messageId && !targetDom) {
         messageDom = document.getElementById(posMessage.messageId)

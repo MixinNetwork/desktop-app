@@ -275,6 +275,7 @@ export default class ChatContainer extends Vue {
       this.newMessageMap = {}
       this.infiniteDownLock = false
       this.infiniteUpLock = false
+      this.showScroll = false
 
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
@@ -507,6 +508,9 @@ export default class ChatContainer extends Vue {
         if (list.scrollTop !== list.scrollHeight) {
           list.scrollTop = list.scrollHeight
         }
+        setTimeout(() => {
+          this.showScroll = true
+        }, 200)
       }, 100)
     })
     this.newMessageMap = {}
@@ -624,7 +628,6 @@ export default class ChatContainer extends Vue {
     this.isBottom = list.scrollHeight < list.scrollTop + 1.5 * list.clientHeight
     if (this.isBottom) {
       if (!this.infiniteDownLock) {
-        this.infiniteDownLock = true
         this.infiniteDown()
       }
     }
@@ -632,7 +635,6 @@ export default class ChatContainer extends Vue {
     if (list.scrollTop < toTop) {
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
-        this.infiniteUpLock = true
         this.infiniteUp()
       }
       this.showTopTipsTimer = setTimeout(() => {
@@ -752,7 +754,8 @@ export default class ChatContainer extends Vue {
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
     setTimeout(() => {
       this.infiniteDownLock = false
-      let targetDom: any = document.querySelector('.unread-divide')
+      // @ts-ignore
+      let targetDom: any = document.querySelector('.unread-divide').offsetParent
       let messageDom: any
       if (posMessage && posMessage.messageId && !targetDom) {
         messageDom = document.getElementById(posMessage.messageId)

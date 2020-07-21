@@ -46,7 +46,7 @@
       @updateVal="updateVal"
       @showDetails="showDetailsByIdNumber()"
       @goSearchMessagePosDone="goSearchMessagePosDone"
-      @handle-item-click="$emit('handleItemClick')"
+      @handle-item-click="handleItemClick"
       @dragenter="onDragEnter"
       @drop="onDrop"
       @dragover="onDragOver"

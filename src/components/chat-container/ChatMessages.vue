@@ -31,7 +31,7 @@
         @loaded="onMessageLoaded"
         @user-click="onUserClick"
         @action-click="handleAction"
-        @handle-item-click="$emit('handle-item-click')"
+        @handle-item-click="handleItemClick"
       />
       <div v-intersect="onIntersect" :style="`height: ${virtualDom.bottom}px`" id="virtualBottom"></div>
     </ul>
@@ -309,6 +309,10 @@ export default class ChatContainer extends Vue {
       })
       this.$emit('updateVal', { currentUnreadNum: 0, getLastMessage })
     }
+  }
+
+  handleItemClick(payload: any) {
+    this.$emit('handle-item-click', payload)
   }
 
   leavepictureinpicture() {

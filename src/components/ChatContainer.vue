@@ -65,7 +65,7 @@
         </li>
         <MessageItem
           v-for="(item, index) in messagesVisible"
-          :key="item.messageId"
+          :key="item && item.messageId"
           :message="item"
           :prev="messagesVisible[index - 1]"
           :next="messagesVisible[index + 1]"

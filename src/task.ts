@@ -16,10 +16,18 @@ export function initTask(win: any) {
   }
 
   ipcMain.on('taskRequest', (event, payload) => {
-    sWindow.webContents.send('taskRequestData', JSON.stringify(payload))
+    try {
+      sWindow.webContents.send('taskRequestData', JSON.stringify(payload))
+    } catch (error) {
+      sWindow = initTask(win)
+      setTimeout(() => {
+        sWindow.webContents.send('taskRequestData', JSON.stringify(payload))
+      }, 1000)
+    }
   })
 
   ipcMain.on('taskResponse', (event, res) => {
     win.webContents.send('taskResponseData', JSON.stringify(res))
   })
+  return sWindow
 }

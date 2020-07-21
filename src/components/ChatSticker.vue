@@ -14,7 +14,7 @@
       <div
         v-show="item.icon_url"
         v-for="item in albums"
-        :key="item.album_id"
+        :key="item && item.album_id"
         @click="changeTab(item.album_id)"
       >
         <div class="album" :class="{on: item.album_id === currentAlbumId}">
@@ -28,7 +28,7 @@
           class="sticker"
           :style="{width: `${stickerStyle.w}px`, height: `${stickerStyle.w}px`, margin: `${stickerStyle.m}px`}"
           v-for="item in stickers"
-          :key="item.sticker_id"
+          :key="item && item.sticker_id"
         >
           <Lottie
             v-if="item.asset_type === 'json'"

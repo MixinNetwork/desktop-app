@@ -20,7 +20,7 @@
         <div v-if="resultList.length" :class="{scrolling}">
           <SearchItem
             v-for="item in resultList"
-            :key="item.message_id"
+            :key="item && item.message_id"
             :item="item"
             :keyword="keyword"
             @search-click="onSearchClick"

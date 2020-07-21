@@ -109,7 +109,7 @@ export default class StickerItem extends Vue {
       min-height: 0.65rem;
     }
     .img-box {
-      max-height: 4.8rem;
+      height: 4.8rem;
       border-radius: 0.2rem;
       overflow: hidden;
       img {

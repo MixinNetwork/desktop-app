@@ -303,7 +303,10 @@ export default class ChatContainer extends Vue {
       if (this.pageDown === 0) {
         getLastMessage = true
       }
-      this.callback({ unreadNum: 0, getLastMessage })
+      setTimeout(() => {
+        this.infiniteDownLock = false
+      })
+      this.$emit('updateVal', { currentUnreadNum: 0, getLastMessage })
     }
   }
 
@@ -350,7 +353,10 @@ export default class ChatContainer extends Vue {
         data = messageDao.getMessages(this.conversationId, --this.pageDown, tempCount)
       } else {
         this.newMessageMap = {}
-        this.callback({ unreadNum: 0, getLastMessage: true })
+        setTimeout(() => {
+          this.infiniteDownLock = false
+        })
+        this.$emit('updateVal', { currentUnreadNum: 0, getLastMessage: true })
       }
     } else {
       data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
@@ -367,7 +373,7 @@ export default class ChatContainer extends Vue {
     if (direction === 'down') {
       if (!messages.length) {
         setTimeout(() => {
-          this.callback({ infiniteDownLock: true })
+          this.infiniteDownLock = true
         }, 100)
         return
       }
@@ -384,11 +390,10 @@ export default class ChatContainer extends Vue {
       }
       this.messages.push(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ updateMessages: true })
     } else {
       if (!messages.length) {
         setTimeout(() => {
-          this.callback({ infiniteUpLock: true })
+          this.infiniteUpLock = true
         }, 100)
         return
       }
@@ -405,8 +410,10 @@ export default class ChatContainer extends Vue {
       }
       this.messages.unshift(...newMessages)
       store.dispatch('setCurrentMessages', this.messages)
-      this.callback({ updateMessages: true })
     }
+    const { firstIndex, lastIndex } = this.viewport
+    this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)
+    this.udpateMessagesVisible()
   }
   infiniteUp() {
     if (!this.infiniteUpLock) {
@@ -460,24 +467,6 @@ export default class ChatContainer extends Vue {
 
   audioEnded() {
     this.$root.$emit('audioEnded')
-  }
-
-  callback(payload: any) {
-    const { updateMessages, unreadNum, infiniteUpLock, infiniteDownLock, getLastMessage } = payload
-    if (updateMessages) {
-      const { firstIndex, lastIndex } = this.viewport
-      this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)
-      this.udpateMessagesVisible()
-    }
-    if (unreadNum > 0 || unreadNum === 0) {
-      this.$emit('updateVal', { currentUnreadNum: unreadNum })
-      setTimeout(() => {
-        this.infiniteDownLock = false
-      })
-    }
-    this.$emit('updateVal', { getLastMessage })
-    this.infiniteUpLock = infiniteUpLock
-    this.infiniteDownLock = infiniteDownLock
   }
 
   scrollAction(payload: any) {

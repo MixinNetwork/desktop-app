@@ -9,7 +9,7 @@
       <div class="select">
         <div
           v-for="item in [{key: 'hideNotification', name: 'show_notification'}]"
-          :key="item.key"
+          :key="item && item.key"
           class="select-item"
           @click="onSelected(item.key)"
         >

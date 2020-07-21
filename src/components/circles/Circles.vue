@@ -79,7 +79,7 @@
                 <div
                   class="selected-avatar"
                   v-for="item in selectedAvatarList"
-                  :key="item.conversationId"
+                  :key="item && item.conversationId"
                 >
                   <Avatar class="avatar" v-if="item.user_id" :user="item" />
                   <Avatar class="avatar" v-else :conversation="item" />
@@ -130,7 +130,7 @@
             <div class="ul" ref="ul">
               <div
                 v-for="item in circles"
-                :key="item.circle_id"
+                :key="item && item.circle_id"
                 class="circle-item"
                 @click="viewCircle(item)"
               >

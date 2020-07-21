@@ -20,7 +20,7 @@
       </li>
       <MessageItem
         v-for="(item, index) in messagesVisible"
-        :key="item.messageId"
+        :key="item && item.messageId"
         :message="item"
         :prev="messagesVisible[index - 1]"
         :next="messagesVisible[index + 1]"
@@ -276,8 +276,6 @@ export default class ChatContainer extends Vue {
       this.infiniteDownLock = false
       this.infiniteUpLock = false
 
-      console.log(26666)
-
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
         posMessage = messages[messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
@@ -485,7 +483,6 @@ export default class ChatContainer extends Vue {
   scrollAction(payload: any) {
     const { message, isMyMsg, isInit, goBottom }: any = payload
     this.messagesVisible = this.getMessagesVisible()
-    console.log(39888)
     if (message) {
       if (isInit) {
         this.unreadMessageId = message.messageId

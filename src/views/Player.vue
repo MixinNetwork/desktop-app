@@ -27,6 +27,7 @@ export default class Player extends Vue {
   pin: boolean = false
   resizeInterval: any = null
   loaded: boolean = false
+  init: boolean = false
 
   @Watch('pin')
   onPinChange(newPin: any) {
@@ -71,8 +72,16 @@ export default class Player extends Vue {
     this.resizeInterval = setInterval(() => {
       const videoPlayer: any = this.$refs.videoPlayer
       if (this.loaded) {
-        const width = Math.ceil(videoPlayer.player.currentWidth())
-        const height = Math.ceil(videoPlayer.player.currentHeight())
+        let width = videoPlayer.player.currentWidth()
+        let height = videoPlayer.player.currentHeight()
+        if (!this.init && height > 700) {
+          this.init = true
+          const ratio = width / height
+          height = 700
+          width = height * ratio
+        }
+        width = Math.ceil(width)
+        height = Math.ceil(height)
         ipcRenderer.send('resize', { width, height })
         // for macOS
         if (process.platform === 'darwin') {

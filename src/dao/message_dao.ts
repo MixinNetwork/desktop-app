@@ -152,6 +152,7 @@ class MessageDao {
       }
     })
     insertMany(mIds)
+    this.deleteMessageFts(mIds)
   }
 
   ftsMessagesDelete(conversationId: any) {

@@ -705,6 +705,11 @@ export default {
     const message = messageDao.getMessageById(messageId)
     delMedia([message])
     messageDao.recallMessageAndSend(messageId)
+    let quoteItem = messageDao.findMessageItemById(conversationId, messageId)
+    if (quoteItem) {
+      messageDao.updateQuoteContentByQuoteId(conversationId, messageId, JSON.stringify(quoteItem))
+    }
+
     jobDao.insert({
       job_id: uuidv4(),
       action: 'RECALL_MESSAGE',

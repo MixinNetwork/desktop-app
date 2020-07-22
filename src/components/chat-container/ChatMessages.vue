@@ -101,6 +101,7 @@ export default class ChatContainer extends Vue {
   @Action('sendMessage') actionSendMessage: any
   @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
+  @Action('setCurrentMessages') actionSetCurrentMessages: any
 
   @Watch('messages')
   onMessagesLengthChanged(messages: any) {
@@ -116,7 +117,7 @@ export default class ChatContainer extends Vue {
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = messages[messages.length - 1]
-      if (lastMessage === this.messagesVisible[this.messagesVisible.length - 1] && lastMessage.mentions) {
+      if (lastMessage && lastMessage === this.messagesVisible[this.messagesVisible.length - 1] && lastMessage.mentions) {
         this.actionMarkMentionRead({
           conversationId: this.conversation.conversationId,
           messageId: lastMessage.messageId
@@ -253,7 +254,7 @@ export default class ChatContainer extends Vue {
             this.newMessageMap[id] = true
           }
           let newCount = Object.keys(this.newMessageMap).length
-          store.dispatch('setCurrentMessages', messages)
+          this.actionSetCurrentMessages(messages)
           this.page = Math.floor(messages.length / PerPageMessageCount) - 1
           this.$emit('updateVal', { currentUnreadNum: newCount, getLastMessage: true })
           this.scrollAction({ isMyMsg })
@@ -275,7 +276,7 @@ export default class ChatContainer extends Vue {
         }
       })
     } else {
-      store.dispatch('setCurrentMessages', messages)
+      this.actionSetCurrentMessages(messages)
     }
   }
 
@@ -372,7 +373,7 @@ export default class ChatContainer extends Vue {
           break
         }
       }
-      store.dispatch('setCurrentMessages', messages)
+      this.actionSetCurrentMessages(messages)
       this.scrollAction({ goBottom: messages.length, message: posMessage, isInit })
       let getLastMessage = false
       if (this.pageDown === 0) {
@@ -401,7 +402,7 @@ export default class ChatContainer extends Vue {
     this.pageDown = 0
     this.tempCount = 0
     const messages = messageDao.getMessages(conversationId, 0)
-    store.dispatch('setCurrentMessages', messages)
+    this.actionSetCurrentMessages(messages)
   }
 
   deleteMessages(messageIds: any[]) {
@@ -415,7 +416,7 @@ export default class ChatContainer extends Vue {
         finalMessages.push(cur)
       }
     }
-    store.dispatch('setCurrentMessages', finalMessages)
+    this.actionSetCurrentMessages(finalMessages)
   }
   nextPage(direction: string): any {
     let data: unknown = []
@@ -465,7 +466,7 @@ export default class ChatContainer extends Vue {
         }
       }
       this.messages.push(...newMessages)
-      store.dispatch('setCurrentMessages', this.messages)
+      this.actionSetCurrentMessages(this.messages)
     } else {
       if (!messages.length) {
         setTimeout(() => {
@@ -485,7 +486,7 @@ export default class ChatContainer extends Vue {
         }
       }
       this.messages.unshift(...newMessages)
-      store.dispatch('setCurrentMessages', this.messages)
+      this.actionSetCurrentMessages(this.messages)
     }
     const { firstIndex, lastIndex } = this.viewport
     this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)

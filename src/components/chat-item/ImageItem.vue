@@ -63,7 +63,7 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 import AttachmentIcon from '@/components/chat-item/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
@@ -96,6 +96,8 @@ export default class ImageItem extends Vue {
   @Getter('attachment') attachment: any
   @Getter('currentMessages') currentMessages: any
   @Getter('fetchPercentMap') fetchPercentMap: any
+
+  @Action('stopLoading') actionStopLoading: any
 
   $imageViewer: any
   MessageStatus: any = MessageStatus
@@ -188,7 +190,7 @@ export default class ImageItem extends Vue {
   }
 
   stopLoading() {
-    this.$store.dispatch('stopLoading', this.message.messageId)
+    this.actionStopLoading(this.message.messageId)
   }
   get waitStatus() {
     const { message } = this

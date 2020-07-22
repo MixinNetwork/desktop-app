@@ -252,6 +252,14 @@ export default class Navigation extends Vue {
   @Action('setUnseenBadgeNum') actionSetUnseenBadgeNum: any
   @Action('updateConversationMute') actionUpdateConversationMute: any
   @Action('conversationClear') actionConversationClear: any
+  @Action('search') actionSearch: any
+  @Action('searchClear') actionSearchClear: any
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('setCurrentConversation') actionSetCurrentConversation: any
+  @Action('setSearching') actionSetSearching: any
+  @Action('exitGroup') actionExitGroup: any
+  @Action('pinTop') actionPinTop: any
+  @Action('markRead') actionMarkRead: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -356,14 +364,14 @@ export default class Navigation extends Vue {
 
   showMoreBack() {
     this.showMoreType = ''
-    this.$store.dispatch('search', {
+    this.actionSearch({
       keyword: this.searchKeyword
     })
   }
 
   showMoreList(type: string) {
     this.showMoreType = type
-    this.$store.dispatch('search', {
+    this.actionSearch({
       keyword: this.searchKeyword,
       type: this.showMoreType
     })
@@ -401,9 +409,9 @@ export default class Navigation extends Vue {
 
   handlerMenu(position: any, participants: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
     if (position === 'exit_group') {
-      this.$store.dispatch('exitGroup', conversationId)
+      this.actionExitGroup(conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
-      this.$store.dispatch('pinTop', {
+      this.actionPinTop({
         conversationId,
         circlePinTime,
         pinTime
@@ -562,7 +570,7 @@ export default class Navigation extends Vue {
       waitTime = 150
     }
     if (!keyword) {
-      this.$store.dispatch('setSearching', '')
+      this.actionSetSearching('')
       setTimeout(() => {
         let index = 0
         const { conversations, currentConversationId } = this
@@ -578,7 +586,7 @@ export default class Navigation extends Vue {
     }
     clearTimeout(this.inputTimer)
     this.inputTimer = setTimeout(() => {
-      this.$store.dispatch('search', {
+      this.actionSearch({
         keyword,
         type: this.showMoreType
       })
@@ -591,31 +599,31 @@ export default class Navigation extends Vue {
   onConversationClick(conversation: any) {
     if (this.currentConversationId === conversation.conversationId) return
     this.conversationShow = false
-    this.$store.dispatch('searchClear')
-    this.$store.dispatch('setCurrentConversation', conversation)
+    this.actionSearchClear()
+    this.actionSetCurrentConversation(conversation)
   }
   onClickUser(user: any) {
-    this.$store.dispatch('searchClear')
-    this.$store.dispatch('createUserConversation', {
+    this.actionSearchClear()
+    this.actionCreateUserConversation({
       user
     })
   }
   onSearchChatClick(conversation: any) {
     this.conversationShow = false
-    this.$store.dispatch('setCurrentConversation', conversation)
+    this.actionSetCurrentConversation(conversation)
     let searchKey = ''
     if (conversation.records) {
       searchKey = `key:${this.searchKeyword}`
     }
-    this.$store.dispatch('setSearching', searchKey)
+    this.actionSetSearching(searchKey)
     conversation.unseenMessageCount = 0
     setTimeout(() => {
-      this.$store.dispatch('markRead', conversation.conversationId)
+      this.actionMarkRead(conversation.conversationId)
     }, 100)
   }
   onSearchUserClick(user: any) {
-    this.$store.dispatch('setSearching', '')
-    this.$store.dispatch('createUserConversation', {
+    this.actionSetSearching('')
+    this.actionCreateUserConversation({
       user
     })
   }

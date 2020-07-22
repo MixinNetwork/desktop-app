@@ -80,7 +80,7 @@ import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -110,6 +110,9 @@ export default class AudioItem extends Vue {
   @Getter('currentAudio') currentAudio: any
   @Getter('currentMessages') currentMessages: any
   @Getter('fetchPercentMap') fetchPercentMap: any
+
+  @Action('stopLoading') actionStopLoading: any
+  @Action('setCurrentAudio') actionSetCurrentAudio: any
 
   @Watch('currentAudio.messageId')
   onCurrentAudioChange(messageId: any) {
@@ -153,7 +156,7 @@ export default class AudioItem extends Vue {
   }
 
   stopLoading() {
-    this.$store.dispatch('stopLoading', this.message.messageId)
+    this.actionStopLoading(this.message.messageId)
   }
 
   updateCurrentAudio(curMessageId: string) {
@@ -195,7 +198,7 @@ export default class AudioItem extends Vue {
     if (this.currentAudio && this.message.messageId === this.currentAudio.messageId) {
       this.updateCurrentAudio(this.message.messageId)
     } else {
-      this.$store.dispatch('setCurrentAudio', this.message)
+      this.actionSetCurrentAudio(this.message)
     }
   }
   timeReset() {
@@ -233,7 +236,7 @@ export default class AudioItem extends Vue {
       }
     }
     if (nextAudioMessage) {
-      this.$store.dispatch('setCurrentAudio', nextAudioMessage)
+      this.actionSetCurrentAudio(nextAudioMessage)
     }
   }
   controlAudioProgress(event: any) {

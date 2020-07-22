@@ -251,7 +251,7 @@ import { AttachmentMessagePayload } from '@/utils/attachment_util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -283,6 +283,9 @@ export default class MessageItem extends Vue {
 
   @Getter('me') me: any
   @Getter('currentConversation') conversation: any
+
+  @Action('upload') actionUpload: any
+  @Action('download') actionDownload: any
 
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
@@ -368,9 +371,9 @@ export default class MessageItem extends Vue {
         conversationId,
         payload
       }
-      this.$store.dispatch('upload', msg)
+      this.actionUpload(msg)
     } else {
-      this.$store.dispatch('download', this.message.messageId)
+      this.actionDownload(this.message.messageId)
     }
   }
   actionClick(action: any) {

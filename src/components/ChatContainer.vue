@@ -258,6 +258,7 @@ export default class ChatContainer extends Vue {
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
   @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
+  @Action('addParticipants') actionAddParticipants: any
 
   $t: any
   $toast: any
@@ -407,7 +408,7 @@ export default class ChatContainer extends Vue {
   participantAddDone(participants: any) {
     this.participantAdd = false
     const { conversationId } = this.conversation
-    this.$store.dispatch('addParticipants', {
+    this.actionAddParticipants({
       participants,
       conversationId
     })

@@ -28,7 +28,7 @@ import Search from '@/components/Search.vue'
 import accountApi from '@/api/account'
 
 import { Vue, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -38,6 +38,8 @@ import { Getter } from 'vuex-class'
 })
 export default class NewConversation extends Vue {
   @Getter('findFriends') friends: any
+
+  @Action('refreshFriends') actionRefreshFriends: any
 
   keyword: string = ''
 
@@ -50,7 +52,7 @@ export default class NewConversation extends Vue {
       (resp: any) => {
         const friends = resp.data.data
         if (friends && friends.length > 0) {
-          this.$store.dispatch('refreshFriends', friends)
+          this.actionRefreshFriends(friends)
         }
       },
       (err: any) => {

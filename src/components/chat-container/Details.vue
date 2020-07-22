@@ -298,7 +298,7 @@ export default class Details extends Vue {
 
   sendMessage() {
     this.$emit('close')
-    this.$store.dispatch('createUserConversation', {
+    this.actionCreateUserConversation({
       user: this.user
     })
     this.$emit('send-message')

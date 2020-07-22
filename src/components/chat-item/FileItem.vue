@@ -55,7 +55,7 @@ import { MessageStatus, MediaStatus } from '@/utils/constants'
 import { mapGetters } from 'vuex'
 import { getNameColorById } from '@/utils/util'
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -75,6 +75,8 @@ export default class FileItem extends Vue {
 
   @Getter('attachment') attachment: any
   @Getter('fetchPercentMap') fetchPercentMap: any
+
+  @Action('stopLoading') actionStopLoading: any
 
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
@@ -107,7 +109,7 @@ export default class FileItem extends Vue {
     return getNameColorById(id)
   }
   stopLoading() {
-    this.$store.dispatch('stopLoading', this.message.messageId)
+    this.actionStopLoading(this.message.messageId)
   }
 
   get loading() {

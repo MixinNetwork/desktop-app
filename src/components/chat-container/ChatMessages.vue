@@ -90,6 +90,7 @@ export default class ChatContainer extends Vue {
 
   @Getter('currentConversation') conversation: any
   @Getter('currentMessages') messages: any
+  @Getter('refreshMessageIds') refreshMessageIds: any
   @Getter('currentUser') user: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
   @Getter('shadowCurrentVideo') shadowCurrentVideo: any
@@ -203,6 +204,81 @@ export default class ChatContainer extends Vue {
     this.$emit('updateVal', { isBottom })
   }
 
+  @Watch('refreshMessageIds')
+  onRefreshMessageIdsChanged(messageIds: any) {
+    if (messageIds.length < 0 || !this.conversation) return
+
+    const matchIds: any = []
+    const { conversationId } = this.conversation
+
+    const messages = JSON.parse(JSON.stringify(this.messages))
+
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const item = messages[i]
+      if (item) {
+        const isQuote = messageIds.indexOf(item.quoteId) > -1
+        if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
+          const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
+          if (findMessage) {
+            findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+            if (isQuote) {
+              let quoteContent = JSON.parse(item.quoteContent)
+              const findQuoteMessage = messageDao.getConversationMessageById(conversationId, quoteContent.messageId)
+              if (!findQuoteMessage) {
+                quoteContent.type = 'MESSAGE_RECALL'
+              } else {
+                quoteContent = findQuoteMessage
+              }
+              messages[i].quoteContent = JSON.stringify(quoteContent)
+            } else {
+              matchIds.push(item.messageId)
+              messages[i] = findMessage
+            }
+          }
+        }
+      }
+    }
+
+    if (matchIds.length !== messageIds.length) {
+      messageIds.forEach((id: string) => {
+        if (matchIds.indexOf(id) > -1) return
+        const findMessage = messageDao.getConversationMessageById(conversationId, id)
+        if (!findMessage || (messages[0] && findMessage.createdAt < messages[0].createdAt)) return
+        findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
+        const account: any = getAccount()
+        const isMyMsg = findMessage.userId === account.user_id
+        if (this.pageDown === 0) {
+          messages.push(findMessage)
+          if (!isMyMsg) {
+            this.newMessageMap[id] = true
+          }
+          let newCount = Object.keys(this.newMessageMap).length
+          store.dispatch('setCurrentMessages', messages)
+          this.page = Math.floor(messages.length / PerPageMessageCount) - 1
+          this.$emit('updateVal', { currentUnreadNum: newCount, getLastMessage: true })
+          this.scrollAction({ isMyMsg })
+        } else {
+          if (isMyMsg) {
+            if (findMessage.status === MessageStatus.SENT) {
+              this.setConversationId(conversationId, -1, false)
+            }
+          } else if (!this.newMessageMap[id]) {
+            this.newMessageMap[id] = true
+            const newCount = Object.keys(this.newMessageMap).length
+            this.$emit('updateVal', { currentUnreadNum: newCount })
+            this.tempCount = newCount % PerPageMessageCount
+            const lastCount = this.messagePositionIndex % PerPageMessageCount
+            const offset = Math.ceil((newCount + lastCount) / PerPageMessageCount) - this.offsetPageDown
+            this.pageDown += offset
+            this.offsetPageDown += offset
+          }
+        }
+      })
+    } else {
+      store.dispatch('setCurrentMessages', messages)
+    }
+  }
+
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
     clearTimeout(this.scrollStopTimer)
@@ -244,7 +320,6 @@ export default class ChatContainer extends Vue {
   timeDivideShowForce: boolean = false
   unreadMessageId: any = ''
   contentUtil: any = contentUtil
-  conversationId: any
   messagePositionIndex: any
   pageDown: any
   tempCount: any
@@ -261,7 +336,6 @@ export default class ChatContainer extends Vue {
 
   setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
     if (conversationId) {
-      this.conversationId = conversationId
       this.messagePositionIndex = messagePositionIndex > 0 ? messagePositionIndex : 0
       let page = 0
       if (messagePositionIndex >= PerPageMessageCount) {
@@ -322,10 +396,6 @@ export default class ChatContainer extends Vue {
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
   }
-  isMine(findMessage: any) {
-    const account: any = getAccount()
-    return findMessage.userId === account.user_id
-  }
   refreshConversation(conversationId: any) {
     this.page = 0
     this.pageDown = 0
@@ -349,13 +419,14 @@ export default class ChatContainer extends Vue {
   }
   nextPage(direction: string): any {
     let data: unknown = []
+    const { conversationId } = this.conversation
     if (direction === 'down') {
       if (this.pageDown > 0) {
         let tempCount = 0
         if (this.tempCount > 0) {
           tempCount = this.tempCount - PerPageMessageCount
         }
-        data = messageDao.getMessages(this.conversationId, --this.pageDown, tempCount)
+        data = messageDao.getMessages(conversationId, --this.pageDown, tempCount)
       } else {
         this.newMessageMap = {}
         setTimeout(() => {
@@ -364,7 +435,7 @@ export default class ChatContainer extends Vue {
         this.$emit('updateVal', { currentUnreadNum: 0, getLastMessage: true })
       }
     } else {
-      data = messageDao.getMessages(this.conversationId, ++this.page, this.tempCount)
+      data = messageDao.getMessages(conversationId, ++this.page, this.tempCount)
     }
     return data
   }

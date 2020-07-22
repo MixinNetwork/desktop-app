@@ -361,47 +361,10 @@ export default {
   },
   refreshMessage(state: any, payload: any) {
     const { conversationId, messageIds } = payload
-
+    state.refreshMessageIds = []
     if (conversationId === state.currentConversationId) {
-      const matchIds: any = []
-
-      for (let i = state.currentMessages.length - 1; i >= 0; i--) {
-        const item = state.currentMessages[i]
-        if (item) {
-          const isQuote = messageIds.indexOf(item.quoteId) > -1
-          if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
-            const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
-            if (findMessage) {
-              findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
-              if (isQuote) {
-                let quoteContent = JSON.parse(item.quoteContent)
-                const findQuoteMessage = messageDao.getConversationMessageById(conversationId, quoteContent.messageId)
-                if (!findQuoteMessage) {
-                  quoteContent.type = 'MESSAGE_RECALL'
-                } else {
-                  quoteContent = findQuoteMessage
-                }
-                state.currentMessages[i].quoteContent = JSON.stringify(quoteContent)
-              } else {
-                matchIds.push(item.messageId)
-                state.currentMessages[i] = findMessage
-              }
-            }
-          }
-        }
-      }
-
-      if (matchIds.length !== messageIds.length) {
-        messageIds.forEach((id: string) => {
-          if (matchIds.indexOf(id) > -1) return
-          const findMessage = messageDao.getConversationMessageById(conversationId, id)
-          if (!findMessage || (state.currentMessages[0] && findMessage.createdAt < state.currentMessages[0].createdAt)) return
-          findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
-          state.currentMessages.push(findMessage)
-        })
-      }
+      state.refreshMessageIds = messageIds
     }
-
     if (
       !state.conversationKeys.some((item: any) => {
         return item === conversationId

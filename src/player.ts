@@ -95,7 +95,7 @@ export function initPlayer(id: number) {
       playerWindow = createPlayerWindow(args.width, args.height, args.pin)
       currentURL = args.url
     }
-    let params = `#player?thumb=${args.thumb}&url=${args.url}`
+    let params = `#player?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}`
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
     } else {

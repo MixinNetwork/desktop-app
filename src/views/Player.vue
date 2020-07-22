@@ -1,6 +1,11 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
-    <video-player ref="videoPlayer" @loadeddata="loaded = true" :single="true" :options="playerOptions"></video-player>
+    <video-player
+      ref="videoPlayer"
+      @loadeddata="loaded = true"
+      :single="true"
+      :options="playerOptions"
+    ></video-player>
     <div class="bar" v-show="show">
       <div class="drag-area"></div>
       <svg-icon icon-class="ic_player_close" class="icon" @click="close" />
@@ -29,6 +34,7 @@ export default class Player extends Vue {
   }
 
   get playerOptions() {
+    const url: any = this.$route.query.url
     return {
       autoplay: true,
       language: navigator.language.split('-')[0],
@@ -36,7 +42,7 @@ export default class Player extends Vue {
       disablePictureInPicture: true,
       sources: [
         {
-          src: this.$route.query.url
+          src: decodeURIComponent(url)
         }
       ]
     }

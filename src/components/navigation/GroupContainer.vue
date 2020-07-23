@@ -228,7 +228,6 @@ main {
       display: flex;
       background: #ffffff;
       height: 2.5rem;
-      color: white;
       align-items: center;
       flex-flow: row nowrap;
       .back {

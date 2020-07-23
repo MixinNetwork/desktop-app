@@ -320,9 +320,11 @@ export default class ChatContainer extends Vue {
       }
     })
 
-    Vue.prototype.$showUserDetail = (userId: string) => {
-      let user = userDao.findUserById(userId)
-      this.showDetails(user)
+    Vue.prototype.$showUserDetail = async(userId: string) => {
+      let user = await this.actionSyncUser(userId)
+      if (user) {
+        this.showDetails(user)
+      }
     }
 
     let windowsFocused = false

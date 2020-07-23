@@ -342,6 +342,9 @@ export default {
     commit('conversationClear', conversationId)
     commit('setUnseenBadgeNum')
   },
+  syncUser(_: any, userId: any) {
+    return syncUser(userId)
+  },
   pinTop: ({ commit, state }: any, payload: { conversationId: any; circlePinTime: any; pinTime: any }) => {
     const { conversationId, circlePinTime, pinTime } = payload
     if (circlePinTime !== undefined) {

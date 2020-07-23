@@ -452,7 +452,7 @@ export async function putAttachment(
             width: mediaWidth,
             height: mediaHeight,
             duration: mediaDuration,
-            name: name,
+            name: mediaName || name,
             thumbnail: thumbImage,
             waveform: mediaWaveform,
             digest: btoa(String.fromCharCode(...new Uint8Array(digest))),

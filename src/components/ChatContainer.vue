@@ -1,5 +1,12 @@
 <template>
-  <main class="chat container" @click="hideChoosePanel">
+  <main
+    class="chat container"
+    @click="hideChoosePanel"
+    @dragenter="onDragEnter"
+    @drop="onDrop"
+    @dragover="onDragOver"
+    @dragleave="onDragLeave"
+  >
     <header v-if="conversation">
       <div>
         <Avatar
@@ -47,10 +54,6 @@
       @showDetails="showDetailsByIdNumber()"
       @goSearchMessagePosDone="goSearchMessagePosDone"
       @handle-item-click="handleItemClick"
-      @dragenter="onDragEnter"
-      @drop="onDrop"
-      @dragover="onDragOver"
-      @dragleave="onDragLeave"
     />
 
     <transition name="fade">
@@ -200,18 +203,14 @@ let { BrowserWindow } = remote
 })
 export default class ChatContainer extends Vue {
   @Getter('currentConversation') conversation: any
-  @Getter('currentMessages') messages: any
   @Getter('searching') searching: any
   @Getter('currentUser') user: any
   @Getter('editing') editing: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('tempUnreadMessageId') tempUnreadMessageId: any
 
-  @Action('markMentionRead') actionMarkMentionRead: any
   @Action('setSearching') actionSetSearching: any
   @Action('markRead') actionMarkRead: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
-  @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
   @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
   @Action('addParticipants') actionAddParticipants: any
@@ -490,6 +489,23 @@ export default class ChatContainer extends Vue {
       this.dragging = false
     }
   }
+  onDragOver(e: any) {
+    e.preventDefault()
+  }
+  onDrop(e: any) {
+    this.fileUnsupported = false
+    e.preventDefault()
+    let fileList = e.dataTransfer.files
+    if (fileList.length > 0) {
+      this.file = fileList[0]
+      try {
+        fs.readFileSync(this.file.path)
+      } catch (error) {
+        this.fileUnsupported = true
+      }
+    }
+    this.dragging = false
+  }
   sendFile() {
     if (!this.file) return
     let size = this.file.size
@@ -527,23 +543,6 @@ export default class ChatContainer extends Vue {
       this.goBottom()
     }
     this.closeFile()
-  }
-  onDragOver(e: any) {
-    e.preventDefault()
-  }
-  onDrop(e: any) {
-    this.fileUnsupported = false
-    e.preventDefault()
-    let fileList = e.dataTransfer.files
-    if (fileList.length > 0) {
-      this.file = fileList[0]
-      try {
-        fs.readFileSync(this.file.path)
-      } catch (error) {
-        this.fileUnsupported = true
-      }
-    }
-    this.dragging = false
   }
   closeFile() {
     this.dragging = false

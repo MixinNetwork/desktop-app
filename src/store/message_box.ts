@@ -165,7 +165,6 @@ class MessageBox {
     const messages = messageDao.getMessagesByIds(messageIds)
     delMedia(messages)
     messageDao.deleteMessageByIds(messageIds)
-    messageDao.deleteMessageFts(messageIds)
     for (let i = this.messages.length - 1; i >= 0; i--) {
       if (messageIds[0] === this.messages[i].messageId) {
         this.messages.splice(i, 1)

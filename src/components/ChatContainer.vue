@@ -423,6 +423,7 @@ export default class ChatContainer extends Vue {
   @Action('createUserConversation') actionCreateUserConversation: any
   @Action('recallMessage') actionRecallMessage: any
   @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
+  @Action('syncUser') actionSyncUser: any
 
   $t: any
   $toast: any
@@ -502,9 +503,11 @@ export default class ChatContainer extends Vue {
       }
     })
 
-    Vue.prototype.$showUserDetail = (userId: string) => {
-      let user = userDao.findUserById(userId)
-      this.showDetails(user)
+    Vue.prototype.$showUserDetail = async(userId: string) => {
+      let user = await this.actionSyncUser(userId)
+      if (user) {
+        this.showDetails(user)
+      }
     }
 
     let windowsFocused = false

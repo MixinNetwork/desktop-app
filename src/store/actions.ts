@@ -342,6 +342,9 @@ export default {
     commit('conversationClear', conversationId)
     commit('setUnseenBadgeNum')
   },
+  syncUser(_: any, userId: any) {
+    return syncUser(userId)
+  },
   pinTop: ({ commit, state }: any, payload: { conversationId: any; circlePinTime: any; pinTime: any }) => {
     const { conversationId, circlePinTime, pinTime } = payload
     if (circlePinTime !== undefined) {
@@ -705,6 +708,11 @@ export default {
     const message = messageDao.getMessageById(messageId)
     delMedia([message])
     messageDao.recallMessageAndSend(messageId)
+    let quoteItem = messageDao.findMessageItemById(conversationId, messageId)
+    if (quoteItem) {
+      messageDao.updateQuoteContentByQuoteId(conversationId, messageId, JSON.stringify(quoteItem))
+    }
+
     jobDao.insert({
       job_id: uuidv4(),
       action: 'RECALL_MESSAGE',

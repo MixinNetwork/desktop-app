@@ -43,6 +43,19 @@ export default class NewConversation extends Vue {
 
   keyword: string = ''
 
+  get currentFriends() {
+    const { keyword, friends } = this
+    return friends.filter((item: any) => {
+      if (keyword !== '') {
+        return (
+          item.full_name.toUpperCase().includes(keyword.toUpperCase()) ||
+          item.identity_number.toUpperCase().includes(keyword)
+        )
+      }
+      return true
+    })
+  }
+
   onInput(text: string) {
     this.keyword = text
   }
@@ -59,18 +72,6 @@ export default class NewConversation extends Vue {
         console.log(err)
       }
     )
-  }
-  get currentFriends() {
-    const { keyword, friends } = this
-    return friends.filter((item: any) => {
-      if (keyword !== '') {
-        return (
-          item.full_name.toUpperCase().includes(keyword.toUpperCase()) ||
-          item.identity_number.toUpperCase().includes(keyword)
-        )
-      }
-      return true
-    })
   }
 }
 </script>

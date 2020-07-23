@@ -54,6 +54,15 @@ export default class AppCardItem extends Vue {
   @Prop(Boolean) readonly showName: any
   @Prop(Object) readonly me: any
 
+  get showDetail() {
+    const { name, address } = this.messageContent
+    return name && address
+  }
+
+  get messageContent() {
+    return JSON.parse(this.message.content)
+  }
+
   getColor(id: string) {
     return getNameColorById(id)
   }
@@ -73,15 +82,6 @@ export default class AppCardItem extends Vue {
       url = `https://www.google.com/maps/search/${encodeURIComponent(address)}/@${latitude},${longitude},17z?hl=zh-CN`
     }
     window.open(url)
-  }
-
-  get showDetail() {
-    const { name, address } = this.messageContent
-    return name && address
-  }
-
-  get messageContent() {
-    return JSON.parse(this.message.content)
   }
 }
 </script>

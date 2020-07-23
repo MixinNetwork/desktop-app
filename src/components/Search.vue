@@ -35,21 +35,7 @@ export default class Search extends Vue {
   @Prop(String) readonly id: any
   @Prop(Boolean) readonly autofocus: any
 
-  focus: any = false
-  keyword: any = ''
-  inputFlag: any = false
-  layoutStyle: any = {
-    width: '100%',
-    display: 'flex',
-    'align-items': 'center',
-    'padding-left': '0.8rem',
-    'padding-right': '0.8rem',
-    'padding-top': '0.4rem',
-    'padding-bottom': '0.4rem',
-    'border-width': '0.05rem',
-    'border-radius': '1rem'
-  }
-  $t: any
+  @Action('setSearching') actionSetSearching: any
 
   @Watch('keyword')
   onKeywordChanged(value: any) {
@@ -69,7 +55,21 @@ export default class Search extends Vue {
     }
   }
 
-  @Action('setSearching') actionSetSearching: any
+  focus: any = false
+  keyword: any = ''
+  inputFlag: any = false
+  layoutStyle: any = {
+    width: '100%',
+    display: 'flex',
+    'align-items': 'center',
+    'padding-left': '0.8rem',
+    'padding-right': '0.8rem',
+    'padding-top': '0.4rem',
+    'padding-bottom': '0.4rem',
+    'border-width': '0.05rem',
+    'border-radius': '1rem'
+  }
+  $t: any
 
   get placeholder() {
     return this.$t('home.search')

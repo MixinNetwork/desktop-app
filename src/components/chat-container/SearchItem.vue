@@ -28,18 +28,18 @@ export default class SearchItem extends Vue {
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly item: any
 
-  renderTime(timeStr: string) {
-    return contentUtil.renderTime(timeStr, true)
-  }
-  highlight(content: string) {
-    return contentUtil.highlight(content, this.keyword, '')
-  }
   get content() {
     let content = this.item.content
     if (messageType(this.item.category) === 'file') {
       content = this.item.name
     }
     return content
+  }
+  renderTime(timeStr: string) {
+    return contentUtil.renderTime(timeStr, true)
+  }
+  highlight(content: string) {
+    return contentUtil.highlight(content, this.keyword, '')
   }
 }
 </script>

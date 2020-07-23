@@ -96,16 +96,6 @@ export default class AudioItem extends Vue {
   @Prop(Object) readonly me: any
   @Prop(Boolean) readonly showName: any
 
-  MessageStatus: any = MessageStatus
-  MediaStatus: any = MediaStatus
-  time: string = '00:00'
-  duration: string = '00:00'
-  progressStyle: any = { width: '' }
-  dotStyle: any = { left: '' }
-  audioStatus: string = 'play'
-  $moment: any
-  audioPlayedMap: any = {}
-
   @Getter('attachment') attachment: any
   @Getter('currentAudio') currentAudio: any
   @Getter('currentMessages') currentMessages: any
@@ -132,6 +122,27 @@ export default class AudioItem extends Vue {
     if (data.mediaStatus === MediaStatus.DONE) {
       this.audioStatus = 'play'
     }
+  }
+
+  MessageStatus: any = MessageStatus
+  MediaStatus: any = MediaStatus
+  time: string = '00:00'
+  duration: string = '00:00'
+  progressStyle: any = { width: '' }
+  dotStyle: any = { left: '' }
+  audioStatus: string = 'play'
+  $moment: any
+  audioPlayedMap: any = {}
+
+  get waitStatus() {
+    const { message } = this
+    return (
+      this.fetchPercentMap[message.messageId] !== 100 &&
+      (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+    )
+  }
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
   }
 
   mounted() {
@@ -253,17 +264,6 @@ export default class AudioItem extends Vue {
   }
   transTime(value: any) {
     return this.$moment((Math.round(value - 0) || 1) * 1000).format('mm:ss')
-  }
-
-  get waitStatus() {
-    const { message } = this
-    return (
-      this.fetchPercentMap[message.messageId] !== 100 &&
-      (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
-    )
-  }
-  get loading() {
-    return this.attachment.includes(this.message.messageId)
   }
 }
 </script>

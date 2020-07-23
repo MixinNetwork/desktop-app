@@ -34,14 +34,6 @@ export default class FileContainer extends Vue {
   @Prop(Boolean) readonly dragging: any
   @Prop(Boolean) readonly fileUnsupported: any
 
-  getPath() {
-    if (this.file) {
-      return 'file://' + this.file.path
-    } else {
-      return ''
-    }
-  }
-
   get showImage() {
     if (this.file) {
       return isImage(this.file.type)
@@ -54,6 +46,14 @@ export default class FileContainer extends Vue {
       return path.parse(this.file.path).base
     }
     return ''
+  }
+
+  getPath() {
+    if (this.file) {
+      return 'file://' + this.file.path
+    } else {
+      return ''
+    }
   }
 }
 </script>

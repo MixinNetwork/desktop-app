@@ -295,6 +295,18 @@ export default class MessageItem extends Vue {
   $Dialog: any
   $Menu: any
 
+  get decryptFailedText() {
+    return `${this.$t('chat.chat_decrypt_failed', {
+      0: this.message.userFullName
+    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_learn')}</a>`
+  }
+
+  get unknownMessage() {
+    return this.$t('chat.chat_not_support', {
+      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_learn')}</a>`
+    })
+  }
+
   mounted() {
     setTimeout(() => {
       const { messageId } = this.message
@@ -433,18 +445,6 @@ export default class MessageItem extends Vue {
   messageType(srcContent?: string) {
     const { type, content } = this.message
     return messageType(type, srcContent || content)
-  }
-
-  get decryptFailedText() {
-    return `${this.$t('chat.chat_decrypt_failed', {
-      0: this.message.userFullName
-    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_learn')}</a>`
-  }
-
-  get unknownMessage() {
-    return this.$t('chat.chat_not_support', {
-      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_learn')}</a>`
-    })
   }
 
   textMessage(message: any) {

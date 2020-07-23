@@ -120,45 +120,6 @@ export default class VideoItem extends Vue {
   $moment: any
   loaded: boolean = false
 
-  messageOwnership() {
-    let { message, me } = this
-    return {
-      send: message.userId === me.user_id,
-      receive: message.userId !== me.user_id
-    }
-  }
-  getColor(id: any) {
-    return getNameColorById(id)
-  }
-
-  stopLoading() {
-    this.actionStopLoading(this.message.messageId)
-  }
-
-  onPlayerPlay() {
-    this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
-  }
-
-  onPlay() {
-    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
-  }
-
-  videoDestroy() {
-    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
-      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
-        const playerOptions: any = this.playerOptions
-        const player = this.videoPlayer.player
-        const playerStatus = getVideoPlayerStatus(player)
-        Object.assign(playerOptions, playerStatus)
-        this.actionSetShadowCurrentVideo({ message: this.message, playerOptions })
-      } else {
-        this.videoPlayer.player.exitPictureInPicture()
-      }
-    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
-      this.actionSetCurrentVideo(null)
-    }
-  }
-
   get videoPlayer(): any {
     return this.$refs.videoPlayer
   }
@@ -213,6 +174,45 @@ export default class VideoItem extends Vue {
     return {
       width,
       height
+    }
+  }
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
+    }
+  }
+  getColor(id: any) {
+    return getNameColorById(id)
+  }
+
+  stopLoading() {
+    this.actionStopLoading(this.message.messageId)
+  }
+
+  onPlayerPlay() {
+    this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
+  }
+
+  onPlay() {
+    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
+  }
+
+  videoDestroy() {
+    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
+      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
+        const playerOptions: any = this.playerOptions
+        const player = this.videoPlayer.player
+        const playerStatus = getVideoPlayerStatus(player)
+        Object.assign(playerOptions, playerStatus)
+        this.actionSetShadowCurrentVideo({ message: this.message, playerOptions })
+      } else {
+        this.videoPlayer.player.exitPictureInPicture()
+      }
+    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
+      this.actionSetCurrentVideo(null)
     }
   }
 }

@@ -52,38 +52,6 @@ export default class BadgeItem extends Vue {
   freeze: Boolean = true
   putExpand: Boolean = true
 
-  down() {
-    this.mouseDown = true
-  }
-  up() {
-    this.mouseDown = false
-    this.show = true
-  }
-  move() {
-    if (this.mouseDown) {
-      this.show = false
-    }
-  }
-  enter() {
-    if (this.freeze) {
-      this.freeze = false
-    }
-    this.show = true
-  }
-  leave() {
-    this.show = false
-  }
-  onFocus() {
-    this.focus = true
-  }
-  onBlur() {
-    this.focus = false
-  }
-
-  messageType() {
-    return messageType(this.type)
-  }
-
   get showExpand() {
     return this.messageType() === 'post' || this.isLongPicture
   }
@@ -142,6 +110,37 @@ export default class BadgeItem extends Vue {
       }
     }
     return color
+  }
+  down() {
+    this.mouseDown = true
+  }
+  up() {
+    this.mouseDown = false
+    this.show = true
+  }
+  move() {
+    if (this.mouseDown) {
+      this.show = false
+    }
+  }
+  enter() {
+    if (this.freeze) {
+      this.freeze = false
+    }
+    this.show = true
+  }
+  leave() {
+    this.show = false
+  }
+  onFocus() {
+    this.focus = true
+  }
+  onBlur() {
+    this.focus = false
+  }
+
+  messageType() {
+    return messageType(this.type)
   }
 }
 </script>

@@ -62,11 +62,6 @@ export default class ChatSearch extends Vue {
   @Getter('searching') readonly searchingBefore: any
   @Getter('currentConversation') readonly conversation: any
 
-  timeoutListener: any = null
-  keyword: any = ''
-  searching: any = false
-  resultList: any = []
-
   @Watch('conversation')
   onConversationChanged(val: any, oldVal: any) {
     if (val.conversationId !== oldVal.conversationId || !this.resultList.length) {
@@ -81,6 +76,11 @@ export default class ChatSearch extends Vue {
   onShowChanged() {
     this.resultList = []
   }
+
+  timeoutListener: any = null
+  keyword: any = ''
+  searching: any = false
+  resultList: any = []
 
   renderMdToText(content: string) {
     return contentUtil.renderMdToText(content)

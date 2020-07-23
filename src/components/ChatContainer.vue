@@ -137,6 +137,7 @@
         @add-participant="participantAdd=true"
       ></Details>
     </transition>
+
     <transition :name="(searching.replace(/^key:/, '') || goSearchPos) ? '' : 'slide-right'">
       <ChatSearch
         class="overlay"
@@ -198,6 +199,23 @@ let { BrowserWindow } = remote
   }
 })
 export default class ChatContainer extends Vue {
+  @Getter('currentConversation') conversation: any
+  @Getter('currentMessages') messages: any
+  @Getter('searching') searching: any
+  @Getter('currentUser') user: any
+  @Getter('editing') editing: any
+  @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
+  @Getter('tempUnreadMessageId') tempUnreadMessageId: any
+
+  @Action('markMentionRead') actionMarkMentionRead: any
+  @Action('setSearching') actionSetSearching: any
+  @Action('markRead') actionMarkRead: any
+  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('recallMessage') actionRecallMessage: any
+  @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
+  @Action('addParticipants') actionAddParticipants: any
+
   @Watch('currentUnreadNum')
   onCurrentUnreadNumChanged(val: number, oldVal: number) {
     if (val === 0) {
@@ -243,23 +261,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Getter('currentConversation') conversation: any
-  @Getter('currentMessages') messages: any
-  @Getter('searching') searching: any
-  @Getter('currentUser') user: any
-  @Getter('editing') editing: any
-  @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('tempUnreadMessageId') tempUnreadMessageId: any
-
-  @Action('markMentionRead') actionMarkMentionRead: any
-  @Action('setSearching') actionSetSearching: any
-  @Action('markRead') actionMarkRead: any
-  @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
-  @Action('createUserConversation') actionCreateUserConversation: any
-  @Action('recallMessage') actionRecallMessage: any
-  @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
-  @Action('addParticipants') actionAddParticipants: any
-
   $t: any
   $toast: any
   $refs: any
@@ -284,8 +285,8 @@ export default class ChatContainer extends Vue {
   getLastMessage: boolean = false
   startup: boolean = true
   hasFileInput: boolean = true
-
   participantAdd: boolean = false
+  panelHeight: number = 12
 
   get currentMentionNum() {
     if (!this.conversation) return
@@ -414,7 +415,6 @@ export default class ChatContainer extends Vue {
     })
   }
 
-  panelHeight: number = 12
   panelHeightUpdate(data: any) {
     this.panelHeight = data
   }

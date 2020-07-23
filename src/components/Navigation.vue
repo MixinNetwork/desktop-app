@@ -281,6 +281,62 @@ export default class Navigation extends Vue {
   $blaze: any
   $t: any
   $circles: any
+  threshold: number = 60
+  viewport: any = {
+    firstIndex: 0,
+    lastIndex: 0
+  }
+
+  get conversationIds() {
+    const conversationIds: any = []
+    this.conversations.forEach((conv: any) => {
+      conversationIds.push(conv.conversationId)
+    })
+    return conversationIds
+  }
+
+  get conversationsVisible() {
+    if (this.currentCircle) {
+      const [ids, pinTimeList] = this.getCircleConversationIds()
+      let list: any = []
+
+      this.conversations.forEach((item: any) => {
+        const index = ids.indexOf(item.conversationId)
+        if (index > -1) {
+          item.circlePinTime = pinTimeList[index]
+          list.push(item)
+        }
+      })
+      list = _.orderBy(list, ['circlePinTime', 'createdAt'], ['desc', 'desc'])
+      return _.cloneDeepWith(list)
+    }
+    const list = []
+    let { firstIndex, lastIndex } = this.viewport
+    if (firstIndex < 0) {
+      firstIndex = 0
+    }
+    if (lastIndex < this.threshold) {
+      lastIndex = this.threshold
+    }
+    for (let i = firstIndex; i < this.conversations.length; i++) {
+      if (i >= lastIndex) {
+        break
+      }
+      delete this.conversations[i].circlePinTime
+      list.push(this.conversations[i])
+    }
+    if (this.intersectLock) {
+      setTimeout(() => {
+        this.intersectLock = false
+      }, 200)
+    }
+    return list
+  }
+
+  get showIdOrPhoneSearch() {
+    // return /^\d{5,15}$/.test(this.searchKeyword)
+    return false
+  }
 
   created() {
     let unseenMessageCount = 0
@@ -642,58 +698,6 @@ export default class Navigation extends Vue {
     }
   }
 
-  get conversationIds() {
-    const conversationIds: any = []
-    this.conversations.forEach((conv: any) => {
-      conversationIds.push(conv.conversationId)
-    })
-    return conversationIds
-  }
-
-  threshold: number = 60
-  viewport: any = {
-    firstIndex: 0,
-    lastIndex: 0
-  }
-
-  get conversationsVisible() {
-    if (this.currentCircle) {
-      const [ids, pinTimeList] = this.getCircleConversationIds()
-      let list: any = []
-
-      this.conversations.forEach((item: any) => {
-        const index = ids.indexOf(item.conversationId)
-        if (index > -1) {
-          item.circlePinTime = pinTimeList[index]
-          list.push(item)
-        }
-      })
-      list = _.orderBy(list, ['circlePinTime', 'createdAt'], ['desc', 'desc'])
-      return _.cloneDeepWith(list)
-    }
-    const list = []
-    let { firstIndex, lastIndex } = this.viewport
-    if (firstIndex < 0) {
-      firstIndex = 0
-    }
-    if (lastIndex < this.threshold) {
-      lastIndex = this.threshold
-    }
-    for (let i = firstIndex; i < this.conversations.length; i++) {
-      if (i >= lastIndex) {
-        break
-      }
-      delete this.conversations[i].circlePinTime
-      list.push(this.conversations[i])
-    }
-    if (this.intersectLock) {
-      setTimeout(() => {
-        this.intersectLock = false
-      }, 200)
-    }
-    return list
-  }
-
   getCircleConversationIds() {
     const conversations = circleDao.findConversationsByCircleId(this.currentCircle.circle_id)
     const list: any = []
@@ -765,11 +769,6 @@ export default class Navigation extends Vue {
   }
   getLinkContent() {
     return this.$t('not_connected_content')
-  }
-
-  get showIdOrPhoneSearch() {
-    // return /^\d{5,15}$/.test(this.searchKeyword)
-    return false
   }
 }
 </script>

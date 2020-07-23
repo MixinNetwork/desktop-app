@@ -104,6 +104,33 @@ export default class ImageItem extends Vue {
   MediaStatus: any = MediaStatus
   imgLoaded: boolean = false
 
+  get defaultImg() {
+    return DefaultImg
+  }
+
+  get isLongPicture() {
+    const { mediaWidth, mediaHeight } = this.message
+    return 3 * mediaWidth < mediaHeight
+  }
+
+  get isBlur() {
+    const data = isBlurhashValid(this.message.thumbImage)
+    return data.result
+  }
+
+  get waitStatus() {
+    const { message } = this
+    return (
+      MediaStatus.CANCELED === message.mediaStatus ||
+      MediaStatus.EXPIRED === message.mediaStatus ||
+      MediaStatus.PENDING === message.mediaStatus
+    )
+  }
+
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
+  }
+
   messageOwnership() {
     let { message, me } = this
     return {
@@ -123,10 +150,6 @@ export default class ImageItem extends Vue {
     return getNameColorById(id)
   }
 
-  get defaultImg() {
-    return DefaultImg
-  }
-
   preview() {
     if (messageType(this.message.type) === 'image' && this.message.mediaUrl) {
       let position = 0
@@ -142,6 +165,7 @@ export default class ImageItem extends Vue {
       this.$imageViewer.show()
     }
   }
+
   media() {
     const { message } = this
     if (!message.mediaUrl) {
@@ -179,29 +203,8 @@ export default class ImageItem extends Vue {
     return { width: `${width}px`, height: `${height}px` }
   }
 
-  get isLongPicture() {
-    const { mediaWidth, mediaHeight } = this.message
-    return 3 * mediaWidth < mediaHeight
-  }
-
-  get isBlur() {
-    const data = isBlurhashValid(this.message.thumbImage)
-    return data.result
-  }
-
   stopLoading() {
     this.actionStopLoading(this.message.messageId)
-  }
-  get waitStatus() {
-    const { message } = this
-    return (
-      MediaStatus.CANCELED === message.mediaStatus ||
-      MediaStatus.EXPIRED === message.mediaStatus ||
-      MediaStatus.PENDING === message.mediaStatus
-    )
-  }
-  get loading() {
-    return this.attachment.includes(this.message.messageId)
   }
 }
 </script>

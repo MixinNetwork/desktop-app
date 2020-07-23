@@ -105,12 +105,6 @@ export default class ChatItem extends Vue {
   @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('unblock') actionUnblock: any
 
-  mentionChoosing: boolean = false
-  stickerChoosing: boolean = false
-  inputFlag: any = false
-  boxFocus: boolean = false
-  hideScamNotificationMap: any = {}
-
   @Watch('stickerChoosing')
   onStickerChoosingChanged(val: string, oldVal: string) {
     this.$emit('panelChoosing', 'sticker' + (val ? 'Open' : 'Hide'))
@@ -136,6 +130,12 @@ export default class ChatItem extends Vue {
       }
     })
   }
+
+  mentionChoosing: boolean = false
+  stickerChoosing: boolean = false
+  inputFlag: any = false
+  boxFocus: boolean = false
+  hideScamNotificationMap: any = {}
 
   get showUnblock() {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'

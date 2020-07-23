@@ -67,6 +67,11 @@ export default class SettingContainer extends Vue {
   storageView: boolean = false
   storages: any = {}
 
+  get version() {
+    let version = this.$t('version')
+    return `${version} ${this.$electron.remote.app.getVersion()}`
+  }
+
   created() {
     const identityNumber = getIdentityNumber(true)
     const newDir = path.join(remote.app.getPath('userData'), identityNumber)
@@ -100,11 +105,6 @@ export default class SettingContainer extends Vue {
       return 'file'
     }
     return ''
-  }
-
-  get version() {
-    let version = this.$t('version')
-    return `${version} ${this.$electron.remote.app.getVersion()}`
   }
 
   checkUpdate() {

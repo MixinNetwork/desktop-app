@@ -167,6 +167,59 @@ export default class Details extends Vue {
   editLock: boolean = false
   user: any = {}
 
+  get me() {
+    const account: any = getAccount()
+    const { participants, conversationId } = this.conversation
+    return participants.filter((item: any) => {
+      return item.user_id === account.user_id
+    })[0]
+  }
+
+  get profileCanEdit() {
+    if (!this.me || !this.user || this.detailUserId) return false
+    return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
+  }
+
+  get showUnblock() {
+    if (!this.me || !this.user) return false
+    return this.isContact && this.user.relationship === 'BLOCKING' && this.user.user_id !== this.me.user_id
+  }
+
+  get showAddContact() {
+    if (!this.me || !this.user) return false
+    return this.isContact && this.user.relationship !== 'FRIEND' && this.user.user_id !== this.me.user_id
+  }
+
+  get participantTitle() {
+    const { conversation } = this
+    return this.$t('chat.title_participants', { '0': conversation.participants.length })
+  }
+
+  get detailUserId() {
+    if (!this.user.isCurrent) {
+      return this.user.user_id
+    }
+    return ''
+  }
+
+  get name() {
+    if (this.detailUserId) {
+      return this.user.full_name
+    }
+    const { conversation } = this
+    if (conversation.groupName) {
+      return conversation.groupName
+    } else if (conversation.name) {
+      return conversation.name
+    } else {
+      return null
+    }
+  }
+
+  get isContact() {
+    return this.conversation.category === ConversationCategory.CONTACT || this.detailUserId
+  }
+
   updateConversation(nameVal: string, announ: string) {
     if (!nameVal && !announ) return
     const { conversationId, ownerId, category, groupName, announcement, createdAt, status, muteUntil } = this.conversation
@@ -318,59 +371,6 @@ export default class Details extends Vue {
         this.user = user
       }
     })
-  }
-
-  get me() {
-    const account: any = getAccount()
-    const { participants, conversationId } = this.conversation
-    return participants.filter((item: any) => {
-      return item.user_id === account.user_id
-    })[0]
-  }
-
-  get profileCanEdit() {
-    if (!this.me || !this.user || this.detailUserId) return false
-    return this.conversation.category === 'GROUP' && (this.me.role === 'OWNER' || this.user.role === 'ADMIN')
-  }
-
-  get showUnblock() {
-    if (!this.me || !this.user) return false
-    return this.isContact && this.user.relationship === 'BLOCKING' && this.user.user_id !== this.me.user_id
-  }
-
-  get showAddContact() {
-    if (!this.me || !this.user) return false
-    return this.isContact && this.user.relationship !== 'FRIEND' && this.user.user_id !== this.me.user_id
-  }
-
-  get participantTitle() {
-    const { conversation } = this
-    return this.$t('chat.title_participants', { '0': conversation.participants.length })
-  }
-
-  get detailUserId() {
-    if (!this.user.isCurrent) {
-      return this.user.user_id
-    }
-    return ''
-  }
-
-  get name() {
-    if (this.detailUserId) {
-      return this.user.full_name
-    }
-    const { conversation } = this
-    if (conversation.groupName) {
-      return conversation.groupName
-    } else if (conversation.name) {
-      return conversation.name
-    } else {
-      return null
-    }
-  }
-
-  get isContact() {
-    return this.conversation.category === ConversationCategory.CONTACT || this.detailUserId
   }
 
   updateView() {

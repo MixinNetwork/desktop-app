@@ -86,6 +86,16 @@ export default class MessageForward extends Vue {
   MessageStatus: any = MessageStatus
   hasEscKeyListener: boolean = false
 
+  get chatList() {
+    if (this.chats.length || this.keyword) return this.chats
+    return this.conversations
+  }
+
+  get contactList() {
+    if (this.contacts.length || this.keyword) return this.contacts
+    return this.friends
+  }
+
   sendMessage() {
     setTimeout(() => {
       const message = this.message
@@ -272,16 +282,6 @@ export default class MessageForward extends Vue {
   beforeDestroy() {
     this.$root.$off('escKeydown')
     this.observer = null
-  }
-
-  get chatList() {
-    if (this.chats.length || this.keyword) return this.chats
-    return this.conversations
-  }
-
-  get contactList() {
-    if (this.contacts.length || this.keyword) return this.contacts
-    return this.friends
   }
 }
 </script>

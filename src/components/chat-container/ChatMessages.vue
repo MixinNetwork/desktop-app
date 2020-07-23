@@ -117,7 +117,11 @@ export default class ChatContainer extends Vue {
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = messages[messages.length - 1]
-      if (lastMessage && lastMessage === this.messagesVisible[this.messagesVisible.length - 1] && lastMessage.mentions) {
+      if (
+        lastMessage &&
+        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
+        lastMessage.mentions
+      ) {
         this.actionMarkMentionRead({
           conversationId: this.conversation.conversationId,
           messageId: lastMessage.messageId
@@ -303,14 +307,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  get messageIds() {
-    const messageIds: any = []
-    this.messages.forEach((msg: any) => {
-      messageIds.push(msg.messageId)
-    })
-    return messageIds
-  }
-
   showTopTips: boolean = false
   isBottom: any = true
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
@@ -331,9 +327,33 @@ export default class ChatContainer extends Vue {
   infiniteDownLock: boolean = false
   showScroll: boolean = false
   $showUserDetail: any
-
   currentVideoPlayer: any = null
   pictureInPictureInterval: any = null
+  scrolling: boolean = false
+  scrollStopTimer: any = null
+  scrollDirection: string = ''
+  timeDivideShow: boolean = false
+  scrollTimer: any = null
+  timeDivideLock: boolean = false
+  scrollTimerThrottle: any = null
+  showTopTipsTimer: any = null
+  overflowMap: any = { top: false, bottom: false }
+  intersectLock: boolean = true
+  mentionMarkedMap: any = {}
+  showMessages: any = true
+  goMessagePosType: string = ''
+  searchKeyword: any = ''
+  goMessagePosLock: boolean = false
+  goMessagePosTimer: any = null
+  messagesVisible: any = []
+
+  get messageIds() {
+    const messageIds: any = []
+    this.messages.forEach((msg: any) => {
+      messageIds.push(msg.messageId)
+    })
+    return messageIds
+  }
 
   setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
     if (conversationId) {
@@ -444,9 +464,12 @@ export default class ChatContainer extends Vue {
   infiniteScroll(direction: any) {
     const messages = this.nextPage(direction)
     const messageIds: any = []
+    const curMessages: any = []
     this.messages.forEach((item: any) => {
+      curMessages.push(item)
       messageIds.push(item.messageId)
     })
+
     if (direction === 'down') {
       if (!messages.length) {
         setTimeout(() => {
@@ -455,7 +478,8 @@ export default class ChatContainer extends Vue {
         return
       }
       const newMessages = []
-      const lastMessageId = this.messages[this.messages.length - 1].messageId
+
+      const lastMessageId = curMessages[curMessages.length - 1].messageId
       for (let i = messages.length - 1; i >= 0; i--) {
         const temp = messages[i]
         if (temp.messageId === lastMessageId) {
@@ -465,8 +489,8 @@ export default class ChatContainer extends Vue {
           newMessages.unshift(temp)
         }
       }
-      this.messages.push(...newMessages)
-      this.actionSetCurrentMessages(this.messages)
+      curMessages.push(...newMessages)
+      this.actionSetCurrentMessages(curMessages)
     } else {
       if (!messages.length) {
         setTimeout(() => {
@@ -475,7 +499,7 @@ export default class ChatContainer extends Vue {
         return
       }
       const newMessages = []
-      const firstMessageId = this.messages[0].messageId
+      const firstMessageId = curMessages[0].messageId
       for (let i = 0; i < messages.length; i++) {
         const temp = messages[i]
         if (temp.messageId === firstMessageId) {
@@ -485,8 +509,8 @@ export default class ChatContainer extends Vue {
           newMessages.push(temp)
         }
       }
-      this.messages.unshift(...newMessages)
-      this.actionSetCurrentMessages(this.messages)
+      curMessages.unshift(...newMessages)
+      this.actionSetCurrentMessages(curMessages)
     }
     const { firstIndex, lastIndex } = this.viewport
     this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)
@@ -668,8 +692,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  scrolling: boolean = false
-  scrollStopTimer: any = null
   scrollStop() {
     clearTimeout(this.scrollStopTimer)
     this.scrollStopTimer = setTimeout(() => {
@@ -685,14 +707,6 @@ export default class ChatContainer extends Vue {
     }, 200)
   }
 
-  scrollDirection: string = ''
-
-  timeDivideShow: boolean = false
-
-  scrollTimer: any = null
-  timeDivideLock: boolean = false
-  scrollTimerThrottle: any = null
-  showTopTipsTimer: any = null
   onScroll(obj: any) {
     if (obj) {
       this.scrollDirection = obj.direction
@@ -752,8 +766,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  overflowMap: any = { top: false, bottom: false }
-  intersectLock: boolean = true
   onIntersect({ target, isIntersecting }: any) {
     this.overflowMap.top = false
     if (target.id === 'virtualTop') {
@@ -783,7 +795,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  mentionMarkedMap: any = {}
   mentionVisibleUpdate(messageId: string) {
     if (this.mentionMarkedMap[messageId]) return
     this.mentionMarkedMap[messageId] = true
@@ -798,8 +809,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  showMessages: any = true
-  goMessagePosType: string = ''
   goSearchMessagePos(item: any, keyword: string) {
     this.unreadMessageId = ''
     if (keyword) {
@@ -824,10 +833,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  searchKeyword: any = ''
-
-  goMessagePosLock: boolean = false
-  goMessagePosTimer: any = null
   goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
     setTimeout(() => {
       this.infiniteDownLock = false
@@ -893,7 +898,6 @@ export default class ChatContainer extends Vue {
     this.messageHeightMap[messageId] = height
   }
 
-  messagesVisible: any = []
   getMessagesVisible() {
     const list = []
     let { firstIndex, lastIndex } = this.viewport

@@ -212,24 +212,6 @@ import Avatar from '@/components/Avatar.vue'
   }
 })
 export default class Circles extends Vue {
-  visible: boolean = false
-
-  currentCircle: any = null
-  searchName: string = ''
-  circles: any = []
-  circleName: string = ''
-  optionName: string = ''
-
-  chats: any = []
-  contacts: any = []
-  selectedList: any = []
-  initSelectedList: any = []
-  circleConversations: any = []
-
-  $Dialog: any
-  $toast: any
-  i18n: any = i18n
-
   @Watch('visible')
   onVisibleChanged(val: boolean) {
     if (val) {
@@ -258,6 +240,22 @@ export default class Circles extends Vue {
     if (!ul) return
     ul.scrollTop = 0
   }
+
+  visible: boolean = false
+  currentCircle: any = null
+  searchName: string = ''
+  circles: any = []
+  circleName: string = ''
+  optionName: string = ''
+  chats: any = []
+  contacts: any = []
+  selectedList: any = []
+  initSelectedList: any = []
+  circleConversations: any = []
+  $Dialog: any
+  $toast: any
+  i18n: any = i18n
+  tempUnselected: any = {}
 
   get chatList() {
     if (this.chats.length || this.searchName) return this.chats
@@ -359,7 +357,6 @@ export default class Circles extends Vue {
     return index
   }
 
-  tempUnselected: any = {}
   choiceClick(target: any, type: string) {
     const item: any = {}
     let id = target.conversationId

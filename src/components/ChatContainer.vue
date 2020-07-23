@@ -214,6 +214,7 @@ export default class ChatContainer extends Vue {
   @Action('recallMessage') actionRecallMessage: any
   @Action('setTempUnreadMessageId') actionSetTempUnreadMessageId: any
   @Action('addParticipants') actionAddParticipants: any
+  @Action('syncUser') actionSyncUser: any
 
   @Watch('currentUnreadNum')
   onCurrentUnreadNumChanged(val: number, oldVal: number) {

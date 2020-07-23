@@ -73,6 +73,7 @@ import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { MessageStatus, MediaStatus, messageType, DefaultImg } from '@/utils/constants'
 import { getNameColorById, convertRemToPixels } from '@/utils/util'
+import { generateName } from '@/utils/attachment_util'
 import { isBlurhashValid } from 'blurhash'
 
 import messageDao from '@/dao/message_dao'
@@ -133,7 +134,8 @@ export default class ImageItem extends Vue {
         if (item.message_id === this.message.messageId) {
           position = index
         }
-        return { url: item.media_url, width: item.media_width, height: item.media_height }
+        const name = generateName(item.name, item.media_mime_type, item.category, item.message_id)
+        return { name, url: item.media_url, width: item.media_width, height: item.media_height }
       })
       this.$imageViewer.images(images)
       this.$imageViewer.index(position)

@@ -520,7 +520,7 @@ export async function uploadAttachment(
   }
 }
 
-function generateName(fileName: string, mimeType: string, category: string, id: string) {
+export function generateName(fileName: string, mimeType: string, category: string, id: string) {
   const date = new Date()
   if (!id) {
     id = uuidv4()

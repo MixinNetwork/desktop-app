@@ -109,7 +109,7 @@ export default {
         sourcePath = sourcePath.replace('file://', '')
       }
       const savePath = this.$electron.remote.dialog.showSaveDialogSync(this.$electron.remote.getCurrentWindow(), {
-        defaultPath: path.basename(sourcePath)
+        defaultPath: item.name
       })
       if (!savePath) {
         return

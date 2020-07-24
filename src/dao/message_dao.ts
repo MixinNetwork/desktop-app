@@ -467,7 +467,7 @@ class MessageDao {
   findImages(conversationId: any, messageId: any) {
     return db
       .prepare(
-        `SELECT m.message_id, m.media_url, m.media_width, m.media_height FROM messages m WHERE m.conversation_id = ?
+        `SELECT * FROM messages m WHERE m.conversation_id = ?
         AND m.category IN ('SIGNAL_IMAGE', 'PLAIN_IMAGE') AND m.media_status = 'DONE'
         AND m.created_at >= (SELECT created_at FROM messages WHERE message_id = ?) ORDER BY m.created_at ASC`
       )

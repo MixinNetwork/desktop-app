@@ -452,7 +452,7 @@ export async function putAttachment(
             width: mediaWidth,
             height: mediaHeight,
             duration: mediaDuration,
-            name: name,
+            name: mediaName || name,
             thumbnail: thumbImage,
             waveform: mediaWaveform,
             digest: btoa(String.fromCharCode(...new Uint8Array(digest))),
@@ -520,7 +520,7 @@ export async function uploadAttachment(
   }
 }
 
-function generateName(fileName: string, mimeType: string, category: string, id: string) {
+export function generateName(fileName: string, mimeType: string, category: string, id: string) {
   const date = new Date()
   if (!id) {
     id = uuidv4()

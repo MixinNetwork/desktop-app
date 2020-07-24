@@ -108,20 +108,6 @@ export default class ChatContainer extends Vue {
     if (messages.length > 0 && messages.length < PerPageMessageCount) {
       this.showTopTips = true
     }
-    this.messagesVisible = this.getMessagesVisible()
-    if (this.isBottom && this.conversation) {
-      const lastMessage = messages[messages.length - 1]
-      if (
-        lastMessage &&
-        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
-        lastMessage.mentions
-      ) {
-        this.actionMarkMentionRead({
-          conversationId: this.conversation.conversationId,
-          messageId: lastMessage.messageId
-        })
-      }
-    }
   }
 
   @Watch('shadowCurrentVideo')
@@ -183,6 +169,19 @@ export default class ChatContainer extends Vue {
       if (currentVideoFlag) {
         const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
         this.actionSetCurrentVideo(currentVideo)
+      }
+    }
+    if (this.isBottom && this.conversation) {
+      const lastMessage = messages[messages.length - 1]
+      if (
+        lastMessage &&
+        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
+        lastMessage.mentions
+      ) {
+        this.actionMarkMentionRead({
+          conversationId: this.conversation.conversationId,
+          messageId: lastMessage.messageId
+        })
       }
     }
     this.virtualDom = {
@@ -459,7 +458,7 @@ export default class ChatContainer extends Vue {
       if (!messages.length) {
         setTimeout(() => {
           this.infiniteDownLock = true
-        }, 100)
+        })
         return
       }
       const newMessages = []
@@ -481,7 +480,7 @@ export default class ChatContainer extends Vue {
       if (!messages.length) {
         setTimeout(() => {
           this.infiniteUpLock = true
-        }, 100)
+        })
         return
       }
       const newMessages = []
@@ -500,7 +499,6 @@ export default class ChatContainer extends Vue {
     }
     const { firstIndex, lastIndex } = this.viewport
     this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)
-    this.udpateMessagesVisible()
   }
   infiniteUp() {
     if (!this.infiniteUpLock) {
@@ -558,7 +556,6 @@ export default class ChatContainer extends Vue {
 
   scrollAction(payload: any) {
     const { message, isMyMsg, isInit, goBottom }: any = payload
-    this.messagesVisible = this.getMessagesVisible()
     if (message) {
       if (isInit) {
         this.unreadMessageId = message.messageId
@@ -868,15 +865,6 @@ export default class ChatContainer extends Vue {
       this.goMessagePos(message)
       this.actionMarkMentionRead({ conversationId, messageId })
     }
-  }
-
-  udpateMessagesVisible() {
-    const list = this.getMessagesVisible()
-    list.forEach((item: any, index: number) => {
-      if (this.messagesVisible[index] && item.messageId === this.messagesVisible[index].messageId) {
-        this.messagesVisible[index] = item
-      }
-    })
   }
 
   onMessageLoaded(dom: any) {

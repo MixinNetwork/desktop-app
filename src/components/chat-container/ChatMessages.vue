@@ -633,6 +633,7 @@ export default class ChatContainer extends Vue {
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
+    this.showMessages = false
     this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
     setTimeout(() => {
       this.showScroll = true
@@ -643,9 +644,6 @@ export default class ChatContainer extends Vue {
     setTimeout(() => {
       this.infiniteDownLock = false
       let targetDom: any = document.querySelector('.unread-divide')
-      if (targetDom) {
-        targetDom = targetDom.offsetParent
-      }
       let messageDom: any
       if (posMessage && posMessage.messageId && !targetDom) {
         messageDom = document.getElementById(posMessage.messageId)

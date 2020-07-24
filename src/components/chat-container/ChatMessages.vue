@@ -554,9 +554,9 @@ export default class ChatContainer extends Vue {
     const { message, isMyMsg, isInit, goBottom }: any = payload
     if (message) {
       if (isInit) {
+        this.showMessages = false
         this.unreadMessageId = message.messageId
       }
-      this.showMessages = false
       this.$nextTick(() => {
         this.goMessagePos(message)
       })

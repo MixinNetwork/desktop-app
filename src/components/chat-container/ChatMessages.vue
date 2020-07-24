@@ -61,18 +61,12 @@ import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount, messageType } from '@/utils/constants'
 import TimeDivide from '@/components/chat-container/TimeDivide.vue'
 import MessageItem from '@/components/chat-container/MessageItem.vue'
-
 import messageDao from '@/dao/message_dao'
-
 import { remote } from 'electron'
 import browser from '@/utils/browser'
-
 import contentUtil from '@/utils/content_util'
-
 import moment from 'moment'
-
 import { delMedia, getAccount, getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
-
 import store from '@/store/store'
 let { BrowserWindow } = remote
 
@@ -438,16 +432,23 @@ export default class ChatContainer extends Vue {
     }
     this.actionSetCurrentMessages(finalMessages)
   }
-  nextPage(direction: string): any {
-    let data: unknown = []
+
+  infiniteScroll(direction: any) {
     const { conversationId } = this.conversation
+    const messageIds: any = []
+    const curMessages: any = []
+    this.messages.forEach((item: any) => {
+      curMessages.push(item)
+      messageIds.push(item.messageId)
+    })
+    let messages: any = []
     if (direction === 'down') {
       if (this.pageDown > 0) {
         let tempCount = 0
         if (this.tempCount > 0) {
           tempCount = this.tempCount - PerPageMessageCount
         }
-        data = messageDao.getMessages(conversationId, --this.pageDown, tempCount)
+        messages = messageDao.getMessages(conversationId, --this.pageDown, tempCount)
       } else {
         this.newMessageMap = {}
         setTimeout(() => {
@@ -455,22 +456,6 @@ export default class ChatContainer extends Vue {
         })
         this.$emit('updateVal', { currentUnreadNum: 0, getLastMessage: true })
       }
-    } else {
-      data = messageDao.getMessages(conversationId, ++this.page, this.tempCount)
-    }
-    return data
-  }
-
-  infiniteScroll(direction: any) {
-    const messages = this.nextPage(direction)
-    const messageIds: any = []
-    const curMessages: any = []
-    this.messages.forEach((item: any) => {
-      curMessages.push(item)
-      messageIds.push(item.messageId)
-    })
-
-    if (direction === 'down') {
       if (!messages.length) {
         setTimeout(() => {
           this.infiniteDownLock = true
@@ -492,6 +477,7 @@ export default class ChatContainer extends Vue {
       curMessages.push(...newMessages)
       this.actionSetCurrentMessages(curMessages)
     } else {
+      messages = messageDao.getMessages(conversationId, ++this.page, this.tempCount)
       if (!messages.length) {
         setTimeout(() => {
           this.infiniteUpLock = true
@@ -652,6 +638,57 @@ export default class ChatContainer extends Vue {
     setTimeout(() => {
       this.showScroll = true
     }, 300)
+  }
+
+  goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
+    setTimeout(() => {
+      this.infiniteDownLock = false
+      let targetDom: any = document.querySelector('.unread-divide')
+      if (targetDom) {
+        targetDom = targetDom.offsetParent
+      }
+      let messageDom: any
+      if (posMessage && posMessage.messageId && !targetDom) {
+        messageDom = document.getElementById(posMessage.messageId)
+        if (!this.searchKeyword && messageDom) {
+          messageDom.className = 'notice'
+        }
+      }
+      if (!targetDom && !messageDom) {
+        this.showMessages = true
+        return
+      }
+      if (!this.goMessagePosTimer) {
+        this.goMessagePosTimer = setTimeout(() => {
+          goDone = true
+        }, 300)
+      }
+      let list: any = this.$refs.messagesUl
+      if (!list) return
+      if (!goDone && beforeScrollTop !== list.scrollTop) {
+        beforeScrollTop = list.scrollTop
+        this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+      } else {
+        goDone = true
+        clearTimeout(this.goMessagePosTimer)
+        if (messageDom) {
+          if (
+            this.goMessagePosType === 'search' ||
+            list.scrollTop + list.clientHeight < messageDom.offsetTop ||
+            list.scrollTop > messageDom.offsetTop
+          ) {
+            list.scrollTop = messageDom.offsetTop - 1
+          }
+          setTimeout(() => {
+            messageDom.className = ''
+          }, 200)
+        } else {
+          list.scrollTop = targetDom.offsetTop - 1
+        }
+        this.showMessages = true
+        this.goMessagePosLock = false
+      }
+    })
   }
 
   onUserClick(userId: any) {
@@ -831,57 +868,6 @@ export default class ChatContainer extends Vue {
       this.goMessagePos(message)
       this.actionMarkMentionRead({ conversationId, messageId })
     }
-  }
-
-  goMessagePosAction(posMessage: any, goDone: boolean, beforeScrollTop: number) {
-    setTimeout(() => {
-      this.infiniteDownLock = false
-      let targetDom: any = document.querySelector('.unread-divide')
-      if (targetDom) {
-        targetDom = targetDom.offsetParent
-      }
-      let messageDom: any
-      if (posMessage && posMessage.messageId && !targetDom) {
-        messageDom = document.getElementById(posMessage.messageId)
-        if (!this.searchKeyword && messageDom) {
-          messageDom.className = 'notice'
-        }
-      }
-      if (!targetDom && !messageDom) {
-        this.showMessages = true
-        return
-      }
-      if (!this.goMessagePosTimer) {
-        this.goMessagePosTimer = setTimeout(() => {
-          goDone = true
-        }, 300)
-      }
-      let list: any = this.$refs.messagesUl
-      if (!list) return
-      if (!goDone && beforeScrollTop !== list.scrollTop) {
-        beforeScrollTop = list.scrollTop
-        this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
-      } else {
-        goDone = true
-        clearTimeout(this.goMessagePosTimer)
-        if (messageDom) {
-          if (
-            this.goMessagePosType === 'search' ||
-            list.scrollTop + list.clientHeight < messageDom.offsetTop ||
-            list.scrollTop > messageDom.offsetTop
-          ) {
-            list.scrollTop = messageDom.offsetTop - 1
-          }
-          setTimeout(() => {
-            messageDom.className = ''
-          }, 200)
-        } else {
-          list.scrollTop = targetDom.offsetTop - 1
-        }
-        this.showMessages = true
-        this.goMessagePosLock = false
-      }
-    })
   }
 
   udpateMessagesVisible() {

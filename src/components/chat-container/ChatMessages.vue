@@ -107,6 +107,20 @@ export default class ChatContainer extends Vue {
     if (messages.length > 0 && messages.length < PerPageMessageCount) {
       this.showTopTips = true
     }
+    this.messagesVisible = this.getMessagesVisible()
+    if (this.isBottom && this.conversation) {
+      const lastMessage = messages[messages.length - 1]
+      if (
+        lastMessage &&
+        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
+        lastMessage.mentions
+      ) {
+        this.actionMarkMentionRead({
+          conversationId: this.conversation.conversationId,
+          messageId: lastMessage.messageId
+        })
+      }
+    }
   }
 
   @Watch('shadowCurrentVideo')
@@ -168,19 +182,6 @@ export default class ChatContainer extends Vue {
       if (currentVideoFlag) {
         const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
         this.actionSetCurrentVideo(currentVideo)
-      }
-    }
-    if (this.isBottom && this.conversation) {
-      const lastMessage = messages[messages.length - 1]
-      if (
-        lastMessage &&
-        lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
-        lastMessage.mentions
-      ) {
-        this.actionMarkMentionRead({
-          conversationId: this.conversation.conversationId,
-          messageId: lastMessage.messageId
-        })
       }
     }
     this.virtualDom = {
@@ -603,6 +604,7 @@ export default class ChatContainer extends Vue {
   }
 
   goMessagePos(posMessage: any) {
+    this.intersectLock = true
     let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {

@@ -227,7 +227,6 @@ export default class ChatContainer extends Vue {
   onConversationChanged(newVal: any, oldVal: any) {
     this.actionSetTempUnreadMessageId('')
     this.file = null
-    this.showMessages = false
     this.boxMessage = null
     this.getLastMessage = false
 
@@ -277,7 +276,6 @@ export default class ChatContainer extends Vue {
   forwardMessage: any = null
   shareContact: any = null
   currentUnreadNum: any = 0
-  showMessages: any = true
   changeConversation: any = false
   panelChoosing: string = ''
   lastEnter: any = null

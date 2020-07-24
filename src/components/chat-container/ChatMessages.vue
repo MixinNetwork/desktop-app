@@ -463,7 +463,8 @@ export default class ChatContainer extends Vue {
       }
       const newMessages = []
 
-      const lastMessageId = curMessages[curMessages.length - 1].messageId
+      const lastMessage = curMessages[curMessages.length - 1]
+      const lastMessageId = lastMessage && lastMessage.messageId
       for (let i = messages.length - 1; i >= 0; i--) {
         const temp = messages[i]
         if (temp.messageId === lastMessageId) {
@@ -484,7 +485,8 @@ export default class ChatContainer extends Vue {
         return
       }
       const newMessages = []
-      const firstMessageId = curMessages[0].messageId
+      const firstMessage = curMessages[0]
+      const firstMessageId = firstMessage && firstMessage.messageId
       for (let i = 0; i < messages.length; i++) {
         const temp = messages[i]
         if (temp.messageId === firstMessageId) {

@@ -1,7 +1,6 @@
  <template>
   <mixin-scrollbar
     :style="(panelChoosing === 'stickerOpen' ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing === 'stickerOpen' ? `margin-bottom: ${panelHeight}rem;` : '')"
-    v-if="conversation"
     :hideScroll="!showScroll"
     @scroll="onScroll"
     class="chat-messages"
@@ -368,11 +367,6 @@ export default class ChatContainer extends Vue {
       let posMessage: any = null
       if (messagePositionIndex >= 0) {
         posMessage = messages[messages.length - (messagePositionIndex % PerPageMessageCount) - 1]
-        if (messagePositionIndex % PerPageMessageCount < PerPageMessageCount / 2) {
-          this.infiniteDown()
-        } else {
-          this.infiniteUp()
-        }
       }
 
       let markdownCount = 5
@@ -462,7 +456,6 @@ export default class ChatContainer extends Vue {
         return
       }
       const newMessages = []
-
       const lastMessage = curMessages[curMessages.length - 1]
       const lastMessageId = lastMessage && lastMessage.messageId
       for (let i = messages.length - 1; i >= 0; i--) {
@@ -562,7 +555,10 @@ export default class ChatContainer extends Vue {
       if (isInit) {
         this.unreadMessageId = message.messageId
       }
-      this.goMessagePos(message)
+      this.showMessages = false
+      this.$nextTick(() => {
+        this.goMessagePos(message)
+      })
     } else if (isMyMsg || goBottom || this.isBottom) {
       if (BrowserWindow.getFocusedWindow()) {
         this.unreadMessageId = ''
@@ -607,9 +603,6 @@ export default class ChatContainer extends Vue {
   }
 
   goMessagePos(posMessage: any) {
-    let goDone = false
-    let beforeScrollTop = 0
-
     let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
@@ -633,8 +626,7 @@ export default class ChatContainer extends Vue {
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
     this.viewport = this.viewportLimit(firstIndex, lastIndex)
-    this.showMessages = false
-    this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
+    this.goMessagePosAction(posMessage, false, 0)
     setTimeout(() => {
       this.showScroll = true
     }, 300)
@@ -662,26 +654,26 @@ export default class ChatContainer extends Vue {
       }
       let list: any = this.$refs.messagesUl
       if (!list) return
+      if (messageDom) {
+        if (
+          this.goMessagePosType === 'search' ||
+            list.scrollTop + list.clientHeight < messageDom.offsetTop ||
+            list.scrollTop > messageDom.offsetTop
+        ) {
+          list.scrollTop = messageDom.offsetTop - 1
+        }
+        setTimeout(() => {
+          messageDom.className = ''
+        }, 200)
+      } else {
+        list.scrollTop = targetDom.offsetTop - 1
+      }
       if (!goDone && beforeScrollTop !== list.scrollTop) {
         beforeScrollTop = list.scrollTop
         this.goMessagePosAction(posMessage, goDone, beforeScrollTop)
       } else {
         goDone = true
         clearTimeout(this.goMessagePosTimer)
-        if (messageDom) {
-          if (
-            this.goMessagePosType === 'search' ||
-            list.scrollTop + list.clientHeight < messageDom.offsetTop ||
-            list.scrollTop > messageDom.offsetTop
-          ) {
-            list.scrollTop = messageDom.offsetTop - 1
-          }
-          setTimeout(() => {
-            messageDom.className = ''
-          }, 200)
-        } else {
-          list.scrollTop = targetDom.offsetTop - 1
-        }
         this.showMessages = true
         this.goMessagePosLock = false
       }

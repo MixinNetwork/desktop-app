@@ -57,7 +57,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { MessageCategories, MessageStatus, PerPageMessageCount, messageType } from '@/utils/constants'
+import { MessageCategories, isMedia, MessageStatus, PerPageMessageCount, messageType } from '@/utils/constants'
 import TimeDivide from '@/components/chat-container/TimeDivide.vue'
 import MessageItem from '@/components/chat-container/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
@@ -65,7 +65,8 @@ import { remote } from 'electron'
 import browser from '@/utils/browser'
 import contentUtil from '@/utils/content_util'
 import moment from 'moment'
-import { delMedia, getAccount, getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
+import { downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
+import { keyToLine, delMedia, getAccount, getVideoPlayerStatus, setVideoPlayerStatus } from '@/utils/util'
 import store from '@/store/store'
 let { BrowserWindow } = remote
 
@@ -355,7 +356,7 @@ export default class ChatContainer extends Vue {
       if (messagePositionIndex >= PerPageMessageCount) {
         page = Math.floor(messagePositionIndex / PerPageMessageCount)
       }
-      const messages = this.messages
+      const messages = messageDao.getMessages(conversationId, page)
       this.page = page
       this.pageDown = page
       this.tempCount = 0
@@ -379,6 +380,39 @@ export default class ChatContainer extends Vue {
         }
         if (markdownCount < 0) {
           break
+        }
+      }
+      this.actionSetCurrentMessages(messages)
+      let i = PerPageMessageCount
+      if (messages.length < i) {
+        i = messages.length
+      }
+      while (i-- > 0) {
+        const curMessage: any = messages[i]
+        if (curMessage && curMessage.type) {
+          const message: any = {}
+          Object.keys(curMessage).forEach(key => {
+            message[keyToLine(key)] = curMessage[key]
+          })
+          message.category = message.type
+          const curMessageType = messageType(message.category)
+          let autoDownload = !message.media_url && curMessageType === 'audio'
+          const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
+          if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
+            const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+            let autoDownloadMap: any = { image: true, video: true, file: true }
+            if (autoDownloadSetting) {
+              autoDownloadMap = JSON.parse(autoDownloadSetting)
+            }
+            if (autoDownloadMap[curMessageType]) {
+              autoDownload = true
+            }
+          }
+          if (autoDownload) {
+            downloadQueue.push(downloadAndRefresh, {
+              args: message
+            })
+          }
         }
       }
       this.scrollAction({ goBottom: messages.length, message: posMessage, isInit })
@@ -658,8 +692,8 @@ export default class ChatContainer extends Vue {
       if (messageDom) {
         if (
           this.goMessagePosType === 'search' ||
-            list.scrollTop + list.clientHeight < messageDom.offsetTop ||
-            list.scrollTop > messageDom.offsetTop
+          list.scrollTop + list.clientHeight < messageDom.offsetTop ||
+          list.scrollTop > messageDom.offsetTop
         ) {
           list.scrollTop = messageDom.offsetTop - 1
         }

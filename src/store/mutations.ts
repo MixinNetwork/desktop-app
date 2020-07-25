@@ -3,19 +3,11 @@ import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
-import { updateCancelMap, downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
-import {
-  LinkStatus,
-  ConversationCategory,
-  isMuteCheck,
-  isMedia,
-  PerPageMessageCount,
-  messageType
-} from '@/utils/constants'
+import { updateCancelMap } from '@/utils/attachment_util'
+import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
-import moment from 'moment'
-import { getAccount, keyToLine } from '@/utils/util'
+import { getAccount } from '@/utils/util'
 
 import { ipcRenderer } from 'electron'
 
@@ -287,40 +279,6 @@ export default {
     } else {
       refreshConversation(state, conversationId)
     }
-    const messages = messageDao.getMessages(conversationId, 0)
-    let i = PerPageMessageCount
-    if (messages.length < i) {
-      i = messages.length
-    }
-    while (i-- > 0) {
-      const curMessage: any = messages[i]
-      if (curMessage && curMessage.type) {
-        const message: any = {}
-        Object.keys(curMessage).forEach(key => {
-          message[keyToLine(key)] = curMessage[key]
-        })
-        message.category = message.type
-        const curMessageType = messageType(message.category)
-        let autoDownload = !message.media_url && curMessageType === 'audio'
-        const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-        if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
-          const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-          let autoDownloadMap: any = { image: true, video: true, file: true }
-          if (autoDownloadSetting) {
-            autoDownloadMap = JSON.parse(autoDownloadSetting)
-          }
-          if (autoDownloadMap[curMessageType]) {
-            autoDownload = true
-          }
-        }
-        if (autoDownload) {
-          downloadQueue.push(downloadAndRefresh, {
-            args: message
-          })
-        }
-      }
-    }
-    state.currentMessages = messages
     state.currentConversationId = conversationId
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)

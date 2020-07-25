@@ -320,6 +320,7 @@ export default {
         }
       }
     }
+    state.currentMessages = messages
     state.currentConversationId = conversationId
     state.editing = false
     state.currentUser = userDao.findUserByConversationId(conversationId)

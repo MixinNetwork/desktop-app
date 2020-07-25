@@ -355,7 +355,7 @@ export default class ChatContainer extends Vue {
       if (messagePositionIndex >= PerPageMessageCount) {
         page = Math.floor(messagePositionIndex / PerPageMessageCount)
       }
-      const messages = messageDao.getMessages(conversationId, page)
+      const messages = this.messages
       this.page = page
       this.pageDown = page
       this.tempCount = 0
@@ -381,7 +381,6 @@ export default class ChatContainer extends Vue {
           break
         }
       }
-      this.actionSetCurrentMessages(messages)
       this.scrollAction({ goBottom: messages.length, message: posMessage, isInit })
       let getLastMessage = false
       if (this.pageDown === 0) {

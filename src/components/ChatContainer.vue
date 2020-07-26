@@ -442,7 +442,7 @@ export default class ChatContainer extends Vue {
   }
 
   mentionClick() {
-    this.$refs.ChatMessages.mentionClick()
+    this.$refs.chatMessages.mentionClick()
     this.$refs.inputBox.boxFocusAction(true)
   }
 

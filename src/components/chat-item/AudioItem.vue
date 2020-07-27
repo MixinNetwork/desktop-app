@@ -233,7 +233,7 @@ export default class AudioItem extends Vue {
   onEnded() {
     if (this.message.messageId !== this.currentAudio.messageId) return
     const messages = this.currentMessages
-    let nextAudioMessage = null
+    let nextAudioMessage: any = null
     let currentAudioId = ''
     for (let i = 0; i < messages.length; i++) {
       if (messageType(messages[i].type) === 'audio' && this.message.mediaUrl) {
@@ -247,7 +247,9 @@ export default class AudioItem extends Vue {
       }
     }
     if (nextAudioMessage) {
-      this.actionSetCurrentAudio(nextAudioMessage)
+      setTimeout(() => {
+        this.actionSetCurrentAudio(nextAudioMessage)
+      })
     }
   }
   controlAudioProgress(event: any) {

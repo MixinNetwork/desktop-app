@@ -6,8 +6,11 @@ import fs from 'fs'
 import { ipcRenderer } from 'electron'
 import store from '@/store/store'
 import messageDao from '@/dao/message_dao'
+import jobDao from '@/dao/job_dao'
 import conversationDao from '@/dao/conversation_dao'
-import { DBDeleteLimit } from '@/utils/constants'
+import { DBDeleteLimit, MessageStatus } from '@/utils/constants'
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid'
 
 import { Vue, Watch, Component } from 'vue-property-decorator'
 
@@ -65,6 +68,7 @@ export default class Task extends Vue {
     ipcRenderer.on('taskRequestData', (event, payload) => {
       payload = JSON.parse(payload)
       const { action, messages, conversationId } = payload
+
       if (action === 'delMedia' && messages) {
         let final = []
         try {
@@ -84,6 +88,7 @@ export default class Task extends Vue {
           this.deleteMessages(messages[0].cid)
         }
       }
+
       if (action === 'conversationClear') {
         messageDao.ftsMessagesDelete(conversationId)
 
@@ -94,6 +99,42 @@ export default class Task extends Vue {
         })
 
         this.conversationClear(mids, conversationId)
+      }
+
+      if (action === 'markRead') {
+        const messageList = messageDao.findUnreadMessage(conversationId)
+        messageDao.markRead(conversationId)
+        const status = MessageStatus.READ
+        if (!messageList.length) return
+        const jobList: any = []
+        messageList.forEach((message: any) => {
+          const blazeMessage = { message_id: message.messageId, status }
+          jobList.push({
+            job_id: uuidv4(),
+            action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
+            created_at: new Date().toISOString(),
+            order_id: null,
+            priority: 5,
+            user_id: null,
+            blaze_message: JSON.stringify(blazeMessage),
+            conversation_id: null,
+            resend_message_id: null,
+            run_count: 0
+          })
+          jobList.push({
+            job_id: uuidv4(),
+            action: 'CREATE_MESSAGE',
+            created_at: new Date().toISOString(),
+            order_id: null,
+            priority: 5,
+            user_id: null,
+            blaze_message: JSON.stringify(blazeMessage),
+            conversation_id: conversationId,
+            resend_message_id: null,
+            run_count: 0
+          })
+        })
+        jobDao.insertJobs(jobList)
       }
     })
   }

@@ -117,13 +117,6 @@ export default class AudioItem extends Vue {
     localStorage.audioPlayedMap = JSON.stringify(this.audioPlayedMap)
   }
 
-  @Watch('message')
-  onMessageChange(data: any) {
-    if (data.mediaStatus === MediaStatus.DONE) {
-      this.audioStatus = 'play'
-    }
-  }
-
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
   time: string = '00:00'
@@ -235,12 +228,15 @@ export default class AudioItem extends Vue {
     const messages = this.currentMessages
     let nextAudioMessage: any = null
     let currentAudioId = ''
+    console.log(238888)
     for (let i = 0; i < messages.length; i++) {
       if (messageType(messages[i].type) === 'audio' && this.message.mediaUrl) {
+        console.log(23888, messages[i], currentAudioId)
         if (currentAudioId) {
           nextAudioMessage = messages[i]
           break
         }
+        console.log(245, this.currentAudio.messageId, messages[i].messageId)
         if (this.currentAudio.messageId === messages[i].messageId) {
           currentAudioId = messages[i].messageId
         }

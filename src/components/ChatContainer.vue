@@ -51,7 +51,7 @@
       :details="!!details"
       ref="chatMessages"
       @updateVal="updateVal"
-      @showDetails="showDetailsByIdNumber()"
+      @showDetails="showDetailsByIdNumber"
       @goSearchMessagePosDone="goSearchMessagePosDone"
       @handle-item-click="handleItemClick"
     />

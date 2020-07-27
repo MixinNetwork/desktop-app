@@ -778,9 +778,10 @@ export default class ChatContainer extends Vue {
 
     this.isBottom = list.scrollHeight < list.scrollTop + 1.5 * list.clientHeight
     if (this.isBottom) {
-      this.$emit('updateVal', { currentUnreadNum: 0 })
       if (!this.infiniteDownLock) {
         this.infiniteDown()
+      } else {
+        this.$emit('updateVal', { currentUnreadNum: 0 })
       }
     }
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)

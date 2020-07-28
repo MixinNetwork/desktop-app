@@ -10,7 +10,7 @@
       v-if="messagesVisible[0] && timeDivideShowForce && !details"
       v-show="showMessages && timeDivideShow"
       :scrolling="scrolling"
-      :messageTime="contentUtil.renderTime(messagesVisible[0].createdAt)"
+      :messageTime="messageTime"
     />
     <ul class="messages" ref="messagesUl" :class="{ show: showMessages }">
       <div v-intersect="onIntersect" :style="`height: ${virtualDom.top}px`" id="virtualTop"></div>
@@ -301,42 +301,40 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  showTopTips: boolean = false
   isBottom: any = true
   beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
   messageHeightMap: any = {}
   viewport: any = { firstIndex: 0, lastIndex: 0 }
   virtualDom: any = { top: 0, bottom: 0 }
   threshold: number = 60
-  timeDivideShowForce: boolean = false
-  unreadMessageId: any = ''
-  contentUtil: any = contentUtil
-  messagePositionIndex: any
+  page: any
   pageDown: any
   tempCount: any
+  unreadMessageId: any = ''
   offsetPageDown: number = 0
+  messagePositionIndex: any
   newMessageMap: any = {}
-  page: any
   infiniteUpLock: boolean = false
   infiniteDownLock: boolean = false
   showScroll: boolean = false
-  $showUserDetail: any
   currentVideoPlayer: any = null
   pictureInPictureInterval: any = null
   scrolling: boolean = false
   scrollStopTimer: any = null
   scrollDirection: string = ''
-  timeDivideShow: boolean = false
   scrollTimer: any = null
-  timeDivideLock: boolean = false
   scrollTimerThrottle: any = null
+  timeDivideShow: boolean = false
+  timeDivideShowForce: boolean = false
+  timeDivideLock: boolean = false
+  showTopTips: boolean = false
   showTopTipsTimer: any = null
   overflowMap: any = { top: false, bottom: false }
   intersectLock: boolean = true
   mentionMarkedMap: any = {}
   showMessages: any = true
-  goMessagePosType: string = ''
   searchKeyword: any = ''
+  goMessagePosType: string = ''
   goMessagePosLock: boolean = false
   goMessagePosTimer: any = null
   messagesVisible: any = []
@@ -347,6 +345,10 @@ export default class ChatContainer extends Vue {
       messageIds.push(msg.messageId)
     })
     return messageIds
+  }
+
+  get messageTime() {
+    return contentUtil.renderTime(this.messagesVisible[0].createdAt, false)
   }
 
   setConversationId(conversationId: string, messagePositionIndex: number, isInit: boolean) {
@@ -716,6 +718,7 @@ export default class ChatContainer extends Vue {
   }
 
   onUserClick(userId: any) {
+    // @ts-ignore
     this.$showUserDetail(userId)
   }
 

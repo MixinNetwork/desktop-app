@@ -22,12 +22,21 @@ class Blaze {
     this.TIMEOUT = 'Time out'
     this.pingInterval = null
     this.messageSending = false
+    this.systemSleep = false
     ipcRenderer.on('system-sleep', () => {
-      console.log('The system is sleep')
+      if (!this.systemSleep) {
+        clearInterval(this.pingInterval)
+        this.pingInterval = null
+        this.systemSleep = true
+        console.log('The system is sleep')
+      }
     })
     ipcRenderer.on('system-resume', () => {
-      console.log('The system is resume')
-      this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+      if (this.systemSleep) {
+        this.systemSleep = false
+        console.log('The system is resume')
+        this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+      }
     })
   }
 
@@ -36,13 +45,13 @@ class Blaze {
 
     if (!this.pingInterval) {
       this.pingInterval = setInterval(() => {
-        if (!this.messageSending && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+        if (!this.systemSleep && !this.messageSending && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
           this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
         }
       }, 15000)
     }
 
-    if (store.state.linkStatus === LinkStatus.ERROR) return
+    if (this.systemSleep || store.state.linkStatus === LinkStatus.ERROR) return
 
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
 

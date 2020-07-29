@@ -28,6 +28,7 @@
     "electron-log": "^4.2.2",
     "electron-updater": "^4.3.4",
     "electron-window-state": "^5.0.3",
+    "faker": "^4.1.0",
     "highlight.js": "^9.18.1",
     "image-size": "^0.8.3",
     "interval-promise": "^1.4.0",
@@ -59,6 +60,7 @@
     "vue-i18n": "^8.19.0",
     "vue-property-decorator": "^8.5.1",
     "vue-router": "^3.3.4",
+    "vue-virtual-scroller": "^1.0.10",
     "vuex": "^3.5.1",
     "vuex-class": "^0.3.2",
     "xss": "^1.0.8"

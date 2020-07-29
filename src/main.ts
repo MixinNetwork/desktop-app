@@ -23,6 +23,8 @@ import Wrapper from '@/components/markdown/wrapper'
 import VueIntersect from '@/components/intersect'
 import VueTitlebar from '@/components/titlebar/index'
 import VideoPlayer from '@/components/video-player'
+// @ts-ignore
+import VueVirtualScroller from 'vue-virtual-scroller'
 
 import 'highlight.js/styles/default.css'
 import './assets/index'
@@ -45,6 +47,7 @@ Vue.use(Wrapper)
 Vue.use(VueIntersect)
 Vue.use(VueTitlebar)
 Vue.use(VideoPlayer)
+Vue.use(VueVirtualScroller)
 
 Vue.component('font-awesome-icon', fontawesome.FontAwesomeIcon)
 Vue.config.productionTip = false

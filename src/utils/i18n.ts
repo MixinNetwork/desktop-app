@@ -190,9 +190,9 @@ let transactions = {
       saved: 'Profile saved'
     },
     unread_message: 'Unread messages',
-    date: ['/', '/', ''],
+    yearDate: '{e}, {d}/{m}/{y}',
+    monthDate: '{e}, {d}/{m}',
     today: 'Today',
-    week_prefix: ['', ''],
     week: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     notification: {
       sendPhoto: 'send a photo',
@@ -394,10 +394,10 @@ let transactions = {
       saved: '保存成功'
     },
     unread_message: '未读消息',
-    date: ['年', '月', '日'],
+    yearDate: '{y}年{m}月{d}日 {e}',
+    monthDate: '{m}月{d}日 {e}',
     today: '今天',
-    week_prefix: ['星期', '周'],
-    week: ['日', '一', '二', '三', '四', '五', '六'],
+    week: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
     notification: {
       sendPhoto: '发送了一个图片',
       sendVideo: '发送了一个视频',

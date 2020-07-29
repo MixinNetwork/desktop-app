@@ -93,31 +93,22 @@ class ContentUtil {
   }
   renderTime(timeStr: any, showDetail: any) {
     const t = moment(timeStr)
-    const td = t.format('YYYY-MM-DD')
     const n = moment()
-    const nd = n.format('YYYY-MM-DD')
-    if (nd === td) {
+    if (t.isSame(n, 'date')) {
       if (showDetail) {
         return t.format('HH:mm')
       }
       return i18n.t('today')
     } else {
-      const dateObj: any = i18n.t('date')
-      let yearStr = dateObj[0]
-      const monthStr = dateObj[1]
-      const dayStr = dateObj[2]
-      if (n.get('year') === t.get('year') || !showDetail) {
-        yearStr = ''
-      } else {
-        yearStr = t.get('year') + yearStr
+      const week: any = i18n.t('week')
+      const e: any = week[t.get('day')]
+      const d = t.format('DD')
+      const m = t.format('MM')
+      const y = t.get('year')
+      if (t.isSame(n, 'year') || !showDetail) {
+        return i18n.t('monthDate', { e, d, m })
       }
-      const dateStr = `${yearStr}${t.format('MM')}${monthStr}${t.format('DD')}${dayStr}`
-      // @ts-ignore
-      let weekStr = ` ${i18n.t('week_prefix')[1]}${i18n.t('week')[t.get('day')]}`
-      if (showDetail) {
-        weekStr = ''
-      }
-      return `${dateStr}${weekStr}`
+      return i18n.t('yearDate', { e, d, m, y })
     }
   }
   fts5KeywordFilter(text: string) {

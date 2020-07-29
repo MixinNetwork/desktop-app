@@ -103,7 +103,6 @@ export default class Task extends Vue {
 
       if (action === 'markRead') {
         const messageList = messageDao.findUnreadMessage(conversationId)
-        messageDao.markRead(conversationId)
         const status = MessageStatus.READ
         if (!messageList.length) return
         const jobList: any = []

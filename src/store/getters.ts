@@ -56,6 +56,10 @@ export default {
     return state.currentMessages
   },
 
+  refreshMessageIds: (state: { refreshMessageIds: any }) => {
+    return state.refreshMessageIds
+  },
+
   tempUnreadMessageId: (state: any) => {
     return state.tempUnreadMessageId
   },

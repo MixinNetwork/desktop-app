@@ -84,13 +84,13 @@
 import ReplyMessageItem from './ReplyMessageItem.vue'
 import BadgeItem from './BadgeItem.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import AttachmentIcon from '@/components/chat-item/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MessageStatus, MediaStatus, DefaultImg } from '@/utils/constants'
 import { getNameColorById, getVideoPlayerStatus } from '@/utils/util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -111,49 +111,14 @@ export default class VideoItem extends Vue {
   @Getter('fetchPercentMap') fetchPercentMap: any
   @Getter('currentVideo') currentVideo: any
 
+  @Action('stopLoading') actionStopLoading: any
+  @Action('setCurrentVideo') actionSetCurrentVideo: any
+  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
+
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
   $moment: any
   loaded: boolean = false
-
-  messageOwnership() {
-    let { message, me } = this
-    return {
-      send: message.userId === me.user_id,
-      receive: message.userId !== me.user_id
-    }
-  }
-  getColor(id: any) {
-    return getNameColorById(id)
-  }
-
-  stopLoading() {
-    this.$store.dispatch('stopLoading', this.message.messageId)
-  }
-
-  onPlayerPlay() {
-    this.$store.dispatch('setCurrentVideo', { message: this.message, playerOptions: this.playerOptions })
-  }
-
-  onPlay() {
-    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
-  }
-
-  videoDestroy() {
-    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
-      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
-        const playerOptions: any = this.playerOptions
-        const player = this.videoPlayer.player
-        const playerStatus = getVideoPlayerStatus(player)
-        Object.assign(playerOptions, playerStatus)
-        this.$store.dispatch('setShadowCurrentVideo', { message: this.message, playerOptions })
-      } else {
-        this.videoPlayer.player.exitPictureInPicture()
-      }
-    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
-      this.$store.dispatch('setCurrentVideo', null)
-    }
-  }
 
   get videoPlayer(): any {
     return this.$refs.videoPlayer
@@ -209,6 +174,45 @@ export default class VideoItem extends Vue {
     return {
       width,
       height
+    }
+  }
+
+  messageOwnership() {
+    let { message, me } = this
+    return {
+      send: message.userId === me.user_id,
+      receive: message.userId !== me.user_id
+    }
+  }
+  getColor(id: any) {
+    return getNameColorById(id)
+  }
+
+  stopLoading() {
+    this.actionStopLoading(this.message.messageId)
+  }
+
+  onPlayerPlay() {
+    this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
+  }
+
+  onPlay() {
+    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
+  }
+
+  videoDestroy() {
+    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
+      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
+        const playerOptions: any = this.playerOptions
+        const player = this.videoPlayer.player
+        const playerStatus = getVideoPlayerStatus(player)
+        Object.assign(playerOptions, playerStatus)
+        this.actionSetShadowCurrentVideo({ message: this.message, playerOptions })
+      } else {
+        this.videoPlayer.player.exitPictureInPicture()
+      }
+    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
+      this.actionSetCurrentVideo(null)
     }
   }
 }

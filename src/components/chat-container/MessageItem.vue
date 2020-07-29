@@ -227,22 +227,22 @@ import {
   messageType
 } from '@/utils/constants'
 
-import ReplyMessageItem from './chat-item/ReplyMessageItem.vue'
-import TransferItem from './chat-item/TransferItem.vue'
-import ContactItem from './chat-item/ContactItem.vue'
-import FileItem from './chat-item/FileItem.vue'
-import PostItem from './chat-item/PostItem.vue'
-import LocationItem from './chat-item/LocationItem.vue'
-import AppCardItem from './chat-item/AppCardItem.vue'
-import AppButtonItem from './chat-item/AppButtonItem.vue'
-import AudioItem from './chat-item/AudioItem.vue'
-import VideoItem from './chat-item/VideoItem.vue'
-import ImageItem from './chat-item/ImageItem.vue'
-import LiveItem from './chat-item/LiveItem.vue'
-import StickerItem from './chat-item/StickerItem.vue'
-import RecallItem from './chat-item/RecallItem.vue'
-import BadgeItem from './chat-item/BadgeItem.vue'
-import TimeAndStatus from './chat-item/TimeAndStatus.vue'
+import ReplyMessageItem from '@/components/chat-item/ReplyMessageItem.vue'
+import TransferItem from '@/components/chat-item/TransferItem.vue'
+import ContactItem from '@/components/chat-item/ContactItem.vue'
+import FileItem from '@/components/chat-item/FileItem.vue'
+import PostItem from '@/components/chat-item/PostItem.vue'
+import LocationItem from '@/components/chat-item/LocationItem.vue'
+import AppCardItem from '@/components/chat-item/AppCardItem.vue'
+import AppButtonItem from '@/components/chat-item/AppButtonItem.vue'
+import AudioItem from '@/components/chat-item/AudioItem.vue'
+import VideoItem from '@/components/chat-item/VideoItem.vue'
+import ImageItem from '@/components/chat-item/ImageItem.vue'
+import LiveItem from '@/components/chat-item/LiveItem.vue'
+import StickerItem from '@/components/chat-item/StickerItem.vue'
+import RecallItem from '@/components/chat-item/RecallItem.vue'
+import BadgeItem from '@/components/chat-item/BadgeItem.vue'
+import TimeAndStatus from '@/components/chat-item/TimeAndStatus.vue'
 
 import { getNameColorById } from '@/utils/util'
 import { ipcRenderer } from 'electron'
@@ -251,7 +251,7 @@ import { AttachmentMessagePayload } from '@/utils/attachment_util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -284,6 +284,9 @@ export default class MessageItem extends Vue {
   @Getter('me') me: any
   @Getter('currentConversation') conversation: any
 
+  @Action('upload') actionUpload: any
+  @Action('download') actionDownload: any
+
   ConversationCategory: any = ConversationCategory
   MessageCategories: any = MessageCategories
   MessageStatus: any = MessageStatus
@@ -291,6 +294,18 @@ export default class MessageItem extends Vue {
   $electron: any
   $Dialog: any
   $Menu: any
+
+  get decryptFailedText() {
+    return `${this.$t('chat.chat_decrypt_failed', {
+      0: this.message.userFullName
+    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_learn')}</a>`
+  }
+
+  get unknownMessage() {
+    return this.$t('chat.chat_not_support', {
+      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_learn')}</a>`
+    })
+  }
 
   mounted() {
     setTimeout(() => {
@@ -368,9 +383,9 @@ export default class MessageItem extends Vue {
         conversationId,
         payload
       }
-      this.$store.dispatch('upload', msg)
+      this.actionUpload(msg)
     } else {
-      this.$store.dispatch('download', this.message.messageId)
+      this.actionDownload(this.message.messageId)
     }
   }
   actionClick(action: any) {
@@ -430,18 +445,6 @@ export default class MessageItem extends Vue {
   messageType(srcContent?: string) {
     const { type, content } = this.message
     return messageType(type, srcContent || content)
-  }
-
-  get decryptFailedText() {
-    return `${this.$t('chat.chat_decrypt_failed', {
-      0: this.message.userFullName
-    })}<a href="https://mixin.one/pages/1000007" target="_blank">${this.$t('chat.chat_learn')}</a>`
-  }
-
-  get unknownMessage() {
-    return this.$t('chat.chat_not_support', {
-      0: `<a href="${this.$t('chat.chat_not_support_url')}" target="_blank">${this.$t('chat.chat_learn')}</a>`
-    })
   }
 
   textMessage(message: any) {

@@ -38,10 +38,6 @@ export default class MentionPanel extends Vue {
 
   @Getter('me') me: any
 
-  contacts: any[] = []
-  participants: any[] = []
-  currentUidTemp: string = ''
-
   @Watch('currentUid')
   onCurrentUidChange(currentUid: string) {
     if (currentUid) {
@@ -81,7 +77,11 @@ export default class MentionPanel extends Vue {
     this.mentionHoverPrevent = true
   }
 
+  contacts: any[] = []
+  participants: any[] = []
+  currentUidTemp: string = ''
   mentionHoverPrevent: boolean = false
+
   mousemove() {
     this.mentionHoverPrevent = false
   }

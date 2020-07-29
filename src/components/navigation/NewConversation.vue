@@ -6,7 +6,7 @@
     </div>
     <Search id="newConversationSearch" class="nav" @input="onInput" />
     <div class="create" @click="$emit('newGroup')">
-      <img src="../assets/logo.png" class="avatar" />
+      <img src="@/assets/logo.png" class="avatar" />
       <h3>{{$t('group.group_new_title')}}</h3>
     </div>
     <mixin-scrollbar>
@@ -28,7 +28,7 @@ import Search from '@/components/Search.vue'
 import accountApi from '@/api/account'
 
 import { Vue, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -39,25 +39,10 @@ import { Getter } from 'vuex-class'
 export default class NewConversation extends Vue {
   @Getter('findFriends') friends: any
 
+  @Action('refreshFriends') actionRefreshFriends: any
+
   keyword: string = ''
 
-  onInput(text: string) {
-    this.keyword = text
-  }
-
-  mounted() {
-    accountApi.getFriends().then(
-      (resp: any) => {
-        const friends = resp.data.data
-        if (friends && friends.length > 0) {
-          this.$store.dispatch('refreshFriends', friends)
-        }
-      },
-      (err: any) => {
-        console.log(err)
-      }
-    )
-  }
   get currentFriends() {
     const { keyword, friends } = this
     return friends.filter((item: any) => {
@@ -69,6 +54,24 @@ export default class NewConversation extends Vue {
       }
       return true
     })
+  }
+
+  onInput(text: string) {
+    this.keyword = text
+  }
+
+  mounted() {
+    accountApi.getFriends().then(
+      (resp: any) => {
+        const friends = resp.data.data
+        if (friends && friends.length > 0) {
+          this.actionRefreshFriends(friends)
+        }
+      },
+      (err: any) => {
+        console.log(err)
+      }
+    )
   }
 }
 </script>

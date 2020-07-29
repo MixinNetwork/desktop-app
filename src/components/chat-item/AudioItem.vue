@@ -80,7 +80,7 @@ import { MessageStatus, MediaStatus, messageType } from '@/utils/constants'
 import { getNameColorById } from '@/utils/util'
 
 import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -96,20 +96,13 @@ export default class AudioItem extends Vue {
   @Prop(Object) readonly me: any
   @Prop(Boolean) readonly showName: any
 
-  MessageStatus: any = MessageStatus
-  MediaStatus: any = MediaStatus
-  time: string = '00:00'
-  duration: string = '00:00'
-  progressStyle: any = { width: '' }
-  dotStyle: any = { left: '' }
-  audioStatus: string = 'play'
-  $moment: any
-  audioPlayedMap: any = {}
-
   @Getter('attachment') attachment: any
   @Getter('currentAudio') currentAudio: any
   @Getter('currentMessages') currentMessages: any
   @Getter('fetchPercentMap') fetchPercentMap: any
+
+  @Action('stopLoading') actionStopLoading: any
+  @Action('setCurrentAudio') actionSetCurrentAudio: any
 
   @Watch('currentAudio.messageId')
   onCurrentAudioChange(messageId: any) {
@@ -124,11 +117,25 @@ export default class AudioItem extends Vue {
     localStorage.audioPlayedMap = JSON.stringify(this.audioPlayedMap)
   }
 
-  @Watch('message')
-  onMessageChange(data: any) {
-    if (data.mediaStatus === MediaStatus.DONE) {
-      this.audioStatus = 'play'
-    }
+  MessageStatus: any = MessageStatus
+  MediaStatus: any = MediaStatus
+  time: string = '00:00'
+  duration: string = '00:00'
+  progressStyle: any = { width: '' }
+  dotStyle: any = { left: '' }
+  audioStatus: string = 'play'
+  $moment: any
+  audioPlayedMap: any = {}
+
+  get waitStatus() {
+    const { message } = this
+    return (
+      this.fetchPercentMap[message.messageId] !== 100 &&
+      (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
+    )
+  }
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
   }
 
   mounted() {
@@ -153,7 +160,7 @@ export default class AudioItem extends Vue {
   }
 
   stopLoading() {
-    this.$store.dispatch('stopLoading', this.message.messageId)
+    this.actionStopLoading(this.message.messageId)
   }
 
   updateCurrentAudio(curMessageId: string) {
@@ -195,7 +202,7 @@ export default class AudioItem extends Vue {
     if (this.currentAudio && this.message.messageId === this.currentAudio.messageId) {
       this.updateCurrentAudio(this.message.messageId)
     } else {
-      this.$store.dispatch('setCurrentAudio', this.message)
+      this.actionSetCurrentAudio(this.message)
     }
   }
   timeReset() {
@@ -219,21 +226,26 @@ export default class AudioItem extends Vue {
   onEnded() {
     if (this.message.messageId !== this.currentAudio.messageId) return
     const messages = this.currentMessages
-    let nextAudioMessage = null
+    let nextAudioMessage: any = null
     let currentAudioId = ''
+    console.log(238888)
     for (let i = 0; i < messages.length; i++) {
       if (messageType(messages[i].type) === 'audio' && this.message.mediaUrl) {
+        console.log(23888, messages[i], currentAudioId)
         if (currentAudioId) {
           nextAudioMessage = messages[i]
           break
         }
+        console.log(245, this.currentAudio.messageId, messages[i].messageId)
         if (this.currentAudio.messageId === messages[i].messageId) {
           currentAudioId = messages[i].messageId
         }
       }
     }
     if (nextAudioMessage) {
-      this.$store.dispatch('setCurrentAudio', nextAudioMessage)
+      setTimeout(() => {
+        this.actionSetCurrentAudio(nextAudioMessage)
+      })
     }
   }
   controlAudioProgress(event: any) {
@@ -250,17 +262,6 @@ export default class AudioItem extends Vue {
   }
   transTime(value: any) {
     return this.$moment((Math.round(value - 0) || 1) * 1000).format('mm:ss')
-  }
-
-  get waitStatus() {
-    const { message } = this
-    return (
-      this.fetchPercentMap[message.messageId] !== 100 &&
-      (MediaStatus.CANCELED === message.mediaStatus || MediaStatus.EXPIRED === message.mediaStatus)
-    )
-  }
-  get loading() {
-    return this.attachment.includes(this.message.messageId)
   }
 }
 </script>

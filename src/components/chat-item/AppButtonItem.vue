@@ -38,12 +38,12 @@ export default class AppButtonItem extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Boolean) readonly showName: any
 
-  getColor(id: string) {
-    return getNameColorById(id)
-  }
-
   get messageContent() {
     return JSON.parse(this.message.content)
+  }
+
+  getColor(id: string) {
+    return getNameColorById(id)
   }
 }
 </script>

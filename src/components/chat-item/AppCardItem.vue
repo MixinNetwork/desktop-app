@@ -28,7 +28,7 @@
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import BadgeItem from './BadgeItem.vue'
-import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import MessageItemIcon from './MessageItemIcon.vue'
 import TimeAndStatus from './TimeAndStatus.vue'
 import { getNameColorById } from '@/utils/util'
 
@@ -44,6 +44,10 @@ export default class AppCardItem extends Vue {
   @Prop(Boolean) readonly showName: any
   @Prop(Object) readonly me: any
 
+  get messageContent() {
+    return JSON.parse(this.message.content)
+  }
+
   getColor(id: string) {
     return getNameColorById(id)
   }
@@ -54,10 +58,6 @@ export default class AppCardItem extends Vue {
       send: message.userId === me.user_id,
       receive: message.userId !== me.user_id
     }
-  }
-
-  get messageContent() {
-    return JSON.parse(this.message.content)
   }
 }
 </script>

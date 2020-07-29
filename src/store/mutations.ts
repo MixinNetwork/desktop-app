@@ -1,21 +1,13 @@
-import messageBox from '@/store/message_box'
 import conversationDao from '@/dao/conversation_dao'
 import participantDao from '@/dao/participant_dao'
 import userDao from '@/dao/user_dao'
 import messageDao from '@/dao/message_dao'
 import messageMentionDao from '@/dao/message_mention_dao'
-import { updateCancelMap, downloadAndRefresh, downloadQueue } from '@/utils/attachment_util'
-import {
-  LinkStatus,
-  ConversationCategory,
-  isMuteCheck,
-  isMedia,
-  PerPageMessageCount,
-  messageType
-} from '@/utils/constants'
+import { updateCancelMap } from '@/utils/attachment_util'
+import { LinkStatus, ConversationCategory, isMuteCheck } from '@/utils/constants'
 // @ts-ignore
 import _ from 'lodash'
-import { getAccount, keyToLine } from '@/utils/util'
+import { getAccount } from '@/utils/util'
 
 import { ipcRenderer } from 'electron'
 
@@ -277,9 +269,7 @@ export default {
     state.currentUser = user
   },
   setCurrentConversation(state: any, conversation: any) {
-    const { unseenMessageCount } = conversation
     let conversationId = conversation.conversationId || conversation.conversation_id
-    messageBox.setConversationId(conversationId, unseenMessageCount - 1, true)
     if (
       !state.conversationKeys.some((item: any) => {
         return item === conversationId
@@ -288,39 +278,6 @@ export default {
       refreshConversations(state)
     } else {
       refreshConversation(state, conversationId)
-    }
-    const messages = messageDao.getMessages(conversationId, 0)
-    let i = PerPageMessageCount
-    if (messages.length < i) {
-      i = messages.length
-    }
-    while (i-- > 0) {
-      const curMessage: any = messages[i]
-      if (curMessage && curMessage.type) {
-        const message: any = {}
-        Object.keys(curMessage).forEach(key => {
-          message[keyToLine(key)] = curMessage[key]
-        })
-        message.category = message.type
-        const curMessageType = messageType(message.category)
-        let autoDownload = !message.media_url && curMessageType === 'audio'
-        const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-        if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
-          const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-          let autoDownloadMap: any = { image: true, video: true, file: true }
-          if (autoDownloadSetting) {
-            autoDownloadMap = JSON.parse(autoDownloadSetting)
-          }
-          if (autoDownloadMap[curMessageType]) {
-            autoDownload = true
-          }
-        }
-        if (autoDownload) {
-          downloadQueue.push(downloadAndRefresh, {
-            args: message
-          })
-        }
-      }
     }
     state.currentConversationId = conversationId
     state.editing = false
@@ -362,8 +319,11 @@ export default {
     state.conversationUnseenMentionsMap = _.cloneDeepWith(mentionsMap)
   },
   refreshMessage(state: any, payload: any) {
-    messageBox.refreshMessage(payload)
-    const { conversationId } = payload
+    const { conversationId, messageIds } = payload
+    state.refreshMessageIds = []
+    if (conversationId === state.currentConversationId) {
+      state.refreshMessageIds = messageIds
+    }
     if (
       !state.conversationKeys.some((item: any) => {
         return item === conversationId
@@ -389,7 +349,6 @@ export default {
       state.conversationKeys.splice(index, 1)
     }
     delete state.conversations[conversationId]
-    messageBox.clearData(conversationId)
     if (keywordCache) {
       search(state, keywordCache)
     }

@@ -23,16 +23,16 @@ import { Vue, Watch, Component } from 'vue-property-decorator'
 
 @Component
 export default class Player extends Vue {
+  @Watch('pin')
+  onPinChange(newPin: any) {
+    localStorage.pinTop = newPin
+  }
+
   show: boolean = false
   pin: boolean = false
   resizeInterval: any = null
   loaded: boolean = false
   init: boolean = false
-
-  @Watch('pin')
-  onPinChange(newPin: any) {
-    localStorage.pinTop = newPin
-  }
 
   get playerOptions() {
     const url: any = this.$route.query.url

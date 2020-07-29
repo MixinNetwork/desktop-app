@@ -36,7 +36,7 @@
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
 import BadgeItem from './BadgeItem.vue'
-import MessageItemIcon from '@/components/MessageItemIcon.vue'
+import MessageItemIcon from './MessageItemIcon.vue'
 import { getNameColorById } from '@/utils/util'
 import TimeAndStatus from './TimeAndStatus.vue'
 import browser from '@/utils/browser'
@@ -53,6 +53,15 @@ export default class AppCardItem extends Vue {
   @Prop(Object) readonly message: any
   @Prop(Boolean) readonly showName: any
   @Prop(Object) readonly me: any
+
+  get showDetail() {
+    const { name, address } = this.messageContent
+    return name && address
+  }
+
+  get messageContent() {
+    return JSON.parse(this.message.content)
+  }
 
   getColor(id: string) {
     return getNameColorById(id)
@@ -73,15 +82,6 @@ export default class AppCardItem extends Vue {
       url = `https://www.google.com/maps/search/${encodeURIComponent(address)}/@${latitude},${longitude},17z?hl=zh-CN`
     }
     window.open(url)
-  }
-
-  get showDetail() {
-    const { name, address } = this.messageContent
-    return name && address
-  }
-
-  get messageContent() {
-    return JSON.parse(this.message.content)
   }
 }
 </script>

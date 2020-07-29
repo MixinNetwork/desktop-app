@@ -56,10 +56,10 @@
 <script lang="ts">
 import Search from '@/components/Search.vue'
 import UserItem from '@/components/UserItem.vue'
-import UserSelectItem from '@/components/UserSelectItem.vue'
+import UserSelectItem from '@/components/navigation/UserSelectItem.vue'
 
 import { Vue, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -70,6 +70,8 @@ import { Getter } from 'vuex-class'
 })
 export default class GroupContainer extends Vue {
   @Getter('findFriends') readonly friends: any
+
+  @Action('createGroupConversation') actionCreateGroupConversation: any
 
   selected: any = []
   groupShow: any = false
@@ -117,7 +119,7 @@ export default class GroupContainer extends Vue {
   createGroup() {
     const { selected, title } = this
     this.$toast(this.$t('chat.chat_create_group'), 3000)
-    this.$store.dispatch('createGroupConversation', {
+    this.actionCreateGroupConversation({
       groupName: title,
       users: selected
     })

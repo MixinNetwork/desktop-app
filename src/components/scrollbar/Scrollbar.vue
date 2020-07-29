@@ -29,6 +29,16 @@ export default class MixinScrollbar extends Vue {
   @Prop(Object) readonly globalOptions: any
   @Prop(Object) readonly options: any
 
+  @Watch('hideScroll')
+  onHideScrollChange() {
+    this.thumbShow = false
+  }
+
+  @Watch('thumbHeight')
+  onThumbHeightChange(val: any) {
+    this.dragging = false
+  }
+
   scrollBox: any = null
   scrollThumb: any = null
   thumbShowTimeout: any = null
@@ -41,16 +51,6 @@ export default class MixinScrollbar extends Vue {
     y: 0
   }
   dragging: boolean = false
-
-  @Watch('hideScroll')
-  onHideScrollChange() {
-    this.thumbShow = false
-  }
-
-  @Watch('thumbHeight')
-  onThumbHeightChange(val: any) {
-    this.dragging = false
-  }
 
   scrollInit() {
     const scrollBox = this.scrollBox

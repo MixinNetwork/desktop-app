@@ -196,13 +196,13 @@
 
 <script lang="ts">
 import { ipcRenderer } from 'electron'
-import ConversationItem from '@/components/ConversationItem.vue'
 import Search from '@/components/Search.vue'
 import spinner from '@/components/Spinner.vue'
-import GroupContainer from '@/components/GroupContainer.vue'
-import ProfileContainer from '@/components/ProfileContainer.vue'
-import SettingContainer from '@/components/SettingContainer.vue'
-import NewConversation from '@/components/NewConversation.vue'
+import ConversationItem from '@/components/navigation/ConversationItem.vue'
+import GroupContainer from '@/components/navigation/GroupContainer.vue'
+import ProfileContainer from '@/components/navigation/ProfileContainer.vue'
+import SettingContainer from '@/components/navigation/SettingContainer.vue'
+import NewConversation from '@/components/navigation/NewConversation.vue'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import UserItem from '@/components/UserItem.vue'
@@ -252,6 +252,14 @@ export default class Navigation extends Vue {
   @Action('setUnseenBadgeNum') actionSetUnseenBadgeNum: any
   @Action('updateConversationMute') actionUpdateConversationMute: any
   @Action('conversationClear') actionConversationClear: any
+  @Action('search') actionSearch: any
+  @Action('searchClear') actionSearchClear: any
+  @Action('createUserConversation') actionCreateUserConversation: any
+  @Action('setCurrentConversation') actionSetCurrentConversation: any
+  @Action('setSearching') actionSetSearching: any
+  @Action('exitGroup') actionExitGroup: any
+  @Action('pinTop') actionPinTop: any
+  @Action('markRead') actionMarkRead: any
 
   conversationShow: any = false
   groupShow: any = false
@@ -273,6 +281,62 @@ export default class Navigation extends Vue {
   $blaze: any
   $t: any
   $circles: any
+  threshold: number = 60
+  viewport: any = {
+    firstIndex: 0,
+    lastIndex: 0
+  }
+
+  get conversationIds() {
+    const conversationIds: any = []
+    this.conversations.forEach((conv: any) => {
+      conversationIds.push(conv.conversationId)
+    })
+    return conversationIds
+  }
+
+  get conversationsVisible() {
+    if (this.currentCircle) {
+      const [ids, pinTimeList] = this.getCircleConversationIds()
+      let list: any = []
+
+      this.conversations.forEach((item: any) => {
+        const index = ids.indexOf(item.conversationId)
+        if (index > -1) {
+          item.circlePinTime = pinTimeList[index]
+          list.push(item)
+        }
+      })
+      list = _.orderBy(list, ['circlePinTime', 'createdAt'], ['desc', 'desc'])
+      return _.cloneDeepWith(list)
+    }
+    const list = []
+    let { firstIndex, lastIndex } = this.viewport
+    if (firstIndex < 0) {
+      firstIndex = 0
+    }
+    if (lastIndex < this.threshold) {
+      lastIndex = this.threshold
+    }
+    for (let i = firstIndex; i < this.conversations.length; i++) {
+      if (i >= lastIndex) {
+        break
+      }
+      delete this.conversations[i].circlePinTime
+      list.push(this.conversations[i])
+    }
+    if (this.intersectLock) {
+      setTimeout(() => {
+        this.intersectLock = false
+      }, 200)
+    }
+    return list
+  }
+
+  get showIdOrPhoneSearch() {
+    // return /^\d{5,15}$/.test(this.searchKeyword)
+    return false
+  }
 
   created() {
     let unseenMessageCount = 0
@@ -356,14 +420,14 @@ export default class Navigation extends Vue {
 
   showMoreBack() {
     this.showMoreType = ''
-    this.$store.dispatch('search', {
+    this.actionSearch({
       keyword: this.searchKeyword
     })
   }
 
   showMoreList(type: string) {
     this.showMoreType = type
-    this.$store.dispatch('search', {
+    this.actionSearch({
       keyword: this.searchKeyword,
       type: this.showMoreType
     })
@@ -401,9 +465,9 @@ export default class Navigation extends Vue {
 
   handlerMenu(position: any, participants: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
     if (position === 'exit_group') {
-      this.$store.dispatch('exitGroup', conversationId)
+      this.actionExitGroup(conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
-      this.$store.dispatch('pinTop', {
+      this.actionPinTop({
         conversationId,
         circlePinTime,
         pinTime
@@ -562,7 +626,7 @@ export default class Navigation extends Vue {
       waitTime = 150
     }
     if (!keyword) {
-      this.$store.dispatch('setSearching', '')
+      this.actionSetSearching('')
       setTimeout(() => {
         let index = 0
         const { conversations, currentConversationId } = this
@@ -578,7 +642,7 @@ export default class Navigation extends Vue {
     }
     clearTimeout(this.inputTimer)
     this.inputTimer = setTimeout(() => {
-      this.$store.dispatch('search', {
+      this.actionSearch({
         keyword,
         type: this.showMoreType
       })
@@ -591,31 +655,31 @@ export default class Navigation extends Vue {
   onConversationClick(conversation: any) {
     if (this.currentConversationId === conversation.conversationId) return
     this.conversationShow = false
-    this.$store.dispatch('searchClear')
-    this.$store.dispatch('setCurrentConversation', conversation)
+    this.actionSearchClear()
+    this.actionSetCurrentConversation(conversation)
   }
   onClickUser(user: any) {
-    this.$store.dispatch('searchClear')
-    this.$store.dispatch('createUserConversation', {
+    this.actionSearchClear()
+    this.actionCreateUserConversation({
       user
     })
   }
   onSearchChatClick(conversation: any) {
     this.conversationShow = false
-    this.$store.dispatch('setCurrentConversation', conversation)
+    this.actionSetCurrentConversation(conversation)
     let searchKey = ''
     if (conversation.records) {
       searchKey = `key:${this.searchKeyword}`
     }
-    this.$store.dispatch('setSearching', searchKey)
+    this.actionSetSearching(searchKey)
     conversation.unseenMessageCount = 0
     setTimeout(() => {
-      this.$store.dispatch('markRead', conversation.conversationId)
+      this.actionMarkRead(conversation.conversationId)
     }, 100)
   }
   onSearchUserClick(user: any) {
-    this.$store.dispatch('setSearching', '')
-    this.$store.dispatch('createUserConversation', {
+    this.actionSetSearching('')
+    this.actionCreateUserConversation({
       user
     })
   }
@@ -632,58 +696,6 @@ export default class Navigation extends Vue {
         container.scrollTop = itemHeight * (index + 1) - container.clientHeight
       }
     }
-  }
-
-  get conversationIds() {
-    const conversationIds: any = []
-    this.conversations.forEach((conv: any) => {
-      conversationIds.push(conv.conversationId)
-    })
-    return conversationIds
-  }
-
-  threshold: number = 60
-  viewport: any = {
-    firstIndex: 0,
-    lastIndex: 0
-  }
-
-  get conversationsVisible() {
-    if (this.currentCircle) {
-      const [ids, pinTimeList] = this.getCircleConversationIds()
-      let list: any = []
-
-      this.conversations.forEach((item: any) => {
-        const index = ids.indexOf(item.conversationId)
-        if (index > -1) {
-          item.circlePinTime = pinTimeList[index]
-          list.push(item)
-        }
-      })
-      list = _.orderBy(list, ['circlePinTime', 'createdAt'], ['desc', 'desc'])
-      return _.cloneDeepWith(list)
-    }
-    const list = []
-    let { firstIndex, lastIndex } = this.viewport
-    if (firstIndex < 0) {
-      firstIndex = 0
-    }
-    if (lastIndex < this.threshold) {
-      lastIndex = this.threshold
-    }
-    for (let i = firstIndex; i < this.conversations.length; i++) {
-      if (i >= lastIndex) {
-        break
-      }
-      delete this.conversations[i].circlePinTime
-      list.push(this.conversations[i])
-    }
-    if (this.intersectLock) {
-      setTimeout(() => {
-        this.intersectLock = false
-      }, 200)
-    }
-    return list
   }
 
   getCircleConversationIds() {
@@ -757,11 +769,6 @@ export default class Navigation extends Vue {
   }
   getLinkContent() {
     return this.$t('not_connected_content')
-  }
-
-  get showIdOrPhoneSearch() {
-    // return /^\d{5,15}$/.test(this.searchKeyword)
-    return false
   }
 }
 </script>

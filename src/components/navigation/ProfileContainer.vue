@@ -77,14 +77,6 @@ import { updateAccount } from '@/utils/util'
 export default class ProfileContainer extends Vue {
   @Getter('me') me: any
 
-  nameEditing: boolean = false
-  descEditing: boolean = false
-  fullname: string = ''
-  biography: string = ''
-  group: boolean = false
-  title: string = ''
-  $toast: any
-
   @Watch('nameEditing')
   onNameEditingChanged(val: boolean) {
     if (!val) {
@@ -122,6 +114,14 @@ export default class ProfileContainer extends Vue {
       this.biography = this.me.biography
     }
   }
+
+  nameEditing: boolean = false
+  descEditing: boolean = false
+  fullname: string = ''
+  biography: string = ''
+  group: boolean = false
+  title: string = ''
+  $toast: any
 }
 </script>
 <style lang="scss" scoped>

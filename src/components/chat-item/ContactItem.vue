@@ -62,6 +62,10 @@ export default class ContactItem extends Vue {
 
   MessageStatus: any = MessageStatus
 
+  get user() {
+    return userDao.findUserById(this.message.sharedUserId)
+  }
+
   messageOwnership() {
     return {
       send: this.message.userId === this.me.user_id,
@@ -70,10 +74,6 @@ export default class ContactItem extends Vue {
   }
   getColor(id: string) {
     return getNameColorById(id)
-  }
-
-  get user() {
-    return userDao.findUserById(this.message.sharedUserId)
   }
 }
 </script>

@@ -83,6 +83,21 @@ export default class AddParticipant extends Vue {
   beforeSelected: any = []
   $toast: any
 
+  get selectedContactList() {
+    const list: any = []
+    this.contactList.forEach((item: any) => {
+      if (this.selectedList.indexOf(item.user_id) > -1 && this.beforeSelected.indexOf(item.user_id) < 0) {
+        list.push(item)
+      }
+    })
+    return list
+  }
+
+  get contactList() {
+    if (this.contacts.length || this.keyword) return this.contacts
+    return this.friends
+  }
+
   mounted() {
     this.participants.forEach((item: any) => {
       this.beforeSelected.push(item.user_id)
@@ -133,21 +148,6 @@ export default class AddParticipant extends Vue {
 
   beforeDestroy() {
     this.$root.$off('escKeydown')
-  }
-
-  get selectedContactList() {
-    const list: any = []
-    this.contactList.forEach((item: any) => {
-      if (this.selectedList.indexOf(item.user_id) > -1 && this.beforeSelected.indexOf(item.user_id) < 0) {
-        list.push(item)
-      }
-    })
-    return list
-  }
-
-  get contactList() {
-    if (this.contacts.length || this.keyword) return this.contacts
-    return this.friends
   }
 }
 </script>

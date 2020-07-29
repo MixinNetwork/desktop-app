@@ -21,10 +21,6 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 export default class Dropdown extends Vue {
   @Prop(Array) readonly menus: any
 
-  showMenu: boolean = false
-  searchColor: string = 'transparent'
-  $Menu: any
-
   @Watch('showMenu')
   onShowMenuChange(newV: any, oldV: any) {
     if (newV !== oldV) {
@@ -45,6 +41,10 @@ export default class Dropdown extends Vue {
       }
     }
   }
+
+  showMenu: boolean = false
+  searchColor: string = 'transparent'
+  $Menu: any
 
   activated() {
     this.showMenu = false

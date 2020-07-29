@@ -63,9 +63,9 @@
 </template>
 <script lang="ts">
 import { Vue, Prop, Component } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
-import AttachmentIcon from '@/components/AttachmentIcon.vue'
+import AttachmentIcon from '@/components/chat-item/AttachmentIcon.vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import Blurhash from '@/components/blurhash/Blurhash.vue'
 import ReplyMessageItem from './ReplyMessageItem.vue'
@@ -98,10 +98,39 @@ export default class ImageItem extends Vue {
   @Getter('currentMessages') currentMessages: any
   @Getter('fetchPercentMap') fetchPercentMap: any
 
+  @Action('stopLoading') actionStopLoading: any
+
   $imageViewer: any
   MessageStatus: any = MessageStatus
   MediaStatus: any = MediaStatus
   imgLoaded: boolean = false
+
+  get defaultImg() {
+    return DefaultImg
+  }
+
+  get isLongPicture() {
+    const { mediaWidth, mediaHeight } = this.message
+    return 3 * mediaWidth < mediaHeight
+  }
+
+  get isBlur() {
+    const data = isBlurhashValid(this.message.thumbImage)
+    return data.result
+  }
+
+  get waitStatus() {
+    const { message } = this
+    return (
+      MediaStatus.CANCELED === message.mediaStatus ||
+      MediaStatus.EXPIRED === message.mediaStatus ||
+      MediaStatus.PENDING === message.mediaStatus
+    )
+  }
+
+  get loading() {
+    return this.attachment.includes(this.message.messageId)
+  }
 
   messageOwnership() {
     let { message, me } = this
@@ -122,10 +151,6 @@ export default class ImageItem extends Vue {
     return getNameColorById(id)
   }
 
-  get defaultImg() {
-    return DefaultImg
-  }
-
   preview() {
     if (messageType(this.message.type) === 'image' && this.message.mediaUrl) {
       let position = 0
@@ -142,6 +167,7 @@ export default class ImageItem extends Vue {
       this.$imageViewer.show()
     }
   }
+
   media() {
     const { message } = this
     if (!message.mediaUrl) {
@@ -179,29 +205,8 @@ export default class ImageItem extends Vue {
     return { width: `${width}px`, height: `${height}px` }
   }
 
-  get isLongPicture() {
-    const { mediaWidth, mediaHeight } = this.message
-    return 3 * mediaWidth < mediaHeight
-  }
-
-  get isBlur() {
-    const data = isBlurhashValid(this.message.thumbImage)
-    return data.result
-  }
-
   stopLoading() {
-    this.$store.dispatch('stopLoading', this.message.messageId)
-  }
-  get waitStatus() {
-    const { message } = this
-    return (
-      MediaStatus.CANCELED === message.mediaStatus ||
-      MediaStatus.EXPIRED === message.mediaStatus ||
-      MediaStatus.PENDING === message.mediaStatus
-    )
-  }
-  get loading() {
-    return this.attachment.includes(this.message.messageId)
+    this.actionStopLoading(this.message.messageId)
   }
 }
 </script>

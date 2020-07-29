@@ -28,12 +28,10 @@ import {
 import appDao from '@/dao/app_dao'
 
 function markRead(commit: any, state: any, conversationId: any) {
+  ipcRenderer.send('taskRequest', { action: 'markRead', conversationId })
   if (state.conversations) {
     commit('setUnseenBadgeNum')
   }
-  const messages = messageDao.findUnreadMessage(conversationId)
-  updateRemoteMessageStatusBatch(conversationId, messages, MessageStatus.READ)
-  messageDao.markRead(conversationId)
 }
 
 async function refreshConversation(conversationId: any, callback: () => void) {
@@ -146,39 +144,6 @@ async function fetchUsers(users: any[]) {
   if (resp.data.data) {
     userDao.insertUsers(resp.data.data)
   }
-}
-
-function updateRemoteMessageStatusBatch(conversationId: any, messages: any, status: string) {
-  if (!messages.length) return
-  const jobList: any = []
-  messages.forEach((message: any) => {
-    const blazeMessage = { message_id: message.messageId, status }
-    jobList.push({
-      job_id: uuidv4(),
-      action: 'ACKNOWLEDGE_MESSAGE_RECEIPTS',
-      created_at: new Date().toISOString(),
-      order_id: null,
-      priority: 5,
-      user_id: null,
-      blaze_message: JSON.stringify(blazeMessage),
-      conversation_id: null,
-      resend_message_id: null,
-      run_count: 0
-    })
-    jobList.push({
-      job_id: uuidv4(),
-      action: 'CREATE_MESSAGE',
-      created_at: new Date().toISOString(),
-      order_id: null,
-      priority: 5,
-      user_id: null,
-      blaze_message: JSON.stringify(blazeMessage),
-      conversation_id: conversationId,
-      resend_message_id: null,
-      run_count: 0
-    })
-  })
-  jobDao.insertJobs(jobList)
 }
 
 export default {
@@ -300,7 +265,9 @@ export default {
   },
   markRead: ({ commit, state }: any, conversationId: any) => {
     markRead(commit, state, conversationId)
-    commit('refreshConversation', conversationId)
+    setTimeout(() => {
+      commit('refreshConversation', conversationId)
+    }, 100)
   },
   markMentionRead: ({ commit }: any, { conversationId, messageId }: any) => {
     messageMentionDao.markMentionRead(messageId)

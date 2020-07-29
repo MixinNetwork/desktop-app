@@ -35,6 +35,8 @@ import { ipcRenderer } from 'electron'
 })
 export default class Home extends Vue {
   @Action('setLinkStatus') actionSetLinkStatus: any
+  @Action('refreshFriends') actionRefreshFriends: any
+  @Action('init') actionInit: any
 
   emitLock: boolean = false
   select: any = 0
@@ -45,7 +47,7 @@ export default class Home extends Vue {
   }
 
   beforeMount() {
-    this.$store.dispatch('init')
+    this.actionInit()
   }
 
   ftsMessageLoadAll() {
@@ -75,7 +77,7 @@ export default class Home extends Vue {
       (resp: any) => {
         const friends = resp.data.data
         if (friends && friends.length > 0) {
-          this.$store.dispatch('refreshFriends', friends)
+          this.actionRefreshFriends(friends)
         }
       },
       (err: any) => {

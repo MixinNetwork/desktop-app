@@ -20,6 +20,7 @@ const state = {
   currentUser: {},
   searching: '',
   currentMessages: [],
+  refreshMessageIds: [],
   conversationUnseenMentionsMap: {},
   attachment: [],
   search: {

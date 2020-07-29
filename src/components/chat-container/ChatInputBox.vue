@@ -82,9 +82,9 @@ import { MessageCategories, MessageStatus, ConversationCategory } from '@/utils/
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
 
-import ReplyMessageContainer from '@/components/ReplyMessageContainer.vue'
-import MentionPanel from '@/components/MentionPanel.vue'
-import ChatSticker from '@/components/ChatSticker.vue'
+import ReplyMessageContainer from '@/components/chat-container/ReplyMessageContainer.vue'
+import MentionPanel from '@/components/chat-container/MentionPanel.vue'
+import ChatSticker from '@/components/chat-container/ChatSticker.vue'
 
 @Component({
   components: {
@@ -94,6 +94,7 @@ import ChatSticker from '@/components/ChatSticker.vue'
   }
 })
 export default class ChatItem extends Vue {
+  @Prop(Number) readonly panelHeight: any
   @Prop(Boolean) readonly participant: any
   @Prop(Object) readonly conversation: any
   @Prop(Object) readonly boxMessage: any
@@ -103,12 +104,6 @@ export default class ChatItem extends Vue {
   @Action('sendMessage') actionSendMessage: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('unblock') actionUnblock: any
-
-  mentionChoosing: boolean = false
-  stickerChoosing: boolean = false
-  inputFlag: any = false
-  boxFocus: boolean = false
-  hideScamNotificationMap: any = {}
 
   @Watch('stickerChoosing')
   onStickerChoosingChanged(val: string, oldVal: string) {
@@ -136,10 +131,11 @@ export default class ChatItem extends Vue {
     })
   }
 
-  @Watch('panelHeight')
-  onPanelHeightChanged(newC: any, oldC: any) {
-    this.$emit('panelHeightUpdate', this.panelHeight)
-  }
+  mentionChoosing: boolean = false
+  stickerChoosing: boolean = false
+  inputFlag: any = false
+  boxFocus: boolean = false
+  hideScamNotificationMap: any = {}
 
   get showUnblock() {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
@@ -265,7 +261,7 @@ export default class ChatItem extends Vue {
     this.$emit('clearBoxMessage')
     this.mentionChoosing = false
     this.currentSelectMention = null
-    this.panelHeight = 12
+    this.$emit('panelHeightUpdate', 12)
     requestAnimationFrame(() => {
       this.stickerChoosing = !this.stickerChoosing
     })
@@ -357,15 +353,15 @@ export default class ChatItem extends Vue {
     this.currentSelectMention = mention
   }
 
-  panelHeight: number = 12
   updateMentionUsers(result: any) {
     const len = result.length
     if (len) {
+      let panelHeight = 12
       if (len < 4) {
-        this.panelHeight = 3.3 * len
-      } else {
-        this.panelHeight = 12
+        panelHeight = 3.3 * len
       }
+      this.$emit('panelHeightUpdate', panelHeight)
+
       if (!this.mentionChoosing) {
         this.stickerChoosing = false
         setTimeout(() => {

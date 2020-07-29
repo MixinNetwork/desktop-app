@@ -91,6 +91,11 @@ const { getImagePath, getVideoPath, getAudioPath, getDocumentPath } = mediaPath
 export default class StorageContainer extends Vue {
   @Prop(Object) readonly storages: any
 
+  @Watch('autoDownloadMap')
+  onAutoDownloadMapChanged(val: any) {
+    localStorage.setItem('autoDownloadSetting', JSON.stringify(val))
+  }
+
   keyword: any = ''
   // $toast: any
   $Dialog: any
@@ -106,9 +111,17 @@ export default class StorageContainer extends Vue {
   storagePage: boolean = false
   cleaning: boolean = false
 
-  @Watch('autoDownloadMap')
-  onAutoDownloadMapChanged(val: any) {
-    localStorage.setItem('autoDownloadSetting', JSON.stringify(val))
+  get curCid() {
+    return this.current && this.current.conversationId
+  }
+
+  get currentMedia() {
+    const data = this.storages[this.curCid] || {}
+    data.image = data.image || 0
+    data.video = data.video || 0
+    data.audio = data.audio || 0
+    data.file = data.file || 0
+    return data
   }
 
   beforeMount() {
@@ -208,19 +221,6 @@ export default class StorageContainer extends Vue {
       this.$t('cancel'),
       () => {}
     )
-  }
-
-  get curCid() {
-    return this.current && this.current.conversationId
-  }
-
-  get currentMedia() {
-    const data = this.storages[this.curCid] || {}
-    data.image = data.image || 0
-    data.video = data.video || 0
-    data.audio = data.audio || 0
-    data.file = data.file || 0
-    return data
   }
 
   getMediaPath(type: string, conversationId: string) {

@@ -23,11 +23,15 @@
 import { MessageStatus } from '@/utils/constants'
 
 import { Vue, Prop, Component } from 'vue-property-decorator'
+import { Action } from 'vuex-class'
 
 @Component
 export default class Editor extends Vue {
   @Prop(Object) readonly conversation: any
   @Prop(String) readonly category: any
+
+  @Action('toggleEditor') actionToggleEditor: any
+  @Action('sendMessage') actionSendMessage: any
 
   post: any = ''
 
@@ -50,14 +54,14 @@ export default class Editor extends Vue {
         status: MessageStatus.SENDING
       }
     }
-    this.$store.dispatch('sendMessage', message)
-    this.$store.dispatch('toggleEditor')
+    this.actionSendMessage(message)
+    this.actionToggleEditor()
     setTimeout(() => {
       this.post = ''
     }, 200)
   }
   closeEditor() {
-    this.$store.dispatch('toggleEditor')
+    this.actionToggleEditor()
   }
 }
 </script>

@@ -73,6 +73,9 @@ export default class MessageForward extends Vue {
   @Action('sendStickerMessage') actionSendStickerMessage: any
   @Action('sendAttachmentMessage') actionSendAttachmentMessage: any
   @Action('sendLiveMessage') actionSendLiveMessage: any
+  @Action('setCurrentConversation') actionSetCurrentConversation: any
+  @Action('markRead') actionMarkRead: any
+  @Action('createUserConversation') actionCreateUserConversation: any
 
   contacts: any[] = []
   chats: any[] = []
@@ -82,6 +85,16 @@ export default class MessageForward extends Vue {
   showContactTitleFixed: boolean = false
   MessageStatus: any = MessageStatus
   hasEscKeyListener: boolean = false
+
+  get chatList() {
+    if (this.chats.length || this.keyword) return this.chats
+    return this.conversations
+  }
+
+  get contactList() {
+    if (this.contacts.length || this.keyword) return this.contacts
+    return this.friends
+  }
 
   sendMessage() {
     setTimeout(() => {
@@ -236,16 +249,16 @@ export default class MessageForward extends Vue {
 
   onChatClick(conversation: any) {
     this.$emit('close')
-    this.$store.dispatch('setCurrentConversation', conversation)
+    this.actionSetCurrentConversation(conversation)
     conversation.unseenMessageCount = 0
     setTimeout(() => {
-      this.$store.dispatch('markRead', conversation.conversationId)
+      this.actionMarkRead(conversation.conversationId)
     }, 100)
     this.sendMessage()
   }
   onUserClick(user: any) {
     this.$emit('close')
-    this.$store.dispatch('createUserConversation', {
+    this.actionCreateUserConversation({
       user
     })
     this.sendMessage()
@@ -269,16 +282,6 @@ export default class MessageForward extends Vue {
   beforeDestroy() {
     this.$root.$off('escKeydown')
     this.observer = null
-  }
-
-  get chatList() {
-    if (this.chats.length || this.keyword) return this.chats
-    return this.conversations
-  }
-
-  get contactList() {
-    if (this.contacts.length || this.keyword) return this.contacts
-    return this.friends
   }
 }
 </script>

@@ -51,9 +51,7 @@ class Blaze {
       }, 15000)
     }
 
-    if (this.systemSleep || store.state.linkStatus === LinkStatus.ERROR) return
-
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
+    if (this.systemSleep || (this.ws && this.ws.readyState === WebSocket.CONNECTING)) return
 
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.ws.close(1000, 'Normal close')
@@ -182,6 +180,7 @@ class Blaze {
   }
 
   sendMessagePromise(message) {
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
     this.messageSending = true
     return new Promise((resolve, reject) => {
       const sendMessageTimer = setTimeout(() => {

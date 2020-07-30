@@ -41,22 +41,17 @@ class Blaze {
   }
 
   connect() {
+    if (store.state.linkStatus === LinkStatus.CONNECTING) return
     store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
-    if (!this.pingInterval) {
-      this.pingInterval = setInterval(() => {
-        if (!this.systemSleep && !this.messageSending && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
-          this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
-        }
-      }, 15000)
-    }
+    clearInterval(this.pingInterval)
+    this.pingInterval = setInterval(() => {
+      if (!this.systemSleep && !this.messageSending && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+        this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+      }
+    }, 15000)
 
     if (this.systemSleep || (this.ws && this.ws.readyState === WebSocket.CONNECTING)) return
-
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.close(1000, 'Normal close')
-      this.ws = null
-    }
 
     this.account = getAccount()
     const token = getToken('GET', '/', '')
@@ -65,7 +60,7 @@ class Blaze {
       API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
       'Mixin-Blaze-1',
       {
-        timeout: 15000,
+        timeout: 10000,
         shouldReconnect: function() {
           return false
         }
@@ -144,6 +139,7 @@ class Blaze {
       if (blazeMsg.action === 'ERROR' && blazeMsg.error.code === 401) {
         accountApi.checkPing().then(
           _ => {
+            store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
             this.connect()
           },
           err => {
@@ -184,6 +180,7 @@ class Blaze {
     this.messageSending = true
     return new Promise((resolve, reject) => {
       const sendMessageTimer = setTimeout(() => {
+        store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
         this.connect()
         reject(this.TIMEOUT)
         this.messageSending = false

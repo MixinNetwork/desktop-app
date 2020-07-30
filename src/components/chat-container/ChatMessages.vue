@@ -263,7 +263,6 @@ export default class ChatContainer extends Vue {
     this.infiniteUpLock = false
 
     this.timeDivideShowForce = false
-    this.messageHeightMap = {}
     const msgLen = this.messages.length
     if (msgLen > 0 && msgLen < PerPageMessageCount) {
       this.showTopTips = true
@@ -273,11 +272,6 @@ export default class ChatContainer extends Vue {
   }
 
   isBottom: any = true
-  beforeViewport: any = { firstIndex: 0, lastIndex: 0 }
-  messageHeightMap: any = {}
-  viewport: any = { firstIndex: 0, lastIndex: 0 }
-  virtualDom: any = { top: 0, bottom: 0 }
-  threshold: number = 60
   page: any
   pageDown: any
   tempCount: any
@@ -498,7 +492,6 @@ export default class ChatContainer extends Vue {
       curMessages.unshift(...newMessages)
       this.actionSetCurrentMessages(curMessages)
     }
-    const { firstIndex, lastIndex } = this.viewport
   }
   infiniteUp() {
     if (!this.infiniteUpLock) {
@@ -575,7 +568,6 @@ export default class ChatContainer extends Vue {
   goBottom(currentMessageLen: number = 0) {
     this.isBottom = true
     this.intersectLock = true
-    this.beforeViewport = {}
     this.searchKeyword = ''
     const msgLen = this.messages.length
     this.$nextTick(() => {
@@ -608,25 +600,15 @@ export default class ChatContainer extends Vue {
 
   goMessagePos(posMessage: any) {
     this.intersectLock = true
-    let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
-      const offset = this.threshold
-      if (firstIndex > posIndex - offset / 2) {
-        firstIndex -= offset
-      } else if (posIndex + offset / 2 > lastIndex) {
-        lastIndex += offset
-      }
     } else {
       const { conversationId } = this.conversation
       const count = messageDao.ftsMessageCount(conversationId)
       const messageIndex = messageDao.ftsMessageIndex(conversationId, posMessage.messageId)
       if (messageIndex < 0) return
       this.setConversationId(conversationId, count - messageIndex - 1, false)
-      firstIndex = 0
-      lastIndex = this.threshold
     }
-    this.beforeViewport = {}
     this.goMessagePosLock = true
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
@@ -825,8 +807,7 @@ export default class ChatContainer extends Vue {
   }
 
   onMessageLoaded(dom: any) {
-    const { messageId, height } = dom
-    this.messageHeightMap[messageId] = height
+
   }
 }
 </script>

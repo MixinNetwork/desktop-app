@@ -13,9 +13,10 @@
     <div class="messages">
       <DynamicScroller
         ref="messagesUl"
-        :items="messages"
         key-field="messageId"
+        :items="messages"
         :min-item-size="20"
+        @resize="scrollResize()"
         class="scroller"
       >
         <template v-slot="{ item, index, active }">
@@ -699,6 +700,10 @@ export default class ChatContainer extends Vue {
     }, 200)
   }
 
+  scrollResize() {
+    console.log(7044)
+  }
+
   onScroll(obj: any) {
     if (obj) {
       this.scrollDirection = obj.direction
@@ -806,29 +811,29 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  onMessageLoaded(dom: any) {
-
-  }
+  onMessageLoaded(dom: any) {}
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .chat-messages {
   contain: layout;
   flex: 1;
   height: 100%;
   overflow-x: hidden;
-  box-sizing: border-box;
 
   .messages {
     height: 100%;
     overflow: hidden;
     li {
       list-style: none;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
     }
     .scroller {
       height: 100%;
-      padding: 0.6rem;
+      padding: 0.6rem 0;
+      box-sizing: border-box;
     }
   }
   .encryption.tips {
@@ -843,5 +848,20 @@ export default class ChatContainer extends Vue {
       box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
     }
   }
+}
+.resize-observer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  background: #ccc;
+  border: none;
+  background-color: transparent;
+  pointer-events: none;
+  display: block;
+  overflow: hidden;
+  opacity: 0;
 }
 </style>

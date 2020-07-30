@@ -1,8 +1,6 @@
  <template>
-  <mixin-scrollbar
+  <div
     :style="(panelChoosing === 'stickerOpen' ? 'transition: 0.1s all;' : 'transition: 0.3s all ease;') + (panelChoosing === 'stickerOpen' ? `margin-bottom: ${panelHeight}rem;` : '')"
-    :hideScroll="!showScroll"
-    @scroll="onScroll"
     class="chat-messages"
   >
     <TimeDivide
@@ -12,28 +10,41 @@
       :scrolling="scrolling"
       :messageTime="messageTime"
     />
-    <ul class="messages" ref="messagesUl" :class="{ show: showMessages }">
-      <div v-intersect="onIntersect" :style="`height: ${virtualDom.top}px`" id="virtualTop"></div>
-      <li v-show="!user.app_id" :style="{opacity: showTopTips ? 1 : 0}" class="encryption tips">
-        <div class="bubble">{{$t('encryption')}}</div>
-      </li>
-      <MessageItem
-        v-for="(item, index) in messagesVisible"
-        :key="item && item.messageId"
-        :message="item"
-        :prev="messagesVisible[index - 1]"
-        :next="messagesVisible[index + 1]"
-        :unread="unreadMessageId"
-        :beforeCreateAt="!isBottom && !infiniteUpLock && scrolling ? messagesVisible[0].createdAt : ''"
-        :searchKeyword="searchKeyword"
-        v-intersect="onIntersect"
-        @loaded="onMessageLoaded"
-        @user-click="onUserClick"
-        @action-click="handleAction"
-        @handle-item-click="handleItemClick"
-      />
-      <div v-intersect="onIntersect" :style="`height: ${virtualDom.bottom}px`" id="virtualBottom"></div>
-    </ul>
+    <div class="messages">
+      <DynamicScroller
+        ref="messagesUl"
+        :items="messages"
+        key-field="messageId"
+        :min-item-size="20"
+        class="scroller"
+      >
+        <template v-slot="{ item, index, active }">
+          <DynamicScrollerItem
+            :item="item"
+            :active="active"
+            :size-dependencies="[
+            item.content,
+          ]"
+            :data-index="index"
+            :data-active="active"
+            class="message"
+          >
+            <MessageItem
+              :message="item"
+              :prev="messages[index - 1]"
+              :next="messages[index + 1]"
+              :unread="unreadMessageId"
+              :beforeCreateAt="!isBottom && !infiniteUpLock && scrolling ? messages[0].createdAt : ''"
+              :searchKeyword="searchKeyword"
+              @user-click="onUserClick"
+              @action-click="handleAction"
+              @handle-item-click="handleItemClick"
+            />
+          </DynamicScrollerItem>
+        </template>
+      </DynamicScroller>
+    </div>
+
     <audio
       id="mixinAudio"
       style="display: none"
@@ -48,7 +59,7 @@
         :options="shadowCurrentVideo.playerOptions"
       ></video-player>
     </div>
-  </mixin-scrollbar>
+  </div>
 </template>
 
 <script lang="ts">
@@ -59,6 +70,8 @@ import { Vue, Prop, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, isMedia, MessageStatus, PerPageMessageCount, messageType } from '@/utils/constants'
 import TimeDivide from '@/components/chat-container/TimeDivide.vue'
+import DynamicScroller from '@/components/virtual-scroll/DynamicScroller.vue'
+import DynamicScrollerItem from '@/components/virtual-scroll/DynamicScrollerItem.vue'
 import MessageItem from '@/components/chat-container/MessageItem.vue'
 import messageDao from '@/dao/message_dao'
 import { remote } from 'electron'
@@ -73,6 +86,8 @@ let { BrowserWindow } = remote
 @Component({
   components: {
     TimeDivide,
+    DynamicScroller,
+    DynamicScrollerItem,
     MessageItem
   }
 })
@@ -108,7 +123,6 @@ export default class ChatContainer extends Vue {
     if (messages.length > 0 && messages.length < PerPageMessageCount) {
       this.showTopTips = true
     }
-    this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = messages[messages.length - 1]
       if (
@@ -146,48 +160,6 @@ export default class ChatContainer extends Vue {
             .catch(() => {})
         }
       }, 30)
-    }
-  }
-
-  @Watch('viewport')
-  onViewportChanged(val: any, oldVal: any) {
-    let { firstIndex, lastIndex } = val
-    const bfv = this.beforeViewport
-    if (bfv.firstIndex === firstIndex && bfv.lastIndex === lastIndex) {
-      return
-    }
-
-    this.beforeViewport = { firstIndex, lastIndex }
-    const { messages, messageHeightMap } = this
-    let top = 0
-    let bottom = 0
-    for (let i = lastIndex + 1; i < messages.length; i++) {
-      if (messages[i]) {
-        bottom += messageHeightMap[messages[i].messageId] || 0
-      }
-    }
-    for (let i = 0; i < firstIndex; i++) {
-      if (messages[i]) {
-        top += messageHeightMap[messages[i].messageId] || 0
-      }
-    }
-
-    this.messagesVisible = this.getMessagesVisible()
-    if (this.shadowCurrentVideo) {
-      let currentVideoFlag = false
-      this.messagesVisible.forEach((item: any) => {
-        if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
-          currentVideoFlag = true
-        }
-      })
-      if (currentVideoFlag) {
-        const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
-        this.actionSetCurrentVideo(currentVideo)
-      }
-    }
-    this.virtualDom = {
-      top,
-      bottom
     }
   }
 
@@ -287,7 +259,6 @@ export default class ChatContainer extends Vue {
       mixinAudio.pause()
     }
 
-    this.overflowMap = { top: false, bottom: false }
     this.infiniteDownLock = false
     this.infiniteUpLock = false
 
@@ -329,7 +300,6 @@ export default class ChatContainer extends Vue {
   timeDivideLock: boolean = false
   showTopTips: boolean = false
   showTopTipsTimer: any = null
-  overflowMap: any = { top: false, bottom: false }
   intersectLock: boolean = true
   mentionMarkedMap: any = {}
   showMessages: any = true
@@ -529,7 +499,6 @@ export default class ChatContainer extends Vue {
       this.actionSetCurrentMessages(curMessages)
     }
     const { firstIndex, lastIndex } = this.viewport
-    this.viewport = this.viewportLimit(firstIndex - this.threshold, lastIndex + this.threshold)
   }
   infiniteUp() {
     if (!this.infiniteUpLock) {
@@ -612,7 +581,6 @@ export default class ChatContainer extends Vue {
     this.$nextTick(() => {
       let list: any = this.$refs.messagesUl
       if (!list) return
-      this.viewport = this.viewportLimit(msgLen - 2 * this.threshold, msgLen - 1)
       this.infiniteUpLock = false
       this.showMessages = true
       requestAnimationFrame(() => {
@@ -662,7 +630,6 @@ export default class ChatContainer extends Vue {
     this.goMessagePosLock = true
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
-    this.viewport = this.viewportLimit(firstIndex, lastIndex)
     this.goMessagePosAction(posMessage, false, 0)
     setTimeout(() => {
       this.showScroll = true
@@ -742,32 +709,11 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  viewportLimit(firstIndex: number, lastIndex: number) {
-    if (firstIndex < 0) {
-      firstIndex = 0
-    }
-    const cLen = this.messageIds.length
-    if (lastIndex >= cLen) {
-      lastIndex = cLen - 1
-    }
-    return {
-      firstIndex,
-      lastIndex
-    }
-  }
-
   scrollStop() {
     clearTimeout(this.scrollStopTimer)
     this.scrollStopTimer = setTimeout(() => {
       this.timeDivideShowForce = true
       this.scrolling = false
-      if (this.goMessagePosLock) return
-      if (!this.infiniteUpLock && this.overflowMap.top) {
-        this.viewport = this.viewportLimit(0, 2 * this.threshold)
-      }
-      if (!this.infiniteDownLock && this.overflowMap.bottom) {
-        this.goBottom()
-      }
     }, 200)
   }
 
@@ -832,28 +778,8 @@ export default class ChatContainer extends Vue {
   }
 
   onIntersect({ target, isIntersecting }: any) {
-    this.overflowMap.top = false
-    if (target.id === 'virtualTop') {
-      this.overflowMap.top = isIntersecting
-    }
-    this.overflowMap.bottom = false
-    if (target.id === 'virtualBottom') {
-      this.overflowMap.bottom = isIntersecting
-    }
     if (this.intersectLock || !target.id) return
     const index = this.messageIds.indexOf(target.id)
-    const direction = this.scrollDirection
-    const offset = this.threshold
-    const { firstIndex, lastIndex } = this.viewport
-    if (
-      (isIntersecting && direction === 'up' && index < firstIndex + offset / 2) ||
-      (isIntersecting && direction === 'down' && index > lastIndex - offset / 2)
-    ) {
-      const viewport = this.viewportLimit(index - offset, index + offset)
-      if (viewport.firstIndex !== firstIndex || viewport.lastIndex !== lastIndex) {
-        this.viewport = viewport
-      }
-    }
     const curMessage = this.messages[index]
     if (curMessage && isIntersecting && (curMessage.quoteId || curMessage.mentions)) {
       this.mentionVisibleUpdate(target.id)
@@ -902,47 +828,26 @@ export default class ChatContainer extends Vue {
     const { messageId, height } = dom
     this.messageHeightMap[messageId] = height
   }
-
-  getMessagesVisible() {
-    const list = []
-    let { firstIndex, lastIndex } = this.viewport
-    if (firstIndex < 0) {
-      firstIndex = 0
-    }
-    if (lastIndex < this.threshold) {
-      lastIndex = this.threshold
-    }
-    for (let i = firstIndex; i < this.messages.length; i++) {
-      list.push(this.messages[i])
-      if (i >= lastIndex) {
-        break
-      }
-    }
-    if (this.intersectLock) {
-      setTimeout(() => {
-        this.intersectLock = false
-      }, 200)
-    }
-    return _.sortBy(list, ['createdAt'])
-  }
 }
 </script>
 
 <style lang="scss" scoped>
 .chat-messages {
+  contain: layout;
+  flex: 1;
+  height: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
   .messages {
-    contain: layout;
-    flex: 1;
     height: 100%;
-    overflow-x: hidden;
-    padding: 0.6rem;
-    box-sizing: border-box;
-    opacity: 0;
-    &.show {
-      opacity: 1;
-      & > li {
-        contain: layout;
-      }
+    overflow: hidden;
+    li {
+      list-style: none;
+    }
+    .scroller {
+      height: 100%;
+      padding: 0.6rem;
     }
   }
   .encryption.tips {

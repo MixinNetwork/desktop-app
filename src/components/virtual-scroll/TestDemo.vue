@@ -37,11 +37,13 @@
 
 <script>
 import { generateMessage } from './testData'
+import DynamicScroller from './DynamicScroller.vue'
+import DynamicScrollerItem from './DynamicScrollerItem.vue'
 
 let id = 0
 
 const messages = []
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 10000; i++) {
   messages.push(generateMessage())
 }
 
@@ -65,6 +67,11 @@ export default {
 
   destroyed() {
     this.stopStream()
+  },
+
+  components: {
+    DynamicScroller,
+    DynamicScrollerItem
   },
 
   methods: {
@@ -106,8 +113,7 @@ export default {
 <style scoped>
 .chat-demo,
 .scroller {
-  height: 500px;
-  background: #eee;
+  height: 100%;
 }
 
 .chat-demo {

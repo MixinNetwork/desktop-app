@@ -393,7 +393,7 @@ export default class ChatContainer extends Vue {
         const curMessage: any = messages[i]
         if (curMessage && curMessage.type) {
           const message: any = {}
-          Object.keys(curMessage).forEach(key => {
+          Object.keys(curMessage).forEach((key) => {
             message[keyToLine(key)] = curMessage[key]
           })
           message.category = message.type
@@ -912,10 +912,15 @@ export default class ChatContainer extends Vue {
     if (lastIndex < this.threshold) {
       lastIndex = this.threshold
     }
+    const ids: any = []
     for (let i = firstIndex; i < this.messages.length; i++) {
-      list.push(this.messages[i])
-      if (i >= lastIndex) {
-        break
+      const message = this.messages[i]
+      if (ids.indexOf(message.messageId) < 0) {
+        ids.push(message.messageId)
+        list.push(message)
+        if (i >= lastIndex) {
+          break
+        }
       }
     }
     if (this.intersectLock) {

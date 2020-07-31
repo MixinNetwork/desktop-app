@@ -8,6 +8,7 @@
     v-bind="$attrs"
     @resize="onScrollerResize"
     @visible="onScrollerVisible"
+    @infinite="onInfinite"
     v-on="listeners"
   >
     <template slot-scope="{ item: itemWithSize, index, active }">
@@ -44,7 +45,7 @@ export default {
 
   provide() {
     if (typeof ResizeObserver !== 'undefined') {
-      this.$_resizeObserver = new ResizeObserver(entries => {
+      this.$_resizeObserver = new ResizeObserver((entries) => {
         for (const entry of entries) {
           if (entry.target) {
             const event = new CustomEvent('resize', {
@@ -158,6 +159,10 @@ export default {
         this.forceUpdate()
       }
       this.$emit('resize')
+    },
+
+    onInfinite(obj) {
+      this.$emit('infinite', obj)
     },
 
     onScrollerVisible() {

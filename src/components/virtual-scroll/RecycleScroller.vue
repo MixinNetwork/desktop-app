@@ -237,6 +237,8 @@ export default {
         requestAnimationFrame(() => {
           this.$_scrollDirty = false
           const { continuous } = this.updateVisibleItems(false, true)
+          const scroll = this.getScroll()
+          this.$emit('infinite', scroll)
 
           // It seems sometimes chrome doesn't fire scroll event :/
           // When non continous scrolling is ending, we force a refresh
@@ -373,7 +375,7 @@ export default {
           if (view.nr.used) {
             // Update view item index
             if (checkItem) {
-              view.nr.index = items.findIndex(item =>
+              view.nr.index = items.findIndex((item) =>
                 keyField ? item[keyField] === view.item[keyField] : item === view.item
               )
             }

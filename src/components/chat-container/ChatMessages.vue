@@ -16,7 +16,8 @@
         key-field="messageId"
         :items="messages"
         :min-item-size="20"
-        @resize="scrollResize()"
+        @resize="scrollResize"
+        @infinite="onInfinite"
         class="scroller"
       >
         <template v-slot="{ item, index, active }">
@@ -286,7 +287,6 @@ export default class ChatContainer extends Vue {
   pictureInPictureInterval: any = null
   scrolling: boolean = false
   scrollStopTimer: any = null
-  scrollDirection: string = ''
   scrollTimer: any = null
   scrollTimerThrottle: any = null
   timeDivideShow: boolean = false
@@ -356,7 +356,7 @@ export default class ChatContainer extends Vue {
         const curMessage: any = messages[i]
         if (curMessage && curMessage.type) {
           const message: any = {}
-          Object.keys(curMessage).forEach(key => {
+          Object.keys(curMessage).forEach((key) => {
             message[keyToLine(key)] = curMessage[key]
           })
           message.category = message.type
@@ -643,17 +643,9 @@ export default class ChatContainer extends Vue {
   }
 
   scrollResize() {
-    console.log(7044)
   }
 
-  onScroll(obj: any) {
-    if (obj) {
-      this.scrollDirection = obj.direction
-    }
-
-    let list: any = this.$refs.messagesUl
-    if (!list) return
-
+  onInfinite(list: any) {
     this.isBottom = list.scrollHeight < list.scrollTop + 1.5 * list.clientHeight
     if (this.isBottom) {
       if (!this.infiniteDownLock) {

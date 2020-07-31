@@ -181,7 +181,7 @@ export default class ChatContainer extends Vue {
         }
       })
       if (currentVideoFlag) {
-        const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
+        const currentVideo = _.cloneDeepWith(this.shadowCurrentVideo)
         this.actionSetCurrentVideo(currentVideo)
       }
     }
@@ -210,7 +210,7 @@ export default class ChatContainer extends Vue {
     const matchIds: any = []
     const { conversationId } = this.conversation
 
-    const messages = JSON.parse(JSON.stringify(this.messages))
+    const messages = _.cloneDeepWith(this.messages)
 
     for (let i = messages.length - 1; i >= 0; i--) {
       const item = messages[i]
@@ -914,8 +914,8 @@ export default class ChatContainer extends Vue {
     }
     const ids: any = []
     for (let i = firstIndex; i < this.messages.length; i++) {
-      const message = this.messages[i]
-      if (ids.indexOf(message.messageId) < 0) {
+      const message = _.cloneDeepWith(this.messages[i])
+      if (message && ids.indexOf(message.messageId) < 0) {
         ids.push(message.messageId)
         list.push(message)
         if (i >= lastIndex) {

@@ -175,13 +175,13 @@ export default class StorageContainer extends Vue {
   }
 
   onSelected(key: string) {
-    const unselected = JSON.parse(JSON.stringify(this.unselected))
+    const unselected = _.cloneDeepWith(this.unselected)
     unselected[key] = !unselected[key]
     this.unselected = unselected
   }
 
   autoDownloadSelected(key: string) {
-    const autoDownloadMap = JSON.parse(JSON.stringify(this.autoDownloadMap))
+    const autoDownloadMap = _.cloneDeepWith(this.autoDownloadMap)
     autoDownloadMap[key] = !autoDownloadMap[key]
     this.autoDownloadMap = autoDownloadMap
   }

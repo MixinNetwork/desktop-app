@@ -402,7 +402,7 @@ export default {
   },
   updateFetchPercent(state: { fetchPercentMap: any }, payload: any) {
     const { id, percent } = payload
-    const fetchPercentMap = JSON.parse(JSON.stringify(state.fetchPercentMap))
+    const fetchPercentMap = _.cloneDeepWith(state.fetchPercentMap)
     fetchPercentMap[id] = percent
     state.fetchPercentMap = fetchPercentMap
   },

@@ -184,7 +184,7 @@ export default class ChatContainer extends Vue {
     const matchIds: any = []
     const { conversationId } = this.conversation
 
-    const messages = JSON.parse(JSON.stringify(this.messages))
+    const messages = _.cloneDeepWith(this.messages)
 
     for (let i = messages.length - 1; i >= 0; i--) {
       const item = messages[i]

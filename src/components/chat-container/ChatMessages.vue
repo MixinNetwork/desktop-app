@@ -288,7 +288,6 @@ export default class ChatContainer extends Vue {
   scrolling: boolean = false
   scrollStopTimer: any = null
   scrollTimer: any = null
-  scrollTimerThrottle: any = null
   timeDivideShow: boolean = false
   timeDivideShowForce: boolean = false
   timeDivideLock: boolean = false
@@ -634,19 +633,13 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  scrollStop() {
-    clearTimeout(this.scrollStopTimer)
-    this.scrollStopTimer = setTimeout(() => {
-      this.timeDivideShowForce = true
-      this.scrolling = false
-    }, 200)
-  }
-
   scrollResize() {
   }
 
   onInfinite(list: any) {
-    this.isBottom = list.scrollHeight < list.scrollTop + 1.5 * list.clientHeight
+    // console.log(6555, list, list.scrollTop)
+    const offset = 150
+    this.isBottom = list.height - list.end < offset
     if (this.isBottom) {
       if (!this.infiniteDownLock) {
         this.infiniteDown()
@@ -654,8 +647,8 @@ export default class ChatContainer extends Vue {
         this.$emit('updateVal', { currentUnreadNum: 0 })
       }
     }
-    const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
-    if (list.scrollTop < toTop) {
+
+    if (list.start < offset) {
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUp()
@@ -667,21 +660,7 @@ export default class ChatContainer extends Vue {
       }, 150)
     }
 
-    if (!this.scrollTimerThrottle) {
-      this.scrollTimerThrottle = setTimeout(() => {
-        this.scrollTimerThrottle = null
-      }, 50)
-      clearTimeout(this.scrollTimer)
-      this.scrolling = true
-      this.scrollTimer = setTimeout(() => {
-        if (list.scrollTop < toTop && !this.infiniteUpLock) {
-          list.scrollTop = toTop
-        }
-        this.scrollStop()
-      }, 100)
-    }
-
-    if (!this.isBottom && list.scrollTop > 130) {
+    if (!this.isBottom && list.start > 130) {
       this.timeDivideShow = true
     } else {
       this.timeDivideShow = false

@@ -485,6 +485,7 @@ export default {
       const { $el: el, direction } = this
       const isVertical = direction === 'vertical'
       let scrollState
+      const wrapper = this.$refs.wrapper
 
       if (this.pageMode) {
         const bounds = el.getBoundingClientRect()
@@ -505,12 +506,14 @@ export default {
       } else if (isVertical) {
         scrollState = {
           start: el.scrollTop,
-          end: el.scrollTop + el.clientHeight
+          end: el.scrollTop + el.clientHeight,
+          height: wrapper.offsetHeight
         }
       } else {
         scrollState = {
           start: el.scrollLeft,
-          end: el.scrollLeft + el.clientWidth
+          end: el.scrollLeft + el.clientWidth,
+          width: wrapper.offsetWidth
         }
       }
 

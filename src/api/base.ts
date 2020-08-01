@@ -32,7 +32,7 @@ const backOff = () => {
   return new Promise(resolve => {
     let waitTime = 30000
     if (store.state.linkStatus === LinkStatus.CONNECTED) {
-      waitTime = 1500
+      waitTime = 3000
     }
     setTimeout(() => {
       resolve()
@@ -50,7 +50,8 @@ async function retry(config: any, response: any) {
   }
   config.__retryCount += 1
   await backOff()
-  config.baseURL = API_URL.HTTP[config.__retryCount % API_URL.HTTP.length]
+  const beforeIndex = API_URL.HTTP.indexOf(config.baseURL) || 0
+  config.baseURL = API_URL.HTTP[(beforeIndex + 1) % API_URL.HTTP.length]
   config.headers.Authorization = newToken(config)
   return axiosApi(config)
 }

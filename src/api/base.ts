@@ -70,7 +70,7 @@ axiosApi.interceptors.request.use(
 
 axiosApi.interceptors.response.use(
   function(response: any) {
-    if (response.data.error && response.data.error.code === 500) {
+    if (response.data.error && response.data.error.code >= 500) {
       return retry(response.config, response)
     }
     // @ts-ignore

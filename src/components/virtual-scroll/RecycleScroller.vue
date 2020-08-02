@@ -516,7 +516,8 @@ export default {
           width: wrapper.offsetWidth
         }
       }
-
+      scrollState.startIndex = this.$_startIndex
+      scrollState.endIndex = this.$_endIndex
       return scrollState
     },
 

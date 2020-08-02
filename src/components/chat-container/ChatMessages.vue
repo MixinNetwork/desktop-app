@@ -254,7 +254,6 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
-    clearTimeout(this.scrollStopTimer)
     this.actionSetCurrentVideo(null)
     const mixinAudio: any = document.getElementById('mixinAudio')
     if (mixinAudio) {
@@ -286,7 +285,6 @@ export default class ChatContainer extends Vue {
   currentVideoPlayer: any = null
   pictureInPictureInterval: any = null
   scrolling: boolean = false
-  scrollStopTimer: any = null
   scrollTimer: any = null
   timeDivideShow: boolean = false
   timeDivideShowForce: boolean = false
@@ -637,7 +635,20 @@ export default class ChatContainer extends Vue {
 
   scrollResize() {}
 
+  udpateMessagesVisible(start: any, end: any) {
+    const messagesVisible: any = []
+    for (let i = start; i < this.messages.length; i++) {
+      const message = this.messages[i]
+      messagesVisible.push(message)
+      if (i >= end) {
+        break
+      }
+    }
+    this.messagesVisible = messagesVisible
+  }
+
   onInfinite(list: any) {
+    this.udpateMessagesVisible(list.startIndex, list.endIndex)
     const offset = 150
     this.isBottom = list.height - list.end < offset
     if (this.isBottom) {
@@ -666,6 +677,12 @@ export default class ChatContainer extends Vue {
       this.timeDivideShow = false
     }
 
+    this.scrolling = true
+    clearTimeout(this.scrollTimer)
+    this.scrollTimer = setTimeout(() => {
+      this.scrolling = false
+      this.timeDivideShowForce = true
+    }, 300)
     if (!this.timeDivideLock) {
       this.timeDivideLock = true
       setTimeout(() => {

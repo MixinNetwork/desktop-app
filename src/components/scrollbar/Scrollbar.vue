@@ -182,7 +182,6 @@ export default class MixinScrollbar extends Vue {
     width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
-    scroll-behavior: smooth;
   }
   &::-webkit-scrollbar,
   & > ul::-webkit-scrollbar,

@@ -114,19 +114,19 @@ export default class ChatContainer extends Vue {
   @Action('setCurrentVideo') actionSetCurrentVideo: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
 
-  @Watch('messages')
-  onMessagesLengthChanged(messages: any) {
-    if (messages.length === 0) {
+  @Watch('messages.length')
+  onMessagesLengthChanged(length: any) {
+    if (length === 0) {
       this.page = 0
       this.newMessageMap = {}
     }
 
     if (this.changeConversation) return
-    if (messages.length > 0 && messages.length < PerPageMessageCount) {
+    if (length > 0 && length < PerPageMessageCount) {
       this.showTopTips = true
     }
     if (this.isBottom && this.conversation) {
-      const lastMessage = messages[messages.length - 1]
+      const lastMessage = this.messages[length - 1]
       if (
         lastMessage &&
         lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
@@ -425,6 +425,7 @@ export default class ChatContainer extends Vue {
   }
 
   infiniteScroll(direction: any) {
+    let list: any = this.$refs.messagesUl
     const { conversationId } = this.conversation
     const messageIds: any = []
     const curMessages: any = []
@@ -448,9 +449,6 @@ export default class ChatContainer extends Vue {
         this.$emit('updateVal', { currentUnreadNum: 0, getLastMessage: true })
       }
       if (!messages.length) {
-        setTimeout(() => {
-          this.infiniteDownLock = true
-        })
         return
       }
       const newMessages = []
@@ -467,12 +465,12 @@ export default class ChatContainer extends Vue {
       }
       curMessages.push(...newMessages)
       this.actionSetCurrentMessages(curMessages)
+      setTimeout(() => {
+        this.infiniteDownLock = false
+      }, 100)
     } else {
       messages = messageDao.getMessages(conversationId, ++this.page, this.tempCount)
       if (!messages.length) {
-        setTimeout(() => {
-          this.infiniteUpLock = true
-        })
         return
       }
       const newMessages = []
@@ -488,21 +486,24 @@ export default class ChatContainer extends Vue {
         }
       }
       curMessages.unshift(...newMessages)
-      this.actionSetCurrentMessages(curMessages)
+      this.actionSetCurrentMessages(curMessages).then(() => {
+        list.scrollToItem(newMessages.length)
+      })
+      setTimeout(() => {
+        this.infiniteUpLock = false
+      }, 100)
     }
   }
   infiniteUp() {
     if (!this.infiniteUpLock) {
       this.infiniteUpLock = true
       this.infiniteScroll('up')
-      this.infiniteUpLock = false
     }
   }
   infiniteDown() {
     if (!this.infiniteDownLock) {
       this.infiniteDownLock = true
       this.infiniteScroll('down')
-      this.infiniteDownLock = false
     }
   }
 
@@ -602,10 +603,11 @@ export default class ChatContainer extends Vue {
     this.goMessagePosLock = true
     clearTimeout(this.goMessagePosTimer)
     this.goMessagePosTimer = null
-    // this.goMessagePosAction(posMessage, false, 0)
     let list: any = this.$refs.messagesUl
     if (!list) return
-    list.scrollToItem(posIndex)
+    setTimeout(() => {
+      list.scrollToItem(posIndex)
+    })
   }
 
   onUserClick(userId: any) {
@@ -633,11 +635,9 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  scrollResize() {
-  }
+  scrollResize() {}
 
   onInfinite(list: any) {
-    // console.log(6555, list, list.scrollTop)
     const offset = 150
     this.isBottom = list.height - list.end < offset
     if (this.isBottom) {
@@ -648,7 +648,7 @@ export default class ChatContainer extends Vue {
       }
     }
 
-    if (list.start < offset) {
+    if (list.start < 2) {
       if (!this.infiniteUpLock) {
         clearTimeout(this.showTopTipsTimer)
         this.infiniteUp()

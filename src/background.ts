@@ -8,10 +8,6 @@ import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater
 import { initTask } from './task'
 import { initPlayer } from './player'
 import path from 'path'
-import dns from 'dns'
-let servers = dns.getServers()
-servers.unshift('1.1.1.1')
-dns.setServers(servers)
 
 app.disableHardwareAcceleration()
 

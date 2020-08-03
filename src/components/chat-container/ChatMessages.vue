@@ -108,7 +108,7 @@ export default class ChatContainer extends Vue {
     if (messagesLen > 0 && messagesLen < PerPageMessageCount) {
       this.showTopTips = true
     }
-    this.messagesVisible = this.getMessagesVisible()
+    this.updateMessagesVisible()
     if (this.isBottom && this.conversation) {
       const lastMessage = this.messages[messagesLen - 1]
       if (
@@ -172,7 +172,8 @@ export default class ChatContainer extends Vue {
       }
     }
 
-    this.messagesVisible = this.getMessagesVisible()
+    this.updateMessagesVisible()
+
     if (this.shadowCurrentVideo) {
       let currentVideoFlag = false
       this.messagesVisible.forEach((item: any) => {
@@ -277,7 +278,7 @@ export default class ChatContainer extends Vue {
       })
     } else if (isCurConversation) {
       this.actionSetCurrentMessages(messages).then(() => {
-        this.messagesVisible = this.getMessagesVisible()
+        this.updateMessagesVisible()
       })
     }
   }
@@ -907,6 +908,23 @@ export default class ChatContainer extends Vue {
     this.messageHeightMap[messageId] = height
   }
 
+  updateMessagesVisible() {
+    let isChanged = true
+    const messagesVisible = this.getMessagesVisible()
+    const length = messagesVisible.length
+    if (
+      this.messagesVisible[0] &&
+      this.messagesVisible[length - 1] &&
+      this.messagesVisible[0].messageId === messagesVisible[0].messageId &&
+      this.messagesVisible[length - 1].messageId === messagesVisible[length - 1].messageId
+    ) {
+      isChanged = false
+    }
+    if (isChanged) {
+      this.messagesVisible = messagesVisible
+    }
+  }
+
   getMessagesVisible() {
     const list = []
     let { firstIndex, lastIndex } = this.viewport
@@ -915,6 +933,12 @@ export default class ChatContainer extends Vue {
     }
     if (lastIndex < this.threshold) {
       lastIndex = this.threshold
+    }
+    if (firstIndex === 0 && this.scrollDirection === 'up') {
+      lastIndex = this.threshold
+    }
+    if (lastIndex - firstIndex > this.threshold && this.scrollDirection === 'down') {
+      firstIndex = lastIndex - this.threshold
     }
     const ids: any = []
     for (let i = firstIndex; i < this.messages.length; i++) {

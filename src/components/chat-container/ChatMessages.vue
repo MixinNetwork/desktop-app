@@ -108,7 +108,7 @@ export default class ChatContainer extends Vue {
     if (messagesLen > 0 && messagesLen < PerPageMessageCount) {
       this.showTopTips = true
     }
-    this.updateMessagesVisible()
+    this.updateMessagesVisible(true)
     if (this.isBottom && this.conversation) {
       const lastMessage = this.messages[messagesLen - 1]
       if (
@@ -278,7 +278,7 @@ export default class ChatContainer extends Vue {
       })
     } else if (isCurConversation) {
       this.actionSetCurrentMessages(messages).then(() => {
-        this.updateMessagesVisible()
+        this.updateMessagesVisible(true)
       })
     }
   }
@@ -908,7 +908,7 @@ export default class ChatContainer extends Vue {
     this.messageHeightMap[messageId] = height
   }
 
-  updateMessagesVisible() {
+  updateMessagesVisible(force?: boolean) {
     let visibleChanged = true
     const messagesVisible = this.getMessagesVisible()
     const length = messagesVisible.length
@@ -921,7 +921,7 @@ export default class ChatContainer extends Vue {
     ) {
       visibleChanged = false
     }
-    if (visibleChanged) {
+    if (visibleChanged || force) {
       this.messagesVisible = messagesVisible
     }
   }

@@ -212,11 +212,13 @@ export default class ChatContainer extends Vue {
 
     const messages = _.cloneDeepWith(this.messages)
 
+    let isCurConversation = false
     for (let i = messages.length - 1; i >= 0; i--) {
       const item = messages[i]
       if (item) {
         const isQuote = messageIds.indexOf(item.quoteId) > -1
         if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
+          isCurConversation = true
           const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
           if (findMessage) {
             findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
@@ -273,7 +275,7 @@ export default class ChatContainer extends Vue {
           }
         }
       })
-    } else {
+    } else if (isCurConversation) {
       this.actionSetCurrentMessages(messages).then(() => {
         this.messagesVisible = this.getMessagesVisible()
       })

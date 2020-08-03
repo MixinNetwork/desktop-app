@@ -97,20 +97,20 @@ export default class ChatContainer extends Vue {
   @Action('setCurrentVideo') actionSetCurrentVideo: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
 
-  @Watch('messages')
-  onMessagesLengthChanged(messages: any) {
-    if (messages.length === 0) {
+  @Watch('messages.length')
+  onMessagesLengthChanged(messagesLen: any) {
+    if (messagesLen === 0) {
       this.page = 0
       this.newMessageMap = {}
     }
 
     if (this.changeConversation) return
-    if (messages.length > 0 && messages.length < PerPageMessageCount) {
+    if (messagesLen > 0 && messagesLen < PerPageMessageCount) {
       this.showTopTips = true
     }
     this.messagesVisible = this.getMessagesVisible()
     if (this.isBottom && this.conversation) {
-      const lastMessage = messages[messages.length - 1]
+      const lastMessage = this.messages[messagesLen - 1]
       if (
         lastMessage &&
         lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
@@ -274,7 +274,9 @@ export default class ChatContainer extends Vue {
         }
       })
     } else {
-      this.actionSetCurrentMessages(messages)
+      this.actionSetCurrentMessages(messages).then(() => {
+        this.messagesVisible = this.getMessagesVisible()
+      })
     }
   }
 

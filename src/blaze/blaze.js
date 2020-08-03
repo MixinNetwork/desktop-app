@@ -176,7 +176,7 @@ class Blaze {
   }
 
   sendMessagePromise(message) {
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return new Promise(() => { console.log('CONNECTING') })
     this.messageSending = true
     return new Promise((resolve, reject) => {
       const sendMessageTimer = setTimeout(() => {

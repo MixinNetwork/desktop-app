@@ -909,18 +909,19 @@ export default class ChatContainer extends Vue {
   }
 
   updateMessagesVisible() {
-    let isChanged = true
+    let visibleChanged = true
     const messagesVisible = this.getMessagesVisible()
     const length = messagesVisible.length
     if (
+      this.showMessages &&
       this.messagesVisible[0] &&
       this.messagesVisible[length - 1] &&
       this.messagesVisible[0].messageId === messagesVisible[0].messageId &&
       this.messagesVisible[length - 1].messageId === messagesVisible[length - 1].messageId
     ) {
-      isChanged = false
+      visibleChanged = false
     }
-    if (isChanged) {
+    if (visibleChanged) {
       this.messagesVisible = messagesVisible
     }
   }

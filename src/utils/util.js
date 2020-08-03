@@ -8,10 +8,8 @@ import { ipcRenderer } from 'electron'
 
 export function getIdentityNumber(direct) {
   let identityNumber = ''
-  if (localStorage.account) {
-    const user = JSON.parse(localStorage.account)
-    identityNumber = user.identity_number
-  }
+  const user = getAccount()
+  identityNumber = user.identity_number
   if (direct) {
     return identityNumber
   }
@@ -127,7 +125,6 @@ export function generateConversationId(userId, recipientId) {
 }
 
 export function safeParse(data) {
-  // use ts
   let res = {}
   if (typeof data === 'string') {
     try {

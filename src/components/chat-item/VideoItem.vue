@@ -51,23 +51,21 @@
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
                 />
                 <div v-else>
-                  <div :style="defaultStyle" v-if="showPlayIcon">
-                    <video @loadeddata="loaded=true" v-show="loaded" :src="message.mediaUrl" :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`" preload></video>
-                    <img
-                      v-show="!loaded"
-                      :style="defaultStyle"
-                      :src="'data:image/jpeg;base64,' + message.thumbImage"
-                      :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                  <div :style="defaultStyle">
+                    <video-player
+                      ref="videoPlayer"
+                      @loadeddata="loaded=true"
+                      @play="onPlay"
+                      @destroy="videoDestroy"
+                      :options="playerOptions"
+                    ></video-player>
+                    <svg-icon
+                      class="play"
+                      @click.stop="playIconClick"
+                      icon-class="ic_play"
+                      v-if="!loading && showPlayIcon"
                     />
-                    <svg-icon class="play" icon-class="ic_play" v-if="!loading"  @click="onPlayerPlay()" />
                   </div>
-                  <video-player
-                    v-else
-                    ref="videoPlayer"
-                    @play="onPlay"
-                    @destroy="videoDestroy"
-                    :options="playerOptions"
-                  ></video-player>
                 </div>
               </div>
             </div>
@@ -130,9 +128,7 @@ export default class VideoItem extends Vue {
   }
 
   get defaultStyle() {
-    return `background: #333; width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${
-      this.videoSize.height
-    }px`
+    return `width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${this.videoSize.height}px`
   }
 
   get playerOptions() {
@@ -192,12 +188,13 @@ export default class VideoItem extends Vue {
     this.actionStopLoading(this.message.messageId)
   }
 
-  onPlayerPlay() {
+  onPlay() {
     this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
+    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
   }
 
-  onPlay() {
-    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
+  playIconClick() {
+    this.videoPlayer.play()
   }
 
   videoDestroy() {

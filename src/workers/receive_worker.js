@@ -225,6 +225,10 @@ class ReceiveWorker extends BaseWorker {
     if (store.state.currentConversationId === data.conversation_id && data.user_id !== this.getAccountId()) {
       status = MessageStatus.READ
     }
+    if (data.representative_id) {
+      data.user_id = data.representative_id
+    }
+    await this.syncUser(data.user_id)
     const decoded = decodeURIComponent(escape(window.atob(data.data)))
     const message = {
       message_id: data.message_id,

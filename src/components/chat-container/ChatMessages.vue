@@ -864,12 +864,12 @@ export default class ChatContainer extends Vue {
     if (lastIndex < this.threshold) {
       lastIndex = this.threshold
     }
-    if (firstIndex === 0 && this.scrollDirection === 'up') {
-      lastIndex = this.threshold
-    }
-    if (lastIndex - firstIndex > this.threshold && this.scrollDirection === 'down') {
-      firstIndex = lastIndex - this.threshold
-    }
+    // if (firstIndex === 0 && this.scrollDirection === 'up') {
+    //   lastIndex = this.threshold
+    // }
+    // if (lastIndex - firstIndex > this.threshold && this.scrollDirection === 'down') {
+    //   firstIndex = lastIndex - this.threshold
+    // }
     const ids: any = []
     for (let i = firstIndex; i < this.messages.length; i++) {
       const message = _.cloneDeepWith(this.messages[i])

@@ -227,6 +227,7 @@ export function sendNotification(title, body, conversation) {
 }
 
 function uuidHashCode(sessionId) {
+  if (!sessionId) return ''
   let components = sessionId.split('-')
   components = components.map(item => '0x' + item)
   let mostSigBits = BigInt(components[0])

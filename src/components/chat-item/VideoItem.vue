@@ -21,7 +21,7 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
-              <div class="left-label">
+              <div class="left-label" v-if="showPlayIcon">
                 <span
                   v-if="loading || waitStatus"
                 >{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
@@ -117,34 +117,15 @@ export default class VideoItem extends Vue {
   MessageStatus: any = MessageStatus
   $moment: any
   loaded: boolean = false
+  showPlayIcon: boolean = true
+  playerOptions: any = {}
 
   get videoPlayer(): any {
     return this.$refs.videoPlayer
   }
 
-  get showPlayIcon() {
-    if (!this.currentVideo) return true
-    return this.currentVideo.message.messageId !== this.message.messageId
-  }
-
   get defaultStyle() {
     return `width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${this.videoSize.height}px`
-  }
-
-  get playerOptions() {
-    return {
-      language: navigator.language.split('-')[0],
-      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
-      width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
-      height: this.videoSize.height,
-      sources: [
-        {
-          type: 'video/mp4',
-          src: this.message.mediaUrl
-        }
-      ]
-      // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
-    }
   }
 
   get defaultImg() {
@@ -173,6 +154,22 @@ export default class VideoItem extends Vue {
     }
   }
 
+  mounted() {
+    this.playerOptions = {
+      language: navigator.language.split('-')[0],
+      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
+      width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
+      height: this.videoSize.height,
+      sources: [
+        {
+          type: 'video/mp4',
+          src: this.message.mediaUrl
+        }
+      ]
+      // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
+    }
+  }
+
   messageOwnership() {
     let { message, me } = this
     return {
@@ -189,6 +186,7 @@ export default class VideoItem extends Vue {
   }
 
   onPlay() {
+    this.showPlayIcon = false
     this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
     this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
   }

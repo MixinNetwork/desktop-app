@@ -135,7 +135,7 @@ export default class ReplyMessageItem extends Vue {
   get getContent() {
     const curMessageType = this.messageType()
     if (!this.message) {
-      return this.$t('chat.chat_recall_delete')
+      return this.$t('chat.chat_message_not_found')
     }
     if (curMessageType === 'text') {
       let { mentions, content } = this.message

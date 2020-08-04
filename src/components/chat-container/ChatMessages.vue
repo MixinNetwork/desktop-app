@@ -41,13 +41,6 @@
       @ended="audioEnded"
       :src="currentAudio && currentAudio.mediaUrl"
     ></audio>
-    <div style="display: none" v-if="shadowCurrentVideo">
-      <video-player
-        ref="shadowVideoPlayer"
-        @leavepictureinpicture="leavepictureinpicture"
-        :options="shadowCurrentVideo.playerOptions"
-      ></video-player>
-    </div>
   </mixin-scrollbar>
 </template>
 
@@ -87,13 +80,11 @@ export default class ChatContainer extends Vue {
   @Getter('refreshMessageIds') refreshMessageIds: any
   @Getter('currentUser') user: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('shadowCurrentVideo') shadowCurrentVideo: any
   @Getter('currentVideo') currentVideo: any
   @Getter('currentAudio') currentAudio: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
-  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
 
@@ -124,31 +115,6 @@ export default class ChatContainer extends Vue {
     }
   }
 
-  @Watch('shadowCurrentVideo')
-  onShadowCurrentVideoChanged(val: any) {
-    if (val && !this.pictureInPictureInterval) {
-      clearInterval(this.pictureInPictureInterval)
-      this.pictureInPictureInterval = setInterval(() => {
-        // @ts-ignore
-        const player = this.$refs.shadowVideoPlayer.player
-        if (player) {
-          const { muted, paused, volume, currentTime, playbackRate } = val.playerOptions
-          player
-            .requestPictureInPicture()
-            .then((data: any) => {
-              if (data) {
-                this.currentVideoPlayer = null
-                clearInterval(this.pictureInPictureInterval)
-                this.pictureInPictureInterval = null
-                setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
-              }
-            })
-            .catch(() => {})
-        }
-      }, 30)
-    }
-  }
-
   @Watch('viewport')
   onViewportChanged(val: any, oldVal: any) {
     let { firstIndex, lastIndex } = val
@@ -174,18 +140,6 @@ export default class ChatContainer extends Vue {
 
     this.updateMessagesVisible()
 
-    if (this.shadowCurrentVideo) {
-      let currentVideoFlag = false
-      this.messagesVisible.forEach((item: any) => {
-        if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
-          currentVideoFlag = true
-        }
-      })
-      if (currentVideoFlag) {
-        const currentVideo = _.cloneDeepWith(this.shadowCurrentVideo)
-        this.actionSetCurrentVideo(currentVideo)
-      }
-    }
     this.virtualDom = {
       top,
       bottom
@@ -439,7 +393,6 @@ export default class ChatContainer extends Vue {
   }
 
   leavepictureinpicture() {
-    this.actionSetShadowCurrentVideo(null)
   }
 
   clearMessagePositionIndex(index: any) {
@@ -557,29 +510,6 @@ export default class ChatContainer extends Vue {
       this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
-    this.$root.$on('setCurrentVideoPlayer', (item: any, id: string) => {
-      this.currentVideoPlayer = item
-      if (id === this.currentVideo.message.messageId) {
-        if (this.$refs.shadowVideoPlayer) {
-          // @ts-ignore
-          const shadowPlayer = this.$refs.shadowVideoPlayer.player
-          const playerStatus = getVideoPlayerStatus(shadowPlayer)
-          const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
-          if (isInPictureInPicture) {
-            shadowPlayer.exitPictureInPicture().then((res: any) => {
-              this.actionSetShadowCurrentVideo(null)
-            })
-          }
-          this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
-            if (data) {
-              clearInterval(this.pictureInPictureInterval)
-              this.pictureInPictureInterval = null
-              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
-            }
-          })
-        }
-      }
-    })
   }
 
   audioTimeupdate() {
@@ -640,7 +570,6 @@ export default class ChatContainer extends Vue {
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
-    this.$root.$off('setCurrentVideoPlayer')
   }
 
   goMessagePos(posMessage: any) {

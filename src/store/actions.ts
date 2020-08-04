@@ -347,9 +347,6 @@ export default {
       }
     }
   },
-  setShadowCurrentVideo: ({ commit }: any, videoMessage: any) => {
-    commit('setShadowCurrentVideo', videoMessage)
-  },
   setCurrentVideo: ({ commit }: any, videoMessage: any) => {
     commit('setCurrentVideo', videoMessage)
   },

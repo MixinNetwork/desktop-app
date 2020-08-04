@@ -111,7 +111,11 @@ export default class VideoItem extends Vue {
 
   @Action('stopLoading') actionStopLoading: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
-  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
+
+  @Watch('message.mediaUrl')
+  onMediaUrlChanged(url: any) {
+    this.playerOptions = this.getPlayerOptions()
+  }
 
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
@@ -154,8 +158,8 @@ export default class VideoItem extends Vue {
     }
   }
 
-  mounted() {
-    this.playerOptions = {
+  getPlayerOptions() {
+    return {
       language: navigator.language.split('-')[0],
       playbackRates: ['0.5', '1.0', '1.5', '2.0'],
       width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
@@ -168,6 +172,10 @@ export default class VideoItem extends Vue {
       ]
       // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
     }
+  }
+
+  mounted() {
+    this.playerOptions = this.getPlayerOptions()
   }
 
   messageOwnership() {
@@ -188,7 +196,6 @@ export default class VideoItem extends Vue {
   onPlay() {
     this.showPlayIcon = false
     this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
-    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
   }
 
   playIconClick() {
@@ -202,7 +209,6 @@ export default class VideoItem extends Vue {
         const player = this.videoPlayer.player
         const playerStatus = getVideoPlayerStatus(player)
         Object.assign(playerOptions, playerStatus)
-        this.actionSetShadowCurrentVideo({ message: this.message, playerOptions })
       } else {
         this.videoPlayer.player.exitPictureInPicture()
       }

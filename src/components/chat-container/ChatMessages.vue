@@ -840,19 +840,7 @@ export default class ChatContainer extends Vue {
   updateMessagesVisible(force?: boolean) {
     let visibleChanged = true
     const messagesVisible = this.getMessagesVisible()
-    const length = messagesVisible.length
-    if (
-      this.showMessages &&
-      this.messagesVisible[0] &&
-      this.messagesVisible[length - 1] &&
-      this.messagesVisible[0].messageId === messagesVisible[0].messageId &&
-      this.messagesVisible[length - 1].messageId === messagesVisible[length - 1].messageId
-    ) {
-      visibleChanged = false
-    }
-    if (visibleChanged || force) {
-      this.messagesVisible = messagesVisible
-    }
+    this.messagesVisible = messagesVisible
   }
 
   getMessagesVisible() {
@@ -864,15 +852,9 @@ export default class ChatContainer extends Vue {
     if (lastIndex < this.threshold) {
       lastIndex = this.threshold
     }
-    // if (firstIndex === 0 && this.scrollDirection === 'up') {
-    //   lastIndex = this.threshold
-    // }
-    // if (lastIndex - firstIndex > this.threshold && this.scrollDirection === 'down') {
-    //   firstIndex = lastIndex - this.threshold
-    // }
     const ids: any = []
     for (let i = firstIndex; i < this.messages.length; i++) {
-      const message = _.cloneDeepWith(this.messages[i])
+      const message = this.messages[i]
       if (message && ids.indexOf(message.messageId) < 0) {
         ids.push(message.messageId)
         list.push(message)

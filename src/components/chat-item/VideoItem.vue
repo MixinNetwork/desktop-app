@@ -21,7 +21,7 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
-              <div class="left-label" v-if="showPlayIcon">
+              <div class="left-label" v-if="!isCurVideo">
                 <span
                   v-if="loading || waitStatus"
                 >{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
@@ -54,17 +54,23 @@
                   <div :style="defaultStyle">
                     <video-player
                       ref="videoPlayer"
-                      v-show="loaded"
+                      v-if="isCurVideo"
                       @loadeddata="loaded=true"
                       @play="onPlay"
                       @destroy="videoDestroy"
                       :options="playerOptions"
                     ></video-player>
+                    <video
+                      v-else
+                      :src="message.mediaUrl"
+                      :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"
+                      preload
+                    ></video>
                     <svg-icon
                       class="play"
                       @click.stop="playIconClick"
                       icon-class="ic_play"
-                      v-if="!loading && showPlayIcon"
+                      v-if="!loading && !isCurVideo"
                     />
                   </div>
                 </div>
@@ -118,16 +124,20 @@ export default class VideoItem extends Vue {
     this.playerOptions = this.getPlayerOptions()
   }
 
+  @Watch('loaded')
+  onLoadedChanged(flag: any) {
+    if (flag) {
+      console.log(1111, flag)
+      // @ts-ignore
+      this.$refs.videoPlayer.play()
+    }
+  }
+
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
   $moment: any
   loaded: boolean = false
-  showPlayIcon: boolean = true
   playerOptions: any = {}
-
-  get videoPlayer(): any {
-    return this.$refs.videoPlayer
-  }
 
   get defaultStyle() {
     return `width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${this.videoSize.height}px`
@@ -157,6 +167,11 @@ export default class VideoItem extends Vue {
       width,
       height
     }
+  }
+
+  get isCurVideo() {
+    if (!this.currentVideo) return false
+    return this.currentVideo.message.messageId === this.message.messageId
   }
 
   getPlayerOptions() {
@@ -196,28 +211,19 @@ export default class VideoItem extends Vue {
     this.actionStopLoading(this.message.messageId)
   }
 
-  onPlay() {
-    this.showPlayIcon = false
+  onPlay() {}
+
+  playIconClick() {
     this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
   }
 
-  playIconClick() {
-    this.videoPlayer.play()
-  }
-
   videoDestroy() {
-    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
-      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
-        const playerOptions: any = this.playerOptions
-        const player = this.videoPlayer.player
-        const playerStatus = getVideoPlayerStatus(player)
-        Object.assign(playerOptions, playerStatus)
-      } else {
-        this.videoPlayer.player.exitPictureInPicture()
-      }
-    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
-      this.actionSetCurrentVideo(null)
+    // @ts-ignore
+    const player = this.$refs.videoPlayer.player
+    if (player.isInPictureInPicture_) {
+      player.exitPictureInPicture()
     }
+    this.loaded = false
   }
 }
 </script>

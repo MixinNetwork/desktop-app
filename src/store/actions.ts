@@ -32,9 +32,6 @@ function markRead(commit: any, state: any, conversationId: any) {
   if (state.conversations) {
     commit('setUnseenBadgeNum')
   }
-  requestAnimationFrame(() => {
-    messageDao.markRead(conversationId)
-  })
 }
 
 async function refreshConversation(conversationId: any, callback: () => void) {
@@ -358,7 +355,7 @@ export default {
   },
   sendMessage: ({ commit, state }: any, { msg, quoteId }: any) => {
     const { conversationId } = msg
-    markRead(commit, state, conversationId)
+    // markRead(commit, state, conversationId)
 
     let messageId = ''
     if (quoteId) {

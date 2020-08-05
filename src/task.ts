@@ -1,7 +1,10 @@
 import { ipcMain, BrowserWindow } from 'electron'
 
+let sWindow: any = null
+
 export function initTask(win: any) {
-  let sWindow = new BrowserWindow({
+  if (sWindow) return sWindow
+  sWindow = new BrowserWindow({
     frame: false,
     webPreferences: {
       nodeIntegration: true

@@ -127,7 +127,6 @@ export default class VideoItem extends Vue {
   @Watch('loaded')
   onLoadedChanged(flag: any) {
     if (flag) {
-      console.log(1111, flag)
       // @ts-ignore
       this.$refs.videoPlayer.play()
     }

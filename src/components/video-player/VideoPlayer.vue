@@ -83,7 +83,7 @@ export default {
     globalOptions: {
       type: Object,
       default: () => ({
-        autoplay: true,
+        autoplay: false,
         controls: true,
         // preload: 'auto',
         // fluid: false,
@@ -167,7 +167,7 @@ export default {
         const onEdEvents = {}
         for (let i = 0; i < events.length; i++) {
           if (typeof events[i] === 'string' && onEdEvents[events[i]] === undefined) {
-            ;(event => {
+            ;((event) => {
               onEdEvents[event] = null
               this.on(event, () => {
                 emitPlayerState(event, true)
@@ -184,6 +184,9 @@ export default {
         // player readied
         self.$emit('ready', this)
       })
+    },
+    play() {
+      this.player.play()
     },
     dispose(callback) {
       if (this.player && this.player.dispose) {

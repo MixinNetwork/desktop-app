@@ -56,9 +56,7 @@
 
       <mixin-scrollbar @scroll="onScroll">
         <div class="conversations ul">
-          <ul
-            v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)"
-          >
+          <ul v-if="!showMoreType && conversations && !(searchResult.contact||searchResult.group)">
             <ConversationItem
               v-for="conversation in conversationsVisible"
               :key="conversation.conversationId"
@@ -281,7 +279,7 @@ export default class Navigation extends Vue {
   $blaze: any
   $t: any
   $circles: any
-  threshold: number = 60
+  threshold: number = 40
   viewport: any = {
     firstIndex: 0,
     lastIndex: 0
@@ -448,11 +446,11 @@ export default class Navigation extends Vue {
     const nowPinTime = circlePinTime === undefined ? pinTime : circlePinTime
     const menu = this.getMenu(isContact, status === ConversationStatus.QUIT, nowPinTime, isMute)
     // @ts-ignore
-    this.$Menu.alert(event.clientX, event.clientY + 8, menu, index => {
+    this.$Menu.alert(event.clientX, event.clientY + 8, menu, (index) => {
       const option = menu[index]
       const conversationMenu: any = this.$t('menu.conversation')
       this.handlerMenu(
-        Object.keys(conversationMenu).find(key => conversationMenu[key] === option),
+        Object.keys(conversationMenu).find((key) => conversationMenu[key] === option),
         participants,
         conversationId,
         circlePinTime,
@@ -463,7 +461,15 @@ export default class Navigation extends Vue {
     })
   }
 
-  handlerMenu(position: any, participants: any, conversationId: any, circlePinTime: any, pinTime: any, category: any, ownerId: any) {
+  handlerMenu(
+    position: any,
+    participants: any,
+    conversationId: any,
+    circlePinTime: any,
+    pinTime: any,
+    category: any,
+    ownerId: any
+  ) {
     if (position === 'exit_group') {
       this.actionExitGroup(conversationId)
     } else if (position === 'pin_to_top' || position === 'clear_pin') {
@@ -621,24 +627,11 @@ export default class Navigation extends Vue {
   }
   onInput(keyword: string) {
     this.searchKeyword = keyword
-    let waitTime = 100
-    if (this.showMoreType) {
-      waitTime = 150
-    }
     if (!keyword) {
       this.actionSetSearching('')
       setTimeout(() => {
-        let index = 0
-        const { conversations, currentConversationId } = this
-        for (let i = 0; i < conversations.length; i++) {
-          if (conversations[i].conversationId === currentConversationId) {
-            index = i
-            break
-          }
-        }
-        this.viewport = this.viewportLimit(index - this.threshold, index + this.threshold)
-        this.goConversationPos(index)
-      }, 100)
+        this.goConversationPos(0)
+      })
     }
     clearTimeout(this.inputTimer)
     this.inputTimer = setTimeout(() => {
@@ -646,7 +639,7 @@ export default class Navigation extends Vue {
         keyword,
         type: this.showMoreType
       })
-    }, waitTime)
+    }, 50)
   }
   success() {
     this.conversationShow = false

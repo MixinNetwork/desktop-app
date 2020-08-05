@@ -41,13 +41,6 @@
       @ended="audioEnded"
       :src="currentAudio && currentAudio.mediaUrl"
     ></audio>
-    <div style="display: none" v-if="shadowCurrentVideo">
-      <video-player
-        ref="shadowVideoPlayer"
-        @leavepictureinpicture="leavepictureinpicture"
-        :options="shadowCurrentVideo.playerOptions"
-      ></video-player>
-    </div>
   </mixin-scrollbar>
 </template>
 
@@ -87,30 +80,28 @@ export default class ChatContainer extends Vue {
   @Getter('refreshMessageIds') refreshMessageIds: any
   @Getter('currentUser') user: any
   @Getter('conversationUnseenMentionsMap') conversationUnseenMentionsMap: any
-  @Getter('shadowCurrentVideo') shadowCurrentVideo: any
   @Getter('currentVideo') currentVideo: any
   @Getter('currentAudio') currentAudio: any
 
   @Action('markMentionRead') actionMarkMentionRead: any
   @Action('sendMessage') actionSendMessage: any
-  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
 
-  @Watch('messages')
-  onMessagesLengthChanged(messages: any) {
-    if (messages.length === 0) {
+  @Watch('messages.length')
+  onMessagesLengthChanged(messagesLen: any) {
+    if (messagesLen === 0) {
       this.page = 0
       this.newMessageMap = {}
     }
 
     if (this.changeConversation) return
-    if (messages.length > 0 && messages.length < PerPageMessageCount) {
+    if (messagesLen > 0 && messagesLen < PerPageMessageCount) {
       this.showTopTips = true
     }
-    this.messagesVisible = this.getMessagesVisible()
+    this.updateMessagesVisible(true)
     if (this.isBottom && this.conversation) {
-      const lastMessage = messages[messages.length - 1]
+      const lastMessage = this.messages[messagesLen - 1]
       if (
         lastMessage &&
         lastMessage === this.messagesVisible[this.messagesVisible.length - 1] &&
@@ -121,31 +112,6 @@ export default class ChatContainer extends Vue {
           messageId: lastMessage.messageId
         })
       }
-    }
-  }
-
-  @Watch('shadowCurrentVideo')
-  onShadowCurrentVideoChanged(val: any) {
-    if (val && !this.pictureInPictureInterval) {
-      clearInterval(this.pictureInPictureInterval)
-      this.pictureInPictureInterval = setInterval(() => {
-        // @ts-ignore
-        const player = this.$refs.shadowVideoPlayer.player
-        if (player) {
-          const { muted, paused, volume, currentTime, playbackRate } = val.playerOptions
-          player
-            .requestPictureInPicture()
-            .then((data: any) => {
-              if (data) {
-                this.currentVideoPlayer = null
-                clearInterval(this.pictureInPictureInterval)
-                this.pictureInPictureInterval = null
-                setVideoPlayerStatus(player, { muted, paused, volume, currentTime, playbackRate })
-              }
-            })
-            .catch(() => {})
-        }
-      }, 30)
     }
   }
 
@@ -172,19 +138,8 @@ export default class ChatContainer extends Vue {
       }
     }
 
-    this.messagesVisible = this.getMessagesVisible()
-    if (this.shadowCurrentVideo) {
-      let currentVideoFlag = false
-      this.messagesVisible.forEach((item: any) => {
-        if (item.messageId === this.shadowCurrentVideo.message.messageId && !currentVideoFlag) {
-          currentVideoFlag = true
-        }
-      })
-      if (currentVideoFlag) {
-        const currentVideo = JSON.parse(JSON.stringify(this.shadowCurrentVideo))
-        this.actionSetCurrentVideo(currentVideo)
-      }
-    }
+    this.updateMessagesVisible()
+
     this.virtualDom = {
       top,
       bottom
@@ -210,13 +165,15 @@ export default class ChatContainer extends Vue {
     const matchIds: any = []
     const { conversationId } = this.conversation
 
-    const messages = JSON.parse(JSON.stringify(this.messages))
+    const messages = this.messages
 
+    let isCurConversation = false
     for (let i = messages.length - 1; i >= 0; i--) {
       const item = messages[i]
       if (item) {
         const isQuote = messageIds.indexOf(item.quoteId) > -1
         if (messageIds.indexOf(item.messageId) > -1 || isQuote) {
+          isCurConversation = true
           const findMessage = messageDao.getConversationMessageById(conversationId, item.messageId)
           if (findMessage) {
             findMessage.lt = moment(findMessage.createdAt).format('HH:mm')
@@ -273,8 +230,10 @@ export default class ChatContainer extends Vue {
           }
         }
       })
-    } else {
-      this.actionSetCurrentMessages(messages)
+    } else if (isCurConversation) {
+      this.actionSetCurrentMessages(messages).then(() => {
+        this.updateMessagesVisible(true)
+      })
     }
   }
 
@@ -330,7 +289,6 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
   showTopTipsTimer: any = null
   overflowMap: any = { top: false, bottom: false }
-  intersectLock: boolean = true
   mentionMarkedMap: any = {}
   showMessages: any = true
   searchKeyword: any = ''
@@ -393,7 +351,7 @@ export default class ChatContainer extends Vue {
         const curMessage: any = messages[i]
         if (curMessage && curMessage.type) {
           const message: any = {}
-          Object.keys(curMessage).forEach(key => {
+          Object.keys(curMessage).forEach((key) => {
             message[keyToLine(key)] = curMessage[key]
           })
           message.category = message.type
@@ -434,7 +392,6 @@ export default class ChatContainer extends Vue {
   }
 
   leavepictureinpicture() {
-    this.actionSetShadowCurrentVideo(null)
   }
 
   clearMessagePositionIndex(index: any) {
@@ -552,29 +509,6 @@ export default class ChatContainer extends Vue {
       this.goMessagePosType = goMessagePosType
       this.goSearchMessagePos(message, keyword)
     })
-    this.$root.$on('setCurrentVideoPlayer', (item: any, id: string) => {
-      this.currentVideoPlayer = item
-      if (id === this.currentVideo.message.messageId) {
-        if (this.$refs.shadowVideoPlayer) {
-          // @ts-ignore
-          const shadowPlayer = this.$refs.shadowVideoPlayer.player
-          const playerStatus = getVideoPlayerStatus(shadowPlayer)
-          const isInPictureInPicture = shadowPlayer.isInPictureInPicture_
-          if (isInPictureInPicture) {
-            shadowPlayer.exitPictureInPicture().then((res: any) => {
-              this.actionSetShadowCurrentVideo(null)
-            })
-          }
-          this.currentVideoPlayer.requestPictureInPicture().then((data: any) => {
-            if (data) {
-              clearInterval(this.pictureInPictureInterval)
-              this.pictureInPictureInterval = null
-              setVideoPlayerStatus(this.currentVideoPlayer, playerStatus)
-            }
-          })
-        }
-      }
-    })
   }
 
   audioTimeupdate() {
@@ -605,7 +539,6 @@ export default class ChatContainer extends Vue {
 
   goBottom(currentMessageLen: number = 0) {
     this.isBottom = true
-    this.intersectLock = true
     this.beforeViewport = {}
     this.searchKeyword = ''
     const msgLen = this.messages.length
@@ -635,11 +568,9 @@ export default class ChatContainer extends Vue {
 
   beforeDestroy() {
     this.$root.$off('goSearchMessagePos')
-    this.$root.$off('setCurrentVideoPlayer')
   }
 
   goMessagePos(posMessage: any) {
-    this.intersectLock = true
     let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
@@ -840,7 +771,7 @@ export default class ChatContainer extends Vue {
     if (target.id === 'virtualBottom') {
       this.overflowMap.bottom = isIntersecting
     }
-    if (this.intersectLock || !target.id) return
+    if (!target.id) return
     const index = this.messageIds.indexOf(target.id)
     const direction = this.scrollDirection
     const offset = this.threshold
@@ -903,6 +834,12 @@ export default class ChatContainer extends Vue {
     this.messageHeightMap[messageId] = height
   }
 
+  updateMessagesVisible(force?: boolean) {
+    let visibleChanged = true
+    const messagesVisible = this.getMessagesVisible()
+    this.messagesVisible = messagesVisible
+  }
+
   getMessagesVisible() {
     const list = []
     let { firstIndex, lastIndex } = this.viewport
@@ -912,16 +849,16 @@ export default class ChatContainer extends Vue {
     if (lastIndex < this.threshold) {
       lastIndex = this.threshold
     }
+    const ids: any = []
     for (let i = firstIndex; i < this.messages.length; i++) {
-      list.push(this.messages[i])
-      if (i >= lastIndex) {
-        break
+      const message = this.messages[i]
+      if (message && ids.indexOf(message.messageId) < 0) {
+        ids.push(message.messageId)
+        list.push(message)
+        if (i >= lastIndex) {
+          break
+        }
       }
-    }
-    if (this.intersectLock) {
-      setTimeout(() => {
-        this.intersectLock = false
-      }, 200)
     }
     return _.sortBy(list, ['createdAt'])
   }

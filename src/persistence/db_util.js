@@ -9,10 +9,13 @@ export function getDbPath() {
   const isDevelopment = process.env.NODE_ENV !== 'production'
   let dir = remote.app.getPath('userData')
   let identityNumber = ''
-  if (localStorage.account) {
-    const user = JSON.parse(localStorage.account)
-    identityNumber = user.identity_number
+  let user = {}
+  if (typeof localStorage.account === 'string') {
+    try {
+      user = JSON.parse(localStorage.account)
+    } catch (error) {}
   }
+  identityNumber = user.identity_number
   if (!isDevelopment && identityNumber) {
     const newDir = path.join(dir, identityNumber)
     const dbPath = path.join(newDir, `mixin.db3`)

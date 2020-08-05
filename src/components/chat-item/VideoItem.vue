@@ -21,7 +21,7 @@
               class="reply"
             ></ReplyMessageItem>
             <div class="video-box">
-              <div class="left-label">
+              <div class="left-label" v-if="!isCurVideo">
                 <span
                   v-if="loading || waitStatus"
                 >{{ (message.mediaSize/1000000 || 0).toFixed(1) + ' MB' }}</span>
@@ -51,23 +51,28 @@
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
                 />
                 <div v-else>
-                  <div :style="defaultStyle" v-if="showPlayIcon">
-                    <video @loadeddata="loaded=true" v-show="loaded" :src="message.mediaUrl" :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`" preload></video>
-                    <img
-                      v-show="!loaded"
-                      :style="defaultStyle"
-                      :src="'data:image/jpeg;base64,' + message.thumbImage"
-                      :onerror="`this.src='${defaultImg}';this.onerror=null`"
+                  <div :style="defaultStyle">
+                    <video-player
+                      ref="videoPlayer"
+                      v-if="isCurVideo"
+                      @loadeddata="loaded=true"
+                      @play="onPlay"
+                      @destroy="videoDestroy"
+                      :options="playerOptions"
+                    ></video-player>
+                    <video
+                      v-else
+                      :src="message.mediaUrl"
+                      :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"
+                      preload
+                    ></video>
+                    <svg-icon
+                      class="play"
+                      @click.stop="playIconClick"
+                      icon-class="ic_play"
+                      v-if="!loading && !isCurVideo"
                     />
-                    <svg-icon class="play" icon-class="ic_play" v-if="!loading"  @click="onPlayerPlay()" />
                   </div>
-                  <video-player
-                    v-else
-                    ref="videoPlayer"
-                    @play="onPlay"
-                    @destroy="videoDestroy"
-                    :options="playerOptions"
-                  ></video-player>
                 </div>
               </div>
             </div>
@@ -113,42 +118,29 @@ export default class VideoItem extends Vue {
 
   @Action('stopLoading') actionStopLoading: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
-  @Action('setShadowCurrentVideo') actionSetShadowCurrentVideo: any
+
+  @Watch('message.mediaUrl')
+  onMediaUrlChanged(url: any) {
+    this.playerOptions = this.getPlayerOptions()
+  }
+
+  @Watch('loaded')
+  onLoadedChanged(flag: any) {
+    if (flag) {
+      console.log(1111, flag)
+      // @ts-ignore
+      this.$refs.videoPlayer.play()
+    }
+  }
 
   MediaStatus: any = MediaStatus
   MessageStatus: any = MessageStatus
   $moment: any
   loaded: boolean = false
-
-  get videoPlayer(): any {
-    return this.$refs.videoPlayer
-  }
-
-  get showPlayIcon() {
-    if (!this.currentVideo) return true
-    return this.currentVideo.message.messageId !== this.message.messageId
-  }
+  playerOptions: any = {}
 
   get defaultStyle() {
-    return `background: #333; width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${
-      this.videoSize.height
-    }px`
-  }
-
-  get playerOptions() {
-    return {
-      language: navigator.language.split('-')[0],
-      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
-      width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
-      height: this.videoSize.height,
-      sources: [
-        {
-          type: 'video/mp4',
-          src: this.message.mediaUrl
-        }
-      ]
-      // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
-    }
+    return `width: ${this.videoSize.width + (this.message.quoteContent ? 4 : 0)}px; height: ${this.videoSize.height}px`
   }
 
   get defaultImg() {
@@ -177,6 +169,33 @@ export default class VideoItem extends Vue {
     }
   }
 
+  get isCurVideo() {
+    if (!this.currentVideo) return false
+    return this.currentVideo.message.messageId === this.message.messageId
+  }
+
+  getPlayerOptions() {
+    return {
+      language: navigator.language.split('-')[0],
+      playbackRates: ['0.5', '1.0', '1.5', '2.0'],
+      width: this.videoSize.width + (this.message.quoteContent ? 4 : 0),
+      height: this.videoSize.height,
+      sources: [
+        {
+          type: 'video/mp4',
+          src: this.message.mediaUrl
+        }
+      ]
+      // poster: this.message.thumbImage ? 'data:image/jpeg;base64,' + this.message.thumbImage : this.defaultImg
+    }
+  }
+
+  mounted() {
+    requestAnimationFrame(() => {
+      this.playerOptions = this.getPlayerOptions()
+    })
+  }
+
   messageOwnership() {
     let { message, me } = this
     return {
@@ -192,28 +211,19 @@ export default class VideoItem extends Vue {
     this.actionStopLoading(this.message.messageId)
   }
 
-  onPlayerPlay() {
+  onPlay() {}
+
+  playIconClick() {
     this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })
   }
 
-  onPlay() {
-    this.$root.$emit('setCurrentVideoPlayer', this.videoPlayer.player, this.message.messageId)
-  }
-
   videoDestroy() {
-    if (this.videoPlayer.player && this.videoPlayer.player.isInPictureInPicture_) {
-      if (!this.currentVideo || this.currentVideo.message.messageId === this.message.messageId) {
-        const playerOptions: any = this.playerOptions
-        const player = this.videoPlayer.player
-        const playerStatus = getVideoPlayerStatus(player)
-        Object.assign(playerOptions, playerStatus)
-        this.actionSetShadowCurrentVideo({ message: this.message, playerOptions })
-      } else {
-        this.videoPlayer.player.exitPictureInPicture()
-      }
-    } else if (this.currentVideo && this.currentVideo.message.messageId === this.message.messageId) {
-      this.actionSetCurrentVideo(null)
+    // @ts-ignore
+    const player = this.$refs.videoPlayer.player
+    if (player.isInPictureInPicture_) {
+      player.exitPictureInPicture()
     }
+    this.loaded = false
   }
 }
 </script>

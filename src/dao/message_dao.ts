@@ -269,7 +269,7 @@ class MessageDao {
         'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
         'c.name AS groupName ' +
         'FROM messages m ' +
-        'INNER JOIN users u ON m.user_id = u.user_id ' +
+        'LEFT JOIN users u ON m.user_id = u.user_id ' +
         'LEFT JOIN users u1 ON m.participant_id = u1.user_id ' +
         'LEFT JOIN snapshots s ON m.snapshot_id = s.snapshot_id ' +
         'LEFT JOIN assets a ON s.asset_id = a.asset_id ' +
@@ -306,7 +306,7 @@ class MessageDao {
           'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
           'c.name AS groupName ' +
           'FROM messages m ' +
-          'INNER JOIN users u ON m.user_id = u.user_id ' +
+          'LEFT JOIN users u ON m.user_id = u.user_id ' +
           'LEFT JOIN users u1 ON m.participant_id = u1.user_id ' +
           'LEFT JOIN snapshots s ON m.snapshot_id = s.snapshot_id ' +
           'LEFT JOIN assets a ON s.asset_id = a.asset_id ' +
@@ -486,7 +486,7 @@ class MessageDao {
         st.asset_height AS assetHeight, m.sticker_id AS stickerId, st.name AS assetName, st.asset_type AS assetType,
         m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions,
         su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId
-        FROM messages m INNER JOIN users u ON m.user_id = u.user_id LEFT JOIN stickers st ON st.sticker_id = m.sticker_id
+        FROM messages m LEFT JOIN users u ON m.user_id = u.user_id LEFT JOIN stickers st ON st.sticker_id = m.sticker_id
         LEFT JOIN users su ON m.shared_user_id = su.user_id
         LEFT JOIN message_mentions mm ON m.message_id = mm.message_id
         WHERE m.conversation_id = ? AND m.message_id = ? AND m.status != 'FAILED'`

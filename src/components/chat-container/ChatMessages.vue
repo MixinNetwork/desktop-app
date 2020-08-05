@@ -165,7 +165,7 @@ export default class ChatContainer extends Vue {
     const matchIds: any = []
     const { conversationId } = this.conversation
 
-    const messages = _.cloneDeepWith(this.messages)
+    const messages = this.messages
 
     let isCurConversation = false
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -289,7 +289,6 @@ export default class ChatContainer extends Vue {
   showTopTips: boolean = false
   showTopTipsTimer: any = null
   overflowMap: any = { top: false, bottom: false }
-  intersectLock: boolean = true
   mentionMarkedMap: any = {}
   showMessages: any = true
   searchKeyword: any = ''
@@ -540,7 +539,6 @@ export default class ChatContainer extends Vue {
 
   goBottom(currentMessageLen: number = 0) {
     this.isBottom = true
-    this.intersectLock = true
     this.beforeViewport = {}
     this.searchKeyword = ''
     const msgLen = this.messages.length
@@ -573,7 +571,6 @@ export default class ChatContainer extends Vue {
   }
 
   goMessagePos(posMessage: any) {
-    this.intersectLock = true
     let { firstIndex, lastIndex } = this.viewport
     const posIndex = this.messageIds.indexOf(posMessage.messageId)
     if (posIndex > -1) {
@@ -774,7 +771,7 @@ export default class ChatContainer extends Vue {
     if (target.id === 'virtualBottom') {
       this.overflowMap.bottom = isIntersecting
     }
-    if (this.intersectLock || !target.id) return
+    if (!target.id) return
     const index = this.messageIds.indexOf(target.id)
     const direction = this.scrollDirection
     const offset = this.threshold
@@ -862,11 +859,6 @@ export default class ChatContainer extends Vue {
           break
         }
       }
-    }
-    if (this.intersectLock) {
-      setTimeout(() => {
-        this.intersectLock = false
-      }, 200)
     }
     return _.sortBy(list, ['createdAt'])
   }

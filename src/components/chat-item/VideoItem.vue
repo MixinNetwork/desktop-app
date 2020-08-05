@@ -54,6 +54,7 @@
                   <div :style="defaultStyle">
                     <video-player
                       ref="videoPlayer"
+                      v-show="loaded"
                       @loadeddata="loaded=true"
                       @play="onPlay"
                       @destroy="videoDestroy"
@@ -175,7 +176,9 @@ export default class VideoItem extends Vue {
   }
 
   mounted() {
-    this.playerOptions = this.getPlayerOptions()
+    requestAnimationFrame(() => {
+      this.playerOptions = this.getPlayerOptions()
+    })
   }
 
   messageOwnership() {

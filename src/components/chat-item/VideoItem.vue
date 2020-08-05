@@ -63,7 +63,7 @@
                     <video
                       v-else
                       :src="message.mediaUrl"
-                      :style="`width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"
+                      :style="`background: #333; width: ${videoSize.width + (message.quoteContent ? 4 : 0)}px; height: ${videoSize.height}px`"
                       preload
                     ></video>
                     <svg-icon
@@ -221,6 +221,8 @@ export default class VideoItem extends Vue {
     const player = this.$refs.videoPlayer.player
     if (player.isInPictureInPicture_) {
       player.exitPictureInPicture()
+    } else if (this.isCurVideo) {
+      this.actionSetCurrentVideo(null)
     }
     this.loaded = false
   }

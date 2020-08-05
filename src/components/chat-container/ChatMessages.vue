@@ -387,8 +387,7 @@ export default class ChatContainer extends Vue {
     this.$emit('handle-item-click', payload)
   }
 
-  leavepictureinpicture() {
-  }
+  leavepictureinpicture() {}
 
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
@@ -687,12 +686,16 @@ export default class ChatContainer extends Vue {
   scrollStop() {
     this.timeDivideShowForce = true
     this.scrolling = false
-    if (this.goMessagePosLock) return
-    if (!this.infiniteUpLock && this.overflowMap.top) {
+    if (this.overflowMap.top) {
       this.viewport = this.viewportLimit(0, 2 * this.threshold)
-    }
-    if (!this.infiniteDownLock && this.overflowMap.bottom) {
+      setTimeout(() => {
+        this.overflowMap.top = false
+      })
+    } else if (this.overflowMap.bottom) {
       this.goBottom()
+      setTimeout(() => {
+        this.overflowMap.bottom = false
+      })
     }
   }
 
@@ -752,12 +755,9 @@ export default class ChatContainer extends Vue {
   }
 
   onIntersect({ target, isIntersecting }: any) {
-    this.overflowMap.top = false
     if (target.id === 'virtualTop') {
       this.overflowMap.top = isIntersecting
-    }
-    this.overflowMap.bottom = false
-    if (target.id === 'virtualBottom') {
+    } else if (target.id === 'virtualBottom') {
       this.overflowMap.bottom = isIntersecting
     }
     if (!target.id) return

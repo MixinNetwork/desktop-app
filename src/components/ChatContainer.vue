@@ -330,8 +330,11 @@ export default class ChatContainer extends Vue {
     setInterval(() => {
       if (!windowsFocused && this.conversation && BrowserWindow.getFocusedWindow()) {
         windowsFocused = true
-        this.actionSetTempUnreadMessageId('')
-        this.actionMarkRead(this.conversation.conversationId)
+        const { unseenMessageCount, conversationId } = this.conversation
+        if (unseenMessageCount) {
+          this.actionSetTempUnreadMessageId('')
+          this.actionMarkRead(conversationId)
+        }
       }
       if (windowsFocused && !BrowserWindow.getFocusedWindow()) {
         windowsFocused = false

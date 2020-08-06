@@ -239,7 +239,6 @@ export default class ChatContainer extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newVal: any, oldVal: any) {
-    clearTimeout(this.scrollStopTimer)
     this.actionSetCurrentVideo(null)
     const mixinAudio: any = document.getElementById('mixinAudio')
     if (mixinAudio) {
@@ -276,13 +275,10 @@ export default class ChatContainer extends Vue {
   infiniteUpLock: boolean = false
   infiniteDownLock: boolean = false
   showScroll: boolean = false
-  currentVideoPlayer: any = null
-  pictureInPictureInterval: any = null
+  showScrollTimer: any = null
   scrolling: boolean = false
-  scrollStopTimer: any = null
   scrollDirection: string = ''
   scrollTimer: any = null
-  scrollTimerThrottle: any = null
   timeDivideShow: boolean = false
   timeDivideShowForce: boolean = false
   timeDivideLock: boolean = false
@@ -391,8 +387,7 @@ export default class ChatContainer extends Vue {
     this.$emit('handle-item-click', payload)
   }
 
-  leavepictureinpicture() {
-  }
+  leavepictureinpicture() {}
 
   clearMessagePositionIndex(index: any) {
     this.messagePositionIndex = index
@@ -554,14 +549,15 @@ export default class ChatContainer extends Vue {
           this.mentionVisibleUpdate(item.messageId)
         })
       })
+      clearTimeout(this.showScrollTimer)
       setTimeout(() => {
         if (list.scrollTop !== list.scrollHeight) {
           list.scrollTop = list.scrollHeight
         }
-        setTimeout(() => {
+        this.showScrollTimer = setTimeout(() => {
           this.showScroll = true
-        }, 200)
-      }, 100)
+        }, 210)
+      }, 30)
     })
     this.newMessageMap = {}
   }
@@ -688,18 +684,19 @@ export default class ChatContainer extends Vue {
   }
 
   scrollStop() {
-    clearTimeout(this.scrollStopTimer)
-    this.scrollStopTimer = setTimeout(() => {
-      this.timeDivideShowForce = true
-      this.scrolling = false
-      if (this.goMessagePosLock) return
-      if (!this.infiniteUpLock && this.overflowMap.top) {
-        this.viewport = this.viewportLimit(0, 2 * this.threshold)
-      }
-      if (!this.infiniteDownLock && this.overflowMap.bottom) {
-        this.goBottom()
-      }
-    }, 200)
+    this.timeDivideShowForce = true
+    this.scrolling = false
+    if (this.overflowMap.top) {
+      this.viewport = this.viewportLimit(0, 2 * this.threshold)
+      setTimeout(() => {
+        this.overflowMap.top = false
+      })
+    } else if (this.overflowMap.bottom) {
+      this.goBottom()
+      setTimeout(() => {
+        this.overflowMap.bottom = false
+      })
+    }
   }
 
   onScroll(obj: any) {
@@ -721,9 +718,9 @@ export default class ChatContainer extends Vue {
     const toTop = 200 + 20 * (list.scrollHeight / list.clientHeight)
     if (list.scrollTop < toTop) {
       if (!this.infiniteUpLock) {
-        clearTimeout(this.showTopTipsTimer)
         this.infiniteUp()
       }
+      clearTimeout(this.showTopTipsTimer)
       this.showTopTipsTimer = setTimeout(() => {
         if (this.infiniteUpLock) {
           this.showTopTips = true
@@ -731,19 +728,14 @@ export default class ChatContainer extends Vue {
       }, 150)
     }
 
-    if (!this.scrollTimerThrottle) {
-      this.scrollTimerThrottle = setTimeout(() => {
-        this.scrollTimerThrottle = null
-      }, 50)
-      clearTimeout(this.scrollTimer)
-      this.scrolling = true
-      this.scrollTimer = setTimeout(() => {
-        if (list.scrollTop < toTop && !this.infiniteUpLock) {
-          list.scrollTop = toTop
-        }
-        this.scrollStop()
-      }, 100)
-    }
+    clearTimeout(this.scrollTimer)
+    this.scrolling = true
+    this.scrollTimer = setTimeout(() => {
+      if (list.scrollTop < toTop && !this.infiniteUpLock) {
+        list.scrollTop = toTop
+      }
+      this.scrollStop()
+    }, 100)
 
     if (!this.isBottom && list.scrollTop > 130) {
       this.timeDivideShow = true
@@ -763,12 +755,9 @@ export default class ChatContainer extends Vue {
   }
 
   onIntersect({ target, isIntersecting }: any) {
-    this.overflowMap.top = false
     if (target.id === 'virtualTop') {
       this.overflowMap.top = isIntersecting
-    }
-    this.overflowMap.bottom = false
-    if (target.id === 'virtualBottom') {
+    } else if (target.id === 'virtualBottom') {
       this.overflowMap.bottom = isIntersecting
     }
     if (!target.id) return

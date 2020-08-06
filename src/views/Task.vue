@@ -134,6 +134,7 @@ export default class Task extends Vue {
           })
         })
         jobDao.insertJobs(jobList)
+        messageDao.markRead(conversationId)
       }
     })
   }

@@ -23,6 +23,7 @@ const mixinDb = DB().connection()
 const MixinDatabaseVersion = 5
 
 setTimeout(() => {
+  mixinDb.exec(`PRAGMA busy_timeout = 100`)
   const row = mixinDb.prepare('PRAGMA user_version').get()
   if (row && row.user_version < MixinDatabaseVersion) {
     const stmt = mixinDb.prepare(`PRAGMA user_version = ${MixinDatabaseVersion}`)

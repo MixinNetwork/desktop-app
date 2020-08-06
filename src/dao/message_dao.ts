@@ -146,12 +146,12 @@ class MessageDao {
 
   deleteMessageByIds(mIds: any) {
     const stmt = db.prepare('DELETE FROM messages WHERE message_id = ?')
-    const insertMany = db.transaction((mIds: any) => {
+    const deleteMany = db.transaction((mIds: any) => {
       for (let mId of mIds) {
         stmt.run(mId)
       }
     })
-    insertMany(mIds)
+    deleteMany(mIds)
     this.deleteMessageFts(mIds)
   }
 
@@ -214,7 +214,7 @@ class MessageDao {
     const insert = db.prepare(
       'INSERT OR REPLACE INTO messages_fts (message_id, content) VALUES (@message_id, @content)'
     )
-    const insertMany = db.transaction((messages: any[]) => {
+    const findMany = db.transaction((messages: any[]) => {
       messages.forEach((message: any) => {
         if (message.content && messageType(message.category) === 'text') {
           message.content = contentUtil.fts5ContentFilter(message.content)
@@ -231,7 +231,7 @@ class MessageDao {
         }
       })
     })
-    insertMany(messages)
+    findMany(messages)
   }
 
   ftsMessageQuery(conversationId: any, keyword: any, limit: number = 100, offset: number = 0) {

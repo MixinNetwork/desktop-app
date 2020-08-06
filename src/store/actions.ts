@@ -27,13 +27,21 @@ import {
 } from '@/utils/attachment_util'
 import appDao from '@/dao/app_dao'
 
+let onMarkReadLock = false
+
 function markRead(commit: any, state: any, conversationId: any) {
   ipcRenderer.send('taskRequest', { action: 'markRead', conversationId })
-  setTimeout(() => {
+  if (!onMarkReadLock) {
+    onMarkReadLock = true
     if (state.conversations) {
       commit('setUnseenBadgeNum')
     }
-  }, 100)
+    ipcRenderer.on('taskResponseData', (event, res) => {
+      if (state.conversations) {
+        commit('setUnseenBadgeNum')
+      }
+    })
+  }
 }
 
 async function refreshConversation(conversationId: any, callback: () => void) {

@@ -33,12 +33,13 @@ function markRead(commit: any, state: any, conversationId: any) {
   ipcRenderer.send('taskRequest', { action: 'markRead', conversationId })
   if (!onMarkReadLock) {
     onMarkReadLock = true
-    if (state.conversations) {
-      commit('setUnseenBadgeNum')
-    }
     ipcRenderer.on('taskResponseData', (event, res) => {
-      if (state.conversations) {
-        commit('setUnseenBadgeNum')
+      const payload = JSON.parse(res)
+      const { action } = payload
+      if (action === 'markRead') {
+        if (state.conversations) {
+          commit('setUnseenBadgeNum')
+        }
       }
     })
   }

@@ -60,6 +60,7 @@ export default class Task extends Vue {
       }, 150)
     } else {
       conversationDao.deleteConversation(conversationId)
+      messageDao.ftsMessagesDelete(conversationId)
     }
   }
 

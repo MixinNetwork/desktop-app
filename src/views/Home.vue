@@ -107,7 +107,7 @@ export default class Home extends Vue {
     })
     setTimeout(() => {
       ipcRenderer.send('initTask')
-    }, 3000)
+    }, 1000)
   }
 }
 </script>

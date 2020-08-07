@@ -716,6 +716,7 @@ li {
   font-size: 0;
   max-width: 80%;
   box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
+  overflow: hidden;
 
   &.text,
   &.app_card,

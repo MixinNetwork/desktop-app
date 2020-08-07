@@ -56,6 +56,8 @@
                       ref="videoPlayer"
                       v-if="isCurVideo"
                       @loadeddata="loaded=true"
+                      @enterpictureinpicture="enterpictureinpicture"
+                      @leavepictureinpicture="leavepictureinpicture"
                       @play="onPlay"
                       @destroy="videoDestroy"
                       :options="playerOptions"
@@ -211,6 +213,13 @@ export default class VideoItem extends Vue {
   }
 
   onPlay() {}
+
+  enterpictureinpicture() {
+    this.actionSetCurrentVideo(null)
+    this.$emit('pipClick')
+  }
+
+  leavepictureinpicture() {}
 
   playIconClick() {
     this.actionSetCurrentVideo({ message: this.message, playerOptions: this.playerOptions })

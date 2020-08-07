@@ -22,6 +22,7 @@ export function initTask(win: any) {
     try {
       sWindow.webContents.send('taskRequestData', JSON.stringify(payload))
     } catch (error) {
+      sWindow = null
       sWindow = initTask(win)
       setTimeout(() => {
         sWindow.webContents.send('taskRequestData', JSON.stringify(payload))

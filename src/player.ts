@@ -1,6 +1,8 @@
 import { ipcMain, screen, BrowserWindow } from 'electron'
 import path from 'path'
 
+let curPlayerId = -1
+
 function createPlayerWindow(w: any, h: any, pin: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
@@ -24,6 +26,7 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     },
     show: false
   })
+  curPlayerId = playerWindow.id
   // @ts-ignore
   // playerWindow.setAspectRatio(w / h)
   if (pin === 'true') {
@@ -55,14 +58,14 @@ export function initPlayer(id: number) {
 
   ipcMain.on('closePlayer', (event, _) => {
     BrowserWindow.getAllWindows().forEach(item => {
-      if (item.id !== id) {
+      if (item.id === curPlayerId) {
         item.close()
       }
     })
   })
   ipcMain.on('minimizePlayer', (event, _) => {
     BrowserWindow.getAllWindows().forEach(item => {
-      if (item.id !== id) {
+      if (item.id === curPlayerId) {
         item.minimize()
       }
     })
@@ -70,7 +73,7 @@ export function initPlayer(id: number) {
 
   function getPlayerWindow() {
     return BrowserWindow.getAllWindows().find(item => {
-      return item.id !== id
+      return item.id === curPlayerId
     })
   }
 

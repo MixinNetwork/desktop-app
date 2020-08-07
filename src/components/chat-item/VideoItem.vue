@@ -72,7 +72,7 @@
                       class="play"
                       @click.stop="playIconClick"
                       icon-class="ic_play"
-                      v-if="!loading && !isCurVideo"
+                      v-if="!loading && !pipLoading && !isCurVideo"
                     />
                   </div>
                 </div>
@@ -138,6 +138,7 @@ export default class VideoItem extends Vue {
   MessageStatus: any = MessageStatus
   $moment: any
   loaded: boolean = false
+  pipLoading: boolean = false
   playerOptions: any = {}
 
   get defaultStyle() {
@@ -215,8 +216,12 @@ export default class VideoItem extends Vue {
   onPlay() {}
 
   enterpictureinpicture() {
-    this.actionSetCurrentVideo(null)
+    this.pipLoading = true
     this.$emit('pipClick')
+    this.actionSetCurrentVideo(null)
+    setTimeout(() => {
+      this.pipLoading = false
+    }, 3000)
   }
 
   leavepictureinpicture() {}

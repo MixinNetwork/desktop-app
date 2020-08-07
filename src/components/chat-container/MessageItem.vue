@@ -1,12 +1,21 @@
 <template>
-  <li ref="messageItem" :class="{
+  <li
+    ref="messageItem"
+    :class="{
       'prev-same': this.prev && this.prev.userId === this.message.userId,
       'same': this.next && this.next.userId === this.message.userId
-    }" :id="message.messageId" v-if="message">
+    }"
+    :id="message.messageId"
+    v-if="message"
+  >
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
-    <div v-if="!prev || !equalDay(message, prev)" :class="{transparent: beforeCreateAt && beforeCreateAt === message.createdAt}" class="time-divide inner">
+    <div
+      v-if="!prev || !equalDay(message, prev)"
+      :class="{transparent: beforeCreateAt && beforeCreateAt === message.createdAt}"
+      class="time-divide inner"
+    >
       <span>{{getTimeDivide(message)}}</span>
     </div>
 
@@ -96,6 +105,7 @@
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
+      @pipClick="pipClick('video/mp4')"
     ></VideoItem>
 
     <RecallItem
@@ -127,7 +137,7 @@
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
-      @liveClick="liveClick"
+      @pipClick="pipClick()"
     ></LiveItem>
 
     <LocationItem
@@ -424,13 +434,14 @@ export default class MessageItem extends Vue {
       (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
     )
   }
-  liveClick() {
-    let message = this.message
+  pipClick(_type: any) {
+    let { mediaWidth, mediaHeight, thumbUrl, mediaUrl } = this.message
     ipcRenderer.send('play', {
-      width: message.mediaWidth,
-      height: message.mediaHeight,
-      thumb: message.thumbUrl,
-      url: message.mediaUrl,
+      width: mediaWidth,
+      height: mediaHeight,
+      thumb: thumbUrl,
+      url: mediaUrl,
+      type: _type || '',
       pin: localStorage.pinTop
     })
   }
@@ -529,7 +540,7 @@ export default class MessageItem extends Vue {
     let y = dheihgt - event.clientY < 200 ? event.clientY - messageMenu.length * 42 - 24 : event.clientY + 8
     this.$Menu.alert(x, y, messageMenu, (index: number) => {
       const option = messageMenu[index]
-      switch (Object.keys(menu).find(key => menu[key] === option)) {
+      switch (Object.keys(menu).find((key) => menu[key] === option)) {
         case 'reply':
           this.handleReply()
           break
@@ -625,7 +636,8 @@ li {
     margin-bottom: 0.2rem;
   }
   &.prev-same {
-    .unread-divide, .time-divide {
+    .unread-divide,
+    .time-divide {
       margin-top: 0.25rem;
     }
   }

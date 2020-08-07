@@ -22,7 +22,8 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     icon: path.join(__static, 'icon.png'),
     frame: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false
     },
     show: false
   })
@@ -98,7 +99,7 @@ export function initPlayer(id: number) {
       playerWindow = createPlayerWindow(args.width, args.height, args.pin)
       currentURL = args.url
     }
-    let params = `#player?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}`
+    let params = `#player?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}&type=${args.type}`
     if (process.env.WEBPACK_DEV_SERVER_URL) {
       playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
     } else {

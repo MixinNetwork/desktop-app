@@ -35,7 +35,7 @@ export default class Player extends Vue {
   init: boolean = false
 
   get playerOptions() {
-    const url: any = this.$route.query.url
+    const { url, type }: any = this.$route.query
     return {
       autoplay: true,
       language: navigator.language.split('-')[0],
@@ -43,6 +43,7 @@ export default class Player extends Vue {
       disablePictureInPicture: true,
       sources: [
         {
+          type,
           src: decodeURIComponent(url)
         }
       ]

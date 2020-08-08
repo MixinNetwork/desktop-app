@@ -20,6 +20,7 @@
         </div>
         <div class="image-viewer-info">
           <p>{{images[index].name?images[index].name:""}}({{(index+1)+'/'+images.length}})</p>
+          <svg-icon class="copy-icon" icon-class="copy" @click="copyImage(images[index])" />
           <svg-icon
             style="font-size: 1.2rem"
             icon-class="download"
@@ -50,6 +51,9 @@
 <script>
 import fs from 'fs'
 import path from 'path'
+import i18n from '@/utils/i18n'
+import { clipboard, nativeImage } from 'electron'
+
 export default {
   name: 'imageViewer',
   data() {
@@ -100,7 +104,13 @@ export default {
     window.addEventListener('keyup', this.keyUp)
   },
   methods: {
-    openFile: function(item) {
+    copyImage(item) {
+      const filePath = item.url.split('file://')[1]
+      const image = nativeImage.createFromPath(filePath)
+      clipboard.writeImage(image)
+      this.$toast(i18n.t('chat.copy_success'))
+    },
+    openFile(item) {
       if (!item.url) {
         return
       }
@@ -283,6 +293,10 @@ export default {
 
     vertical-align: baseline;
     user-select: none;
+  }
+  .copy-icon {
+    font-size: 0.9rem;
+    margin: 0.1rem 0.3rem;
   }
   i {
     display: inline-block;

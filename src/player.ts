@@ -1,9 +1,7 @@
 import { ipcMain, screen, BrowserWindow } from 'electron'
 import path from 'path'
 
-let curPlayerId = -1
-
-function createPlayerWindow(w: any, h: any, pin: any) {
+function createPlayerWindow(w: any, h: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
   if (w > h) {
@@ -27,14 +25,8 @@ function createPlayerWindow(w: any, h: any, pin: any) {
     },
     show: false
   })
-  curPlayerId = playerWindow.id
   // @ts-ignore
   // playerWindow.setAspectRatio(w / h)
-  if (pin === 'true') {
-    playerWindow.setAlwaysOnTop(true, 'floating', 1)
-  } else {
-    playerWindow.setAlwaysOnTop(false)
-  }
   if (process.platform !== 'darwin') {
     playerWindow.setMenuBarVisibility(false)
     playerWindow.autoHideMenuBar = true
@@ -44,70 +36,40 @@ function createPlayerWindow(w: any, h: any, pin: any) {
   return playerWindow
 }
 
-export function initPlayer(id: number) {
+let playerWindow: any = null
+let resizeObj: any = {}
+
+export function initPlayer() {
+  if (playerWindow) return playerWindow
+  playerWindow = createPlayerWindow(360, 220)
+  // ?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}&type=${args.type}
+  const params = `#player`
+  if (process.env.WEBPACK_DEV_SERVER_URL) {
+    playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
+  } else {
+    playerWindow.loadURL('app://./index.html' + params)
+  }
+
   ipcMain.on('pinToggle', (event, pin) => {
-    BrowserWindow.getAllWindows().forEach(item => {
-      if (item.id !== id) {
-        if (pin) {
-          item.setAlwaysOnTop(true, 'floating', 1)
-        } else {
-          item.setAlwaysOnTop(false)
-        }
-      }
-    })
+    if (pin) {
+      playerWindow.setAlwaysOnTop(true, 'floating', 1)
+    } else {
+      playerWindow.setAlwaysOnTop(false)
+    }
   })
 
   ipcMain.on('closePlayer', (event, _) => {
-    BrowserWindow.getAllWindows().forEach(item => {
-      if (item.id === curPlayerId) {
-        item.close()
-      }
-    })
+    playerWindow.webContents.send('playRequestData', JSON.stringify({}))
+    playerWindow.hide()
   })
+
   ipcMain.on('minimizePlayer', (event, _) => {
-    BrowserWindow.getAllWindows().forEach(item => {
-      if (item.id === curPlayerId) {
-        item.minimize()
-      }
-    })
+    playerWindow.minimize()
   })
 
-  function getPlayerWindow() {
-    return BrowserWindow.getAllWindows().find(item => {
-      return item.id === curPlayerId
-    })
-  }
-
-  let currentURL: any = null
-  let playerWindow: any = null
-  let resizeObj: any = {}
   ipcMain.on('play', (event, args) => {
-    playerWindow = getPlayerWindow()
-    if (args.url !== currentURL) {
-      if (playerWindow != null) {
-        playerWindow.close()
-      }
-      playerWindow = createPlayerWindow(args.width, args.height, args.pin)
-      playerWindow.on('ready-to-show', () => {
-        playerWindow.show()
-      })
-      currentURL = args.url
-    } else if (playerWindow) {
-      playerWindow.show()
-      return
-    } else {
-      playerWindow = createPlayerWindow(args.width, args.height, args.pin)
-      currentURL = args.url
-    }
-    let params = `#player?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}&type=${args.type}`
-    if (process.env.WEBPACK_DEV_SERVER_URL) {
-      playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
-    } else {
-      playerWindow.loadURL('app://./index.html' + params)
-    }
-    playerWindow.on('ready-to-show', () => {
-      playerWindow.show()
-    })
+    playerWindow.webContents.send('playRequestData', JSON.stringify(args))
+    playerWindow.show()
   })
 
   ipcMain.on('resize', (event, args) => {

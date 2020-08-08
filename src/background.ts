@@ -171,7 +171,9 @@ function createWindow() {
   } else {
     win.setMenu(null)
   }
-  initPlayer(win.id)
+  setTimeout(() => {
+    initPlayer()
+  }, 3000)
   app.setAppUserModelId('one.mixin.messenger')
 
   app.setAsDefaultProtocolClient('mixin')

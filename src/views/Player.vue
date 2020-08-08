@@ -1,6 +1,7 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
     <video-player
+      v-if="showPlayer"
       ref="videoPlayer"
       @loadeddata="loaded = true"
       :single="true"
@@ -33,9 +34,11 @@ export default class Player extends Vue {
   resizeInterval: any = null
   loaded: boolean = false
   init: boolean = false
+  showPlayer: boolean = false
+  playerOptions: any = {}
 
-  get playerOptions() {
-    const { url, type }: any = this.$route.query
+  getPlayerOptions(payload: any) {
+    const { url, type }: any = payload
     return {
       autoplay: true,
       language: navigator.language.split('-')[0],
@@ -44,7 +47,7 @@ export default class Player extends Vue {
       sources: [
         {
           type,
-          src: decodeURIComponent(url)
+          src: url
         }
       ]
     }
@@ -68,6 +71,13 @@ export default class Player extends Vue {
     this.show = false
   }
   mounted() {
+    ipcRenderer.on('playRequestData', (event, payload) => {
+      payload = JSON.parse(payload)
+      this.showPlayer = !!payload.url
+      if (payload.url) {
+        this.playerOptions = this.getPlayerOptions(payload)
+      }
+    })
     this.pin = localStorage.pinTop === 'true'
     clearInterval(this.resizeInterval)
     this.resizeInterval = setInterval(() => {

@@ -221,7 +221,7 @@ export default class VideoItem extends Vue {
     this.actionSetCurrentVideo(null)
     setTimeout(() => {
       this.pipLoading = false
-    }, 3000)
+    }, 1000)
   }
 
   leavepictureinpicture() {}

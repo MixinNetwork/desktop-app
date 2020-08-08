@@ -609,7 +609,10 @@ export function isVideoExtension(extension: string) {
       break
     }
   }
-  return type
+  if (isVideo(type)) {
+    return type
+  }
+  return ''
 }
 
 function parseFile(blob: Blob) {

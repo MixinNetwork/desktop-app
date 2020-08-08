@@ -6,7 +6,7 @@
     </div>
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImageType === 'image'" />
-      <video class="image" ref="videoImage" :src="getPath()" v-if="showImageType === 'video'" preload></video>
+      <video class="image" ref="videoImage" :src="getPath()" v-else-if="showImageType === 'video'" preload></video>
       <div class="file" v-else-if="fileName">
         <svg-icon style="font-size: 2rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
@@ -37,11 +37,10 @@ export default class FileContainer extends Vue {
 
   get showImageType() {
     if (this.file) {
-      if (isVideo(this.file.type)) {
-        return 'video'
-      }
       if (isImage(this.file.type)) {
         return 'image'
+      } else if (isVideo(this.file.type)) {
+        return 'video'
       }
       return ''
     } else {

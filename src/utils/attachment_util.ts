@@ -148,7 +148,7 @@ export function mediaMigration(identityNumber: string, callback: any) {
     if (src) {
       const dist = path.join(newDir, messageId)
       if (dist !== src && fs.existsSync(src)) {
-        fs.rename(src, dist, (err) => {
+        fs.rename(src, dist, err => {
           if (err) {
             throw err
           }
@@ -567,7 +567,6 @@ export function generateName(fileName: string, mimeType: string, category: strin
 export function isImage(mimeType: string) {
   if (
     mimeType === MimeType.JPEG.name ||
-    mimeType === MimeType.JPEG.name ||
     mimeType === MimeType.PNG.name ||
     mimeType === MimeType.GIF.name ||
     mimeType === MimeType.BMP.name ||
@@ -577,6 +576,40 @@ export function isImage(mimeType: string) {
   } else {
     return false
   }
+}
+
+export function isVideo(mimeType: string) {
+  if (
+    [
+      MimeType.MPEG.name,
+      MimeType.MP4.name,
+      MimeType.QUICKTIME.name,
+      MimeType.THREEGPP.name,
+      MimeType.THREEGPP2.name,
+      MimeType.MKV.name,
+      MimeType.WEBM.name,
+      MimeType.TS.name,
+      MimeType.AVI.name
+    ].indexOf(mimeType) > -1
+  ) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function isVideoExtension(extension: string) {
+  let type = ''
+  const keys = Object.keys(MimeType)
+  for (let i = 0; i < keys.length; i++) {
+    // @ts-ignore
+    const item: any = MimeType[keys[i]]
+    if (item.extension === extension) {
+      type = item.name
+      break
+    }
+  }
+  return type
 }
 
 function parseFile(blob: Blob) {

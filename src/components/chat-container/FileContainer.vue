@@ -5,7 +5,8 @@
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
-      <img class="image" :src="getPath()" v-if="showImage" />
+      <img class="image" :src="getPath()" v-if="showImageType === 'image'" />
+      <video class="image" ref="videoImage" :src="getPath()" v-if="showImageType === 'video'" preload></video>
       <div class="file" v-else-if="fileName">
         <svg-icon style="font-size: 2rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
@@ -17,13 +18,13 @@
       class="create"
       :class="{disabled: dragging || fileUnsupported}"
       icon="arrow-right"
-      @click="(dragging || fileUnsupported) ? '' : $emit('sendFile')"
+      @click="sendFile"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { isImage } from '@/utils/attachment_util'
+import { isImage, isVideo } from '@/utils/attachment_util'
 import path from 'path'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
@@ -34,11 +35,17 @@ export default class FileContainer extends Vue {
   @Prop(Boolean) readonly dragging: any
   @Prop(Boolean) readonly fileUnsupported: any
 
-  get showImage() {
+  get showImageType() {
     if (this.file) {
-      return isImage(this.file.type)
+      if (isVideo(this.file.type)) {
+        return 'video'
+      }
+      if (isImage(this.file.type)) {
+        return 'image'
+      }
+      return ''
     } else {
-      return false
+      return ''
     }
   }
   get fileName() {
@@ -54,6 +61,20 @@ export default class FileContainer extends Vue {
     } else {
       return ''
     }
+  }
+
+  sendFile() {
+    if (this.dragging || this.fileUnsupported) return
+    let ret = {}
+    if (this.showImageType === 'video') {
+      const $video: any = this.$refs.videoImage
+      ret = {
+        duration: $video.duration * 1000,
+        width: $video.width,
+        height: $video.height
+      }
+    }
+    this.$emit('sendFile', ret)
   }
 }
 </script>

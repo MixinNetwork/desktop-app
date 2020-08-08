@@ -565,10 +565,11 @@ export default class ChatContainer extends Vue {
         category
       }
       if (video) {
-        const { duration, height, width } = ret
+        const { duration, height, width, thumbImage } = ret
         payload.mediaDuration = duration
         payload.mediaWidth = width
         payload.mediaHeight = height
+        payload.thumbImage = thumbImage
       }
       const { conversationId } = this.conversation
       const message = {

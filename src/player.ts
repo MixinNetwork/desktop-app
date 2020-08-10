@@ -38,6 +38,7 @@ function createPlayerWindow(w: any, h: any) {
 
 let playerWindow: any = null
 let resizeObj: any = {}
+let resizeInterval: any = null
 
 export function initPlayer() {
   if (playerWindow) return playerWindow
@@ -49,6 +50,16 @@ export function initPlayer() {
   } else {
     playerWindow.loadURL('app://./index.html' + params)
   }
+
+  resizeInterval = setInterval(() => {
+    const winSize = playerWindow.getSize()
+    const { width, height } = resizeObj
+    if (winSize[0] !== width || winSize[1] !== height) {
+      if (width > 0 && height > 0) {
+        playerWindow.setSize(width, height)
+      }
+    }
+  }, 100)
 
   ipcMain.on('pinToggle', (event, pin) => {
     if (pin) {
@@ -75,13 +86,11 @@ export function initPlayer() {
   ipcMain.on('resize', (event, args) => {
     const { width, height } = args
     if (playerWindow) {
-      resizeObj = args
-      const winSize = playerWindow.getSize()
-      if (winSize.width !== width || winSize.height !== height) {
-        playerWindow.setSize(width, height)
-        // for macOS
-        playerWindow.setAspectRatio(width / height)
-      }
+      playerWindow.setSize(width, height)
+      resizeObj = { width, height }
+      // for macOS
+      playerWindow.setAspectRatio(width / height)
+      clearInterval(resizeInterval)
     }
   })
 }

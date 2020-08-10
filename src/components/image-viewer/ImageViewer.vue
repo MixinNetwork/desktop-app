@@ -355,6 +355,9 @@ export default {
   margin-bottom: 0.6rem;
   display: flex;
   cursor: pointer;
+  svg {
+    filter: drop-shadow(0 0 0.1rem #000);
+  }
   > *,
   .right > * {
     height: 100%;
@@ -455,6 +458,7 @@ export default {
   right: 1rem;
   position: absolute;
   cursor: pointer;
+  filter: drop-shadow(0 0 0.1rem #000);
 }
 .image-viewer-content-prev:hover > i,
 .image-viewer-content-next:hover > i,

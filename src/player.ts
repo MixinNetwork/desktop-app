@@ -12,6 +12,8 @@ function createPlayerWindow(w: any, h: any) {
     ww = Math.floor((wh * w) / h)
   }
   let playerWindow = new BrowserWindow({
+    x: width - ww,
+    y: height - wh,
     width: ww,
     height: wh,
     minWidth: 160,

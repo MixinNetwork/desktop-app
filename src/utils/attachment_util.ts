@@ -149,7 +149,7 @@ export function mediaMigration(identityNumber: string, callback: any) {
     if (src) {
       const dist = path.join(newDir, messageId)
       if (dist !== src && fs.existsSync(src)) {
-        fs.rename(src, dist, (err) => {
+        fs.rename(src, dist, err => {
           if (err) {
             throw err
           }
@@ -618,6 +618,10 @@ function getAttachment(url: string, id: string) {
       return parseFile(blob)
     })
     .catch(error => {
-      console.log('getAttachment err:', error)
+      if (!/504/.test(error)) {
+        console.log('getAttachment err:', error)
+      } else {
+        console.log('Stop getAttachment')
+      }
     })
 }

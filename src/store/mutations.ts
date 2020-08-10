@@ -389,13 +389,11 @@ export default {
     state.attachment.push(messageId)
   },
   stopLoading(state: { attachment: any }, messageId: any) {
-    setTimeout(() => {
-      updateCancelMap(messageId)
-      const arr = state.attachment
-      state.attachment = arr.filter((item: any) => {
-        return item !== messageId
-      })
-    }, 1000)
+    updateCancelMap(messageId)
+    const arr = state.attachment
+    state.attachment = arr.filter((item: any) => {
+      return item !== messageId
+    })
   },
   updateFetchPercent(state: { fetchPercentMap: any }, payload: any) {
     const { id, percent } = payload

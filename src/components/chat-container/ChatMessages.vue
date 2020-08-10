@@ -87,6 +87,7 @@ export default class ChatContainer extends Vue {
   @Action('sendMessage') actionSendMessage: any
   @Action('setCurrentVideo') actionSetCurrentVideo: any
   @Action('setCurrentMessages') actionSetCurrentMessages: any
+  @Action('stopLoading') actionStopLoading: any
 
   @Watch('messages.length')
   onMessagesLengthChanged(messagesLen: any) {
@@ -339,38 +340,6 @@ export default class ChatContainer extends Vue {
         }
       }
       this.actionSetCurrentMessages(messages)
-      let i = PerPageMessageCount
-      if (messages.length < i) {
-        i = messages.length
-      }
-      while (i-- > 0) {
-        const curMessage: any = messages[i]
-        if (curMessage && curMessage.type) {
-          const message: any = {}
-          Object.keys(curMessage).forEach((key) => {
-            message[keyToLine(key)] = curMessage[key]
-          })
-          message.category = message.type
-          const curMessageType = messageType(message.category)
-          let autoDownload = !message.media_url && curMessageType === 'audio'
-          const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
-          if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
-            const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
-            let autoDownloadMap: any = { image: true, video: true, file: true }
-            if (autoDownloadSetting) {
-              autoDownloadMap = JSON.parse(autoDownloadSetting)
-            }
-            if (autoDownloadMap[curMessageType]) {
-              autoDownload = true
-            }
-          }
-          if (autoDownload) {
-            downloadQueue.push(downloadAndRefresh, {
-              args: message
-            })
-          }
-        }
-      }
       this.scrollAction({ goBottom: messages.length, message: posMessage, isInit })
       let getLastMessage = false
       if (this.pageDown === 0) {
@@ -775,6 +744,36 @@ export default class ChatContainer extends Vue {
       }
     }
     const curMessage = this.messages[index]
+
+    if (curMessage && curMessage.type) {
+      const message: any = {}
+      Object.keys(curMessage).forEach((key) => {
+        message[keyToLine(key)] = curMessage[key]
+      })
+      message.category = message.type
+      if (isIntersecting) {
+        const curMessageType = messageType(message.category)
+        let autoDownload = !message.media_url && curMessageType === 'audio'
+        if (!message.media_url && isMedia(message.type)) {
+          const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+          let autoDownloadMap: any = { image: true, video: true, file: true }
+          if (autoDownloadSetting) {
+            autoDownloadMap = JSON.parse(autoDownloadSetting)
+          }
+          if (autoDownloadMap[curMessageType]) {
+            autoDownload = true
+          }
+        }
+        if (autoDownload) {
+          downloadQueue.push(downloadAndRefresh, {
+            args: message
+          })
+        }
+      } else if (isMedia(message.type)) {
+        this.actionStopLoading(curMessage.messageId)
+      }
+    }
+
     if (curMessage && isIntersecting && (curMessage.quoteId || curMessage.mentions)) {
       this.mentionVisibleUpdate(target.id)
     }

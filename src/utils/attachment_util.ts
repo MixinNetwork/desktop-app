@@ -41,7 +41,7 @@ const cancelPromise = (id: string) => {
       } else {
         setTimeout(() => {
           action()
-        }, 100)
+        }, 30)
       }
     }
     action()
@@ -50,6 +50,7 @@ const cancelPromise = (id: string) => {
 const requestPromise = async(url: string, id: string, opt: any) => {
   const controller = new AbortController()
   const signal = controller.signal
+  cancelMap[id] = false
   controllerMap[id] = controller
   Object.assign(opt, {
     signal

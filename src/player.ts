@@ -43,7 +43,9 @@ let resizeObj: any = {}
 let resizeInterval: any = null
 
 export function initPlayer() {
-  if (playerWindow) return playerWindow
+  if (playerWindow) {
+    playerWindow.close()
+  }
   playerWindow = createPlayerWindow(360, 220)
   // ?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}&type=${args.type}
   const params = `#player`

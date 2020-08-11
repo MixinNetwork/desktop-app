@@ -13,7 +13,9 @@ import circleDao from '@/dao/circle_dao'
 import circleConversationDao from '@/dao/circle_conversation_dao'
 import userAPI from '@/api/user'
 import { checkSignalKey } from '@/utils/signal_key_util'
-import { clearDb, dbMigration } from '@/persistence/db_util'
+// @ts-ignore
+import Database from 'better-sqlite3'
+import { clearDb, dbMigration, getDbPath } from '@/persistence/db_util'
 import { getIdentityNumber } from '@/utils/util'
 
 import { Vue, Component } from 'vue-property-decorator'
@@ -61,13 +63,17 @@ export default class Loading extends Vue {
       }
       const user = account.data.data
       if (!user) {
-        userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
+        userAPI
+          .updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
+          .then(() => {})
         await this.pushSignalKeys()
       } else {
         sessionStorage.duringMigration = true
         this.migrationAction((skip: boolean) => {
           delete sessionStorage.duringMigration
-          userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() }).then(() => {})
+          userAPI
+            .updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
+            .then(() => {})
           this.pushSignalKeys().then(() => {
             localStorage.account = JSON.stringify(user)
             this.$store.dispatch('insertUser', user)
@@ -101,6 +107,25 @@ export default class Loading extends Vue {
         return
       }
 
+      let beforeIdentityNumber = ''
+      const dbPath = path.join(getDbPath(), 'mixin.db3')
+      if (fs.existsSync(dbPath)) {
+        const mixinDb = new Database(dbPath, { readonly: true })
+        const findUser = mixinDb.prepare(`SELECT * FROM users WHERE relationship='ME'`).get()
+        beforeIdentityNumber = findUser.user_id
+        mixinDb.close()
+      } else {
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(true)
+        return
+      }
+
+      if (beforeIdentityNumber !== identityNumber) {
+        // eslint-disable-next-line standard/no-callback-literal
+        callback(true)
+        return
+      }
+
       if (!localStorage.dbMigrationDone) {
         await dbMigration(identityNumber)
       }
@@ -120,7 +145,7 @@ export default class Loading extends Vue {
   }
 
   getCircleConversations(circleId: any, list: any, offset: string) {
-    return circleApi.getCircleConversations(circleId, offset).then(res => {
+    return circleApi.getCircleConversations(circleId, offset).then((res) => {
       if (!res.data || !res.data.data) return
       const conversations = res.data.data
       conversations.forEach((item: any) => {
@@ -136,7 +161,7 @@ export default class Loading extends Vue {
   }
 
   syncCircles() {
-    circleApi.getCircles().then(res => {
+    circleApi.getCircles().then((res) => {
       if (!res.data || !res.data.data) return
       const circles = res.data.data
       if (!circles.length) return

@@ -72,9 +72,11 @@ export default class UserItem extends Vue {
   contain: layout;
   cursor: pointer;
   padding: 0.45rem 1.1rem;
-  &:hover,
-  &.current {
+  &:hover {
     background: $hover-bg-color;
+  }
+  &.current {
+    background: $active-bg-color;
   }
   border: none;
 

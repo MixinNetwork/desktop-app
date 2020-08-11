@@ -96,8 +96,10 @@ class TributeEvents {
 
       // TODO: should fire with externalTrigger and target is outside of menu
     } else if (tribute.current.element && !tribute.current.externalTrigger) {
-      tribute.current.externalTrigger = false
-      setTimeout(() => tribute.hideMenu())
+      setTimeout(() => {
+        tribute.current.externalTrigger = false
+        setTimeout(() => tribute.hideMenu())
+      }, 10)
     }
   }
 
@@ -134,17 +136,12 @@ class TributeEvents {
       }
     }
 
-    if (
-      instance.tribute.current.mentionText.length <
-      instance.tribute.current.collection.menuShowMinLength
-    ) {
+    if (instance.tribute.current.mentionText.length < instance.tribute.current.collection.menuShowMinLength) {
       return
     }
 
     if (
-      ((instance.tribute.current.trigger ||
-        instance.tribute.autocompleteMode) &&
-        instance.commandEvent === false) ||
+      ((instance.tribute.current.trigger || instance.tribute.autocompleteMode) && instance.commandEvent === false) ||
       (instance.tribute.isActive && event.keyCode === 8)
     ) {
       instance.tribute.showMenuFor(this, true)
@@ -213,11 +210,7 @@ class TributeEvents {
 
         tribute.current.collection = collectionItem
 
-        if (
-          tribute.current.mentionText.length >=
-            tribute.current.collection.menuShowMinLength &&
-          tribute.inputEvent
-        ) {
+        if (tribute.current.mentionText.length >= tribute.current.collection.menuShowMinLength && tribute.inputEvent) {
           tribute.showMenuFor(el, true)
         }
       },
@@ -294,10 +287,7 @@ class TributeEvents {
         }
       },
       delete: (e, el) => {
-        if (
-          this.tribute.isActive &&
-          this.tribute.current.mentionText.length < 1
-        ) {
+        if (this.tribute.isActive && this.tribute.current.mentionText.length < 1) {
           this.tribute.hideMenu()
         } else if (this.tribute.isActive) {
           this.tribute.showMenuFor(el)
@@ -315,6 +305,8 @@ class TributeEvents {
     for (let i = 0; i < length; i++) {
       let li = lis[i]
       if (i === this.tribute.menuSelected) {
+        this.tribute.current.element.dispatchEvent(new CustomEvent('tribute-select-index', { detail: i }))
+
         li.classList.add(this.tribute.current.collection.selectClass)
 
         let liClientRect = li.getBoundingClientRect()
@@ -338,9 +330,7 @@ class TributeEvents {
 
     if (includeMargin) {
       let style = elem.currentStyle || window.getComputedStyle(elem)
-      return (
-        height + parseFloat(style.marginTop) + parseFloat(style.marginBottom)
-      )
+      return height + parseFloat(style.marginTop) + parseFloat(style.marginBottom)
     }
 
     return height

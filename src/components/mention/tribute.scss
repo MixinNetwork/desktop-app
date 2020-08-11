@@ -1,0 +1,74 @@
+.tribute-container {
+  display: none !important;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: auto;
+  max-height: 300px;
+  max-width: 500px;
+  overflow: auto;
+  display: block;
+  z-index: 999999;
+
+  ul {
+    margin: 0;
+    margin-top: 2px;
+    padding: 0;
+    list-style: none;
+    background: #fff;
+  }
+
+  li {
+    padding: 5px 5px;
+    cursor: pointer;
+
+    &.highlight {
+      background: #ddd;
+    }
+
+    span {
+      font-weight: bold;
+    }
+
+    &.no-match {
+      cursor: default;
+    }
+  }
+
+  .menu-highlighted {
+    font-weight: bold;
+  }
+}
+
+// .slide-up-enter-active {
+//   transition: all 0.1s;
+// }
+// .slide-up-leave-active {
+//   transition: all 0.3s ease;
+// }
+// .slide-up-enter,
+// .slide-up-leave-to {
+//   transform: translateY(200%);
+// }
+
+// .mention-panel {
+//   contain: layout;
+//   background: #ffffff;
+//   border-top: 0.05rem solid #f0f0f0;
+//   display: flex;
+//   flex-flow: column nowrap;
+//   height: 12rem;
+//   padding-bottom: 0.05rem;
+//   left: 14.4rem;
+//   bottom: 2.4rem;
+//   right: 0;
+//   position: absolute;
+//   z-index: 1;
+//   &.box-message {
+//     margin-bottom: 2.4rem;
+//   }
+
+// :style="`padding-bottom: ${inputBoxHeight-36}px;`"
+//         :class="{ 'box-message': boxMessage }"
+//         :height="panelHeight"

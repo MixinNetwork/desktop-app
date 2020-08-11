@@ -33,6 +33,7 @@ export default class MentionPanel extends Vue {
   @Prop(String) readonly currentUid: any
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly conversation: any
+  @Prop(Array) readonly contacts: any
   @Prop(Array) readonly mentions: any
   @Prop(Number) readonly height: any
 
@@ -42,45 +43,21 @@ export default class MentionPanel extends Vue {
   onCurrentUidChange(currentUid: string) {
     if (currentUid) {
       this.currentUidTemp = currentUid
+      this.goItemPos(this.uids.indexOf(currentUid))
+      this.mentionHoverPrevent = true
     }
   }
 
-  @Watch('keyword')
-  onKeywordChanged(keyword: string) {
-    const { conversationId, category } = this.conversation
-    this.participants = participantDao.getParticipantsByConversationId(conversationId)
-    setTimeout(() => {
-      if (keyword && this.participants.length > 1 && category === ConversationCategory.GROUP) {
-        let contacts: any = []
-        const mentionIds: any = []
-        this.mentions.forEach((item: any) => {
-          mentionIds.push(item.identity_number)
-        })
-        this.participants.forEach(item => {
-          if (item.identity_number !== this.me.identity_number && mentionIds.indexOf(item.identity_number) < 0) {
-            if (
-              keyword === '@' ||
-              `@${item.identity_number}`.startsWith(keyword) ||
-              `@${item.full_name.toLowerCase()}`.startsWith(keyword.toLowerCase())
-            ) {
-              contacts.push(item)
-            }
-          }
-        })
-        this.$emit('update', contacts)
-        this.$emit('currentSelect', contacts[0])
-        this.contacts = contacts
-      }
-      const ul: any = this.$refs.ul
-      ul.scrollTop = 0
-    }, 10)
-    this.mentionHoverPrevent = true
-  }
-
-  contacts: any[] = []
   participants: any[] = []
   currentUidTemp: string = ''
   mentionHoverPrevent: boolean = false
+
+  get uids() {
+    const list: any = this.contacts.map((item: any, index: any) => {
+      return item.identity_number
+    })
+    return list
+  }
 
   mousemove() {
     this.mentionHoverPrevent = false
@@ -101,39 +78,14 @@ export default class MentionPanel extends Vue {
     }
   }
 
-  mounted() {
-    this.$root.$on('directionKeyDown', (direction: string) => {
-      const { contacts, currentUidTemp } = this
-      let currentIndex = 0
-      if (contacts.length) {
-        for (let i = 0; i < contacts.length; i++) {
-          if (contacts[i].identity_number === currentUidTemp) {
-            currentIndex = i
-            break
-          }
-        }
-        if (direction === 'up' && currentIndex > 0) {
-          const mention = contacts[currentIndex - 1]
-          this.currentUidTemp = mention.identity_number
-          this.goItemPos(currentIndex - 1)
-          this.$emit('currentSelect', mention)
-        }
-        if (direction === 'down' && currentIndex < contacts.length - 1) {
-          const mention = contacts[currentIndex + 1]
-          this.currentUidTemp = mention.identity_number
-          this.goItemPos(currentIndex + 1)
-          this.$emit('currentSelect', mention)
-        }
-      }
-    })
-  }
+  mounted() {}
 
   beforeDestroy() {
     this.$root.$off('directionKeyDown')
   }
 
   onUserClick(user: any) {
-    this.$emit('choose', user)
+    this.$emit('choose', this.uids.indexOf(user.identity_number))
   }
 }
 </script>

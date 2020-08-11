@@ -1,3 +1,4 @@
+import './tribute.scss'
 import Tribute from './Tribute'
 
 const VueTribute = {
@@ -20,12 +21,13 @@ const VueTribute = {
           return `<b class="highlight default" contenteditable="false">@${item.original.id}</b>`
         },
         menuItemTemplate: function(item) {
-          return item.string
+          const list = item.string.split('\n')
+          return `<div>${list[0]}</div><div>${list[1]}</div>`
         },
         noMatchTemplate: null,
         menuContainer: document.body,
         lookup(item, mentionText) {
-          return `<div>${item.name}</div><div>${item.id}</div>`
+          return `${item.name}\n${item.id}`
         },
         fillAttr: 'id',
         values: [],
@@ -41,7 +43,7 @@ const VueTribute = {
           post: '</span>',
           skip: false
         },
-        menuItemLimit: 25,
+        menuItemLimit: 256,
         menuShowMinLength: 0
       }
     }
@@ -68,6 +70,11 @@ const VueTribute = {
       }
     }
   },
+  methods: {
+    selectItem(index) {
+      this.tribute.selectItemAtIndex(index, event)
+    }
+  },
   mounted() {
     if (typeof Tribute === 'undefined') {
       throw new Error('[vue-tribute] cannot locate tributejs!')
@@ -82,8 +89,26 @@ const VueTribute = {
 
     $el.tributeInstance = this.tribute
 
+    $el.addEventListener('tribute-items', e => {
+      const items = []
+      e.detail.forEach(item => {
+        items.push(item.string.split('\n'))
+      })
+      this.$emit('update', items)
+    })
     $el.addEventListener('tribute-replaced', e => {
-      e.target.dispatchEvent(new Event('input', { bubbles: true }))
+      const item = e.detail.item.string.split('\n')
+      this.$emit('choose', item)
+    })
+    $el.addEventListener('tribute-select-index', e => {
+      const index = e.detail
+      this.$emit('select-index', index)
+    })
+    $el.addEventListener('tribute-active-true', e => {
+      this.$emit('open')
+    })
+    $el.addEventListener('tribute-active-false', e => {
+      this.$emit('close')
     })
   },
   beforeDestroy() {

@@ -329,6 +329,8 @@ class Tribute {
         }
 
         return
+      } else {
+        this.current.element.dispatchEvent(new CustomEvent('tribute-items', { detail: items }))
       }
 
       ul.innerHTML = ''

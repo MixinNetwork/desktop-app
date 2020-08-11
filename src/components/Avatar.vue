@@ -1,9 +1,10 @@
 <template>
-  <div class="root" @click="$emit('onAvatarClick')" ref="root">
+  <div class="root" @click="avatarClick" ref="root">
     <div class="avatar-group" :data-group-size="users.length">
       <div class="empty" v-if="users.length<=0"></div>
       <div v-else v-for="user in users" :key="user.user_id" class="avatar" :class="{unload: !loaded}" :style="user.color">
-        <img v-if="user.has_avatar && loaded" :src="user.avatar_url" @error="imgError" />
+        <img v-if="user.has_avatar && loaded" v-show="showImg" :src="user.avatar_url" @load="showImg=true" @error="imgError" />
+        <div v-else-if="!loaded"><svg-icon icon-class="avatar" class="default-avatar" /></div>
         <span v-if="!user.has_avatar && user.emoji" class="emoji" :style="font">{{user.emoji}}</span>
         <span v-if="!user.has_avatar && !user.emoji" :style="font">{{user.identifier.toUpperCase()}}</span>
       </div>
@@ -55,6 +56,7 @@ export default class Avatar extends Vue {
   }
 
   loaded: boolean = true
+  showImg: boolean = false
   users: any = []
   font: any = {}
 
@@ -66,12 +68,18 @@ export default class Avatar extends Vue {
     this.onChange()
   }
 
+  avatarClick() {
+    this.onChange()
+    this.$emit('onAvatarClick')
+  }
+
   imgError(e: any) {
     e.onerror = null
     this.loaded = false
   }
 
   onChange() {
+    this.loaded = true
     // @ts-ignore
     wasmObject.then(() => {
       const { conversation, user } = this
@@ -119,7 +127,7 @@ export default class Avatar extends Vue {
   .empty {
     width: 100%;
     height: 100%;
-    background: #dddddd77;
+    background: #e5e7eb;
   }
 
   .avatar-group {
@@ -146,13 +154,17 @@ export default class Avatar extends Vue {
     justify-content: center;
     font-size: 1em !important;
     &.unload {
-      background: #eee;
+      background: #e5e7eb;
     }
     span {
       color: white;
     }
     .emoji {
       margin-left: 0.25rem;
+    }
+    .default-avatar {
+      width: 100%;
+      height: 100%;
     }
   }
   .avatar-group[data-group-size='2'] .avatar:first-child,

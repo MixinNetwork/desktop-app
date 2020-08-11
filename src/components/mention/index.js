@@ -1,4 +1,4 @@
-import Tribute from 'tributejs'
+import Tribute from './Tribute'
 
 const VueTribute = {
   name: 'vue-tribute',
@@ -17,7 +17,7 @@ const VueTribute = {
         containerClass: 'tribute-container',
         itemClass: '',
         selectTemplate: function(item) {
-          return '<b class="highlight default" contenteditable="false">@' + item.original.id + '</b>'
+          return `<b class="highlight default" contenteditable="false">@${item.original.id}</b>`
         },
         menuItemTemplate: function(item) {
           return item.string
@@ -25,7 +25,7 @@ const VueTribute = {
         noMatchTemplate: null,
         menuContainer: document.body,
         lookup(item, mentionText) {
-          return item.name + '\n' + item.id
+          return `<div>${item.name}</div><div>${item.id}</div>`
         },
         fillAttr: 'id',
         values: [],

@@ -125,7 +125,7 @@ export default class ChatItem extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newCid: any, oldCid: any) {
-    const participants = participantDao.getParticipantsByConversationId(newCid)
+    const { participants } = this.conversation
     const values: any = []
     participants.forEach((item: any) => {
       values.push({

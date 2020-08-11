@@ -51,18 +51,20 @@
         </div>
         <mixin-scrollbar style="margin-right: 0.15rem">
           <div class="ul editable" ref="boxWrap">
-            <div
-              class="box"
-              contenteditable="true"
-              @focus="onFocus"
-              @blur="onBlur"
-              @input="saveMessageDraft"
-              @keydown.enter="sendMessage"
-              @keydown="inputKeydown"
-              @compositionstart="inputFlag = true"
-              @compositionend="inputFlag = false"
-              ref="box"
-            ></div>
+            <vue-tribute :options="tributeOptions">
+              <div
+                class="box"
+                contenteditable="true"
+                @focus="onFocus"
+                @blur="onBlur"
+                @input="saveMessageDraft"
+                @keydown.enter="sendMessage"
+                @keydown="inputKeydown"
+                @compositionstart="inputFlag = true"
+                @compositionend="inputFlag = false"
+                ref="box"
+              ></div>
+            </vue-tribute>
           </div>
         </mixin-scrollbar>
 
@@ -81,6 +83,8 @@ import contentUtil from '@/utils/content_util'
 import { MessageCategories, MessageStatus, ConversationCategory } from '@/utils/constants'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
+import participantDao from '@/dao/participant_dao'
+import VueTribute from '@/components/mention'
 
 import ReplyMessageContainer from '@/components/chat-container/ReplyMessageContainer.vue'
 import MentionPanel from '@/components/chat-container/MentionPanel.vue'
@@ -90,7 +94,8 @@ import ChatSticker from '@/components/chat-container/ChatSticker.vue'
   components: {
     ReplyMessageContainer,
     MentionPanel,
-    ChatSticker
+    ChatSticker,
+    VueTribute
   }
 })
 export default class ChatItem extends Vue {
@@ -119,7 +124,16 @@ export default class ChatItem extends Vue {
   }
 
   @Watch('conversation.conversationId')
-  onConversationChanged(newC: any, oldC: any) {
+  onConversationChanged(newCid: any, oldCid: any) {
+    const participants = participantDao.getParticipantsByConversationId(newCid)
+    const values: any = []
+    participants.forEach((item: any) => {
+      values.push({
+        name: item.full_name,
+        id: item.identity_number
+      })
+    })
+    this.tributeOptions.values = values
     this.mentions = []
     const $target: any = this.$refs.box
     if (!$target) return
@@ -136,6 +150,9 @@ export default class ChatItem extends Vue {
   inputFlag: any = false
   boxFocus: boolean = false
   hideScamNotificationMap: any = {}
+  tributeOptions: any = {
+    values: []
+  }
 
   get showUnblock() {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
@@ -176,7 +193,7 @@ export default class ChatItem extends Vue {
           $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
           const $wrap: any = this.$refs.boxWrap
           this.inputBoxHeight = $wrap.getBoundingClientRect().height
-          this.handleMention($target)
+          // this.handleMention($target)
         }
         try {
           // @ts-ignore
@@ -198,7 +215,7 @@ export default class ChatItem extends Vue {
     if ($target) {
       this.inputBoxHeight = $wrap.getBoundingClientRect().height
       const html = $target.innerHTML
-      this.handleMention($target)
+      // this.handleMention($target)
       this.conversation.draft = html
       this.conversation.draftText = $target.innerText
       if (this.conversation.draftText.length < 10) {
@@ -235,7 +252,7 @@ export default class ChatItem extends Vue {
     this.hideChoosePanel()
     conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
     $target.innerText = ''
-    this.handleMention($target)
+    // this.handleMention($target)
     const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
     const status = MessageStatus.SENDING
     const message = {
@@ -312,7 +329,7 @@ export default class ChatItem extends Vue {
       })
       if (!includes) {
         const splitStrList = ['<br>', '\n', '<div>', ' ']
-        splitStrList.forEach(splitStr => {
+        splitStrList.forEach((splitStr) => {
           if (done) return
           const messageIds: any = []
           const innerPieces = htmlPieces[i].split(splitStr)

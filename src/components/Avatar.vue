@@ -127,7 +127,7 @@ export default class Avatar extends Vue {
   .empty {
     width: 100%;
     height: 100%;
-    background: #e5e7eb;
+    background: #d2d2d2;
   }
 
   .avatar-group {
@@ -154,7 +154,7 @@ export default class Avatar extends Vue {
     justify-content: center;
     font-size: 1em !important;
     &.unload {
-      background: #e5e7eb;
+      background: #d2d2d2;
     }
     span {
       color: white;

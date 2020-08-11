@@ -154,10 +154,10 @@ class Tribute {
       throw new Error('[Tribute] No collection specified.')
     }
 
-    new TributeRange(this)
-    new TributeEvents(this)
-    new TributeMenuEvents(this)
-    new TributeSearch(this)
+    _ = new TributeRange(this)
+    _ = new TributeEvents(this)
+    _ = new TributeMenuEvents(this)
+    _ = new TributeSearch(this)
   }
 
   get isActive() {
@@ -165,7 +165,7 @@ class Tribute {
   }
 
   set isActive(val) {
-    if (this._isActive != val) {
+    if (this._isActive !== val) {
       this._isActive = val
       if (this.current.element) {
         let noMatchEvent = new CustomEvent(`tribute-active-${val}`)

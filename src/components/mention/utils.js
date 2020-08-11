@@ -1,3 +1,4 @@
+/* eslint-disable */
 if (!Array.prototype.find) {
   Array.prototype.find = function(predicate) {
     if (this === null) {

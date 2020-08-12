@@ -10,12 +10,14 @@
       <div>
         <div class="title">
           <div class="name">
-            <span v-html="$w(highlight(user.full_name, 'name', /^@/.test(keyword)))"></span>
+            <span v-if="mention" class="mention" v-html="mention[0]"></span>
+            <span v-else v-html="$w(highlight(user.full_name, 'name'))"></span>
             <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
           </div>
         </div>
         <div class="id">
-          <span v-html="$w(highlight(user.identity_number, 'id', /^@/.test(keyword)))"></span>
+          <span v-if="mention" class="mention" v-html="mention[1]"></span>
+          <span v-else v-html="$w(highlight(user.identity_number, 'id'))"></span>
         </div>
       </div>
       <span class="role" v-if="user.role">
@@ -39,21 +41,12 @@ import contentUtil from '@/utils/content_util'
   }
 })
 export default class UserItem extends Vue {
+  @Prop(Array) readonly mention: any
   @Prop(String) readonly keyword: any
   @Prop(Object) readonly user: any
 
-  highlight(content: string, type: string, isMention: any) {
+  highlight(content: string, type: string) {
     let keyword = this.keyword
-    if (isMention) {
-      if (type === 'id') {
-        content = `@${content}`
-      } else if (type === 'name') {
-        keyword = keyword.substring(1, keyword.length)
-      }
-      if (keyword === '@') {
-        return content
-      }
-    }
     return contentUtil.highlight(content, keyword, '')
   }
 
@@ -128,6 +121,11 @@ export default class UserItem extends Vue {
     .role {
       color: #bbbec3;
       font-size: 0.6rem;
+    }
+  }
+  /deep/ .mention {
+    span {
+      color: #3d75e3;
     }
   }
 }

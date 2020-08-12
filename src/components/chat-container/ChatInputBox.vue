@@ -110,6 +110,7 @@ export default class ChatItem extends Vue {
   @Prop(Object) readonly boxMessage: any
 
   @Getter('currentUser') user: any
+  // @Getter('me') me: any
 
   @Action('sendMessage') actionSendMessage: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
@@ -129,21 +130,23 @@ export default class ChatItem extends Vue {
   onConversationChanged(newCid: any, oldCid: any) {
     this.hideChoosePanel()
     setTimeout(() => {
-      const { participants } = this.conversation
+      const { participants, category } = this.conversation
       const values: any = []
-      participants.forEach((item: any) => {
-        values.push({
-          name: item.full_name,
-          id: item.identity_number
+      if (category === 'GROUP') {
+        participants.forEach((item: any) => {
+          values.push({
+            name: item.full_name,
+            id: item.identity_number
+          })
         })
-      })
+      }
       this.tributeOptions.values = values
       this.participants = participants
       this.contacts = participants
     }, 200)
   }
 
-  mentions: string[] = []
+  mentions: any = {}
   participants: any = []
   contacts: any = []
   mentionChoosing: boolean = false
@@ -177,9 +180,13 @@ export default class ChatItem extends Vue {
   }
 
   mentionUpdate(items: any) {
-    const uids = items.map((item: any) => {
-      return item[2]
+    const mentions: any = {}
+    const uids: any = []
+    items.forEach((item: any) => {
+      mentions[item[2]] = item
+      uids.push(item[2])
     })
+    this.mentions = mentions
     this.contacts = this.participants.filter((item: any) => {
       return uids.indexOf(item.identity_number) > -1
     })

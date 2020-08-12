@@ -6,7 +6,7 @@
           v-for="user in contacts"
           :key="user.user_id"
           :user="user"
-          :keyword="keyword"
+          :mention="mentions[user.identity_number]"
           :class="{ current: user.identity_number === currentUidTemp }"
           :style="mentionHoverPrevent ? 'pointer-events: none;' : ''"
           @user-click="onUserClick"
@@ -32,9 +32,8 @@ import { ConversationCategory } from '@/utils/constants'
 export default class MentionPanel extends Vue {
   @Prop(String) readonly currentUid: any
   @Prop(String) readonly keyword: any
-  @Prop(Object) readonly conversation: any
+  @Prop(Object) readonly mentions: any
   @Prop(Array) readonly contacts: any
-  @Prop(Array) readonly mentions: any
   @Prop(Number) readonly height: any
 
   @Getter('me') me: any

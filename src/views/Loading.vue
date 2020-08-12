@@ -112,7 +112,7 @@ export default class Loading extends Vue {
       if (fs.existsSync(dbPath)) {
         const mixinDb = new Database(dbPath, { readonly: true })
         const findUser = mixinDb.prepare(`SELECT * FROM users WHERE relationship='ME'`).get()
-        beforeIdentityNumber = findUser.user_id
+        beforeIdentityNumber = findUser.identity_number
         mixinDb.close()
       } else {
         // eslint-disable-next-line standard/no-callback-literal

@@ -56,6 +56,7 @@ export function initPlayer() {
   }
 
   resizeInterval = setInterval(() => {
+    if (!playerWindow) return
     const winSize = playerWindow.getSize()
     const { width, height } = resizeObj
     if (winSize[0] !== width || winSize[1] !== height) {

@@ -248,7 +248,7 @@ export default class ConversationItem extends Vue {
       this.conversation.category === ConversationCategory.GROUP &&
       this.conversation.senderId !== this.getAccount().user_id
     ) {
-      return this.conversation.senderFullName + ': '
+      return contentUtil.htmlEscape(this.conversation.senderFullName) + ': '
     } else {
       return ''
     }

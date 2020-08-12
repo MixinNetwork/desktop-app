@@ -10,7 +10,7 @@
       <div>
         <div class="title">
           <div class="name">
-            <span v-html="$w(highlight(user.full_name, 'name', /^@/.test(keyword)))"></span>
+            <span v-html="$w(highlight(htmlEscape(user.full_name), 'name', /^@/.test(keyword)))"></span>
             <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
           </div>
         </div>
@@ -55,6 +55,10 @@ export default class UserItem extends Vue {
       }
     }
     return contentUtil.highlight(content, keyword, '')
+  }
+
+  htmlEscape(content: any) {
+    return contentUtil.htmlEscape(content)
   }
 
   mousedown(e: any) {

@@ -1,6 +1,7 @@
 <template>
   <div class="player" ref="player" @mouseenter="enter" @mouseleave="leave">
     <video-player
+      v-if="showPlayer"
       ref="videoPlayer"
       @loadeddata="loaded = true"
       :single="true"
@@ -32,10 +33,13 @@ export default class Player extends Vue {
   pin: boolean = false
   resizeInterval: any = null
   loaded: boolean = false
-  init: boolean = false
+  sizeInit: boolean = false
+  showPlayer: boolean = false
+  playerOptions: any = {}
+  resizeObj: any = {}
 
-  get playerOptions() {
-    const url: any = this.$route.query.url
+  getPlayerOptions(payload: any) {
+    const { url, type }: any = payload
     return {
       autoplay: true,
       language: navigator.language.split('-')[0],
@@ -43,7 +47,8 @@ export default class Player extends Vue {
       disablePictureInPicture: true,
       sources: [
         {
-          src: decodeURIComponent(url)
+          type,
+          src: url
         }
       ]
     }
@@ -66,29 +71,45 @@ export default class Player extends Vue {
   leave() {
     this.show = false
   }
-  mounted() {
-    this.pin = localStorage.pinTop === 'true'
+  loadVideo() {
+    this.sizeInit = false
+    this.resizeObj = {}
     clearInterval(this.resizeInterval)
     this.resizeInterval = setInterval(() => {
       const videoPlayer: any = this.$refs.videoPlayer
       if (this.loaded) {
         let width = videoPlayer.player.currentWidth()
         let height = videoPlayer.player.currentHeight()
-        if (!this.init && height > 700) {
-          this.init = true
+        if (!this.sizeInit && height > 700) {
+          this.sizeInit = true
           const ratio = width / height
           height = 700
-          width = height * ratio
+          width = 700 * ratio
         }
         width = Math.ceil(width)
         height = Math.ceil(height)
-        ipcRenderer.send('resize', { width, height })
+        if (this.resizeObj.width !== width || this.resizeObj.height !== height) {
+          this.resizeObj = { width, height }
+          ipcRenderer.send('resize', { width, height })
+        }
         // for macOS
         if (process.platform === 'darwin') {
           clearInterval(this.resizeInterval)
         }
       }
     }, 10)
+  }
+  mounted() {
+    ipcRenderer.on('playRequestData', (event, payload) => {
+      payload = JSON.parse(payload)
+      this.loaded = false
+      this.showPlayer = !!payload.url
+      if (payload.url) {
+        this.pin = localStorage.pinTop === 'true'
+        this.playerOptions = this.getPlayerOptions(payload)
+        this.loadVideo()
+      }
+    })
   }
 }
 </script>

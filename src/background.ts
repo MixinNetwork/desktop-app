@@ -171,7 +171,6 @@ function createWindow() {
   } else {
     win.setMenu(null)
   }
-  initPlayer(win.id)
   app.setAppUserModelId('one.mixin.messenger')
 
   app.setAsDefaultProtocolClient('mixin')
@@ -193,6 +192,10 @@ function createWindow() {
     if (win) {
       initTask(win)
     }
+  })
+
+  ipcMain.on('initPlayer', (event, _) => {
+    initPlayer()
   })
 
   ipcMain.on('openDevTools', (event, _) => {

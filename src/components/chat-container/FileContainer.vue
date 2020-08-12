@@ -5,7 +5,11 @@
       <label>{{$t('chat.preview')}}</label>
     </div>
     <div class="content">
-      <img class="image" :src="getPath()" v-if="showImage" />
+      <img class="image" :src="getPath()" v-if="showImageType === 'image'" />
+      <div class="video-preview" v-else-if="showImageType === 'video'">
+        <video class="image" @loadeddata="loadeddata" ref="videoImage" :src="getPath()" preload></video>
+        <svg-icon class="play" icon-class="ic_play" />
+      </div>
       <div class="file" v-else-if="fileName">
         <svg-icon style="font-size: 2rem" icon-class="ic_file" />
         <span class="info">{{fileName}}</span>
@@ -17,13 +21,13 @@
       class="create"
       :class="{disabled: dragging || fileUnsupported}"
       icon="arrow-right"
-      @click="(dragging || fileUnsupported) ? '' : $emit('sendFile')"
+      @click="sendFile"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { isImage } from '@/utils/attachment_util'
+import { isImage, isVideo } from '@/utils/attachment_util'
 import path from 'path'
 import { Vue, Prop, Component } from 'vue-property-decorator'
 
@@ -34,11 +38,18 @@ export default class FileContainer extends Vue {
   @Prop(Boolean) readonly dragging: any
   @Prop(Boolean) readonly fileUnsupported: any
 
-  get showImage() {
+  thumbImage: any = null
+
+  get showImageType() {
     if (this.file) {
-      return isImage(this.file.type)
+      if (isImage(this.file.type)) {
+        return 'image'
+      } else if (isVideo(this.file.type)) {
+        return 'video'
+      }
+      return ''
     } else {
-      return false
+      return ''
     }
   }
   get fileName() {
@@ -48,12 +59,41 @@ export default class FileContainer extends Vue {
     return ''
   }
 
+  loadeddata() {
+    const video: any = this.$refs.videoImage
+    const canvas = document.createElement('canvas')
+    const scale = 20 / video.videoWidth
+    canvas.width = Math.ceil(video.videoWidth * scale)
+    canvas.height = Math.ceil(video.videoHeight * scale)
+    // @ts-ignore
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+
+    const img = document.createElement('img')
+    img.src = canvas.toDataURL('image/png')
+    this.thumbImage = canvas.toDataURL('image/png').split(';base64,')[1]
+  }
+
   getPath() {
     if (this.file) {
       return 'file://' + this.file.path
     } else {
       return ''
     }
+  }
+
+  sendFile() {
+    if (this.dragging || this.fileUnsupported) return
+    let ret = {}
+    if (this.showImageType === 'video') {
+      const $video: any = this.$refs.videoImage
+      ret = {
+        duration: $video.duration * 1000,
+        width: $video.videoWidth,
+        height: $video.videoHeight,
+        thumbImage: this.thumbImage
+      }
+    }
+    this.$emit('sendFile', ret)
   }
 }
 </script>
@@ -76,6 +116,20 @@ export default class FileContainer extends Vue {
       max-width: 80%;
       max-height: 80%;
       margin-bottom: 10%;
+    }
+    .video-preview {
+      text-align: center;
+      .play {
+        width: 2rem;
+        height: 2rem;
+        position: absolute;
+        margin: auto;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 10;
+      }
     }
     .file {
       display: flex;

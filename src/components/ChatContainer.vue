@@ -168,7 +168,7 @@ import fs from 'fs'
 import { Vue, Watch, Component } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { MessageCategories, MessageStatus, PerPageMessageCount } from '@/utils/constants'
-import { isImage, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
+import { isImage, isVideo, isVideoExtension, base64ToImage, AttachmentMessagePayload } from '@/utils/attachment_util'
 import Dropdown from '@/components/menu/Dropdown.vue'
 import Avatar from '@/components/Avatar.vue'
 import ChatInputBox from '@/components/chat-container/ChatInputBox.vue'
@@ -184,7 +184,7 @@ import messageDao from '@/dao/message_dao'
 import userDao from '@/dao/user_dao'
 import browser from '@/utils/browser'
 import appDao from '@/dao/app_dao'
-import { remote } from 'electron'
+import { remote, clipboard } from 'electron'
 let { BrowserWindow } = remote
 
 @Component({
@@ -353,14 +353,14 @@ export default class ChatContainer extends Vue {
         }
       }, 200)
     })
-    let self = this
-    document.onpaste = function(event: any) {
-      if (!self.conversation) return
+
+    document.onpaste = (event: any) => {
+      if (!this.conversation) return
       event.preventDefault()
       const items = (event.clipboardData || event.originalEvent.clipboardData).items
       let blob: any = null
       let mimeType: any = null
-      self.fileUnsupported = false
+      this.fileUnsupported = false
 
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') === 0) {
@@ -371,14 +371,43 @@ export default class ChatContainer extends Vue {
       }
       if (blob !== null) {
         let reader: any = new FileReader()
-        reader.onload = async function(event: any) {
-          self.file = await base64ToImage(event.target.result, mimeType)
+        reader.onload = async(event: any) => {
+          this.file = await base64ToImage(event.target.result, mimeType)
           reader = null
         }
         reader.readAsDataURL(blob)
         return
       }
       let text = (event.originalEvent || event).clipboardData.getData('text/plain')
+      let filePath = clipboard.read('public.file-url')
+      if (filePath) {
+        try {
+          filePath = filePath.split('file://')[1]
+          const data = fs.readFileSync(filePath)
+          const file = new File([data], text, { type: '' })
+          const namePiece = text.split('.')
+          const type = isVideoExtension(namePiece[namePiece.length - 1])
+          if (type) {
+            this.file = {
+              name: text,
+              size: file.size,
+              path: filePath,
+              type
+            }
+            return
+          }
+          this.file = {
+            name: text,
+            size: file.size,
+            path: filePath,
+            type: 'application/*'
+          }
+          this.fileUnsupported = false
+        } catch (error) {
+          this.fileUnsupported = true
+        }
+        return
+      }
       if (text) {
         document.execCommand('insertText', false, text)
       }
@@ -510,16 +539,19 @@ export default class ChatContainer extends Vue {
     }
     this.dragging = false
   }
-  sendFile() {
+  sendFile(ret: any) {
     if (!this.file) return
     let size = this.file.size
     if (size / 1000 > 102400) {
       this.$toast(this.$t('chat.chat_file_invalid_size'))
     } else {
       let image = isImage(this.file.type)
+      let video = isVideo(this.file.type)
       let category
       if (image) {
         category = this.user.app_id ? MessageCategories.PLAIN_IMAGE : MessageCategories.SIGNAL_IMAGE
+      } else if (video) {
+        category = this.user.app_id ? MessageCategories.PLAIN_VIDEO : MessageCategories.SIGNAL_VIDEO
       } else {
         category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
       }
@@ -531,6 +563,13 @@ export default class ChatContainer extends Vue {
         mediaUrl: this.file.path,
         mediaMimeType: mimeType,
         category
+      }
+      if (video) {
+        const { duration, height, width, thumbImage } = ret
+        payload.mediaDuration = duration
+        payload.mediaWidth = width
+        payload.mediaHeight = height
+        payload.thumbImage = thumbImage
       }
       const { conversationId } = this.conversation
       const message = {

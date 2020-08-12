@@ -92,7 +92,9 @@ const VueTribute = {
     $el.addEventListener('tribute-items', e => {
       const items = []
       e.detail.forEach(item => {
-        items.push(item.string.split('\n'))
+        const list = item.string.split('\n')
+        list.push(list[1].replace(/<[^>]+>/g, ''))
+        items.push(list)
       })
       this.$emit('update', items)
     })

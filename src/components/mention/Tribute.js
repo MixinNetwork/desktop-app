@@ -311,6 +311,8 @@ class Tribute {
 
       this.range.positionMenuAtCaret(scrollTo)
 
+      this.current.element.dispatchEvent(new CustomEvent('tribute-items', { detail: items }))
+
       if (!items.length) {
         let noMatchEvent = new CustomEvent('tribute-no-match', {
           detail: this.menu
@@ -329,8 +331,6 @@ class Tribute {
         }
 
         return
-      } else {
-        this.current.element.dispatchEvent(new CustomEvent('tribute-items', { detail: items }))
       }
 
       ul.innerHTML = ''

@@ -127,19 +127,24 @@ export default class ChatItem extends Vue {
 
   @Watch('conversation.conversationId')
   onConversationChanged(newCid: any, oldCid: any) {
-    const { participants } = this.conversation
-    const values: any = []
-    participants.forEach((item: any) => {
-      values.push({
-        name: item.full_name,
-        id: item.identity_number
+    this.hideChoosePanel()
+    setTimeout(() => {
+      const { participants } = this.conversation
+      const values: any = []
+      participants.forEach((item: any) => {
+        values.push({
+          name: item.full_name,
+          id: item.identity_number
+        })
       })
-    })
-    this.tributeOptions.values = values
-    this.contacts = participants
+      this.tributeOptions.values = values
+      this.participants = participants
+      this.contacts = participants
+    }, 200)
   }
 
   mentions: string[] = []
+  participants: any = []
   contacts: any = []
   mentionChoosing: boolean = false
   stickerChoosing: boolean = false
@@ -172,6 +177,12 @@ export default class ChatItem extends Vue {
   }
 
   mentionUpdate(items: any) {
+    const uids = items.map((item: any) => {
+      return item[2]
+    })
+    this.contacts = this.participants.filter((item: any) => {
+      return uids.indexOf(item.identity_number) > -1
+    })
     const len = items.length
     let panelHeight = 12
     if (len < 4) {
@@ -187,13 +198,13 @@ export default class ChatItem extends Vue {
 
   mentionToggle(flag: boolean) {
     this.mentionChoosing = flag
+    setTimeout(() => {
+      this.currentSelectMention = flag
+    }, 10)
     if (flag) {
-      this.currentSelectMention = true
-      this.currentUid = this.contacts[0].identity_number
-    } else {
-      setTimeout(() => {
-        this.currentSelectMention = false
-      }, 10)
+      if (this.contacts[0]) {
+        this.currentUid = this.contacts[0].identity_number
+      }
     }
   }
 

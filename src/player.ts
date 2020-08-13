@@ -55,6 +55,7 @@ export function initPlayer() {
     playerWindow.loadURL('app://./index.html' + params)
   }
 
+  clearInterval(resizeInterval)
   resizeInterval = setInterval(() => {
     if (!playerWindow) return
     const winSize = playerWindow.getSize()

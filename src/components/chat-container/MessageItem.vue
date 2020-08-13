@@ -225,6 +225,7 @@
 
 <script lang="ts">
 import fs from 'fs'
+import path from 'path'
 import {
   ConversationCategory,
   SystemConversationAction,
@@ -575,13 +576,13 @@ export default class MessageItem extends Vue {
   }
   handleStore() {
     let sourcePath = this.message.mediaUrl
-    let defaultPath = this.message.mediaUrl.split('/Video')[1]
+    let defaultPath = this.message.mediaUrl.split(path.sep + 'Video')[1]
     if (!defaultPath) {
-      defaultPath = this.message.mediaUrl.split('/Image')[1]
+      defaultPath = this.message.mediaUrl.split(path.sep + 'Image')[1]
     }
     const suffix = '.' + this.message.mediaMimeType.split('/')[1]
-    if (defaultPath.startsWith('s/')) {
-      defaultPath = defaultPath.split('/')[2] + suffix
+    if (defaultPath.startsWith('s' + path.sep)) {
+      defaultPath = defaultPath.split(path.sep)[2] + suffix
     }
     if (!/\./.test(defaultPath)) {
       defaultPath += suffix

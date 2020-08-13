@@ -24,14 +24,14 @@ class TributeSearch {
     let currScore = 0
     let pre = opts.pre || ''
     let post = opts.post || ''
-    let compareString = opts.caseSensitive && string || string.toLowerCase()
+    let compareString = (opts.caseSensitive && string) || string.toLowerCase()
     let ch; let compareChar
 
     if (opts.skip) {
       return {rendered: string, score: 0}
     }
 
-    pattern = opts.caseSensitive && pattern || pattern.toLowerCase()
+    pattern = (opts.caseSensitive && pattern) || pattern.toLowerCase()
 
     let patternCache = this.traverse(compareString, pattern, 0, 0, [])
     if (!patternCache) {

@@ -11,7 +11,7 @@
         <div class="title">
           <div class="name">
             <span v-if="mention" class="mention" v-html="mention[0]"></span>
-            <span v-else v-html="$w(htmlEscape(highlight(user.full_name, 'name')))"></span>
+            <span v-else v-html="$w(highlight(htmlEscape(user.full_name), 'name'))"></span>
             <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
           </div>
         </div>

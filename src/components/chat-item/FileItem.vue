@@ -32,7 +32,7 @@
             <span class="text">FILE</span>
           </div>
           <div class="content">
-            <span class="name" v-html="$w(fileName)"></span>
+            <span class="name" v-html="$w(htmlEscape(fileName))"></span>
             <div class="bottom">
               <span class="number">{{fileSize}}</span>
               <TimeAndStatus :message="message" />
@@ -129,6 +129,9 @@ export default class FileItem extends Vue {
       sourcePath = sourcePath.replace('file://', '')
     }
     fs.copyFileSync(sourcePath, savePath)
+  }
+  htmlEscape(content: any) {
+    return contentUtil.htmlEscape(content)
   }
   messageOwnership() {
     let { message, me } = this

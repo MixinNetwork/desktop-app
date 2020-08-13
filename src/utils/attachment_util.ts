@@ -148,12 +148,16 @@ export function mediaMigration(identityNumber: string, callback: any) {
     if (src) {
       const dist = path.join(newDir, messageId)
       if (dist !== src && fs.existsSync(src)) {
-        fs.rename(src, dist, err => {
+        fs.copyFile(src, dist, err => {
           if (err) {
             throw err
           }
           mixinDb.prepare('UPDATE messages SET media_url = ? WHERE message_id = ?').run(`file://${dist}`, messageId)
           checkedMessageIds.push(messageId)
+          try {
+            fs.unlinkSync(src)
+          } catch (error) {
+          }
         })
       } else {
         checkedMessageIds.push(messageId)

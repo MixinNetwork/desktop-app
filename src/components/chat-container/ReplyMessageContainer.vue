@@ -54,7 +54,7 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button_group'"
         />
-        <span v-html="$w(getContent)"></span>
+        <span v-html="$w(htmlEscape(getContent))"></span>
       </span>
     </div>
     <img
@@ -167,6 +167,9 @@ export default class ReplyMessageContainer extends Vue {
     } else {
       return null
     }
+  }
+  htmlEscape(content: any) {
+    return contentUtil.htmlEscape(content)
   }
 
   media(message: any) {

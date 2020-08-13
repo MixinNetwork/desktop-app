@@ -489,6 +489,8 @@ export default class ChatContainer extends Vue {
     if (messageIndex >= 0) {
       this.$refs.chatMessages.setConversationId(this.conversation.conversationId, count - messageIndex - 1, false)
     }
+    this.$refs.chatMessages.infiniteUp()
+    this.$refs.chatMessages.infiniteDown()
     this.hideSearch()
     this.goSearchPos = false
     this.$refs.inputBox.boxFocusAction()

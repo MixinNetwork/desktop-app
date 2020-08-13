@@ -2,12 +2,12 @@
   <li
     class="conversation item"
     :id="conversation.conversationId"
-    @click="$emit('item-click',conversation)"
+    @click="itemClick"
     @mouseenter="enter"
     @mouseleave="leave"
     @contextmenu.prevent
   >
-    <Avatar id="avatar" :conversation="conversation" />
+    <Avatar id="avatar" ref="avatar" :conversation="conversation" />
     <slot name="check"></slot>
     <div class="info">
       <div class="title">
@@ -242,6 +242,11 @@ export default class ConversationItem extends Vue {
       }
     }
     return false
+  }
+  itemClick() {
+    // @ts-ignore
+    this.$refs.avatar.onChange()
+    this.$emit('item-click', this.conversation)
   }
   getMessageName() {
     if (

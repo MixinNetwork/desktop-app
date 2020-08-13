@@ -18,17 +18,15 @@
 
     <transition name="slide-up">
       <MentionPanel
-        v-show="mentionChoosing"
+        v-show="mentionChoosing && contacts.length"
         :style="`padding-bottom: ${inputBoxHeight-36}px;`"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"
-        :keyword="mentionKeyword"
-        :currentUid="currentSelectMention && currentSelectMention.identity_number"
+        :contacts="contacts"
+        :currentUid="currentUid"
         :mentions="mentions"
         :conversation="conversation"
-        @currentSelect="udpateCurrentSelectMention"
-        @choose="chooseMentionUser"
-        @update="updateMentionUsers"
+        @choose="mentionClick"
       ></MentionPanel>
     </transition>
 
@@ -51,18 +49,27 @@
         </div>
         <mixin-scrollbar style="margin-right: 0.15rem">
           <div class="ul editable" ref="boxWrap">
-            <div
-              class="box"
-              contenteditable="true"
-              @focus="onFocus"
-              @blur="onBlur"
-              @input="saveMessageDraft"
-              @keydown.enter="sendMessage"
-              @keydown="inputKeydown"
-              @compositionstart="inputFlag = true"
-              @compositionend="inputFlag = false"
-              ref="box"
-            ></div>
+            <vue-tribute
+              ref="tribute"
+              :options="tributeOptions"
+              @update="mentionUpdate"
+              @select-index="mentionSelectIndex"
+              @open="mentionToggle(true)"
+              @close="mentionToggle(false)"
+            >
+              <div
+                class="box"
+                contenteditable="true"
+                @focus="onFocus"
+                @blur="onBlur"
+                @input="saveMessageDraft"
+                @keydown.enter="sendMessage"
+                @keydown="inputKeydown"
+                @compositionstart="inputFlag = true"
+                @compositionend="inputFlag = false"
+                ref="box"
+              ></div>
+            </vue-tribute>
           </div>
         </mixin-scrollbar>
 
@@ -81,6 +88,8 @@ import contentUtil from '@/utils/content_util'
 import { MessageCategories, MessageStatus, ConversationCategory } from '@/utils/constants'
 import conversationDao from '@/dao/conversation_dao'
 import userDao from '@/dao/user_dao'
+import participantDao from '@/dao/participant_dao'
+import VueTribute from '@/components/mention'
 
 import ReplyMessageContainer from '@/components/chat-container/ReplyMessageContainer.vue'
 import MentionPanel from '@/components/chat-container/MentionPanel.vue'
@@ -90,7 +99,8 @@ import ChatSticker from '@/components/chat-container/ChatSticker.vue'
   components: {
     ReplyMessageContainer,
     MentionPanel,
-    ChatSticker
+    ChatSticker,
+    VueTribute
   }
 })
 export default class ChatItem extends Vue {
@@ -100,6 +110,7 @@ export default class ChatItem extends Vue {
   @Prop(Object) readonly boxMessage: any
 
   @Getter('currentUser') user: any
+  // @Getter('me') me: any
 
   @Action('sendMessage') actionSendMessage: any
   @Action('sendStickerMessage') actionSendStickerMessage: any
@@ -112,30 +123,43 @@ export default class ChatItem extends Vue {
 
   @Watch('mentionChoosing')
   onMentionChoosingChanged(val: string, oldVal: string) {
-    if (!val) {
-      this.currentSelectMention = null
-    }
     this.$emit('panelChoosing', 'mention' + (val ? 'Open' : 'Hide'))
   }
 
   @Watch('conversation.conversationId')
-  onConversationChanged(newC: any, oldC: any) {
-    this.mentions = []
-    const $target: any = this.$refs.box
-    if (!$target) return
-    requestAnimationFrame(() => {
-      const numbers = contentUtil.parseMentionIdentityNumber($target.innerText)
-      if (numbers.length > 0) {
-        this.mentions = userDao.findUsersByIdentityNumber(numbers)
+  onConversationChanged(newCid: any, oldCid: any) {
+    this.hideChoosePanel()
+    setTimeout(() => {
+      if (!this.conversation) return
+      const { participants, category } = this.conversation
+      const values: any = []
+      if (category === 'GROUP') {
+        participants.forEach((item: any) => {
+          values.push({
+            name: item.full_name,
+            id: item.identity_number
+          })
+        })
       }
-    })
+      this.tributeOptions.values = values
+      this.participants = participants
+      this.contacts = participants
+    }, 200)
   }
 
+  mentions: any = {}
+  participants: any = []
+  contacts: any = []
   mentionChoosing: boolean = false
   stickerChoosing: boolean = false
+  currentSelectMention: boolean = false
+  currentUid: string = ''
   inputFlag: any = false
   boxFocus: boolean = false
   hideScamNotificationMap: any = {}
+  tributeOptions: any = {
+    values: []
+  }
 
   get showUnblock() {
     return this.conversation.category === ConversationCategory.CONTACT && this.user.relationship === 'BLOCKING'
@@ -150,6 +174,46 @@ export default class ChatItem extends Vue {
     try {
       this.hideScamNotificationMap = JSON.parse(localStorage.getItem('hideScamNotificationMap') || '{}')
     } catch (error) {}
+  }
+
+  mentionSelectIndex(index: any) {
+    this.currentUid = this.contacts[index].identity_number
+  }
+
+  mentionUpdate(items: any) {
+    const mentions: any = {}
+    const uids: any = []
+    items.forEach((item: any) => {
+      mentions[item[2]] = item
+      uids.push(item[2])
+    })
+    this.mentions = mentions
+    this.contacts = this.participants.filter((item: any) => {
+      return uids.indexOf(item.identity_number) > -1
+    })
+    const len = items.length
+    let panelHeight = 12
+    if (len < 4) {
+      panelHeight = 3.3 * len
+    }
+    this.$emit('panelHeightUpdate', panelHeight)
+  }
+
+  mentionClick(index: any) {
+    // @ts-ignore
+    this.$refs.tribute.selectItem(index)
+  }
+
+  mentionToggle(flag: boolean) {
+    this.mentionChoosing = flag
+    setTimeout(() => {
+      this.currentSelectMention = flag
+    }, 10)
+    if (flag) {
+      if (this.contacts[0]) {
+        this.currentUid = this.contacts[0].identity_number
+      }
+    }
   }
 
   closeScamNotification() {
@@ -176,7 +240,6 @@ export default class ChatItem extends Vue {
           $target.innerHTML = this.conversation && this.conversation.draft ? this.conversation.draft : ''
           const $wrap: any = this.$refs.boxWrap
           this.inputBoxHeight = $wrap.getBoundingClientRect().height
-          this.handleMention($target)
         }
         try {
           // @ts-ignore
@@ -198,7 +261,6 @@ export default class ChatItem extends Vue {
     if ($target) {
       this.inputBoxHeight = $wrap.getBoundingClientRect().height
       const html = $target.innerHTML
-      this.handleMention($target)
       this.conversation.draft = html
       this.conversation.draftText = $target.innerText
       if (this.conversation.draftText.length < 10) {
@@ -219,11 +281,7 @@ export default class ChatItem extends Vue {
       return
     }
     if (this.currentSelectMention) {
-      this.chooseMentionUser(this.currentSelectMention)
       event.preventDefault()
-      setTimeout(() => {
-        this.currentSelectMention = null
-      }, 10)
       return
     }
     event.preventDefault()
@@ -235,7 +293,6 @@ export default class ChatItem extends Vue {
     this.hideChoosePanel()
     conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
     $target.innerText = ''
-    this.handleMention($target)
     const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
     const status = MessageStatus.SENDING
     const message = {
@@ -260,16 +317,13 @@ export default class ChatItem extends Vue {
   chooseSticker() {
     this.$emit('clearBoxMessage')
     this.mentionChoosing = false
-    this.currentSelectMention = null
     this.$emit('panelHeightUpdate', 12)
     requestAnimationFrame(() => {
       this.stickerChoosing = !this.stickerChoosing
     })
   }
   hideChoosePanel() {
-    this.mentionKeyword = ''
     this.mentionChoosing = false
-    this.currentSelectMention = null
     this.stickerChoosing = false
   }
   sendSticker(stickerId: string) {
@@ -285,169 +339,6 @@ export default class ChatItem extends Vue {
     this.$root.$emit('resetSearch')
     this.actionSendStickerMessage(msg)
     this.$emit('goBottom')
-  }
-
-  mentions: string[] = []
-  chooseMentionUser(user: any) {
-    this.mentions.push(user)
-    const $target: any = this.$refs.box
-    let html = $target.innerHTML
-
-    const regx = new RegExp(`<b class="highlight default">(.*?)</b>`, 'g')
-    let idsTemp: any = []
-    let idsArr
-    while ((idsArr = regx.exec(html)) !== null) {
-      idsTemp.push(idsArr[1])
-    }
-
-    const htmlPieces = html.split('&nbsp;')
-
-    let done = false
-    for (let i = htmlPieces.length - 1; i >= 0; i--) {
-      let includes = false
-      idsTemp.forEach((id: string) => {
-        if (htmlPieces[i].includes(id)) {
-          includes = true
-        }
-      })
-      if (!includes) {
-        const splitStrList = ['<br>', '\n', '<div>', ' ']
-        splitStrList.forEach(splitStr => {
-          if (done) return
-          const messageIds: any = []
-          const innerPieces = htmlPieces[i].split(splitStr)
-          for (let j = innerPieces.length - 1; j >= 0; j--) {
-            this.mentions.forEach((item: any) => {
-              const id = `@${item.identity_number}`
-              const name = `@${item.full_name.toLowerCase()}`
-              const idInPiece = innerPieces[j].split('<')[0]
-              if (
-                messageIds.indexOf(id) < 0 &&
-                idsTemp.indexOf(id) < 0 &&
-                (id.startsWith(idInPiece) || name.startsWith(idInPiece.toLowerCase()))
-              ) {
-                const hl = contentUtil.highlight(id, id, '')
-                innerPieces[j] = innerPieces[j].replace(this.mentionKeyword, `${hl}<span>&nbsp;</span>`)
-                done = true
-              }
-              messageIds.push(id)
-            })
-          }
-          htmlPieces[i] = innerPieces.join(splitStr)
-        })
-      }
-    }
-
-    html = htmlPieces.join('&nbsp;')
-    $target.innerHTML = html
-
-    this.mentionChoosing = false
-    this.mentionKeyword = ''
-    this.currentSelectMention = null
-
-    this.saveMessageDraft()
-    this.boxFocusAction()
-  }
-
-  udpateCurrentSelectMention(mention: any) {
-    this.currentSelectMention = mention
-  }
-
-  updateMentionUsers(result: any) {
-    const len = result.length
-    if (len) {
-      let panelHeight = 12
-      if (len < 4) {
-        panelHeight = 3.3 * len
-      }
-      this.$emit('panelHeightUpdate', panelHeight)
-
-      if (!this.mentionChoosing) {
-        this.stickerChoosing = false
-        setTimeout(() => {
-          this.mentionChoosing = true
-        }, 100)
-      }
-    } else {
-      const selection: any = window.getSelection()
-      const currentNode: any = selection.anchorNode
-      const parentNode = currentNode && currentNode.parentNode
-      if (parentNode && /highlight/.test(parentNode.className)) {
-        const content = currentNode.data
-        const $target: any = this.$refs.box
-        let html = $target.innerHTML
-        const highlightRegx = new RegExp(`<b class="highlight default">${content.trim()}(.*)?</b>`, 'g')
-        html = html.replace(highlightRegx, content)
-        for (let i = 0; i < this.mentions.length; i++) {
-          const item: any = this.mentions[i]
-          if (`@${item.identity_number}` === content.trim()) {
-            this.mentions.splice(i, 1)
-          }
-        }
-        $target.innerHTML = html
-        this.boxFocusAction(true)
-      }
-      this.currentSelectMention = null
-      this.mentionChoosing = false
-    }
-  }
-
-  splitSpace: string = ' '
-  mentionKeyword: string = ''
-  currentSelectMention: any = null
-  handleMention(input: any) {
-    let content = input.innerText.replace(/\s/g, this.splitSpace)
-
-    const regx = new RegExp(`<b class="highlight default">(.*?)</b>`, 'g')
-    let idsTemp: any = []
-    let idsArr
-    while ((idsArr = regx.exec(input.innerHTML)) !== null) {
-      idsTemp.push(idsArr[1])
-    }
-    const mentionIds: any = []
-    this.mentions.forEach((item: any, index: number) => {
-      const id = `@${item.identity_number}`
-      if (idsTemp.indexOf(id) < 0) {
-        this.mentions.splice(index, 1)
-      } else {
-        mentionIds.push(id)
-      }
-    })
-    idsTemp.forEach((id: any) => {
-      if (mentionIds.indexOf(id) < 0) {
-        const regx = new RegExp(`<b class="highlight default">${id}</b>`, 'g')
-        input.innerHTML = input.innerHTML.replace(regx, id)
-        if (input.innerText.trim()) {
-          // @ts-ignore
-          window.getSelection().collapse(input, input.childNodes.length)
-        }
-      }
-    })
-
-    const contentPieces = content.split(this.splitSpace)
-    let lastPiece = ''
-    let keyword = ''
-    if (contentPieces.length) {
-      lastPiece = contentPieces[contentPieces.length - 1]
-    }
-    if (/@(.*)?\S$/.test(lastPiece) || lastPiece === '@') {
-      keyword = lastPiece
-    }
-
-    if (keyword) {
-      this.mentionKeyword = keyword.trim()
-    } else {
-      this.mentionChoosing = false
-      this.currentSelectMention = null
-      this.mentionKeyword = ''
-    }
-    if (!input.innerText.trim()) {
-      this.mentions = []
-      try {
-        // @ts-ignore
-        window.getSelection().collapse(input, input.childNodes.length)
-      } catch (error) {}
-    }
   }
 }
 </script>

@@ -1,12 +1,21 @@
 <template>
-  <li ref="messageItem" :class="{
+  <li
+    ref="messageItem"
+    :class="{
       'prev-same': this.prev && this.prev.userId === this.message.userId,
       'same': this.next && this.next.userId === this.message.userId
-    }" :id="message.messageId" v-if="message">
+    }"
+    :id="message.messageId"
+    v-if="message"
+  >
     <div v-if="unread === message.messageId" class="unread-divide">
       <span>{{$t('unread_message')}}</span>
     </div>
-    <div v-if="!prev || !equalDay(message, prev)" :class="{transparent: beforeCreateAt && beforeCreateAt === message.createdAt}" class="time-divide inner">
+    <div
+      v-if="!prev || !equalDay(message, prev)"
+      :class="{transparent: beforeCreateAt && beforeCreateAt === message.createdAt}"
+      class="time-divide inner"
+    >
       <span>{{getTimeDivide(message)}}</span>
     </div>
 
@@ -96,6 +105,7 @@
       @mediaClick="mediaClick"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
+      @pipClick="pipClick('video/mp4')"
     ></VideoItem>
 
     <RecallItem
@@ -127,7 +137,7 @@
       :conversation="conversation"
       @user-click="$emit('user-click',message.userId)"
       @handleMenuClick="handleMenuClick"
-      @liveClick="liveClick"
+      @pipClick="pipClick()"
     ></LiveItem>
 
     <LocationItem
@@ -215,6 +225,7 @@
 
 <script lang="ts">
 import fs from 'fs'
+import path from 'path'
 import {
   ConversationCategory,
   SystemConversationAction,
@@ -424,13 +435,14 @@ export default class MessageItem extends Vue {
       (!this.prev || (!!this.prev && this.prev.userId !== this.message.userId))
     )
   }
-  liveClick() {
-    let message = this.message
+  pipClick(_type: any) {
+    let { mediaWidth, mediaHeight, thumbUrl, mediaUrl } = this.message
     ipcRenderer.send('play', {
-      width: message.mediaWidth,
-      height: message.mediaHeight,
-      thumb: message.thumbUrl,
-      url: message.mediaUrl,
+      width: mediaWidth,
+      height: mediaHeight,
+      thumb: thumbUrl,
+      url: mediaUrl,
+      type: _type || '',
       pin: localStorage.pinTop
     })
   }
@@ -529,7 +541,7 @@ export default class MessageItem extends Vue {
     let y = dheihgt - event.clientY < 200 ? event.clientY - messageMenu.length * 42 - 24 : event.clientY + 8
     this.$Menu.alert(x, y, messageMenu, (index: number) => {
       const option = messageMenu[index]
-      switch (Object.keys(menu).find(key => menu[key] === option)) {
+      switch (Object.keys(menu).find((key) => menu[key] === option)) {
         case 'reply':
           this.handleReply()
           break
@@ -564,13 +576,13 @@ export default class MessageItem extends Vue {
   }
   handleStore() {
     let sourcePath = this.message.mediaUrl
-    let defaultPath = this.message.mediaUrl.split('/Video')[1]
+    let defaultPath = this.message.mediaUrl.split(path.sep + 'Video')[1]
     if (!defaultPath) {
-      defaultPath = this.message.mediaUrl.split('/Image')[1]
+      defaultPath = this.message.mediaUrl.split(path.sep + 'Image')[1]
     }
     const suffix = '.' + this.message.mediaMimeType.split('/')[1]
-    if (defaultPath.startsWith('s/')) {
-      defaultPath = defaultPath.split('/')[2] + suffix
+    if (defaultPath.startsWith('s' + path.sep)) {
+      defaultPath = defaultPath.split(path.sep)[2] + suffix
     }
     if (!/\./.test(defaultPath)) {
       defaultPath += suffix
@@ -625,7 +637,8 @@ li {
     margin-bottom: 0.2rem;
   }
   &.prev-same {
-    .unread-divide, .time-divide {
+    .unread-divide,
+    .time-divide {
       margin-top: 0.25rem;
     }
   }
@@ -704,6 +717,7 @@ li {
   font-size: 0;
   max-width: 80%;
   box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
+  overflow: hidden;
 
   &.text,
   &.app_card,

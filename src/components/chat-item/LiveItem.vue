@@ -14,8 +14,8 @@
       >
         <div class="content">
           <div class="set">
-            <div class="image" :style="borderSetObject()" @click="$emit('liveClick')"></div>
-            <svg-icon icon-class="ic_play" class="play" @click="$emit('liveClick')" />
+            <div class="image" :style="borderSetObject()" @click="$emit('pipClick')"></div>
+            <svg-icon icon-class="ic_play" class="play" @click="$emit('pipClick')" />
           </div>
           <span class="tag">LIVE</span>
           <div class="bottom">

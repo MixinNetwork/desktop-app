@@ -18,7 +18,7 @@
 
     <transition name="slide-up">
       <MentionPanel
-        v-show="mentionChoosing"
+        v-show="mentionChoosing && contacts.length"
         :style="`padding-bottom: ${inputBoxHeight-36}px;`"
         :class="{ 'box-message': boxMessage }"
         :height="panelHeight"

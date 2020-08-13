@@ -11,7 +11,7 @@
         <div class="title">
           <div class="name">
             <span v-if="mention" class="mention" v-html="mention[0]"></span>
-            <span v-else v-html="$w(highlight(user.full_name, 'name'))"></span>
+            <span v-else v-html="$w(htmlEscape(highlight(user.full_name, 'name')))"></span>
             <svg-icon style="font-size: 0.7rem" icon-class="ic_robot" v-if="user.app_id" />
           </div>
         </div>
@@ -48,6 +48,10 @@ export default class UserItem extends Vue {
   highlight(content: string, type: string) {
     let keyword = this.keyword
     return contentUtil.highlight(content, keyword, '')
+  }
+
+  htmlEscape(content: any) {
+    return contentUtil.htmlEscape(content)
   }
 
   mousedown(e: any) {

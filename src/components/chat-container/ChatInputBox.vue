@@ -130,6 +130,7 @@ export default class ChatItem extends Vue {
   onConversationChanged(newCid: any, oldCid: any) {
     this.hideChoosePanel()
     setTimeout(() => {
+      if (!this.conversation) return
       const { participants, category } = this.conversation
       const values: any = []
       if (category === 'GROUP') {

@@ -215,6 +215,8 @@ export default class ImageItem extends Vue {
   display: flex;
   margin-left: 0.3rem;
   margin-right: 0.3rem;
+  min-width: 4rem;
+  min-height: 3rem;
   .username {
     display: inline-block;
     font-size: 0.65rem;
@@ -261,14 +263,18 @@ export default class ImageItem extends Vue {
       z-index: 3;
     }
     .accachment {
-      background: #000000B6;
+      background: #000000b6;
       color: #fff;
     }
     .set {
       max-width: 8rem;
       max-height: 12rem;
+      min-height: 3rem;
       overflow: hidden;
       position: relative;
+      justify-content: center;
+      align-items: center;
+      display: flex;
       .image {
         border-radius: 0.2rem;
       }

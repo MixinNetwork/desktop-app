@@ -19,8 +19,9 @@ class Blaze {
     this.wsBaseUrl = API_URL.WS[0]
     this.account = getAccount()
     this.TIMEOUT = 'Time out'
+    this.timeoutTimer = null
     this.pingInterval = null
-    this.messageSending = false
+    this.wsInitialLock = false
     this.systemSleep = false
     ipcRenderer.on('system-sleep', () => {
       if (!this.systemSleep) {
@@ -40,26 +41,32 @@ class Blaze {
   }
 
   connect() {
-    if (store.state.linkStatus === LinkStatus.CONNECTING) return
+    if (store.state.linkStatus === LinkStatus.CONNECTING || this.wsInitialLock) return
     store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
-      if (!this.systemSleep && !this.messageSending && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+      if (!this.systemSleep && !this.wsInitialLock && store.state.linkStatus === LinkStatus.CONNECTED) {
         this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
       }
     }, 15000)
 
-    if (this.systemSleep || (this.ws && this.ws.readyState === WebSocket.CONNECTING)) return
+    if (this.ws) {
+      this.ws.close()
+    }
+
+    if (this.systemSleep) return
 
     this.account = getAccount()
     const token = getToken('GET', '/', '')
     if (!token) return
     this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
+    this.setTimeoutTimer()
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
     this.ws.onopen = () => {
+      this.clearTimeoutTimer()
       this._sendGzip({ id: uuidv4().toLowerCase(), action: 'LIST_PENDING_MESSAGES' }, resp => {
         console.log(resp)
         store.dispatch('setLinkStatus', LinkStatus.CONNECTED)
@@ -80,7 +87,8 @@ class Blaze {
     }
   }
   _onClose(event) {
-    console.log('---onclose--')
+    console.log('---onclose--', event.code)
+    store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
   _onError(event) {
     console.log('-------onerrror--')
@@ -164,22 +172,34 @@ class Blaze {
     this._sendGzip(message, function(resp) {})
   }
 
+  setTimeoutTimer(reject) {
+    this.wsInitialLock = true
+    clearTimeout(this.timeoutTimer)
+    this.timeoutTimer = setTimeout(() => {
+      store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
+      const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
+      this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
+      if (reject) {
+        reject(this.TIMEOUT)
+      }
+      this.wsInitialLock = false
+      this.connect()
+    }, 5000)
+  }
+
+  clearTimeoutTimer() {
+    clearTimeout(this.timeoutTimer)
+    this.wsInitialLock = false
+  }
+
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      return new Promise(() => {
-        console.log('CONNECTING')
+      return new Promise((resolve, reject) => {
+        reject(this.TIMEOUT)
       })
     }
-    this.messageSending = true
     return new Promise((resolve, reject) => {
-      const sendMessageTimer = setTimeout(() => {
-        store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
-        const beforeIndex = API_URL.HTTP.indexOf(this.wsBaseUrl) || 0
-        this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
-        reject(this.TIMEOUT)
-        this.connect()
-        this.messageSending = false
-      }, 5000)
+      this.setTimeoutTimer(reject)
       this._sendGzip(message, resp => {
         if (resp.data) {
           resolve(resp.data)
@@ -188,8 +208,7 @@ class Blaze {
         } else {
           resolve(resp)
         }
-        clearTimeout(sendMessageTimer)
-        this.messageSending = false
+        this.clearTimeoutTimer()
       })
     })
   }

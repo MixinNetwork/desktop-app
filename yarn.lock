@@ -10130,11 +10130,6 @@ roarr@^2.15.2:
     semver-compare "^1.0.0"
     sprintf-js "^1.1.2"
 
-robust-websocket@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/robust-websocket/-/robust-websocket-1.0.0.tgz#09959b72d69fd0fb3faa7a67a0cc55e244cf322b"
-  integrity sha512-zpd1mXL2kPd2NexxKRBRC3appEhxRZVuiqfckI1kLaNM7tRBJ9l4dqOD1FPoNpOZ2PPNAySR3beVAVd4OYl4tg==
-
 run-async@^2.4.0:
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/run-async/-/run-async-2.4.0.tgz#e59054a5b86876cfae07f431d18cbaddc594f1e8"

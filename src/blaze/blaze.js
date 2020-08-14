@@ -88,7 +88,7 @@ class Blaze {
   }
   _onClose(event) {
     console.log('---onclose--', event.code)
-    store.dispatch('setLinkStatus', LinkStatus.ERROR)
+    this.wsInitialLock = false
   }
   _onError(event) {
     console.log('-------onerrror--')

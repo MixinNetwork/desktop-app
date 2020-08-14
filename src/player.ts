@@ -1,5 +1,6 @@
 import { ipcMain, screen, BrowserWindow } from 'electron'
 import path from 'path'
+import log from 'electron-log'
 
 function createPlayerWindow(w: any, h: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
@@ -47,7 +48,7 @@ export function initPlayer() {
     playerWindow.close()
   }
   playerWindow = createPlayerWindow(360, 220)
-  // ?thumb=${encodeURIComponent(args.thumb)}&url=${encodeURIComponent(args.url)}&type=${args.type}
+  if (!playerWindow) return
   const params = `#player`
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
@@ -57,14 +58,15 @@ export function initPlayer() {
 
   clearInterval(resizeInterval)
   resizeInterval = setInterval(() => {
-    if (!playerWindow) return
-    const winSize = playerWindow.getSize()
-    const { width, height } = resizeObj
-    if (winSize[0] !== width || winSize[1] !== height) {
-      if (width > 0 && height > 0) {
-        playerWindow.setSize(width, height)
+    try {
+      const winSize = playerWindow.getSize()
+      const { width, height } = resizeObj
+      if (winSize[0] !== width || winSize[1] !== height) {
+        if (width > 0 && height > 0) {
+          playerWindow.setSize(width, height)
+        }
       }
-    }
+    } catch (error) {}
   }, 100)
 
   ipcMain.on('pinToggle', (event, pin) => {
@@ -76,6 +78,7 @@ export function initPlayer() {
   })
 
   ipcMain.on('closePlayer', (event, _) => {
+    if (!playerWindow) return
     playerWindow.webContents.send('playRequestData', JSON.stringify({}))
     playerWindow.hide()
   })
@@ -85,6 +88,7 @@ export function initPlayer() {
   })
 
   ipcMain.on('play', (event, args) => {
+    if (!playerWindow) return
     playerWindow.webContents.send('playRequestData', JSON.stringify(args))
     playerWindow.show()
   })

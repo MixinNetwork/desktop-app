@@ -191,7 +191,7 @@ class ReceiveWorker extends BaseWorker {
       data.data,
       data.category
     )
-    if (plaintext) {
+    if (plaintext != null) {
       await this.processDecryptSuccess(data, plaintext)
     } else {
       console.log('decrypt failed: ' + data.category)

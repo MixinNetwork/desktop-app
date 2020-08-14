@@ -117,7 +117,7 @@
     <transition name="slide-bottom">
       <FileContainer
         class="media"
-        :style="(showTitlebar ? 'top: 1.4rem;' : '') + (dragging ? 'pointer-events: none;' : '')"
+        :style="(showTitlebar ? 'top: 1.4rem; height: calc(100% - 1.4rem);' : '') + (dragging ? 'pointer-events: none;' : '')"
         v-if="(dragging && conversation) || file"
         :file="file"
         :dragging="dragging"

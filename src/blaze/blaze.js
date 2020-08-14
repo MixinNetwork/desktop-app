@@ -1,4 +1,3 @@
-import RobustWebSocket from 'robust-websocket'
 import { getToken, readArrayBuffer, getAccount, safeParse } from '@/utils/util'
 import { MessageStatus, LinkStatus, API_URL } from '@/utils/constants'
 import { clearDb } from '@/persistence/db_util'
@@ -17,7 +16,7 @@ class Blaze {
   constructor() {
     this.transactions = {}
     this.ws = null
-    this.retryCount = 0
+    this.wsBaseUrl = API_URL.WS[0]
     this.account = getAccount()
     this.TIMEOUT = 'Time out'
     this.pingInterval = null
@@ -56,17 +55,7 @@ class Blaze {
     this.account = getAccount()
     const token = getToken('GET', '/', '')
     if (!token) return
-    this.ws = new RobustWebSocket(
-      API_URL.WS[this.retryCount % API_URL.WS.length] + '?access_token=' + token,
-      'Mixin-Blaze-1',
-      {
-        timeout: 10000,
-        shouldReconnect: function() {
-          return false
-        }
-      }
-    )
-    this.retryCount += 1
+    this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
@@ -176,13 +165,19 @@ class Blaze {
   }
 
   sendMessagePromise(message) {
-    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) return new Promise(() => { console.log('CONNECTING') })
+    if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+      return new Promise(() => {
+        console.log('CONNECTING')
+      })
+    }
     this.messageSending = true
     return new Promise((resolve, reject) => {
       const sendMessageTimer = setTimeout(() => {
         store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
-        this.connect()
+        const beforeIndex = API_URL.HTTP.indexOf(this.wsBaseUrl) || 0
+        this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
         reject(this.TIMEOUT)
+        this.connect()
         this.messageSending = false
       }, 5000)
       this._sendGzip(message, resp => {

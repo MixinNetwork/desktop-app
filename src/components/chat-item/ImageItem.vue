@@ -15,7 +15,7 @@
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
           <div class="content-in">
-            <div class="set">
+            <div class="set" :class="{small: borderSetObject(true) < 80}">
               <ReplyMessageItem
                 v-if="message.quoteContent"
                 :message="JSON.parse(message.quoteContent)"
@@ -273,12 +273,12 @@ export default class ImageItem extends Vue {
       overflow: hidden;
       position: relative;
       justify-content: center;
-      align-items: center;
       display: flex;
-      .image {
-        border-radius: 0.2rem;
-      }
+      border-radius: 0.2rem;
       font-size: 0;
+      &.small {
+        align-items: center;
+      }
     }
     .bottom {
       display: flex;

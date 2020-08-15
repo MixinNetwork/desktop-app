@@ -87,7 +87,7 @@ export default class FileContainer extends Vue {
     if (this.showImageType === 'video') {
       const $video: any = this.$refs.videoImage
       ret = {
-        duration: $video.duration * 1000,
+        duration: Math.ceil($video.duration * 1000),
         width: $video.videoWidth,
         height: $video.videoHeight,
         thumbImage: this.thumbImage

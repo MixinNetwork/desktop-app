@@ -296,7 +296,7 @@ export default {
   }
   .copy-icon {
     font-size: 0.9rem;
-    margin: 0.1rem 0.3rem;
+    margin: 0.1rem 0.6rem 0.1rem 0;
   }
   i {
     display: inline-block;

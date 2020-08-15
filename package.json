@@ -48,7 +48,6 @@
     "pako": "^1.0.11",
     "platform": "^1.3.6",
     "qrious": "^4.0.2",
-    "robust-websocket": "1.0.0",
     "sequential-task-queue": "^1.2.1",
     "urijs": "^1.19.2",
     "url-parse": "^1.4.7",

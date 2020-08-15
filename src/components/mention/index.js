@@ -18,9 +18,11 @@ const VueTribute = {
         containerClass: 'tribute-container',
         itemClass: '',
         selectTemplate: function(item) {
+          if (!item) return ''
           return `<b class="highlight default" contenteditable="false">@${item.original.id}</b>`
         },
         menuItemTemplate: function(item) {
+          if (!item) return ''
           const list = item.string.split('\n')
           return `<div>${list[0]}</div><div>${list[1]}</div>`
         },
@@ -71,7 +73,7 @@ const VueTribute = {
     }
   },
   methods: {
-    selectItem(index) {
+    selectItem(index, event) {
       this.tribute.selectItemAtIndex(index, event)
     }
   },
@@ -92,15 +94,19 @@ const VueTribute = {
     $el.addEventListener('tribute-items', e => {
       const items = []
       e.detail.forEach(item => {
-        const list = item.string.split('\n')
-        list.push(list[1].replace(/<[^>]+>/g, ''))
-        items.push(list)
+        if (item.string) {
+          const list = item.string.split('\n')
+          list.push(list[1].replace(/<[^>]+>/g, ''))
+          items.push(list)
+        }
       })
       this.$emit('update', items)
     })
     $el.addEventListener('tribute-replaced', e => {
-      const item = e.detail.item.string.split('\n')
-      this.$emit('choose', item)
+      if (e.detail.item) {
+        const item = e.detail.item.string.split('\n')
+        this.$emit('choose', item)
+      }
     })
     $el.addEventListener('tribute-select-index', e => {
       const index = e.detail

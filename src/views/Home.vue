@@ -35,6 +35,7 @@ import { ipcRenderer } from 'electron'
 })
 export default class Home extends Vue {
   @Action('setLinkStatus') actionSetLinkStatus: any
+  @Action('markRead') actionMarkRead: any
   @Action('refreshFriends') actionRefreshFriends: any
   @Action('init') actionInit: any
 
@@ -108,6 +109,13 @@ export default class Home extends Vue {
     setTimeout(() => {
       ipcRenderer.send('initTask')
       ipcRenderer.send('initPlayer')
+      ipcRenderer.on('taskResponseData', (event, res) => {
+        const payload = JSON.parse(res)
+        const { action, cid } = payload
+        if (action === 'markRead') {
+          this.actionMarkRead(cid)
+        }
+      })
     }, 1000)
   }
 }

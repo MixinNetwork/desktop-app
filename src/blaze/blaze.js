@@ -19,7 +19,6 @@ class Blaze {
     this.wsBaseUrl = API_URL.WS[0]
     this.account = getAccount()
     this.TIMEOUT = 'Time out'
-    this.CONNECTING = 'Connecting'
     this.timeoutTimer = null
     this.pingInterval = null
     this.wsInitialLock = false
@@ -197,7 +196,7 @@ class Blaze {
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
       return new Promise((resolve, reject) => {
-        reject(this.CONNECTING)
+        reject(this.TIMEOUT)
       })
     }
     return new Promise((resolve, reject) => {

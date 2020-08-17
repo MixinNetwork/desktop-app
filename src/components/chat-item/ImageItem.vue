@@ -15,17 +15,17 @@
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
           <div class="content-in">
-            <div class="set" :class="{small: borderSetObject(true) < 80}">
+            <div class="set">
               <ReplyMessageItem
                 v-if="message.quoteContent"
                 :message="JSON.parse(message.quoteContent)"
                 :me="me"
                 class="reply"
               ></ReplyMessageItem>
-              <div :style="borderSetObject()">
+              <div class="set-in">
                 <img
                   class="image"
-                  style="width: 100%"
+                  :style="borderSetObject()"
                   :src="media()"
                   :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
@@ -34,6 +34,7 @@
                 />
                 <Blurhash
                   v-if="isBlur && !imgLoaded"
+                  :style="borderSetObject()"
                   :image="message.thumbImage"
                   :mediaUrl="message.mediaUrl"
                 />
@@ -272,13 +273,15 @@ export default class ImageItem extends Vue {
       min-height: 3rem;
       overflow: hidden;
       position: relative;
-      justify-content: center;
-      display: flex;
       border-radius: 0.2rem;
-      font-size: 0;
-      &.small {
-        align-items: center;
+      text-align: center;
+      .set-in {
+        min-height: 3rem;
       }
+      .image {
+        border-radius: 0.2rem;
+      }
+      font-size: 0;
     }
     .bottom {
       display: flex;

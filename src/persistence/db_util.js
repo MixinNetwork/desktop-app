@@ -68,6 +68,11 @@ export async function dbMigration(identityNumber) {
 
 let clearing = false
 export function clearDb() {
+  const { notificationSetting = '{}', autoDownloadSetting = '{}', deletingMessages = '[]' } = localStorage
+  localStorage.clear()
+  localStorage.notificationSetting = notificationSetting
+  localStorage.autoDownloadSetting = autoDownloadSetting
+  localStorage.deletingMessages = deletingMessages
   if (clearing) {
     return
   }
@@ -75,10 +80,5 @@ export function clearDb() {
   store.dispatch('exit')
   clearKeyTable(localStorage.sessionId)
   clearSignal()
-  const { notificationSetting = '{}', autoDownloadSetting = '{}', deletingMessages = '[]' } = localStorage
-  localStorage.clear()
-  localStorage.notificationSetting = notificationSetting
-  localStorage.autoDownloadSetting = autoDownloadSetting
-  localStorage.deletingMessages = deletingMessages
   clearing = false
 }

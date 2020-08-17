@@ -66,8 +66,8 @@ export default class Home extends Vue {
     if (!userDao.isMe(account.user_id)) {
       accountApi.logout().then((resp: any) => {
         this.$blaze.closeBlaze()
-        this.$router.push('/sign_in')
         clearDb()
+        this.$router.push('/sign_in')
       })
     }
     this.ftsMessageLoadAll()

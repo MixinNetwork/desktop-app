@@ -5,6 +5,7 @@ import i18n from '@/utils/i18n'
 // @ts-ignore
 import MarkdownIt from 'markdown-it'
 import userDao from '@/dao/user_dao'
+import { getAccount } from '@/utils/util'
 const md = new MarkdownIt()
 URI.findUri.end = /[\s\r\n，。；]|[\uFF00-\uFFEF]|$/
 const botNumberReg = /@7000\d*\s/
@@ -231,8 +232,8 @@ class ContentUtil {
     quoteMe: boolean = false
   ) {
     if (!content) return null
-    const account = localStorage.getItem('account')!!
-    const accountId = JSON.parse(account).user_id
+    const account: any = getAccount()
+    const accountId = account.user_id
     let remind = 1
     const mentionIds = this.parseMentionIdentityNumber(content)
     if (mentionIds.length === 0) {

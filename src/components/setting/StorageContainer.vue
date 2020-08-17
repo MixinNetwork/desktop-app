@@ -93,7 +93,7 @@ export default class StorageContainer extends Vue {
 
   @Watch('autoDownloadMap')
   onAutoDownloadMapChanged(val: any) {
-    localStorage.setItem('autoDownloadSetting', JSON.stringify(val))
+    localStorage.autoDownloadSetting = JSON.stringify(val)
   }
 
   keyword: any = ''
@@ -138,7 +138,7 @@ export default class StorageContainer extends Vue {
       }
     })
     this.conversations = _.orderBy(conversations, ['size'], ['desc'])
-    const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+    const autoDownloadSetting = localStorage.autoDownloadSetting
     if (autoDownloadSetting) {
       this.autoDownloadMap = JSON.parse(autoDownloadSetting)
     }

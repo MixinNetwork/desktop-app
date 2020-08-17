@@ -355,7 +355,7 @@ export default class ChatContainer extends Vue {
           let autoDownload = !message.media_url && curMessageType === 'audio'
           const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
           if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
-            const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+            const autoDownloadSetting = localStorage.autoDownloadSetting
             let autoDownloadMap: any = { image: true, video: true, file: true }
             if (autoDownloadSetting) {
               autoDownloadMap = JSON.parse(autoDownloadSetting)

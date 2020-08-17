@@ -159,7 +159,7 @@ export default class ChatItem extends Vue {
 
   mounted() {
     try {
-      this.hideScamNotificationMap = JSON.parse(localStorage.getItem('hideScamNotificationMap') || '{}')
+      this.hideScamNotificationMap = JSON.parse(localStorage.hideScamNotificationMap || '{}')
     } catch (error) {}
   }
 
@@ -226,7 +226,7 @@ export default class ChatItem extends Vue {
   closeScamNotification() {
     this.hideScamNotificationMap[this.user.user_id] = new Date().getTime()
     const mapStr = JSON.stringify(this.hideScamNotificationMap)
-    localStorage.setItem('hideScamNotificationMap', mapStr)
+    localStorage.hideScamNotificationMap = mapStr
     this.hideScamNotificationMap = JSON.parse(mapStr)
   }
 

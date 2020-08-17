@@ -34,7 +34,7 @@
         <div class="image-viewer-nav-main">
           <div class="image-viewer-nav-thumb" ref="scroll">
             <img
-              id="thumb"
+              class="thumb"
               v-for="(il,i) in images"
               :class="{active:i===index}"
               :key="i"
@@ -404,7 +404,7 @@ export default {
     &::-webkit-scrollbar-thumb {
       background: #5f5f5faa;
     }
-    #thumb {
+    .thumb {
       display: inline-block;
       width: 12%;
       height: calc(100% - 0.3rem);

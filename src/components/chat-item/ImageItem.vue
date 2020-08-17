@@ -22,7 +22,7 @@
                 :me="me"
                 class="reply"
               ></ReplyMessageItem>
-              <div class="set-in">
+              <div class="set-in" :style="borderSetObject(false, true) > 60 ? '' : 'line-height: 3rem'">
                 <img
                   class="image"
                   :style="borderSetObject()"
@@ -180,7 +180,7 @@ export default class ImageItem extends Vue {
     return message.mediaUrl
   }
 
-  borderSetObject(getWidth: boolean) {
+  borderSetObject(getWidth: boolean, getHeight: boolean) {
     const maxWidth = convertRemToPixels(8)
     const maxHeight = convertRemToPixels(12)
     const { message } = this
@@ -190,16 +190,22 @@ export default class ImageItem extends Vue {
       if (getWidth) {
         return width
       }
+      if (getHeight) {
+        return width / scale
+      }
       if (message.quoteContent) {
         width -= 4
       }
       return { width: `${width}px`, height: `${width / scale}px` }
     }
     const height = Math.min(message.mediaHeight, maxHeight)
-    if (getWidth) {
-      return height * scale
+    if (getHeight) {
+      return height
     }
     width = height * scale
+    if (getWidth) {
+      return width
+    }
     if (message.quoteContent) {
       width -= 4
     }
@@ -279,6 +285,7 @@ export default class ImageItem extends Vue {
         min-height: 3rem;
       }
       .image {
+        vertical-align: middle;
         border-radius: 0.2rem;
       }
       font-size: 0;

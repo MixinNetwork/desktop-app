@@ -63,17 +63,13 @@ export default class Loading extends Vue {
       }
       const user = account.data.data
       if (!user) {
-        userAPI
-          .updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
-          .then(() => {})
+        await userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
         await this.pushSignalKeys()
       } else {
         sessionStorage.duringMigration = true
-        this.migrationAction((skip: boolean) => {
+        this.migrationAction(async(skip: boolean) => {
           delete sessionStorage.duringMigration
-          userAPI
-            .updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
-            .then(() => {})
+          await userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
           this.pushSignalKeys().then(() => {
             localStorage.account = JSON.stringify(user)
             this.$store.dispatch('insertUser', user)
@@ -82,6 +78,7 @@ export default class Loading extends Vue {
               this.syncCircles()
             }
             if (skip) {
+              console.log('------to home')
               this.$router.push('/home')
             }
           })

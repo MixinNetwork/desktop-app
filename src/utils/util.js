@@ -135,19 +135,19 @@ export function safeParse(data) {
 }
 
 export function getAccount() {
-  return safeParse(localStorage.getItem('account'))
+  return safeParse(localStorage.account)
 }
 
 export function updateAccount(user) {
-  const account = safeParse(localStorage.getItem('account'))
+  const account = safeParse(localStorage.account)
   account.full_name = user.full_name
   account.biography = user.biography
   localStorage.account = JSON.stringify(account)
 }
 
 export function getToken(method, uri, data) {
-  const privateKey = localStorage.getItem('sessionToken')
-  const account = safeParse(localStorage.getItem('account'))
+  const privateKey = localStorage.sessionToken
+  const account = safeParse(localStorage.account)
   let token = ''
   if (typeof data === 'object') {
     data = JSON.stringify(data)
@@ -211,7 +211,7 @@ export function keyToLine(name) {
 export function sendNotification(title, body, conversation) {
   let notificationSetting = {}
   try {
-    notificationSetting = JSON.parse(localStorage.getItem('notificationSetting') || '{}')
+    notificationSetting = JSON.parse(localStorage.notificationSetting || '{}')
   } catch (error) {}
   if (!notificationSetting.hideNotification) {
     let newNotification = new Notification(title, {

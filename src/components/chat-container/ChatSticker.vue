@@ -137,7 +137,7 @@ export default class ChatSticker extends Vue {
     let stickersData: any = []
     let getStickersMap: any = {}
     try {
-      getStickersMap = JSON.parse(localStorage.getItem('getStickersMap') || '{}')
+      getStickersMap = JSON.parse(localStorage.getStickersMap || '{}')
     } catch (error) {}
     if (this.forceGetStickersMap[id] > new Date().getTime() - 3600000) {
       force = false
@@ -149,7 +149,7 @@ export default class ChatSticker extends Vue {
         stickersData = stickersRet.data.data
       }
       getStickersMap[id] = true
-      localStorage.setItem('getStickersMap', JSON.stringify(getStickersMap))
+      localStorage.getStickersMap = JSON.stringify(getStickersMap)
     }
     stickersData.forEach((item: any) => {
       stickerDao.insertUpdate(item)

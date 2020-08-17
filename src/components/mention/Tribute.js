@@ -448,6 +448,7 @@ class Tribute {
     index = parseInt(index)
     if (typeof index !== 'number' || isNaN(index)) return
     let item = this.current.filteredItems[index]
+    if (!item) return
     let content = this.current.collection.selectTemplate(item)
     if (content !== null) this.replaceText(content, originalEvent, item)
   }

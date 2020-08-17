@@ -32,7 +32,7 @@ export default class SettingNotification extends Vue {
   unselected: any = {}
 
   beforeMount() {
-    const notificationSetting = localStorage.getItem('notificationSetting')
+    const notificationSetting = localStorage.notificationSetting
     if (notificationSetting) {
       this.unselected = JSON.parse(notificationSetting)
     }
@@ -42,7 +42,7 @@ export default class SettingNotification extends Vue {
     this.unselected[key] = !this.unselected[key]
     const unselected = JSON.stringify(this.unselected)
     this.unselected = JSON.parse(unselected)
-    localStorage.setItem('notificationSetting', unselected)
+    localStorage.notificationSetting = unselected
   }
 
   back() {

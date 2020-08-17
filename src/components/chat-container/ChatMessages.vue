@@ -355,7 +355,7 @@ export default class ChatContainer extends Vue {
           let autoDownload = !message.media_url && curMessageType === 'audio'
           const offset = new Date().valueOf() - new Date(message.created_at).valueOf()
           if (offset < 7200000 && !message.media_url && isMedia(message.type)) {
-            const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+            const autoDownloadSetting = localStorage.autoDownloadSetting
             let autoDownloadMap: any = { image: true, video: true, file: true }
             if (autoDownloadSetting) {
               autoDownloadMap = JSON.parse(autoDownloadSetting)
@@ -521,9 +521,7 @@ export default class ChatContainer extends Vue {
         this.showMessages = false
         this.unreadMessageId = message.messageId
       }
-      this.$nextTick(() => {
-        this.goMessagePos(message)
-      })
+      this.goMessagePos(message)
     } else if (isMyMsg || goBottom || this.isBottom) {
       if (BrowserWindow.getFocusedWindow()) {
         this.unreadMessageId = ''
@@ -614,7 +612,7 @@ export default class ChatContainer extends Vue {
       if (!this.goMessagePosTimer) {
         this.goMessagePosTimer = setTimeout(() => {
           goDone = true
-        }, 300)
+        }, 1000)
       }
       let list: any = this.$refs.messagesUl
       if (!list) return

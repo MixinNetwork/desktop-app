@@ -35,6 +35,7 @@ import { ipcRenderer } from 'electron'
 })
 export default class Home extends Vue {
   @Action('setLinkStatus') actionSetLinkStatus: any
+  @Action('markRead') actionMarkRead: any
   @Action('refreshFriends') actionRefreshFriends: any
   @Action('init') actionInit: any
 
@@ -62,14 +63,17 @@ export default class Home extends Vue {
 
   async created() {
     const account: any = getAccount()
+    console.log('------user_id:', account.user_id)
     if (!userDao.isMe(account.user_id)) {
       accountApi.logout().then((resp: any) => {
         this.$blaze.closeBlaze()
-        this.$router.push('/sign_in')
         clearDb()
+        this.$router.push('/sign_in')
       })
     }
-    this.ftsMessageLoadAll()
+    setTimeout(() => {
+      this.ftsMessageLoadAll()
+    }, 3000)
 
     this.$blaze.connect()
     workerManager.start()
@@ -108,6 +112,13 @@ export default class Home extends Vue {
     setTimeout(() => {
       ipcRenderer.send('initTask')
       ipcRenderer.send('initPlayer')
+      ipcRenderer.on('taskResponseData', (event, res) => {
+        const payload = JSON.parse(res)
+        const { action, cid } = payload
+        if (action === 'markRead') {
+          this.actionMarkRead(cid)
+        }
+      })
     }, 1000)
   }
 }

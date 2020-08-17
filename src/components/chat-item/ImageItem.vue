@@ -15,17 +15,17 @@
       >
         <div class="content" :class="{zoom: !waitStatus, reply: message.quoteContent}">
           <div class="content-in">
-            <div class="set" :class="{small: borderSetObject(true) < 80}">
+            <div class="set">
               <ReplyMessageItem
                 v-if="message.quoteContent"
                 :message="JSON.parse(message.quoteContent)"
                 :me="me"
                 class="reply"
               ></ReplyMessageItem>
-              <div :style="borderSetObject()">
+              <div class="set-in" :style="borderSetObject(false, true) > 40 ? '' : 'line-height: 2rem'">
                 <img
                   class="image"
-                  style="width: 100%"
+                  :style="borderSetObject()"
                   :src="media()"
                   :loading="'data:' + message.mediaMimeType + ';base64,' + message.thumbImage"
                   :onerror="`this.src='${defaultImg}';this.onerror=null`"
@@ -34,6 +34,7 @@
                 />
                 <Blurhash
                   v-if="isBlur && !imgLoaded"
+                  :style="borderSetObject()"
                   :image="message.thumbImage"
                   :mediaUrl="message.mediaUrl"
                 />
@@ -179,7 +180,7 @@ export default class ImageItem extends Vue {
     return message.mediaUrl
   }
 
-  borderSetObject(getWidth: boolean) {
+  borderSetObject(getWidth: boolean, getHeight: boolean) {
     const maxWidth = convertRemToPixels(8)
     const maxHeight = convertRemToPixels(12)
     const { message } = this
@@ -189,16 +190,22 @@ export default class ImageItem extends Vue {
       if (getWidth) {
         return width
       }
+      if (getHeight) {
+        return width / scale
+      }
       if (message.quoteContent) {
         width -= 4
       }
       return { width: `${width}px`, height: `${width / scale}px` }
     }
     const height = Math.min(message.mediaHeight, maxHeight)
-    if (getWidth) {
-      return height * scale
+    if (getHeight) {
+      return height
     }
     width = height * scale
+    if (getWidth) {
+      return width
+    }
     if (message.quoteContent) {
       width -= 4
     }
@@ -269,16 +276,15 @@ export default class ImageItem extends Vue {
     .set {
       max-width: 8rem;
       max-height: 12rem;
-      min-height: 3rem;
       overflow: hidden;
       position: relative;
-      justify-content: center;
-      display: flex;
       border-radius: 0.2rem;
-      font-size: 0;
-      &.small {
-        align-items: center;
+      text-align: center;
+      .image {
+        vertical-align: middle;
+        border-radius: 0.2rem;
       }
+      font-size: 0;
     }
     .bottom {
       display: flex;

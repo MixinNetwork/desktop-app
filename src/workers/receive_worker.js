@@ -574,7 +574,7 @@ class ReceiveWorker extends BaseWorker {
       const curMessageType = messageType(message.category)
       let autoDownload = curMessageType === 'audio'
       if (offset <= 7200000 && store.state.currentConversationId === message.conversation_id) {
-        const autoDownloadSetting = localStorage.getItem('autoDownloadSetting')
+        const autoDownloadSetting = localStorage.autoDownloadSetting
         let autoDownloadMap = { image: true, video: true, file: true }
         if (autoDownloadSetting) {
           autoDownloadMap = JSON.parse(autoDownloadSetting)

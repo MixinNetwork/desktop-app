@@ -411,8 +411,8 @@ export default class Navigation extends Vue {
   exit() {
     accountAPI.logout().then((resp: any) => {
       this.$blaze.closeBlaze()
-      this.$router.push('/sign_in')
       clearDb()
+      this.$router.push('/sign_in')
     })
   }
 

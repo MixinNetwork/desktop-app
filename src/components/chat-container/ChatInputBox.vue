@@ -130,20 +130,7 @@ export default class ChatItem extends Vue {
   onConversationChanged(newCid: any, oldCid: any) {
     this.hideChoosePanel()
     setTimeout(() => {
-      if (!this.conversation) return
-      const { participants, category } = this.conversation
-      const values: any = []
-      if (category === 'GROUP') {
-        participants.forEach((item: any) => {
-          values.push({
-            name: item.full_name,
-            id: item.identity_number
-          })
-        })
-      }
-      this.tributeOptions.values = values
-      this.participants = participants
-      this.contacts = participants
+      this.updateContacts()
     }, 200)
   }
 
@@ -172,8 +159,25 @@ export default class ChatItem extends Vue {
 
   mounted() {
     try {
-      this.hideScamNotificationMap = JSON.parse(localStorage.getItem('hideScamNotificationMap') || '{}')
+      this.hideScamNotificationMap = JSON.parse(localStorage.hideScamNotificationMap || '{}')
     } catch (error) {}
+  }
+
+  updateContacts() {
+    if (!this.conversation) return
+    const { participants, category } = this.conversation
+    const values: any = []
+    if (category === 'GROUP') {
+      participants.forEach((item: any) => {
+        values.push({
+          name: item.full_name,
+          id: item.identity_number
+        })
+      })
+    }
+    this.tributeOptions.values = values
+    this.participants = participants
+    this.contacts = participants
   }
 
   mentionSelectIndex(index: any) {
@@ -200,8 +204,11 @@ export default class ChatItem extends Vue {
   }
 
   mentionClick(index: any) {
+    if (!event) {
+      console.log('--mentionClick', event)
+    }
     // @ts-ignore
-    this.$refs.tribute.selectItem(index)
+    this.$refs.tribute.selectItem(index, event)
   }
 
   mentionToggle(flag: boolean) {
@@ -219,7 +226,7 @@ export default class ChatItem extends Vue {
   closeScamNotification() {
     this.hideScamNotificationMap[this.user.user_id] = new Date().getTime()
     const mapStr = JSON.stringify(this.hideScamNotificationMap)
-    localStorage.setItem('hideScamNotificationMap', mapStr)
+    localStorage.hideScamNotificationMap = mapStr
     this.hideScamNotificationMap = JSON.parse(mapStr)
   }
 
@@ -263,6 +270,10 @@ export default class ChatItem extends Vue {
       const html = $target.innerHTML
       this.conversation.draft = html
       this.conversation.draftText = $target.innerText
+      if (!$target.innerText.length) {
+        this.hideChoosePanel()
+        this.updateContacts()
+      }
       if (this.conversation.draftText.length < 10) {
         this.inputBoxHeight = 36
       }

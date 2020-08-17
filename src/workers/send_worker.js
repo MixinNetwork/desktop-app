@@ -136,6 +136,7 @@ class SendWorker extends BaseWorker {
       } else if (error === 'Time out') {
         throw error
       } else if (error.code === 403) {
+        console.log('deliver 403')
         messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
         result = true
       } else {

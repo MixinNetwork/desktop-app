@@ -27,6 +27,7 @@ class AckWorker extends BaseWorker {
       },
       async error => {
         if (error.data.error.code === 403) {
+          console.log('sendAckMessages 403')
           await jobDao.delete(jobs)
         } else {
           console.log(error)
@@ -55,6 +56,7 @@ class AckWorker extends BaseWorker {
       },
       async error => {
         if (error.code === 403) {
+          console.log('sendRecallMessages 403')
           await jobDao.deleteById(job.job_id)
         } else {
           console.log(error)
@@ -104,6 +106,7 @@ class AckWorker extends BaseWorker {
         },
         async error => {
           if (error.code === 403) {
+            console.log('sendSessionAckMessages 403')
             await jobDao.delete(jobs)
           } else {
             console.log(error)

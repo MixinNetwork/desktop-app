@@ -276,7 +276,6 @@ export default class ImageItem extends Vue {
     .set {
       max-width: 8rem;
       max-height: 12rem;
-      min-height: 3rem;
       overflow: hidden;
       position: relative;
       border-radius: 0.2rem;

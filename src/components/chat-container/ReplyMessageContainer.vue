@@ -54,7 +54,7 @@
           class="reply_icon"
           v-else-if="messageType() === 'app_card' || messageType() === 'app_button_group'"
         />
-        <span v-html="$w(htmlEscape(getContent))"></span>
+        <span v-html="$w(getContent)"></span>
       </span>
     </div>
     <img
@@ -135,6 +135,7 @@ export default class ReplyMessageContainer extends Vue {
     const curMessageType = this.messageType()
     if (curMessageType === 'text') {
       let { mentions, content } = this.message
+      content = contentUtil.renderUrl(content)
       content = contentUtil.renderMention(content, mentions)
       return content
     } else if (curMessageType === 'sticker') {
@@ -167,9 +168,6 @@ export default class ReplyMessageContainer extends Vue {
     } else {
       return null
     }
-  }
-  htmlEscape(content: any) {
-    return contentUtil.htmlEscape(content)
   }
 
   media(message: any) {

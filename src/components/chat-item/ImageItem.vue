@@ -22,7 +22,7 @@
                 :me="me"
                 class="reply"
               ></ReplyMessageItem>
-              <div class="set-in" :style="borderSetObject(false, true) > 60 ? '' : 'line-height: 3rem'">
+              <div class="set-in" :style="borderSetObject(false, true) > 40 ? '' : 'line-height: 2rem'">
                 <img
                   class="image"
                   :style="borderSetObject()"
@@ -281,9 +281,6 @@ export default class ImageItem extends Vue {
       position: relative;
       border-radius: 0.2rem;
       text-align: center;
-      .set-in {
-        min-height: 3rem;
-      }
       .image {
         vertical-align: middle;
         border-radius: 0.2rem;

@@ -82,6 +82,7 @@ export default class Loading extends Vue {
               this.syncCircles()
             }
             if (skip) {
+              console.log('------to home')
               this.$router.push('/home')
             }
           })

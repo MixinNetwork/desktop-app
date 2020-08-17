@@ -63,6 +63,7 @@ export default class Home extends Vue {
 
   async created() {
     const account: any = getAccount()
+    console.log('------user_id:', account.user_id)
     if (!userDao.isMe(account.user_id)) {
       accountApi.logout().then((resp: any) => {
         this.$blaze.closeBlaze()
@@ -70,7 +71,9 @@ export default class Home extends Vue {
         this.$router.push('/sign_in')
       })
     }
-    this.ftsMessageLoadAll()
+    setTimeout(() => {
+      this.ftsMessageLoadAll()
+    }, 3000)
 
     this.$blaze.connect()
     workerManager.start()

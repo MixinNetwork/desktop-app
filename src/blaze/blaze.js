@@ -19,6 +19,7 @@ class Blaze {
     this.wsBaseUrl = API_URL.WS[0]
     this.account = getAccount()
     this.TIMEOUT = 'Time out'
+    this.CONNECTING = 'Connecting'
     this.timeoutTimer = null
     this.pingInterval = null
     this.wsInitialLock = false
@@ -42,7 +43,6 @@ class Blaze {
 
   connect() {
     if (store.state.linkStatus === LinkStatus.CONNECTING || this.wsInitialLock) return
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
@@ -60,6 +60,8 @@ class Blaze {
     this.account = getAccount()
     const token = getToken('GET', '/', '')
     if (!token) return
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+
     this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
     this.setTimeoutTimer()
     this.ws.onmessage = this._onMessage.bind(this)
@@ -195,7 +197,7 @@ class Blaze {
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
       return new Promise((resolve, reject) => {
-        reject(this.TIMEOUT)
+        reject(this.CONNECTING)
       })
     }
     return new Promise((resolve, reject) => {

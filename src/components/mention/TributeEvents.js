@@ -79,29 +79,7 @@ class TributeEvents {
     instance.keyup.call(this, instance, event)
   }
 
-  click(instance, event) {
-    let tribute = instance.tribute
-    if (tribute.menu && tribute.menu.contains(event.target)) {
-      let li = event.target
-      event.preventDefault()
-      event.stopPropagation()
-      while (li.nodeName.toLowerCase() !== 'li') {
-        li = li.parentNode
-        if (!li || li === tribute.menu) {
-          throw new Error('cannot find the <li> container for the click')
-        }
-      }
-      tribute.selectItemAtIndex(li.getAttribute('data-index'), event)
-      tribute.hideMenu()
-
-      // TODO: should fire with externalTrigger and target is outside of menu
-    } else if (tribute.current.element && !tribute.current.externalTrigger) {
-      setTimeout(() => {
-        tribute.current.externalTrigger = false
-        setTimeout(() => tribute.hideMenu())
-      }, 10)
-    }
-  }
+  click(instance, event) {}
 
   keyup(instance, event) {
     if (instance.inputEvent) {

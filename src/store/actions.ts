@@ -235,17 +235,24 @@ export default {
   },
   addParticipants: async({ commit }: any, payload: { participants: any; conversationId: string }) => {
     const { participants, conversationId } = payload
-    participantDao.insertAll(
-      participants.map((item: any) => {
-        conversationApi.participant(conversationId, 'ADD', item.user_id, '')
-        return {
-          conversation_id: conversationId,
-          user_id: item.user_id,
-          role: '',
-          created_at: item.created_at
+    participants.forEach((item: any) => {
+      conversationApi.participant(conversationId, 'ADD', item.user_id, '').then(res => {
+        const retData = res.data.data
+        if (retData) {
+          const userIds = retData.participants.map((p: any) => {
+            return p.user_id
+          })
+          if (userIds.indexOf(item.user_id) > -1) {
+            participantDao.insert({
+              conversation_id: conversationId,
+              user_id: item.user_id,
+              role: '',
+              created_at: item.created_at
+            })
+          }
         }
       })
-    )
+    })
   },
   saveAccount: ({ commit }: any, user: any) => {
     userDao.insertUser(user)

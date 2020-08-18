@@ -40,8 +40,14 @@ class Blaze {
     })
   }
 
-  connect() {
-    if (store.state.linkStatus === LinkStatus.CONNECTING || this.wsInitialLock) return
+  connect(force) {
+    if (this.wsInitialLock && !force) return
+
+    if (this.ws) {
+      if (this.ws.readyState === WebSocket.CONNECTING) return
+      this.ws.close(1000, 'Normal close')
+      this.ws = null
+    }
 
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
@@ -50,19 +56,15 @@ class Blaze {
       }
     }, 15000)
 
-    if (this.ws) {
-      this.ws.close()
-    }
-
     if (this.systemSleep) return
 
     this.account = getAccount()
     const token = getToken('GET', '/', '')
     if (!token) return
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
-    this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     this.setTimeoutTimer()
+    this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
     this.ws.onerror = this._onError.bind(this)
     this.ws.onclose = this._onClose.bind(this)
@@ -107,14 +109,6 @@ class Blaze {
       this.ws.close(3001, 'Unauthorized')
       clearDb()
       router.push('/sign_in')
-    }
-  }
-  isConnect() {
-    if (this.ws) {
-      console.log(this.ws.readyState)
-      return this.ws.readyState === WebSocket.OPEN
-    } else {
-      return false
     }
   }
   handleMessage(data) {
@@ -183,6 +177,8 @@ class Blaze {
       if (reject) {
         reject(this.TIMEOUT)
       }
+      this.ws.close(1000, 'Time out')
+      this.ws = null
       this.wsInitialLock = false
       this.connect()
     }, 5000)

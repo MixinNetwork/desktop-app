@@ -451,6 +451,9 @@ class Tribute {
     if (!item) return
     let content = this.current.collection.selectTemplate(item)
     if (content !== null) this.replaceText(content, originalEvent, item)
+    setTimeout(() => {
+      this.hideMenu()
+    })
   }
 
   replaceText(content, originalEvent, item) {

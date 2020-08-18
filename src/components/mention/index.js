@@ -18,7 +18,10 @@ const VueTribute = {
         containerClass: 'tribute-container',
         itemClass: '',
         selectTemplate: function(item) {
-          if (!item) return ''
+          if (!item) {
+            console.log('selectTemplate')
+            return ''
+          }
           return `<b class="highlight default" contenteditable="false">@${item.original.id}</b>`
         },
         menuItemTemplate: function(item) {

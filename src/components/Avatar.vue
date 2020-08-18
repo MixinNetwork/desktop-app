@@ -141,6 +141,7 @@ export default class Avatar extends Vue {
   .avatar,
   .avatar > img {
     position: absolute;
+    background: #fff;
     top: 0;
     left: 0;
     height: 100%;

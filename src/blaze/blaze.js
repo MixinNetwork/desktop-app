@@ -44,7 +44,6 @@ class Blaze {
     if (this.wsInitialLock && !force) return
 
     if (this.ws) {
-      if (this.ws.readyState === WebSocket.CONNECTING) return
       this.ws.close(1000, 'Normal close')
       this.ws = null
     }
@@ -177,8 +176,6 @@ class Blaze {
       if (reject) {
         reject(this.TIMEOUT)
       }
-      this.ws.close(1000, 'Time out')
-      this.ws = null
       this.wsInitialLock = false
       this.connect()
     }, 5000)

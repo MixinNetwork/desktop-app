@@ -95,7 +95,7 @@ export default class AppCardItem extends Vue {
   background-color: white;
   border-radius: 0.2rem;
   padding: 0.6rem;
-  max-width: 16rem;
+  max-width: 12rem;
   .content {
     display: flex;
     flex-direction: column;

@@ -7,6 +7,7 @@
 <script>
 // lib
 import _videojs from 'video.js'
+import './plugin.js'
 const videojs = window.videojs || _videojs
 
 // pollfill
@@ -98,7 +99,7 @@ export default {
             vertical: true
           }
         },
-        techOrder: ['html5'],
+        techOrder: ['flvh265', 'html5'],
         plugins: {}
       })
     },

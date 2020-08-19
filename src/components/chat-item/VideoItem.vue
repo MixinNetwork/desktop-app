@@ -184,7 +184,10 @@ export default class VideoItem extends Vue {
       height: this.videoSize.height,
       sources: [
         {
-          type: 'video/mp4',
+          // type: 'video/mp4',
+          // type: 'video/x-flv-h265',
+          type: this.message.mediaMimeType,
+          // src: this.message.mediaUrl
           src: this.message.mediaUrl
         }
       ]

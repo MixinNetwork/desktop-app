@@ -81,7 +81,13 @@ export function initPlayer() {
     try {
       playerWindow.webContents.send('playRequestData', JSON.stringify({}))
       playerWindow.hide()
-    } catch (error) {}
+    } catch (error) {
+      playerWindow = null
+      playerWindow = initPlayer()
+      setTimeout(() => {
+        playerWindow.webContents.send('playRequestData', JSON.stringify({}))
+      }, 1000)
+    }
   })
 
   ipcMain.on('minimizePlayer', (event, _) => {
@@ -92,7 +98,13 @@ export function initPlayer() {
     try {
       playerWindow.webContents.send('playRequestData', JSON.stringify(args))
       playerWindow.show()
-    } catch (error) {}
+    } catch (error) {
+      playerWindow = null
+      playerWindow = initPlayer()
+      setTimeout(() => {
+        playerWindow.webContents.send('playRequestData', JSON.stringify(args))
+      }, 1000)
+    }
   })
 
   ipcMain.on('resize', (event, args) => {

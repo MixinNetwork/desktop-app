@@ -16,7 +16,7 @@ export default {
       browser = new BrowserWindow({
         resizable: false,
         minimizable: false,
-        fullscreenable: false,
+        fullscreenable: true,
         webPreferences: {
           // sandbox: true,
           preload: preloadFile

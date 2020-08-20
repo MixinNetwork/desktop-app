@@ -317,6 +317,11 @@ export default {
   },
   refreshMessage(state: any, payload: any) {
     const { conversationId, messageIds } = payload
+    state.refreshMessageIds.forEach((id: any) => {
+      if (messageIds.indexOf(id) < 0) {
+        messageIds.push(id)
+      }
+    })
     state.refreshMessageIds = []
     if (conversationId === state.currentConversationId) {
       state.refreshMessageIds = messageIds

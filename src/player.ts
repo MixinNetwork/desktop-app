@@ -78,9 +78,16 @@ export function initPlayer() {
   })
 
   ipcMain.on('closePlayer', (event, _) => {
-    if (!playerWindow) return
-    playerWindow.webContents.send('playRequestData', JSON.stringify({}))
-    playerWindow.hide()
+    try {
+      playerWindow.webContents.send('playRequestData', JSON.stringify({}))
+      playerWindow.hide()
+    } catch (error) {
+      playerWindow = null
+      playerWindow = initPlayer()
+      setTimeout(() => {
+        playerWindow.webContents.send('playRequestData', JSON.stringify({}))
+      }, 1000)
+    }
   })
 
   ipcMain.on('minimizePlayer', (event, _) => {
@@ -88,9 +95,16 @@ export function initPlayer() {
   })
 
   ipcMain.on('play', (event, args) => {
-    if (!playerWindow) return
-    playerWindow.webContents.send('playRequestData', JSON.stringify(args))
-    playerWindow.show()
+    try {
+      playerWindow.webContents.send('playRequestData', JSON.stringify(args))
+      playerWindow.show()
+    } catch (error) {
+      playerWindow = null
+      playerWindow = initPlayer()
+      setTimeout(() => {
+        playerWindow.webContents.send('playRequestData', JSON.stringify(args))
+      }, 1000)
+    }
   })
 
   ipcMain.on('resize', (event, args) => {

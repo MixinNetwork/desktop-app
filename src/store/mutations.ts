@@ -317,8 +317,8 @@ export default {
   },
   refreshMessage(state: any, payload: any) {
     const { conversationId, messageIds } = payload
-    state.refreshMessageIds = []
     if (conversationId === state.currentConversationId) {
+      state.refreshMessageIds = []
       state.refreshMessageIds = messageIds
     }
     if (

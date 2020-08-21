@@ -160,7 +160,7 @@ export default class ChatContainer extends Vue {
 
   @Watch('refreshMessageIds')
   onRefreshMessageIdsChanged(messageIds: any) {
-    if (messageIds.length < 0 || !this.conversation) return
+    if (messageIds.length === 0 || !this.conversation) return
 
     const matchIds: any = []
     const { conversationId } = this.conversation

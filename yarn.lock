@@ -2082,7 +2082,7 @@
   optionalDependencies:
     vue-loader-v16 "npm:vue-loader@^16.0.0-beta.3"
 
-"@vue/cli-shared-utils@^4.5.3", "@vue/cli-shared-utils@^4.5.4":
+"@vue/cli-shared-utils@^4.5.4":
   version "4.5.4"
   resolved "https://registry.yarnpkg.com/@vue/cli-shared-utils/-/cli-shared-utils-4.5.4.tgz#ed36b2971dc02653f7f2ad4e66bbe9510e1bd414"
   integrity sha512-7ZwAvGxl5szGuaJCc4jdPy/2Lb7oJvG847MDF+7pZ7FVl6bURwbUJjiUwL6DTxvpC4vch6B4tXfVvZFjzVP/bw==
@@ -7508,10 +7508,10 @@ loose-envify@^1.0.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-lottie-web@^5.7.1:
-  version "5.7.1"
-  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.7.1.tgz#505f748a2dda836f7b582f811004c5ab8791c90c"
-  integrity sha512-f7kO4Qcurldc9SWfGUuwgs96/SCT+hwATMCdMK6I/sd6EYK3Y0Ciz40yAvq0x9uXzrk6KKcnQrqijZM8Ir4Drg==
+lottie-web@^5.7.2:
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.7.2.tgz#c3fe30a264957922556b4361221dbe88a0530998"
+  integrity sha512-lLQ/r/WlYxXe+J8zki/0blBNtNRJJBKm0AdBcD8KJXxpY4Epf70+9XwBM/Z4OHRP+89V1Tuma1wq5oR+hy08qg==
 
 loud-rejection@^1.0.0:
   version "1.6.0"

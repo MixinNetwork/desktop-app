@@ -35,7 +35,7 @@ class Blaze {
       if (this.systemSleep) {
         this.systemSleep = false
         console.log('The system is resume')
-        this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+        this.connect(true)
       }
     })
   }

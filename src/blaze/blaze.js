@@ -173,11 +173,13 @@ class Blaze {
       store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
       const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
       this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
+      console.log('ws timeout: ', reject ? 'sendMessagePromise' : 'connect')
+      this.wsInitialLock = false
       if (reject) {
         reject(this.TIMEOUT)
+      } else {
+        this.connect()
       }
-      this.wsInitialLock = false
-      this.connect()
     }, 5000)
   }
 

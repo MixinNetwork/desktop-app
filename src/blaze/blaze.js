@@ -91,6 +91,9 @@ class Blaze {
   _onClose(event) {
     console.log('---onclose--', event.code)
     this.wsInitialLock = false
+    if (event.code !== 1000) {
+      this.connect()
+    }
   }
   _onError(event) {
     console.log('-------onerrror--')

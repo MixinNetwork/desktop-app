@@ -717,7 +717,6 @@ li {
   font-size: 0;
   max-width: 80%;
   box-shadow: 0 0.05rem 0.05rem #aaaaaa33;
-  overflow: hidden;
 
   &.text,
   &.app_card,
@@ -822,14 +821,14 @@ li {
   }
 }
 .send.reply {
-  .bubble {
-    &.text {
-      background: white;
-    }
-    &:after {
-      border-left: 0.45rem solid white;
-    }
-  }
+  // .bubble {
+  //   &.text {
+  //     background: white;
+  //   }
+  //   &:after {
+  //     border-left: 0.45rem solid white;
+  //   }
+  // }
 }
 .time-divide.transparent {
   opacity: 0;

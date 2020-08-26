@@ -7,8 +7,8 @@
     <div class="content">
       <img class="image" :src="getPath()" v-if="showImageType === 'image'" />
       <div class="video-preview" v-else-if="showImageType === 'video'">
-        <video class="image" @loadeddata="loadeddata" ref="videoImage" :src="getPath()" preload></video>
-        <svg-icon class="play" icon-class="ic_play" />
+        <video class="image" ref="player" @click="videoPause" @ended="ended" @loadeddata="loadeddata" :src="getPath()" preload></video>
+        <svg-icon class="play" v-if="!videoPlaying" icon-class="ic_play" @click="videoPlay" />
       </div>
       <div class="file" v-else-if="fileName">
         <svg-icon style="font-size: 2rem" icon-class="ic_file" />
@@ -39,6 +39,7 @@ export default class FileContainer extends Vue {
   @Prop(Boolean) readonly fileUnsupported: any
 
   thumbImage: any = null
+  videoPlaying: boolean = false
 
   get showImageType() {
     if (this.file) {
@@ -59,8 +60,24 @@ export default class FileContainer extends Vue {
     return ''
   }
 
+  videoPlay() {
+    const player: any = this.$refs.player
+    this.videoPlaying = true
+    player.play()
+  }
+
+  videoPause() {
+    const player: any = this.$refs.player
+    this.videoPlaying = false
+    player.pause()
+  }
+
+  ended() {
+    this.videoPlaying = false
+  }
+
   loadeddata() {
-    const video: any = this.$refs.videoImage
+    const video: any = this.$refs.player
     const canvas = document.createElement('canvas')
     const scale = 20 / video.videoWidth
     canvas.width = Math.ceil(video.videoWidth * scale)
@@ -85,7 +102,7 @@ export default class FileContainer extends Vue {
     if (this.dragging || this.fileUnsupported) return
     let ret = {}
     if (this.showImageType === 'video') {
-      const $video: any = this.$refs.videoImage
+      const $video: any = this.$refs.player
       ret = {
         duration: Math.ceil($video.duration * 1000),
         width: $video.videoWidth,
@@ -120,6 +137,7 @@ export default class FileContainer extends Vue {
     .video-preview {
       text-align: center;
       .play {
+        cursor: pointer;
         width: 2rem;
         height: 2rem;
         position: absolute;

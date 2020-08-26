@@ -173,17 +173,18 @@ class Blaze {
     this._sendGzip(message, function(resp) {})
   }
 
-  setTimeoutTimer(reject) {
+  setTimeoutTimer(reject, message) {
     this.wsInitialLock = true
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
       const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
       this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
-      console.log('ws timeout: ', reject ? 'sendMessagePromise' : 'connect')
       this.wsInitialLock = false
       if (reject) {
+        console.log('ws timeout:', message && message.id)
         reject(this.TIMEOUT)
       } else {
+        console.log('ws timeout: connect')
         this.connect()
       }
     }, 5000)
@@ -201,7 +202,7 @@ class Blaze {
       })
     }
     return new Promise((resolve, reject) => {
-      this.setTimeoutTimer(reject)
+      this.setTimeoutTimer(reject, message)
       this._sendGzip(message, resp => {
         if (resp.data) {
           resolve(resp.data)

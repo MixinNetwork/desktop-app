@@ -92,7 +92,11 @@ class Blaze {
     console.log('---onclose--', event.code)
     this.wsInitialLock = false
     if (event.code !== 1000) {
-      this.connect()
+      setTimeout(() => {
+        if (!this.systemSleep) {
+          this.connect()
+        }
+      })
     }
   }
   _onError(event) {

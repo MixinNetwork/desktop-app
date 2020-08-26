@@ -48,6 +48,8 @@ class Blaze {
       this.ws = null
     }
 
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && !this.wsInitialLock && store.state.linkStatus === LinkStatus.CONNECTED) {
@@ -61,7 +63,6 @@ class Blaze {
     const token = getToken('GET', '/', '')
     if (!token) return
 
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     this.setTimeoutTimer()
     this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
@@ -89,7 +90,7 @@ class Blaze {
     }
   }
   _onClose(event) {
-    console.log('---onclose--', event.code)
+    console.log('---onclose--', event.code, store.state.linkStatus)
     this.wsInitialLock = false
     if (event.code !== 1000) {
       setTimeout(() => {

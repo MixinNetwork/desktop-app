@@ -29,6 +29,7 @@ export let downloadQueue = new SequentialTaskQueue()
 
 const cancelMap: any = {}
 const controllerMap: any = {}
+const downloadingAttachment: any = []
 
 const cancelPromise = (id: string) => {
   cancelMap[id] = false
@@ -45,6 +46,17 @@ const cancelPromise = (id: string) => {
       }
     }
     action()
+  })
+}
+const timeoutPromise = (id: string) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!downloadingAttachment[id]) {
+        reject(new Error('Timeout'))
+        controllerMap[id].abort()
+        store.dispatch('stopLoading', id)
+      }
+    }, 5000)
   })
 }
 const requestPromise = async(url: string, id: string, opt: any) => {
@@ -76,6 +88,9 @@ const requestPromise = async(url: string, id: string, opt: any) => {
     }
     chunks.push(value)
     receivedLength += value.length
+    if (receivedLength > 1000 && !downloadingAttachment[id]) {
+      downloadingAttachment[id] = true
+    }
     if (!readLock) {
       readLock = true
       store.dispatch('updateFetchPercent', {
@@ -156,8 +171,7 @@ export function mediaMigration(identityNumber: string, callback: any) {
           checkedMessageIds.push(messageId)
           try {
             fs.unlinkSync(src)
-          } catch (error) {
-          }
+          } catch (error) {}
         })
       } else {
         checkedMessageIds.push(messageId)
@@ -207,11 +221,13 @@ export async function downloadSticker(stickerId: string, createdAt?: string) {
     const identityNumber = getIdentityNumber()
     const dir = getStickerPath(identityNumber)
     const filePath = path.join(dir, stickerId)
-    fs.writeFileSync(filePath, Buffer.from(data))
-    if (filePath) {
-      stickerDao.updateStickerUrl('file://' + filePath, stickerId)
-    }
-    return filePath
+    try {
+      fs.writeFileSync(filePath, Buffer.from(data))
+      if (filePath) {
+        stickerDao.updateStickerUrl('file://' + filePath, stickerId)
+      }
+      return filePath
+    } catch (error) {}
   }
 }
 
@@ -223,9 +239,11 @@ export async function updateStickerAlbums(albums: any) {
         const identityNumber = getIdentityNumber()
         const dir = getStickerPath(identityNumber)
         const filePath = path.join(dir, item.album_id)
-        fs.writeFileSync(filePath, Buffer.from(data))
-        stickerDao.updateAlbumUrl('file://' + filePath, item.album_id)
-        item.icon_url = 'file://' + filePath
+        try {
+          fs.writeFileSync(filePath, Buffer.from(data))
+          stickerDao.updateAlbumUrl('file://' + filePath, item.album_id)
+          item.icon_url = 'file://' + filePath
+        } catch (error) {}
       })
     }
   })
@@ -265,8 +283,8 @@ export async function downloadAttachment(message: any) {
         }
       } else {
         const data: any = await getAttachment(response.data.data.view_url, m.message_id)
-        fs.writeFileSync(filePath, Buffer.from(data))
         try {
+          fs.writeFileSync(filePath, Buffer.from(data))
           let { buffer } = await jo.rotate(filePath, {})
           fs.writeFileSync(filePath, buffer)
           return [m, filePath]
@@ -641,7 +659,8 @@ function getAttachment(url: string, id: string) {
       headers: {
         'Content-Type': 'application/octet-stream'
       }
-    })
+    }),
+    timeoutPromise(id)
   ])
     .then(function(resp: any) {
       let code: any = parseInt(resp.status)
@@ -657,6 +676,6 @@ function getAttachment(url: string, id: string) {
       return parseFile(blob)
     })
     .catch(error => {
-      console.log('getAttachment err:', error)
+      throw Error(error)
     })
 }

@@ -48,10 +48,14 @@ class Blaze {
       this.ws = null
     }
 
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
+
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && !this.wsInitialLock && store.state.linkStatus === LinkStatus.CONNECTED) {
         this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+      } else {
+        console.log(this.systemSleep, this.wsInitialLock, store.state.linkStatus)
       }
     }, 15000)
 
@@ -61,7 +65,6 @@ class Blaze {
     const token = getToken('GET', '/', '')
     if (!token) return
 
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
     this.setTimeoutTimer()
     this.ws = new WebSocket(this.wsBaseUrl + '?access_token=' + token, 'Mixin-Blaze-1')
     this.ws.onmessage = this._onMessage.bind(this)
@@ -89,13 +92,19 @@ class Blaze {
     }
   }
   _onClose(event) {
-    console.log('---onclose--', event.code)
+    console.log('---onclose--', event.code, store.state.linkStatus)
     this.wsInitialLock = false
+    if (event.code !== 1000) {
+      setTimeout(() => {
+        if (!this.systemSleep) {
+          this.connect()
+        }
+      })
+    }
   }
   _onError(event) {
     console.log('-------onerrror--')
     console.log(event)
-    store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
   _sendGzip(data, result) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
@@ -166,18 +175,23 @@ class Blaze {
     this._sendGzip(message, function(resp) {})
   }
 
-  setTimeoutTimer(reject) {
+  setTimeoutTimer(reject, message) {
     this.wsInitialLock = true
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
-      store.dispatch('setLinkStatus', LinkStatus.NOT_CONNECTED)
       const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
       this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
-      if (reject) {
-        reject(this.TIMEOUT)
-      }
       this.wsInitialLock = false
-      this.connect()
+      if (reject) {
+        console.log('ws timeout:', message)
+        reject(this.TIMEOUT)
+        if (message && message.action === 'PING') {
+          this.connect()
+        }
+      } else {
+        console.log('ws timeout: connect')
+        this.connect()
+      }
     }, 5000)
   }
 
@@ -193,7 +207,7 @@ class Blaze {
       })
     }
     return new Promise((resolve, reject) => {
-      this.setTimeoutTimer(reject)
+      this.setTimeoutTimer(reject, message)
       this._sendGzip(message, resp => {
         if (resp.data) {
           resolve(resp.data)

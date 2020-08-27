@@ -54,6 +54,8 @@ class Blaze {
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && !this.wsInitialLock && store.state.linkStatus === LinkStatus.CONNECTED) {
         this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+      } else {
+        console.log(this.systemSleep, this.wsInitialLock, store.state.linkStatus)
       }
     }, 15000)
 
@@ -181,7 +183,7 @@ class Blaze {
       this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
       this.wsInitialLock = false
       if (reject) {
-        console.log('ws timeout:', message && message.id)
+        console.log('ws timeout:', message)
         reject(this.TIMEOUT)
       } else {
         console.log('ws timeout: connect')

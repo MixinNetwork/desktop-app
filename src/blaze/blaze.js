@@ -185,6 +185,9 @@ class Blaze {
       if (reject) {
         console.log('ws timeout:', message)
         reject(this.TIMEOUT)
+        if (message && message.action === 'PING') {
+          this.connect()
+        }
       } else {
         console.log('ws timeout: connect')
         this.connect()

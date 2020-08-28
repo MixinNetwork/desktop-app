@@ -27,7 +27,7 @@ export default class Task extends Vue {
       nextMessages = messages.slice(DBDeleteLimit)
       messages = messages.slice(0, DBDeleteLimit)
     }
-    if (messages.length < 1) {
+    if (messages.length === 0) {
       ipcRenderer.send('taskResponse', { action: 'delMedia', cid })
       return
     }

@@ -14,7 +14,7 @@ class AckWorker extends BaseWorker {
 
   async sendAckMessages() {
     const jobs = jobDao.findAckJobs()
-    if (jobs.length <= 0) {
+    if (jobs.length === 0) {
       return
     }
     const messages = jobs.map(function(item) {
@@ -68,7 +68,7 @@ class AckWorker extends BaseWorker {
 
   async sendSessionAckMessages() {
     const jobs = jobDao.findSessionAckJobs()
-    if (jobs.length <= 0) {
+    if (jobs.length === 0) {
       return
     }
     const account = getAccount()

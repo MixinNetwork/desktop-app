@@ -339,7 +339,7 @@ export default class ChatContainer extends Vue {
       if (windowsFocused && !BrowserWindow.getFocusedWindow()) {
         windowsFocused = false
       }
-    })
+    }, 1500)
 
     this.$root.$on('escKeydown', () => {
       this.hideDetails()

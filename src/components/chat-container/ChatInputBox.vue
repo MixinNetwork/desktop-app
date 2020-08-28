@@ -181,6 +181,7 @@ export default class ChatItem extends Vue {
   }
 
   mentionSelectIndex(index: any) {
+    if (!this.contacts[index]) return
     this.currentUid = this.contacts[index].identity_number
   }
 
@@ -298,7 +299,7 @@ export default class ChatItem extends Vue {
     event.preventDefault()
     const $target: any = this.$refs.box
     const text = contentUtil.messageFilteredText($target)
-    if (text.trim().length <= 0) {
+    if (text.trim().length === 0) {
       return
     }
     this.hideChoosePanel()

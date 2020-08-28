@@ -11,6 +11,8 @@ const Status = {
   STOP: 1
 }
 
+let ackLogTime = 0
+
 class WorkManager {
   stoppedExternally = true
   workerStatus = []
@@ -62,12 +64,16 @@ class WorkManager {
         async(_, stop) => {
           this.workerStatus[2] = Status.RUNNING
           if (this.stoppedExternally) {
+            console.log('ackWorker Stop')
             stop()
             this.workerStatus[2] = Status.STOP
             this.check()
           }
+          ackLogTime += 1
           if (store.state.linkStatus === LinkStatus.CONNECTED) {
             await ackWorker.doWork()
+          } else if (ackLogTime % 10 === 0) {
+            console.log('ackWorker linkStatus', store.state.linkStatus)
           }
         },
         500,

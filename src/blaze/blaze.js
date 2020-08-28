@@ -54,8 +54,6 @@ class Blaze {
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && !this.wsInitialLock && store.state.linkStatus === LinkStatus.CONNECTED) {
         this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
-      } else {
-        console.log(this.systemSleep, this.wsInitialLock, store.state.linkStatus)
       }
     }, 15000)
 

@@ -181,6 +181,7 @@ export default class ChatItem extends Vue {
   }
 
   mentionSelectIndex(index: any) {
+    if (!this.contacts[index]) return
     this.currentUid = this.contacts[index].identity_number
   }
 

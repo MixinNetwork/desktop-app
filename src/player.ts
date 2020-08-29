@@ -65,9 +65,7 @@ function createPlayerWindow(w: any, h: any) {
 }
 
 export function initPlayer() {
-  if (playerWindow) {
-    playerWindow.close()
-  }
+  if (playerWindow) return playerWindow
   playerWindow = createPlayerWindow(360, 220)
 
   ipcMain.on('pinToggle', (event, pin) => {

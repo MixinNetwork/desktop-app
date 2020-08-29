@@ -94,7 +94,7 @@ class Blaze {
     this.wsInitialLock = false
     if (event.code !== 1000) {
       setTimeout(() => {
-        if (!this.systemSleep) {
+        if (!this.systemSleep && store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
           this.connect()
         }
       })
@@ -188,7 +188,9 @@ class Blaze {
         }
       } else {
         console.log('ws timeout: connect')
-        this.connect()
+        if (store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+          this.connect()
+        }
       }
     }, 5000)
   }

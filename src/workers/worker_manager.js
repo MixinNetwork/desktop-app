@@ -72,7 +72,7 @@ class WorkManager {
           ackLogTime += 1
           if (store.state.linkStatus === LinkStatus.CONNECTED) {
             await ackWorker.doWork()
-          } else if (ackLogTime % 10 === 0) {
+          } else if (ackLogTime % 30 === 0) {
             console.log('ackWorker linkStatus', store.state.linkStatus)
           }
         },

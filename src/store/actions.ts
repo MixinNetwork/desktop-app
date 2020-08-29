@@ -646,17 +646,16 @@ export default {
     downloadQueue.push(
       async(message: any) => {
         try {
-          const ret: any = await downloadAttachment(message)
-          if (!ret) return
-          const m = ret[0]
-          const filePath = ret[1]
-          const updateRet = messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-          if (updateRet.changes !== 1) {
-            console.log('downloadAttachment retry:', m.message_id, message.message_id)
-            messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+          const filePath: any = await downloadAttachment(message)
+          if (filePath) {
+            const updateRet = messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+            if (updateRet.changes !== 1) {
+              console.log('downloadAttachment retry:', message.message_id, message.message_id)
+              messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+            }
           }
-          commit('stopLoading', m.message_id)
-          commit('refreshMessage', { conversationId: m.conversation_id, messageIds: [message.message_id] })
+          commit('stopLoading', message.message_id)
+          commit('refreshMessage', { conversationId: message.conversation_id, messageIds: [message.message_id] })
         } catch (e) {
           messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)
           commit('stopLoading', message.message_id)

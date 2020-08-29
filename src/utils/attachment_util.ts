@@ -277,9 +277,9 @@ export async function downloadAttachment(message: any) {
         try {
           let { buffer } = await jo.rotate(filePath, {})
           fs.writeFileSync(filePath, buffer)
-          return [m, filePath]
+          return filePath
         } catch (e) {
-          return [m, filePath]
+          return filePath
         }
       } else {
         const data: any = await getAttachment(response.data.data.view_url, m.message_id)
@@ -287,9 +287,9 @@ export async function downloadAttachment(message: any) {
           fs.writeFileSync(filePath, Buffer.from(data))
           let { buffer } = await jo.rotate(filePath, {})
           fs.writeFileSync(filePath, buffer)
-          return [m, filePath]
+          return filePath
         } catch (e) {
-          return [m, filePath]
+          return filePath
         }
       }
     }
@@ -321,14 +321,12 @@ function processAttachment(imagePath: any, mimeType: string, category: any, id: 
 export async function downloadAndRefresh(message: any) {
   store.dispatch('startLoading', message.message_id)
   try {
-    const ret: any = await downloadAttachment(message)
-    const m = ret[0]
-    const filePath = ret[1]
-    messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, m.message_id)
-    store.dispatch('stopLoading', m.message_id)
+    const filePath: any = await downloadAttachment(message)
+    messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+    store.dispatch('stopLoading', message.message_id)
     store.dispatch('refreshMessage', {
-      conversationId: m.conversation_id,
-      messageIds: [m.message_id]
+      conversationId: message.conversation_id,
+      messageIds: [message.message_id]
     })
   } catch (e) {
     messageDao.updateMediaMessage(null, MediaStatus.CANCELED, message.message_id)

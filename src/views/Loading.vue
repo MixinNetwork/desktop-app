@@ -62,6 +62,7 @@ export default class Loading extends Vue {
         return
       }
       const user = account.data.data
+      // await userAPI.updateSessionSecret({ session_secret: '' })
       if (!user) {
         await userAPI.updateSession({ platform: 'Desktop', app_version: this.$electron.remote.app.getVersion() })
         await this.pushSignalKeys()

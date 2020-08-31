@@ -16,6 +16,9 @@ export default {
   updateSession(body: any) {
     return api.post('/session', body)
   },
+  updateSessionSecret(body: any) {
+    return api.post('/session/secret', body)
+  },
   updateRelationship(body: any) {
     return api.post('/relationships', body)
   },

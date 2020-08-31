@@ -148,6 +148,9 @@ export default class SignIn extends Vue {
     const platformVersion = platformInfo.os.toString()
     const appVersion = this.$electron.remote.app.getVersion()
     const registrationId = signalProtocol.generateRegId()
+
+    // const sessionKeyPair = new Bot().generateEdDSASessionKeypair()
+
     const sessionKeyPair = new Bot().generateSessionKeypair()
     clearSignal()
     accountAPI
@@ -165,6 +168,8 @@ export default class SignIn extends Vue {
       .then((resp: any) => {
         const account = resp.data.data
         localStorage.account = JSON.stringify(account)
+        // curve25519 public_key
+        // ECDH
         sessionStorage.signinData = JSON.stringify({
           sessionKeyPair,
           message,

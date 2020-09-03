@@ -108,6 +108,8 @@ class Blaze {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.transactions[data.id] = result
       this.ws.send(pako.gzip(JSON.stringify(data)))
+    } else {
+      console.log('sendGzip', !!this.ws, this.ws && this.ws.readyState)
     }
   }
   closeBlaze() {
@@ -200,6 +202,7 @@ class Blaze {
 
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
+      console.log('-- sendMessagePromise: ws connecting')
       return new Promise((resolve, reject) => {
         reject(this.TIMEOUT)
       })

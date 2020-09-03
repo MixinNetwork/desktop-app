@@ -34,12 +34,15 @@ class WorkManager {
         async(_, stop) => {
           this.workerStatus[0] = Status.RUNNING
           if (this.stoppedExternally) {
+            console.log('sendWorker Stop')
             stop()
             this.workerStatus[0] = Status.STOP
             this.check()
           }
           if (store.state.linkStatus === LinkStatus.CONNECTED) {
             await sendWorker.doWork()
+          } else if (ackLogTime % 30 === 0) {
+            console.log('sendWorker linkStatus', store.state.linkStatus)
           }
         },
         200,
@@ -49,6 +52,7 @@ class WorkManager {
         async(_, stop) => {
           this.workerStatus[1] = Status.RUNNING
           if (this.stoppedExternally) {
+            console.log('receiveWorker Stop')
             stop()
             this.workerStatus[1] = Status.STOP
             this.check()
@@ -72,7 +76,7 @@ class WorkManager {
           ackLogTime += 1
           if (store.state.linkStatus === LinkStatus.CONNECTED) {
             await ackWorker.doWork()
-          } else if (ackLogTime % 10 === 0) {
+          } else if (ackLogTime % 30 === 0) {
             console.log('ackWorker linkStatus', store.state.linkStatus)
           }
         },

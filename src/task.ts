@@ -2,9 +2,8 @@ import { ipcMain, BrowserWindow } from 'electron'
 
 let sWindow: any = null
 
-export function initTask(win: any) {
-  if (sWindow) return sWindow
-  sWindow = new BrowserWindow({
+function createTaskWindow() {
+  let sWindow = new BrowserWindow({
     frame: false,
     webPreferences: {
       nodeIntegration: true
@@ -17,13 +16,20 @@ export function initTask(win: any) {
   } else {
     sWindow.loadURL('app://./index.html' + params)
   }
+  return sWindow
+}
+
+export function initTask(win: any) {
+  if (sWindow) return sWindow
+
+  sWindow = createTaskWindow()
 
   ipcMain.on('taskRequest', (event, payload) => {
     try {
       sWindow.webContents.send('taskRequestData', JSON.stringify(payload))
     } catch (error) {
       sWindow = null
-      sWindow = initTask(win)
+      sWindow = createTaskWindow()
       setTimeout(() => {
         sWindow.webContents.send('taskRequestData', JSON.stringify(payload))
       }, 1000)

@@ -2,6 +2,10 @@ import { ipcMain, screen, BrowserWindow } from 'electron'
 import path from 'path'
 import log from 'electron-log'
 
+let playerWindow: any = null
+let resizeObj: any = {}
+let resizeInterval: any = null
+
 function createPlayerWindow(w: any, h: any) {
   let { width, height } = screen.getPrimaryDisplay().workArea
   let ww, wh
@@ -36,19 +40,7 @@ function createPlayerWindow(w: any, h: any) {
     playerWindow.setMenu(null)
   }
   playerWindow.setBackgroundColor('#000000')
-  return playerWindow
-}
 
-let playerWindow: any = null
-let resizeObj: any = {}
-let resizeInterval: any = null
-
-export function initPlayer() {
-  if (playerWindow) {
-    playerWindow.close()
-  }
-  playerWindow = createPlayerWindow(360, 220)
-  if (!playerWindow) return
   const params = `#player`
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     playerWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL + params)
@@ -69,6 +61,13 @@ export function initPlayer() {
     } catch (error) {}
   }, 100)
 
+  return playerWindow
+}
+
+export function initPlayer() {
+  if (playerWindow) return playerWindow
+  playerWindow = createPlayerWindow(360, 220)
+
   ipcMain.on('pinToggle', (event, pin) => {
     if (pin) {
       playerWindow.setAlwaysOnTop(true, 'floating', 1)
@@ -83,7 +82,7 @@ export function initPlayer() {
       playerWindow.hide()
     } catch (error) {
       playerWindow = null
-      playerWindow = initPlayer()
+      playerWindow = createPlayerWindow(360, 220)
       setTimeout(() => {
         playerWindow.webContents.send('playRequestData', JSON.stringify({}))
       }, 1000)
@@ -100,9 +99,10 @@ export function initPlayer() {
       playerWindow.show()
     } catch (error) {
       playerWindow = null
-      playerWindow = initPlayer()
+      playerWindow = createPlayerWindow(360, 220)
       setTimeout(() => {
         playerWindow.webContents.send('playRequestData', JSON.stringify(args))
+        playerWindow.show()
       }, 1000)
     }
   })

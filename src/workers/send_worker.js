@@ -66,35 +66,39 @@ class SendWorker extends BaseWorker {
   }
 
   async sendSignalMessage(message, mentions) {
-    // eslint-disable-next-line no-undef
-    await wasmObject.then(result => {})
+    try {
+      // eslint-disable-next-line no-undef
+      await wasmObject.then(result => {})
 
-    if (message.resend_status) {
-      if (message.resend_status === 1) {
-        if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
-          const bm = this.encryptNormalMessage(message, mentions)
-          if (bm) {
-            const result = await this.deliver(message, bm)
-            if (result) {
-              resendMessageDao.deleteResendMessageByMessageId(message.message_id)
+      if (message.resend_status) {
+        if (message.resend_status === 1) {
+          if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
+            const bm = this.encryptNormalMessage(message, mentions)
+            if (bm) {
+              const result = await this.deliver(message, bm)
+              if (result) {
+                resendMessageDao.deleteResendMessageByMessageId(message.message_id)
+              }
             }
           }
         }
+        return
       }
-      return
-    }
 
-    if (!signalProtocol.isExistSenderKey(message.conversation_id, this.getAccountId(), this.getDeviceId())) {
-      await this.checkConversation(message.conversation_id)
-    }
+      if (!signalProtocol.isExistSenderKey(message.conversation_id, this.getAccountId(), this.getDeviceId())) {
+        await this.checkConversation(message.conversation_id)
+      }
 
-    await this.checkSessionSenderKey(message.conversation_id)
-    const bm = this.encryptNormalMessage(message, mentions)
-    if (bm) {
-      const result = await this.deliver(message, bm)
-      return result
+      await this.checkSessionSenderKey(message.conversation_id)
+      const bm = this.encryptNormalMessage(message, mentions)
+      if (bm) {
+        const result = await this.deliver(message, bm)
+        return result
+      }
+      return true
+    } catch (error) {
+      console.log('-- sendSignalMessage', error)
     }
-    return true
   }
 
   encryptNormalMessage(message, mentions) {

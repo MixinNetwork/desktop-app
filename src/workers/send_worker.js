@@ -13,39 +13,43 @@ import contentUtil from '@/utils/content_util'
 
 class SendWorker extends BaseWorker {
   async doWork() {
-    const sendingMessageJob = jobDao.findSendingJob()
-    if (!sendingMessageJob) {
-      return
-    }
-    const { messageId } = JSON.parse(sendingMessageJob.blaze_message)
-    const message = messageDao.getSendingMessage(messageId)
-    if (!message) {
-      jobDao.delete([sendingMessageJob])
-      return
-    }
-
-    let recipientId = ''
-    let mentions
-    if (messageType(message.category) === 'text') {
-      const botNumber = contentUtil.getBotNumber(message.content)
-      if (botNumber) {
-        const recipient = userDao.findUserIdByAppNumber(message.conversation_id, botNumber)
-        if (recipient && recipient.user_id) {
-          recipientId = recipient.user_id
-          message.category = 'PLAIN_TEXT'
-        }
-      } else {
-        mentions = this.getMentionParam(message.content)
+    try {
+      const sendingMessageJob = jobDao.findSendingJob()
+      if (!sendingMessageJob) {
+        return
       }
-    }
-    let result = false
-    if (message.category === 'APP_CARD' || message.category.startsWith('PLAIN_')) {
-      result = await this.sendPlainMessage(message, recipientId, mentions)
-    } else {
-      result = await this.sendSignalMessage(message, mentions)
-    }
-    if (result) {
-      jobDao.delete([sendingMessageJob])
+      const { messageId } = JSON.parse(sendingMessageJob.blaze_message)
+      const message = messageDao.getSendingMessage(messageId)
+      if (!message) {
+        jobDao.delete([sendingMessageJob])
+        return
+      }
+
+      let recipientId = ''
+      let mentions
+      if (messageType(message.category) === 'text') {
+        const botNumber = contentUtil.getBotNumber(message.content)
+        if (botNumber) {
+          const recipient = userDao.findUserIdByAppNumber(message.conversation_id, botNumber)
+          if (recipient && recipient.user_id) {
+            recipientId = recipient.user_id
+            message.category = 'PLAIN_TEXT'
+          }
+        } else {
+          mentions = this.getMentionParam(message.content)
+        }
+      }
+      let result = false
+      if (message.category === 'APP_CARD' || message.category.startsWith('PLAIN_')) {
+        result = await this.sendPlainMessage(message, recipientId, mentions)
+      } else {
+        result = await this.sendSignalMessage(message, mentions)
+      }
+      if (result) {
+        jobDao.delete([sendingMessageJob])
+      }
+    } catch (error) {
+      console.log('-- send doWork err: ', error)
     }
   }
 
@@ -97,7 +101,7 @@ class SendWorker extends BaseWorker {
       }
       return true
     } catch (error) {
-      console.log('-- sendSignalMessage', error)
+      console.log('-- sendSignalMessage err:', error)
     }
   }
 
@@ -128,25 +132,26 @@ class SendWorker extends BaseWorker {
   async deliver(message, blazeMessage) {
     const self = this
     let result = false
-    await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).then(
-      _ => {
+    await Vue.prototype.$blaze
+      .sendMessagePromise(blazeMessage)
+      .then(_ => {
         result = true
-      }
-    ).catch(async error => {
-      if (error.code === 20140) {
-        console.log('send message checksum failed')
-        await self.refreshConversation(message.conversation_id)
-        console.log('refresh end')
-      } else if (error === 'Time out') {
-        throw error
-      } else if (error.code === 403) {
-        console.log('deliver 403')
-        messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
-        result = true
-      } else {
-        console.log(error)
-      }
-    })
+      })
+      .catch(async error => {
+        if (error.code === 20140) {
+          console.log('send message checksum failed')
+          await self.refreshConversation(message.conversation_id)
+          console.log('refresh end')
+        } else if (error === 'Time out') {
+          throw error
+        } else if (error.code === 403) {
+          console.log('deliver 403')
+          messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
+          result = true
+        } else {
+          console.log(error)
+        }
+      })
     return result
   }
 

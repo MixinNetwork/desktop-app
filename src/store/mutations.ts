@@ -102,8 +102,12 @@ function messageSearch(state: any, type: string, keyword: any) {
       const tempkey = conversationId + keyword
       let count = messageSearchCountTemp[tempkey]
       if (!count && count !== 0) {
-        count = messageDao.ftsMessageCount(conversationId, keyword)
-        messageSearchCountTemp[tempkey] = count
+        try {
+          count = messageDao.ftsMessageCount(conversationId, keyword)
+          messageSearchCountTemp[tempkey] = count
+        } catch (error) {
+          console.log(error, keyword)
+        }
       }
       if (count > 0) {
         isEmpty = false

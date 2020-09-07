@@ -612,15 +612,19 @@ export default class ChatContainer extends Vue {
       if (!this.goMessagePosTimer) {
         this.goMessagePosTimer = setTimeout(() => {
           goDone = true
-        }, 1000)
+        }, 1500)
       }
       let list: any = this.$refs.messagesUl
-      if (!list) return
+      if (!list) {
+        this.showMessages = true
+        this.goMessagePosLock = false
+        return
+      }
       if (messageDom) {
         if (
           this.goMessagePosType === 'search' ||
-          list.scrollTop + list.clientHeight < messageDom.offsetTop ||
-          list.scrollTop > messageDom.offsetTop
+          list.scrollTop + list.clientHeight <= messageDom.offsetTop ||
+          list.scrollTop >= messageDom.offsetTop
         ) {
           list.scrollTop = messageDom.offsetTop - 1
         }
@@ -639,7 +643,7 @@ export default class ChatContainer extends Vue {
         this.showMessages = true
         this.goMessagePosLock = false
       }
-    })
+    }, 10)
   }
 
   onUserClick(userId: any) {

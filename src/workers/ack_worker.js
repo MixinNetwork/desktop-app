@@ -29,9 +29,8 @@ class AckWorker extends BaseWorker {
         if (error.data.error.code === 403) {
           console.log('sendAckMessages 403')
           await jobDao.delete(jobs)
-        } else {
-          console.log(error)
         }
+        throw error
       })
   }
 
@@ -58,11 +57,8 @@ class AckWorker extends BaseWorker {
         if (error.code === 403) {
           console.log('sendRecallMessages 403')
           await jobDao.deleteById(job.job_id)
-        } else if (error === 'Time out') {
-          throw error
-        } else {
-          console.log(error)
         }
+        throw error
       })
   }
 
@@ -110,11 +106,8 @@ class AckWorker extends BaseWorker {
           if (error.code === 403) {
             console.log('sendSessionAckMessages 403')
             await jobDao.delete(jobs)
-          } else if (error === 'Time out') {
-            throw error
-          } else {
-            console.log(error)
           }
+          throw error
         })
   }
 }

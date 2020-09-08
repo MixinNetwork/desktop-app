@@ -63,7 +63,6 @@ class SendWorker extends BaseWorker {
         jobDao.delete([sendingMessageJob])
       }
     } catch (error) {
-      console.log('-- send doWork err: ', error)
       throw error
     }
   }

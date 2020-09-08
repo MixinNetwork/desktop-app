@@ -120,7 +120,6 @@ class SendWorker extends BaseWorker {
       }
       return true
     } catch (error) {
-      console.log('-- sendSignalMessage err:', error)
       throw error
     }
   }

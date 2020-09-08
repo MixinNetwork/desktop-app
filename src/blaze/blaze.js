@@ -197,7 +197,6 @@ class Blaze {
 
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      console.log('-- sendMessagePromise: ws connecting')
       return new Promise((resolve, reject) => {
         reject(this.TIMEOUT)
       })

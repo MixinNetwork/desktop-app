@@ -182,7 +182,6 @@ class Blaze {
       this.wsInitialLock = false
       store.dispatch('setLinkStatus', LinkStatus.ERROR)
       if (reject) {
-        console.log('ws timeout:', message)
         reject(this.TIMEOUT)
         if (message && message.action === 'PING') {
           this.connect()

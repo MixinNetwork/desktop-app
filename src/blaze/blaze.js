@@ -100,7 +100,12 @@ class Blaze {
   _sendGzip(data, result) {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.transactions[data.id] = result
-      this.ws.send(pako.gzip(JSON.stringify(data)))
+      try {
+        this.ws.send(pako.gzip(JSON.stringify(data)))
+      } catch (error) {
+        console.log('---- _sendGzip err', error)
+        this.connect(true)
+      }
     } else {
       console.log('sendGzip', !!this.ws, this.ws && this.ws.readyState)
     }

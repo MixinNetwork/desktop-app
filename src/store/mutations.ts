@@ -387,6 +387,7 @@ export default {
     }
   },
   setLinkStatus(state: { linkStatus: any }, status: any) {
+    localStorage.linkStatus = status
     state.linkStatus = status
   },
   startLoading(state: { attachment: any[] }, messageId: any) {

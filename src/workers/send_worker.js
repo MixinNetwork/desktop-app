@@ -11,8 +11,22 @@ import BaseWorker from './base_worker'
 import { MessageStatus, MessageCategories, messageType } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 
+let workerStopTimer = null
+let workerStopFlag = false
+
 class SendWorker extends BaseWorker {
   async doWork() {
+    if (workerStopFlag) {
+      console.log('---- SendWorker Restart')
+      workerStopFlag = false
+    }
+
+    clearTimeout(workerStopTimer)
+    workerStopTimer = setTimeout(() => {
+      console.log('---- SendWorker Stop')
+      workerStopFlag = true
+    }, 5000)
+
     try {
       const sendingMessageJob = jobDao.findSendingJob()
       if (!sendingMessageJob) {
@@ -83,6 +97,8 @@ class SendWorker extends BaseWorker {
               if (result) {
                 resendMessageDao.deleteResendMessageByMessageId(message.message_id)
               }
+            } else {
+              console.log('-- encryptNormalMessage empty', message)
             }
           }
         }
@@ -98,6 +114,8 @@ class SendWorker extends BaseWorker {
       if (bm) {
         const result = await this.deliver(message, bm)
         return result
+      } else {
+        console.log('-- encryptNormalMessage empty', message)
       }
       return true
     } catch (error) {
@@ -138,6 +156,7 @@ class SendWorker extends BaseWorker {
         result = true
       })
       .catch(async error => {
+        console.log('-- deliver err:', error)
         if (error.code === 20140) {
           console.log('send message checksum failed')
           await self.refreshConversation(message.conversation_id)

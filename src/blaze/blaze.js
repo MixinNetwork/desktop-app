@@ -87,6 +87,7 @@ class Blaze {
       this.handleMessage(data)
     } catch (e) {
       console.warn(e.message)
+      throw e.message
     }
   }
   _onClose(event) {
@@ -98,16 +99,11 @@ class Blaze {
     console.log(event)
   }
   _sendGzip(data, result) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.transactions[data.id] = result
-      try {
-        this.ws.send(pako.gzip(JSON.stringify(data)))
-      } catch (error) {
-        console.log('---- _sendGzip err', error)
-        this.connect(true)
-      }
-    } else {
-      console.log('sendGzip', !!this.ws, this.ws && this.ws.readyState)
+    this.transactions[data.id] = result
+    try {
+      this.ws.send(pako.gzip(JSON.stringify(data)))
+    } catch (error) {
+      throw error
     }
   }
   closeBlaze() {

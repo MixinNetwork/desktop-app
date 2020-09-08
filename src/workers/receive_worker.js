@@ -153,6 +153,7 @@ class ReceiveWorker extends BaseWorker {
       } catch (err) {
         console.log(err)
         this.updateRemoteMessageStatus(fm.message_id, MessageStatus.DELIVERED)
+        throw error
       }
       floodMessageDao.delete(fm.message_id)
     }

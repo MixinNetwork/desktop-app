@@ -64,6 +64,7 @@ class SendWorker extends BaseWorker {
       }
     } catch (error) {
       console.log('-- send doWork err: ', error)
+      throw error
     }
   }
 
@@ -120,6 +121,7 @@ class SendWorker extends BaseWorker {
       return true
     } catch (error) {
       console.log('-- sendSignalMessage err:', error)
+      throw error
     }
   }
 
@@ -156,7 +158,6 @@ class SendWorker extends BaseWorker {
         result = true
       })
       .catch(async error => {
-        console.log('-- deliver err:', error)
         if (error.code === 20140) {
           console.log('send message checksum failed')
           await self.refreshConversation(message.conversation_id)
@@ -167,8 +168,6 @@ class SendWorker extends BaseWorker {
           console.log('deliver 403')
           messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
           result = true
-        } else {
-          console.log(error)
         }
       })
     return result
@@ -329,8 +328,6 @@ class SendWorker extends BaseWorker {
           await self.checkSessionSenderKey(conversationId)
         } else if (error === 'Time out') {
           throw error
-        } else {
-          console.log(error)
         }
       }
     )

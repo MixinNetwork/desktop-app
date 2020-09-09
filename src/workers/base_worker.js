@@ -346,12 +346,10 @@ export default class BaseWorker {
         if (error.code === 20140) {
           await self.refreshConversation(conversationId)
           await self.sendSenderKey(conversationId, recipientId, sessionId)
-        } else if (error === 'Time out') {
-          throw error
         } else if (error.code === 403) {
-        } else {
-          console.log(error)
         }
+        console.log(error)
+        throw error
       })
     }
   }

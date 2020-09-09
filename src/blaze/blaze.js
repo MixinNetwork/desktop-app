@@ -87,6 +87,7 @@ class Blaze {
       this.handleMessage(data)
     } catch (e) {
       console.warn(e.message)
+      throw e.message
     }
   }
   _onClose(event) {
@@ -98,11 +99,15 @@ class Blaze {
     console.log(event)
   }
   _sendGzip(data, result) {
+    this.transactions[data.id] = result
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.transactions[data.id] = result
-      this.ws.send(pako.gzip(JSON.stringify(data)))
+      try {
+        this.ws.send(pako.gzip(JSON.stringify(data)))
+      } catch (error) {
+        throw error
+      }
     } else {
-      console.log('sendGzip', !!this.ws, this.ws && this.ws.readyState)
+      throw new Error('ws not open')
     }
   }
   closeBlaze() {
@@ -177,7 +182,6 @@ class Blaze {
       this.wsInitialLock = false
       store.dispatch('setLinkStatus', LinkStatus.ERROR)
       if (reject) {
-        console.log('ws timeout:', message)
         reject(this.TIMEOUT)
         if (message && message.action === 'PING') {
           this.connect()
@@ -196,7 +200,6 @@ class Blaze {
 
   sendMessagePromise(message) {
     if (this.ws && this.ws.readyState === WebSocket.CONNECTING) {
-      console.log('-- sendMessagePromise: ws connecting')
       return new Promise((resolve, reject) => {
         reject(this.TIMEOUT)
       })

@@ -11,8 +11,22 @@ import BaseWorker from './base_worker'
 import { MessageStatus, MessageCategories, messageType } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
 
+let workerStopTimer = null
+let workerStopFlag = false
+
 class SendWorker extends BaseWorker {
   async doWork() {
+    if (workerStopFlag) {
+      console.log('---- SendWorker Restart')
+      workerStopFlag = false
+    }
+
+    clearTimeout(workerStopTimer)
+    workerStopTimer = setTimeout(() => {
+      console.log('---- SendWorker Stop')
+      workerStopFlag = true
+    }, 5000)
+
     try {
       const sendingMessageJob = jobDao.findSendingJob()
       if (!sendingMessageJob) {
@@ -49,7 +63,7 @@ class SendWorker extends BaseWorker {
         jobDao.delete([sendingMessageJob])
       }
     } catch (error) {
-      console.log('-- send doWork err: ', error)
+      throw error
     }
   }
 
@@ -83,6 +97,8 @@ class SendWorker extends BaseWorker {
               if (result) {
                 resendMessageDao.deleteResendMessageByMessageId(message.message_id)
               }
+            } else {
+              console.log('-- encryptNormalMessage empty', message)
             }
           }
         }
@@ -98,10 +114,12 @@ class SendWorker extends BaseWorker {
       if (bm) {
         const result = await this.deliver(message, bm)
         return result
+      } else {
+        console.log('-- encryptNormalMessage empty', message)
       }
       return true
     } catch (error) {
-      console.log('-- sendSignalMessage err:', error)
+      throw error
     }
   }
 
@@ -148,8 +166,6 @@ class SendWorker extends BaseWorker {
           console.log('deliver 403')
           messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
           result = true
-        } else {
-          console.log(error)
         }
       })
     return result
@@ -310,8 +326,6 @@ class SendWorker extends BaseWorker {
           await self.checkSessionSenderKey(conversationId)
         } else if (error === 'Time out') {
           throw error
-        } else {
-          console.log(error)
         }
       }
     )

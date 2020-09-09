@@ -322,7 +322,9 @@ export async function downloadAndRefresh(message: any) {
   store.dispatch('startLoading', message.message_id)
   try {
     const filePath: any = await downloadAttachment(message)
-    messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+    if (filePath) {
+      messageDao.updateMediaMessage('file://' + filePath, MediaStatus.DONE, message.message_id)
+    }
     store.dispatch('stopLoading', message.message_id)
     store.dispatch('refreshMessage', {
       conversationId: message.conversation_id,

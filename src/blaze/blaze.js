@@ -100,15 +100,12 @@ class Blaze {
   }
   _sendGzip(data, result) {
     this.transactions[data.id] = result
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      try {
-        this.ws.send(pako.gzip(JSON.stringify(data)))
-        this.clearTimeoutTimer()
-      } catch (error) {
-        throw error
-      }
-    } else {
-      throw new Error('ws not open')
+    try {
+      this.ws.send(pako.gzip(JSON.stringify(data)))
+      this.clearTimeoutTimer()
+    } catch (error) {
+      this.clearTimeoutTimer()
+      throw error
     }
   }
   closeBlaze() {
@@ -168,10 +165,6 @@ class Blaze {
     } else {
       this.updateRemoteMessageStatus(msg.data.message_id, MessageStatus.DELIVERED)
     }
-  }
-
-  sendMessage(message) {
-    this._sendGzip(message, function(resp) {})
   }
 
   setTimeoutTimer(reject, message) {

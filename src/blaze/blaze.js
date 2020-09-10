@@ -53,7 +53,7 @@ class Blaze {
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && store.state.linkStatus !== LinkStatus.CONNECTING) {
-        this.sendMessagePromise({ id: uuidv4().toLowerCase(), action: 'PING' }).catch(() => {})
+        this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING' }, () => {})
       }
     }, 15000)
 
@@ -99,8 +99,8 @@ class Blaze {
     console.log(event)
   }
   _sendGzip(data, result) {
-    this.transactions[data.id] = result
     try {
+      this.transactions[data.id] = result
       this.ws.send(pako.gzip(JSON.stringify(data)))
       this.clearTimeoutTimer()
     } catch (error) {

@@ -138,8 +138,22 @@ interval(
 
 let lastCheckSignalTime = 0
 
+let workerStopTimer = null
+let workerStopFlag = false
+
 class ReceiveWorker extends BaseWorker {
   async doWork() {
+    if (workerStopFlag) {
+      console.log('---- ReceiveWorker Restart')
+      workerStopFlag = false
+    }
+
+    clearTimeout(workerStopTimer)
+    workerStopTimer = setTimeout(() => {
+      console.log('---- ReceiveWorker Stop')
+      workerStopFlag = true
+    }, 5000)
+
     if (sessionStorage.duringMigration) return
     await wasmObject.then(result => {})
     const fms = floodMessageDao.findFloodMessage()
@@ -148,16 +162,13 @@ class ReceiveWorker extends BaseWorker {
     }
 
     for (const fm of fms) {
-      let error = null
       try {
         await this.process(fm)
       } catch (err) {
-        error = err
         console.log('-- ReceiveWorker', err)
         this.updateRemoteMessageStatus(fm.message_id, MessageStatus.DELIVERED)
       }
       floodMessageDao.delete(fm.message_id)
-      throw error
     }
   }
 

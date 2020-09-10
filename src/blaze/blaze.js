@@ -193,7 +193,6 @@ class Blaze {
 
   sendMessagePromise(message) {
     return new Promise((resolve, reject) => {
-      console.log(2044444)
       this.setTimeoutTimer(reject, message)
       this._sendGzip(message, resp => {
         if (resp.data) {

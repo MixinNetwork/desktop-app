@@ -405,9 +405,7 @@ export default class MessageItem extends Vue {
   showUserName() {
     if (
       !this.conversation ||
-      (['app_card', 'app_button_group'].indexOf(this.messageType()) > -1 &&
-        this.conversation.category === ConversationCategory.CONTACT &&
-        this.conversation.ownerId === this.message.userId)
+      (this.conversation.category === ConversationCategory.CONTACT && this.conversation.ownerId === this.message.userId)
     ) {
       return false
     }

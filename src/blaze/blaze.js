@@ -99,14 +99,13 @@ class Blaze {
     console.log(event)
   }
   _sendGzip(data, result) {
-    try {
-      this.transactions[data.id] = result
-      this.ws.send(pako.gzip(JSON.stringify(data)))
-      this.clearTimeoutTimer()
-    } catch (error) {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
       this.connect(true)
-      throw error
+      return
     }
+    this.transactions[data.id] = result
+    this.ws.send(pako.gzip(JSON.stringify(data)))
+    this.clearTimeoutTimer()
   }
   closeBlaze() {
     if (this.ws) {
@@ -194,6 +193,7 @@ class Blaze {
 
   sendMessagePromise(message) {
     return new Promise((resolve, reject) => {
+      console.log(2044444)
       this.setTimeoutTimer(reject, message)
       this._sendGzip(message, resp => {
         if (resp.data) {

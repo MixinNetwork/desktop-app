@@ -103,6 +103,7 @@ class Blaze {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       try {
         this.ws.send(pako.gzip(JSON.stringify(data)))
+        this.clearTimeoutTimer()
       } catch (error) {
         throw error
       }
@@ -214,7 +215,6 @@ class Blaze {
         } else {
           resolve(resp)
         }
-        this.clearTimeoutTimer()
       })
     })
   }

@@ -100,10 +100,12 @@ class Blaze {
   }
   _sendGzip(data, result) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      this.connect(true)
+      result()
       return
     }
-    this.transactions[data.id] = result
+    if (data.action !== 'PING') {
+      this.transactions[data.id] = result
+    }
     this.ws.send(pako.gzip(JSON.stringify(data)))
     this.clearTimeoutTimer()
   }

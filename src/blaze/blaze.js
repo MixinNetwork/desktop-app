@@ -104,7 +104,7 @@ class Blaze {
       this.ws.send(pako.gzip(JSON.stringify(data)))
       this.clearTimeoutTimer()
     } catch (error) {
-      this.clearTimeoutTimer()
+      this.connect(true)
       throw error
     }
   }

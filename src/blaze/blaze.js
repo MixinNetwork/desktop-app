@@ -193,11 +193,6 @@ class Blaze {
   }
 
   sendMessagePromise(message) {
-    if (!this.ws || (this.ws && this.ws.readyState !== WebSocket.OPEN)) {
-      return new Promise((resolve, reject) => {
-        reject(this.TIMEOUT)
-      })
-    }
     return new Promise((resolve, reject) => {
       this.setTimeoutTimer(reject, message)
       this._sendGzip(message, resp => {

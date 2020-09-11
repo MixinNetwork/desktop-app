@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken'
 import { getToken } from '@/utils/util'
 import { clearDb } from '@/persistence/db_util'
 import { API_URL, LinkStatus } from '@/utils/constants'
+import workerManager from '@/workers/worker_manager'
 import store from '@/store/store'
 // @ts-ignore
 import router from '@/router'
@@ -90,9 +91,11 @@ axiosApi.interceptors.response.use(
           return retry(response.config, response)
         }
       }
-      Vue.prototype.$blaze.closeBlaze()
-      clearDb()
-      router.push('/sign_in')
+      workerManager.stop(() => {
+        Vue.prototype.$blaze.closeBlaze()
+        clearDb()
+        router.push('/sign_in')
+      })
       return Promise.reject(response)
     }
     return response

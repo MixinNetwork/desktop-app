@@ -107,18 +107,19 @@ export default class SignIn extends Vue {
   getSecret(deviceId: any) {
     interval(
       async(iteration: any, stop: any) => {
-        await accountAPI
-          .getProvisioning(deviceId)
-          .then((resp: any) => {
-            if (resp.data.data.secret) {
-              stop()
-              this.isLoading = true
-              this.decryptProvision(resp.data.data.secret)
-            }
-          })
-          .catch((e: any) => {
-            console.log(e)
-          })
+        try {
+          await accountAPI
+            .getProvisioning(deviceId)
+            .then((resp: any) => {
+              if (resp.data.data.secret) {
+                stop()
+                this.isLoading = true
+                this.decryptProvision(resp.data.data.secret)
+              }
+            })
+        } catch (error) {
+          console.log(error)
+        }
         if (iteration === 60) {
           this.showRetry = true
         }

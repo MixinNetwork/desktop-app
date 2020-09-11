@@ -150,24 +150,25 @@ class SendWorker extends BaseWorker {
   async deliver(message, blazeMessage) {
     const self = this
     let result = false
-    await Vue.prototype.$blaze
-      .sendMessagePromise(blazeMessage)
-      .then(_ => {
-        result = true
-      })
-      .catch(async error => {
-        if (error.code === 20140) {
-          console.log('send message checksum failed')
-          await self.refreshConversation(message.conversation_id)
-          console.log('refresh end')
-        } else if (error === 'Time out') {
-          throw error
-        } else if (error.code === 403) {
-          console.log('deliver 403')
-          messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
+    try {
+      await Vue.prototype.$blaze
+        .sendMessagePromise(blazeMessage)
+        .then(_ => {
           result = true
-        }
-      })
+        })
+    } catch (error) {
+      if (error.code === 20140) {
+        console.log('send message checksum failed')
+        await self.refreshConversation(message.conversation_id)
+        console.log('refresh end')
+      } else if (error === 'Time out') {
+        throw error
+      } else if (error.code === 403) {
+        console.log('deliver 403')
+        messageDao.updateMessageStatusById(MessageStatus.SENT, message.message_id)
+        result = true
+      }
+    }
     return result
   }
 
@@ -242,11 +243,13 @@ class SendWorker extends BaseWorker {
           recipients: requestSignalKeyUsers
         }
       }
-      const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).catch(error => {
-        if (error === 'Time out') {
-          throw error
-        }
-      })
+      let data = null
+      try {
+        data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+      } catch (error) {
+        console.log('checkSessionSenderKey', err)
+        throw error
+      }
       if (data) {
         const keys = []
         if (data.length > 0) {
@@ -341,11 +344,14 @@ class SendWorker extends BaseWorker {
           recipients: [{ user_id: recipientId, session_id: sessionId }]
         }
       }
-      const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).catch(error => {
+      let data = null
+      try {
+        data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
+      } catch (error) {
         if (error === 'Time out') {
           throw error
         }
-      })
+      }
       if (data && data.length > 0) {
         const key = data[0]
         signalProtocol.processSession(key.user_id, deviceId, JSON.stringify(key))

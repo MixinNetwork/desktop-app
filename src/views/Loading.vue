@@ -41,9 +41,12 @@ export default class Loading extends Vue {
       this.isLoading = false
     }
     if (localStorage.account) {
-      const account = await accountAPI.getMe().catch((err: any) => {
-        console.log(err)
-      })
+      let account = null
+      try {
+        account = await accountAPI.getMe()
+      } catch (error) {
+        console.log(error)
+      }
       if (!localStorage.newVersion) {
         clearDb()
         this.$router.push('/sign_in')

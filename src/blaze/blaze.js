@@ -53,7 +53,8 @@ class Blaze {
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && store.state.linkStatus !== LinkStatus.CONNECTING) {
-        this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING' }, () => {})
+        this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING' }, () => {
+        })
       }
     }, 15000)
 
@@ -99,16 +100,12 @@ class Blaze {
     console.log(event)
   }
   _sendGzip(data, result) {
-    this.setTimeoutTimer(data)
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      result()
-      return
+    this.transactions[data.id] = result
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(pako.gzip(JSON.stringify(data)))
+    } else if (data.action === 'PING') {
+      this.connect()
     }
-    if (data.action !== 'PING') {
-      this.transactions[data.id] = result
-    }
-    this.ws.send(pako.gzip(JSON.stringify(data)))
-    this.clearTimeoutTimer()
   }
   closeBlaze() {
     if (this.ws) {
@@ -169,7 +166,7 @@ class Blaze {
     }
   }
 
-  setTimeoutTimer(message) {
+  setTimeoutTimer() {
     this.wsInitialLock = true
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
@@ -177,9 +174,6 @@ class Blaze {
       this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
       this.wsInitialLock = false
       store.dispatch('setLinkStatus', LinkStatus.ERROR)
-      if (message && message.action === 'PING') {
-        this.connect()
-      }
     }, 5000)
   }
 

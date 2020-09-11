@@ -53,7 +53,9 @@ class Blaze {
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && store.state.linkStatus !== LinkStatus.CONNECTING) {
+        this.setTimeoutTimer()
         this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING' }, () => {
+          this.clearTimeoutTimer()
         })
       }
     }, 15000)
@@ -79,32 +81,31 @@ class Blaze {
   }
 
   async _onMessage(event) {
-    try {
-      const content = await readArrayBuffer(event.data)
-      const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
-      if (data.error) {
-        return
-      }
-      this.handleMessage(data)
-    } catch (e) {
-      console.warn(e.message)
-      throw e.message
+    const content = await readArrayBuffer(event.data)
+    const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
+    if (data.error) {
+      return
     }
+    this.clearTimeoutTimer()
+    this.handleMessage(data)
   }
   _onClose(event) {
     console.log('---onclose--', event.code, store.state.linkStatus)
     this.wsInitialLock = false
+    if (event.code !== 1000) {
+      this.connect()
+    }
   }
   _onError(event) {
     console.log('-------onerrror--')
     console.log(event)
   }
   _sendGzip(data, result) {
-    this.transactions[data.id] = result
     if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.transactions[data.id] = result
       this.ws.send(pako.gzip(JSON.stringify(data)))
-    } else if (data.action === 'PING') {
-      this.connect()
+    } else {
+      result({ error: 'ws not open' })
     }
   }
   closeBlaze() {

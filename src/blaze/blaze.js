@@ -41,14 +41,16 @@ class Blaze {
   }
 
   connect(force) {
-    if (this.wsInitialLock && !force) return
+    if (!force) {
+      if (this.wsInitialLock || store.state.linkStatus === LinkStatus.CONNECTING) return
+    }
+
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
     if (this.ws) {
       this.ws.close(1000, 'Normal close')
       this.ws = null
     }
-
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {

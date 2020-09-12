@@ -17,6 +17,7 @@ import store from '@/store/store'
 import signalProtocol from '@/crypto/signal'
 import i18n from '@/utils/i18n'
 import moment from 'moment'
+import Vue from 'vue'
 import { sendNotification, generateConversationId, delMedia } from '@/utils/util'
 
 import contentUtil from '@/utils/content_util'
@@ -151,6 +152,7 @@ class ReceiveWorker extends BaseWorker {
     clearTimeout(workerStopTimer)
     workerStopTimer = setTimeout(() => {
       console.log('---- ReceiveWorker Stop')
+      Vue.prototype.$blaze.connect(true)
       workerStopFlag = true
     }, 5000)
 

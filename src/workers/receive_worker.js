@@ -94,8 +94,8 @@ interval(
       callbackList.forEach(callback => {
         if (callback) {
           const temp = new Promise((resolve, reject) => {
-            callback()
             resolve(true)
+            callback()
           })
           promiseList.push(temp)
         }

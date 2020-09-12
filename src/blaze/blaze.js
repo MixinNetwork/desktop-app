@@ -188,8 +188,7 @@ class Blaze {
   sendMessagePromise(message) {
     return new Promise((resolve, reject) => {
       let _timeout = setTimeout(() => {
-        // eslint-disable-next-line prefer-promise-reject-errors
-        reject()
+        reject(new Error('sendMessagePromise Timeout'))
       }, 5000)
       this._sendGzip(message, resp => {
         clearTimeout(_timeout)

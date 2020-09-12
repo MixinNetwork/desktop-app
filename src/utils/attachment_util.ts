@@ -60,49 +60,63 @@ const timeoutPromise = (id: string) => {
   })
 }
 const requestPromise = async(url: string, id: string, opt: any) => {
-  const controller = new AbortController()
-  const signal = controller.signal
-  controllerMap[id] = controller
-  Object.assign(opt, {
-    signal
-  })
-  const response: any = await fetch(url, opt)
-  const responseClone = response.clone()
+  return new Promise(async(resolve, reject) => {
+    const controller = new AbortController()
+    const signal = controller.signal
+    controllerMap[id] = controller
+    Object.assign(opt, {
+      signal
+    })
+    const response: any = await fetch(url, opt)
+    const responseClone = response.clone()
 
-  const reader = responseClone.body.getReader()
-  const contentLength = +responseClone.headers.get('Content-Length')
-  const chunks = []
-  let receivedLength = 0
-  let readLock = false
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) {
-      setTimeout(() => {
-        store.dispatch('updateFetchPercent', {
-          id,
-          url,
-          percent: 100
-        })
-      }, 50)
-      return response
+    const reader = responseClone.body.getReader()
+    const contentLength = +responseClone.headers.get('Content-Length')
+    const chunks = []
+    let receivedLength = 0
+    let readLock = false
+    let timeoutTimer: any = null
+    let beforeTime = 0
+
+    while (true) {
+      const nowTime = Math.ceil(new Date().getTime() / 10)
+      if (beforeTime !== nowTime) {
+        beforeTime = nowTime
+        const { done, value } = await reader.read()
+        clearTimeout(timeoutTimer)
+        timeoutTimer = setTimeout(() => {
+          reject(new Error('fetch Timeout'))
+        }, 1000)
+        if (done) {
+          clearTimeout(timeoutTimer)
+          setTimeout(() => {
+            store.dispatch('updateFetchPercent', {
+              id,
+              url,
+              percent: 100
+            })
+          }, 50)
+          return resolve(response)
+        }
+        chunks.push(value)
+        receivedLength += value.length
+        if (receivedLength > 1000 && !downloadingAttachment[id]) {
+          downloadingAttachment[id] = true
+        }
+        if (!readLock) {
+          readLock = true
+          store.dispatch('updateFetchPercent', {
+            id,
+            url,
+            percent: (100 * receivedLength) / contentLength
+          })
+          setTimeout(() => {
+            readLock = false
+          }, 50)
+        }
+      }
     }
-    chunks.push(value)
-    receivedLength += value.length
-    if (receivedLength > 1000 && !downloadingAttachment[id]) {
-      downloadingAttachment[id] = true
-    }
-    if (!readLock) {
-      readLock = true
-      store.dispatch('updateFetchPercent', {
-        id,
-        url,
-        percent: (100 * receivedLength) / contentLength
-      })
-      setTimeout(() => {
-        readLock = false
-      }, 50)
-    }
-  }
+  })
 }
 
 export async function updateCancelMap(id: string) {

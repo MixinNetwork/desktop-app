@@ -304,14 +304,11 @@ export default class BaseWorker {
         recipients: [{ user_id: recipientId, session_id: sessionId }]
       }
     }
-    let data = null
-    try {
-      data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage)
-    } catch (error) {
+    const data = await Vue.prototype.$blaze.sendMessagePromise(blazeMessage).catch(error => {
       if (error === 'Time out') {
         throw error
       }
-    }
+    })
     if (data && data.length > 0) {
       const key = data[0]
       signalProtocol.processSession(key.user_id, signalProtocol.convertToDeviceId(key.session_id), JSON.stringify(key))
@@ -345,9 +342,7 @@ export default class BaseWorker {
         }
       }
       const self = this
-      try {
-        await Vue.prototype.$blaze.sendMessagePromise(bm)
-      } catch (error) {
+      await Vue.prototype.$blaze.sendMessagePromise(bm).catch(async error => {
         if (error.code === 20140) {
           await self.refreshConversation(conversationId)
           await self.sendSenderKey(conversationId, recipientId, sessionId)
@@ -355,7 +350,7 @@ export default class BaseWorker {
         }
         console.log(error)
         throw error
-      }
+      })
     }
   }
 }

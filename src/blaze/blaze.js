@@ -41,19 +41,24 @@ class Blaze {
   }
 
   connect(force) {
-    if (this.wsInitialLock && !force) return
+    if (!force) {
+      if (this.wsInitialLock || store.state.linkStatus === LinkStatus.CONNECTING) return
+    }
+
+    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
 
     if (this.ws) {
       this.ws.close(1000, 'Normal close')
       this.ws = null
     }
 
-    store.dispatch('setLinkStatus', LinkStatus.CONNECTING)
-
     clearInterval(this.pingInterval)
     this.pingInterval = setInterval(() => {
       if (!this.systemSleep && store.state.linkStatus !== LinkStatus.CONNECTING) {
-        this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING' }, () => {})
+        this.setTimeoutTimer()
+        this._sendGzip({ id: uuidv4().toLowerCase(), action: 'PING' }, () => {
+          this.clearTimeoutTimer()
+        })
       }
     }, 15000)
 
@@ -78,37 +83,32 @@ class Blaze {
   }
 
   async _onMessage(event) {
-    try {
-      const content = await readArrayBuffer(event.data)
-      const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
-      if (data.error) {
-        return
-      }
-      this.handleMessage(data)
-    } catch (e) {
-      console.warn(e.message)
-      throw e.message
+    const content = await readArrayBuffer(event.data)
+    const data = pako.ungzip(new Uint8Array(content), { to: 'string' })
+    if (data.error) {
+      return
     }
+    this.clearTimeoutTimer()
+    this.handleMessage(data)
   }
   _onClose(event) {
     console.log('---onclose--', event.code, store.state.linkStatus)
     this.wsInitialLock = false
+    if (event.code !== 1000) {
+      this.connect()
+    }
   }
   _onError(event) {
     console.log('-------onerrror--')
     console.log(event)
   }
   _sendGzip(data, result) {
-    this.setTimeoutTimer(data)
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      result()
-      return
-    }
-    if (data.action !== 'PING') {
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
       this.transactions[data.id] = result
+      this.ws.send(pako.gzip(JSON.stringify(data)))
+    } else {
+      result({ error: 'ws not open' })
     }
-    this.ws.send(pako.gzip(JSON.stringify(data)))
-    this.clearTimeoutTimer()
   }
   closeBlaze() {
     if (this.ws) {
@@ -169,7 +169,7 @@ class Blaze {
     }
   }
 
-  setTimeoutTimer(message) {
+  setTimeoutTimer() {
     this.wsInitialLock = true
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
@@ -177,9 +177,6 @@ class Blaze {
       this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
       this.wsInitialLock = false
       store.dispatch('setLinkStatus', LinkStatus.ERROR)
-      if (message && message.action === 'PING') {
-        this.connect()
-      }
     }, 5000)
   }
 
@@ -190,7 +187,11 @@ class Blaze {
 
   sendMessagePromise(message) {
     return new Promise((resolve, reject) => {
+      let _timeout = setTimeout(() => {
+        reject(new Error('sendMessagePromise Timeout'))
+      }, 5000)
       this._sendGzip(message, resp => {
+        clearTimeout(_timeout)
         if (resp.data) {
           resolve(resp.data)
         } else if (resp.error) {

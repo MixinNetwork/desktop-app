@@ -95,7 +95,9 @@ class Blaze {
     console.log('---onclose--', event.code, store.state.linkStatus)
     this.wsInitialLock = false
     if (event.code !== 1000) {
-      this.connect()
+      setTimeout(() => {
+        this.connect()
+      }, 200)
     }
   }
   _onError(event) {

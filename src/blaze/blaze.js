@@ -96,6 +96,7 @@ class Blaze {
     this.wsInitialLock = false
     if (event.code !== 1000) {
       setTimeout(() => {
+        this.resetStatus()
         this.connect()
       }, 200)
     }
@@ -171,14 +172,19 @@ class Blaze {
     }
   }
 
+  resetStatus() {
+    const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
+    this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
+    this.wsInitialLock = false
+    store.dispatch('setLinkStatus', LinkStatus.ERROR)
+  }
+
   setTimeoutTimer() {
     this.wsInitialLock = true
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
-      const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
-      this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
-      this.wsInitialLock = false
-      store.dispatch('setLinkStatus', LinkStatus.ERROR)
+      this.resetStatus()
+      this.connect()
     }, 5000)
   }
 

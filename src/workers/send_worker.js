@@ -24,7 +24,6 @@ class SendWorker extends BaseWorker {
     clearTimeout(workerStopTimer)
     workerStopTimer = setTimeout(() => {
       console.log('---- SendWorker Stop')
-      Vue.prototype.$blaze.connect(true)
       workerStopFlag = true
     }, 5000)
 

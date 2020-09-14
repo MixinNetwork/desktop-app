@@ -95,7 +95,10 @@ class Blaze {
     console.log('---onclose--', event.code, store.state.linkStatus)
     this.wsInitialLock = false
     if (event.code !== 1000) {
-      this.connect()
+      setTimeout(() => {
+        this.resetStatus()
+        this.connect()
+      }, 200)
     }
   }
   _onError(event) {
@@ -169,14 +172,21 @@ class Blaze {
     }
   }
 
+  resetStatus() {
+    const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
+    this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
+    this.wsInitialLock = false
+  }
+
   setTimeoutTimer() {
     this.wsInitialLock = true
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
-      const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
-      this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
-      this.wsInitialLock = false
-      store.dispatch('setLinkStatus', LinkStatus.ERROR)
+      this.resetStatus()
+      if (store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+        store.dispatch('setLinkStatus', LinkStatus.ERROR)
+        this.connect()
+      }
     }, 5000)
   }
 

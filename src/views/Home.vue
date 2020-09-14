@@ -100,6 +100,7 @@ export default class Home extends Vue {
 
     window.addEventListener('online', (e) => {
       console.log('----online')
+      this.actionSetLinkStatus(LinkStatus.CONNECTED)
       if (!this.emitLock) {
         this.emitLock = true
         setTimeout(() => {
@@ -107,7 +108,6 @@ export default class Home extends Vue {
         })
         this.$blaze.connect(true)
       }
-      this.actionSetLinkStatus(LinkStatus.CONNECTED)
     })
     setTimeout(() => {
       ipcRenderer.send('initTask')

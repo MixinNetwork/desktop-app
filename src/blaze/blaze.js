@@ -176,7 +176,6 @@ class Blaze {
     const beforeIndex = API_URL.WS.indexOf(this.wsBaseUrl) || 0
     this.wsBaseUrl = API_URL.WS[(beforeIndex + 1) % API_URL.WS.length]
     this.wsInitialLock = false
-    store.dispatch('setLinkStatus', LinkStatus.ERROR)
   }
 
   setTimeoutTimer() {
@@ -184,7 +183,10 @@ class Blaze {
     clearTimeout(this.timeoutTimer)
     this.timeoutTimer = setTimeout(() => {
       this.resetStatus()
-      this.connect()
+      if (store.state.linkStatus !== LinkStatus.NOT_CONNECTED) {
+        store.dispatch('setLinkStatus', LinkStatus.ERROR)
+        this.connect()
+      }
     }, 5000)
   }
 

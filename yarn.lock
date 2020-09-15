@@ -7600,10 +7600,10 @@ markdown-it-abbr@^1.0.4:
   resolved "https://registry.yarnpkg.com/markdown-it-abbr/-/markdown-it-abbr-1.0.4.tgz#d66b5364521cbb3dd8aa59dadfba2fb6865c8fd8"
   integrity sha1-1mtTZFIcuz3Yqlna37ovtoZcj9g=
 
-markdown-it-deflist@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/markdown-it-deflist/-/markdown-it-deflist-2.0.3.tgz#5727db04184d3cb2bc6ee4a9641e3a1091d5fd6f"
-  integrity sha512-/BNZ8ksW42bflm1qQLnRI09oqU2847Z7MVavrR0MORyKLtiUYOMpwtlAfMSZAQU9UCvaUZMpgVAqoS3vpToJxw==
+markdown-it-deflist@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-deflist/-/markdown-it-deflist-2.1.0.tgz#50d7a56b9544cd81252f7623bd785e28a8dcef5c"
+  integrity sha512-3OuqoRUlSxJiuQYu0cWTLHNhhq2xtoSFqsZK8plANg91+RJQU1ziQ6lA2LzmFAEes18uPBsHZpcX6We5l76Nzg==
 
 markdown-it-footnote@^3.0.2:
   version "3.0.2"

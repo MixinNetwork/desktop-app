@@ -94,7 +94,8 @@ class SendWorker extends BaseWorker {
             }
           } else {
             console.log('-- encryptNormalMessage empty resend_status', message)
-            console.log('------now deviceId', localStorage.deviceId)
+            participantSessionDao.deleteByConversationId(message.conversation_id)
+            await this.refreshConversation(message.conversation_id)
           }
         }
       }
@@ -112,9 +113,10 @@ class SendWorker extends BaseWorker {
       return result
     } else {
       console.log('-- encryptNormalMessage empty', message)
-      console.log('------now deviceId', localStorage.deviceId)
+      participantSessionDao.deleteByConversationId(message.conversation_id)
+      await this.refreshConversation(message.conversation_id)
+      return false
     }
-    return true
   }
 
   encryptNormalMessage(message, mentions) {

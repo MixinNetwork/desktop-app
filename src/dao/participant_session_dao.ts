@@ -42,6 +42,11 @@ class ParticipantSessionDao {
     }
   }
 
+  deleteByConversationId(conversationId: any) {
+    const stmt = db.prepare('DELETE FROM participant_session WHERE conversation_id = ?')
+    stmt.run(conversationId)
+  }
+
   replaceAll(conversationId: any, participantSessions: any) {
     const deleteStmt = db.prepare('DELETE FROM participant_session WHERE conversation_id = ?')
     const insertStmt = db.prepare(

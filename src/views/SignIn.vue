@@ -202,7 +202,7 @@ export default class SignIn extends Vue {
       localStorage.newVersion = true
       this.$store.dispatch('saveAccount', account)
       this.updateParticipantSession(account.user_id, account.session_id)
-      console.log('------signin deviceId', deviceId)
+      console.log('------signin')
       this.$router.push('/')
     })
   }

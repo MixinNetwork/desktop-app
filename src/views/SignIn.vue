@@ -170,6 +170,7 @@ export default class SignIn extends Vue {
       .then((resp: any) => {
         clearDb()
         const account = resp.data.data
+        localStorage.account = JSON.stringify(account)
         sessionStorage.signinData = JSON.stringify({
           sessionKeyPair,
           message,
@@ -192,7 +193,6 @@ export default class SignIn extends Vue {
     const { sessionKeyPair, message, registrationId, primarySessionId, keyPair, account } = payload
     localStorage.sessionToken = sessionKeyPair.private
     localStorage.primaryPlatform = message.platform
-    localStorage.account = JSON.stringify(account)
     signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
     this.pushSignalKeys().then((resp: any) => {
       const deviceId = signalProtocol.convertToDeviceId(account.session_id)

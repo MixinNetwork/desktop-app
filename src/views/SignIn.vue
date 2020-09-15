@@ -110,7 +110,11 @@ export default class SignIn extends Vue {
         await accountAPI
           .getProvisioning(deviceId)
           .then((resp: any) => {
-            if (resp.data.data.secret) {
+            if (!resp.data.data) {
+              stop()
+              this.showRetry = true
+              this.isLoading = false
+            } else if (resp.data.data.secret) {
               stop()
               this.isLoading = true
               this.decryptProvision(resp.data.data.secret)

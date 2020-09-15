@@ -27,43 +27,39 @@ class SendWorker extends BaseWorker {
       workerStopFlag = true
     }, 5000)
 
-    try {
-      const sendingMessageJob = jobDao.findSendingJob()
-      if (!sendingMessageJob) {
-        return
-      }
-      const { messageId } = JSON.parse(sendingMessageJob.blaze_message)
-      const message = messageDao.getSendingMessage(messageId)
-      if (!message) {
-        jobDao.delete([sendingMessageJob])
-        return
-      }
+    const sendingMessageJob = jobDao.findSendingJob()
+    if (!sendingMessageJob) {
+      return
+    }
+    const { messageId } = JSON.parse(sendingMessageJob.blaze_message)
+    const message = messageDao.getSendingMessage(messageId)
+    if (!message) {
+      jobDao.delete([sendingMessageJob])
+      return
+    }
 
-      let recipientId = ''
-      let mentions
-      if (messageType(message.category) === 'text') {
-        const botNumber = contentUtil.getBotNumber(message.content)
-        if (botNumber) {
-          const recipient = userDao.findUserIdByAppNumber(message.conversation_id, botNumber)
-          if (recipient && recipient.user_id) {
-            recipientId = recipient.user_id
-            message.category = 'PLAIN_TEXT'
-          }
-        } else {
-          mentions = this.getMentionParam(message.content)
+    let recipientId = ''
+    let mentions
+    if (messageType(message.category) === 'text') {
+      const botNumber = contentUtil.getBotNumber(message.content)
+      if (botNumber) {
+        const recipient = userDao.findUserIdByAppNumber(message.conversation_id, botNumber)
+        if (recipient && recipient.user_id) {
+          recipientId = recipient.user_id
+          message.category = 'PLAIN_TEXT'
         }
-      }
-      let result = false
-      if (message.category === 'APP_CARD' || message.category.startsWith('PLAIN_')) {
-        result = await this.sendPlainMessage(message, recipientId, mentions)
       } else {
-        result = await this.sendSignalMessage(message, mentions)
+        mentions = this.getMentionParam(message.content)
       }
-      if (result) {
-        jobDao.delete([sendingMessageJob])
-      }
-    } catch (error) {
-      throw error
+    }
+    let result = false
+    if (message.category === 'APP_CARD' || message.category.startsWith('PLAIN_')) {
+      result = await this.sendPlainMessage(message, recipientId, mentions)
+    } else {
+      result = await this.sendSignalMessage(message, mentions)
+    }
+    if (result) {
+      jobDao.delete([sendingMessageJob])
     }
   }
 
@@ -84,43 +80,39 @@ class SendWorker extends BaseWorker {
   }
 
   async sendSignalMessage(message, mentions) {
-    try {
-      // eslint-disable-next-line no-undef
-      await wasmObject.then(result => {})
+    // eslint-disable-next-line no-undef
+    await wasmObject.then(result => {})
 
-      if (message.resend_status) {
-        if (message.resend_status === 1) {
-          if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
-            const bm = this.encryptNormalMessage(message, mentions)
-            if (bm) {
-              const result = await this.deliver(message, bm)
-              if (result) {
-                resendMessageDao.deleteResendMessageByMessageId(message.message_id)
-              }
-            } else {
-              console.log('-- encryptNormalMessage empty', message)
+    if (message.resend_status) {
+      if (message.resend_status === 1) {
+        if (await this.checkSignalSession(message.resend_user_id, message.resend_session_id)) {
+          const bm = this.encryptNormalMessage(message, mentions)
+          if (bm) {
+            const result = await this.deliver(message, bm)
+            if (result) {
+              resendMessageDao.deleteResendMessageByMessageId(message.message_id)
             }
+          } else {
+            console.log('-- encryptNormalMessage empty resend_status', message)
           }
         }
-        return
       }
-
-      if (!signalProtocol.isExistSenderKey(message.conversation_id, this.getAccountId(), this.getDeviceId())) {
-        await this.checkConversation(message.conversation_id)
-      }
-
-      await this.checkSessionSenderKey(message.conversation_id)
-      const bm = this.encryptNormalMessage(message, mentions)
-      if (bm) {
-        const result = await this.deliver(message, bm)
-        return result
-      } else {
-        console.log('-- encryptNormalMessage empty', message)
-      }
-      return true
-    } catch (error) {
-      throw error
+      return
     }
+
+    if (!signalProtocol.isExistSenderKey(message.conversation_id, this.getAccountId(), this.getDeviceId())) {
+      await this.checkConversation(message.conversation_id)
+    }
+
+    await this.checkSessionSenderKey(message.conversation_id)
+    const bm = this.encryptNormalMessage(message, mentions)
+    if (bm) {
+      const result = await this.deliver(message, bm)
+      return result
+    } else {
+      console.log('-- encryptNormalMessage empty', message)
+    }
+    return true
   }
 
   encryptNormalMessage(message, mentions) {

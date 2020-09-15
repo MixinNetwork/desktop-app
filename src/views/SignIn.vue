@@ -47,6 +47,7 @@ import participantSessionDao from '@/dao/participant_session_dao'
 
 import { Vue, Component } from 'vue-property-decorator'
 import { generateKeys } from '@/utils/signal_key_util'
+import { clearDb } from '@/persistence/db_util'
 
 @Component({
   components: {
@@ -167,8 +168,8 @@ export default class SignIn extends Vue {
         session_secret: sessionKeyPair.public
       })
       .then((resp: any) => {
+        clearDb()
         const account = resp.data.data
-        localStorage.account = JSON.stringify(account)
         sessionStorage.signinData = JSON.stringify({
           sessionKeyPair,
           message,
@@ -191,6 +192,7 @@ export default class SignIn extends Vue {
     const { sessionKeyPair, message, registrationId, primarySessionId, keyPair, account } = payload
     localStorage.sessionToken = sessionKeyPair.private
     localStorage.primaryPlatform = message.platform
+    localStorage.account = JSON.stringify(account)
     signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
     this.pushSignalKeys().then((resp: any) => {
       const deviceId = signalProtocol.convertToDeviceId(account.session_id)
@@ -200,7 +202,7 @@ export default class SignIn extends Vue {
       localStorage.newVersion = true
       this.$store.dispatch('saveAccount', account)
       this.updateParticipantSession(account.user_id, account.session_id)
-      console.log('------signin')
+      console.log('------signin deviceId', deviceId)
       this.$router.push('/')
     })
   }

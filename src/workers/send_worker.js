@@ -10,6 +10,7 @@ import Vue from 'vue'
 import BaseWorker from './base_worker'
 import { MessageStatus, MessageCategories, messageType } from '@/utils/constants'
 import contentUtil from '@/utils/content_util'
+import { checkSignalKey } from '@/utils/signal_key_util'
 
 let workerStopTimer = null
 let workerStopFlag = false
@@ -96,6 +97,8 @@ class SendWorker extends BaseWorker {
             console.log('-- encryptNormalMessage empty resend_status', message)
             participantSessionDao.deleteByConversationId(message.conversation_id)
             await this.refreshConversation(message.conversation_id)
+            await wasmObject.then(() => {})
+            await checkSignalKey()
           }
         }
       }
@@ -115,6 +118,8 @@ class SendWorker extends BaseWorker {
       console.log('-- encryptNormalMessage empty', message)
       participantSessionDao.deleteByConversationId(message.conversation_id)
       await this.refreshConversation(message.conversation_id)
+      await wasmObject.then(() => {})
+      await checkSignalKey()
       return false
     }
   }

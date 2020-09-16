@@ -211,6 +211,8 @@ class ReceiveWorker extends BaseWorker {
     } else {
       console.log('decrypt failed: ' + data.category)
       console.log(JSON.stringify(data))
+      participantSessionDao.deleteByConversationId(data.conversation_id)
+      await this.refreshConversation(data.conversation_id)
 
       const nowTime = new Date().getTime()
       if (nowTime - lastCheckSignalTime > 3600000) {

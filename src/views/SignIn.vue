@@ -39,7 +39,7 @@ import spinner from '@/components/Spinner.vue'
 import Bot from 'bot-api-js-client'
 import signalDao from '@/crypto/signal_dao'
 import { base64ToUint8Array } from '@/utils/util'
-import { clearAllTables as clearMixin } from '@/persistence/db'
+import { clearAllTables as clearMixin, clearKeyTable } from '@/persistence/db'
 import { clearAllTables as clearSignal } from '@/persistence/signal_db'
 import userDao from '@/dao/user_dao'
 import conversationDao from '@/dao/conversation_dao'
@@ -155,6 +155,7 @@ export default class SignIn extends Vue {
     const registrationId = signalProtocol.generateRegId()
     const sessionKeyPair = new Bot().generateSessionKeypair()
     clearSignal()
+    clearKeyTable(localStorage.sessionId)
     accountAPI
       .verifyProvisioning({
         code: code,
@@ -168,8 +169,8 @@ export default class SignIn extends Vue {
         session_secret: sessionKeyPair.public
       })
       .then((resp: any) => {
-        clearDb()
         const account = resp.data.data
+        localStorage.account = JSON.stringify(account)
         sessionStorage.signinData = JSON.stringify({
           sessionKeyPair,
           message,
@@ -180,9 +181,6 @@ export default class SignIn extends Vue {
         })
         sessionStorage.readyToSignin = true
         return location.reload()
-        // if (!userDao.isMe(account.user_id)) {
-        //   clearMixin()
-        // }
       })
   }
   signinAction() {
@@ -192,7 +190,6 @@ export default class SignIn extends Vue {
     const { sessionKeyPair, message, registrationId, primarySessionId, keyPair, account } = payload
     localStorage.sessionToken = sessionKeyPair.private
     localStorage.primaryPlatform = message.platform
-    localStorage.account = JSON.stringify(account)
     signalProtocol.storeIdentityKeyPair(registrationId, keyPair.pub, keyPair.priv)
     this.pushSignalKeys().then((resp: any) => {
       const deviceId = signalProtocol.convertToDeviceId(account.session_id)

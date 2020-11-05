@@ -568,6 +568,19 @@ export default class ChatContainer extends Vue {
       }
       if (video) {
         const { duration, height, width, thumbImage } = ret
+        if (
+          duration === null ||
+          height === null ||
+          width === null ||
+          duration === 0 ||
+          height === 0 ||
+          width === 0 ||
+          duration.isNaN() ||
+          height.isNaN() ||
+          width.isNaN()
+        ) {
+          payload.category = this.user.app_id ? MessageCategories.PLAIN_DATA : MessageCategories.SIGNAL_DATA
+        }
         payload.mediaDuration = duration
         payload.mediaWidth = width
         payload.mediaHeight = height

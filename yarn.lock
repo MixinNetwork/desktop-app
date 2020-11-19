@@ -1977,12 +1977,12 @@
     thread-loader "^2.1.3"
     webpack "^4.0.0"
 
-"@vue/cli-plugin-eslint@^4.5.6":
-  version "4.5.6"
-  resolved "https://registry.yarnpkg.com/@vue/cli-plugin-eslint/-/cli-plugin-eslint-4.5.6.tgz#d6721bc96f797b9d978e13bd0afd39999f92caf1"
-  integrity sha512-maG3dy64pGVT9mMQq7KvP6kbBK6TeVgcj1aa1QwzT5yrw65E2So8bKMrEMEjy53b88bgR9jZ7gshOks00jrYsg==
+"@vue/cli-plugin-eslint@^4.5.9":
+  version "4.5.9"
+  resolved "https://registry.yarnpkg.com/@vue/cli-plugin-eslint/-/cli-plugin-eslint-4.5.9.tgz#7d7f8a48b8e73e6b19fe2f54b39c78850a9ab33d"
+  integrity sha512-wTsWRiRWPW5ik4bgtlh4P4h63Zgjsyvqx2FY0kcj+bSAnQGPJ3bKUOMU9KQP5EyNH6pAXMVGh2LEXK9WwJMf1w==
   dependencies:
-    "@vue/cli-shared-utils" "^4.5.6"
+    "@vue/cli-shared-utils" "^4.5.9"
     eslint-loader "^2.2.1"
     globby "^9.2.0"
     inquirer "^7.1.0"

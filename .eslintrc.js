@@ -14,7 +14,10 @@ module.exports = {
     'space-before-function-paren': ['error', 'never'],
     'brace-style': ['error', '1tbs', { allowSingleLine: true }],
     'eol-last': 'off',
-    'object-curly-newline': ['error', { ExportDeclaration: { multiline: true, minProperties: 3 } }]
+    'object-curly-newline': ['error', { ExportDeclaration: { multiline: true, minProperties: 3 } }],
+    'vue/custom-event-name-casing': ['error', {
+      'ignores': []
+    }]
   },
 
   parserOptions: {

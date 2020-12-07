@@ -83,7 +83,7 @@
     "node-loader": "^0.6.0",
     "node-sass": "^4.14.1",
     "sass-loader": "^8.0.2",
-    "svg-sprite-loader": "^5.0.0",
+    "svg-sprite-loader": "^5.1.1",
     "typescript": "~3.7.5",
     "vue-cli-plugin-electron-builder": "^2.0.0-rc.5",
     "vue-template-compiler": "^2.6.12"

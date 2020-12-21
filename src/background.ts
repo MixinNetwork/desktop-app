@@ -49,10 +49,19 @@ let _interval: any = null
 let quitting = false
 let appReady = false
 
+function registerLocalVideoProtocol () {
+  protocol.registerFileProtocol('file', (request, callback) => {
+    const pathname = decodeURI(request.url.replace('file:///', ''));
+    const parts = pathname.split('?')
+    callback(parts[0]);
+  });
+}
+
 // Standard scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { standard: true, supportFetchAPI: true, secure: true } }
 ])
+
 function createWindow() {
   powerMonitor.on('suspend', () => {
     win.webContents.send('system-sleep')
@@ -86,7 +95,8 @@ function createWindow() {
     titleBarStyle: 'hiddenInset',
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false
+      webSecurity: false,
+      enableRemoteModule: true
     },
     frame: process.platform === 'linux'
   })
@@ -252,6 +262,7 @@ if (!isDevelopment) {
     app.on('ready', async() => {
       appReady = true
       createWindow()
+      registerLocalVideoProtocol()
     })
   }
 } else {
@@ -263,12 +274,17 @@ if (!isDevelopment) {
     if (isDevelopment && !process.env.IS_TEST) {
       // Install Vue Devtools
       try {
-        await installExtension(VUEJS_DEVTOOLS)
+        installExtension({
+          id: 'ljjemllljcmogpfapbkkighbhhppjdbg',
+          electron: '>=1.2.1'
+        })
+        //await installExtension(VUEJS_DEVTOOLS)
       } catch (e) {
         console.error('Vue Devtools failed to install:', e.toString())
       }
     }
     createWindow()
+    registerLocalVideoProtocol()
   })
 }
 

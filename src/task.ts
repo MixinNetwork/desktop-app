@@ -7,8 +7,7 @@ function createTaskWindow() {
     frame: false,
     webPreferences: {
       enableRemoteModule: true,
-      nodeIntegration: true,
-      allowRendererProcessReuse: false
+      nodeIntegration: true
     },
     show: false
   })

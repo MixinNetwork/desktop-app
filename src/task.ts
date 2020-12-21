@@ -6,7 +6,9 @@ function createTaskWindow() {
   let sWindow = new BrowserWindow({
     frame: false,
     webPreferences: {
-      nodeIntegration: true
+      enableRemoteModule: true,
+      nodeIntegration: true,
+      allowRendererProcessReuse: false
     },
     show: false
   })

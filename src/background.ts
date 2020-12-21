@@ -96,7 +96,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
-      enableRemoteModule: true
+      enableRemoteModule: true,
+      allowRendererProcessReuse: false
     },
     frame: process.platform === 'linux'
   })

@@ -425,8 +425,8 @@ export async function putAttachment(
   if (messageType(category) === 'image') {
     // @ts-ignore
     const dimensions = sizeOf(localPath)
-    mediaWidth = dimensions.width
-    mediaHeight = dimensions.height
+    mediaWidth = dimensions.width || 0
+    mediaHeight = dimensions.height || 0
     thumbImage = base64Thumbnail(localPath, mediaWidth, mediaHeight)
   }
   let buffer = fs.readFileSync(localPath)

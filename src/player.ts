@@ -28,6 +28,7 @@ function createPlayerWindow(w: any, h: any) {
     frame: false,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
       webSecurity: false
     },
     show: false

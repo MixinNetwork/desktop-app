@@ -11689,10 +11689,10 @@ vm-browserify@^1.0.1:
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-vue-axios@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/vue-axios/-/vue-axios-3.2.1.tgz#83f3d5a4d9ccbc14b88b2fb51175dc66a6a0aa6f"
-  integrity sha512-XI3hlQ6BZWo06cbdKiu6lYLYQh+700d1/8AMstKKjAI9qKZvML0EQ5d6lvevbN1/5+Vqc4oFBnkHMvw3+6aJxw==
+vue-axios@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/vue-axios/-/vue-axios-3.2.2.tgz#c945694a4b7f4f741a07afbaec9e76b4877b618f"
+  integrity sha512-kRhbZOOp9p+iEB46mtC7tfwYlvmycLUsdNUjC+24So6PkhK9VathdEP0d5OcR2QDb/Z+JNTs4i8DzJEGbx9zOg==
 
 vue-class-component@^7.1.0:
   version "7.2.6"

@@ -108,7 +108,7 @@ export default class MessageForward extends Vue {
       }
       if (curMessageType === 'sticker') {
         const { stickerId } = message
-        const category = appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+        const category =  this.conversation.category === ConversationCategory.CONTACT && appId ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
         const msg = {
           conversationId,
           stickerId,
@@ -118,7 +118,7 @@ export default class MessageForward extends Vue {
         this.actionSendStickerMessage(msg)
       } else if (curMessageType === 'contact') {
         const { content, sharedUserId } = message
-        const category = appId ? 'PLAIN_CONTACT' : 'SIGNAL_CONTACT'
+        const category = this.conversation.category === ConversationCategory.CONTACT && appId ? 'PLAIN_CONTACT' : 'SIGNAL_CONTACT'
         const msg = {
           msg: {
             conversationId,
@@ -130,7 +130,7 @@ export default class MessageForward extends Vue {
         }
         this.actionSendMessage(msg)
       } else if (curMessageType === 'live') {
-        const category = appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
+        const category = this.conversation.category === ConversationCategory.CONTACT && appId ? 'PLAIN_LIVE' : 'SIGNAL_LIVE'
         let { mediaUrl, mediaMimeType, mediaSize, mediaWidth, mediaHeight, thumbUrl, name, mediaName } = message
         const msg = {
           conversationId,
@@ -165,7 +165,7 @@ export default class MessageForward extends Vue {
         }
 
         const typeEnds = message.type.split('_')[1]
-        const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
+        const category = (this.conversation.category === ConversationCategory.CONTACT && appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
         const payload: AttachmentMessagePayload = {
           mediaUrl,
           mediaName: mediaName || name,
@@ -196,7 +196,7 @@ export default class MessageForward extends Vue {
         this.actionSendMessage(msg)
       } else if (['post', 'text', 'location'].indexOf(curMessageType) > -1) {
         const typeEnds = message.type.split('_')[1]
-        const category = (appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
+        const category = (this.conversation.category === ConversationCategory.CONTACT && appId ? 'PLAIN_' : 'SIGNAL_') + typeEnds
 
         const msg = {
           msg: {

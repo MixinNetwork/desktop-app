@@ -305,7 +305,10 @@ export default class ChatItem extends Vue {
     this.hideChoosePanel()
     conversationDao.updateConversationDraftById(this.conversation.conversationId, '')
     $target.innerText = ''
-    const category = this.user.app_id ? 'PLAIN_TEXT' : 'SIGNAL_TEXT'
+    var category = 'SIGNAL_TEXT'
+    if (this.conversation.category === ConversationCategory.CONTACT && this.user.app_id) {
+      category = 'PLAIN_TEXT'
+    }
     const status = MessageStatus.SENDING
     const message = {
       conversationId: this.conversation.conversationId,
@@ -340,7 +343,10 @@ export default class ChatItem extends Vue {
   }
   sendSticker(stickerId: string) {
     const { conversationId } = this.conversation
-    const category = this.user.app_id ? 'PLAIN_STICKER' : 'SIGNAL_STICKER'
+    var category = 'SIGNAL_STICKER'
+    if (this.conversation.category === ConversationCategory.CONTACT && this.user.app_id) {
+      category = 'PLAIN_STICKER'
+    }
     const status = MessageStatus.SENDING
     const msg = {
       conversationId,

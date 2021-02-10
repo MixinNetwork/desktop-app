@@ -86,7 +86,7 @@
     "sass-loader": "^8.0.2",
     "svg-sprite-loader": "^5.2.1",
     "typescript": "~3.7.5",
-    "vue-cli-plugin-electron-builder": "^2.0.0-rc.5",
+    "vue-cli-plugin-electron-builder": "^2.0.0-rc.6",
     "vue-template-compiler": "^2.6.12"
   },
   "resolutions": {

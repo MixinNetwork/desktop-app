@@ -3,7 +3,6 @@
 import { app, protocol, ipcMain, shell, BrowserWindow, globalShortcut, Tray, Menu, powerMonitor } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { setFocusWindow, setSilentUpdate, checkForUpdatesOrign } from './updater'
 import { initTask } from './task'
 import { initPlayer } from './player'
@@ -271,18 +270,6 @@ if (!isDevelopment) {
   // Some APIs can only be used after this event occurs.
   app.on('ready', async() => {
     appReady = true
-    if (isDevelopment && !process.env.IS_TEST) {
-      // Install Vue Devtools
-      try {
-        installExtension({
-          id: 'ljjemllljcmogpfapbkkighbhhppjdbg',
-          electron: '>=1.2.1'
-        })
-        //await installExtension(VUEJS_DEVTOOLS)
-      } catch (e) {
-        console.error('Vue Devtools failed to install:', e.toString())
-      }
-    }
     createWindow()
     registerLocalVideoProtocol()
   })

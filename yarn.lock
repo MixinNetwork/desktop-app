@@ -2726,13 +2726,14 @@ boolean@^3.0.1:
 
 "bot-api-js-client@https://github.com/MixinNetwork/bot-api-js-client.git#master":
   version "1.0.4"
-  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#d32796b5414b93e018e7455e5db54411d18d2c8a"
+  uid "0b55d85fefbe1d1124a0439ae11d3a72394c005a"
+  resolved "https://github.com/MixinNetwork/bot-api-js-client.git#0b55d85fefbe1d1124a0439ae11d3a72394c005a"
   dependencies:
     crypto "^1.0.1"
     int64-buffer "^0.99.1007"
     jsonwebtoken "^8.5.0"
     moment "^2.24.0"
-    node-forge "^0.9.0"
+    node-forge "^0.10.0"
     uuid "^7.0.3"
 
 boxen@^4.2.0:
@@ -8016,11 +8017,6 @@ node-forge@^0.10.0:
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.10.0.tgz#32dea2afb3e9926f02ee5ce8794902691a676bf3"
   integrity sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==
-
-node-forge@^0.9.0:
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-0.9.2.tgz#b35a44c28889b2ea55cabf8c79e3563f9676190a"
-  integrity sha512-naKSScof4Wn+aoHU6HBsifh92Zeicm1GDQKd1vp3Y/kOi8ub0DozCa9KpvYNCXslFHYRmLNiqRopGdTGwNLpNw==
 
 node-gyp@^3.8.0:
   version "3.8.0"

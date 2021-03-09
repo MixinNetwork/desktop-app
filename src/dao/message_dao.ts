@@ -180,9 +180,7 @@ class MessageDao {
             INNER JOIN messages m ON m.message_id = m_fts.message_id
             LEFT JOIN users u ON m.user_id = u.user_id
             WHERE m.conversation_id = ?
-            AND m.category IN ('SIGNAL_TEXT', 'PLAIN_TEXT', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_POST', 'PLAIN_POST')
-            AND m_fts.content MATCH ?
-            AND m.status != 'FAILED'`
+            AND m_fts.content MATCH ?`
         )
         .all(conversationId, keywordFinal)
       if (!data) return 0
@@ -229,16 +227,13 @@ class MessageDao {
     return db
       .prepare(
         `SELECT m.message_id,m.conversation_id,m.content,m.category,m.name,m.created_at,u.full_name,m.user_id,u.avatar_url
-        FROM messages_fts m_fts
-        INNER JOIN messages m ON m.message_id = m_fts.message_id
-        LEFT JOIN users u ON m.user_id = u.user_id
-        WHERE m.conversation_id = ?
-        AND m_fts.content MATCH ?
-        AND m.category IN ('SIGNAL_TEXT', 'PLAIN_TEXT', 'SIGNAL_DATA', 'PLAIN_DATA', 'SIGNAL_POST', 'PLAIN_POST')
-        AND m.status != 'FAILED'
+        FROM messages m
+        INNER JOIN users u ON m.user_id = u.user_id
+        WHERE m.message_id in (SELECT message_id FROM messages_fts WHERE messages_fts MATCH ?)
+        AND m.conversation_id = ?
         ORDER BY m.created_at DESC LIMIT ? OFFSET ?`
       )
-      .all(conversationId, keywordFinal, limit, offset)
+      .all(keywordFinal, conversationId, limit, offset)
   }
 
   getMessages(conversationId: any, page = 0, tempCount = 0) {
@@ -246,6 +241,43 @@ class MessageDao {
     const offset = page * perPageCount + tempCount
     const stmt = db.prepare(
       'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
+      'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
+      'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
+      'm.media_key AS mediaKey, m.media_digest AS mediaDigest, m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
+      'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
+      'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
+      's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
+      'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, m.sticker_id AS stickerId, ' +
+      'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
+      'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
+      'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
+      'c.name AS groupName ' +
+      'FROM messages m ' +
+      'LEFT JOIN users u ON m.user_id = u.user_id ' +
+      'LEFT JOIN users u1 ON m.participant_id = u1.user_id ' +
+      'LEFT JOIN snapshots s ON m.snapshot_id = s.snapshot_id ' +
+      'LEFT JOIN assets a ON s.asset_id = a.asset_id ' +
+      'LEFT JOIN stickers st ON st.sticker_id = m.sticker_id ' +
+      'LEFT JOIN hyperlinks h ON m.hyperlink = h.hyperlink ' +
+      'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
+      'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
+      'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id ' +
+      'WHERE m.conversation_id = ? ' +
+      'ORDER BY m.created_at DESC LIMIT ' +
+      perPageCount +
+      ' OFFSET ?) ORDER BY createdAt ASC'
+    )
+    let data = stmt.all(conversationId, offset)
+    data.forEach(function (e: { lt: string; createdAt: any }) {
+      e.lt = moment(e.createdAt).format('HH:mm')
+    })
+    return data
+  }
+
+  getConversationMessageById(cid: string, mid: string) {
+    return db
+      .prepare(
+        'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
         'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
         'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
         'm.media_key AS mediaKey, m.media_digest AS mediaDigest, m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
@@ -267,44 +299,7 @@ class MessageDao {
         'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
         'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
         'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id ' +
-        'WHERE m.conversation_id = ? ' +
-        'ORDER BY m.created_at DESC LIMIT ' +
-        perPageCount +
-        ' OFFSET ?) ORDER BY createdAt ASC'
-    )
-    let data = stmt.all(conversationId, offset)
-    data.forEach(function(e: { lt: string; createdAt: any }) {
-      e.lt = moment(e.createdAt).format('HH:mm')
-    })
-    return data
-  }
-
-  getConversationMessageById(cid: string, mid: string) {
-    return db
-      .prepare(
-        'SELECT * FROM (SELECT m.message_id AS messageId, m.conversation_id AS conversationId, u.user_id AS userId, ' +
-          'u.full_name AS userFullName, u.identity_number AS userIdentityNumber, u.app_id AS appId, m.category AS type, ' +
-          'm.content AS content, m.created_at AS createdAt, m.status AS status, m.media_status AS mediaStatus, m.media_waveform AS mediaWaveform, ' +
-          'm.media_key AS mediaKey, m.media_digest AS mediaDigest, m.name AS mediaName, m.media_mime_type AS mediaMimeType, m.media_size AS mediaSize, m.media_width AS mediaWidth, m.media_height AS mediaHeight, ' +
-          'm.thumb_image AS thumbImage, m.thumb_url AS thumbUrl, m.media_url AS mediaUrl, m.media_duration AS mediaDuration, m.quote_message_id as quoteId, m.quote_content as quoteContent, ' +
-          'u1.full_name AS participantFullName, m.action AS actionName, u1.user_id AS participantUserId, ' +
-          's.snapshot_id AS snapshotId, s.type AS snapshotType, s.amount AS snapshotAmount, a.symbol AS assetSymbol, a.asset_id AS assetId, ' +
-          'a.icon_url AS assetIcon, st.asset_url AS assetUrl, st.asset_width AS assetWidth, st.asset_height AS assetHeight, m.sticker_id AS stickerId, ' +
-          'st.name AS assetName, st.asset_type AS assetType, h.site_name AS siteName, h.site_title AS siteTitle, h.site_description AS siteDescription, ' +
-          'h.site_image AS siteImage, m.shared_user_id AS sharedUserId, su.full_name AS sharedUserFullName, su.identity_number AS sharedUserIdentityNumber, mm.mentions AS mentions, ' +
-          'su.avatar_url AS sharedUserAvatarUrl, su.is_verified AS sharedUserIsVerified, su.app_id AS sharedUserAppId, ' +
-          'c.name AS groupName ' +
-          'FROM messages m ' +
-          'LEFT JOIN users u ON m.user_id = u.user_id ' +
-          'LEFT JOIN users u1 ON m.participant_id = u1.user_id ' +
-          'LEFT JOIN snapshots s ON m.snapshot_id = s.snapshot_id ' +
-          'LEFT JOIN assets a ON s.asset_id = a.asset_id ' +
-          'LEFT JOIN stickers st ON st.sticker_id = m.sticker_id ' +
-          'LEFT JOIN hyperlinks h ON m.hyperlink = h.hyperlink ' +
-          'LEFT JOIN users su ON m.shared_user_id = su.user_id ' +
-          'LEFT JOIN conversations c ON m.conversation_id = c.conversation_id ' +
-          'LEFT JOIN message_mentions mm ON m.message_id = mm.message_id ' +
-          'WHERE m.conversation_id = ? AND m.message_id = ?)'
+        'WHERE m.conversation_id = ? AND m.message_id = ?)'
       )
       .get(cid, mid)
   }

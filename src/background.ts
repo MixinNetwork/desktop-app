@@ -48,12 +48,12 @@ let _interval: any = null
 let quitting = false
 let appReady = false
 
-function registerLocalVideoProtocol () {
+function registerLocalVideoProtocol() {
   protocol.registerFileProtocol('file', (request, callback) => {
-    const pathname = decodeURI(request.url.replace('file:///', ''));
+    const pathname = decodeURI(request.url.replace('file:///', ''))
     const parts = pathname.split('?')
-    callback(parts[0]);
-  });
+    callback(parts[0])
+  })
 }
 
 // Standard scheme must be registered before the app is ready
@@ -123,6 +123,11 @@ function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+
+  win.on('moved', () => {
+    // Saves the current state of the main window
+    mainWindowState.saveState(win)
+  })
 
   win.on('close', async(e: any) => {
     if (win !== null) {

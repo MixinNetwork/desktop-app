@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@types/electron-devtools-installer": "^2.2.0",
-    "@types/node": "^12.12.29",
+    "@types/node": "^15.6.0",
     "@types/url-parse": "^1.4.3",
     "@vue/cli-plugin-babel": "^4.5.12",
     "@vue/cli-plugin-eslint": "^4.5.12",

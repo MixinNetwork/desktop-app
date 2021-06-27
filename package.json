@@ -28,7 +28,7 @@
     "electron-log": "^4.3.2",
     "electron-updater": "^4.3.8",
     "electron-window-state": "^5.0.3",
-    "highlight.js": "^10.6.0",
+    "highlight.js": "^11.0.1",
     "image-size": "^0.9.7",
     "interval-promise": "^1.4.0",
     "jpeg-autorotate": "^7.1.1",

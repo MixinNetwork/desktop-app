@@ -1,3 +1,5 @@
+**DEPRECATED**: New Flutter Mixin Messenger coming soon.
+
 # Mixin Desktop app
 
 [Mixin Messenger](https://mixin.one/messenger) for macOS, Windows and Linux, powered by [Electron](https://electronjs.org/) and [Vue.js](https://vuejs.org/), the Signal Protocol is implemented with WebAssembly.

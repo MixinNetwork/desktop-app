@@ -31,7 +31,7 @@
     "highlight.js": "^10.6.0",
     "image-size": "^0.9.7",
     "interval-promise": "^1.4.0",
-    "jpeg-autorotate": "^7.1.1",
+    "jpeg-autorotate": "^8.0.0",
     "jsonwebtoken": "^8.5.1",
     "lottie-web": "^5.7.8",
     "markdown-it": "^12.0.4",

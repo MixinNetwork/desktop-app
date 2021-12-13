@@ -34,7 +34,7 @@
     "jpeg-autorotate": "^7.1.1",
     "jsonwebtoken": "^8.5.1",
     "lottie-web": "^5.7.8",
-    "markdown-it": "^12.0.4",
+    "markdown-it": "^12.3.0",
     "markdown-it-abbr": "^1.0.4",
     "markdown-it-deflist": "^2.1.0",
     "markdown-it-footnote": "^3.0.2",

@@ -1,4 +1,4 @@
-**DEPRECATED**: New Flutter Mixin Messenger coming soon.
+**DEPRECATED**: New Flutter Mixin Messenger https://github.com/MixinNetwork/flutter-app
 
 # Mixin Desktop app
 

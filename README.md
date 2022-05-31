@@ -6,9 +6,8 @@
 
 # Download
 
-macOS and Windows download from the [Releases](https://github.com/MixinNetwork/desktop-app/releases/latest) page.
+macOS and Windows download from the [Releases](https://mixin.one/mm) page.
 
-Linux install using the command line `sudo snap install mixin-desktop`
 
 # Development
 

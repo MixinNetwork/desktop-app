@@ -875,7 +875,7 @@
     global-agent "^2.0.2"
     global-tunnel-ng "^2.7.1"
 
-"@fortawesome/fontawesome-common-types@^0.2.34", "@fortawesome/fontawesome-common-types@^0.2.35":
+"@fortawesome/fontawesome-common-types@^0.2.35":
   version "0.2.35"
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-common-types/-/fontawesome-common-types-0.2.35.tgz#01dd3d054da07a00b764d78748df20daf2b317e9"
   integrity sha512-IHUfxSEDS9dDGqYwIW7wTN6tn/O8E0n5PcAHz9cAaBoZw6UpG20IG/YM3NNLaGPwPqgjBAFjIURzqoQs3rrtuw==
@@ -1857,7 +1857,7 @@
   optionalDependencies:
     vue-loader-v16 "npm:vue-loader@^16.1.0"
 
-"@vue/cli-shared-utils@^4.5.11", "@vue/cli-shared-utils@^4.5.12", "@vue/cli-shared-utils@^4.5.6":
+"@vue/cli-shared-utils@^4.5.12", "@vue/cli-shared-utils@^4.5.6":
   version "4.5.12"
   resolved "https://registry.yarnpkg.com/@vue/cli-shared-utils/-/cli-shared-utils-4.5.12.tgz#0e0693d488336d284ffa658ff33b1ea22927d065"
   integrity sha512-qnIQPJ4XckMoqYh9fJ0Y91QKMIb4Hiibrm9+k4E15QHpk5RaokuOpf10SsOr2NLPCXSWsHOLo3hduZSwHPGY/Q==
@@ -4504,10 +4504,10 @@ electron-icon-builder@^2.0.1:
     icon-gen "^2.0.0"
     jimp "^0.16.1"
 
-electron-log@^4.3.2:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.3.2.tgz#213334c69f0498fac677a7a73eae4a61fb69949e"
-  integrity sha512-PJPWE8JDzQ137UlxX9K917nI8GTcwgiJpE2PMPXZo+I6C4AaZU+JWQ3lW5NjQ1Lg8Qk8qbze+Ly0yAiqhbmpeA==
+electron-log@^4.3.5:
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.3.5.tgz#2aad5f93842b9b5214a1b4a10e47b5ac5c9ec104"
+  integrity sha512-J5Ew3axdk7W4jzzxKLSAi1sqbcAoo9CzHuBVsG0tT47j256xKulNrWFf3lZmHJ1KDXOQUcuwOngQF0jjmpEdpw==
 
 electron-notarize@^1.0.0:
   version "1.0.0"

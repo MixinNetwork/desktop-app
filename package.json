@@ -55,7 +55,7 @@
     "uuid": "^8.3.2",
     "video.js": "^7.11.8",
     "vue": "^2.6.12",
-    "vue-axios": "^3.2.4",
+    "vue-axios": "^3.4.0",
     "vue-i18n": "^8.22.4",
     "vue-property-decorator": "^8.5.1",
     "vue-router": "^3.5.1",
